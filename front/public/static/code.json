@@ -1,0 +1,172 @@
+[
+  {
+    "id": 1100,
+    "code": "10000",
+    "msg": "成功"
+  },
+  {
+    "id": 1200,
+    "code": "20000",
+    "msg": "服务不可用",
+    "children": [
+      {
+        "id": 1201,
+        "sub_code": "isp.unknown-error",
+        "sub_msg": "服务暂不可用",
+        "solution": "联系平台客服排查日志"
+      },
+      {
+        "id": 1202,
+        "sub_code": "isp.no-service-support",
+        "sub_msg": "业务系统不可用",
+        "solution": "联系接口提供方"
+      },
+      {
+        "id": 1203,
+        "sub_code": "isp.invalid-content-type",
+        "sub_msg": "业务系统返回错误的contentType",
+        "solution": "联系接口提供方，返回的contentType是否是application/json或application/json;charset=UTF-8"
+      },
+      {
+        "id": 1204,
+        "sub_code": "isp.host-connection-refused",
+        "sub_msg": "服务器拒绝访问",
+        "solution": "联系接口提供方，检查配置的服务器域名是否正确"
+      },
+      {
+        "id": 1205,
+        "sub_code": "isp.business-timeout",
+        "sub_msg": "业务处理超时",
+        "solution": "联系接口提供方，业务逻辑处理时间太长"
+      },
+      {
+        "id": 1206,
+        "sub_code": "isp.invalid-result",
+        "sub_msg": "无效的业务返回结果",
+        "solution": "联系接口提供方，检查是否返回了正确的json"
+      },
+      {
+        "id": 1207,
+        "sub_code": "isp.exec-gzip-error",
+        "sub_msg": "处理gzip异常",
+        "solution": "联系客服排查日志"
+      }
+    ]
+  },
+  {
+    "id": 1300,
+    "code": "40001",
+    "msg": "缺少参数",
+    "children": [
+      {
+        "id": 1301,
+        "sub_code": "isv.missing-app-id",
+        "sub_msg": "缺少appId参数",
+        "solution": "检查参数"
+      },
+      {
+        "id": 1302,
+        "sub_code": "isv.missing-method",
+        "sub_msg": "缺少method参数",
+        "solution": "检查参数"
+      },
+      {
+        "id": 1303,
+        "sub_code": "isv.missing-signature",
+        "sub_msg": "缺少签名参数",
+        "solution": "检查参数"
+      },
+      {
+        "id": 1304,
+        "sub_code": "isv.missing-version",
+        "sub_msg": "缺少版本号参数",
+        "solution": "检查参数"
+      },
+      {
+        "id": 1305,
+        "sub_code": "isv.missing-signature-config",
+        "sub_msg": "缺少秘钥配置",
+        "solution": "联系接口提供方，配置秘钥"
+      }
+    ]
+  },
+  {
+    "id": 1400,
+    "code": "40002",
+    "msg": "非法参数",
+    "children": [
+      {
+        "id": 1401,
+        "sub_code": "isv.invalid-app-key",
+        "sub_msg": "无效appId",
+        "solution": "检查appId是否正确"
+      },
+      {
+        "id": 1402,
+        "sub_code": "isv.invalid-method",
+        "sub_msg": "不存在的方法名",
+        "solution": "检查方法名是否正确"
+      },
+      {
+        "id": 1403,
+        "sub_code": "isv.invalid-signature",
+        "sub_msg": "无效签名",
+        "solution": "检查签名算法是否正确"
+      },
+      {
+        "id": 1404,
+        "sub_code": "isv.invalid-timestamp",
+        "sub_msg": "无效的时间戳",
+        "solution": "检查时间戳参数是否正确"
+      },
+      {
+        "id": 1405,
+        "sub_code": "isv.invalid-environment",
+        "sub_msg": "环境不一致",
+        "solution": "检查测试环境正式环境是否混淆"
+      },
+      {
+        "id": 1406,
+        "sub_code": "isv.invalid-file-size",
+        "sub_msg": "文件大小无效",
+        "solution": "检查文件大小是否正确"
+      }
+    ]
+  },
+  {
+    "id": 1500,
+    "code": "40004",
+    "msg": "业务处理失败"
+  },
+  {
+    "id": 1600,
+    "code": "40006",
+    "msg": "业务处理失败",
+    "children": [
+      {
+        "id": 1601,
+        "sub_code": "isv.api-no-permissions",
+        "sub_msg": "没有当前接口权限",
+        "solution": "联系接口提供方，检查是否分配接口权限"
+      },
+      {
+        "id": 1602,
+        "sub_code": "isv.access-forbidden",
+        "sub_msg": "接入方禁止访问",
+        "solution": "联系接口提供方，账号是否被禁用"
+      },
+      {
+        "id": 1603,
+        "sub_code": "isv.ip-forbidden",
+        "sub_msg": "IP禁止访问",
+        "solution": "联系接口提供方，IP加入了黑名单"
+      },
+      {
+        "id": 1604,
+        "sub_code": "isv.invalid-url",
+        "sub_msg": "请求url不合法",
+        "solution": "检查请求url是否正确"
+      }
+    ]
+  }
+]

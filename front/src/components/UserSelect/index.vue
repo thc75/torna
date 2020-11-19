@@ -1,0 +1,116 @@
+<template>
+  <el-form ref="userSelectForm" :model="formData" :rules="rules" size="mini">
+    <el-form-item prop="value">
+      <el-select
+        v-model="formData.value"
+        filterable
+        remote
+        :multiple="multiple"
+        :remote-method="remoteMethod"
+        placeholder="可根据登录账号筛选"
+        style="width: 100%"
+        :loading="loading"
+      >
+        <el-option
+          v-for="item in userOptions"
+          :key="item.id"
+          :label="item.realname"
+          :value="item.id"
+        >
+          {{ item.realname }}({{ item.username }})
+        </el-option>
+      </el-select>
+    </el-form-item>
+  </el-form>
+</template>
+<script>
+export default {
+  name: 'UserSelect',
+  props: {
+    multiple: {
+      type: Boolean,
+      default: false
+    },
+    url: {
+      type: String,
+      default: '/user/search'
+    },
+    loader: {
+      type: Function,
+      default: null
+    },
+    value: {
+      type: Array,
+      default: () => []
+    },
+    rules: {
+      type: Object,
+      default() {
+        return {
+          value: [
+            { required: true, message: '请选择用户', trigger: ['blur', 'change'] }
+          ]
+        }
+      }
+    }
+  },
+  data() {
+    return {
+      loading: false,
+      userOptions: [],
+      formData: {
+        value: ''
+      },
+      searchFormData: {
+        username: '',
+        pageIndex: 1,
+        pageSize: 50
+      }
+    }
+  },
+  watch: {
+    value(newVal) {
+      console.log(newVal)
+      this.formData.value = newVal
+    }
+  },
+  mounted() {
+    this.formData.value = this.value
+    this.loadUser()
+  },
+  methods: {
+    remoteMethod(val) {
+      this.searchFormData.username = val
+      this.loadUser()
+    },
+    loadUser() {
+      const that = this
+      if (this.loader) {
+        const promise = this.loader(this.searchFormData)
+        promise.then((data) => {
+          that.userOptions = data
+        })
+      } else {
+        this.get('/user/search', this.searchFormData, resp => {
+          this.loading = false
+          this.userOptions = resp.data.rows
+        }, () => {
+          this.loading = false
+        })
+      }
+    },
+    getValue() {
+      return this.formData.value
+    },
+    resetForm() {
+      this.$refs.userSelectForm.resetFields()
+    },
+    setValue(value) {
+      this.formData.value = value
+    },
+    validate() {
+      return this.$refs.userSelectForm.validate()
+    }
+  }
+}
+</script>

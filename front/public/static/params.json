@@ -1,0 +1,20 @@
+{
+  "commonParams": [
+    { "name": "app_id", "type": "string", "must": 1, "description": "接入方appId", "example": "20200317689494536224768000" },
+    { "name": "method", "type": "string", "must": 1, "description": "接口名", "example": "user.userinfo.get" },
+    { "name": "version", "type": "string", "must": 1, "description": "版本号", "example": "1.0" },
+    { "name": "charset", "type": "string", "must": 1, "description": "字符编码", "example": "UTF-8" },
+    { "name": "timestamp", "type": "string", "must": 1,
+      "description": "时间戳，格式为yyyy-MM-dd HH:mm:ss，时区为GMT+8。服务端允许客户端请求最大时间误差为10分钟",
+      "example": "2020-11-01 13:44:11" },
+    { "name": "app_auth_token", "type": "string", "must": 0, "description": "token", "example": "01c9a4191bfd4609d26" },
+    { "name": "sign", "type": "string", "must": 1, "description": "请求参数的签名串", "example": "xxxx" }
+  ],
+  "commonResult": [
+    { "name": "request_id", "type": "string", "must": 1, "description": "每次请求唯一id", "example": "4e770f101c9a4191bfd4609d26c6e0bd" },
+    { "name": "code", "type": "string", "must": 1, "description": "返回码", "example": "40002" },
+    { "name": "msg", "type": "string", "must": 1, "description": "返回信息", "example": "非法的参数" },
+    { "name": "sub_code", "type": "string", "must": 1, "description": "请求失败返回的子错误码", "example": "isv.invalid-app-key" },
+    { "name": "sub_msg", "type": "string", "must": 1, "description": "请求失败返回的子错误信息", "example": "无效的app_id参数" }
+  ]
+}

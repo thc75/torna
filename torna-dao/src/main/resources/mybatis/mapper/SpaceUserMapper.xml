@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="torna.dao.mapper.SpaceUserMapper">
+
+    <insert id="insertBatch">
+        INSERT INTO `space_user`
+        (
+            `user_id`
+            , `space_id`
+            , `is_leader`
+        )
+        VALUES
+        <foreach collection="items" item="data" separator="," >
+            (
+                #{data.userId}
+                ,#{data.spaceId}
+                ,#{data.isLeader}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        is_deleted = 0
+    </insert>
+
+</mapper>

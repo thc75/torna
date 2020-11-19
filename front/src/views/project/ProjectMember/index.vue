@@ -1,0 +1,231 @@
+<template>
+  <div>
+    <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
+      <el-form-item label="登录邮箱">
+        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录邮箱" style="width: 250px;" />
+      </el-form-item>
+      <el-form-item label="角色">
+        <el-select v-model="searchFormData.roleCode" clearable>
+          <el-option v-for="item in roleCodeConfig" :key="item.code" :value="item.code" :label="item.label">
+            {{ item.label }}
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" @click="loadTable">查询</el-button>
+      </el-form-item>
+    </el-form>
+    <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onMemberAdd">添加成员</el-button>
+    <el-table
+      :data="pageInfo.rows"
+      border
+      highlight-current-row
+    >
+      <el-table-column
+        prop="username"
+        label="成员"
+        width="400"
+      >
+        <template slot-scope="scope">
+          {{ `${scope.row.realname}(${scope.row.username})` }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="roleCode"
+        label="角色"
+        width="250"
+      >
+        <template slot-scope="scope">
+          <el-select v-model="scope.row.roleCode" size="mini" @change="onRoleChange(scope.row)">
+            <el-option v-for="item in roleCodeConfig" :key="item.code" :value="item.code" :label="item.label">
+              {{ item.label }}
+            </el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="gmtCreate"
+        label="加入时间"
+        width="200"
+      />
+      <el-table-column
+        label="操作"
+        width="150"
+      >
+        <template slot-scope="scope">
+          <el-popconfirm
+            :title="`确定要移除 ${scope.row.realname}(${scope.row.username}) 吗？`"
+            @onConfirm="onMemberRemove(scope.row)"
+          >
+            <el-button slot="reference" type="text" size="mini">移除</el-button>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      background
+      style="margin-top: 5px"
+      :current-page="searchFormData.pageIndex"
+      :page-size="searchFormData.pageSize"
+      :page-sizes="[5, 10, 20, 40]"
+      :total="pageInfo.total"
+      layout="total, sizes, prev, pager, next"
+      @size-change="onSizeChange"
+      @current-change="onPageIndexChange"
+    />
+<!--    -->
+    <el-dialog
+      title="添加用户"
+      :close-on-click-modal="false"
+      :visible.sync="memberAddDlgShow"
+      @close="onHide"
+    >
+      <el-form
+        ref="memberAddForm"
+        :model="memberAddFormData"
+        :rules="memberAddRules"
+        size="mini"
+        style="width: 600px;"
+        label-width="150px"
+      >
+        <el-form-item label="用户" required>
+          <user-select ref="userSelect" :loader="loadSpaceMember" multiple />
+        </el-form-item>
+        <el-form-item label="角色" prop="roleCode">
+          <el-select v-model="memberAddFormData.roleCode">
+            <el-option v-for="item in roleCodeConfig" :key="item.code" :value="item.code" :label="item.label">
+              {{ item.label }}
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="memberAddDlgShow = false">取 消</el-button>
+        <el-button type="primary" @click="onMemberAddSave">保 存</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import UserSelect from '@/components/UserSelect'
+export default {
+  name: 'ProjectMember',
+  components: {
+    UserSelect
+  },
+  props: {
+    projectId: {
+      type: Number,
+      default: 0
+    }
+  },
+  data() {
+    return {
+      searchFormData: {
+        username: '',
+        roleCode: '',
+        projectId: 0,
+        pageIndex: 1,
+        pageSize: 20
+      },
+      pageInfo: {
+        rows: [],
+        total: 0
+      },
+      // visitor：访客，dev：开发者，leader：项目组长
+      roleCodeConfig: [
+        { label: '访客', code: 'visitor', className: 'el-icon-view' },
+        { label: '开发者', code: 'dev', className: 'el-icon-s-platform' },
+        { label: '组长', code: 'leader', className: 'el-icon-s-custom' }
+      ],
+      memberAddDlgShow: false,
+      memberAddFormData: {
+        roleCode: ''
+      },
+      memberAddRules: {
+        roleCode: [
+          { required: true, message: '请选择', trigger: ['blur', 'change'] }
+        ]
+      }
+    }
+  },
+  watch: {
+    projectId(projectId) {
+      if (projectId) {
+        this.searchFormData.projectId = projectId
+        this.loadTable()
+      }
+    }
+  },
+  methods: {
+    loadTable() {
+      this.get('/project/member/page', this.searchFormData, resp => {
+        this.pageInfo = resp.data
+      })
+    },
+    loadSpaceMember(searchData) {
+      searchData.spaceId = this.getSpaceId()
+      return new Promise(resolve => {
+        this.get('/space/member/page', searchData, resp => {
+          resolve(resp.data.rows)
+        })
+      })
+    },
+    onRoleChange(row) {
+      const data = {
+        projectId: this.projectId,
+        userId: row.userId,
+        roleCode: row.roleCode
+      }
+      this.post('/project/member/update', data, () => {
+        this.tipSuccess('修改成功')
+      })
+    },
+    onMemberRemove(row) {
+      const data = {
+        projectId: this.projectId,
+        userId: row.userId
+      }
+      this.post('/project/member/remove', data, resp => {
+        this.tipSuccess('移除成功')
+        this.loadTable()
+      })
+    },
+    onMemberAdd() {
+      this.memberAddDlgShow = true
+    },
+    onMemberAddSave() {
+      const promise = this.$refs.userSelect.validate()
+      const promiseMain = this.$refs.memberAddForm.validate()
+      // memberAddFormData
+      Promise.all([promise, promiseMain]).then(validArr => {
+        // 到这里来表示全部内容校验通过
+        const userIds = this.$refs.userSelect.getValue()
+        Object.assign(this.memberAddFormData, {
+          projectId: this.projectId,
+          userIds: userIds
+        })
+        this.post('/project/member/add', this.memberAddFormData, resp => {
+          this.tipSuccess('添加成功')
+          this.memberAddDlgShow = false
+          this.loadTable()
+        })
+      }).catch((e) => {
+      }) // 加上这个控制台不会报Uncaught (in promise)
+    },
+    onSizeChange: function(size) {
+      this.searchFormData.pageSize = size
+      this.loadTable()
+    },
+    onPageIndexChange: function(pageIndex) {
+      this.searchFormData.pageIndex = pageIndex
+      this.loadTable()
+    },
+    onHide() {
+      this.resetForm('memberAddForm')
+      this.$refs.userSelect.resetForm()
+    }
+  }
+}
+</script>
+

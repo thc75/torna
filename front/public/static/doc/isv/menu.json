@@ -1,0 +1,16 @@
+[
+  {
+    "title" : "签名专区",
+    "icon": "el-icon-edit-outline",
+    "children": [
+      {
+        "title": "签名算法",
+        "path": "static/doc/common/sign.md"
+      },
+      {
+        "title": "公私钥介绍",
+        "path": "static/doc/common/keys.md"
+      }
+    ]
+  }
+]
