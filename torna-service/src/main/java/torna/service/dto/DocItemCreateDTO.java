@@ -25,7 +25,6 @@ public class DocItemCreateDTO {
     /** 父节点, 数据库字段：parent_id */
     private Long parentId;
 
-    /** 项目id，project.id, 数据库字段：project_id */
-    private Long projectId;
+    private Long moduleId;
 
 }

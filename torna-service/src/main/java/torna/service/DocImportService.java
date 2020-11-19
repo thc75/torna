@@ -3,21 +3,6 @@ package torna.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import torna.common.bean.HttpTool;
-import torna.common.bean.User;
-import torna.common.context.UserContext;
-import torna.common.enums.ParamStyleEnum;
-import torna.common.exception.BizException;
-import torna.dao.entity.DocInfo;
-import torna.dao.entity.DocParam;
-import torna.manager.doc.DocBean;
-import torna.manager.doc.DocItem;
-import torna.manager.doc.DocModule;
-import torna.manager.doc.DocParameter;
-import torna.manager.doc.DocParser;
-import torna.service.dto.DocFolderCreateDTO;
-import torna.service.dto.DocItemCreateDTO;
-import torna.service.dto.ImportSwaggerDTO;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.apache.commons.lang.BooleanUtils;
@@ -28,6 +13,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import torna.common.bean.HttpTool;
+import torna.common.bean.User;
+import torna.common.context.UserContext;
+import torna.common.enums.ParamStyleEnum;
+import torna.common.exception.BizException;
+import torna.dao.entity.DocInfo;
+import torna.dao.entity.DocParam;
+import torna.dao.entity.Module;
+import torna.manager.doc.DocBean;
+import torna.manager.doc.DocItem;
+import torna.manager.doc.DocModule;
+import torna.manager.doc.DocParameter;
+import torna.manager.doc.DocParser;
+import torna.service.dto.DocItemCreateDTO;
+import torna.service.dto.ImportSwaggerDTO;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -54,6 +54,9 @@ public class DocImportService {
 
     @Autowired
     private DocParamService docParamService;
+
+    @Autowired
+    private ModuleService moduleService;
 
     /**
      * 导入swagger文档
@@ -90,18 +93,13 @@ public class DocImportService {
      */
     private void saveDocToDb(DocBean docBean, ImportSwaggerDTO importSwaggerDTO) {
         String title = docBean.getTitle();
-        Long projectId = importSwaggerDTO.getProjectId();
-        long parentId = 0;
-        DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO(
-                projectId, title, parentId
-        );
-        // 创建根目录
-        DocInfo rootFolder = docInfoService.createDocFolder(docFolderCreateDTO);
         // 创建模块
+        Module module = moduleService.createSwaggerModule(importSwaggerDTO, title);
+        // 创建文档分类
         List<DocModule> docModules = docBean.getDocModules();
         docModules.sort(Comparator.comparing(DocModule::getOrder));
         for (DocModule docModule : docModules) {
-            DocInfo moduleDocInfo = docInfoService.createDocFolder(docModule.getModule(), rootFolder);
+            DocInfo moduleDocInfo = docInfoService.createDocFolder(docModule.getModule(), module);
             // 创建模块下的文档
             List<DocItem> items = docModule.getItems();
             for (DocItem item : items) {
@@ -176,7 +174,7 @@ public class DocImportService {
         docItemCreateDTO.setContentType(Strings.join(item.getProduces(), ','));
         docItemCreateDTO.setHttpMethod(item.getMethod());
         docItemCreateDTO.setDescription(item.getDescription());
-        docItemCreateDTO.setProjectId(parent.getProjectId());
+        docItemCreateDTO.setModuleId(parent.getModuleId());
         docItemCreateDTO.setParentId(parent.getId());
         return docItemCreateDTO;
     }

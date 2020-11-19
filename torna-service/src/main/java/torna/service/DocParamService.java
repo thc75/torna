@@ -35,7 +35,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     /**
-     * 唯一id,md5(name+doc_id+parent_id)
+     * 唯一id,md5(name:doc_id:parent_id)
      * @return
      */
     public static String buildUniqueId(String name, long docId, long parentId) {

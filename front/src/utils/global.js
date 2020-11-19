@@ -356,6 +356,16 @@ Object.assign(Vue.prototype, {
   //     this.clipboard.destroy()
   //   }
   // },
+  formatHost(obj) {
+    let url = obj.url
+    if (url) {
+      url = obj.url.trim()
+      if (url.endsWith('/')) {
+        url = url.substring(0, url.length - 1)
+      }
+      obj.url = url
+    }
+  },
   parseJSON: function(str, callback, errorCallback) {
     let isJson = false
     if (typeof str === 'string') {

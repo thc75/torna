@@ -9,6 +9,7 @@ import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
+import torna.dao.entity.Module;
 import torna.dao.mapper.DocInfoMapper;
 import torna.dao.mapper.DocParamMapper;
 import torna.service.dto.DocFolderCreateDTO;
@@ -64,14 +65,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     /**
-     * md5(name+project_id+parent_id)
+     * md5(name:module_id:parent_id)
      * @param name
-     * @param projectId
+     * @param moduleId
      * @param parentId
      * @return
      */
-    private static String buildUniqueId(String name, long projectId, long parentId) {
-        String content = String.format(DocConstants.UNIQUE_ID_TPL, name, projectId, parentId);
+    private static String buildUniqueId(String name, long moduleId, long parentId) {
+        String content = String.format(DocConstants.UNIQUE_ID_TPL, name, moduleId, parentId);
         return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -82,13 +83,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public DocInfo createDocFolder(DocFolderCreateDTO docFolderCreateDTO) {
         User user = UserContext.getUser();
-        String uniqueId = buildUniqueId(docFolderCreateDTO.getFolderName(), docFolderCreateDTO.getProjectId(), docFolderCreateDTO.getParentId());
+        String uniqueId = buildUniqueId(docFolderCreateDTO.getFolderName(), docFolderCreateDTO.getModuleId(), docFolderCreateDTO.getParentId());
         DocInfo folder = getByUniqueId(uniqueId);
         if (folder == null) {
             folder = new DocInfo();
             folder.setUniqueId(uniqueId);
             folder.setName(docFolderCreateDTO.getFolderName());
-            folder.setProjectId(docFolderCreateDTO.getProjectId());
+            folder.setModuleId(docFolderCreateDTO.getModuleId());
             folder.setParentId(docFolderCreateDTO.getParentId());
             folder.setCreatorId(user.getUserId());
             folder.setModifierId(user.getUserId());
@@ -101,18 +102,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return folder;
     }
 
-    public DocInfo createDocFolder(String folderName, DocInfo parent) {
+    public DocInfo createDocFolder(String folderName, Module module) {
         DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO(
-                parent.getProjectId()
+                module.getId()
                 , folderName
-                , parent.getId()
+                , 0L
         );
         return this.createDocFolder(docFolderCreateDTO);
     }
 
     public DocInfo createDocItem(DocItemCreateDTO docItemCreateDTO) {
         User user = UserContext.getUser();
-        String uniqueId = buildUniqueId(docItemCreateDTO.getName(), docItemCreateDTO.getProjectId(), docItemCreateDTO.getParentId());
+        String uniqueId = buildUniqueId(docItemCreateDTO.getName(), docItemCreateDTO.getModuleId(), docItemCreateDTO.getParentId());
         DocInfo docInfo = getByUniqueId(uniqueId);
         if (docInfo == null) {
             docInfo = CopyUtil.copyBean(docItemCreateDTO, DocInfo::new);

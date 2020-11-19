@@ -3,7 +3,7 @@
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane name="Doc">
         <span slot="label"><i class="el-icon-document"></i> 文档管理</span>
-        <doc-info :project-id="projectIdDoc"></doc-info>
+        <module :project-id="projectIdDoc" />
       </el-tab-pane>
       <el-tab-pane name="Info">
         <span slot="label"><i class="el-icon-info"></i> 项目信息</span>
@@ -17,12 +17,12 @@
   </div>
 </template>
 <script>
-import DocInfo from './DocInfo'
+import Module from './Module'
 import ProjectInfo from './ProjectInfo'
 import ProjectMember from './ProjectMember'
 
 export default {
-  components: { ProjectMember, DocInfo, ProjectInfo },
+  components: { ProjectMember, Module, ProjectInfo },
   data() {
     return {
       projectId: 0,
