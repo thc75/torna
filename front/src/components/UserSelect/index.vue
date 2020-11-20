@@ -62,26 +62,34 @@ export default {
         value: ''
       },
       searchFormData: {
-        username: '',
-        pageIndex: 1,
-        pageSize: 50
+        username: ''
       }
     }
   },
   watch: {
     value(newVal) {
-      console.log(newVal)
       this.formData.value = newVal
     }
   },
   mounted() {
     this.formData.value = this.value
-    this.loadUser()
+    if (this.value.length > 0) {
+      this.loadByUserIds(this.value)
+    }
   },
   methods: {
     remoteMethod(val) {
       this.searchFormData.username = val
       this.loadUser()
+    },
+    loadByUserIds(userIds) {
+      this.loading = true
+      this.post('/user/list', { userIds: userIds }, resp => {
+        this.loading = false
+        this.userOptions = resp.data
+      }, () => {
+        this.loading = false
+      })
     },
     loadUser() {
       const that = this
@@ -91,9 +99,10 @@ export default {
           that.userOptions = data
         })
       } else {
-        this.get('/user/search', this.searchFormData, resp => {
+        this.loading = true
+        this.post('/user/search', this.searchFormData, resp => {
           this.loading = false
-          this.userOptions = resp.data.rows
+          this.userOptions = resp.data
         }, () => {
           this.loading = false
         })

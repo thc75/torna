@@ -58,6 +58,9 @@ public class DocImportService {
     @Autowired
     private ModuleService moduleService;
 
+    @Autowired
+    private ModuleConfigService moduleConfigService;
+
     /**
      * 导入swagger文档
      *

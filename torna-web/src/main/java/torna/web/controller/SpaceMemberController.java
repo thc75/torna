@@ -1,5 +1,6 @@
 package torna.web.controller;
 
+import com.gitee.fastmybatis.core.query.Query;
 import torna.common.bean.Result;
 import torna.service.SpaceService;
 import torna.service.dto.UserInfoDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 空间成员
@@ -26,6 +28,12 @@ public class SpaceMemberController {
 
     @Autowired
     private SpaceService spaceService;
+
+    @GetMapping("/search")
+    public Result<List<UserInfoDTO>> search(@Valid SpaceMemberParam param) {
+        List<UserInfoDTO> userInfoDTOS = spaceService.searchSpaceUser(param.getSpaceId(), param.getUsername());
+        return Result.ok(userInfoDTOS);
+    }
 
     /**
      * 分页查询空间成员
@@ -46,7 +54,7 @@ public class SpaceMemberController {
      */
     @PostMapping("/add")
     public Result add(@RequestBody @Valid SpaceMemberAddParam param) {
-        spaceService.addSpaceUser(param.getSpaceId(), param.getUserIds());
+        spaceService.addSpaceUser(param.getSpaceId(), param.getUserIds(), false);
         return Result.ok();
     }
 

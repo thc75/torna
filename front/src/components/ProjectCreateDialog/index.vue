@@ -29,7 +29,7 @@
         />
       </el-form-item>
       <el-form-item label="项目组长" required>
-        <user-select ref="userSelect" multiple />
+        <user-select ref="userSelect" :loader="loadSpaceMember" multiple />
       </el-form-item>
       <el-form-item label="所属空间" prop="spaceId">
         <el-select

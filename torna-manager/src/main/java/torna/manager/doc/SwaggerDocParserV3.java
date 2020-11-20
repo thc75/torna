@@ -32,13 +32,13 @@ public class SwaggerDocParserV3 implements DocParser {
     private final Set<String> cycleCache = new HashSet<>(8);
 
     @Override
-    public DocBean parseJson(String swaggerJson) {
+    public DocBean parseJson(String swaggerJson, ParseConfig config) {
         cycleCache.clear();
         JSONObject docRoot = JSON.parseObject(swaggerJson, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
         JSONObject info = docRoot.getJSONObject("info");
         String requestUrl = this.getRequestUrl(docRoot);
         List<DocItem> docItems = new ArrayList<>();
-        String allowMethod = "POST";
+        String allowMethod = config.getAllowMethod();
 
         JSONObject paths = docRoot.getJSONObject("paths");
         if (paths == null) {

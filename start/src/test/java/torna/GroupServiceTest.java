@@ -5,6 +5,8 @@ import torna.service.dto.SpaceAddDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
+
 /**
  * @author tanghc
  */
@@ -16,9 +18,8 @@ public class GroupServiceTest extends DocsphereApplicationTests {
     @Test
     public void testAdd() {
         SpaceAddDTO spaceAddDTO = new SpaceAddDTO();
-        spaceAddDTO.setLeaderId(1L);
+        spaceAddDTO.setLeaderIds(Arrays.asList(1L));
         spaceAddDTO.setName("测试" + System.currentTimeMillis());
-        spaceAddDTO.setCreator("张三");
         spaceService.addSpace(spaceAddDTO);
     }
 

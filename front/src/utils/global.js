@@ -7,7 +7,6 @@ import { getToken, removeToken } from './auth'
 import needle from 'needle'
 import md5 from 'js-md5'
 import axios from 'axios'
-import { call } from 'runjs/lib/script'
 
 const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
 const OPC_USER_TYPE_KEY = 'torna-user-type'
@@ -356,6 +355,14 @@ Object.assign(Vue.prototype, {
   //     this.clipboard.destroy()
   //   }
   // },
+  loadSpaceMember(searchData) {
+    searchData.spaceId = this.getSpaceId()
+    return new Promise(resolve => {
+      this.get('/space/member/search', searchData, resp => {
+        resolve(resp.data)
+      })
+    })
+  },
   formatHost(obj) {
     let url = obj.url
     if (url) {

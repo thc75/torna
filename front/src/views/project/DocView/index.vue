@@ -30,7 +30,7 @@ export default {
   name: 'DocView',
   components: { ParameterTable },
   props: {
-    id: {
+    docId: {
       type: Number,
       default: 0
     }
@@ -65,16 +65,16 @@ export default {
     }
   },
   watch: {
-    id(newVal) {
+    docId(newVal) {
       this.loadData(newVal)
     }
   },
   created() {
   },
   methods: {
-    loadData: function(id) {
-      if (id > 0) {
-        this.get('/project/doc/detail', { id: id }, function(resp) {
+    loadData: function(docId) {
+      if (docId > 0) {
+        this.get('/project/doc/detail', { id: docId }, function(resp) {
           const data = resp.data
           data.requestParams = this.convertTree(data.requestParams, 0)
           data.responseParams = this.convertTree(data.responseParams, 0)

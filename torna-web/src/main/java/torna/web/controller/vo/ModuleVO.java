@@ -15,6 +15,6 @@ public class ModuleVO {
     /** project.id, 数据库字段：project_id */
     private Long projectId;
 
-    /** 模块类型，0：swagger导入，1：自定义添加，2：postman导入, 数据库字段：type */
+    /** 模块类型，0：自定义添加，1：swagger导入，2：postman导入, 数据库字段：type */
     private Byte type;
 }

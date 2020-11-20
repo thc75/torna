@@ -32,7 +32,11 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
     }
 
     public List<E> listAll() {
-        return mapper.list(new Query().setQueryAll(true));
+        return listAll(new Query());
+    }
+
+    public List<E> listAll(Query query) {
+        return mapper.list(query.setQueryAll(true));
     }
 
     public <R> List<R> listAll(Function<E, R> supplier) {

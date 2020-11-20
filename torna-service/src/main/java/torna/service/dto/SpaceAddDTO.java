@@ -2,6 +2,8 @@ package torna.service.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author tanghc
  */
@@ -9,9 +11,7 @@ import lombok.Data;
 public class SpaceAddDTO {
     private String name;
 
-    private Long leaderId;
+    private List<Long> leaderIds;
 
     private Long creatorId;
-
-    private String creator;
 }

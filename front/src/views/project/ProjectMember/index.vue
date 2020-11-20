@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
+    <el-form :inline="true" :model="searchFormData" size="mini">
       <el-form-item label="登录邮箱">
         <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录邮箱" style="width: 250px;" />
       </el-form-item>
@@ -161,14 +161,6 @@ export default {
     loadTable() {
       this.get('/project/member/page', this.searchFormData, resp => {
         this.pageInfo = resp.data
-      })
-    },
-    loadSpaceMember(searchData) {
-      searchData.spaceId = this.getSpaceId()
-      return new Promise(resolve => {
-        this.get('/space/member/page', searchData, resp => {
-          resolve(resp.data.rows)
-        })
       })
     },
     onRoleChange(row) {

@@ -162,3 +162,6 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 }
 .el-option-left {float: left}
 .el-option-right {float: right; color: #8492a6; font-size: 13px}
+.el-table .hidden-row {
+  display: none;
+}

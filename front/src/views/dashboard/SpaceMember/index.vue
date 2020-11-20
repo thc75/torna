@@ -68,6 +68,7 @@
         label-width="150px"
       >
         <el-form-item label="用户" required>
+          <!-- role_pos -->
           <user-select ref="userSelect" multiple />
         </el-form-item>
       </el-form>

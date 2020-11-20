@@ -2,6 +2,8 @@ package torna.web.controller.vo;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @author tanghc
  */
@@ -27,12 +29,8 @@ public class DocInfoVO {
     /** 父节点, 数据库字段：parent_id */
     private Long parentId;
 
-    /** 项目id，project.id, 数据库字段：project_id */
-    private Long projectId;
+    /** 模块id，module.id, 数据库字段：module_id */
+    private Long moduleId;
 
-    /** 创建人, 数据库字段：creator */
-    private String creator;
-
-    /** 修改人, 数据库字段：modifier */
-    private String modifier;
+    private Date gmtCreate;
 }

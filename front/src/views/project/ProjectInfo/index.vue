@@ -55,7 +55,7 @@
         </el-form-item>
         <!-- role_pos -->
         <el-form-item label="项目组长" required>
-          <user-select ref="userSelect" multiple :value="projectFormData.leaderIds" />
+          <user-select ref="userSelect" :loader="loadSpaceMember" multiple :value="projectFormData.leaderIds" />
         </el-form-item>
         <!-- role_pos -->
         <el-form-item label="所属空间" prop="spaceId">

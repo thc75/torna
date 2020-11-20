@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -43,12 +44,11 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         UserInfo userInfo = CopyUtil.copyBean(userAddDTO, UserInfo::new);
         this.saveIgnoreNull(userInfo);
 
-        // 2. 为用户生成一个默认空间
+        // 2. 为用户生成一个默认空间，且自己是管理员
         Long userId = userInfo.getId();
         SpaceAddDTO spaceAddDTO = new SpaceAddDTO();
-        spaceAddDTO.setLeaderId(userId);
+        spaceAddDTO.setLeaderIds(Collections.singletonList(userId));
         spaceAddDTO.setCreatorId(userId);
-        spaceAddDTO.setCreator(userInfo.getRealname());
         spaceAddDTO.setName(defaultSpaceName);
         spaceService.addSpace(spaceAddDTO);
     }

@@ -21,7 +21,7 @@
         />
       </el-form-item>
       <el-form-item label="空间管理员" required>
-        <user-select ref="userSelect" />
+        <user-select ref="userSelect" multiple />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

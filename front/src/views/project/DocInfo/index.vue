@@ -1,41 +1,21 @@
 <template>
-  <div>
-    <el-container>
-      <el-aside width="300px" style="border-right: 1px solid #eee;padding-right: 20px;">
-        <el-input
-          v-show="treeData.length > 0"
-          v-model="filterText"
-          prefix-icon="el-icon-search"
-          placeholder="搜索:文档名称、请求地址"
-          style="margin-bottom: 10px;"
-          size="mini"
-          clearable
-        />
-        <el-tree
-          ref="tree"
-          :data="treeData"
-          :props="defaultProps"
-          :filter-node-method="filterNode"
-          node-key="id"
-          default-expand-all
-          highlight-current
-          empty-text="暂无文档"
-          @current-change="onDocSelect"
-        />
-      </el-aside>
-      <el-main style="padding-top: 0">
-        <doc-view v-show="docId > 0" :id="docId"></doc-view>
-      </el-main>
-    </el-container>
-  </div>
+  <el-tabs v-model="activeName" @tab-click="handleClick">
+    <el-tab-pane label="接口列表" name="DocList">
+      <doc-table :module-id="moduleIdDocList" />
+    </el-tab-pane>
+    <el-tab-pane label="模块配置" name="ModuleSetting">
+      <module-setting :module-id="moduleIdModuleSetting" />
+    </el-tab-pane>
+  </el-tabs>
 </template>
 
 <script>
-import DocView from '../DocView'
+import DocTable from '../DocTable'
+import ModuleSetting from '../ModuleSetting'
 
 export default {
   name: 'DocInfo',
-  components: { DocView },
+  components: { DocTable, ModuleSetting },
   props: {
     moduleId: {
       type: Number,
@@ -44,50 +24,22 @@ export default {
   },
   data() {
     return {
-      treeData: [],
-      filterText: '',
-      defaultProps: {
-        children: 'children',
-        label: 'name'
-      },
-      docId: 0,
-      viewDialogData: {
-        routeId: 0
-      }
+      activeName: 'DocList',
+      moduleIdDocList: 0,
+      moduleIdModuleSetting: 0
     }
   },
   watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val)
-    },
-    moduleId(id) {
-      this.loadTree(id)
+    moduleId(moduleId) {
+      this.loadData(moduleId)
     }
   },
-  created() {
-  },
   methods: {
-    loadTree: function(moduleId) {
-      if (moduleId > 0) {
-        this.get('/project/doc/list', { moduleId: moduleId }, function(resp) {
-          const data = resp.data
-          this.treeData = this.convertTree(data)
-        })
-      }
+    handleClick() {
+      this.loadData(this.moduleId)
     },
-    // 树搜索
-    filterNode(value, data) {
-      if (!value) return true
-      value = value.toLowerCase()
-      return (data.name && data.name.toLowerCase().indexOf(value) !== -1) || (data.url && data.url.toLowerCase().indexOf(value) > -1)
-    },
-    onDocSelect: function(currentNode, beforeNode) {
-      this.showDoc(currentNode)
-    },
-    showDoc: function(node) {
-      if (node.children.length === 0) {
-        this.docId = node.id
-      }
+    loadData(moduleId) {
+      this[`moduleId${this.activeName}`] = moduleId
     }
   }
 }
