@@ -75,8 +75,8 @@ public class DocImportService {
             }
             json = body;
         } catch (IOException e) {
-            log.error("导入json异常, url:{}", url, e);
-            throw new BizException("导入json异常, msg:" + e.getMessage());
+            log.error("导入swagger异常, url:{}", url, e);
+            throw new BizException("导入异常, msg:" + e.getMessage());
         }
         JSONObject docRoot = JSON.parseObject(json, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
         DocParser docParser = docRoot.containsKey("openapi") ? docParserV3 : docParserV2;
