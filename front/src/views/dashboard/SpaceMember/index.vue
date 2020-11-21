@@ -37,7 +37,7 @@
             :title="`确定要移除 ${scope.row.realname}(${scope.row.username}) 吗？`"
             @onConfirm="onMemberRemove(scope.row)"
           >
-            <el-button slot="reference" type="text" size="mini">移除</el-button>
+            <el-link slot="reference" type="danger" size="mini">移除</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>

@@ -2,6 +2,7 @@ package torna.service;
 
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.stereotype.Service;
+import torna.common.context.ModuleConfigKeys;
 import torna.common.enums.ModuleConfigTypeEnum;
 import torna.common.support.BaseService;
 import torna.dao.entity.ModuleConfig;
@@ -16,8 +17,6 @@ import java.util.Optional;
 @Service
 public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigMapper> {
 
-    public static final String KEY_ALLOW_METHODS = "allow-methods";
-
     public List<ModuleConfig> listGlobalHeaders(long moduleId) {
         Query query = new Query()
                 .eq("module_id", moduleId)
@@ -29,8 +28,8 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return "debughost_" + moduleId;
     }
 
-    public String getAllowMethods(long moduleId) {
-        return getCommonConfigValue(moduleId, KEY_ALLOW_METHODS, "GET").toUpperCase();
+    public String getAllowMethod(long moduleId) {
+        return getCommonConfigValue(moduleId, ModuleConfigKeys.KEY_ALLOW_METHODS, "POST").toUpperCase();
     }
 
     public String getDebugHost(long moduleId) {

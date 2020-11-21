@@ -13,7 +13,7 @@
     >
       <el-form-item label="URL" prop="url">
         <el-input
-          v-model="importJsonFormData.url"
+          v-model="importJsonFormData.importUrl"
           placeholder="输入URL，如：http://xxx:8080/swagger/doc.json"
           show-word-limit
           maxlength="100"
@@ -53,7 +53,7 @@ export default {
       importJsonLoading: false,
       importJsonFormData: {
         projectId: 0,
-        url: '',
+        importUrl: '',
         basicAuthUsername: '',
         basicAuthPassword: ''
       },
@@ -88,7 +88,7 @@ export default {
           this.importJsonLoading = true
           this.importJsonFormData.projectId = this.projectId
           this.formatHost(this.importJsonFormData)
-          this.post('/project/doc/import/swagger', this.importJsonFormData, resp => {
+          this.post('/module/import/swagger', this.importJsonFormData, resp => {
             this.importJsonLoading = false
             this.importJsonDlgShow = false
             this.tipSuccess('导入成功')

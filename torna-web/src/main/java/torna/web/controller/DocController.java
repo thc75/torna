@@ -7,17 +7,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import torna.common.bean.Result;
+import torna.common.bean.User;
+import torna.common.context.UserContext;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.DocInfo;
-import torna.dao.entity.Module;
-import torna.service.DocImportService;
 import torna.service.DocInfoService;
-import torna.service.ModuleService;
 import torna.service.dto.DocInfoDTO;
-import torna.service.dto.ImportSwaggerDTO;
-import torna.web.controller.param.ImportSwaggerParam;
+import torna.web.controller.param.DocFolderAddParam;
+import torna.web.controller.param.DocFolderUpdateParam;
+import torna.web.controller.param.IdParam;
 import torna.web.controller.vo.DocInfoVO;
-import torna.web.controller.vo.ModuleVO;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,29 +25,12 @@ import java.util.List;
  * @author tanghc
  */
 @RestController
-@RequestMapping("project/doc")
-public class ProjectDocController {
+@RequestMapping("doc")
+public class DocController {
 
     @Autowired
     private DocInfoService docInfoService;
 
-    @Autowired
-    private DocImportService docImportService;
-
-    @Autowired
-    private ModuleService moduleService;
-
-    /**
-     * 获取项目模块
-     * @param projectId
-     * @return
-     */
-    @GetMapping("/module/list")
-    public Result<List<ModuleVO>> listModule(long projectId) {
-        List<Module> modules = moduleService.list("project_id", projectId);
-        List<ModuleVO> moduleVOS = CopyUtil.copyList(modules, ModuleVO::new);
-        return Result.ok(moduleVOS);
-    }
 
     /**
      * 获取项目文档目录，可用于文档菜单
@@ -63,6 +45,45 @@ public class ProjectDocController {
     }
 
     /**
+     * 添加分类
+     * @param param
+     * @return
+     */
+    @PostMapping("folder/add")
+    public Result addFolder(@RequestBody @Valid DocFolderAddParam param) {
+        String name = param.getName();
+        Long moduleId = param.getModuleId();
+        User user = UserContext.getUser();
+        docInfoService.createDocFolder(name, moduleId, user);
+        return Result.ok();
+    }
+
+    /**
+     * 修改分类名称
+     * @param param
+     * @return
+     */
+    @PostMapping("folder/update")
+    public Result updateFolder(@RequestBody @Valid DocFolderUpdateParam param) {
+        String name = param.getName();
+        User user = UserContext.getUser();
+        docInfoService.updateDocFolderName(param.getId(), name, user);
+        return Result.ok();
+    }
+
+    /**
+     * 删除
+     * @param param
+     * @return
+     */
+    @PostMapping("delete")
+    public Result delete(@RequestBody @Valid IdParam param) {
+        User user = UserContext.getUser();
+        docInfoService.deleteDocInfo(param.getId(), user);
+        return Result.ok();
+    }
+
+    /**
      * 根据主键查询
      *
      * @param id 主键
@@ -74,17 +95,7 @@ public class ProjectDocController {
         return Result.ok(docDetail);
     }
 
-    /**
-     * 导入swagger
-     * @param param
-     * @return
-     */
-    @PostMapping("import/swagger")
-    public Result importSwaggerDoc(@RequestBody @Valid ImportSwaggerParam param) {
-        ImportSwaggerDTO importSwaggerDTO = CopyUtil.copyBean(param, ImportSwaggerDTO::new);
-        docImportService.importSwagger(importSwaggerDTO);
-        return Result.ok();
-    }
+
      
     
     

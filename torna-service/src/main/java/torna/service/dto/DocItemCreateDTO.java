@@ -1,6 +1,7 @@
 package torna.service.dto;
 
 import lombok.Data;
+import torna.common.bean.User;
 
 /**
  * @author tanghc
@@ -22,9 +23,14 @@ public class DocItemCreateDTO {
     /** contentType, 数据库字段：content_type */
     private String contentType;
 
+    /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */
+    private Byte isFolder;
+
     /** 父节点, 数据库字段：parent_id */
     private Long parentId;
 
     private Long moduleId;
+
+    private User user;
 
 }

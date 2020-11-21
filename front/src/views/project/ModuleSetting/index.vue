@@ -36,11 +36,11 @@
         <el-button type="primary" @click="onSaveDebugHost">保存</el-button>
       </el-form-item>
     </el-form>
-    <div v-if="settings.moduleVO.type === 0">
+    <div v-if="settings.moduleVO.type === 1">
       <h4>Swagger多个Method重复，只显示</h4>
       <el-form ref="allowMethodsRef" :model="settings" size="mini">
         <el-form-item prop="allowMethods">
-          <el-select v-model="settings.allowMethods" @change="onSaveAllowMethods">
+          <el-select v-model="settings.allowMethod" @change="onSaveAllowMethods">
             <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
               {{ method }}
             </el-option>
@@ -99,7 +99,7 @@ export default {
           type: 0
         },
         globalHeaders: [],
-        allowMethods: 'POST',
+        allowMethod: 'POST',
         debugHost: ''
       },
       allMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
@@ -137,13 +137,13 @@ export default {
       this.loadSettings(this.moduleId)
     },
     loadHeaders() {
-      this.get('/project/module/setting/globalHeader/list', { moduleId: this.moduleId }, resp => {
+      this.get('/module/setting/globalHeader/list', { moduleId: this.moduleId }, resp => {
         this.settings.globalHeaders = resp.data
       })
     },
     loadSettings(moduleId) {
       if (moduleId > 0) {
-        this.get('/project/module/setting/get', { moduleId: moduleId }, function(resp) {
+        this.get('/module/setting/get', { moduleId: moduleId }, function(resp) {
           this.settings = resp.data
         })
       }
@@ -161,7 +161,7 @@ export default {
       })
     },
     onHeaderDelete(row) {
-      this.post('/project/module/setting/globalHeader/delete', row, () => {
+      this.post('/module/setting/globalHeader/delete', row, () => {
         this.tip('删除成功')
         this.loadHeaders()
       })
@@ -169,7 +169,7 @@ export default {
     onDialogHeaderSave() {
       this.$refs.dialogHeaderForm.validate((valid) => {
         if (valid) {
-          const uri = this.dialogHeaderFormData.id ? '/project/module/setting/globalHeader/update' : '/project/module/setting/globalHeader/add'
+          const uri = this.dialogHeaderFormData.id ? '/module/setting/globalHeader/update' : '/module/setting/globalHeader/add'
           this.dialogHeaderFormData.moduleId = this.moduleId
           this.post(uri, this.dialogHeaderFormData, () => {
             this.dialogHeaderVisible = false
@@ -183,7 +183,7 @@ export default {
         moduleId: this.moduleId,
         list: this.settings.allowMethods
       }
-      this.post('/project/module/setting/allowMethod/set', data, () => {
+      this.post('/module/setting/allowMethod/set', data, () => {
         this.tipSuccess('修改成功')
       })
     },
@@ -194,7 +194,7 @@ export default {
             moduleId: this.moduleId,
             debugHost: this.settings.debugHost
           }
-          this.post('/project/module/setting/debughost/set', data, () => {
+          this.post('/module/setting/debughost/set', data, () => {
             this.tipSuccess('保存成功')
           })
         }

@@ -3,6 +3,7 @@ package torna.manager.doc;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
 import com.alibaba.fastjson.parser.Feature;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -389,7 +390,10 @@ public class SwaggerDocParserV3 implements DocParser {
             ref = schema.getString("$ref");
         }
         if (schema.containsKey("additionalProperties")) {
-            ref = schema.getJSONObject("additionalProperties").getString("$ref");
+            String additionalProperties = schema.getString("additionalProperties");
+            if (JSONValidator.from(additionalProperties).validate() && additionalProperties.contains("$ref")) {
+                ref = JSON.parseObject(additionalProperties).getString("$ref");
+            }
         }
         if (ref == null) {
             return null;

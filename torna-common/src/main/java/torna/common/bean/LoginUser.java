@@ -1,6 +1,7 @@
 package torna.common.bean;
 
 import lombok.Data;
+import torna.common.enums.OperationMode;
 
 import java.util.Date;
 
@@ -29,6 +30,11 @@ public class LoginUser implements User {
     
 	/**  数据库字段：gmt_create */
     private Date gmtCreate;
+
+    @Override
+    public byte getOperationModel() {
+        return OperationMode.MANUAL.getType();
+    }
 
     @Override
     public boolean isAdmin() {

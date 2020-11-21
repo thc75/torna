@@ -25,14 +25,25 @@
                 style="padding-left: 40px;"
                 @click="onModuleSelect(item)"
               >
-                <span>{{ item.name }}</span>
+                <span>
+                  {{ item.name }}
+                </span>
+                <el-tooltip effect="dark" content="同步Swagger文档" placement="top">
+                  <el-button
+                    v-show="module.id === item.id && item.type === 1"
+                    :loading="refreshSwaggerLoading"
+                    type="text"
+                    icon="el-icon-refresh"
+                    @click.stop="onRefreshSwagger(item)"
+                  />
+                </el-tooltip>
               </li>
             </ul>
           </li>
         </ul>
       </el-aside>
       <el-main style="padding-top: 0">
-        <doc-info ref="docInfo" :module-id="moduleId" />
+        <doc-info ref="docInfo" :module-id="module.id" />
       </el-main>
     </el-container>
     <!-- 导入json -->
@@ -43,6 +54,12 @@
 .module-menu .el-submenu__title {
   height: 36px;
   line-height: 36px;
+}
+.module-menu .el-menu button {
+  position: absolute;
+  right: 10px;
+  padding-top: 8px;
+  padding-bottom: 0;
 }
 .module-menu .el-menu-item {
   height: 36px;
@@ -63,8 +80,9 @@ export default {
   },
   data() {
     return {
-      moduleId: 0,
-      moduleData: []
+      module: 0,
+      moduleData: [],
+      refreshSwaggerLoading: false
     }
   },
   watch: {
@@ -78,19 +96,19 @@ export default {
     },
     loadModule: function(projectId) {
       if (projectId > 0) {
-        this.get('/project/doc/module/list', { projectId: projectId }, function(resp) {
+        this.get('/module/list', { projectId: projectId }, function(resp) {
           this.moduleData = resp.data
-          if (this.moduleData.length > 0 && this.moduleId === 0) {
-            this.moduleId = this.moduleData[0].id
+          if (this.moduleData.length > 0 && this.module === 0) {
+            this.module = this.moduleData[0]
           }
         })
       }
     },
     isActive(item) {
-      return this.moduleId === item.id
+      return this.module.id === item.id
     },
     onModuleSelect(item) {
-      this.moduleId = item.id
+      this.module = item
     },
     onModuleAdd() {
       this.$prompt('请输入模块名称', '新建模块', {
@@ -103,12 +121,22 @@ export default {
           name: value,
           projectId: this.projectId
         }
-        this.post('/project/module/add', data, function(resp) {
+        this.post('/module/add', data, resp => {
           this.tipSuccess('创建成功')
-          this.moduleId = resp.data
+          this.module = resp.data
           this.reload()
         })
       }).catch(() => {
+      })
+    },
+    onRefreshSwagger(item) {
+      this.refreshSwaggerLoading = true
+      this.get('/module/refresh/swagger', { moduleId: item.id }, () => {
+        this.refreshSwaggerLoading = false
+        this.tipSuccess('同步成功')
+        this.$refs.docInfo.reload()
+      }, () => {
+        this.refreshSwaggerLoading = false
       })
     },
     onImportSwagger() {

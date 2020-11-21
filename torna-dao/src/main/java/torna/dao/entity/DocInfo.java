@@ -24,7 +24,7 @@ public class DocInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 唯一id，md5(name:project_id:parent_id), 数据库字段：unique_id */
+    /** 唯一id，md5(name:module_id:parent_id), 数据库字段：unique_id */
     private String uniqueId;
 
     /** 文档名称, 数据库字段：name */
@@ -42,16 +42,25 @@ public class DocInfo {
     /** contentType, 数据库字段：content_type */
     private String contentType;
 
+    /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */
+    private Byte isFolder;
+
     /** 父节点, 数据库字段：parent_id */
     private Long parentId;
 
     /** 模块id，module.id, 数据库字段：module_id */
     private Long moduleId;
 
+    /** 新增操作方式，0：人工操作，1：开放平台推送, 数据库字段：create_mode */
+    private Byte createMode;
+
+    /** 修改操作方式，0：人工操作，1：开放平台推送, 数据库字段：modify_mode */
+    private Byte modifyMode;
+
     /** 创建人, 数据库字段：creator_id */
     private Long creatorId;
 
-    /** 创建人, 数据库字段：modifier_id */
+    /** 修改人, 数据库字段：modifier_id */
     private Long modifierId;
 
     /**  数据库字段：is_deleted */

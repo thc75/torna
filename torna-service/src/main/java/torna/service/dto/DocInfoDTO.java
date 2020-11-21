@@ -26,6 +26,9 @@ public class DocInfoDTO {
     /** contentType, 数据库字段：content_type */
     private String contentType;
 
+    /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */
+    private Byte isFolder;
+
     /** 父节点, 数据库字段：parent_id */
     private Long parentId;
 

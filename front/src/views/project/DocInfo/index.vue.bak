@@ -69,7 +69,7 @@ export default {
   methods: {
     loadTree: function(moduleId) {
       if (moduleId > 0) {
-        this.get('/project/doc/list', { moduleId: moduleId }, function(resp) {
+        this.get('/doc/list', { moduleId: moduleId }, function(resp) {
           const data = resp.data
           this.treeData = this.convertTree(data)
         })

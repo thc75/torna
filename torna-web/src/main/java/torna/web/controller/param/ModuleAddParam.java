@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
  * @author tanghc
  */
 @Data
-public class ProjectModuleAddParam {
+public class ModuleAddParam {
 
     /** 模块名称, 数据库字段：name */
     @NotBlank(message = "模块名称不能为空")

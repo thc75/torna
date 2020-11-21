@@ -74,7 +74,7 @@ export default {
   methods: {
     loadData: function(docId) {
       if (docId > 0) {
-        this.get('/project/doc/detail', { id: docId }, function(resp) {
+        this.get('/doc/detail', { id: docId }, function(resp) {
           const data = resp.data
           data.requestParams = this.convertTree(data.requestParams, 0)
           data.responseParams = this.convertTree(data.responseParams, 0)

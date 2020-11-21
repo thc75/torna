@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import torna.common.bean.Result;
+import torna.common.context.ModuleConfigKeys;
 import torna.common.enums.ModuleConfigTypeEnum;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.Module;
@@ -24,15 +25,13 @@ import torna.web.controller.vo.ModuleVO;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author tanghc
  */
 @RestController
-@RequestMapping("project/module/setting")
-public class ProjectModuleSettingController {
+@RequestMapping("module/setting")
+public class ModuleSettingController {
 
     @Autowired
     private ModuleService moduleService;
@@ -50,12 +49,11 @@ public class ProjectModuleSettingController {
         Module module = moduleService.getById(moduleId);
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
-        String allowMethods = moduleConfigService.getAllowMethods(moduleId);
-        List<String> methodList = Stream.of(allowMethods.split(",")).collect(Collectors.toList());
+        String allowMethod = moduleConfigService.getAllowMethod(moduleId);
         String debugHost = moduleConfigService.getDebugHost(moduleId);
         ModuleSettingVO moduleSettingVO = new ModuleSettingVO();
         moduleSettingVO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, ModuleConfigVO::new));
-        moduleSettingVO.setAllowMethods(methodList);
+        moduleSettingVO.setAllowMethod(allowMethod);
         moduleSettingVO.setDebugHost(debugHost);
         moduleSettingVO.setModuleVO(moduleVO);
         return Result.ok(moduleSettingVO);
@@ -69,7 +67,7 @@ public class ProjectModuleSettingController {
     @PostMapping("/allowMethod/set")
     public Result allowMethod(@RequestBody ModuleAllowMethodSetParam param) {
         Long moduleId = param.getModuleId();
-        ModuleConfig commonConfig = moduleConfigService.getCommonConfig(moduleId, ModuleConfigService.KEY_ALLOW_METHODS);
+        ModuleConfig commonConfig = moduleConfigService.getCommonConfig(moduleId, ModuleConfigKeys.KEY_ALLOW_METHODS);
         List<String> list = param.getList();
         if (CollectionUtils.isEmpty(list)) {
             list = Collections.singletonList("GET");
@@ -79,7 +77,7 @@ public class ProjectModuleSettingController {
             commonConfig = new ModuleConfig();
             commonConfig.setModuleId(moduleId);
             commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
-            commonConfig.setConfigKey(ModuleConfigService.KEY_ALLOW_METHODS);
+            commonConfig.setConfigKey(ModuleConfigKeys.KEY_ALLOW_METHODS);
             commonConfig.setConfigValue(value);
             moduleConfigService.saveIgnoreNull(commonConfig);
         } else {

@@ -11,7 +11,7 @@ import java.util.List;
 public class ModuleSettingVO {
     private ModuleVO moduleVO;
     private List<ModuleConfigVO> globalHeaders;
-    private List<String> allowMethods;
+    private String allowMethod;
     private String debugHost;
 
 }

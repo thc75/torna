@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import torna.common.bean.HttpTool;
 import torna.common.bean.User;
-import torna.common.context.UserContext;
 import torna.common.enums.ParamStyleEnum;
 import torna.common.exception.BizException;
 import torna.dao.entity.DocInfo;
@@ -58,9 +57,6 @@ public class DocImportService {
     @Autowired
     private ModuleService moduleService;
 
-    @Autowired
-    private ModuleConfigService moduleConfigService;
-
     /**
      * 导入swagger文档
      *
@@ -69,7 +65,7 @@ public class DocImportService {
     @Transactional(rollbackFor = Exception.class)
     public void importSwagger(ImportSwaggerDTO importSwaggerDTO) {
         String json;
-        String url = importSwaggerDTO.getUrl();
+        String url = importSwaggerDTO.getImportUrl();
         try {
             HttpTool httpTool = new HttpTool(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword());
             Response response = httpTool.requestForResponse(url, null, null, HttpTool.HTTPMethod.GET);
@@ -95,6 +91,7 @@ public class DocImportService {
      * @param importSwaggerDTO
      */
     private void saveDocToDb(DocBean docBean, ImportSwaggerDTO importSwaggerDTO) {
+        User user = importSwaggerDTO.getUser();
         String title = docBean.getTitle();
         // 创建模块
         Module module = moduleService.createSwaggerModule(importSwaggerDTO, title);
@@ -102,11 +99,11 @@ public class DocImportService {
         List<DocModule> docModules = docBean.getDocModules();
         docModules.sort(Comparator.comparing(DocModule::getOrder));
         for (DocModule docModule : docModules) {
-            DocInfo moduleDocInfo = docInfoService.createDocFolder(docModule.getModule(), module);
+            DocInfo moduleDocInfo = docInfoService.createDocFolderNoCheck(docModule.getModule(), module.getId(), user);
             // 创建模块下的文档
             List<DocItem> items = docModule.getItems();
             for (DocItem item : items) {
-                DocItemCreateDTO docItemCreateDTO = this.buildDocItemCreateDTO(item, moduleDocInfo);
+                DocItemCreateDTO docItemCreateDTO = this.buildDocItemCreateDTO(item, moduleDocInfo, user);
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
                 // 创建参数
                 List<DocParameter> requestParameters = item.getRequestParameters();
@@ -116,19 +113,24 @@ public class DocImportService {
                     } else {
                         return ParamStyleEnum.REQUEST;
                     }
-                });
+                }, user);
                 List<DocParameter> responseParameters = item.getResponseParameters();
-                this.saveParams(responseParameters, docItem,p -> ParamStyleEnum.RESPONSE);
+                this.saveParams(responseParameters, docItem, p -> ParamStyleEnum.RESPONSE, user);
             }
         }
     }
 
-    private void saveParams(List<DocParameter> parameters, DocInfo docItem, Function<DocParameter, ParamStyleEnum> styleEnumFunction) {
+    private void saveParams(
+            List<DocParameter> parameters
+            , DocInfo docItem
+            , Function<DocParameter, ParamStyleEnum> styleEnumFunction
+            , User user
+    ) {
         if (CollectionUtils.isEmpty(parameters)) {
             return;
         }
         for (DocParameter parameter : parameters) {
-            this.saveDocParam(parameter, docItem, 0, styleEnumFunction);
+            this.saveDocParam(parameter, docItem, 0, styleEnumFunction, user);
         }
 
     }
@@ -138,8 +140,8 @@ public class DocImportService {
             , DocInfo docInfo
             , long parentId
             , Function<DocParameter, ParamStyleEnum> styleEnumFunction
+            , User user
     ) {
-        User user = UserContext.getUser();
         DocParam docParam = new DocParam();
         String uniqueId = DocParamService.buildUniqueId(docParameter.getName(), docInfo.getId(), parentId);
         docParam.setUniqueId(uniqueId);
@@ -155,6 +157,8 @@ public class DocImportService {
         docParam.setParentId(parentId);
         ParamStyleEnum styleEnum = styleEnumFunction.apply(docParameter);
         docParam.setStyle(styleEnum.getStyle());
+        docParam.setCreateMode(user.getOperationModel());
+        docParam.setModifyMode(user.getOperationModel());
         docParam.setCreatorId(user.getUserId());
         docParam.setModifierId(user.getUserId());
         // 保存操作
@@ -164,13 +168,13 @@ public class DocImportService {
         List<DocParameter> children = docParameter.getRefs();
         if (children != null) {
             for (DocParameter child : children) {
-                this.saveDocParam(child, docInfo, savedDoc.getId(), styleEnumFunction);
+                this.saveDocParam(child, docInfo, savedDoc.getId(), styleEnumFunction, user);
             }
         }
     }
 
 
-    private DocItemCreateDTO buildDocItemCreateDTO(DocItem item, DocInfo parent) {
+    private DocItemCreateDTO buildDocItemCreateDTO(DocItem item, DocInfo parent, User user) {
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getSummary());
         docItemCreateDTO.setUrl(item.getPath());
@@ -179,6 +183,7 @@ public class DocImportService {
         docItemCreateDTO.setDescription(item.getDescription());
         docItemCreateDTO.setModuleId(parent.getModuleId());
         docItemCreateDTO.setParentId(parent.getId());
+        docItemCreateDTO.setUser(user);
         return docItemCreateDTO;
     }
 

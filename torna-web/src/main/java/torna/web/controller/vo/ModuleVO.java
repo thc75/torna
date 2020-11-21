@@ -17,4 +17,6 @@ public class ModuleVO {
 
     /** 模块类型，0：自定义添加，1：swagger导入，2：postman导入, 数据库字段：type */
     private Byte type;
+
+    private String importUrl;
 }

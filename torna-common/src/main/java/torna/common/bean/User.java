@@ -5,11 +5,22 @@ package torna.common.bean;
  * @author tanghc
  */
 public interface User {
+
+    /**
+     * 用户id
+     * @return
+     */
     Long getUserId();
 
-    String getUsername();
+    /**
+     * 操作方式
+     * @return
+     */
+    byte getOperationModel();
 
-    String getRealname();
-
+    /**
+     * 是否超级管理员
+     * @return
+     */
     boolean isAdmin();
 }

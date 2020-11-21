@@ -1,6 +1,7 @@
 package torna.service.dto;
 
 import lombok.Data;
+import torna.common.bean.User;
 
 /**
  * @author tanghc
@@ -8,15 +9,8 @@ import lombok.Data;
 @Data
 public class DocFolderCreateDTO {
     private Long moduleId;
-    private String folderName;
+    private String name;
     private Long parentId;
+    private User user;
 
-    public DocFolderCreateDTO() {
-    }
-
-    public DocFolderCreateDTO(Long moduleId, String folderName, Long parentId) {
-        this.moduleId = moduleId;
-        this.folderName = folderName;
-        this.parentId = parentId;
-    }
 }

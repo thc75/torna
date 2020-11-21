@@ -9,9 +9,10 @@ import javax.validation.constraints.NotNull;
  * @author tanghc
  */
 @Data
-public class ProjectModuleDeleteParam {
-
+public class DocFolderAddParam {
     @NotNull(message = "模块id不能为空")
-    private Long id;
+    private Long moduleId;
 
+    @NotBlank(message = "模块id不能为空")
+    private String name;
 }

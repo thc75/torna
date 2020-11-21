@@ -7,7 +7,7 @@
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item icon="el-icon-document">新建接口</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-folder">新建分类</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">新建分类</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-input
@@ -42,7 +42,7 @@
         width="80"
       >
         <template slot-scope="scope">
-          <el-button v-if="scope.row.children.length === 0" type="text" icon="el-icon-view" @click="onDocView(scope.row)">预览</el-button>
+          <el-button v-if="isDoc(scope.row)" type="text" icon="el-icon-view" @click="onDocView(scope.row)">预览</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -52,10 +52,17 @@
       />
       <el-table-column
         label="操作"
-        width="100"
+        width="160"
       >
         <template slot-scope="scope">
-          <el-link type="primary" icon="el-icon-edit" @click="onDocWrite(scope.row)">编辑</el-link>
+          <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加接口</el-link>
+          <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
+          <el-popconfirm
+            :title="`确定要删除 ${scope.row.name} 吗？`"
+            @onConfirm="onDocRemove(scope.row)"
+          >
+            <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -88,19 +95,62 @@ export default {
     }
   },
   watch: {
-    // filterText(val) {
-    //   this.$refs.tree.filter(val)
-    // },
     moduleId(moduleId) {
       this.loadTable(moduleId)
     }
   },
   methods: {
+    reload() {
+      this.loadTable(this.moduleId)
+    },
     loadTable: function(moduleId) {
-      this.get('/project/doc/list', { moduleId: moduleId }, function(resp) {
+      this.get('/doc/list', { moduleId: moduleId }, function(resp) {
         const data = resp.data
         this.tableData = this.convertTree(data)
       })
+    },
+    onFolderUpdate(row) {
+      this.$prompt('请输入分类名称', '修改分类', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: row.name,
+        inputPattern: /^.{1,64}$/,
+        inputErrorMessage: '不能为空且长度在64以内'
+      }).then(({ value }) => {
+        const data = {
+          id: row.id,
+          name: value
+        }
+        this.post('/doc/folder/update', data, () => {
+          this.tipSuccess('修改成功')
+          this.reload()
+        })
+      }).catch(() => {
+      })
+    },
+    onFolderAdd() {
+      this.$prompt('请输入分类名称', '新建分类', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^.{1,64}$/,
+        inputErrorMessage: '不能为空且长度在64以内'
+      }).then(({ value }) => {
+        const data = {
+          name: value,
+          moduleId: this.moduleId
+        }
+        this.post('/doc/folder/add', data, () => {
+          this.tipSuccess('创建成功')
+          this.reload()
+        })
+      }).catch(() => {
+      })
+    },
+    isDoc(row) {
+      return !this.isFolder(row)
+    },
+    isFolder(row) {
+      return row.isFolder === 1
     },
     tableRowClassName({ row, index }) {
       row.hidden = false
@@ -118,8 +168,24 @@ export default {
       }
       return ''
     },
-    onDocWrite: function(row) {
-      // this.goRoute(`/platform/doc/edit/${row.routeId}`)
+    onDocRemove(row) {
+      const data = {
+        id: row.id
+      }
+      this.post('/doc/delete', data, () => {
+        this.tipSuccess('删除成功')
+        this.reload()
+      })
+    },
+    onDocAdd(row) {
+
+    },
+    onDocUpdate: function(row) {
+      if (row.isFolder) {
+        this.onFolderUpdate(row)
+      } else {
+
+      }
     },
     onDocView: function(row) {
       this.viewDialogVisible = true
