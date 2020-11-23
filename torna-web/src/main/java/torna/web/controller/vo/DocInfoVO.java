@@ -35,5 +35,7 @@ public class DocInfoVO {
     /** 模块id，module.id, 数据库字段：module_id */
     private Long moduleId;
 
+    private Byte isDeleted;
+
     private Date gmtCreate;
 }

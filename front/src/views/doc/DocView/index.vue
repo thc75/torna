@@ -7,12 +7,8 @@
     <div class="doc-overview">{{ docInfo.description || docInfo.name }}</div>
     <h3>请求地址</h3>
     <span class="normal-text">
-      {{ docInfo.url }}
+      <el-tag type="info">{{ docInfo.httpMethod }}</el-tag> {{ docInfo.url }}
     </span>
-    <h3>请求方法</h3>
-    <div class="doc-request-method">
-      {{ docInfo.httpMethod }}
-    </div>
     <h3>请求参数</h3>
     <parameter-table :data="docInfo.requestParams" />
     <h3>响应参数</h3>
@@ -33,6 +29,10 @@ export default {
     docId: {
       type: Number,
       default: 0
+    },
+    docInfoString: {
+      type: String,
+      default: '{}'
     }
   },
   data() {
@@ -67,6 +67,10 @@ export default {
   watch: {
     docId(newVal) {
       this.loadData(newVal)
+    },
+    docInfoString(docInfoString) {
+      const docInfo = JSON.parse(docInfoString)
+      this.setData(docInfo)
     }
   },
   created() {

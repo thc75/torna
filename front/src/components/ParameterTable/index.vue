@@ -7,6 +7,7 @@
     :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     :cell-style="cellStyleSmall()"
     :header-cell-style="headCellStyleSmall()"
+    :row-class-name="tableRowClassName"
     :empty-text="emptyText"
   >
     <el-table-column
@@ -85,6 +86,13 @@ export default {
     }
   },
   methods: {
+    tableRowClassName({ row, index }) {
+      if (row.isDeleted) {
+        row.hidden = true
+        return 'hidden-row'
+      }
+      return ''
+    },
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0
     }

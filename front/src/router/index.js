@@ -55,6 +55,19 @@ export const constantRoutes = [
       }]
   },
   {
+    path: '/doc', // 必须/开头
+    component: Layout,
+    name: 'Doc',
+    meta: { title: '编辑文档' },
+    children: [
+      {
+        path: 'edit/:docId(\\w+)',
+        name: 'Edit',
+        hidden: true,
+        component: () => import('@/views/doc/edit/index')
+      }]
+  },
+  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true

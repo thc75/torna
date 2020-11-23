@@ -72,6 +72,17 @@ public class DocController {
     }
 
     /**
+     * 保存文档信息
+     * @param docInfoDTO
+     * @return
+     */
+    @PostMapping("save")
+    public Result save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
+        docInfoService.saveDocInfo(docInfoDTO);
+        return Result.ok();
+    }
+
+    /**
      * 删除
      * @param param
      * @return

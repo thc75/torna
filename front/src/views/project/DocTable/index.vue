@@ -76,7 +76,7 @@
   </div>
 </template>
 <script>
-import DocView from '../DocView'
+import DocView from '../../doc/DocView'
 export default {
   name: 'DocTable',
   components: { DocView },
@@ -184,7 +184,7 @@ export default {
       if (row.isFolder) {
         this.onFolderUpdate(row)
       } else {
-
+        this.goRoute(`/doc/edit/${row.id}`)
       }
     },
     onDocView: function(row) {

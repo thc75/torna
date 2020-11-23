@@ -47,6 +47,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.getById(docId);
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+        List<DocInfo> folders = this.listFolders(docInfo.getModuleId());
         List<DocParam> params = docParamMapper.listByColumn("doc_id", docId);
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
@@ -58,7 +59,24 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+        docInfoDTO.setFolders(CopyUtil.copyList(folders, DocInfoDTO::new));
         return docInfoDTO;
+    }
+
+    public void saveDocInfo(DocInfoDTO docInfoDTO) {
+
+    }
+
+    /**
+     * 查询模块下面所有分类
+     * @param moduleId 模块id
+     * @return 返回分类
+     */
+    public List<DocInfo> listFolders(long moduleId) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("is_folder", Booleans.TRUE);
+        return this.listAll(query);
     }
 
 

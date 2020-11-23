@@ -44,11 +44,19 @@ public class DocParamDTO {
     /** 0：header, 1：请求参数，2：返回参数，3：错误码, 数据库字段：style */
     private Byte style;
 
+    /** 新增操作方式，0：人工操作，1：开放平台推送, 数据库字段：create_mode */
+    private Byte createMode;
+
+    /** 修改操作方式，0：人工操作，1：开放平台推送, 数据库字段：modify_mode */
+    private Byte modifyMode;
+
     /** 创建人, 数据库字段：creator */
     private String creator;
 
     /** 修改人, 数据库字段：modifier */
     private String modifier;
+
+    private Byte isDeleted;
 
     /**  数据库字段：gmt_create */
     private Date gmtCreate;

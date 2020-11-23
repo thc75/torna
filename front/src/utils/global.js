@@ -288,6 +288,25 @@ Object.assign(Vue.prototype, {
     })
     return temp
   },
+  /**
+   * 将树转换成行，convertTree的反操作
+   * @param treeData
+   * @returns {[]}
+   */
+  unConvertTree(treeData) {
+    let ret = []
+    for (let i = 0; i < treeData.length; i++) {
+      let arr = []
+      const data = treeData[i]
+      arr.push(data)
+      if (data.children && data.children.length > 0) {
+        const childrenData = this.unConvertTree(data.children)
+        arr = arr.concat(childrenData)
+      }
+      ret = ret.concat(arr)
+    }
+    return ret
+  },
   setSpaceId(id) {
     this.$store.state.settings.spaceId = id
     this.setAttr(SPACE_ID_KEY, id)
@@ -372,6 +391,52 @@ Object.assign(Vue.prototype, {
       }
       obj.url = url
     }
+  },
+  removeRow: function(arr, id) {
+    let index = -1
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].id === id) {
+        index = i
+        break
+      }
+    }
+    // 找到元素，删除
+    if (index >= 0) {
+      arr.splice(index, 1)
+    } else {
+      // 如果没有找到，则查找子节点
+      for (let i = 0; i < arr.length; i++) {
+        const children = arr[i].children
+        if (children) {
+          this.removeRow(children, id)
+        }
+      }
+    }
+  },
+  /**
+   * 验证表格
+   * @param arr 表格内容
+   * @param refPrefixArr ref前缀数组
+   * @returns {[]}
+   */
+  validateTable: function(arr, refPrefixArr) {
+    let promiseArr = []
+    for (let i = 0; i < arr.length; i++) {
+      const row = arr[i]
+      if (row.isDeleted) {
+        continue
+      }
+      const id = row.id
+      refPrefixArr.forEach(refPrefix => {
+        promiseArr.push(this.$refs[refPrefix + id].validate())
+      })
+      const children = arr[i].children
+      if (children && children.length > 0) {
+        const childrenPromiseArr = this.validateTable(children, refPrefixArr)
+        promiseArr = promiseArr.concat(childrenPromiseArr)
+      }
+    }
+    return promiseArr
   },
   parseJSON: function(str, callback, errorCallback) {
     let isJson = false

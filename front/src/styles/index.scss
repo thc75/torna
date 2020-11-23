@@ -165,3 +165,21 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 .el-table .hidden-row {
   display: none;
 }
+.table-control {margin-bottom: 18px;}
+.param-table {
+  .el-form {
+    width: 100%;
+    display: inline-block;
+    .el-form-item {
+      margin-bottom: 0;
+      .el-form-item__content {
+        .el-form-item__error {
+          position: inherit;
+        }
+      }
+    }
+  }
+  .el-switch {
+    margin-bottom: 2px;
+  }
+}

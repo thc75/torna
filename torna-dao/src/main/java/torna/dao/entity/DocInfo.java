@@ -63,6 +63,9 @@ public class DocInfo {
     /** 修改人, 数据库字段：modifier_id */
     private Long modifierId;
 
+    /** 是否显示, 数据库字段：is_show */
+    private Byte isShow;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
