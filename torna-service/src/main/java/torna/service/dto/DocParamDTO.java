@@ -3,6 +3,7 @@ package torna.service.dto;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tanghc
@@ -10,9 +11,6 @@ import java.util.Date;
 @Data
 public class DocParamDTO {
     private Long id;
-
-    /** 唯一id,md5(name+doc_id+parent_unique_id), 数据库字段：unique_id */
-    private String uniqueId;
 
     /** 字段名称, 数据库字段：name */
     private String name;
@@ -63,4 +61,7 @@ public class DocParamDTO {
 
     /**  数据库字段：gmt_modified */
     private Date gmtModified;
+
+    private List<DocParamDTO> children;
+
 }

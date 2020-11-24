@@ -5,12 +5,13 @@ import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 // import ClipboardJS from 'clipboard'
 import needle from 'needle'
-import md5 from 'js-md5'
 import axios from 'axios'
 
 const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
 const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
+
+let paramIdGen = 0
 
 // 创建axios实例
 const client = axios.create({
@@ -113,44 +114,10 @@ Object.assign(Vue.prototype, {
       this.$message.error('请求异常，请查看日志')
     }
   },
-  addRole: function(callback) {
-    const that = this
-    this.$prompt('请输入角色名称', '创建角色', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      inputPattern: /^.{1,64}$/,
-      inputErrorMessage: '不能为空且长度在64以内'
-    }).then(({ value }) => {
-      this.get('isp.role.add', { roleName: value }, function(resp) {
-        const data = resp.data
-        callback && callback.call(that, data.roleId, data.roleList)
-      })
-    }).catch(() => {
-    })
-  },
   loadRole: function(callback) {
     this.get('isp.role.list', {}, resp => {
       callback && callback.call(this, resp.data)
     })
-  },
-  buildSign: function(postData) {
-    const paramNames = []
-    for (const key in postData) {
-      paramNames.push(key)
-    }
-    paramNames.sort()
-    const paramNameValue = []
-    for (let i = 0, len = paramNames.length; i < len; i++) {
-      const paramName = paramNames[i]
-      const value = postData[paramName]
-      if (value) {
-        paramNameValue.push(paramName)
-        paramNameValue.push(value)
-      }
-    }
-    const secret = this.b
-    const source = secret + paramNameValue.join('') + secret
-    return md5(source).toUpperCase()
   },
   /**
    *  文件必须放在public下面
@@ -307,6 +274,21 @@ Object.assign(Vue.prototype, {
     }
     return ret
   },
+  getParamNewRow: function(name, value) {
+    return {
+      id: -(new Date().getTime() + (paramIdGen++)),
+      name: name || '',
+      type: 'string',
+      required: 1,
+      description: '',
+      enumContent: '',
+      maxLength: 64,
+      example: value || '',
+      isDeleted: 0,
+      isNew: true,
+      children: []
+    }
+  },
   setSpaceId(id) {
     this.$store.state.settings.spaceId = id
     this.setAttr(SPACE_ID_KEY, id)
@@ -361,19 +343,6 @@ Object.assign(Vue.prototype, {
   headCellStyleSmall: function() {
     return { padding: '5px 0' }
   },
-  // initCopy: function() {
-  //   const _this = this
-  //   const clipboard = new ClipboardJS('.copyBtn')
-  //   clipboard.on('success', function() {
-  //     _this.tipSuccess('复制成功')
-  //   })
-  //   this.clipboard = clipboard
-  // },
-  // cleanCopy: function() {
-  //   if (this.clipboard) {
-  //     this.clipboard.destroy()
-  //   }
-  // },
   loadSpaceMember(searchData) {
     searchData.spaceId = this.getSpaceId()
     return new Promise(resolve => {

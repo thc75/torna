@@ -26,10 +26,10 @@
               </el-select>
             </el-input>
           </el-form-item>
-          <el-form-item prop="parentId" label="分类">
+          <el-form-item prop="parentId" label="所属分类">
             <el-select v-model="docInfo.parentId" placeholder="请选择" style="width: 100%;">
-              <el-option label="不分类" :value="0">不分类</el-option>
-              <el-option v-for="item in docInfo.folders" :key="item.id" :label="item.name" :value="item.id">
+              <el-option label="无" :value="0">无</el-option>
+              <el-option v-for="item in folders" :key="item.id" :label="item.name" :value="item.id">
                 {{ item.name }}
               </el-option>
             </el-select>
@@ -48,91 +48,34 @@
       <el-tab-pane label="请求头" name="headerParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">添加Header</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">导入Header</el-button>
-        <param-table ref="headerParamTable" :data="docInfo.headerParams" :can-add-node="false" :hidden-columns="['type', 'maxLength']" />
+        <edit-table
+          ref="headerParamTable"
+          :data="docInfo.headerParams"
+          :can-add-node="false"
+          :hidden-columns="['type', 'maxLength']"
+        />
       </el-tab-pane>
       <el-tab-pane label="请求参数" name="requestParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加请求参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入请求参数</el-button>
-        <param-table ref="requestParamTable" :data="docInfo.requestParams" />
+        <edit-table ref="requestParamTable" :data="docInfo.requestParams" />
       </el-tab-pane>
       <el-tab-pane label="响应参数" name="responseParam">
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">导入响应参数</el-button>
-        <param-table ref="responseParamTable" :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
+        <edit-table ref="responseParamTable" :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
       </el-tab-pane>
-      <el-tab-pane label="错误码" name="bizCode">
-        <el-button type="text" icon="el-icon-plus" @click="onBizCodeAdd">添加错误码</el-button>
-        <el-table
-          :data="docInfo.bizCodes"
-          border
-          :cell-style="cellStyleSmall()"
-          :header-cell-style="headCellStyleSmall()"
-          class="param-table"
-        >
-          <el-table-column
-            prop="subCode"
-            label="sub_code（错误码）"
-            width="300"
-          >
-            <template slot-scope="scope">
-              <el-form :ref="'code_form_code_' + scope.row.id" :model="scope.row" :rules="codeRowRule" size="mini">
-                <el-form-item
-                  prop="subCode"
-                  label-width="0"
-                >
-                  <el-input v-model="scope.row.subCode" placeholder="错误码" maxlength="64" show-word-limit />
-                </el-form-item>
-              </el-form>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="subMsg"
-            label="sub_msg（错误描述）"
-          >
-            <template slot-scope="scope">
-              <el-form :ref="'code_form_msg_' + scope.row.id" :model="scope.row" :rules="codeRowRule" size="mini">
-                <el-form-item
-                  prop="subMsg"
-                  label-width="0"
-                >
-                  <el-input v-model="scope.row.subMsg" placeholder="错误描述" maxlength="100" show-word-limit />
-                </el-form-item>
-              </el-form>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="solution"
-            label="解决方案"
-          >
-            <template slot-scope="scope">
-              <el-form :ref="'code_form_solution_' + scope.row.id" :model="scope.row" size="mini">
-                <el-form-item
-                  prop="solution"
-                  label-width="0"
-                >
-                  <el-input v-model="scope.row.solution" placeholder="解决方案" maxlength="100" show-word-limit />
-                </el-form-item>
-              </el-form>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="操作"
-            width="170"
-          >
-            <template slot-scope="scope">
-              <div>
-                <div v-show="scope.row.isDeleted === 0">
-                  <el-link type="danger" icon="el-icon-delete" @click="onBizCodeRemove(scope.row)">移除</el-link>
-                </div>
-                <div v-show="scope.row.isDeleted === 1">
-                  <el-tooltip content="点击恢复" placement="top">
-                    <el-link type="danger" icon="el-icon-remove-outline" @click="scope.row.isDeleted = 0"></el-link>
-                  </el-tooltip>
-                </div>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+      <el-tab-pane label="错误码" name="errorCode">
+        <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">添加错误码</el-button>
+        <edit-table
+          ref="errorCodeParamTable"
+          :data="docInfo.errorCodeParams"
+          :hidden-columns="['required', 'maxLength', 'type']"
+          :can-add-node="false"
+          name-label="错误码"
+          description-label="错误描述"
+          example-label="解决方案"
+        />
       </el-tab-pane>
     </el-tabs>
     <div style="margin-top: 10px;">
@@ -186,11 +129,10 @@
 </style>
 <script>
 import DocView from '../DocView'
-import ParamTable from '../ParamTable'
+import EditTable from '../EditTable'
 
-let idGen = 0
 export default {
-  components: { DocView, ParamTable },
+  components: { DocView, EditTable },
   data() {
     return {
       params: {},
@@ -209,9 +151,9 @@ export default {
         headerParams: [],
         requestParams: [],
         responseParams: [],
-        bizCodes: [],
-        folders: []
+        errorCodeParams: []
       },
+      folders: [],
       rules: {
         name: [
           { required: true, message: '请输入标题', trigger: 'blur' },
@@ -225,15 +167,6 @@ export default {
           { required: true, message: '不能为空', trigger: 'blur' }
         ]
       },
-      codeRowRule: {
-        subCode: [
-          { required: true, message: '请填写错误码', trigger: 'blur' }
-        ],
-        subMsg: [
-          { required: true, message: '请填写错误描述', trigger: 'blur' }
-        ]
-      },
-      templateList: [],
       viewDialogVisible: false,
       docInfoString: '',
       importParamTemplateTitle: '导入参数',
@@ -252,9 +185,21 @@ export default {
     this.initData()
   },
   methods: {
+    initFolders(moduleId) {
+      if (moduleId > 0) {
+        this.get('/doc/folder/list', { moduleId: moduleId }, resp => {
+          this.folders = resp.data
+        })
+      }
+    },
     initData: function() {
-      const docId = this.$route.params.docId
+      const docId = this.$route.params.docId || 0
+      const parentId = this.$route.params.parentId || 0
+      const moduleId = this.$route.params.moduleId || 0
+      this.initFolders(moduleId)
       this.docInfo.docId = docId
+      this.docInfo.parentId = parentId
+      this.docInfo.moduleId = moduleId
       if (docId > 0) {
         this.get('/doc/detail', { id: docId }, function(resp) {
           const data = resp.data
@@ -275,48 +220,11 @@ export default {
     onParamAdd: function(row) {
       row.push(this.getParamNewRow())
     },
-    onParamNodeAdd: function(row) {
-      const children = row.children || []
-      children.push(this.getParamNewRow())
-      children.hasChildren = true
-      row.children = children
-    },
     onResponseParamAdd: function() {
       this.docInfo.responseParams.push(this.getParamNewRow())
     },
-    getParamNewRow: function(name, value) {
-      return {
-        id: new Date().getTime() + (idGen++),
-        name: name || '',
-        type: 'string',
-        required: 1,
-        description: '',
-        maxLength: 64,
-        example: value || '',
-        isDeleted: 0,
-        isNew: true,
-        children: []
-      }
-    },
-    getCodeNewRow: function() {
-      return {
-        id: new Date().getTime() + (idGen++),
-        subCode: '',
-        subMsg: '',
-        solution: '',
-        isDeleted: 0,
-        isNew: true
-      }
-    },
-    onBizCodeAdd: function() {
-      this.docInfo.bizCodes.push(this.getCodeNewRow())
-    },
-    onBizCodeRemove: function(row) {
-      if (row.isNew) {
-        this.removeRow(this.docInfo.bizCodes, row.id)
-      } else {
-        row.isDeleted = 1
-      }
+    onErrorCodeAdd: function() {
+      this.docInfo.errorCodeParams.push(this.getParamNewRow())
     },
     // 修改文档内容
     submitForm() {
@@ -325,8 +233,8 @@ export default {
           const promiseHeaderArr = this.$refs.headerParamTable.validate()
           const promiseRequestArr = this.$refs.requestParamTable.validate()
           const promiseResponseArr = this.$refs.requestParamTable.validate()
-          const promiseBizCodeArr = this.validateTable(this.docInfo.bizCodes, ['code_form_code_', 'code_form_msg_'])
-          const promiseArr = promiseHeaderArr.concat(promiseRequestArr, promiseResponseArr, promiseBizCodeArr)
+          const promiseErrorCodeArr = this.$refs.errorCodeParamTable.validate()
+          const promiseArr = promiseHeaderArr.concat(promiseRequestArr, promiseResponseArr, promiseErrorCodeArr)
           Promise.all(promiseArr).then(validArr => {
             const data = {}
             Object.assign(data, this.docInfo)
@@ -335,12 +243,13 @@ export default {
             const requestParams = this.getRequestParamsData()
             const responseParams = this.getResponseParamsData()
             Object.assign(data, {
-              headerParams: this.unConvertTree(headerParams),
-              requestParams: this.unConvertTree(requestParams),
-              responseParams: this.unConvertTree(responseParams)
+              headerParams: headerParams,
+              requestParams: requestParams,
+              responseParams: responseParams
             })
             this.post('/doc/save', data, function(resp) {
               this.tipSuccess('保存成功')
+              this.initData()
             })
           }).catch((e) => {
             this.tipError('请完善表单内容')
@@ -358,6 +267,7 @@ export default {
         viewData.headerParams = this.getHeaderParamsData()
         viewData.requestParams = this.getRequestParamsData()
         viewData.responseParams = this.getResponseParamsData()
+        viewData.errorCodeParams = this.getErrorCodeParamsData()
         this.docInfoString = JSON.stringify(viewData)
       })
     },
@@ -369,6 +279,9 @@ export default {
     },
     getResponseParamsData() {
       return this.$refs.responseParamTable.getData()
+    },
+    getErrorCodeParamsData() {
+      return this.$refs.errorCodeParamTable.getData()
     },
     goBack: function() {
       this.$router.go(-1)
@@ -399,7 +312,6 @@ export default {
       this.importParamHandler && this.importParamHandler()
     },
     onImportParamSave: function(params) {
-      console.log(params)
       const value = this.importParamTemplateValue
       let bigSplitChar = '&'
       let smallSplitChar = '='
@@ -490,10 +402,10 @@ export default {
     },
     getParamTemplatePlaceholder: function() {
       const map = {
-        '0': 'name=jim&age=123&address=xxx',
-        '1': `name:jim
-age:123
-address:xxx`
+        '0': 'name1=value1&name2=value2',
+        '1': `name1:value1
+name2:value2
+name3:value3`
       }
       return map[this.importParamTemplateModel + ''] || ''
     }

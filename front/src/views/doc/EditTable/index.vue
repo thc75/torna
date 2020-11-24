@@ -12,7 +12,7 @@
     <el-table-column
       v-if="isColumnShow('name')"
       prop="name"
-      label="名称"
+      :label="nameLabel"
       width="300"
     >
       <template slot-scope="scope">
@@ -72,7 +72,7 @@
     <el-table-column
       v-if="isColumnShow('description')"
       prop="description"
-      label="描述"
+      :label="descriptionLabel"
     >
       <template slot-scope="scope">
         <el-form :ref="`form_description_${scope.row.id}`" :model="scope.row" :rules="paramRowRule" size="mini">
@@ -88,7 +88,7 @@
     <el-table-column
       v-if="isColumnShow('example')"
       prop="example"
-      label="示例值"
+      :label="exampleLabel"
     >
       <template slot-scope="scope">
         <el-input
@@ -123,9 +123,8 @@
   </el-table>
 </template>
 <script>
-let idGen = 0
 export default {
-  name: 'ParamTable',
+  name: 'EditTable',
   props: {
     data: {
       type: Array,
@@ -138,6 +137,18 @@ export default {
     canAddNode: {
       type: Boolean,
       default: true
+    },
+    nameLabel: {
+      type: String,
+      default: '名称'
+    },
+    descriptionLabel: {
+      type: String,
+      default: '描述'
+    },
+    exampleLabel: {
+      type: String,
+      default: '示例值'
     },
     hiddenColumns: {
       type: Array,
@@ -157,10 +168,10 @@ export default {
       ],
       paramRowRule: {
         name: [
-          { required: true, message: '请填写参数名称', trigger: 'blur' }
+          { required: true, message: '请填写', trigger: ['blur', 'change'] }
         ],
         description: [
-          { required: true, message: '请填写描述', trigger: 'blur' }
+          { required: true, message: '请填写', trigger: ['blur', 'change'] }
         ]
       }
     }
@@ -179,20 +190,6 @@ export default {
       children.push(this.getParamNewRow())
       children.hasChildren = true
       row.children = children
-    },
-    getParamNewRow: function(name, value) {
-      return {
-        id: new Date().getTime() + (idGen++),
-        name: name || '',
-        type: 'string',
-        required: 1,
-        description: '',
-        maxLength: 64,
-        example: value || '',
-        isDeleted: 0,
-        isNew: true,
-        children: []
-      }
     },
     onParamRemove: function(row) {
       if (row.isNew) {

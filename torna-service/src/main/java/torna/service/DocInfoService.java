@@ -3,11 +3,11 @@ package torna.service;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.DigestUtils;
 import torna.common.bean.Booleans;
 import torna.common.bean.User;
-import torna.common.context.DocConstants;
+import torna.common.enums.OperationMode;
 import torna.common.enums.ParamStyleEnum;
 import torna.common.exception.BizException;
 import torna.common.support.BaseService;
@@ -21,7 +21,6 @@ import torna.service.dto.DocInfoDTO;
 import torna.service.dto.DocItemCreateDTO;
 import torna.service.dto.DocParamDTO;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
-    private DocParamMapper docParamMapper;
+    private DocParamService docParamService;
 
     /**
      * 返回文档详情
@@ -47,8 +46,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.getById(docId);
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
-        List<DocInfo> folders = this.listFolders(docInfo.getModuleId());
-        List<DocParam> params = docParamMapper.listByColumn("doc_id", docId);
+        List<DocParam> params = docParamService.list("doc_id", docId);
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
@@ -59,12 +57,54 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
-        docInfoDTO.setFolders(CopyUtil.copyList(folders, DocInfoDTO::new));
         return docInfoDTO;
     }
 
-    public void saveDocInfo(DocInfoDTO docInfoDTO) {
 
+    /**
+     * 保存文档信息
+     * @param docInfoDTO 文档内容
+     * @param user 用户
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+        // 修改基本信息
+        DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
+        // 修改参数
+        docParamService.saveParams(docInfo, docInfoDTO.getHeaderParams(), ParamStyleEnum.HEADER, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
+    }
+
+    private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
+        Long id = docInfoDTO.getId();
+        DocInfo docInfo;
+        boolean save = false;
+        if (id == null || id == 0) {
+            docInfo = new DocInfo();
+            docInfo.setCreateMode(user.getOperationModel());
+            docInfo.setCreatorId(user.getUserId());
+            save = true;
+        } else {
+            docInfo = getById(id);
+        }
+        docInfo.setName(docInfoDTO.getName());
+        docInfo.setDescription(docInfoDTO.getDescription());
+        docInfo.setUrl(docInfoDTO.getUrl());
+        docInfo.setHttpMethod(docInfoDTO.getHttpMethod());
+        docInfo.setContentType(docInfoDTO.getContentType());
+        docInfo.setParentId(docInfoDTO.getParentId());
+        docInfo.setModuleId(docInfoDTO.getModuleId());
+        docInfo.setModifyMode(user.getOperationModel());
+        docInfo.setModifierId(user.getUserId());
+        docInfo.setIsShow(docInfoDTO.getIsShow());
+        if (save) {
+            this.saveIgnoreNull(docInfo);
+        } else {
+            this.updateIgnoreNull(docInfo);
+        }
+        return docInfo;
     }
 
     /**
@@ -80,35 +120,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
 
-    public DocInfo getByUniqueId(String uniqueId) {
-        Query query = new Query()
-                .eq("unique_id", uniqueId)
-                .enableForceQuery();
-        return this.get(query);
-    }
-
-    /**
-     * md5(name:module_id:parent_id)
-     * @param name
-     * @param moduleId
-     * @param parentId
-     * @return
-     */
-    private static String buildUniqueId(String name, long moduleId, long parentId) {
-        String content = String.format(DocConstants.UNIQUE_ID_TPL, name, moduleId, parentId);
-        return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
-    }
-
     public boolean isExistFolderForAdd(String folderName, long moduleId, long parentId) {
         return this.isExistFolder(folderName, moduleId, parentId, Objects::nonNull);
     }
 
     public boolean isExistFolderForUpdate(long id, String folderName, long moduleId, long parentId) {
-        String uniqueId = buildUniqueId(folderName, moduleId, parentId);
-        Query query = new Query()
-                .eq("unique_id", uniqueId)
-                .notEq("id", id);
-        return get(query) != null;
+        DocInfo docInfo = getByModuleIdAndParentIdAndName(moduleId, parentId, folderName);
+        return docInfo != null && docInfo.getId() != id;
     }
 
     /**
@@ -119,9 +137,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return
      */
     public boolean isExistFolder(String folderName, long moduleId, long parentId, Predicate<DocInfo> predicate) {
-        String uniqueId = buildUniqueId(folderName, moduleId, parentId);
-        DocInfo folder = getByUniqueId(uniqueId);
+        DocInfo folder = getByModuleIdAndParentIdAndName(moduleId, parentId, folderName);
         return predicate.test(folder);
+    }
+
+    public DocInfo getByModuleIdAndParentIdAndName(long moduleId, long parentId, String name) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("parent_id", parentId)
+                .eq("name", name);
+        return get(query);
     }
 
     /**
@@ -137,8 +162,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (isExistFolderForUpdate(id, name, moduleId, 0)) {
             throw new BizException(name + " 已存在");
         }
-        String uniqueId = buildUniqueId(name, moduleId, folder.getParentId());
-        folder.setUniqueId(uniqueId);
         folder.setName(name);
         folder.setModifyMode(user.getOperationModel());
         folder.setModifierId(user.getUserId());
@@ -207,11 +230,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     public DocInfo createDocItem(DocItemCreateDTO docItemCreateDTO) {
         User user = docItemCreateDTO.getUser();
         Byte isFolder = docItemCreateDTO.getIsFolder();
-        String uniqueId = buildUniqueId(docItemCreateDTO.getName(), docItemCreateDTO.getModuleId(), docItemCreateDTO.getParentId());
-        DocInfo docInfo = getByUniqueId(uniqueId);
+        DocInfo docInfo = getByModuleIdAndParentIdAndName(docItemCreateDTO.getModuleId(), docItemCreateDTO.getParentId(), docItemCreateDTO.getName());
         if (docInfo == null) {
             docInfo = new DocInfo();
-            docInfo.setUniqueId(uniqueId);
             docInfo.setName(docItemCreateDTO.getName());
             docInfo.setModuleId(docItemCreateDTO.getModuleId());
             docInfo.setParentId(docItemCreateDTO.getParentId());

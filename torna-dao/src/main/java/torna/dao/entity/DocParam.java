@@ -24,9 +24,6 @@ public class DocParam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 唯一id,md5(name:doc_id:parent_id), 数据库字段：unique_id */
-    private String uniqueId;
-
     /** 字段名称, 数据库字段：name */
     private String name;
 

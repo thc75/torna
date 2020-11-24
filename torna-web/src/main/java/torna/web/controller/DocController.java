@@ -31,7 +31,6 @@ public class DocController {
     @Autowired
     private DocInfoService docInfoService;
 
-
     /**
      * 获取项目文档目录，可用于文档菜单
      * @param moduleId 模块id
@@ -42,6 +41,53 @@ public class DocController {
         List<DocInfo> docInfos = docInfoService.list("module_id", moduleId);
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         return Result.ok(docInfoVOS);
+    }
+
+    /**
+     * 保存文档信息
+     * @param docInfoDTO
+     * @return
+     */
+    @PostMapping("save")
+    public Result save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
+        User user = UserContext.getUser();
+        docInfoService.saveDocInfo(docInfoDTO, user);
+        return Result.ok();
+    }
+
+    /**
+     * 删除
+     * @param param
+     * @return
+     */
+    @PostMapping("delete")
+    public Result delete(@RequestBody @Valid IdParam param) {
+        User user = UserContext.getUser();
+        docInfoService.deleteDocInfo(param.getId(), user);
+        return Result.ok();
+    }
+
+    /**
+     * 根据主键查询
+     *
+     * @param id 主键
+     * @return 返回记录，没有返回null
+     */
+    @GetMapping("detail")
+    public Result<DocInfoDTO> detail(Long id) {
+        DocInfoDTO docInfoDTO = docInfoService.getDocDetail(id);
+        return Result.ok(docInfoDTO);
+    }
+
+    /**
+     * 获取模块分类
+     * @param moduleId
+     * @return
+     */
+    @GetMapping("folder/list")
+    public Result<List<DocInfoDTO>> detail(long moduleId) {
+        List<DocInfo> folders = docInfoService.listFolders(moduleId);
+        return Result.ok(CopyUtil.copyList(folders, DocInfoDTO::new));
     }
 
     /**
@@ -71,43 +117,6 @@ public class DocController {
         return Result.ok();
     }
 
-    /**
-     * 保存文档信息
-     * @param docInfoDTO
-     * @return
-     */
-    @PostMapping("save")
-    public Result save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
-        docInfoService.saveDocInfo(docInfoDTO);
-        return Result.ok();
-    }
-
-    /**
-     * 删除
-     * @param param
-     * @return
-     */
-    @PostMapping("delete")
-    public Result delete(@RequestBody @Valid IdParam param) {
-        User user = UserContext.getUser();
-        docInfoService.deleteDocInfo(param.getId(), user);
-        return Result.ok();
-    }
-
-    /**
-     * 根据主键查询
-     *
-     * @param id 主键
-     * @return 返回记录，没有返回null
-     */
-    @GetMapping("detail")
-    public Result<DocInfoDTO> detail(Long id) {
-        DocInfoDTO docDetail = docInfoService.getDocDetail(id);
-        return Result.ok(docDetail);
-    }
 
 
-     
-    
-    
 }

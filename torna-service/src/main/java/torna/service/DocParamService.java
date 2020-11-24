@@ -2,14 +2,17 @@ package torna.service;
 
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 import torna.common.bean.Booleans;
-import torna.common.context.DocConstants;
+import torna.common.bean.User;
+import torna.common.enums.OperationMode;
+import torna.common.enums.ParamStyleEnum;
 import torna.common.support.BaseService;
+import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
 import torna.dao.mapper.DocParamMapper;
+import torna.service.dto.DocParamDTO;
 
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author tanghc
@@ -17,17 +20,58 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
-    public DocParam getByUniqueId(String uniqueId) {
+    public DocParam getByDocIdAndParentIdAndName(long docId, long parentId, String name) {
         Query query = new Query()
-                .eq("unique_id", uniqueId)
-                .enableForceQuery();
-        return this.get(query);
+                .eq("doc_id", docId)
+                .eq("parent_id", parentId)
+                .eq("name", name);
+        return get(query);
     }
 
-    public DocParam saveDoc(DocParam docParam) {
-        DocParam docParamExist = getByUniqueId(docParam.getUniqueId());
+    public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
+        if (docParamDTOS == null) {
+            return;
+        }
+        for (DocParamDTO docParamDTO : docParamDTOS) {
+            this.doSave(docParamDTO, 0L, docInfo, paramStyleEnum, user);
+        }
+    }
+
+    private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
+        DocParam docParam = new DocParam();
+        docParam.setId(docParamDTO.getId());
+        docParam.setName(docParamDTO.getName());
+        docParam.setType(docParamDTO.getType());
+        docParam.setRequired(docParamDTO.getRequired());
+        docParam.setMaxLength(docParamDTO.getMaxLength());
+        docParam.setExample(docParamDTO.getExample());
+        docParam.setDescription(docParamDTO.getDescription());
+        docParam.setEnumContent(docParamDTO.getEnumContent());
+        docParam.setDocId(docInfo.getId());
+        docParam.setParentId(parentId);
+        docParam.setStyle(paramStyleEnum.getStyle());
+        docParam.setModifyMode(user.getOperationModel());
+        docParam.setModifierId(user.getUserId());
+        docParam.setIsDeleted(docParamDTO.getIsDeleted());
+        DocParam savedParam = this.saveParam(docParam);
+        List<DocParamDTO> children = docParamDTO.getChildren();
+        if (children != null) {
+            Long id = savedParam.getId();
+            for (DocParamDTO child : children) {
+                this.doSave(child, id, docInfo, paramStyleEnum, user);
+            }
+        }
+    }
+
+    public DocParam saveParam(DocParam docParam) {
+        Long id = docParam.getId();
+        DocParam docParamExist = id != null && id > 0 ? this.getById(id) : null;
         if (docParamExist != null) {
-            // name, docId, parentId 三项不用改
+            if (docParam.getIsDeleted() != null && docParam.getIsDeleted() == Booleans.TRUE) {
+                this.delete(docParamExist);
+                return docParamExist;
+            }
+            docParamExist.setName(docParam.getName());
             docParamExist.setType(docParam.getType());
             docParamExist.setRequired(docParam.getRequired());
             docParamExist.setMaxLength(docParam.getMaxLength());
@@ -44,15 +88,6 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
             saveIgnoreNull(docParam);
             return docParam;
         }
-    }
-
-    /**
-     * 唯一id,md5(name:doc_id:parent_id)
-     * @return
-     */
-    public static String buildUniqueId(String name, long docId, long parentId) {
-        String content = String.format(DocConstants.UNIQUE_ID_TPL, name, docId, parentId);
-        return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
     }
 
 }

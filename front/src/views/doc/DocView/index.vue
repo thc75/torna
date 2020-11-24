@@ -9,14 +9,28 @@
     <span class="normal-text">
       <el-tag type="info">{{ docInfo.httpMethod }}</el-tag> {{ docInfo.url }}
     </span>
+    <h3>请求Header</h3>
+    <parameter-table
+      :data="docInfo.headerParams"
+      :can-add-node="false"
+      :hidden-columns="['type', 'maxLength']"
+      empty-text="无Header"
+    />
     <h3>请求参数</h3>
     <parameter-table :data="docInfo.requestParams" />
     <h3>响应参数</h3>
-    <parameter-table :data="docInfo.responseParams" />
+    <parameter-table :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
     <h3>响应示例</h3>
     <pre class="normal-text">{{ JSON.stringify(responseSuccessExample, null, 4) }}</pre>
     <h3>错误码</h3>
-    <parameter-table :data="docInfo.errorCodeParams" empty-text="无错误码" :hidden-columns="['required', 'maxLength', 'example']" />
+    <parameter-table
+      :data="docInfo.errorCodeParams"
+      empty-text="无错误码"
+      :hidden-columns="['required', 'maxLength', 'type']"
+      name-label="错误码"
+      description-label="错误描述"
+      example-label="解决方案"
+    />
   </div>
 </template>
 
@@ -48,20 +62,22 @@ export default {
       commonResult: [],
       docBaseInfoData: [],
       docInfo: {
+        docId: 0,
+        name: '',
+        url: '',
+        contentType: '',
+        description: '',
+        httpMethod: 'GET',
+        parentId: 0,
+        moduleId: 0,
+        isShow: 1,
+        headerParams: [],
         requestParams: [],
         responseParams: [],
-        errorCodeParams: []
+        errorCodeParams: [],
+        folders: []
       },
-      responseSuccessExample: {},
-      responseErrorExample: {
-        error_response: {
-          request_id: '0d27836fcac345729176359388aeeb74',
-          code: '40004',
-          msg: '业务处理失败',
-          sub_code: 'isv.name-error',
-          sub_msg: '姓名错误'
-        }
-      }
+      responseSuccessExample: {}
     }
   },
   watch: {
@@ -88,6 +104,7 @@ export default {
     },
     setData: function(data) {
       this.docInfo = data
+      console.log(data)
       this.createResponseExample(data)
     },
     createResponseExample: function(data) {

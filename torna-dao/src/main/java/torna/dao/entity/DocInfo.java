@@ -24,9 +24,6 @@ public class DocInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 唯一id，md5(name:module_id:parent_id), 数据库字段：unique_id */
-    private String uniqueId;
-
     /** 文档名称, 数据库字段：name */
     private String name;
 

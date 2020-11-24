@@ -6,7 +6,7 @@
           新建接口 <i class="el-icon-arrow-down el-icon--right"></i>
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-document">新建接口</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-document" :command="onDocNew">新建接口</el-dropdown-item>
           <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">新建分类</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -128,6 +128,9 @@ export default {
       }).catch(() => {
       })
     },
+    onDocNew() {
+      this.goRoute(`/doc/new/${this.moduleId}`)
+    },
     onFolderAdd() {
       this.$prompt('请输入分类名称', '新建分类', {
         confirmButtonText: '确定',
@@ -178,13 +181,13 @@ export default {
       })
     },
     onDocAdd(row) {
-
+      this.goRoute(`/doc/new/${this.moduleId}/${row.id}`)
     },
     onDocUpdate: function(row) {
       if (row.isFolder) {
         this.onFolderUpdate(row)
       } else {
-        this.goRoute(`/doc/edit/${row.id}`)
+        this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
       }
     },
     onDocView: function(row) {

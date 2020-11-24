@@ -143,8 +143,6 @@ public class DocImportService {
             , User user
     ) {
         DocParam docParam = new DocParam();
-        String uniqueId = DocParamService.buildUniqueId(docParameter.getName(), docInfo.getId(), parentId);
-        docParam.setUniqueId(uniqueId);
         docParam.setName(docParameter.getName());
         docParam.setType(docParameter.getType());
         docParam.setRequired(BooleanUtils.toIntegerObject(docParameter.getRequired()).byteValue());
@@ -162,7 +160,7 @@ public class DocImportService {
         docParam.setCreatorId(user.getUserId());
         docParam.setModifierId(user.getUserId());
         // 保存操作
-        DocParam savedDoc = docParamService.saveDoc(docParam);
+        DocParam savedDoc = docParamService.saveParam(docParam);
 
         // 处理子节点
         List<DocParameter> children = docParameter.getRefs();

@@ -1,6 +1,7 @@
 package torna.service.dto;
 
 import lombok.Data;
+import torna.common.util.IdUtil;
 
 import java.util.List;
 
@@ -46,10 +47,9 @@ public class DocInfoDTO {
 
     private Byte isDeleted;
 
-    private List<DocInfoDTO> folders;
-
     private List<DocParamDTO> headerParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams;
+
 }

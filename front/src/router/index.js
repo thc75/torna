@@ -49,23 +49,39 @@ export const constantRoutes = [
     meta: { title: '项目管理', icon: 'example' },
     children: [
       {
-        path: 'info/:projectId(\\d+)',
+        path: 'info/:projectId(\\w+)',
         name: 'Info',
         component: () => import('@/views/project/index')
-      }]
+      }
+    ]
   },
   {
     path: '/doc', // 必须/开头
     component: Layout,
     name: 'Doc',
-    meta: { title: '编辑文档' },
     children: [
       {
-        path: 'edit/:docId(\\w+)',
+        path: 'edit/:moduleId(\\w+)/:docId(\\w+)',
         name: 'Edit',
         hidden: true,
-        component: () => import('@/views/doc/edit/index')
-      }]
+        component: () => import('@/views/doc/edit/index'),
+        meta: { title: '编辑文档' }
+      },
+      {
+        path: 'new/:moduleId(\\w+)/:parentId(\\w+)',
+        name: 'New',
+        hidden: true,
+        component: () => import('@/views/doc/edit/index'),
+        meta: { title: '新建文档' }
+      },
+      {
+        path: 'new/:moduleId(\\w+)',
+        name: 'New2',
+        hidden: true,
+        component: () => import('@/views/doc/edit/index'),
+        meta: { title: '新建文档' }
+      }
+    ]
   },
   {
     path: '/404',

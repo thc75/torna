@@ -13,7 +13,7 @@
     <el-table-column
       v-if="isColumnShow('name')"
       prop="name"
-      label="名称"
+      :label="nameLabel"
       width="250"
     />
     <el-table-column
@@ -49,12 +49,12 @@
     <el-table-column
       v-if="isColumnShow('description')"
       prop="description"
-      label="描述"
+      :label="descriptionLabel"
     />
     <el-table-column
       v-if="isColumnShow('example')"
       prop="example"
-      label="示例值"
+      :label="exampleLabel"
     >
       <template slot-scope="scope">
         <div v-if="scope.row.type === 'enum'">
@@ -79,6 +79,18 @@ export default {
     emptyText: {
       type: String,
       default: '无参数'
+    },
+    nameLabel: {
+      type: String,
+      default: '名称'
+    },
+    descriptionLabel: {
+      type: String,
+      default: '描述'
+    },
+    exampleLabel: {
+      type: String,
+      default: '示例值'
     },
     hiddenColumns: {
       type: Array,
