@@ -46,6 +46,7 @@
     </dependencies>
 
     <build>
+        <finalName>torna-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

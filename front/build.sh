@@ -1,13 +1,13 @@
 #!/bin/sh
 
-echo "开始构建..."
+echo "开始构建前端..."
 
 rm -rf dist
 npm run build:prod
 
-public_path="torna-web/src/main/resources/public"
+public_path="start/src/main/resources/public"
 
 rm -rf ../$public_path/static/*
 cp -r dist/* ../$public_path
 
-echo "构建完毕"
+echo "前端构建完毕"
