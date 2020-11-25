@@ -1,6 +1,8 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
  */
 @Data
 public class DocParamDTO {
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 字段名称, 数据库字段：name */
@@ -34,9 +37,11 @@ public class DocParamDTO {
     private String enumContent;
 
     /** doc_info.id, 数据库字段：doc_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long docId;
 
     /** 父节点, 数据库字段：parent_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
 
     /** 0：header, 1：请求参数，2：返回参数，3：错误码, 数据库字段：style */

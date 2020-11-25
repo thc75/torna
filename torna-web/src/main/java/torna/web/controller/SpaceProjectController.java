@@ -1,12 +1,13 @@
 package torna.web.controller;
 
-import torna.common.bean.Result;
-import torna.service.ProjectService;
-import torna.service.dto.ProjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
+import torna.common.bean.Result;
+import torna.service.ProjectService;
+import torna.service.dto.ProjectDTO;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class SpaceProjectController {
      * @return
      */
     @GetMapping("/list")
-    public Result<List<ProjectDTO>> listSpaceProject(long spaceId) {
+    public Result<List<ProjectDTO>> listSpaceProject(@HashId Long spaceId) {
         List<ProjectDTO> projectDTOS = projectService.listSpaceProject(spaceId);
         return Result.ok(projectDTOS);
     }

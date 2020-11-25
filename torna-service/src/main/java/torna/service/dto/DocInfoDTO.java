@@ -1,6 +1,8 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 import torna.common.util.IdUtil;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
  */
 @Data
 public class DocInfoDTO {
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 文档名称, 数据库字段：name */
@@ -31,9 +34,11 @@ public class DocInfoDTO {
     private Byte isFolder;
 
     /** 父节点, 数据库字段：parent_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
 
     /** 模块id，module.id, 数据库字段：module_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
     /** 创建人, 数据库字段：creator */

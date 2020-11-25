@@ -39,8 +39,8 @@ export default {
   name: 'ImportSwaggerDialog',
   props: {
     projectId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     },
     success: {
       type: Function,
@@ -52,7 +52,7 @@ export default {
       importJsonDlgShow: false,
       importJsonLoading: false,
       importJsonFormData: {
-        projectId: 0,
+        projectId: '',
         importUrl: '',
         basicAuthUsername: '',
         basicAuthPassword: ''

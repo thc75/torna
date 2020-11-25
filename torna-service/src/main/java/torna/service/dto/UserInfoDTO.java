@@ -1,6 +1,8 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import java.util.Date;
 
@@ -10,6 +12,7 @@ import java.util.Date;
 @Data
 public class UserInfoDTO {
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 登录账号/邮箱, 数据库字段：username */

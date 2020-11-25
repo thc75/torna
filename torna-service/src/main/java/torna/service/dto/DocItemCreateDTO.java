@@ -1,7 +1,9 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import torna.common.bean.User;
+import torna.common.support.IdCodec;
 
 /**
  * @author tanghc
@@ -27,8 +29,10 @@ public class DocItemCreateDTO {
     private Byte isFolder;
 
     /** 父节点, 数据库字段：parent_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
     private User user;

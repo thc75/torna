@@ -2,16 +2,17 @@ package torna.web.controller;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.context.ModuleConfigKeys;
 import torna.common.enums.ModuleConfigTypeEnum;
 import torna.common.util.CopyUtil;
+import torna.common.util.IdUtil;
 import torna.dao.entity.Module;
 import torna.dao.entity.ModuleConfig;
 import torna.service.ModuleConfigService;
@@ -23,7 +24,6 @@ import torna.web.controller.vo.ModuleConfigVO;
 import torna.web.controller.vo.ModuleSettingVO;
 import torna.web.controller.vo.ModuleVO;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,12 +45,12 @@ public class ModuleSettingController {
      * @return
      */
     @GetMapping("get")
-    public Result<ModuleSettingVO> info(long moduleId) {
+    public Result<ModuleSettingVO> info(@HashId Long moduleId) {
         Module module = moduleService.getById(moduleId);
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         String allowMethod = moduleConfigService.getAllowMethod(moduleId);
-        String debugHost = moduleConfigService.getDebugHost(moduleId);
+        String debugHost = moduleConfigService.getDebugHost(moduleId );
         ModuleSettingVO moduleSettingVO = new ModuleSettingVO();
         moduleSettingVO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, ModuleConfigVO::new));
         moduleSettingVO.setAllowMethod(allowMethod);
@@ -68,20 +68,16 @@ public class ModuleSettingController {
     public Result allowMethod(@RequestBody ModuleAllowMethodSetParam param) {
         Long moduleId = param.getModuleId();
         ModuleConfig commonConfig = moduleConfigService.getCommonConfig(moduleId, ModuleConfigKeys.KEY_ALLOW_METHODS);
-        List<String> list = param.getList();
-        if (CollectionUtils.isEmpty(list)) {
-            list = Collections.singletonList("GET");
-        }
-        String value = String.join(",", list);
+        String method =  param.getMethod();
         if (commonConfig == null) {
             commonConfig = new ModuleConfig();
             commonConfig.setModuleId(moduleId);
             commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
             commonConfig.setConfigKey(ModuleConfigKeys.KEY_ALLOW_METHODS);
-            commonConfig.setConfigValue(value);
+            commonConfig.setConfigValue(method);
             moduleConfigService.saveIgnoreNull(commonConfig);
         } else {
-            commonConfig.setConfigValue(value);
+            commonConfig.setConfigValue(method);
             moduleConfigService.update(commonConfig);
         }
         return Result.ok();
@@ -123,21 +119,25 @@ public class ModuleSettingController {
     }
 
     @GetMapping("/globalHeader/list")
-    public Result<List<ModuleConfigVO>> listHeader(long moduleId) {
-        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalHeaders(moduleId);
+    public Result<List<ModuleConfigVO>> listHeader(String moduleId) {
+        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalHeaders(IdUtil.decode(moduleId));
         List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
         return Result.ok(moduleConfigVOS);
     }
 
     @PostMapping("/globalHeader/update")
-    public Result updateHeader(@RequestBody ModuleConfig systemConfig) {
-        moduleConfigService.updateIgnoreNull(systemConfig);
+    public Result updateHeader(@RequestBody ModuleConfigParam param) {
+        ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
+        moduleConfig.setConfigKey(param.getConfigKey());
+        moduleConfig.setConfigValue(param.getConfigValue());
+        moduleConfigService.updateIgnoreNull(moduleConfig);
         return Result.ok();
     }
 
     @PostMapping("/globalHeader/delete")
-    public Result deleteHeader(@RequestBody ModuleConfig systemConfig) {
-        moduleConfigService.delete(systemConfig);
+    public Result deleteHeader(@RequestBody ModuleConfigParam systemConfig) {
+        ModuleConfig moduleConfig = moduleConfigService.getById(systemConfig.getId());
+        moduleConfigService.delete(moduleConfig);
         return Result.ok();
     }
 

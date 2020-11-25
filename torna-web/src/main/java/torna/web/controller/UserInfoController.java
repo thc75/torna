@@ -12,6 +12,7 @@ import torna.common.util.CopyUtil;
 import torna.dao.entity.UserInfo;
 import torna.service.UserInfoService;
 import torna.service.dto.UserInfoDTO;
+import torna.web.controller.param.UserIdParam;
 import torna.web.controller.param.UserInfoSearchParam;
 
 import javax.validation.Valid;

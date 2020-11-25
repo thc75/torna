@@ -1,27 +1,18 @@
 package torna.web.controller.param;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Data;
+import torna.common.support.IdCodec;
+
 import java.util.List;
 
 /**
  * @author tanghc
  */
+@Data
 public class ModuleAllowMethodSetParam {
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
-    private List<String> list;
+    private String method;
 
-    public Long getModuleId() {
-        return moduleId;
-    }
-
-    public void setModuleId(Long moduleId) {
-        this.moduleId = moduleId;
-    }
-
-    public List<String> getList() {
-        return list;
-    }
-
-    public void setList(List<String> list) {
-        this.list = list;
-    }
 }

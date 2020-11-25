@@ -87,8 +87,8 @@ export default {
   name: 'ModuleSetting',
   props: {
     moduleId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -106,7 +106,7 @@ export default {
       dialogHeaderVisible: false,
       dialogHeaderTitle: '',
       dialogHeaderFormData: {
-        id: 0,
+        id: '',
         moduleId: '',
         configKey: '',
         configValue: ''
@@ -142,7 +142,7 @@ export default {
       })
     },
     loadSettings(moduleId) {
-      if (moduleId > 0) {
+      if (moduleId) {
         this.get('/module/setting/get', { moduleId: moduleId }, function(resp) {
           this.settings = resp.data
         })
@@ -151,7 +151,7 @@ export default {
     onHeaderAdd() {
       this.dialogHeaderTitle = '新增Header'
       this.dialogHeaderVisible = true
-      this.dialogHeaderFormData.id = 0
+      this.dialogHeaderFormData.id = ''
     },
     onHeaderUpdate(row) {
       this.dialogHeaderTitle = '修改Header'
@@ -181,7 +181,7 @@ export default {
     onSaveAllowMethods() {
       const data = {
         moduleId: this.moduleId,
-        list: this.settings.allowMethods
+        method: this.settings.allowMethod
       }
       this.post('/module/setting/allowMethod/set', data, () => {
         this.tipSuccess('修改成功')

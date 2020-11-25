@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
-      <el-form-item label="登录邮箱">
-        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录邮箱" style="width: 250px;" />
+      <el-form-item label="登录账号">
+        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录账号" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="loadTable">查询</el-button>
@@ -88,15 +88,15 @@ export default {
   },
   props: {
     spaceId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
       searchFormData: {
         username: '',
-        spaceId: 0,
+        spaceId: '',
         pageIndex: 1,
         pageSize: 20
       },

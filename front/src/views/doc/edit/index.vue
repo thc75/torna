@@ -139,14 +139,14 @@ export default {
       activeName: 'info',
       allMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       docInfo: {
-        docId: 0,
+        docId: '',
         name: '',
         url: '',
         contentType: '',
         description: '',
         httpMethod: 'GET',
-        parentId: 0,
-        moduleId: 0,
+        parentId: '',
+        moduleId: '',
         isShow: 1,
         headerParams: [],
         requestParams: [],
@@ -186,25 +186,25 @@ export default {
   },
   methods: {
     initFolders(moduleId) {
-      if (moduleId > 0) {
+      if (moduleId) {
         this.get('/doc/folder/list', { moduleId: moduleId }, resp => {
           this.folders = resp.data
         })
       }
     },
     initData: function() {
-      const docId = this.$route.params.docId || 0
-      const parentId = this.$route.params.parentId || 0
-      const moduleId = this.$route.params.moduleId || 0
-      this.initFolders(moduleId)
+      const docId = this.$route.params.docId || ''
+      const parentId = this.$route.params.parentId || ''
+      const moduleId = this.$route.params.moduleId || ''
       this.docInfo.docId = docId
       this.docInfo.parentId = parentId
       this.docInfo.moduleId = moduleId
-      if (docId > 0) {
+      this.initFolders(moduleId)
+      if (docId) {
         this.get('/doc/detail', { id: docId }, function(resp) {
           const data = resp.data
-          data.requestParams = this.convertTree(data.requestParams, 0)
-          data.responseParams = this.convertTree(data.responseParams, 0)
+          data.requestParams = this.convertTree(data.requestParams)
+          data.responseParams = this.convertTree(data.responseParams)
           Object.assign(this.docInfo, data)
         }, (resp) => {
           if (resp.code === '1000') {
@@ -242,10 +242,12 @@ export default {
             const headerParams = this.getHeaderParamsData()
             const requestParams = this.getRequestParamsData()
             const responseParams = this.getResponseParamsData()
+            const errorCodeParams = this.getErrorCodeParamsData()
             Object.assign(data, {
-              headerParams: headerParams,
-              requestParams: requestParams,
-              responseParams: responseParams
+              headerParams: this.formatData(headerParams),
+              requestParams: this.formatData(requestParams),
+              responseParams: this.formatData(responseParams),
+              errorCodeParams: this.formatData(errorCodeParams)
             })
             this.post('/doc/save', data, function(resp) {
               this.tipSuccess('保存成功')
@@ -282,6 +284,21 @@ export default {
     },
     getErrorCodeParamsData() {
       return this.$refs.errorCodeParamTable.getData()
+    },
+    formatData(params) {
+      const ret = []
+      params.forEach(row => {
+        const copyRow = Object.assign({}, row)
+        if (copyRow.isNew) {
+          copyRow.id = null
+        }
+        const children = copyRow.children
+        if (children && children.length > 0) {
+          copyRow.children = this.formatData(children)
+        }
+        ret.push(copyRow)
+      })
+      return ret
     },
     goBack: function() {
       this.$router.go(-1)

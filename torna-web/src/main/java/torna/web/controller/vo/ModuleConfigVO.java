@@ -1,6 +1,8 @@
 package torna.web.controller.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 /**
  * @author tanghc
@@ -9,9 +11,11 @@ import lombok.Data;
 public class ModuleConfigVO {
 
     /**  数据库字段：id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /**  数据库字段：module_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
     /** 配置类型，1：全局header, 数据库字段：type */

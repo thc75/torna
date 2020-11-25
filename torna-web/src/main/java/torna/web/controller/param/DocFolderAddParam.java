@@ -1,6 +1,8 @@
 package torna.web.controller.param;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class DocFolderAddParam {
     @NotNull(message = "模块id不能为空")
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
     @NotBlank(message = "模块id不能为空")

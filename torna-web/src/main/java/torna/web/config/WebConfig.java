@@ -3,9 +3,6 @@ package torna.web.config;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
-import torna.common.bean.DefaultTokenManager;
-import torna.common.bean.TokenManager;
-import torna.common.context.SpringContext;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.ApplicationContext;
@@ -15,15 +12,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import torna.common.bean.DefaultTokenManager;
+import torna.common.bean.TokenManager;
+import torna.common.context.SpringContext;
+import torna.common.support.HashIdParamResolver;
+
+import java.util.List;
 
 /**
  * @author tanghc
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
-
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -33,6 +36,11 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(new LoginInterceptor());
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new HashIdParamResolver());
     }
 
     @Bean
@@ -70,5 +78,6 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         converter.setFastJsonConfig(fastJsonConfig);
         return new HttpMessageConverters(converter);
     }
+
 
 }

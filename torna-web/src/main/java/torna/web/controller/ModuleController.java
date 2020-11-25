@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.bean.User;
 import torna.common.context.UserContext;
@@ -37,7 +38,7 @@ public class ModuleController {
     private DocImportService docImportService;
 
     @GetMapping("info")
-    public Result<ModuleVO> info(long moduleId) {
+    public Result<ModuleVO> info(@HashId Long moduleId) {
         Module module = moduleService.getById(moduleId);
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         return Result.ok(moduleVO);
@@ -49,7 +50,7 @@ public class ModuleController {
      * @return
      */
     @GetMapping("list")
-    public Result<List<ModuleVO>> listModule(long projectId) {
+    public Result<List<ModuleVO>> listModule(@HashId Long projectId) {
         List<Module> modules = moduleService.list("project_id", projectId);
         List<ModuleVO> moduleVOS = CopyUtil.copyList(modules, ModuleVO::new);
         return Result.ok(moduleVOS);
@@ -61,7 +62,7 @@ public class ModuleController {
      * @return
      */
     @PostMapping("add")
-    public Result<ModuleVO> add(@RequestBody ModuleAddParam param) {
+    public Result<ModuleVO> add(@RequestBody @Valid ModuleAddParam param) {
         User user = UserContext.getUser();
         Module module = CopyUtil.copyBean(param, Module::new);
         module.setType(ModuleTypeEnum.CUSTOM_ADD.getType());
@@ -78,7 +79,7 @@ public class ModuleController {
      * @return
      */
     @PostMapping("delete")
-    public Result delete(@RequestBody ModuleDeleteParam param) {
+    public Result delete(@RequestBody @Valid ModuleDeleteParam param) {
         Module module = moduleService.getById(param.getId());
         moduleService.delete(module);
         return Result.ok();
@@ -104,7 +105,7 @@ public class ModuleController {
      * @return
      */
     @GetMapping("refresh/swagger")
-    public Result refreshSwaggerDoc(long moduleId) {
+    public Result refreshSwaggerDoc(@HashId Long moduleId) {
         Module module = moduleService.getById(moduleId);
         if (module != null && module.getType() == ModuleTypeEnum.SWAGGER_IMPORT.getType()) {
             ImportSwaggerDTO importSwaggerDTO = CopyUtil.copyBean(module, ImportSwaggerDTO::new);

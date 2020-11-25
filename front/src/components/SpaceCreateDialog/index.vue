@@ -61,7 +61,7 @@ export default {
       const promiseMain = this.$refs.spaceForm.validate()
       Promise.all([promise, promiseMain]).then(validArr => {
         // 到这里来表示全部内容校验通过
-        this.spaceFormData.leaderId = this.$refs.userSelect.getValue()
+        this.spaceFormData.leaderIds = this.$refs.userSelect.getValue()
         this.post('/space/add', this.spaceFormData, resp => {
           this.visible = false
           this.tipSuccess('创建成功')

@@ -1,19 +1,19 @@
 package torna.web.controller;
 
-import com.gitee.fastmybatis.core.query.Query;
-import torna.common.bean.Result;
-import torna.service.SpaceService;
-import torna.service.dto.UserInfoDTO;
-import torna.web.controller.param.SpaceMemberAddParam;
-import torna.web.controller.param.SpaceMemberParam;
-import torna.web.controller.param.SpaceMemberRemoveParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
+import torna.common.bean.Result;
+import torna.service.SpaceService;
+import torna.service.dto.UserInfoDTO;
+import torna.web.controller.param.SpaceMemberAddParam;
+import torna.web.controller.param.SpaceMemberRemoveParam;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -30,19 +30,26 @@ public class SpaceMemberController {
     private SpaceService spaceService;
 
     @GetMapping("/search")
-    public Result<List<UserInfoDTO>> search(@Valid SpaceMemberParam param) {
-        List<UserInfoDTO> userInfoDTOS = spaceService.searchSpaceUser(param.getSpaceId(), param.getUsername());
+    public Result<List<UserInfoDTO>> search(
+            @HashId
+            Long spaceId
+            , @RequestParam(required = false) String username
+    ) {
+        List<UserInfoDTO> userInfoDTOS = spaceService.searchSpaceUser(spaceId, username);
         return Result.ok(userInfoDTOS);
     }
 
     /**
      * 分页查询空间成员
-     * @param param
      * @return
      */
     @GetMapping("/page")
-    public Result<PageEasyui<UserInfoDTO>> page(@Valid SpaceMemberParam param) {
-        PageEasyui<UserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), param.getUsername());
+    public Result<PageEasyui<UserInfoDTO>> page(
+            @HashId
+             Long spaceId
+            , @RequestParam(required = false) String username
+    ) {
+        PageEasyui<UserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(spaceId, username);
         return Result.ok(pageSpaceUser);
     }
 

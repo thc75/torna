@@ -1,6 +1,8 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import java.util.List;
 
@@ -9,6 +11,7 @@ import java.util.List;
  */
 @Data
 public class ProjectUpdateDTO {
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 项目名称, 数据库字段：name */
@@ -20,11 +23,13 @@ public class ProjectUpdateDTO {
     private Long modifierId;
 
     /** 所属组，space.id, 数据库字段：space_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
     /** 是否私有项目，1：是，0：否, 数据库字段：is_private */
     private Byte isPrivate;
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private List<Long> leaderIds;
 
 }

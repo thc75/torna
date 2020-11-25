@@ -1,6 +1,8 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import java.util.Date;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.List;
 @Data
 public class ProjectInfoDTO {
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 项目名称, 数据库字段：name */
@@ -29,6 +32,7 @@ public class ProjectInfoDTO {
     private String modifier;
 
     /** 所属空间，space.id, 数据库字段：space_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
     /** 项目组长 */

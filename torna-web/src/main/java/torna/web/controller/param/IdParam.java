@@ -1,6 +1,8 @@
 package torna.web.controller.param;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import javax.validation.constraints.NotNull;
 
@@ -10,5 +12,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class IdParam {
     @NotNull(message = "id不能为空")
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 }

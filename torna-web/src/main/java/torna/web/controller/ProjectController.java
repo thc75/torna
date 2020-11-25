@@ -1,5 +1,12 @@
 package torna.web.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.bean.User;
 import torna.common.context.UserContext;
@@ -9,12 +16,6 @@ import torna.service.dto.ProjectAddDTO;
 import torna.service.dto.ProjectInfoDTO;
 import torna.service.dto.ProjectUpdateDTO;
 import torna.web.controller.param.ProjectParam;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
@@ -35,7 +36,7 @@ public class ProjectController {
      * @return
      */
     @GetMapping("info")
-    public Result<ProjectInfoDTO> info(long projectId) {
+    public Result<ProjectInfoDTO> info(@HashId Long projectId) {
         ProjectInfoDTO projectInfo = projectService.getProjectInfo(projectId);
         return Result.ok(projectInfo);
     }

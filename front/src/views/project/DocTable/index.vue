@@ -71,7 +71,7 @@
       :visible.sync="viewDialogVisible"
       width="70%"
     >
-      <doc-view v-show="viewDocId > 0" :doc-id="viewDocId" />
+      <doc-view v-show="viewDocId" :doc-id="viewDocId" />
     </el-dialog>
   </div>
 </template>
@@ -82,8 +82,8 @@ export default {
   components: { DocView },
   props: {
     moduleId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -91,7 +91,7 @@ export default {
       tableData: [],
       tableSearch: '',
       viewDialogVisible: false,
-      viewDocId: 0
+      viewDocId: ''
     }
   },
   watch: {

@@ -95,14 +95,14 @@ export default {
   components: { UserSelect },
   props: {
     projectId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
       form: {
-        id: 0,
+        id: '',
         name: '',
         leaderIds: [],
         leader: '',

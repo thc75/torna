@@ -74,13 +74,13 @@ export default {
   components: { DocInfo, ImportSwaggerDialog },
   props: {
     projectId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
-      module: 0,
+      module: '',
       moduleData: [],
       refreshSwaggerLoading: false
     }
@@ -95,10 +95,10 @@ export default {
       this.loadModule(this.projectId)
     },
     loadModule: function(projectId) {
-      if (projectId > 0) {
+      if (projectId) {
         this.get('/module/list', { projectId: projectId }, function(resp) {
           this.moduleData = resp.data
-          if (this.moduleData.length > 0 && this.module === 0) {
+          if (this.moduleData.length > 0 && !this.module) {
             this.module = this.moduleData[0]
           }
         })

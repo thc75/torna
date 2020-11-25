@@ -33,8 +33,8 @@ public class ExceptionHandlerController {
             logger.error("报错，code:{}, msg:{}", errorCode.getCode(), errorCode.getMsg(), e);
             return Result.err(errorCode.getCode(), errorCode.getMsg());
         }
-        if (e instanceof BizException) {
-            BizException bizException = (BizException) e;
+        if (e instanceof BizException || e instanceof IllegalArgumentException) {
+            RuntimeException bizException = (RuntimeException) e;
             return Result.err(bizException.getMessage());
         }
         // 处理JSR-303错误

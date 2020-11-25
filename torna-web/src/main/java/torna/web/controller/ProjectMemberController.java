@@ -1,20 +1,21 @@
 package torna.web.controller;
 
-import torna.common.bean.Result;
-import torna.common.enums.RoleEnum;
-import torna.service.ProjectService;
-import torna.service.dto.ProjectUserDTO;
-import torna.web.controller.param.ProjectMemberAddParam;
-import torna.web.controller.param.ProjectMemberRemoveParam;
-import torna.web.controller.param.ProjectMemberSearchParam;
-import torna.web.controller.param.ProjectMemberUpdateParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
+import torna.common.bean.Result;
+import torna.common.enums.RoleEnum;
+import torna.service.ProjectService;
+import torna.service.dto.ProjectUserDTO;
+import torna.web.controller.param.ProjectMemberAddParam;
+import torna.web.controller.param.ProjectMemberRemoveParam;
+import torna.web.controller.param.ProjectMemberUpdateParam;
 
 import javax.validation.Valid;
 
@@ -30,15 +31,19 @@ public class ProjectMemberController {
 
     /**
      * 分页查询空间成员
-     * @param param
      * @return
      */
     @GetMapping("/page")
-    public Result<PageEasyui<ProjectUserDTO>> page(@Valid ProjectMemberSearchParam param) {
+    public Result<PageEasyui<ProjectUserDTO>> page(
+            @HashId
+            Long projectId,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false)  String roleCode
+    ) {
         PageEasyui<ProjectUserDTO> projectUser = projectService.pageProjectUser(
-                param.getProjectId()
-                , param.getUsername()
-                , RoleEnum.of(param.getRoleCode())
+                projectId
+                , username
+                , RoleEnum.of(roleCode)
         );
         return Result.ok(projectUser);
     }

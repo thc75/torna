@@ -237,8 +237,8 @@ Object.assign(Vue.prototype, {
    * @returns {Array} 返回树array
    */
   convertTree: function(arr, parentId) {
-    if (parentId === undefined) {
-      parentId = 0
+    if (!parentId) {
+      parentId = ''
     }
     if (!arr) {
       return []
@@ -276,7 +276,7 @@ Object.assign(Vue.prototype, {
   },
   getParamNewRow: function(name, value) {
     return {
-      id: -(new Date().getTime() + (paramIdGen++)),
+      id: paramIdGen++,
       name: name || '',
       type: 'string',
       required: 1,
@@ -319,7 +319,7 @@ Object.assign(Vue.prototype, {
     this.get('/space/list', {}, resp => {
       const data = resp.data
       let spaceId = ''
-      const cacheId = parseInt(this.getSpaceId())
+      const cacheId = this.getSpaceId()
       if (cacheId) {
         spaceId = cacheId
       }

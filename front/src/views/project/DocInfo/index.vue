@@ -18,15 +18,15 @@ export default {
   components: { DocTable, ModuleSetting },
   props: {
     moduleId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
       activeName: 'DocList',
-      moduleIdDocList: 0,
-      moduleIdModuleSetting: 0
+      moduleIdDocList: '',
+      moduleIdModuleSetting: ''
     }
   },
   watch: {

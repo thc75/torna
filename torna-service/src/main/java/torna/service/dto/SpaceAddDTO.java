@@ -1,6 +1,8 @@
 package torna.service.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.support.IdCodec;
 
 import java.util.List;
 
@@ -11,6 +13,7 @@ import java.util.List;
 public class SpaceAddDTO {
     private String name;
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private List<Long> leaderIds;
 
     private Long creatorId;

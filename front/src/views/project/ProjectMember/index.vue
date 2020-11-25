@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-form :inline="true" :model="searchFormData" size="mini">
-      <el-form-item label="登录邮箱">
-        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录邮箱" style="width: 250px;" />
+      <el-form-item label="登录账号">
+        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录账号" style="width: 250px;" />
       </el-form-item>
       <el-form-item label="角色">
         <el-select v-model="searchFormData.roleCode" clearable>
@@ -115,8 +115,8 @@ export default {
   },
   props: {
     projectId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -124,7 +124,7 @@ export default {
       searchFormData: {
         username: '',
         roleCode: '',
-        projectId: 0,
+        projectId: '',
         pageIndex: 1,
         pageSize: 20
       },

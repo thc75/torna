@@ -78,7 +78,7 @@ export default {
       this.get('/space/list', {}, resp => {
         this.spaceData = resp.data
         let selected = false
-        const cacheId = parseInt(this.getSpaceId())
+        const cacheId = this.getSpaceId()
         if (cacheId) {
           for (let i = 0; i < this.spaceData.length; i++) {
             if (cacheId === this.spaceData[i].id) {

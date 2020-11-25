@@ -25,17 +25,17 @@ export default {
   components: { ProjectMember, Module, ProjectInfo },
   data() {
     return {
-      projectId: 0,
-      projectIdDoc: 0,
-      projectIdInfo: 0,
-      projectIdMember: 0,
+      projectId: '',
+      projectIdDoc: '',
+      projectIdInfo: '',
+      projectIdMember: '',
       activeName: 'Doc'
     }
   },
   created() {
   },
   mounted() {
-    this.projectId = parseInt(this.$route.params.projectId)
+    this.projectId = this.$route.params.projectId
     this.loadData(this.projectId)
   },
   methods: {

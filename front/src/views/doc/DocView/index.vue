@@ -41,8 +41,8 @@ export default {
   components: { ParameterTable },
   props: {
     docId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     },
     docInfoString: {
       type: String,
@@ -62,14 +62,14 @@ export default {
       commonResult: [],
       docBaseInfoData: [],
       docInfo: {
-        docId: 0,
+        docId: '',
         name: '',
         url: '',
         contentType: '',
         description: '',
         httpMethod: 'GET',
-        parentId: 0,
-        moduleId: 0,
+        parentId: '',
+        moduleId: '',
         isShow: 1,
         headerParams: [],
         requestParams: [],
@@ -93,18 +93,17 @@ export default {
   },
   methods: {
     loadData: function(docId) {
-      if (docId > 0) {
+      if (docId) {
         this.get('/doc/detail', { id: docId }, function(resp) {
           const data = resp.data
-          data.requestParams = this.convertTree(data.requestParams, 0)
-          data.responseParams = this.convertTree(data.responseParams, 0)
+          data.requestParams = this.convertTree(data.requestParams)
+          data.responseParams = this.convertTree(data.responseParams)
           this.setData(data)
         })
       }
     },
     setData: function(data) {
       this.docInfo = data
-      console.log(data)
       this.createResponseExample(data)
     },
     createResponseExample: function(data) {

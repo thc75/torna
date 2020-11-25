@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.bean.User;
 import torna.common.context.UserContext;
@@ -37,7 +38,7 @@ public class DocController {
      * @return 返回结果
      */
     @GetMapping("list")
-    public Result<List<DocInfoVO>> listProjectDoc(long moduleId) {
+    public Result<List<DocInfoVO>> listProjectDoc(@HashId Long moduleId) {
         List<DocInfo> docInfos = docInfoService.list("module_id", moduleId);
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         return Result.ok(docInfoVOS);
@@ -74,7 +75,7 @@ public class DocController {
      * @return 返回记录，没有返回null
      */
     @GetMapping("detail")
-    public Result<DocInfoDTO> detail(Long id) {
+    public Result<DocInfoDTO> detail(@HashId Long id) {
         DocInfoDTO docInfoDTO = docInfoService.getDocDetail(id);
         return Result.ok(docInfoDTO);
     }
@@ -85,7 +86,7 @@ public class DocController {
      * @return
      */
     @GetMapping("folder/list")
-    public Result<List<DocInfoDTO>> detail(long moduleId) {
+    public Result<List<DocInfoDTO>> list(@HashId Long moduleId) {
         List<DocInfo> folders = docInfoService.listFolders(moduleId);
         return Result.ok(CopyUtil.copyList(folders, DocInfoDTO::new));
     }

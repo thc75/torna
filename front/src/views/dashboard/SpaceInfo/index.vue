@@ -48,21 +48,21 @@ export default {
   name: 'SpaceInfo',
   props: {
     spaceId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
       form: {
-        id: 0,
+        id: '',
         name: '',
         creator: '',
         gmtCreate: ''
       },
       popoverShow: false,
       updateForm: {
-        id: 0,
+        id: '',
         name: ''
       },
       updateFormRules: {

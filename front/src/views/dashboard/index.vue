@@ -20,8 +20,8 @@ export default {
   data() {
     return {
       activeName: 'Info',
-      spaceIdInfo: 0,
-      spaceIdMember: 0
+      spaceIdInfo: '',
+      spaceIdMember: ''
     }
   },
   computed: {

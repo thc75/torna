@@ -1,5 +1,12 @@
 package torna.web.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.bean.User;
 import torna.common.context.UserContext;
@@ -10,12 +17,6 @@ import torna.service.dto.SpaceInfoDTO;
 import torna.service.dto.UserSpaceDTO;
 import torna.web.controller.param.SpaceParam;
 import torna.web.controller.param.SpaceUpdateParam;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -39,7 +40,7 @@ public class SpaceController {
     }
 
     @GetMapping("info")
-    public Result<SpaceInfoDTO> getSpaceInfo(long spaceId) {
+    public Result<SpaceInfoDTO> getSpaceInfo(@HashId Long spaceId) {
         SpaceInfoDTO spaceInfo = spaceService.getSpaceInfo(spaceId);
         return Result.ok(spaceInfo);
     }
