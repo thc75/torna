@@ -9,13 +9,13 @@
       @submit.native.prevent
     >
       <div class="title-container">
-        <h3 class="title">开放平台登录</h3>
+        <h3 class="title">用户登录</h3>
       </div>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
           placeholder="登录邮箱"
-          prefix-icon="el-icon-user"
+          prefix-icon="el-icon-message"
           auto-complete="on"
         />
       </el-form-item>
@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     onReg: function() {
-      this.$router.push({ path: `/isvReg` })
+      this.$router.push({ path: `/reg` })
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -116,10 +116,12 @@ export default {
         password: pwd
       }
       callback && callback.call(this, postData)
-      this.post('/portal/common/login', postData, function(resp) {
+      this.post('/common/login', postData, function(resp) {
         const data = resp.data
         this.setUserType('2')
         setToken(data.token)
+        console.log(data.userPerm)
+        this.setPerm(data.userPerm)
         this.goRoute(this.redirect || '/dashboard')
       })
     },

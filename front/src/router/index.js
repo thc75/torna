@@ -42,6 +42,30 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
+
+  {
+    path: '/login',
+    component: () => import('@/views/common/login'),
+    meta: { title: '用户登录' },
+    hidden: true
+  },
+  {
+    path: '/reg',
+    component: () => import('@/views/common/reg'),
+    meta: { title: '用户注册' },
+    hidden: true
+  },
+  {
+    path: '/updatePassword',
+    component: Layout,
+    children: [{
+      path: '/',
+      name: 'UpdatePassword',
+      component: () => import('@/views/common/updatePassword'),
+      meta: { title: '修改密码' },
+      hidden: true
+    }]
+  },
   {
     path: '/project', // 必须/开头
     component: Layout,

@@ -37,7 +37,7 @@
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="hasRole(`space:${spaceId}`, RoleCode.LEADER)">
         <el-button type="danger" size="mini" @click="onSpaceDel">删除空间</el-button>
       </el-form-item>
     </el-form>

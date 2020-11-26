@@ -14,7 +14,7 @@ import torna.dao.entity.Space;
 import torna.service.SpaceService;
 import torna.service.dto.SpaceAddDTO;
 import torna.service.dto.SpaceInfoDTO;
-import torna.service.dto.UserSpaceDTO;
+import torna.service.dto.SpaceDTO;
 import torna.web.controller.param.SpaceParam;
 import torna.web.controller.param.SpaceUpdateParam;
 
@@ -50,9 +50,9 @@ public class SpaceController {
      * @return
      */
     @GetMapping("list")
-    public Result<List<UserSpaceDTO>> listUserSpace() {
+    public Result<List<SpaceDTO>> listUserSpace() {
         User user = UserContext.getUser();
-        return Result.ok(spaceService.listUserSpace(user));
+        return Result.ok(spaceService.listSpace(user));
     }
 
     /**

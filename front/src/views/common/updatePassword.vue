@@ -76,9 +76,9 @@ export default {
           Object.assign(data, this.updatePwdData)
           data.oldPassword = md5(data.oldPassword)
           data.password = md5(data.password)
-          this.post('/portal/isv/updatePassword', data, function(resp) {
+          this.post('/user/updatePassword', data, function(resp) {
             alert('修改成功，请重新登录')
-            this.logout()
+            this.logout('/')
           })
         }
       })

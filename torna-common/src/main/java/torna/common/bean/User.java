@@ -23,4 +23,5 @@ public interface User {
      * @return
      */
     boolean isAdmin();
+
 }

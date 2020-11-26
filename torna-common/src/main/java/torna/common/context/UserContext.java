@@ -33,7 +33,7 @@ public class UserContext {
         return getUser(token);
     }
 
-    private static String getToken(HttpServletRequest request) {
+    public static String getToken(HttpServletRequest request) {
         return request.getHeader(HEADER_TOKEN);
     }
 

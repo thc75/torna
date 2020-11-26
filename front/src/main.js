@@ -16,6 +16,8 @@ import '@/icons' // icon
 import '@/permission' // permission control
 import '@/utils/global' // 自定义全局js
 import '@/utils/routeUtil'
+import '@/utils/role-code'
+import '@/utils/perm'
 
 /**
  * If you don't want to use mock-server

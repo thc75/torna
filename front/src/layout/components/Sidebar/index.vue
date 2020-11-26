@@ -29,6 +29,9 @@
           <div v-for="(item) in projects" :key="item.id">
             <router-link :to="`/project/info/${item.id}`">
               <el-menu-item :index="`/project/info/${item.id}`">
+                <el-tooltip effect="light" placement="top" content="私有项目">
+                  <i v-if="item.isPrivate" class="el-icon-lock private"></i>
+                </el-tooltip>
                 {{ item.name }}
               </el-menu-item>
             </router-link>
@@ -41,6 +44,14 @@
 <style scoped>
 .el-menu--collapse .home-page {
   margin-left: -8px;
+}
+.el-menu-item .private {
+  color: #ccc;
+  float: right;
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  margin-top: -7px;
 }
 </style>
 <script>

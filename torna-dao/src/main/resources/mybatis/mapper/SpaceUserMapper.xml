@@ -9,14 +9,14 @@
         (
             `user_id`
             , `space_id`
-            , `is_leader`
+            , `role_code`
         )
         VALUES
         <foreach collection="items" item="data" separator="," >
             (
                 #{data.userId}
                 ,#{data.spaceId}
-                ,#{data.isLeader}
+                ,#{data.roleCode}
             )
         </foreach>
         ON DUPLICATE KEY UPDATE

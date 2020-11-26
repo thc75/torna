@@ -10,7 +10,7 @@ import java.util.Date;
  * @author tanghc
  */
 @Data
-public class ProjectUserDTO {
+public class SpaceUserInfoDTO {
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;

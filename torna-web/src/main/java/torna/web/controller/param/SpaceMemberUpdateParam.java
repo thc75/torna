@@ -5,25 +5,22 @@ import lombok.Data;
 import torna.common.support.IdCodec;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * @author tanghc
  */
 @Data
-public class SpaceMemberAddParam {
+public class SpaceMemberUpdateParam {
 
     @NotNull(message = "空间ID不能为空")
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
-    @NotEmpty(message = "用户不能为空")
+    @NotNull(message = "用户ID不能为空")
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private List<Long> userIds;
+    private Long userId;
 
     @NotBlank(message = "角色不能为空")
     private String roleCode;
-
 }

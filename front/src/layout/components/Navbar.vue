@@ -37,7 +37,13 @@
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-if="isAdmin()" icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-notebook-1" :command="onProjectCreate">创建项目</el-dropdown-item>
+          <el-dropdown-item
+            v-if="hasRole(`space:${currentSpace.id}`, [RoleCode.DEV, RoleCode.LEADER])"
+            icon="el-icon-notebook-1"
+            :command="onProjectCreate"
+          >
+            创建项目
+          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -60,7 +66,9 @@ export default {
   },
   data() {
     return {
-      currentSpace: {},
+      currentSpace: {
+        id: ''
+      },
       spaceData: []
     }
   },

@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import torna.common.annotation.HashId;
 import torna.common.bean.Result;
+import torna.common.enums.RoleEnum;
 import torna.service.SpaceService;
+import torna.service.dto.SpaceUserInfoDTO;
 import torna.service.dto.UserInfoDTO;
 import torna.web.controller.param.SpaceMemberAddParam;
 import torna.web.controller.param.SpaceMemberRemoveParam;
+import torna.web.controller.param.SpaceMemberUpdateParam;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -44,12 +47,12 @@ public class SpaceMemberController {
      * @return
      */
     @GetMapping("/page")
-    public Result<PageEasyui<UserInfoDTO>> page(
+    public Result<PageEasyui<SpaceUserInfoDTO>> page(
             @HashId
              Long spaceId
             , @RequestParam(required = false) String username
     ) {
-        PageEasyui<UserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(spaceId, username);
+        PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(spaceId, username);
         return Result.ok(pageSpaceUser);
     }
 
@@ -61,7 +64,22 @@ public class SpaceMemberController {
      */
     @PostMapping("/add")
     public Result add(@RequestBody @Valid SpaceMemberAddParam param) {
-        spaceService.addSpaceUser(param.getSpaceId(), param.getUserIds(), false);
+        spaceService.addSpaceUser(param.getSpaceId(), param.getUserIds(), RoleEnum.of(param.getRoleCode()));
+        return Result.ok();
+    }
+
+    /**
+     * 修改成员
+     * @param param
+     * @return
+     */
+    @PostMapping("update")
+    public Result update(@RequestBody @Valid SpaceMemberUpdateParam param) {
+        spaceService.updateSpaceUserRole(
+                param.getSpaceId()
+                , param.getUserId()
+                , RoleEnum.of(param.getRoleCode())
+        );
         return Result.ok();
     }
 

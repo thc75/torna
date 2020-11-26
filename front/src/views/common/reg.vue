@@ -8,11 +8,20 @@
       class="center-form"
       @submit.native.prevent
     >
-      <h3>接入方注册</h3>
+      <h3>用户注册</h3>
       <el-form-item prop="username">
         <el-input
           v-model="regForm.username"
           placeholder="邮箱地址"
+          prefix-icon="el-icon-message"
+          maxlength="100"
+          show-word-limit
+        />
+      </el-form-item>
+      <el-form-item prop="realname">
+        <el-input
+          v-model="regForm.realname"
+          placeholder="昵称"
           prefix-icon="el-icon-user"
           maxlength="100"
           show-word-limit
@@ -66,7 +75,7 @@ import md5 from 'js-md5'
 import { goEmailSite, encodeEmail } from '@/utils/email'
 
 export default {
-  name: 'RegIsv',
+  name: 'Reg',
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.regForm.password) {
@@ -83,14 +92,15 @@ export default {
         username: '',
         password: '',
         password2: '',
-        namespace: '',
-        company: '',
-        type: 2
+        realname: ''
       },
       regRules: {
         username: [
           { required: true, message: '请填写邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur'] }
+        ],
+        realname: [
+          { required: true, message: '请填写', trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
@@ -127,9 +137,6 @@ export default {
         this.$refs.password2.focus()
       })
     },
-    onTabClick: function(tab) {
-      this.$router.push({ path: `/${tab.name}Reg` })
-    },
     goLogin: function() {
       this.goRoute('/login')
     },
@@ -165,7 +172,7 @@ export default {
       data.password = md5(data.password)
       callback && callback.call(this, data)
       this.parseEmailUrl()
-      this.post('/portal/common/regIsv', data, function(resp) {
+      this.post('/common/reg', data, function(resp) {
         // 验证邮箱
         if (data.needVerifyEmail) {
           this.submited = true

@@ -19,29 +19,29 @@ import javax.persistence.Table;
 @Data
 public class SpaceUser {
 
-	/**  数据库字段：id */
+    /**  数据库字段：id */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-	/** user_info.id, 数据库字段：user_id */
+
+    /** user_info.id, 数据库字段：user_id */
     private Long userId;
-    
-	/** space.id, 数据库字段：space_id */
+
+    /** space.id, 数据库字段：space_id */
     private Long spaceId;
-    
-	/** 是否组长，1：是，0：否, 数据库字段：is_leader */
-    private Byte isLeader;
-    
-	/**  数据库字段：is_deleted */
+
+    /** 角色，visitor：访客，dev：开发者，leader：空间管理员, 数据库字段：role_code */
+    private String roleCode;
+
+    /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
-    
-	/**  数据库字段：gmt_create */
+
+    /**  数据库字段：gmt_create */
     private Date gmtCreate;
-    
-	/**  数据库字段：gmt_modified */
+
+    /**  数据库字段：gmt_modified */
     private Date gmtModified;
-    
+
 
 }

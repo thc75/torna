@@ -1,6 +1,17 @@
 package torna.service;
 
+import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.support.PageEasyui;
+import com.gitee.fastmybatis.core.util.MapperUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import torna.common.bean.Booleans;
+import torna.common.bean.User;
 import torna.common.enums.RoleEnum;
 import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
@@ -15,16 +26,6 @@ import torna.service.dto.ProjectInfoDTO;
 import torna.service.dto.ProjectUpdateDTO;
 import torna.service.dto.ProjectUserDTO;
 import torna.service.dto.UserInfoDTO;
-import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.Sort;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.util.MapperUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -170,7 +171,6 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         pageInfo.getRows().forEach(userInfoDTO -> {
             ProjectUser projectUser = userIdMap.get(userInfoDTO.getId());
             userInfoDTO.setGmtCreate(projectUser.getGmtCreate());
-            userInfoDTO.setUserId(userInfoDTO.getId());
             userInfoDTO.setRoleCode(projectUser.getRoleCode());
         });
         return pageInfo;
@@ -211,6 +211,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
             query.eq("role_code", roleEnum.getCode());
         }
         return projectUserMapper.list(query);
+    }
+
+    public List<ProjectUser> listUserProject(User user) {
+        return projectUserMapper.listByColumn("user_id", user.getUserId());
     }
 
     /**

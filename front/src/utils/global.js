@@ -11,6 +11,18 @@ const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${locatio
 const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
 
+const roleCodeConfig = [
+  { label: '访客', code: 'visitor' },
+  { label: '开发者', code: 'dev' },
+  { label: '组长', code: 'leader' }
+]
+
+const spaceRoleCodeConfig = [
+  { label: '访客', code: 'visitor' },
+  { label: '开发者', code: 'dev' },
+  { label: '空间管理员', code: 'leader' }
+]
+
 let paramIdGen = 0
 
 // 创建axios实例
@@ -215,17 +227,18 @@ Object.assign(Vue.prototype, {
     const frm = this.$refs[formName]
     frm && frm.resetFields()
   },
-  logout: function() {
-    this.get('/portal/common/logout', {}, resp => {}, resp => {})
-    this.goLogin()
+  logout: function(url) {
+    this.get('/common/logout', {}, resp => {}, resp => {})
+    this.goLogin(url)
   },
   goHome() {
     this.goRoute('/dashboard')
   },
-  goLogin() {
+  goLogin(url) {
     removeToken()
     // this.$router.replace({ path: `/login` })
-    this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    url = url || this.$route.fullPath
+    this.$router.push(`/login?redirect=${url}`)
   },
   goRoute: function(path) {
     this.$router.push({ path: path })
@@ -254,6 +267,12 @@ Object.assign(Vue.prototype, {
       }
     })
     return temp
+  },
+  getProjectRoleCodeConfig() {
+    return roleCodeConfig
+  },
+  getSpaceRoleCodeConfig() {
+    return spaceRoleCodeConfig
   },
   /**
    * 将树转换成行，convertTree的反操作

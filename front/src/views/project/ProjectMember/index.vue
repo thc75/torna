@@ -6,7 +6,7 @@
       </el-form-item>
       <el-form-item label="角色">
         <el-select v-model="searchFormData.roleCode" clearable>
-          <el-option v-for="item in roleCodeConfig" :key="item.code" :value="item.code" :label="item.label">
+          <el-option v-for="item in getProjectRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
             {{ item.label }}
           </el-option>
         </el-select>
@@ -37,7 +37,7 @@
       >
         <template slot-scope="scope">
           <el-select v-model="scope.row.roleCode" size="mini" @change="onRoleChange(scope.row)">
-            <el-option v-for="item in roleCodeConfig" :key="item.code" :value="item.code" :label="item.label">
+            <el-option v-for="item in getProjectRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
             </el-option>
           </el-select>
@@ -93,7 +93,7 @@
         </el-form-item>
         <el-form-item label="角色" prop="roleCode">
           <el-select v-model="memberAddFormData.roleCode">
-            <el-option v-for="item in roleCodeConfig" :key="item.code" :value="item.code" :label="item.label">
+            <el-option v-for="item in getProjectRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
             </el-option>
           </el-select>
@@ -132,12 +132,6 @@ export default {
         rows: [],
         total: 0
       },
-      // visitor：访客，dev：开发者，leader：项目组长
-      roleCodeConfig: [
-        { label: '访客', code: 'visitor', className: 'el-icon-view' },
-        { label: '开发者', code: 'dev', className: 'el-icon-s-platform' },
-        { label: '组长', code: 'leader', className: 'el-icon-s-custom' }
-      ],
       memberAddDlgShow: false,
       memberAddFormData: {
         roleCode: ''
@@ -166,7 +160,7 @@ export default {
     onRoleChange(row) {
       const data = {
         projectId: this.projectId,
-        userId: row.userId,
+        userId: row.id,
         roleCode: row.roleCode
       }
       this.post('/project/member/update', data, () => {
