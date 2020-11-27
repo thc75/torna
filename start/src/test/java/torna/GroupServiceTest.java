@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * @author tanghc
  */
-public class GroupServiceTest extends DocsphereApplicationTests {
+public class GroupServiceTest extends TornaApplicationTests {
 
     @Autowired
     SpaceService spaceService;
@@ -18,7 +18,7 @@ public class GroupServiceTest extends DocsphereApplicationTests {
     @Test
     public void testAdd() {
         SpaceAddDTO spaceAddDTO = new SpaceAddDTO();
-        spaceAddDTO.setLeaderIds(Arrays.asList(1L));
+        spaceAddDTO.setAdminIds(Arrays.asList(1L));
         spaceAddDTO.setName("测试" + System.currentTimeMillis());
         spaceService.addSpace(spaceAddDTO);
     }

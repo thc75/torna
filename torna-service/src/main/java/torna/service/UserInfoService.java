@@ -56,7 +56,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         // 2. 为用户生成一个默认空间，且自己是管理员
         Long userId = userInfo.getId();
         SpaceAddDTO spaceAddDTO = new SpaceAddDTO();
-        spaceAddDTO.setLeaderIds(Collections.singletonList(userId));
+        spaceAddDTO.setAdminIds(Collections.singletonList(userId));
         spaceAddDTO.setCreatorId(userId);
         spaceAddDTO.setName(defaultSpaceName);
         spaceService.addSpace(spaceAddDTO);

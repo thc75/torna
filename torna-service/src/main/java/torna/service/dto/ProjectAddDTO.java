@@ -28,7 +28,7 @@ public class ProjectAddDTO {
     private Byte isPrivate;
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private List<Long> leaderIds;
+    private List<Long> adminIds;
 
     private Long creatorId;
 

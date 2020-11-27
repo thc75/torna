@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author tanghc
  */
-public class DocInfoServiceTest extends DocsphereApplicationTests {
+public class DocInfoServiceTest extends TornaApplicationTests {
 
     @Autowired
     private DocInfoService docInfoService;

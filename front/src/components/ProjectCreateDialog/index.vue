@@ -28,7 +28,7 @@
           maxlength="100"
         />
       </el-form-item>
-      <el-form-item label="项目组长" required>
+      <el-form-item label="项目管理员" required>
         <user-select ref="userSelect" :loader="loadSpaceMember" multiple />
       </el-form-item>
       <el-form-item label="所属空间" prop="spaceId">
@@ -73,7 +73,7 @@ export default {
         name: '',
         description: '',
         spaceId: '',
-        leaderIds: [],
+        adminIds: [],
         isPrivate: 1
       },
       projectRule: {
@@ -93,7 +93,7 @@ export default {
       const promiseMain = this.$refs.projectForm.validate()
       Promise.all([promise, promiseMain]).then(validArr => {
         // 到这里来表示全部内容校验通过
-        this.projectFormData.leaderIds = this.$refs.userSelect.getValue()
+        this.projectFormData.adminIds = this.$refs.userSelect.getValue()
         this.post('/project/add', this.projectFormData, resp => {
           this.visible = false
           this.fireEvent('projectChange', new Date().getTime())

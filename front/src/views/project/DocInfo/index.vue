@@ -1,10 +1,10 @@
 <template>
   <el-tabs v-model="activeName" @tab-click="handleClick">
     <el-tab-pane label="接口列表" name="DocList">
-      <doc-table ref="docTable" :module-id="moduleIdDocList" />
+      <doc-table ref="docTable" :project-id="projectId" :module-id="moduleIdDocList" />
     </el-tab-pane>
     <el-tab-pane label="模块配置" name="ModuleSetting">
-      <module-setting :module-id="moduleIdModuleSetting" />
+      <module-setting :project-id="projectId" :module-id="moduleIdModuleSetting" />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -18,6 +18,10 @@ export default {
   components: { DocTable, ModuleSetting },
   props: {
     moduleId: {
+      type: String,
+      default: ''
+    },
+    projectId: {
       type: String,
       default: ''
     }

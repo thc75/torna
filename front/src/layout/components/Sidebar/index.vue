@@ -27,7 +27,10 @@
             <span>项目列表</span>
           </template>
           <div v-for="(item) in projects" :key="item.id">
-            <router-link :to="`/project/info/${item.id}`">
+            <router-link
+              v-if="isShowProject(item)"
+              :to="`/project/info/${item.id}`"
+            >
               <el-menu-item :index="`/project/info/${item.id}`">
                 <el-tooltip effect="light" placement="top" content="私有项目">
                   <i v-if="item.isPrivate" class="el-icon-lock private"></i>
@@ -36,6 +39,17 @@
               </el-menu-item>
             </router-link>
           </div>
+        </el-submenu>
+        <el-submenu v-if="isAdmin()" index="/admin">
+          <template slot="title">
+            <i class="el-icon-s-platform"></i>
+            <span>后台管理</span>
+          </template>
+          <router-link to="/admin/openuser">
+            <el-menu-item index="/admin/openuser">
+              开放用户管理
+            </el-menu-item>
+          </router-link>
         </el-submenu>
       </el-menu>
     </el-scrollbar>
@@ -110,6 +124,20 @@ export default {
     }
   },
   methods: {
+    /**
+     * 是否显示项目
+     * @param item
+     * @returns {boolean}
+     */
+    isShowProject(item) {
+      // 如果是公开项目，在空间内的成员都能访问
+      if (!item.isPrivate) {
+        return true
+      }
+      // 私有项目只有加入到项目中，才能访问
+      const Roles = this.Roles
+      return this.hasRole(`project:${item.id}`, [Roles.guest, Roles.dev, Roles.admin])
+    },
     loadMenu(spaceId) {
       if (spaceId) {
         this.get('/space/project/list', { spaceId: spaceId }, resp => {

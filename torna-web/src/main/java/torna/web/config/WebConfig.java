@@ -19,6 +19,7 @@ import torna.common.bean.DefaultTokenManager;
 import torna.common.bean.TokenManager;
 import torna.common.context.SpringContext;
 import torna.common.support.HashIdParamResolver;
+import torna.web.interceptor.AdminInterceptor;
 import torna.web.interceptor.LoginInterceptor;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor());
+        registry.addInterceptor(new AdminInterceptor());
     }
 
     @Override

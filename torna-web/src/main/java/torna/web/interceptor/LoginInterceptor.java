@@ -17,7 +17,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (request.getServletPath().startsWith("/open")) {
+        if (request.getServletPath().startsWith("/api")) {
             return true;
         }
         HandlerMethod handlerMethod = (HandlerMethod) handler;

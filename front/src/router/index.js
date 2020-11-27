@@ -108,6 +108,20 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/admin', // 必须/开头
+    component: Layout,
+    name: 'Admin',
+    children: [
+      {
+        path: 'openuser',
+        name: 'OpenUser',
+        hidden: true,
+        component: () => import('@/views/admin/open/index'),
+        meta: { title: '开放用户' }
+      }
+    ]
+  },
+  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true

@@ -36,9 +36,9 @@
           <el-button type="text" class="el-icon-circle-plus" style="font-size: 24px;"></el-button>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-if="isAdmin()" icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
           <el-dropdown-item
-            v-if="hasRole(`space:${currentSpace.id}`, [RoleCode.DEV, RoleCode.LEADER])"
+            v-if="hasRole(`space:${currentSpace.id}`, [Roles.dev, Roles.admin])"
             icon="el-icon-notebook-1"
             :command="onProjectCreate"
           >

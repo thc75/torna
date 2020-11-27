@@ -58,22 +58,22 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         Project project = CopyUtil.copyBean(projectAddDTO, Project::new);
         this.saveIgnoreNull(project);
 
-        this.saveLeader(project.getId(), projectAddDTO.getLeaderIds());
+        this.saveLeader(project.getId(), projectAddDTO.getAdminIds());
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveLeader(long projectId, List<Long> leaderIds) {
-        Assert.notEmpty(leaderIds, () -> "组长不能为空");
+    public void saveLeader(long projectId, List<Long> adminIds) {
+        Assert.notEmpty(adminIds, () -> "组长不能为空");
         // 1. 移除现有的组长
         projectUserMapper.removeProjectLeader(projectId);
         // 2. 添加新组长
-        List<ProjectUser> projectUsers = leaderIds
+        List<ProjectUser> projectUsers = adminIds
                 .stream()
-                .map(leaderId -> {
+                .map(adminId -> {
                     ProjectUser projectUser = new ProjectUser();
-                    projectUser.setUserId(leaderId);
+                    projectUser.setUserId(adminId);
                     projectUser.setProjectId(projectId);
-                    projectUser.setRoleCode(RoleEnum.LEADER.getCode());
+                    projectUser.setRoleCode(RoleEnum.ADMIN.getCode());
                     return projectUser;
                 })
                 .collect(Collectors.toList());
@@ -142,8 +142,8 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         CopyUtil.copyProperties(projectUpdateDTO, project);
         this.updateIgnoreNull(project);
 
-        List<Long> leaderIds = projectUpdateDTO.getLeaderIds();
-        this.saveLeader(project.getId(), leaderIds);
+        List<Long> adminIds = projectUpdateDTO.getAdminIds();
+        this.saveLeader(project.getId(), adminIds);
     }
 
     /**
@@ -188,7 +188,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         Long creatorId = project.getCreatorId();
         UserInfo userInfo = userInfoService.getById(creatorId);
         projectInfoDTO.setCreator(userInfo.getRealname());
-        projectInfoDTO.setLeaders(userInfoDTOS);
+        projectInfoDTO.setAdmins(userInfoDTOS);
         return projectInfoDTO;
     }
 
@@ -198,9 +198,9 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
      * @return
      */
     public List<UserInfoDTO> listProjectLeader(long projectId) {
-        List<ProjectUser> projectUsers = this.listProjectUser(projectId, RoleEnum.LEADER);
-        List<Long> leaderIds = CopyUtil.copyList(projectUsers, ProjectUser::getUserId);
-        return userInfoService.listUserInfo(leaderIds);
+        List<ProjectUser> projectUsers = this.listProjectUser(projectId, RoleEnum.ADMIN);
+        List<Long> adminIds = CopyUtil.copyList(projectUsers, ProjectUser::getUserId);
+        return userInfoService.listUserInfo(adminIds);
     }
 
     public List<ProjectUser> listProjectUser(long projectId, RoleEnum roleEnum) {

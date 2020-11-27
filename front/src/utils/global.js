@@ -11,18 +11,6 @@ const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${locatio
 const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
 
-const roleCodeConfig = [
-  { label: '访客', code: 'visitor' },
-  { label: '开发者', code: 'dev' },
-  { label: '组长', code: 'leader' }
-]
-
-const spaceRoleCodeConfig = [
-  { label: '访客', code: 'visitor' },
-  { label: '开发者', code: 'dev' },
-  { label: '空间管理员', code: 'leader' }
-]
-
 let paramIdGen = 0
 
 // 创建axios实例
@@ -126,10 +114,15 @@ Object.assign(Vue.prototype, {
       this.$message.error('请求异常，请查看日志')
     }
   },
-  loadRole: function(callback) {
-    this.get('isp.role.list', {}, resp => {
-      callback && callback.call(this, resp.data)
-    })
+  getUserId() {
+    const token = getToken()
+    if (token && token.indexOf(':') > -1) {
+      return token.split(':')[0]
+    }
+    return ''
+  },
+  isSelf(userId) {
+    return this.getUserId() === userId
   },
   /**
    *  文件必须放在public下面
@@ -234,11 +227,16 @@ Object.assign(Vue.prototype, {
   goHome() {
     this.goRoute('/dashboard')
   },
+  goBack() {
+    this.$router.go(-1)
+  },
   goLogin(url) {
     removeToken()
     // this.$router.replace({ path: `/login` })
     url = url || this.$route.fullPath
-    this.$router.push(`/login?redirect=${url}`)
+    if (url.indexOf('login?redirect') === -1) {
+      this.$router.push({ path: `/login?redirect=${url}` })
+    }
   },
   goRoute: function(path) {
     this.$router.push({ path: path })
@@ -267,12 +265,6 @@ Object.assign(Vue.prototype, {
       }
     })
     return temp
-  },
-  getProjectRoleCodeConfig() {
-    return roleCodeConfig
-  },
-  getSpaceRoleCodeConfig() {
-    return spaceRoleCodeConfig
   },
   /**
    * 将树转换成行，convertTree的反操作
@@ -348,13 +340,6 @@ Object.assign(Vue.prototype, {
       }
       callback && callback.call(this, data, spaceId)
     })
-  },
-  /**
-   * 是否是admin
-   * @returns {boolean}
-   */
-  isAdmin: function() {
-    return true
   },
   cellStyleSmall: function() {
     return { padding: '5px 0' }

@@ -1,8 +1,24 @@
 <template>
   <div>
-    <h2>{{ settings.moduleVO.name }}配置</h2>
+    <h3>
+      {{ settings.moduleVO.name }}
+      <popover-update
+        v-if="hasRole(`project:${projectId}`, [Roles.admin, Roles.dev])"
+        :value="settings.moduleVO.name"
+        :on-show="() => {return settings.moduleVO.name}"
+        :on-save="onSaveName"
+      />
+    </h3>
     <h4>全局Headers</h4>
-    <el-button type="primary" size="mini" style="margin-bottom: 10px" @click="onHeaderAdd">添加Header</el-button>
+    <el-button
+      v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])"
+      type="primary"
+      size="mini"
+      style="margin-bottom: 10px"
+      @click="onHeaderAdd"
+    >
+      添加Header
+    </el-button>
     <el-table
       :data="settings.globalHeaders"
       border
@@ -12,6 +28,7 @@
       <el-table-column label="Name" prop="configKey" width="300px" />
       <el-table-column label="Value" prop="configValue" />
       <el-table-column
+        v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])"
         label="操作"
         width="150"
       >
@@ -32,7 +49,7 @@
       <el-form-item prop="debugHost">
         <el-input v-model="settings.debugHost" placeholder="如：http://10.0.10.11:8080" />
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])">
         <el-button type="primary" @click="onSaveDebugHost">保存</el-button>
       </el-form-item>
     </el-form>
@@ -40,11 +57,14 @@
       <h4>Swagger多个Method重复，只显示</h4>
       <el-form ref="allowMethodsRef" :model="settings" size="mini">
         <el-form-item prop="allowMethods">
-          <el-select v-model="settings.allowMethod" @change="onSaveAllowMethods">
+          <el-select v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])" v-model="settings.allowMethod" @change="onSaveAllowMethods">
             <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
               {{ method }}
             </el-option>
           </el-select>
+          <span>
+            {{ settings.allowMethod }}
+          </span>
         </el-form-item>
       </el-form>
     </div>
@@ -83,10 +103,16 @@
   </div>
 </template>
 <script>
+import PopoverUpdate from '@/components/PopoverUpdate'
 export default {
   name: 'ModuleSetting',
+  components: { PopoverUpdate },
   props: {
     moduleId: {
+      type: String,
+      default: ''
+    },
+    projectId: {
       type: String,
       default: ''
     }
@@ -95,6 +121,7 @@ export default {
     return {
       settings: {
         moduleVO: {
+          id: '',
           name: '',
           type: 0
         },
@@ -147,6 +174,17 @@ export default {
           this.settings = resp.data
         })
       }
+    },
+    onSaveName(value, done) {
+      const param = {
+        id: this.settings.moduleVO.id,
+        name: value
+      }
+      this.post('/module/name/update', param, () => {
+        this.tipSuccess('修改成功')
+        this.settings.moduleVO.name = value
+        done()
+      })
     },
     onHeaderAdd() {
       this.dialogHeaderTitle = '新增Header'

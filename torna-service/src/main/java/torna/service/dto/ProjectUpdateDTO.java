@@ -30,6 +30,6 @@ public class ProjectUpdateDTO {
     private Byte isPrivate;
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private List<Long> leaderIds;
+    private List<Long> adminIds;
 
 }

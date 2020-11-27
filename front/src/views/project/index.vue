@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <div class="project-header">{{  }}</div>
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane name="Doc">
         <span slot="label"><i class="el-icon-document"></i> 文档管理</span>
@@ -16,6 +17,14 @@
     </el-tabs>
   </div>
 </template>
+<style>
+.project-header {
+  font-size: 18px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 20px;
+}
+</style>
 <script>
 import Module from './Module'
 import ProjectInfo from './ProjectInfo'
@@ -31,8 +40,6 @@ export default {
       projectIdMember: '',
       activeName: 'Doc'
     }
-  },
-  created() {
   },
   mounted() {
     this.projectId = this.$route.params.projectId

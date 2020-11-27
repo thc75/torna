@@ -30,7 +30,7 @@ public class SpaceUser {
     /** space.id, 数据库字段：space_id */
     private Long spaceId;
 
-    /** 角色，visitor：访客，dev：开发者，leader：空间管理员, 数据库字段：role_code */
+    /** 角色，guest：访客，dev：开发者，admin：空间管理员, 数据库字段：role_code */
     private String roleCode;
 
     /**  数据库字段：is_deleted */

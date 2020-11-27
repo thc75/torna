@@ -1,12 +1,12 @@
 package torna.common.enums;
 
 /**
- * 角色，visitor：访客，dev：开发者，leader：项目组长
+ * 角色，guest：访客，dev：开发者，admin：管理员
  * @author tanghc
  */
 public enum RoleEnum {
 
-    VISITOR, DEV, LEADER;
+    GUEST, DEV, ADMIN;
 
     public static RoleEnum of(String code) {
         RoleEnum[] values = RoleEnum.values();

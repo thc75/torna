@@ -3,30 +3,11 @@
     <el-form ref="form" :model="form" class="text-form" label-width="100px">
       <el-form-item label="空间名称">
         {{ form.name }}
-        <el-popover
-          v-model="popoverShow"
-          placement="bottom"
-          title="修改名称"
-          width="250"
-          trigger="click"
-          @show="onPopoverShow"
-        >
-          <el-form
-            ref="updateNameForm"
-            :model="updateForm"
-            :rules="updateFormRules"
-            size="mini"
-            label-width="100px;"
-          >
-            <el-form-item prop="name">
-              <el-input v-model="updateForm.name" show-word-limit maxlength="50" />
-            </el-form-item>
-          </el-form>
-          <div style="text-align: right; margin: 0">
-            <el-button type="primary" size="mini" @click="onUpdateNameSave">确定</el-button>
-          </div>
-          <el-button slot="reference" type="text" icon="el-icon-edit"></el-button>
-        </el-popover>
+        <popover-update
+          v-if="hasRole(`space:${spaceId}`, [Roles.dev, Roles.admin])"
+          :on-show="() => {return form.name}"
+          :on-save="onSaveName"
+        />
       </el-form-item>
       <el-form-item label="空间管理员">
         {{ form.leader }}
@@ -37,15 +18,17 @@
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item v-if="hasRole(`space:${spaceId}`, RoleCode.LEADER)">
+      <el-form-item v-if="hasRole(`space:${spaceId}`, Roles.admin)">
         <el-button type="danger" size="mini" @click="onSpaceDel">删除空间</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
+import PopoverUpdate from '@/components/PopoverUpdate'
 export default {
   name: 'SpaceInfo',
+  components: { PopoverUpdate },
   props: {
     spaceId: {
       type: String,
@@ -78,9 +61,6 @@ export default {
     }
   },
   methods: {
-    onPopoverShow() {
-      Object.assign(this.updateForm, this.form)
-    },
     onUpdateNameSave() {
       this.$refs.updateNameForm.validate(valid => {
         if (valid) {
@@ -90,6 +70,16 @@ export default {
             location.reload()
           })
         }
+      })
+    },
+    onSaveName(value, done) {
+      const data = {
+        id: this.spaceId,
+        name: value
+      }
+      this.post('/space/updateName', data, () => {
+        done()
+        location.reload()
       })
     },
     onSpaceDel() {

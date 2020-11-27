@@ -1,7 +1,6 @@
 import Vue from 'vue'
 
 let userPerm = {
-  permData: {},
   roleData: {},
   isAdmin: false
 }
@@ -10,16 +9,15 @@ Object.assign(Vue.prototype, {
   setPerm(perm) {
     userPerm = perm
   },
-  hasPermission(key, perm) {
-    if (userPerm.isAdmin) {
-      return true
-    }
-    if (!userPerm || !perm) {
-      return false
-    }
-    const perms = userPerm.permData[key] || []
-    return perms.filter(p => p === perm).length > 0
+  isAdmin() {
+    return userPerm && userPerm.isAdmin
   },
+  /**
+   * 是否拥有角色
+   * @param key 操作key
+   * @param roleCode 角色名称，可以是字符串，也可以是字符串数组
+   * @returns {boolean}
+   */
   hasRole(key, roleCode) {
     if (userPerm.isAdmin) {
       return true
@@ -27,8 +25,6 @@ Object.assign(Vue.prototype, {
     if (!userPerm || !roleCode) {
       return false
     }
-    // console.log(key)
-    // console.log(userPerm.roleData)
     const role = userPerm.roleData[key]
     if (Array.isArray(roleCode)) {
       return roleCode.filter(row => row === role).length > 0

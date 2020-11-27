@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div style="margin-bottom: 10px;">
-      <el-dropdown trigger="click" @command="handleCommand">
+    <div>
+      <el-dropdown v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])" trigger="click" @command="handleCommand">
         <el-button type="primary" size="mini">
           新建接口 <i class="el-icon-arrow-down el-icon--right"></i>
         </el-button>
@@ -16,7 +16,7 @@
         clearable
         size="mini"
         placeholder="过滤: 支持名称、路径"
-        style="width: 300px;float: right"
+        style="width: 300px;float: right;margin-bottom: 10px;"
       />
     </div>
     <el-table
@@ -51,6 +51,7 @@
         width="160"
       />
       <el-table-column
+        v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])"
         label="操作"
         width="160"
       >
@@ -61,7 +62,7 @@
             :title="`确定要删除 ${scope.row.name} 吗？`"
             @onConfirm="onDocRemove(scope.row)"
           >
-            <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
+            <el-link v-if="scope.row.children.length === 0 && hasRole(`project:${projectId}`, Roles.admin)" slot="reference" type="danger">删除</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -82,6 +83,10 @@ export default {
   components: { DocView },
   props: {
     moduleId: {
+      type: String,
+      default: ''
+    },
+    projectId: {
       type: String,
       default: ''
     }

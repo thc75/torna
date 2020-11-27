@@ -7,7 +7,12 @@
             <div class="el-submenu__title" style="padding-left: 20px;">
               <span slot="title">
                 模块列表
-                <el-dropdown style="margin-bottom: 5px;float: right" @command="handleCommand">
+                <el-dropdown
+                  v-if="hasRole(`project:${projectId}`, [Roles.admin, Roles.dev])"
+                  trigger="click"
+                  style="margin-bottom: 5px;float: right"
+                  @command="handleCommand"
+                >
                   <el-button type="text" size="mini" icon="el-icon-circle-plus-outline"></el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">新建模块</el-dropdown-item>
@@ -30,6 +35,7 @@
                 </span>
                 <el-tooltip effect="dark" content="同步Swagger文档" placement="top">
                   <el-button
+                    v-if="hasRole(`project:${projectId}`, [Roles.admin, Roles.dev])"
                     v-show="module.id === item.id && item.type === 1"
                     :loading="refreshSwaggerLoading"
                     type="text"
@@ -43,7 +49,7 @@
         </ul>
       </el-aside>
       <el-main style="padding-top: 0">
-        <doc-info ref="docInfo" :module-id="module.id" />
+        <doc-info ref="docInfo" :project-id="projectId" :module-id="module.id" />
       </el-main>
     </el-container>
     <!-- 导入json -->
@@ -69,6 +75,7 @@
 <script>
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
+
 export default {
   name: 'Module',
   components: { DocInfo, ImportSwaggerDialog },

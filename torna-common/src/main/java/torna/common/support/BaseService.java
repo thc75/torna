@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * service基类
@@ -39,7 +40,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
         return mapper.list(query.setQueryAll(true));
     }
 
-    public <R> List<R> listAll(Function<E, R> supplier) {
+    public <R> List<R> listAll(Supplier<R> supplier) {
         List<E> list = mapper.list(new Query().setQueryAll(true));
         return CopyUtil.copyList(list, supplier);
     }

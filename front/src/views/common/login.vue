@@ -120,7 +120,6 @@ export default {
         const data = resp.data
         this.setUserType('2')
         setToken(data.token)
-        console.log(data.userPerm)
         this.setPerm(data.userPerm)
         this.goRoute(this.redirect || '/dashboard')
       })

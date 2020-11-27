@@ -19,32 +19,32 @@ import javax.persistence.Table;
 @Data
 public class UserInfo {
 
-	/**  数据库字段：id */
+    /**  数据库字段：id */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-	/** 登录账号/邮箱, 数据库字段：username */
+
+    /** 登录账号/邮箱, 数据库字段：username */
     private String username;
-    
-	/** 登录密码, 数据库字段：password */
+
+    /** 登录密码, 数据库字段：password */
     private String password;
-    
-	/** 真实姓名, 数据库字段：realname */
+
+    /** 真实姓名, 数据库字段：realname */
     private String realname;
-    
-	/** 是否是管理员, 数据库字段：is_admin */
+
+    /** 是否是管理员, 数据库字段：is_admin */
     private Byte isAdmin;
-    
-	/**  数据库字段：is_deleted */
+
+    /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
-    
-	/**  数据库字段：gmt_create */
+
+    /**  数据库字段：gmt_create */
     private Date gmtCreate;
-    
-	/**  数据库字段：gmt_modified */
+
+    /**  数据库字段：gmt_modified */
     private Date gmtModified;
-    
+
 
 }

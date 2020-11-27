@@ -1,7 +1,6 @@
 import Cookies from 'js-cookie'
-import Vue from 'vue'
 
-const TokenKey = 'sop-website-token'
+const TokenKey = 'torna-token'
 
 export function getToken() {
   return Cookies.get(TokenKey)
@@ -15,6 +14,3 @@ export function removeToken() {
   return Cookies.remove(TokenKey)
 }
 
-Object.assign(Vue.prototype, {
-  a: ['4', 'd', '6', 'b', 'a', '4', '7', '7', '5', '2', '5', '5', 'e', 'b', '8', 'd'].reverse().join('')
-})

@@ -7,8 +7,8 @@
       <el-form-item label="项目描述">
         {{ form.description }}
       </el-form-item>
-      <el-form-item label="项目组长">
-        {{ form.leader }}
+      <el-form-item label="项目管理员">
+        {{ form.admin }}
       </el-form-item>
       <el-form-item label="访问权限">
         {{ form.isPrivate === 1 ? '私有' : '公开' }}
@@ -21,8 +21,8 @@
       </el-form-item>
       <el-form-item>
         <!-- role_pos -->
-        <el-button type="primary" size="mini" @click="onProjectUpdate">修改项目</el-button>
-        <el-button type="danger" size="mini" @click="onProjectDel">删除项目</el-button>
+        <el-button v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])" type="primary" size="mini" @click="onProjectUpdate">修改项目</el-button>
+        <el-button v-if="hasRole(`project:${projectId}`, [Roles.admin])" type="danger" size="mini" @click="onProjectDel">删除项目</el-button>
       </el-form-item>
     </el-form>
     <el-dialog
@@ -53,11 +53,9 @@
             maxlength="100"
           />
         </el-form-item>
-        <!-- role_pos -->
-        <el-form-item label="项目组长" required>
-          <user-select ref="userSelect" :loader="loadSpaceMember" multiple :value="projectFormData.leaderIds" />
+        <el-form-item label="项目管理员" required>
+          <user-select ref="userSelect" :loader="loadSpaceMember" multiple :value="projectFormData.adminIds" />
         </el-form-item>
-        <!-- role_pos -->
         <el-form-item label="所属空间" prop="spaceId">
           <el-select
             v-model="projectFormData.spaceId"
@@ -90,6 +88,7 @@
 </template>
 <script>
 import UserSelect from '@/components/UserSelect'
+
 export default {
   name: 'ProjectInfo',
   components: { UserSelect },
@@ -104,8 +103,8 @@ export default {
       form: {
         id: '',
         name: '',
-        leaderIds: [],
-        leader: '',
+        adminIds: [],
+        admin: '',
         spaceId: '',
         description: '',
         isPrivate: 0,
@@ -117,7 +116,7 @@ export default {
         name: '',
         description: '',
         spaceId: '',
-        leaderIds: [],
+        adminIds: [],
         isPrivate: 1
       },
       projectRule: {
@@ -159,7 +158,7 @@ export default {
       const promiseMain = this.$refs.projectForm.validate()
       Promise.all([promise, promiseMain]).then(validArr => {
         // 到这里来表示全部内容校验通过
-        this.projectFormData.leaderIds = this.$refs.userSelect.getValue()
+        this.projectFormData.adminIds = this.$refs.userSelect.getValue()
         this.post('/project/update', this.projectFormData, resp => {
           this.projectDlgShow = false
           // 如果空间变了，需要刷新页面
@@ -178,10 +177,10 @@ export default {
       if (projectId) {
         this.get('/project/info', { projectId: projectId }, resp => {
           const data = resp.data
-          data.leader = data.leaders.map(userInfo => {
+          data.admin = data.admins.map(userInfo => {
             return userInfo.realname
           }).join(' / ')
-          data.leaderIds = data.leaders.map(userInfo => {
+          data.adminIds = data.admins.map(userInfo => {
             return userInfo.id
           })
           this.form = data

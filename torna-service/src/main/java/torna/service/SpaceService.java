@@ -59,7 +59,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         this.saveIgnoreNull(space);
 
         // 添加管理员
-        this.addSpaceUser(space.getId(), spaceAddDTO.getLeaderIds(), RoleEnum.LEADER);
+        this.addSpaceUser(space.getId(), spaceAddDTO.getAdminIds(), RoleEnum.ADMIN);
     }
 
     /**
@@ -184,11 +184,11 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     public List<UserInfoDTO> listSpaceLeader(long spaceId) {
         Query query = new Query()
                 .eq("space_id", spaceId)
-                .eq("role_code", RoleEnum.LEADER.getCode())
+                .eq("role_code", RoleEnum.ADMIN.getCode())
                 .setQueryAll(true);
         List<SpaceUser> spaceLeaders = spaceUserMapper.list(query);
-        List<Long> leaderIds = CopyUtil.copyList(spaceLeaders, SpaceUser::getUserId);
-        return userInfoService.listUserInfo(leaderIds);
+        List<Long> adminIds = CopyUtil.copyList(spaceLeaders, SpaceUser::getUserId);
+        return userInfoService.listUserInfo(adminIds);
     }
 
     public List<SpaceUser> listSpaceUser(long spaceId) {
@@ -205,6 +205,9 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
      * @return 返回空间信息
      */
     public List<SpaceDTO> listSpace(User user) {
+        if (user.isAdmin()) {
+            return this.listAll(SpaceDTO::new);
+        }
         List<Long> spaceIds;
         List<SpaceUser> spaceUserList = spaceUserMapper.listByColumn("user_id", user.getUserId());
         if (CollectionUtils.isEmpty(spaceUserList)) {

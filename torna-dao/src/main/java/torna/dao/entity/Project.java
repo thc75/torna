@@ -19,38 +19,38 @@ import javax.persistence.Table;
 @Data
 public class Project {
 
-	/**  数据库字段：id */
+    /**  数据库字段：id */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-	/** 项目名称, 数据库字段：name */
+
+    /** 项目名称, 数据库字段：name */
     private String name;
-    
-	/** 项目描述, 数据库字段：description */
+
+    /** 项目描述, 数据库字段：description */
     private String description;
-    
-	/** 所属空间，space.id, 数据库字段：space_id */
+
+    /** 所属空间，space.id, 数据库字段：space_id */
     private Long spaceId;
-    
-	/** 是否私有项目，1：是，0：否, 数据库字段：is_private */
+
+    /** 是否私有项目，1：是，0：否, 数据库字段：is_private */
     private Byte isPrivate;
-    
-	/** 创建者userid, 数据库字段：creator_id */
+
+    /** 创建者userid, 数据库字段：creator_id */
     private Long creatorId;
-    
-	/**  数据库字段：modifier_id */
+
+    /**  数据库字段：modifier_id */
     private Long modifierId;
-    
-	/**  数据库字段：is_deleted */
+
+    /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
-    
-	/**  数据库字段：gmt_create */
+
+    /**  数据库字段：gmt_create */
     private Date gmtCreate;
-    
-	/**  数据库字段：gmt_modified */
+
+    /**  数据库字段：gmt_modified */
     private Date gmtModified;
-    
+
 
 }

@@ -8,7 +8,16 @@
         <el-button type="primary" icon="el-icon-search" @click="loadTable">查询</el-button>
       </el-form-item>
     </el-form>
-    <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onMemberAdd">添加成员</el-button>
+    <el-button
+      v-if="hasRole(`space:${spaceId}`, Roles.admin)"
+      type="primary"
+      size="mini"
+      icon="el-icon-plus"
+      style="margin-bottom: 10px;"
+      @click="onMemberAdd"
+    >
+      添加成员
+    </el-button>
     <el-table
       :data="pageInfo.rows"
       border
@@ -21,6 +30,7 @@
       >
         <template slot-scope="scope">
           {{ `${scope.row.realname}(${scope.row.username})` }}
+          <el-tag v-if="isSelf(scope.row.id)">我</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -29,11 +39,20 @@
         width="250"
       >
         <template slot-scope="scope">
-          <el-select v-model="scope.row.roleCode" size="mini" @change="onRoleChange(scope.row)">
+          <el-select
+            v-if="hasRole(`space:${spaceId}`, Roles.admin)"
+            v-model="scope.row.roleCode"
+            size="mini"
+            :disabled="isSelf(scope.row)"
+            @change="onRoleChange(scope.row)"
+          >
             <el-option v-for="item in getSpaceRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
             </el-option>
           </el-select>
+          <span v-else>
+            {{ getSpaceRoleName(scope.row.roleCode) }}
+          </span>
         </template>
       </el-table-column>
       <el-table-column
@@ -42,11 +61,13 @@
         width="200"
       />
       <el-table-column
+        v-if="hasRole(`space:${spaceId}`, [Roles.admin])"
         label="操作"
         width="150"
       >
         <template slot-scope="scope">
           <el-popconfirm
+            v-if="!isSelf(scope.row)"
             :title="`确定要移除 ${scope.row.realname}(${scope.row.username}) 吗？`"
             @onConfirm="onMemberRemove(scope.row)"
           >
@@ -66,7 +87,7 @@
       @size-change="onSizeChange"
       @current-change="onPageIndexChange"
     />
-<!--    -->
+    <!--    -->
     <el-dialog
       title="添加用户"
       :close-on-click-modal="false"
@@ -128,7 +149,7 @@ export default {
       memberAddDlgShow: false,
       memberAddFormData: {
         name: '',
-        leaderId: ''
+        adminId: ''
       },
       memberAddRules: {
         roleCode: [

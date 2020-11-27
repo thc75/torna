@@ -35,8 +35,8 @@ public class ProjectInfoDTO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
-    /** 项目组长 */
-    private List<UserInfoDTO> leaders;
+    /** 项目管理员 */
+    private List<UserInfoDTO> admins;
 
     /** 是否私有项目，1：是，0：否, 数据库字段：is_private */
     private Byte isPrivate;
