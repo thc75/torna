@@ -18,6 +18,13 @@ public class OpenUserService extends BaseService<OpenUser, OpenUserMapper> {
 
     private static final int SECRET_LEN = 32;
 
+    public OpenUser getByAppKey(String appKey) {
+        if (appKey == null) {
+            return null;
+        }
+        return this.get("app_key", appKey);
+    }
+
     public void createOpenUser() {
         OpenUser openUser = new OpenUser();
         openUser.setAppKey(AppKeyUtil.createAppKey());

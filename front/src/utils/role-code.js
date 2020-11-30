@@ -1,8 +1,11 @@
 import Vue from 'vue'
 
-const Roles = {
+const Role = {
+  /** 访客 */
   guest: 'guest',
+  /** 开发者 */
   dev: 'dev',
+  /** 管理员 */
   admin: 'admin'
 }
 
@@ -19,7 +22,7 @@ const SpaceRoleCodeConfig = [
 ]
 
 Object.assign(Vue.prototype, {
-  Roles: Roles,
+  Role: Role,
   getProjectRoleCodeConfig() {
     return ProjectRoleCodeConfig
   },

@@ -9,7 +9,7 @@
       </el-form-item>
     </el-form>
     <el-button
-      v-if="hasRole(`space:${spaceId}`, Roles.admin)"
+      v-if="hasRole(`space:${spaceId}`, Role.admin)"
       type="primary"
       size="mini"
       icon="el-icon-plus"
@@ -40,7 +40,7 @@
       >
         <template slot-scope="scope">
           <el-select
-            v-if="hasRole(`space:${spaceId}`, Roles.admin)"
+            v-if="hasRole(`space:${spaceId}`, Role.admin)"
             v-model="scope.row.roleCode"
             size="mini"
             :disabled="isSelf(scope.row)"
@@ -61,7 +61,7 @@
         width="200"
       />
       <el-table-column
-        v-if="hasRole(`space:${spaceId}`, [Roles.admin])"
+        v-if="hasRole(`space:${spaceId}`, [Role.admin])"
         label="操作"
         width="150"
       >

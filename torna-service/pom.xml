@@ -26,11 +26,6 @@
         </dependency>
         <dependency>
             <groupId>torna</groupId>
-            <artifactId>torna-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>torna</groupId>
             <artifactId>torna-manager</artifactId>
             <version>${project.version}</version>
         </dependency>

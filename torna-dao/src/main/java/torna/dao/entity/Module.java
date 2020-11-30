@@ -42,6 +42,9 @@ public class Module {
     /** basic认证密码, 数据库字段：basic_auth_password */
     private String basicAuthPassword;
 
+    /** 开放接口调用token, 数据库字段：token */
+    private String token;
+
     /** 新增操作方式，0：人工操作，1：开放平台推送, 数据库字段：create_mode */
     private Byte createMode;
 

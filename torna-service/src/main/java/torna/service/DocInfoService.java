@@ -67,7 +67,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 用户
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+    public DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
@@ -75,6 +75,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
         docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
         docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
+        return docInfo;
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
@@ -94,6 +95,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setUrl(docInfoDTO.getUrl());
         docInfo.setHttpMethod(docInfoDTO.getHttpMethod());
         docInfo.setContentType(docInfoDTO.getContentType());
+        docInfo.setIsFolder(Booleans.FALSE);
         docInfo.setParentId(docInfoDTO.getParentId());
         docInfo.setModuleId(docInfoDTO.getModuleId());
         docInfo.setModifyMode(user.getOperationModel());
@@ -188,11 +190,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param moduleId 模块id
      * @param user 操作人
      */
-    public void createDocFolder(String folderName, long moduleId, User user) {
+    public DocInfo createDocFolder(String folderName, long moduleId, User user) {
         if (isExistFolderForAdd(folderName, moduleId, 0)) {
             throw new BizException(folderName + " 已存在");
         }
-        this.createDocFolderNoCheck(folderName, moduleId, user);
+        return this.createDocFolderNoCheck(folderName, moduleId, user);
     }
 
     /**

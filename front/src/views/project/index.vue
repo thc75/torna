@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="project-header">{{  }}</div>
+    <div class="project-header">{{ currentProject.name }}</div>
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane name="Doc">
         <span slot="label"><i class="el-icon-document"></i> 文档管理</span>
@@ -38,7 +38,13 @@ export default {
       projectIdDoc: '',
       projectIdInfo: '',
       projectIdMember: '',
+      title: '',
       activeName: 'Doc'
+    }
+  },
+  computed: {
+    currentProject() {
+      return this.$store.state.settings.currentProject
     }
   },
   mounted() {

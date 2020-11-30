@@ -1,10 +1,16 @@
 <template>
   <el-tabs v-model="activeName" @tab-click="handleClick">
-    <el-tab-pane label="接口列表" name="DocList">
+    <el-tab-pane name="DocList">
+      <span slot="label"><i class="el-icon-s-grid"></i> 接口列表</span>
       <doc-table ref="docTable" :project-id="projectId" :module-id="moduleIdDocList" />
     </el-tab-pane>
-    <el-tab-pane label="模块配置" name="ModuleSetting">
+    <el-tab-pane name="ModuleSetting">
+      <span slot="label"><i class="el-icon-setting"></i> 模块配置</span>
       <module-setting :project-id="projectId" :module-id="moduleIdModuleSetting" />
+    </el-tab-pane>
+    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="OpenApi">
+      <span slot="label"><i class="el-icon-collection-tag"></i> OpenAPI</span>
+      <module-open-api :module-id="moduleIdOpenApi" />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -12,10 +18,11 @@
 <script>
 import DocTable from '../DocTable'
 import ModuleSetting from '../ModuleSetting'
+import ModuleOpenApi from '../ModuleOpenApi'
 
 export default {
   name: 'DocInfo',
-  components: { DocTable, ModuleSetting },
+  components: { DocTable, ModuleSetting, ModuleOpenApi },
   props: {
     moduleId: {
       type: String,
@@ -30,7 +37,8 @@ export default {
     return {
       activeName: 'DocList',
       moduleIdDocList: '',
-      moduleIdModuleSetting: ''
+      moduleIdModuleSetting: '',
+      moduleIdOpenApi: ''
     }
   },
   watch: {

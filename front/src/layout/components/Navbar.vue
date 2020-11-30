@@ -38,7 +38,7 @@
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
           <el-dropdown-item
-            v-if="hasRole(`space:${currentSpace.id}`, [Roles.dev, Roles.admin])"
+            v-if="hasRole(`space:${currentSpace.id}`, [Role.dev, Role.admin])"
             icon="el-icon-notebook-1"
             :command="onProjectCreate"
           >

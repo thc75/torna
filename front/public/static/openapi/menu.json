@@ -1,0 +1,16 @@
+[
+  {
+    "title" : "OpenAPI",
+    "icon": "el-icon-edit-outline",
+    "children": [
+      {
+        "title": "获取文档列表",
+        "path": "static/openapi/doc.list.md"
+      },
+      {
+        "title": "公私钥介绍",
+        "path": "static/doc/common/keys.md"
+      }
+    ]
+  }
+]

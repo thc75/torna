@@ -16,7 +16,7 @@
       </el-form-item>
     </el-form>
     <el-button
-      v-if="hasRole(`project:${projectId}`, Roles.admin)"
+      v-if="hasRole(`project:${projectId}`, Role.admin)"
       type="primary"
       size="mini"
       icon="el-icon-plus"
@@ -46,7 +46,7 @@
         width="250"
       >
         <template slot-scope="scope">
-          <el-select v-if="hasRole(`project:${projectId}`, Roles.admin)" v-model="scope.row.roleCode" size="mini" @change="onRoleChange(scope.row)">
+          <el-select v-if="hasRole(`project:${projectId}`, Role.admin)" v-model="scope.row.roleCode" size="mini" @change="onRoleChange(scope.row)">
             <el-option v-for="item in getProjectRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
             </el-option>
@@ -62,7 +62,7 @@
         width="200"
       />
       <el-table-column
-        v-if="hasRole(`project:${projectId}`, Roles.admin)"
+        v-if="hasRole(`project:${projectId}`, Role.admin)"
         label="操作"
         width="150"
       >
@@ -89,7 +89,7 @@
     />
 <!--    -->
     <el-dialog
-      v-if="hasRole(`project:${projectId}`, Roles.admin)"
+      v-if="hasRole(`project:${projectId}`, Role.admin)"
       title="添加用户"
       :close-on-click-modal="false"
       :visible.sync="memberAddDlgShow"

@@ -114,6 +114,9 @@ Object.assign(Vue.prototype, {
       this.$message.error('请求异常，请查看日志')
     }
   },
+  getBaseUrl() {
+    return baseURL
+  },
   getUserId() {
     const token = getToken()
     if (token && token.indexOf(':') > -1) {

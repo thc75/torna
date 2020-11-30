@@ -7,6 +7,7 @@ const state = {
   fixedHeader: fixedHeader,
   sidebarLogo: sidebarLogo,
   projectChange: 0,
+  currentProject: '',
   projects: [],
   spaceId: ''
 }

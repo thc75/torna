@@ -31,7 +31,7 @@
               v-if="isShowProject(item)"
               :to="`/project/info/${item.id}`"
             >
-              <el-menu-item :index="`/project/info/${item.id}`">
+              <el-menu-item :index="`/project/info/${item.id}`" @click="onProjectSelect(item)">
                 <el-tooltip effect="light" placement="top" content="私有项目">
                   <i v-if="item.isPrivate" class="el-icon-lock private"></i>
                 </el-tooltip>
@@ -135,13 +135,29 @@ export default {
         return true
       }
       // 私有项目只有加入到项目中，才能访问
-      const Roles = this.Roles
-      return this.hasRole(`project:${item.id}`, [Roles.guest, Roles.dev, Roles.admin])
+      const Role = this.Role
+      return this.hasRole(`project:${item.id}`, [Role.guest, Role.dev, Role.admin])
+    },
+    selectCurrentProject(projects) {
+      const projectId = this.$route.params.projectId
+      if (projectId) {
+        for (const project of projects) {
+          if (project.id === projectId) {
+            this.onProjectSelect(project)
+            break
+          }
+        }
+      }
+    },
+    onProjectSelect(item) {
+      this.$store.state.settings.currentProject = item
     },
     loadMenu(spaceId) {
       if (spaceId) {
         this.get('/space/project/list', { spaceId: spaceId }, resp => {
-          this.$store.state.settings.projects = resp.data
+          const projects = resp.data
+          this.$store.state.settings.projects = projects
+          this.selectCurrentProject(projects)
         })
       }
     }

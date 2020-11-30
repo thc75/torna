@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <el-dropdown v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])" trigger="click" @command="handleCommand">
+      <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <el-button type="primary" size="mini">
           新建接口 <i class="el-icon-arrow-down el-icon--right"></i>
         </el-button>
@@ -15,7 +15,7 @@
         prefix-icon="el-icon-search"
         clearable
         size="mini"
-        placeholder="过滤: 支持名称、路径"
+        placeholder="过滤: 支持ID、名称、路径"
         style="width: 300px;float: right;margin-bottom: 10px;"
       />
     </div>
@@ -29,6 +29,11 @@
       :header-cell-style="headCellStyleSmall()"
       :row-class-name="tableRowClassName"
     >
+      <el-table-column
+        prop="id"
+        label="文档ID"
+        width="160"
+      />
       <el-table-column
         prop="name"
         label="文档名称"
@@ -51,7 +56,7 @@
         width="160"
       />
       <el-table-column
-        v-if="hasRole(`project:${projectId}`, [Roles.dev, Roles.admin])"
+        v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
         width="160"
       >
@@ -62,7 +67,7 @@
             :title="`确定要删除 ${scope.row.name} 吗？`"
             @onConfirm="onDocRemove(scope.row)"
           >
-            <el-link v-if="scope.row.children.length === 0 && hasRole(`project:${projectId}`, Roles.admin)" slot="reference" type="danger">删除</el-link>
+            <el-link v-if="scope.row.children.length === 0 && hasRole(`project:${projectId}`, Role.admin)" slot="reference" type="danger">删除</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -166,9 +171,9 @@ export default {
         return ''
       }
       const searchText = this.tableSearch.toLowerCase()
-      const find = (row.name && row.name.toLowerCase().indexOf(searchText) > -1) || (
-        row.url && row.url.toLowerCase().indexOf(searchText) > -1
-      )
+      const find = (row.id && row.id.toLowerCase().indexOf(searchText) > -1) ||
+        (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
+        (row.url && row.url.toLowerCase().indexOf(searchText) > -1)
       // 没有找到，隐藏
       if (!find) {
         row.hidden = true

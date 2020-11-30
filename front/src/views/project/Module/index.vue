@@ -8,7 +8,7 @@
               <span slot="title">
                 模块列表
                 <el-dropdown
-                  v-if="hasRole(`project:${projectId}`, [Roles.admin, Roles.dev])"
+                  v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
                   trigger="click"
                   style="margin-bottom: 5px;float: right"
                   @command="handleCommand"
@@ -35,7 +35,7 @@
                 </span>
                 <el-tooltip effect="dark" content="同步Swagger文档" placement="top">
                   <el-button
-                    v-if="hasRole(`project:${projectId}`, [Roles.admin, Roles.dev])"
+                    v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
                     v-show="module.id === item.id && item.type === 1"
                     :loading="refreshSwaggerLoading"
                     type="text"

@@ -4,7 +4,7 @@
       <el-form-item label="空间名称">
         {{ form.name }}
         <popover-update
-          v-if="hasRole(`space:${spaceId}`, [Roles.dev, Roles.admin])"
+          v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
           :on-show="() => {return form.name}"
           :on-save="onSaveName"
         />
@@ -18,7 +18,7 @@
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item v-if="hasRole(`space:${spaceId}`, Roles.admin)">
+      <el-form-item v-if="hasRole(`space:${spaceId}`, Role.admin)">
         <el-button type="danger" size="mini" @click="onSpaceDel">删除空间</el-button>
       </el-form-item>
     </el-form>
