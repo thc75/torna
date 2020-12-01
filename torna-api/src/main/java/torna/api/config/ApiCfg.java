@@ -3,10 +3,10 @@ package torna.api.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.gitee.easyopen.ApiConfig;
-import com.gitee.easyopen.spring.boot.autoconfigure.EasyopenProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import torna.api.bean.OpenApiDocFileCreator;
 import torna.api.manager.ApiAppSecretManager;
 
 /**
@@ -18,9 +18,6 @@ public class ApiCfg {
     @Autowired
     private ApiAppSecretManager apiAppSecretManager;
 
-    @Autowired
-    private EasyopenProperties easyopenProperties;
-
     @Bean
     public ApiConfig apiConfig() {
         ApiConfig apiConfig = new ApiConfig();
@@ -30,11 +27,8 @@ public class ApiCfg {
                 , SerializerFeature.WriteDateUseDateFormat)
         );
         apiConfig.setAppSecretManager(apiAppSecretManager);
-        apiConfig.setTimeoutSeconds(0);
-        if (easyopenProperties.isShowDoc()) {
-            String docDir = System.getProperty("user.dir") + "/markdowndoc";
-            easyopenProperties.setMarkdownDocDir(docDir);
-        }
+        String docDir = System.getProperty("user.dir") + "/front/public/static/openapi";
+        apiConfig.setDocFileCreator(new OpenApiDocFileCreator(docDir));
         return apiConfig;
     }
 

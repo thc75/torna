@@ -10,11 +10,11 @@ import torna.common.support.IdCodec;
  */
 @Data
 public class DocCategoryResult {
-    @ApiDocField(description = "分类id")
+    @ApiDocField(description = "分类id", example = "9VXEyXvg")
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 文档名称, 数据库字段：name */
-    @ApiDocField(description = "分类名称")
+    @ApiDocField(description = "分类名称", example = "商品分类")
     private String name;
 }

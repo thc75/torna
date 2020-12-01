@@ -27,6 +27,7 @@
         <module>torna-manager</module>
         <module>torna-service</module>
         <module>torna-web</module>
+        <module>sdk/sdk-java</module>
     </modules>
 
     <dependencyManagement>
@@ -72,10 +73,18 @@
             <dependency>
                 <groupId>net.oschina.durcframework</groupId>
                 <artifactId>easyopen-spring-boot-starter</artifactId>
-                <version>1.16.10</version>
+                <version>1.16.13</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>maven2</id>
+            <name>maven2 Repository</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

@@ -67,6 +67,10 @@
   padding-top: 8px;
   padding-bottom: 0;
 }
+.module-menu .el-menu .is-active {
+  outline: 0;
+  background-color: #ecf5ff;
+}
 .module-menu .el-menu-item {
   height: 36px;
   line-height: 36px;

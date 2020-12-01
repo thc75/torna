@@ -1,16 +1,36 @@
 [
-  {
-    "title" : "OpenAPI",
-    "icon": "el-icon-edit-outline",
-    "children": [
-      {
-        "title": "获取文档列表",
-        "path": "static/openapi/doc.list.md"
-      },
-      {
-        "title": "公私钥介绍",
-        "path": "static/doc/common/keys.md"
-      }
-    ]
-  }
+	{
+		"children":[
+			{
+				"path":"doc.list1.0.md",
+				"title":"获取文档列表"
+			},
+			{
+				"path":"doc.get1.0.md",
+				"title":"获取文档详情"
+			},
+			{
+				"path":"doc.category.list1.0.md",
+				"title":"获取分类"
+			},
+			{
+				"path":"doc.category.create1.0.md",
+				"title":"创建分类"
+			},
+			{
+				"path":"doc.category.name.update1.0.md",
+				"title":"修改分类名称"
+			},
+			{
+				"path":"doc.create1.0.md",
+				"title":"创建文档"
+			},
+			{
+				"path":"doc.update1.0.md",
+				"title":"修改文档"
+			}
+		],
+		"icon":"el-icon-folder-opened",
+		"title":"文档API"
+	}
 ]

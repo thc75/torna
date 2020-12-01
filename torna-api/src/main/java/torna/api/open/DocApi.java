@@ -8,12 +8,13 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import torna.api.bean.RequestContext;
-import torna.api.open.dto.DocInfoDetailCreateDTO;
-import torna.api.open.dto.DocInfoDetailUpdateDTO;
+import torna.api.open.param.DocInfoDetailCreateParam;
+import torna.api.open.param.DocInfoDetailUpdateParam;
 import torna.api.open.param.CategoryAddParam;
 import torna.api.open.param.CategoryUpdateParam;
 import torna.api.open.param.IdParam;
 import torna.api.open.result.DocCategoryResult;
+import torna.api.open.result.DocInfoDetailResult;
 import torna.api.open.result.DocInfoResult;
 import torna.api.open.result.DocSaveResult;
 import torna.common.bean.User;
@@ -51,9 +52,9 @@ public class DocApi {
 
     @Api(name = "doc.get")
     @ApiDocMethod(description = "获取文档详情", order = 2)
-    public DocInfoDetailUpdateDTO getDoc(IdParam param) {
+    public DocInfoDetailResult getDoc(IdParam param) {
         DocInfoDTO docDetail = docInfoService.getDocDetail(param.getId());
-        return CopyUtil.copyBean(docDetail, DocInfoDetailUpdateDTO::new);
+        return CopyUtil.copyBean(docDetail, DocInfoDetailResult::new);
     }
 
     @Api(name = "doc.category.list")
@@ -90,18 +91,18 @@ public class DocApi {
 
     @Api(name = "doc.create")
     @ApiDocMethod(description = "创建文档", order = 6)
-    public DocSaveResult addDoc(DocInfoDetailCreateDTO docInfoDetailDTO) {
+    public DocSaveResult addDoc(DocInfoDetailCreateParam param) {
         User user = RequestContext.getCurrentContext().getApiUser();
-        DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfoDetailDTO, DocInfoDTO::new);
+        DocInfoDTO docInfoDTO = CopyUtil.copyBean(param, DocInfoDTO::new);
         DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
         return CopyUtil.copyBean(docInfo, DocSaveResult::new);
     }
 
     @Api(name = "doc.update")
     @ApiDocMethod(description = "修改文档", order = 6)
-    public DocSaveResult updateDoc(DocInfoDetailUpdateDTO docInfoDetailDTO) {
+    public DocSaveResult updateDoc(DocInfoDetailUpdateParam param) {
         User user = RequestContext.getCurrentContext().getApiUser();
-        DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfoDetailDTO, DocInfoDTO::new);
+        DocInfoDTO docInfoDTO = CopyUtil.copyBean(param, DocInfoDTO::new);
         DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
         return CopyUtil.copyBean(docInfo, DocSaveResult::new);
     }

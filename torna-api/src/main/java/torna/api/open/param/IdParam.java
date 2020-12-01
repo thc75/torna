@@ -15,6 +15,6 @@ import javax.validation.constraints.NotNull;
 public class IdParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     @NotNull(message = "文档ID不能为空")
-    @ApiDocField(description = "文档id", required = true, dataType = DataType.STRING)
+    @ApiDocField(description = "文档id", required = true, dataType = DataType.STRING, example = "9VXEyXvg")
     private Long id;
 }

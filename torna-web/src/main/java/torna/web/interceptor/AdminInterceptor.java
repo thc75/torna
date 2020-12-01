@@ -16,17 +16,13 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (request.getServletPath().startsWith("/admin")) {
-            User user = UserContext.getUser();
-            if (user == null) {
-                throw new LoginFailureException();
-            }
-            if (user.isAdmin()) {
-                return true;
-            }
-            throw new BizException("无权访问");
-        } else {
+        User user = UserContext.getUser();
+        if (user == null) {
+            throw new LoginFailureException();
+        }
+        if (user.isAdmin()) {
             return true;
         }
+        throw new BizException("无权访问");
     }
 }

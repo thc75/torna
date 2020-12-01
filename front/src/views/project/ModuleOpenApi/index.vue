@@ -7,7 +7,7 @@
       </div>
       <h3>使用步骤</h3>
       <p>1、找到超级管理员索要AppKey和Secret</p>
-      <p>2、下载SDK</p>
+      <p>2、下载SDK， <el-link type="primary" href="/static/sdk/sdk-java.zip" target="_blank">点击下载</el-link></p>
       <p>3、使用SDK中的API调用接口</p>
     </div>
     <el-form class="text-form token-form" label-width="120px">
@@ -29,12 +29,9 @@
         </el-popconfirm>
       </el-form-item>
     </el-form>
-    <el-tabs active-name="0" type="card">
-      <el-tab-pane label="OpenAPI文档" name="0">
-
-      </el-tab-pane>
-      <el-tab-pane label="示例代码" name="1">示例代码</el-tab-pane>
-    </el-tabs>
+    <router-link to="/openapi" target="_blank">
+      <el-button type="text">OpenAPI接口文档</el-button>
+    </router-link>
   </div>
 </template>
 <style>
@@ -59,7 +56,8 @@ export default {
   },
   data() {
     return {
-      token: ''
+      token: '',
+      menus: []
     }
   },
   watch: {

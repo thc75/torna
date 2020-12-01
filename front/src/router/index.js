@@ -56,6 +56,13 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/openapi',
+    name: 'openapi',
+    component: () => import('@/views/doc/OpenApiDoc'),
+    meta: { 'title': 'OpenAPI文档' },
+    hidden: true
+  },
+  {
     path: '/updatePassword',
     component: Layout,
     children: [{

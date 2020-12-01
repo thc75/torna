@@ -39,9 +39,12 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        String[] excludes = { "/", "/static/**" };
-        registry.addInterceptor(new LoginInterceptor()).excludePathPatterns(excludes);
-        registry.addInterceptor(new AdminInterceptor()).excludePathPatterns(excludes);
+        String[] excludes = { "/*.html", "/*.ico", "/static/**", "/api" };
+        registry.addInterceptor(new LoginInterceptor())
+                .excludePathPatterns(excludes);
+        registry.addInterceptor(new AdminInterceptor())
+                .addPathPatterns("/admin")
+                .excludePathPatterns(excludes);
     }
 
     @Override
