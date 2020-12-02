@@ -11,6 +11,11 @@
     :empty-text="emptyText"
   >
     <el-table-column
+      prop="id"
+      label="参数ID"
+      width="160"
+    />
+    <el-table-column
       v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"

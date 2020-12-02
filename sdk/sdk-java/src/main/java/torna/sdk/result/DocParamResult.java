@@ -1,4 +1,4 @@
-package torna.sdk.model;
+package torna.sdk.result;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import java.util.Date;
  * @author tanghc
  */
 @Data
-public class DocParam {
+public class DocParamResult {
     private String id;
 
     /** 字段名称 */

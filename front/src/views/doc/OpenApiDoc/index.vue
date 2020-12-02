@@ -8,6 +8,9 @@
         text-color="#fff"
         active-text-color="#ffd04b"
       >
+        <el-menu-item index="0">
+          <router-link to="/">Torna</router-link>
+        </el-menu-item>
         <el-menu-item index="1">OpenAPI文档</el-menu-item>
       </el-menu>
     </el-header>

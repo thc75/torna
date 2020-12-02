@@ -1,12 +1,12 @@
 package torna.sdk.response;
 
-import torna.sdk.model.DocCategory;
+import torna.sdk.result.DocCategoryResult;
 
 import java.util.List;
 
 /**
  * @author tanghc
  */
-public class DocCategoryListResponse extends BaseResponse<List<DocCategory>> {
+public class DocCategoryListResponse extends BaseResponse<List<DocCategoryResult>> {
 
 }

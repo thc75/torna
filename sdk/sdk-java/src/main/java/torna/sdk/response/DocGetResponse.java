@@ -1,10 +1,10 @@
 package torna.sdk.response;
 
-import torna.sdk.model.DocDetail;
+import torna.sdk.result.DocDetailResult;
 
 /**
  * @author tanghc
  */
-public class DocGetResponse extends BaseResponse<DocDetail> {
+public class DocGetResponse extends BaseResponse<DocDetailResult> {
 
 }

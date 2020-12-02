@@ -1,14 +1,12 @@
-package torna.sdk.model;
+package torna.sdk.result;
 
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * @author tanghc
  */
 @Data
-public class DocInfo {
+public class DocInfoResult {
     private String id;
 
     /** 文档名称 */

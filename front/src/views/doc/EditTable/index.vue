@@ -10,6 +10,15 @@
     class="param-table"
   >
     <el-table-column
+      prop="id"
+      label="参数ID"
+      width="160"
+    >
+      <template slot-scope="scope">
+        {{ scope.row.isNew ? '' : scope.row.id }}
+      </template>
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"

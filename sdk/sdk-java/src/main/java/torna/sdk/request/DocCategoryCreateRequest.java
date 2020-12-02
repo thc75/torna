@@ -1,6 +1,7 @@
 package torna.sdk.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import torna.sdk.response.DocCategoryCreateResponse;
 
 /**
@@ -8,10 +9,16 @@ import torna.sdk.response.DocCategoryCreateResponse;
  * 接口名	doc.category.create	版本号	1.0
  * @author tanghc
  */
-@Data
+@Getter
+@Setter
 public class DocCategoryCreateRequest extends BaseRequest<DocCategoryCreateResponse> {
 
+    /** 分类名称 */
     private String name;
+
+    public DocCategoryCreateRequest(String token) {
+        super(token);
+    }
 
     @Override
     public String name() {

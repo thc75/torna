@@ -1,4 +1,4 @@
-package torna.sdk.model;
+package torna.sdk.result;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import lombok.Data;
  * @author tanghc
  */
 @Data
-public class DocCategory {
+public class DocCreateResult {
+    /** 文档id */
     private String id;
-    private String name;
 }

@@ -12,7 +12,7 @@ public enum OperationMode {
     /**
      * 开放平台推送
      */
-    OPEN((byte)0)
+    OPEN((byte)1)
 
     ;
 

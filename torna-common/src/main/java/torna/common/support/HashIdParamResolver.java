@@ -27,6 +27,6 @@ public class HashIdParamResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
         String value = nativeWebRequest.getParameter(methodParameter.getParameterName());
-        return value != null ? IdUtil.decode(value) : null;
+        return IdUtil.decode(value);
     }
 }

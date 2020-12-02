@@ -14,10 +14,7 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class DocParamParam {
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    @ApiDocField(description = "参数id", example = "asdf", dataType = DataType.STRING)
-    private Long id;
+public class DocParamCreateParam {
 
     /** 字段名称, 数据库字段：name */
     @ApiDocField(description = "参数名", required = true, example = "goodsName")
@@ -46,11 +43,6 @@ public class DocParamParam {
     /** 参数枚举值,json数组格式，如：[{"code":"0",type:"string","msg":"已支付"}], 数据库字段：enum_content */
     @ApiDocField(description = "参数枚举值,json数组格式")
     private String enumContent;
-
-    /** doc_info.id, 数据库字段：doc_id */
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    @ApiDocField(description = "文档id", dataType = DataType.STRING)
-    private Long docId;
 
     /** 父节点, 数据库字段：parent_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

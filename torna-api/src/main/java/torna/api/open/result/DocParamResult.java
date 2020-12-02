@@ -56,10 +56,6 @@ public class DocParamResult {
     @ApiDocField(description = "父节点, 没有填空字符串", dataType = DataType.STRING)
     private Long parentId;
 
-    /** 0：header, 1：请求参数，2：返回参数，3：错误码, 数据库字段：style */
-    @ApiDocField(description = "参数形式，0：header, 1：请求参数，2：返回参数，3：错误码", required = true, example = "1")
-    private Byte style;
-
     /** 创建人, 数据库字段：creator */
     @ApiDocField(description = "创建人")
     private String creator;

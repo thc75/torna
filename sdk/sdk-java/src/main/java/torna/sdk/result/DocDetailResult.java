@@ -1,4 +1,4 @@
-package torna.sdk.model;
+package torna.sdk.result;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class DocDetail {
+public class DocDetailResult {
     private String id;
 
     /** 文档名称 */
@@ -33,14 +33,14 @@ public class DocDetail {
     private Byte isShow;
 
     /** 请求头 */
-    private List<DocParam> headerParams;
+    private List<DocParamResult> headerParams;
 
     /** 请求参数 */
-    private List<DocParam> requestParams;
+    private List<DocParamResult> requestParams;
 
     /** 返回参数 */
-    private List<DocParam> responseParams;
+    private List<DocParamResult> responseParams;
 
     /** 错误码 */
-    private List<DocParam> errorCodeParams;
+    private List<DocParamResult> errorCodeParams;
 }

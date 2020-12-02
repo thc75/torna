@@ -1,6 +1,7 @@
 package torna.sdk.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import torna.sdk.response.DocGetResponse;
 
 /**
@@ -8,10 +9,16 @@ import torna.sdk.response.DocGetResponse;
  *
  * @author tanghc
  */
-@Data
+@Getter
+@Setter
 public class DocGetRequest extends BaseRequest<DocGetResponse> {
 
+    /** 文档id */
     private String id;
+
+    public DocGetRequest(String token) {
+        super(token);
+    }
 
     @Override
     public String name() {

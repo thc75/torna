@@ -119,8 +119,8 @@ public class ModuleSettingController {
     }
 
     @GetMapping("/globalHeader/list")
-    public Result<List<ModuleConfigVO>> listHeader(String moduleId) {
-        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalHeaders(IdUtil.decode(moduleId));
+    public Result<List<ModuleConfigVO>> listHeader(@HashId Long moduleId) {
+        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalHeaders(moduleId);
         List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
         return Result.ok(moduleConfigVOS);
     }

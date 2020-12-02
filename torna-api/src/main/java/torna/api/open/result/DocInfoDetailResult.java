@@ -4,9 +4,10 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.easyopen.doc.DataType;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
-import torna.api.open.param.DocParamParam;
+import torna.api.open.param.DocParamCreateParam;
 import torna.common.support.IdCodec;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,15 +48,23 @@ public class DocInfoDetailResult {
     @ApiDocField(description = "是否显示，1：显示，0：不显示", example = "1")
     private Byte isShow;
 
-    @ApiDocField(description = "请求头", elementClass = DocParamParam.class)
-    private List<DocParamResult> headerParams;
+    /**  数据库字段：gmt_create */
+    @ApiDocField(description = "创建时间")
+    private Date gmtCreate;
 
-    @ApiDocField(description = "请求参数", elementClass = DocParamParam.class)
+    /**  数据库字段：gmt_modified */
+    @ApiDocField(description = "最后修改时间")
+    private Date gmtModified;
+
+    @ApiDocField(description = "请求头", elementClass = DocHeaderResult.class)
+    private List<DocHeaderResult> headerParams;
+
+    @ApiDocField(description = "请求参数", elementClass = DocParamResult.class)
     private List<DocParamResult> requestParams;
 
-    @ApiDocField(description = "返回参数", elementClass = DocParamParam.class)
+    @ApiDocField(description = "返回参数", elementClass = DocParamResult.class)
     private List<DocParamResult> responseParams;
 
-    @ApiDocField(description = "错误码", elementClass = DocParamParam.class)
-    private List<DocParamResult> errorCodeParams;
+    @ApiDocField(description = "错误码", elementClass = DocCodeResult.class)
+    private List<DocCodeResult> errorCodeParams;
 }

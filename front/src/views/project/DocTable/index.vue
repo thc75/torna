@@ -10,6 +10,9 @@
           <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">新建分类</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <el-tooltip placement="top" content="刷新表格">
+        <el-button type="primary" size="mini" icon="el-icon-refresh" style="float: right;margin-left: 10px;" @click="refreshTable" />
+      </el-tooltip>
       <el-input
         v-model="tableSearch"
         prefix-icon="el-icon-search"
@@ -77,7 +80,7 @@
       :visible.sync="viewDialogVisible"
       width="70%"
     >
-      <doc-view v-show="viewDocId" :doc-id="viewDocId" />
+      <doc-view ref="docView" />
     </el-dialog>
   </div>
 </template>
@@ -100,8 +103,7 @@ export default {
     return {
       tableData: [],
       tableSearch: '',
-      viewDialogVisible: false,
-      viewDocId: ''
+      viewDialogVisible: false
     }
   },
   watch: {
@@ -110,13 +112,19 @@ export default {
     }
   },
   methods: {
-    reload() {
-      this.loadTable(this.moduleId)
+    refreshTable() {
+      this.reload(function() {
+        this.tipSuccess('刷新成功')
+      })
     },
-    loadTable: function(moduleId) {
+    reload(callback) {
+      this.loadTable(this.moduleId, callback)
+    },
+    loadTable: function(moduleId, callback) {
       this.get('/doc/list', { moduleId: moduleId }, function(resp) {
         const data = resp.data
         this.tableData = this.convertTree(data)
+        callback && callback.call(this)
       })
     },
     onFolderUpdate(row) {
@@ -203,7 +211,7 @@ export default {
     onDocView: function(row) {
       this.viewDialogVisible = true
       this.$nextTick(() => {
-        this.viewDocId = row.id
+        this.$refs.docView.loadData(row.id)
       })
     }
   }

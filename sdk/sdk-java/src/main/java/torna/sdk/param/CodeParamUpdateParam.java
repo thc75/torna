@@ -6,6 +6,7 @@ import lombok.Data;
  * @author tanghc
  */
 @Data
-public class DocGetParam {
+public class CodeParamUpdateParam extends CodeParamCreateParam {
+    /** 参数id */
     private String id;
 }

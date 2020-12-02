@@ -46,7 +46,11 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setMaxLength(docParamDTO.getMaxLength());
         docParam.setExample(docParamDTO.getExample());
         docParam.setDescription(docParamDTO.getDescription());
-        docParam.setEnumContent(docParamDTO.getEnumContent());
+        String enumContent = docParamDTO.getEnumContent();
+        if (enumContent == null) {
+            enumContent = "";
+        }
+        docParam.setEnumContent(enumContent);
         docParam.setDocId(docInfo.getId());
         docParam.setParentId(parentId);
         docParam.setStyle(paramStyleEnum.getStyle());

@@ -7,24 +7,31 @@
 - 调用示例
 
 ```java
-// 创建请求对象
-DocGetRequest request = new DocGetRequest();
-// 请求参数
-DocGetParam param = new DocGetParam();
-param.setId("je24ozLJ");
-request.setParam(param);
+static String url = "http://localhost:7700/api";
+static String appKey = "20201127781912960996999168";
+static String secret = "ltatugCHeRJzCvjVxF39A%6.F$eV#~~L";
+static String token = "e807db2eb8564c4b89caf5a2f2d15b77";
 
-// 设置token
-request.setToken(token);
+// 创建请求客户端
+static OpenClient client = new OpenClient(url, appKey, secret);
 
-// 发送请求
-DocGetResponse response = client.execute(request);
-if (response.isSuccess()) {
-    // 返回结果
-    DocInfoDetail docInfoDetail = response.getData();
-    System.out.println(JSON.toJSONString(docInfoDetail, SerializerFeature.PrettyFormat));
-} else {
-    System.out.println("errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+// 获取文档信息
+public void testDocGetRequest() {
+    // 创建请求对象
+    DocGetRequest request = new DocGetRequest(token);
+    // 设置请求参数
+    request.setId("je24ozLJ");
+
+    // 发送请求
+    DocGetResponse response = client.execute(request);
+
+    if (response.isSuccess()) {
+        // 返回结果
+        DocDetailResult data = response.getData();
+        System.out.println(JSON.toJSONString(data, SerializerFeature.PrettyFormat));
+    } else {
+        System.out.println("errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+    }
 }
 ```
 
@@ -55,7 +62,7 @@ OpenAPI定义了6个公共参数，用json接收
 签名算法描述如下：
 
 1. 将请求参数按参数名升序排序；
-2. 按请求参数名及参数值相互连接组成一个字符串：`<paramName1><paramValue1><paramName2><paramValue2>...`
+2. 按请求参数名及参数值(不能为空)相互连接组成一个字符串：`<paramName1><paramValue1><paramName2><paramValue2>...`
 3. 将应用密钥分别添加到以上请求参数串的头部和尾部：`<secret><请求参数字符串><secret>`
 4. 对该字符串进行MD5（全部大写），MD5后的字符串即是这些请求参数对应的签名；
 5. 该签名值使用sign参数一起和其它请求参数一起发送给服务开放平台。
@@ -73,7 +80,10 @@ Collections.sort(paramNames);
 StringBuilder paramNameValue = new StringBuilder();
 // 2. 按请求参数名及参数值相互连接组成一个字符串：`<paramName1><paramValue1><paramName2><paramValue2>...`
 for (String paramName : paramNames) {
-    paramNameValue.append(paramName).append(paramsMap.get(paramName));
+    Object value = paramsMap.get(paramName);
+    if (value != null) {
+        paramNameValue.append(paramName).append(value);
+    }
 }
 // 3. 将应用密钥分别添加到以上请求参数串的头部和尾部：`<secret><请求参数字符串><secret>`
 String source = secret + paramNameValue.toString() + secret;

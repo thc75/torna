@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="doc-baseinfo">
-      <h2 style="margin-top: 0">{{ docInfo.name }} #{{ docInfo.id }}</h2>
+      <h2 style="margin-top: 0">{{ docInfo.name }}（{{ docInfo.id }}）</h2>
     </div>
     <h3>接口描述</h3>
     <div class="doc-overview">{{ docInfo.description || docInfo.name }}</div>
@@ -81,9 +81,6 @@ export default {
     }
   },
   watch: {
-    docId(newVal) {
-      this.loadData(newVal)
-    },
     docInfoString(docInfoString) {
       const docInfo = JSON.parse(docInfoString)
       this.setData(docInfo)

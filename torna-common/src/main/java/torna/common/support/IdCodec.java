@@ -68,11 +68,15 @@ public class IdCodec implements ObjectSerializer, ObjectDeserializer {
         } else {
             String val = lexer.stringVal();
             lexer.nextToken(JSONToken.COMMA);
-            long decodeVal = IdUtil.decode(val);
+            Long decodeVal = IdUtil.decode(val);
             if (clazz == int.class || clazz == Integer.class) {
-                return (T) Integer.valueOf((int) decodeVal);
+                if (decodeVal == null) {
+                    return null;
+                } else {
+                    return (T) Integer.valueOf(decodeVal.intValue());
+                }
             } else {
-                return (T) Long.valueOf(decodeVal);
+                return (T) decodeVal;
             }
         }
     }

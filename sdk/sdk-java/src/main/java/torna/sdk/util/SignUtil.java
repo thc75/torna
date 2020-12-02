@@ -31,7 +31,10 @@ public class SignUtil {
         StringBuilder paramNameValue = new StringBuilder();
 
         for (String paramName : paramNames) {
-            paramNameValue.append(paramName).append(paramsMap.get(paramName));
+            Object value = paramsMap.get(paramName);
+            if (value != null) {
+                paramNameValue.append(paramName).append(value);
+            }
         }
 
         String source = secret + paramNameValue.toString() + secret;

@@ -1,9 +1,9 @@
 package torna.sdk.response;
 
-import torna.sdk.model.DocCategory;
+import torna.sdk.result.DocCategoryResult;
 
 /**
  * @author tanghc
  */
-public class DocCategoryCreateResponse extends BaseResponse<DocCategory> {
+public class DocCategoryCreateResponse extends BaseResponse<DocCategoryResult> {
 }

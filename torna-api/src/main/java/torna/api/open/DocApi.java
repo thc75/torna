@@ -1,5 +1,6 @@
 package torna.api.open;
 
+import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.annotation.Api;
 import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.NoResultWrapper;
@@ -19,6 +20,7 @@ import torna.api.open.result.DocInfoResult;
 import torna.api.open.result.DocSaveResult;
 import torna.common.bean.User;
 import torna.common.util.CopyUtil;
+import torna.common.util.json.JsonUtil;
 import torna.dao.entity.DocInfo;
 import torna.service.DocInfoService;
 import torna.service.dto.DocInfoDTO;
@@ -93,7 +95,9 @@ public class DocApi {
     @ApiDocMethod(description = "创建文档", order = 6)
     public DocSaveResult addDoc(DocInfoDetailCreateParam param) {
         User user = RequestContext.getCurrentContext().getApiUser();
-        DocInfoDTO docInfoDTO = CopyUtil.copyBean(param, DocInfoDTO::new);
+        long moduleId = RequestContext.getCurrentContext().getModuleId();
+        DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
+        docInfoDTO.setModuleId(moduleId);
         DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
         return CopyUtil.copyBean(docInfo, DocSaveResult::new);
     }
@@ -102,7 +106,7 @@ public class DocApi {
     @ApiDocMethod(description = "修改文档", order = 6)
     public DocSaveResult updateDoc(DocInfoDetailUpdateParam param) {
         User user = RequestContext.getCurrentContext().getApiUser();
-        DocInfoDTO docInfoDTO = CopyUtil.copyBean(param, DocInfoDTO::new);
+        DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
         DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
         return CopyUtil.copyBean(docInfo, DocSaveResult::new);
     }
