@@ -185,7 +185,7 @@ export default {
     onMemberRemove(row) {
       const data = {
         projectId: this.projectId,
-        userId: row.userId
+        userId: row.id
       }
       this.post('/project/member/remove', data, resp => {
         this.tipSuccess('移除成功')
