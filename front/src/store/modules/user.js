@@ -6,7 +6,10 @@ const state = {
   token: getToken(),
   name: '',
   avatar: '',
-  perms: {}
+  perms: {
+    isAdmin: false,
+    roleData: {}
+  }
 }
 
 const mutations = {

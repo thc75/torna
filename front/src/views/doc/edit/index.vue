@@ -58,12 +58,12 @@
       <el-tab-pane label="请求参数" name="requestParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加请求参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入请求参数</el-button>
-        <edit-table ref="requestParamTable" :data="docInfo.requestParams" />
+        <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" />
       </el-tab-pane>
       <el-tab-pane label="响应参数" name="responseParam">
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">导入响应参数</el-button>
-        <edit-table ref="responseParamTable" :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
+        <edit-table ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
       </el-tab-pane>
       <el-tab-pane label="错误码" name="errorCode">
         <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">添加错误码</el-button>
@@ -138,6 +138,7 @@ export default {
       params: {},
       activeName: 'info',
       allMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+      moduleId: '',
       docInfo: {
         docId: '',
         name: '',
@@ -196,6 +197,7 @@ export default {
       const docId = this.$route.params.docId || ''
       const parentId = this.$route.params.parentId || ''
       const moduleId = this.$route.params.moduleId || ''
+      this.moduleId = moduleId
       this.docInfo.docId = docId
       this.docInfo.parentId = parentId
       this.docInfo.moduleId = moduleId

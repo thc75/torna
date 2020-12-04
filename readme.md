@@ -47,6 +47,10 @@
 - 接口请求
 - sdk上传到中央仓库
 
+doc_info/doc_param/enum_info/enum_item 新增data_id，因为文档推送不会保存id
+需要根据字段生成data_id来获取
+
+推送参数使用树状来表示父子关系，客户端自行组装数据
 
 - 域名
 - 上线

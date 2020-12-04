@@ -40,9 +40,8 @@ public class DocParamCreateParam {
     @ApiDocField(description = "描述", example = "商品名称描述")
     private String description;
 
-    /** 参数枚举值,json数组格式，如：[{"code":"0",type:"string","msg":"已支付"}], 数据库字段：enum_content */
-    @ApiDocField(description = "参数枚举值,json数组格式")
-    private String enumContent;
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long enumId;
 
     /** 父节点, 数据库字段：parent_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

@@ -1,6 +1,5 @@
 package torna.sdk.param;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,8 +28,8 @@ public class DocParamCreateParam {
     /** 描述  description */
     private String description;
 
-    /** 参数枚举值,json数组格式，如：[{"code":"0",type:"string","msg":"已支付"}]  enum_content */
-    private String enumContent;
+    /** 字典id  */
+    private String enumId;
 
     /** 父节点, 没有填空字符串  parent_id */
     private String parentId;

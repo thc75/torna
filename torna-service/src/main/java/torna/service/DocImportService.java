@@ -150,7 +150,6 @@ public class DocImportService {
         docParam.setExample(docParameter.getExample());
         docParam.setDescription(docParameter.getDescription());
         List<String> enums = docParameter.getEnums();
-        docParam.setEnumContent(enums == null ? "[]" : JSON.toJSONString(enums));
         docParam.setDocId(docInfo.getId());
         docParam.setParentId(parentId);
         ParamStyleEnum styleEnum = styleEnumFunction.apply(docParameter);

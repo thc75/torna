@@ -2,6 +2,16 @@
 	{
 		"children":[
 			{
+				"path":"enum.push1.0.md",
+				"title":"推送字典"
+			}
+		],
+		"icon":"el-icon-folder-opened",
+		"title":"字典API"
+	},
+	{
+		"children":[
+			{
 				"path":"doc.list1.0.md",
 				"title":"获取文档列表"
 			},

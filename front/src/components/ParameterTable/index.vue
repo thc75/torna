@@ -20,7 +20,24 @@
       prop="name"
       :label="nameLabel"
       width="250"
-    />
+    >
+      <template slot-scope="scope">
+        <span>
+          {{ scope.row.name }}
+          <el-tooltip content="查看字典" placement="top">
+            <el-popover
+              placement="right"
+              width="500"
+              trigger="click"
+              @show="onEnumPopoverShow(`enumRef_${scope.row.name}`)"
+            >
+              <enum-item-view :ref="`enumRef_${scope.row.name}`" :enum-id="scope.row.enumId" />
+              <el-button v-if="scope.row.enumId" slot="reference" type="text" icon="el-icon-tickets" />
+            </el-popover>
+          </el-tooltip>
+        </span>
+      </template>
+    </el-table-column>
     <el-table-column
       v-if="isColumnShow('type')"
       prop="type"
@@ -74,8 +91,10 @@
 </template>
 
 <script>
+import EnumItemView from '../EnumItemView'
 export default {
   name: 'ParameterTable',
+  components: { EnumItemView },
   props: {
     data: {
       type: Array,
@@ -102,6 +121,11 @@ export default {
       default: () => []
     }
   },
+  data() {
+    return {
+      enumId: ''
+    }
+  },
   methods: {
     tableRowClassName({ row, index }) {
       if (row.isDeleted) {
@@ -109,6 +133,9 @@ export default {
         return 'hidden-row'
       }
       return ''
+    },
+    onEnumPopoverShow(ref) {
+      this.$refs[ref].reload()
     },
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0

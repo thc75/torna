@@ -18,6 +18,7 @@
         <th>名称</th>
         <th>类型</th>
         <th>是否必须</th>
+        <th>最大长度</th>
         <th>示例值</th>
         <th>描述</th>
     </tr>
@@ -58,6 +59,7 @@
                 <tr>
                     <th>名称</th>
                     <th>类型</th>
+                    <th>最大长度</th>
                     <th>示例值</th>
                     <th>描述</th>
                 </tr>
@@ -72,8 +74,8 @@
                                 <tr><td>gmtCreate</td><td>date</td><td></td><td>创建时间<br/></td></tr>
                                 <tr><td>gmtModified</td><td>date</td><td></td><td>最后修改时间<br/></td></tr>
                                 <tr><td>headerParams</td><td>array</td><td><table><tr><th>名称</th><th>类型</th><th>示例值</th><th>描述</th></tr><tr><td>id</td><td>string</td><td>asdf</td><td>参数id<br/></td></tr><tr><td>name</td><td>string</td><td>token</td><td>参数名<br/></td></tr><tr><td>required</td><td>byte</td><td>1</td><td>是否必须，1：是，0：否<br/></td></tr><tr><td>example</td><td>string</td><td>asdfasdfd</td><td>示例值<br/></td></tr><tr><td>description</td><td>string</td><td>请求token</td><td>描述<br/></td></tr><tr><td>gmtCreate</td><td>date</td><td></td><td>创建时间<br/></td></tr><tr><td>gmtModified</td><td>date</td><td></td><td>最后修改时间<br/></td></tr></table></td><td>请求头<br/></td></tr>
-                                <tr><td>requestParams</td><td>array</td><td><table><tr><th>名称</th><th>类型</th><th>示例值</th><th>描述</th></tr><tr><td>id</td><td>string</td><td>asdf</td><td>参数id<br/></td></tr><tr><td>name</td><td>string</td><td>goodsName</td><td>参数名<br/></td></tr><tr><td>type</td><td>string</td><td>string</td><td>字段类型<br/></td></tr><tr><td>required</td><td>byte</td><td>1</td><td>是否必须，1：是，0：否<br/></td></tr><tr><td>maxLength</td><td>string</td><td>128</td><td>最大长度<br/></td></tr><tr><td>example</td><td>string</td><td>iphone12</td><td>示例值<br/></td></tr><tr><td>description</td><td>string</td><td>商品名称描述</td><td>描述<br/></td></tr><tr><td>enumContent</td><td>string</td><td></td><td>参数枚举值,json数组格式<br/></td></tr><tr><td>docId</td><td>string</td><td></td><td>文档id<br/></td></tr><tr><td>parentId</td><td>string</td><td></td><td>父节点, 没有填空字符串<br/></td></tr><tr><td>creator</td><td>string</td><td></td><td>创建人<br/></td></tr><tr><td>modifier</td><td>string</td><td></td><td>最后修改人<br/></td></tr><tr><td>gmtCreate</td><td>date</td><td></td><td>创建时间<br/></td></tr><tr><td>gmtModified</td><td>date</td><td></td><td>最后修改时间<br/></td></tr></table></td><td>请求参数<br/></td></tr>
-                                <tr><td>responseParams</td><td>array</td><td><table><tr><th>名称</th><th>类型</th><th>示例值</th><th>描述</th></tr><tr><td>id</td><td>string</td><td>asdf</td><td>参数id<br/></td></tr><tr><td>name</td><td>string</td><td>goodsName</td><td>参数名<br/></td></tr><tr><td>type</td><td>string</td><td>string</td><td>字段类型<br/></td></tr><tr><td>required</td><td>byte</td><td>1</td><td>是否必须，1：是，0：否<br/></td></tr><tr><td>maxLength</td><td>string</td><td>128</td><td>最大长度<br/></td></tr><tr><td>example</td><td>string</td><td>iphone12</td><td>示例值<br/></td></tr><tr><td>description</td><td>string</td><td>商品名称描述</td><td>描述<br/></td></tr><tr><td>enumContent</td><td>string</td><td></td><td>参数枚举值,json数组格式<br/></td></tr><tr><td>docId</td><td>string</td><td></td><td>文档id<br/></td></tr><tr><td>parentId</td><td>string</td><td></td><td>父节点, 没有填空字符串<br/></td></tr><tr><td>creator</td><td>string</td><td></td><td>创建人<br/></td></tr><tr><td>modifier</td><td>string</td><td></td><td>最后修改人<br/></td></tr><tr><td>gmtCreate</td><td>date</td><td></td><td>创建时间<br/></td></tr><tr><td>gmtModified</td><td>date</td><td></td><td>最后修改时间<br/></td></tr></table></td><td>返回参数<br/></td></tr>
+                                <tr><td>requestParams</td><td>array</td><td><table><tr><th>名称</th><th>类型</th><th>示例值</th><th>描述</th></tr><tr><td>id</td><td>string</td><td>asdf</td><td>参数id<br/></td></tr><tr><td>name</td><td>string</td><td>goodsName</td><td>参数名<br/></td></tr><tr><td>type</td><td>string</td><td>string</td><td>字段类型<br/></td></tr><tr><td>required</td><td>byte</td><td>1</td><td>是否必须，1：是，0：否<br/></td></tr><tr><td>maxLength</td><td>string</td><td>128</td><td>最大长度<br/></td></tr><tr><td>example</td><td>string</td><td>iphone12</td><td>示例值<br/></td></tr><tr><td>description</td><td>string</td><td>商品名称描述</td><td>描述<br/></td></tr><tr><td>enumId</td><td>long</td><td>L42GEXWG</td><td>字典id<br/></td></tr><tr><td>docId</td><td>string</td><td></td><td>文档id<br/></td></tr><tr><td>parentId</td><td>string</td><td></td><td>父节点, 没有填空字符串<br/></td></tr><tr><td>creator</td><td>string</td><td></td><td>创建人<br/></td></tr><tr><td>modifier</td><td>string</td><td></td><td>最后修改人<br/></td></tr><tr><td>gmtCreate</td><td>date</td><td></td><td>创建时间<br/></td></tr><tr><td>gmtModified</td><td>date</td><td></td><td>最后修改时间<br/></td></tr></table></td><td>请求参数<br/></td></tr>
+                                <tr><td>responseParams</td><td>array</td><td><table><tr><th>名称</th><th>类型</th><th>示例值</th><th>描述</th></tr><tr><td>id</td><td>string</td><td>asdf</td><td>参数id<br/></td></tr><tr><td>name</td><td>string</td><td>goodsName</td><td>参数名<br/></td></tr><tr><td>type</td><td>string</td><td>string</td><td>字段类型<br/></td></tr><tr><td>required</td><td>byte</td><td>1</td><td>是否必须，1：是，0：否<br/></td></tr><tr><td>maxLength</td><td>string</td><td>128</td><td>最大长度<br/></td></tr><tr><td>example</td><td>string</td><td>iphone12</td><td>示例值<br/></td></tr><tr><td>description</td><td>string</td><td>商品名称描述</td><td>描述<br/></td></tr><tr><td>enumId</td><td>long</td><td>L42GEXWG</td><td>字典id<br/></td></tr><tr><td>docId</td><td>string</td><td></td><td>文档id<br/></td></tr><tr><td>parentId</td><td>string</td><td></td><td>父节点, 没有填空字符串<br/></td></tr><tr><td>creator</td><td>string</td><td></td><td>创建人<br/></td></tr><tr><td>modifier</td><td>string</td><td></td><td>最后修改人<br/></td></tr><tr><td>gmtCreate</td><td>date</td><td></td><td>创建时间<br/></td></tr><tr><td>gmtModified</td><td>date</td><td></td><td>最后修改时间<br/></td></tr></table></td><td>返回参数<br/></td></tr>
                                 <tr><td>errorCodeParams</td><td>array</td><td><table><tr><th>名称</th><th>类型</th><th>示例值</th><th>描述</th></tr><tr><td>id</td><td>string</td><td>asdf</td><td>参数id<br/></td></tr><tr><td>code</td><td>string</td><td>10001</td><td>参数名<br/></td></tr><tr><td>msg</td><td>string</td><td>token错误</td><td>错误描述<br/></td></tr><tr><td>solution</td><td>string</td><td>请填写token</td><td>解决方案<br/></td></tr></table></td><td>错误码<br/></td></tr>
                             </table>
         </td>
@@ -90,10 +92,10 @@
 		"description":"获取商品信息",
 		"requestParams":[
 			{
+				"enumId":"L42GEXWG",
 				"creator":"",
 				"gmtModified":"",
 				"docId":"",
-				"enumContent":"",
 				"modifier":"",
 				"description":"商品名称描述",
 				"type":"string",
@@ -133,10 +135,10 @@
 		"name":"获取商品信息",
 		"responseParams":[
 			{
+				"enumId":"L42GEXWG",
 				"creator":"",
 				"gmtModified":"",
 				"docId":"",
-				"enumContent":"",
 				"modifier":"",
 				"description":"商品名称描述",
 				"type":"string",

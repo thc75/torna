@@ -33,12 +33,12 @@
         width="150"
       >
         <template slot-scope="scope">
-          <el-button type="text" size="mini" @click="onHeaderUpdate(scope.row)">修改</el-button>
+          <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">修改</el-link>
           <el-popconfirm
             :title="`确定要删除 ${scope.row.configKey} 吗？`"
             @onConfirm="onHeaderDelete(scope.row)"
           >
-            <el-button slot="reference" type="text" size="mini">删除</el-button>
+            <el-link slot="reference" type="danger" size="mini">删除</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>

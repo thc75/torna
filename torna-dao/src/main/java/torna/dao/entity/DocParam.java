@@ -42,8 +42,8 @@ public class DocParam {
     /** 描述, 数据库字段：description */
     private String description;
 
-    /** 参数枚举值,json数组格式，如：[{"code":"0",type:"string","msg":"已支付"}], 数据库字段：enum_content */
-    private String enumContent;
+    /** enum_info.id, 数据库字段：enum_id */
+    private Long enumId;
 
     /** doc_info.id, 数据库字段：doc_id */
     private Long docId;

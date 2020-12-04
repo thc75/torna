@@ -92,6 +92,15 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
     }
 
     /**
+     * 批量添加
+     * @param entityList 添加对象
+     * @return 返回影响行数
+     */
+    public int saveBatch(List<E> entityList) {
+        return mapper.saveBatch(entityList);
+    }
+
+    /**
      * 修改，修改所有字段
      *
      * @param entity 修改的记录

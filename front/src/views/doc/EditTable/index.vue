@@ -49,7 +49,21 @@
     >
       <template slot-scope="scope">
         <el-select v-model="scope.row.type" size="mini">
-          <el-option v-for="type in typeConfig" :key="type" :label="type" :value="type"></el-option>
+          <el-option v-for="type in getTypeConfig()" :key="type" :label="type" :value="type"></el-option>
+        </el-select>
+      </template>
+    </el-table-column>
+    <el-table-column
+      v-if="isColumnShow('enum')"
+      prop="enum"
+      label="关联字典"
+      width="120"
+    >
+      <template slot-scope="scope">
+        <el-select v-model="scope.row.enumId" size="mini">
+          <el-option v-for="enumInfo in enumData" :key="enumInfo.id" :label="enumInfo.name" :value="enumInfo.id">
+            {{ enumInfo.name }}
+          </el-option>
         </el-select>
       </template>
     </el-table-column>
@@ -139,6 +153,10 @@ export default {
       type: Array,
       default: () => []
     },
+    moduleId: {
+      type: String,
+      default: ''
+    },
     emptyText: {
       type: String,
       default: '无参数'
@@ -167,14 +185,7 @@ export default {
   data() {
     return {
       rows: [],
-      typeConfig: [
-        'string',
-        'number',
-        'boolean',
-        'array',
-        'object',
-        'file'
-      ],
+      enumData: [],
       paramRowRule: {
         name: [
           { required: true, message: '请填写', trigger: ['blur', 'change'] }
@@ -190,17 +201,27 @@ export default {
       this.rows = val
     }
   },
+  mounted() {
+    if (this.moduleId) {
+      this.loadEnumData(this.moduleId)
+    }
+  },
   methods: {
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0
     },
-    onParamNodeAdd: function(row) {
+    loadEnumData(moduleId) {
+      this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
+        this.enumData = resp.data
+      })
+    },
+    onParamNodeAdd(row) {
       const children = row.children || []
       children.push(this.getParamNewRow())
       children.hasChildren = true
       row.children = children
     },
-    onParamRemove: function(row) {
+    onParamRemove(row) {
       if (row.isNew) {
         this.removeRow(this.rows, row.id)
       } else {

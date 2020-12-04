@@ -29,9 +29,6 @@ public class DocParamResult {
     /** 描述 */
     private String description;
 
-    /** 参数枚举值,json数组格式，如：[{"code":"0",type:"string","msg":"已支付"}] */
-    private String enumContent;
-
     /** doc_info.id */
     private String docId;
 

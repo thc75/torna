@@ -4,6 +4,10 @@
       <span slot="label"><i class="el-icon-s-grid"></i> 接口列表</span>
       <doc-table ref="docTable" :project-id="projectId" :module-id="moduleIdDocList" />
     </el-tab-pane>
+    <el-tab-pane name="EnumInfo">
+      <span slot="label"><i class="el-icon-tickets"></i> 字典管理</span>
+      <enum-info :project-id="projectId" :module-id="moduleIdEnumInfo" />
+    </el-tab-pane>
     <el-tab-pane name="ModuleSetting">
       <span slot="label"><i class="el-icon-setting"></i> 模块配置</span>
       <module-setting :project-id="projectId" :module-id="moduleIdModuleSetting" />
@@ -19,10 +23,11 @@
 import DocTable from '../DocTable'
 import ModuleSetting from '../ModuleSetting'
 import ModuleOpenApi from '../ModuleOpenApi'
+import EnumInfo from '../EnumInfo'
 
 export default {
   name: 'DocInfo',
-  components: { DocTable, ModuleSetting, ModuleOpenApi },
+  components: { DocTable, ModuleSetting, ModuleOpenApi, EnumInfo },
   props: {
     moduleId: {
       type: String,
@@ -37,6 +42,7 @@ export default {
     return {
       activeName: 'DocList',
       moduleIdDocList: '',
+      moduleIdEnumInfo: '',
       moduleIdModuleSetting: '',
       moduleIdOpenApi: ''
     }

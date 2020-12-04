@@ -39,7 +39,9 @@ public class SdkTest extends BaseTest {
 
     static OpenClient client = new OpenClient(url, appKey, secret);
 
-    // 获取文档列表
+    /**
+     * 获取文档列表
+     */
     public void testDocList() {
         DocListRequest request = new DocListRequest(token);
 
@@ -47,7 +49,9 @@ public class SdkTest extends BaseTest {
         this.printResponse(response);
     }
 
-    // 获取文档信息
+    /**
+     * 获取文档信息
+     */
     public void testDocGetRequest() {
         // 创建请求对象
         DocGetRequest request = new DocGetRequest(token);
@@ -59,7 +63,9 @@ public class SdkTest extends BaseTest {
         this.printResponse(response);
     }
 
-    // 创建分类
+    /**
+     * 创建分类
+     */
     public void testDocCategoryCreateRequest() {
         DocCategoryCreateRequest request = new DocCategoryCreateRequest(token);
         request.setName("产品分类2");
@@ -68,7 +74,9 @@ public class SdkTest extends BaseTest {
         this.printResponse(response);
     }
 
-    // 获取分类
+    /**
+     * 获取分类
+     */
     public void testDocCategoryListRequest() {
         DocCategoryListRequest request = new DocCategoryListRequest(token);
 
@@ -76,7 +84,9 @@ public class SdkTest extends BaseTest {
         this.printResponse(response);
     }
 
-    // 修改分类名称
+    /**
+     * 修改分类名称
+     */
     public void testDocCategoryNameUpdateRequest() {
         DocCategoryNameUpdateRequest request = new DocCategoryNameUpdateRequest(token);
         request.setId("je24ozLJ");
@@ -86,7 +96,9 @@ public class SdkTest extends BaseTest {
         this.printResponse(response);
     }
 
-    // 创建文档
+    /**
+     * 创建文档
+     */
     public void testDocCreateRequest() {
         DocCreateRequest request = new DocCreateRequest(token);
         request.setName("文档a");
@@ -134,7 +146,9 @@ public class SdkTest extends BaseTest {
         this.printResponse(response);
     }
 
-    // 修改文档
+    /**
+     * 修改文档
+     */
     public void testDocUpdateRequest() {
         DocUpdateRequest request = new DocUpdateRequest(token);
         request.setId("awXPMqzn");

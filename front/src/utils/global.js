@@ -7,6 +7,22 @@ import { get, post, getBaseUrl, getFile } from './http'
 
 const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
+const typeConfig = [
+  'string',
+  'number',
+  'boolean',
+  'array',
+  'object',
+  'file'
+]
+
+const baseTypeConfig = [
+  'string',
+  'number',
+  'boolean'
+]
+
+const enumItemCache = {}
 
 let paramIdGen = 0
 
@@ -109,6 +125,12 @@ Object.assign(Vue.prototype, {
         callback && callback.call(that, action)
       }
     })
+  },
+  getTypeConfig() {
+    return typeConfig
+  },
+  getBaseTypeConfig() {
+    return baseTypeConfig
   },
   /**
    * 重置表单
@@ -237,6 +259,22 @@ Object.assign(Vue.prototype, {
         spaceId = data[0].id
       }
       callback && callback.call(this, data, spaceId)
+    })
+  },
+  loadEnumItem(enumId) {
+    const key = enumId + ''
+    const value = enumItemCache[key]
+    if (value) {
+      return value
+    }
+    return new Promise((resolve, reject) => {
+      this.get('/doc/enum/item/list', { enumId: enumId }, resp => {
+        const data = resp.data
+        enumItemCache[key] = data
+        resolve(data)
+      }, resp => {
+        reject(resp)
+      })
     })
   },
   cellStyleSmall: function() {
