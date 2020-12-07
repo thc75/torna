@@ -24,6 +24,9 @@ public class DocParam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 唯一id，md5(doc_id:parent_id:style:name), 数据库字段：data_id */
+    private String dataId;
+
     /** 字段名称, 数据库字段：name */
     private String name;
 
@@ -63,8 +66,14 @@ public class DocParam {
     /**  数据库字段：creator_id */
     private Long creatorId;
 
+    /**  数据库字段：creator_name */
+    private String creatorName;
+
     /**  数据库字段：modifier_id */
     private Long modifierId;
+
+    /**  数据库字段：modifier_name */
+    private String modifierName;
 
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete

@@ -43,11 +43,11 @@
         </template>
       </el-table-column>
     </el-table>
-    <h4>调试Host</h4>
-    <el-alert title="调试页面请求Host" :closable="false" style="margin-bottom: 10px;" />
+    <h4>BaseUrl</h4>
+    <el-alert title="请求基本路径" :closable="false" style="margin-bottom: 10px;" />
     <el-form ref="debugHostRef" :model="settings" size="mini">
-      <el-form-item prop="debugHost">
-        <el-input v-model="settings.debugHost" placeholder="如：http://10.0.10.11:8080" />
+      <el-form-item prop="baseUrl">
+        <el-input v-model="settings.baseUrl" placeholder="如：http://10.0.10.11:8080" />
       </el-form-item>
       <el-form-item v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])">
         <el-button type="primary" @click="onSaveDebugHost">保存</el-button>
@@ -68,6 +68,8 @@
         </el-form-item>
       </el-form>
     </div>
+    <el-divider/>
+    <el-button v-if="hasRole(`project:${projectId}`, [Role.admin])" type="danger" size="mini" @click="onModuleDelete">删除模块</el-button>
     <!--dialog-->
     <el-dialog
       :title="dialogHeaderTitle"
@@ -127,7 +129,7 @@ export default {
         },
         globalHeaders: [],
         allowMethod: 'POST',
-        debugHost: ''
+        baseUrl: ''
       },
       allMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       dialogHeaderVisible: false,
@@ -230,12 +232,20 @@ export default {
         if (valid) {
           const data = {
             moduleId: this.moduleId,
-            debugHost: this.settings.debugHost
+            baseUrl: this.settings.baseUrl
           }
-          this.post('/module/setting/debughost/set', data, () => {
+          this.post('/module/setting/baseurl/set', data, () => {
             this.tipSuccess('保存成功')
           })
         }
+      })
+    },
+    onModuleDelete() {
+      this.confirm('确认要删除该模块吗？', () => {
+        this.post('/module/delete', { id: this.moduleId }, () => {
+          alert('删除成功')
+          location.reload()
+        })
       })
     }
   }

@@ -1,12 +1,11 @@
 package torna.service;
 
-import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.stereotype.Service;
 import torna.common.bean.Booleans;
 import torna.common.bean.User;
-import torna.common.enums.OperationMode;
 import torna.common.enums.ParamStyleEnum;
 import torna.common.support.BaseService;
+import torna.common.util.DataIdUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
 import torna.dao.mapper.DocParamMapper;
@@ -20,12 +19,8 @@ import java.util.List;
 @Service
 public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
-    public DocParam getByDocIdAndParentIdAndName(long docId, long parentId, String name) {
-        Query query = new Query()
-                .eq("doc_id", docId)
-                .eq("parent_id", parentId)
-                .eq("name", name);
-        return get(query);
+    public DocParam getByDataId(String dataId) {
+        return get("data_id", dataId);
     }
 
     public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
@@ -39,7 +34,8 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
         DocParam docParam = new DocParam();
-        docParam.setId(docParamDTO.getId());
+        String dataId = DataIdUtil.getDocParamDataId(docInfo.getId(), parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
+        docParam.setDataId(dataId);
         docParam.setName(docParamDTO.getName());
         docParam.setType(docParamDTO.getType());
         docParam.setRequired(docParamDTO.getRequired());
@@ -52,8 +48,9 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setStyle(paramStyleEnum.getStyle());
         docParam.setModifyMode(user.getOperationModel());
         docParam.setModifierId(user.getUserId());
+        docParam.setModifierName(user.getNickname());
         docParam.setIsDeleted(docParamDTO.getIsDeleted());
-        DocParam savedParam = this.saveParam(docParam);
+        DocParam savedParam = this.saveParam(docParam, user);
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
             Long id = savedParam.getId();
@@ -63,9 +60,9 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         }
     }
 
-    public DocParam saveParam(DocParam docParam) {
-        Long id = docParam.getId();
-        DocParam docParamExist = id != null && id > 0 ? this.getById(id) : null;
+    public DocParam saveParam(DocParam docParam, User user) {
+        String dataId = docParam.getDataId();
+        DocParam docParamExist = getByDataId(dataId);
         if (docParamExist != null) {
             if (docParam.getIsDeleted() != null && docParam.getIsDeleted() == Booleans.TRUE) {
                 this.delete(docParamExist);
@@ -80,11 +77,15 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
             docParamExist.setEnumId(docParam.getEnumId());
             docParamExist.setStyle(docParam.getStyle());
             docParamExist.setModifyMode(docParam.getModifyMode());
+            docParamExist.setModifierName(docParam.getModifierName());
             docParamExist.setModifierId(docParam.getModifierId());
             docParamExist.setIsDeleted(Booleans.FALSE);
             updateIgnoreNull(docParamExist);
             return docParamExist;
         } else {
+            docParam.setCreatorId(user.getUserId());
+            docParam.setCreateMode(user.getOperationModel());
+            docParam.setCreatorName(user.getNickname());
             saveIgnoreNull(docParam);
             return docParam;
         }

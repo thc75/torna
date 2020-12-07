@@ -4,30 +4,32 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import torna.sdk.client.OpenClient;
 import torna.sdk.common.Booleans;
-import torna.sdk.param.CodeParamCreateParam;
-import torna.sdk.param.CodeParamUpdateParam;
-import torna.sdk.param.DocParamCreateParam;
-import torna.sdk.param.DocParamUpdateParam;
-import torna.sdk.param.HeaderParamCreateParam;
-import torna.sdk.param.HeaderParamUpdateParam;
+import torna.sdk.param.DocItem;
+import torna.sdk.param.DocParamCode;
+import torna.sdk.param.DocParamHeader;
+import torna.sdk.param.DocParamReq;
+import torna.sdk.param.DocParamResp;
+import torna.sdk.param.EnumItemParam;
 import torna.sdk.request.DocCategoryCreateRequest;
 import torna.sdk.request.DocCategoryListRequest;
 import torna.sdk.request.DocCategoryNameUpdateRequest;
-import torna.sdk.request.DocCreateRequest;
 import torna.sdk.request.DocGetRequest;
 import torna.sdk.request.DocListRequest;
-import torna.sdk.request.DocUpdateRequest;
+import torna.sdk.request.DocPushRequest;
+import torna.sdk.request.EnumPushRequest;
 import torna.sdk.response.BaseResponse;
 import torna.sdk.response.DocCategoryCreateResponse;
 import torna.sdk.response.DocCategoryListResponse;
 import torna.sdk.response.DocCategoryNameUpdateResponse;
-import torna.sdk.response.DocCreateResponse;
 import torna.sdk.response.DocGetResponse;
 import torna.sdk.response.DocListResponse;
-import torna.sdk.response.DocUpdateResponse;
+import torna.sdk.response.DocPushResponse;
+import torna.sdk.response.EnumPushResponse;
 import torna.sdk.result.DocDetailResult;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SdkTest extends BaseTest {
 
@@ -56,10 +58,17 @@ public class SdkTest extends BaseTest {
         // 创建请求对象
         DocGetRequest request = new DocGetRequest(token);
         // 设置请求参数
-        request.setId("je24ozLJ");
+        request.setId("9VXEyXvg");
 
         // 发送请求
         DocGetResponse response = client.execute(request);
+        if (response.isSuccess()) {
+            // 返回结果
+            DocDetailResult data = response.getData();
+            System.out.println(JSON.toJSONString(data, SerializerFeature.PrettyFormat));
+        } else {
+            System.out.println("errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+        }
         this.printResponse(response);
     }
 
@@ -89,115 +98,109 @@ public class SdkTest extends BaseTest {
      */
     public void testDocCategoryNameUpdateRequest() {
         DocCategoryNameUpdateRequest request = new DocCategoryNameUpdateRequest(token);
-        request.setId("je24ozLJ");
-        request.setName("新name");
+        request.setId("jP81Owzq");
+        request.setName("产品分类3");
 
         DocCategoryNameUpdateResponse response = client.execute(request);
         this.printResponse(response);
     }
 
     /**
-     * 创建文档
+     * 推送文档
      */
-    public void testDocCreateRequest() {
-        DocCreateRequest request = new DocCreateRequest(token);
-        request.setName("文档a");
-        request.setDescription("描述a");
-        request.setUrl("/get");
-        request.setHttpMethod("GET");
-        request.setContentType("application/json");
-        request.setParentId("");
-        request.setIsShow(Booleans.TRUE);
-        // 设置header
-        HeaderParamCreateParam header = new HeaderParamCreateParam();
-        header.setName("token");
-        header.setRequired(Booleans.TRUE);
-        header.setDescription("token");
-        header.setExample("aasdf");
-        request.setHeaderParams(Arrays.asList(header));
+    public void testDocPushRequest() {
+        long time = System.currentTimeMillis();
+        DocPushRequest request = new DocPushRequest(token);
+        // 分类
+        DocItem folder = new DocItem();
+        folder.setIsFolder(Booleans.TRUE);
+        folder.setName("推送目录" + time);
 
-        // 设置请求参数
-        DocParamCreateParam paramCreateParamReq = new DocParamCreateParam();
-        paramCreateParamReq.setName("goodsName");
-        paramCreateParamReq.setType("string");
-        paramCreateParamReq.setDescription("商品名称");
-        paramCreateParamReq.setExample("iphone12");
-        paramCreateParamReq.setMaxLength("64");
-        paramCreateParamReq.setRequired(Booleans.TRUE);
-        paramCreateParamReq.setParentId("");
-        request.setRequestParams(Arrays.asList(paramCreateParamReq));
+        List<DocItem> items = new ArrayList<>(8);
+        // 分类下面有文档
+        folder.setItems(items);
 
-        // 设置返回参数
-        DocParamCreateParam paramCreateParamResp = new DocParamCreateParam();
-        paramCreateParamResp.setName("id");
-        paramCreateParamResp.setType("int");
-        paramCreateParamResp.setDescription("商品id");
-        paramCreateParamResp.setExample("22");
-        paramCreateParamResp.setParentId("");
-        request.setResponseParams(Arrays.asList(paramCreateParamResp));
+        // 创建三个文档
+        for (int i = 0; i < 3; i++) {
+            DocItem docItem = buildDocItem(time, i);
+            items.add(docItem);
+        }
+        // 再创建一个没有分类的文档
+        DocItem docItem = buildDocItem(time, items.size() + 1);
 
-        CodeParamCreateParam code = new CodeParamCreateParam();
-        code.setCode("10001");
-        code.setMsg("token错误");
-        code.setSolution("请传token");
-        request.setErrorCodeParams(Arrays.asList(code));
+        request.setBaseUrl("http://localhost:8090");
+        request.setApis(Arrays.asList(folder, docItem));
 
-        DocCreateResponse response = client.execute(request);
+        DocPushResponse response = client.execute(request);
         this.printResponse(response);
     }
 
-    /**
-     * 修改文档
-     */
-    public void testDocUpdateRequest() {
-        DocUpdateRequest request = new DocUpdateRequest(token);
-        request.setId("awXPMqzn");
-        request.setName("文档b");
-        request.setDescription("描述b");
-        request.setUrl("/get/b");
-        request.setHttpMethod("POST");
-        request.setContentType("application/json");
-        request.setParentId("");
-        request.setIsShow(Booleans.TRUE);
+    private static DocItem buildDocItem(long time,int i) {
+        String suffix = "_" + time + "_" + i;
+        DocItem item = new DocItem();
+        item.setName("推送文档名称" + suffix);
+        item.setDescription("推送文档描述" + suffix);
+        item.setUrl("/get" + suffix);
+        item.setHttpMethod("GET");
+        item.setContentType("application/json");
+        item.setParentId("");
+        item.setIsShow(Booleans.TRUE);
         // 设置header
-        HeaderParamUpdateParam header = new HeaderParamUpdateParam();
-        header.setId("jP81wdzq");
-        header.setName("tokenb");
+        DocParamHeader header = new DocParamHeader();
+        header.setName("token");
         header.setRequired(Booleans.TRUE);
-        header.setDescription("tokenb");
-        header.setExample("aasdfb");
-        request.setHeaderParams(Arrays.asList(header));
+        header.setDescription("token" + suffix);
+        header.setExample("112233" + suffix);
+        item.setHeaderParams(Arrays.asList(header));
 
         // 设置请求参数
-        DocParamUpdateParam paramCreateParamReq = new DocParamUpdateParam();
-        paramCreateParamReq.setId("L42Ggy2W");
-        paramCreateParamReq.setName("goodsNameb");
+        DocParamReq paramCreateParamReq = new DocParamReq();
+        paramCreateParamReq.setName("goodsName" + suffix);
         paramCreateParamReq.setType("string");
-        paramCreateParamReq.setDescription("商品名称b");
-        paramCreateParamReq.setExample("iphone12b");
-        paramCreateParamReq.setMaxLength("60");
+        paramCreateParamReq.setDescription("商品名称" + suffix);
+        paramCreateParamReq.setExample("iphone12" + suffix);
+        paramCreateParamReq.setMaxLength("64");
         paramCreateParamReq.setRequired(Booleans.TRUE);
         paramCreateParamReq.setParentId("");
-        request.setRequestParams(Arrays.asList(paramCreateParamReq));
+        item.setRequestParams(Arrays.asList(paramCreateParamReq));
 
         // 设置返回参数
-        DocParamUpdateParam paramCreateParamResp = new DocParamUpdateParam();
-        paramCreateParamResp.setId("9m8wapzk");
-        paramCreateParamResp.setName("idb");
+        DocParamResp paramCreateParamResp = new DocParamResp();
+        paramCreateParamResp.setName("id");
         paramCreateParamResp.setType("int");
-        paramCreateParamResp.setDescription("商品idv");
-        paramCreateParamResp.setExample("22v");
+        paramCreateParamResp.setDescription("商品id" + suffix);
+        paramCreateParamResp.setExample("22");
         paramCreateParamResp.setParentId("");
-        request.setResponseParams(Arrays.asList(paramCreateParamResp));
+        item.setResponseParams(Arrays.asList(paramCreateParamResp));
 
-        CodeParamUpdateParam code = new CodeParamUpdateParam();
-        code.setId("3E8reL20");
-        code.setCode("10001b");
-        code.setMsg("token错误b");
-        code.setSolution("请传tokenb");
-        request.setErrorCodeParams(Arrays.asList(code));
+        // 设置错误码
+        DocParamCode code = new DocParamCode();
+        code.setCode("10001");
+        code.setMsg("token错误");
+        code.setSolution("请传token" + suffix);
+        item.setErrorCodeParams(Arrays.asList(code));
 
-        DocUpdateResponse response = client.execute(request);
+        return item;
+    }
+
+    /**
+     * 推送字典
+     */
+    public void testEnumPushRequest() {
+        EnumPushRequest request = new EnumPushRequest(token);
+        request.setName("字典推送");
+        List<EnumItemParam> items = new ArrayList<>(8);
+        for (int i = 0; i < 3; i++) {
+            EnumItemParam item = new EnumItemParam();
+            item.setName("name2" + i);
+            item.setType("string");
+            item.setValue("v" + i);
+            item.setDescription("描述2" + i);
+            items.add(item);
+        }
+        request.setItems(items);
+        request.setDescription("描述");
+        EnumPushResponse response = client.execute(request);
         this.printResponse(response);
     }
 

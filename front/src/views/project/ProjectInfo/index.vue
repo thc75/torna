@@ -178,7 +178,7 @@ export default {
         this.get('/project/info', { projectId: projectId }, resp => {
           const data = resp.data
           data.admin = data.admins.map(userInfo => {
-            return userInfo.realname
+            return userInfo.nickname
           }).join(' / ')
           data.adminIds = data.admins.map(userInfo => {
             return userInfo.id

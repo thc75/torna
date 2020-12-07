@@ -2,8 +2,10 @@ package torna.service.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import torna.common.bean.Booleans;
 import torna.common.support.IdCodec;
 import torna.common.util.IdUtil;
+import torna.service.dataid.DocInfoDataId;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class DocInfoDTO {
+public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 

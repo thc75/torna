@@ -22,6 +22,11 @@ public interface User {
      * 是否超级管理员
      * @return
      */
-    boolean isAdmin();
+    boolean isSuperAdmin();
 
+    /**
+     * 昵称
+     * @return
+     */
+    String getNickname();
 }

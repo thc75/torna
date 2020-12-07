@@ -36,6 +36,10 @@ public class EnumInfoService extends BaseService<EnumInfo, EnumInfoMapper> {
         return CopyUtil.copyList(enumInfoList, EnumInfoDTO::new);
     }
 
+    public EnumInfo getByDataId(String dataId) {
+        return get("data_id", dataId);
+    }
+
     public List<EnumInfoDTO> listEnumInfo(long moduleId) {
         List<EnumInfoDTO> enumInfoDTOS = this.listBase(moduleId);
         for (EnumInfoDTO enumInfoDTO : enumInfoDTOS) {

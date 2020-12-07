@@ -30,7 +30,7 @@ public class ProjectMemberController {
     private ProjectService projectService;
 
     /**
-     * 分页查询空间成员
+     * 分页查询项目成员
      * @return
      */
     @GetMapping("/page")

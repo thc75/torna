@@ -15,16 +15,17 @@ static String token = "e807db2eb8564c4b89caf5a2f2d15b77";
 // 创建请求客户端
 static OpenClient client = new OpenClient(url, appKey, secret);
 
-// 获取文档信息
+/**
+ * 获取文档信息
+ */
 public void testDocGetRequest() {
     // 创建请求对象
     DocGetRequest request = new DocGetRequest(token);
     // 设置请求参数
-    request.setId("je24ozLJ");
+    request.setId("9VXEyXvg");
 
     // 发送请求
     DocGetResponse response = client.execute(request);
-
     if (response.isSuccess()) {
         // 返回结果
         DocDetailResult data = response.getData();
@@ -199,7 +200,10 @@ public class PostTest extends TestCase {
         StringBuilder paramNameValue = new StringBuilder();
 
         for (String paramName : paramNames) {
-            paramNameValue.append(paramName).append(paramsMap.get(paramName));
+            Object value = paramsMap.get(paramName);
+            if (value != null) {
+                paramNameValue.append(paramName).append(value);
+            }
         }
 
         String source = secret + paramNameValue.toString() + secret;

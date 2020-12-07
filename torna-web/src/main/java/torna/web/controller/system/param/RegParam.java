@@ -20,7 +20,7 @@ public class RegParam {
     private String password;
 
     @Length(max = 64)
-    private String realname;
+    private String nickname;
 
 
 

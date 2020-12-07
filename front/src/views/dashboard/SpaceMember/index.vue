@@ -29,7 +29,7 @@
         width="400"
       >
         <template slot-scope="scope">
-          {{ `${scope.row.realname}(${scope.row.username})` }}
+          {{ `${scope.row.nickname}(${scope.row.username})` }}
           <el-tag v-if="isSelf(scope.row.id)">我</el-tag>
         </template>
       </el-table-column>
@@ -68,7 +68,7 @@
         <template slot-scope="scope">
           <el-popconfirm
             v-if="!isSelf(scope.row)"
-            :title="`确定要移除 ${scope.row.realname}(${scope.row.username}) 吗？`"
+            :title="`确定要移除 ${scope.row.nickname}(${scope.row.username}) 吗？`"
             @onConfirm="onMemberRemove(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">移除</el-link>

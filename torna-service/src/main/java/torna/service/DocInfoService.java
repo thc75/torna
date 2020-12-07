@@ -79,17 +79,17 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
-        Long id = docInfoDTO.getId();
-        DocInfo docInfo;
+        String dataId = docInfoDTO.buildDataId();
+        DocInfo docInfo = getByDataId(dataId);
         boolean save = false;
-        if (id == null || id == 0) {
+        if (docInfo == null) {
             docInfo = new DocInfo();
             docInfo.setCreateMode(user.getOperationModel());
             docInfo.setCreatorId(user.getUserId());
+            docInfo.setCreatorName(user.getNickname());
             save = true;
-        } else {
-            docInfo = getById(id);
         }
+        docInfo.setDataId(dataId);
         docInfo.setName(docInfoDTO.getName());
         docInfo.setDescription(docInfoDTO.getDescription());
         docInfo.setUrl(docInfoDTO.getUrl());
@@ -100,6 +100,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModuleId(docInfoDTO.getModuleId());
         docInfo.setModifyMode(user.getOperationModel());
         docInfo.setModifierId(user.getUserId());
+        docInfo.setModifierName(user.getNickname());
         docInfo.setIsShow(docInfoDTO.getIsShow());
         if (save) {
             this.saveIgnoreNull(docInfo);
@@ -107,6 +108,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             this.updateIgnoreNull(docInfo);
         }
         return docInfo;
+    }
+
+    public DocInfo getByDataId(String dataId) {
+        return get("data_id", dataId);
     }
 
     /**
@@ -122,25 +127,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
 
-    public boolean isExistFolderForAdd(String folderName, long moduleId, long parentId) {
-        return this.isExistFolder(folderName, moduleId, parentId, Objects::nonNull);
-    }
-
     public boolean isExistFolderForUpdate(long id, String folderName, long moduleId, long parentId) {
         DocInfo docInfo = getByModuleIdAndParentIdAndName(moduleId, parentId, folderName);
         return docInfo != null && docInfo.getId() != id;
-    }
-
-    /**
-     * 分类是否存在
-     * @param folderName 分类名称
-     * @param moduleId 模块id
-     * @param parentId 父节点
-     * @return
-     */
-    public boolean isExistFolder(String folderName, long moduleId, long parentId, Predicate<DocInfo> predicate) {
-        DocInfo folder = getByModuleIdAndParentIdAndName(moduleId, parentId, folderName);
-        return predicate.test(folder);
     }
 
     public DocInfo getByModuleIdAndParentIdAndName(long moduleId, long parentId, String name) {
@@ -160,6 +149,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public void updateDocFolderName(long id, String name, User user) {
         DocInfo folder = getById(id);
+        Assert.notNull(folder, name + " 分类不存在");
         Long moduleId = folder.getModuleId();
         if (isExistFolderForUpdate(id, name, moduleId, 0)) {
             throw new BizException(name + " 已存在");
@@ -185,14 +175,15 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     /**
-     * 创建文档分类，会检查名称是否存在
+     * 创建文档分类，如果已存在，直接返回已存在的
      * @param folderName 分类名称
      * @param moduleId 模块id
      * @param user 操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        if (isExistFolderForAdd(folderName, moduleId, 0)) {
-            throw new BizException(folderName + " 已存在");
+        DocInfo folder = getByModuleIdAndParentIdAndName(moduleId, 0L, folderName);
+        if (folder != null) {
+            return folder;
         }
         return this.createDocFolderNoCheck(folderName, moduleId, user);
     }
@@ -232,9 +223,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     public DocInfo createDocItem(DocItemCreateDTO docItemCreateDTO) {
         User user = docItemCreateDTO.getUser();
         Byte isFolder = docItemCreateDTO.getIsFolder();
-        DocInfo docInfo = getByModuleIdAndParentIdAndName(docItemCreateDTO.getModuleId(), docItemCreateDTO.getParentId(), docItemCreateDTO.getName());
+        String dataId = docItemCreateDTO.buildDataId();
+        DocInfo docInfo = getByDataId(dataId);
         if (docInfo == null) {
             docInfo = new DocInfo();
+            docInfo.setDataId(dataId);
             docInfo.setName(docItemCreateDTO.getName());
             docInfo.setModuleId(docItemCreateDTO.getModuleId());
             docInfo.setParentId(docItemCreateDTO.getParentId());
@@ -246,6 +239,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             saveIgnoreNull(docInfo);
         } else {
             docInfo.setIsFolder(isFolder);
+            docInfo.setDataId(dataId);
             docInfo.setModifyMode(user.getOperationModel());
             docInfo.setModifierId(user.getUserId());
             docInfo.setIsDeleted(Booleans.FALSE);

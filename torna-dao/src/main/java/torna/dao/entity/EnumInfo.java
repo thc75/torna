@@ -24,6 +24,9 @@ public class EnumInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 唯一id，md5(module_id:name), 数据库字段：data_id */
+    private String dataId;
+
     /** 枚举名称, 数据库字段：name */
     private String name;
 

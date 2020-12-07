@@ -1,6 +1,5 @@
 package torna.api.open;
 
-import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.annotation.Api;
 import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.NoResultWrapper;
@@ -9,20 +8,21 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import torna.api.bean.RequestContext;
-import torna.api.open.param.DocInfoDetailCreateParam;
-import torna.api.open.param.DocInfoDetailUpdateParam;
 import torna.api.open.param.CategoryAddParam;
 import torna.api.open.param.CategoryUpdateParam;
+import torna.api.open.param.DocPushItemParam;
+import torna.api.open.param.DocPushParam;
 import torna.api.open.param.IdParam;
 import torna.api.open.result.DocCategoryResult;
 import torna.api.open.result.DocInfoDetailResult;
 import torna.api.open.result.DocInfoResult;
-import torna.api.open.result.DocSaveResult;
+import torna.common.bean.Booleans;
 import torna.common.bean.User;
 import torna.common.util.CopyUtil;
 import torna.common.util.json.JsonUtil;
 import torna.dao.entity.DocInfo;
 import torna.service.DocInfoService;
+import torna.service.ModuleConfigService;
 import torna.service.dto.DocInfoDTO;
 
 import java.util.List;
@@ -31,11 +31,26 @@ import java.util.List;
  * @author tanghc
  */
 @ApiService
-@ApiDoc(value = "文档API")
+@ApiDoc(value = "文档API", order = 1)
 public class DocApi {
 
     @Autowired
     private DocInfoService docInfoService;
+
+    @Autowired
+    private ModuleConfigService moduleConfigService;
+
+    @Api(name = "doc.push")
+    @ApiDocMethod(description = "推送文档",  order = 0)
+    public void pushDoc(DocPushParam param) {
+        long moduleId = RequestContext.getCurrentContext().getModuleId();
+        String baseUrl = param.getBaseUrl();
+        moduleConfigService.setBaseUrl(moduleId, baseUrl);
+
+        for (DocPushItemParam detailPushParam : param.getApis()) {
+            this.pushDocItem(detailPushParam);
+        }
+    }
 
     @Api(name = "doc.list")
     @ApiDocMethod(description = "获取文档列表"
@@ -91,24 +106,24 @@ public class DocApi {
         docInfoService.updateDocFolderName(param.getId(), name, user);
     }
 
-    @Api(name = "doc.create")
-    @ApiDocMethod(description = "创建文档", order = 6)
-    public DocSaveResult addDoc(DocInfoDetailCreateParam param) {
+
+    public void pushDocItem(DocPushItemParam param) {
         User user = RequestContext.getCurrentContext().getApiUser();
         long moduleId = RequestContext.getCurrentContext().getModuleId();
         DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
         docInfoDTO.setModuleId(moduleId);
-        DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
-        return CopyUtil.copyBean(docInfo, DocSaveResult::new);
-    }
-
-    @Api(name = "doc.update")
-    @ApiDocMethod(description = "修改文档", order = 6)
-    public DocSaveResult updateDoc(DocInfoDetailUpdateParam param) {
-        User user = RequestContext.getCurrentContext().getApiUser();
-        DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
-        DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
-        return CopyUtil.copyBean(docInfo, DocSaveResult::new);
+        if (Booleans.isTrue(param.getIsFolder())) {
+            DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user);
+            List<DocPushItemParam> items = param.getItems();
+            if (items != null) {
+                for (DocPushItemParam item : items) {
+                    item.setParentId(folder.getId());
+                    this.pushDocItem(item);
+                }
+            }
+        } else {
+            docInfoService.saveDocInfo(docInfoDTO, user);
+        }
     }
 
 }

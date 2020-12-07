@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="doc-baseinfo">
-      <h2 style="margin-top: 0">{{ docInfo.name }}（{{ docInfo.id }}）</h2>
+      <h2 style="margin-top: 0">
+        {{ docInfo.name }}
+        <span style="font-size: 14px;color: #8d8d8d">文档ID：{{ docInfo.id }}</span>
+      </h2>
     </div>
     <h3>接口描述</h3>
     <div class="doc-overview">{{ docInfo.description || docInfo.name }}</div>

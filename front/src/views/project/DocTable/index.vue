@@ -33,11 +33,6 @@
       :row-class-name="tableRowClassName"
     >
       <el-table-column
-        prop="id"
-        label="文档ID"
-        width="160"
-      />
-      <el-table-column
         prop="name"
         label="文档名称"
       />

@@ -19,11 +19,11 @@ public class LoginUser implements User {
 	/** 登录账号/邮箱, 数据库字段：username */
     private String username;
     
-	/** 真实姓名, 数据库字段：realname */
-    private String realname;
+	/** 昵称, 数据库字段：nickname */
+    private String nickname;
 
     /** 是否是管理员, 数据库字段：is_admin */
-    private Byte isAdmin;
+    private Byte isSuperAdmin;
     
 	/**  数据库字段：is_deleted */
     private Byte isDeleted;
@@ -37,8 +37,8 @@ public class LoginUser implements User {
     }
 
     @Override
-    public boolean isAdmin() {
-        return isAdmin != null && isAdmin == Booleans.TRUE;
+    public boolean isSuperAdmin() {
+        return isSuperAdmin != null && isSuperAdmin == Booleans.TRUE;
     }
 
     @Override

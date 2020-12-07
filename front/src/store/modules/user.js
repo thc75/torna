@@ -7,7 +7,7 @@ const state = {
   name: '',
   avatar: '',
   perms: {
-    isAdmin: false,
+    isSuperAdmin: false,
     roleData: {}
   }
 }

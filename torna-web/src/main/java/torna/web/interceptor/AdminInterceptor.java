@@ -20,7 +20,7 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
         if (user == null) {
             throw new LoginFailureException();
         }
-        if (user.isAdmin()) {
+        if (user.isSuperAdmin()) {
             return true;
         }
         throw new BizException("无权访问");

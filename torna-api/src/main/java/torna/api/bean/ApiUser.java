@@ -23,7 +23,12 @@ public class ApiUser implements User {
     }
 
     @Override
-    public boolean isAdmin() {
+    public boolean isSuperAdmin() {
         return false;
+    }
+
+    @Override
+    public String getNickname() {
+        return "OpenAPI";
     }
 }

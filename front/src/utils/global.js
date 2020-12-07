@@ -262,16 +262,9 @@ Object.assign(Vue.prototype, {
     })
   },
   loadEnumItem(enumId) {
-    const key = enumId + ''
-    const value = enumItemCache[key]
-    if (value) {
-      return value
-    }
     return new Promise((resolve, reject) => {
       this.get('/doc/enum/item/list', { enumId: enumId }, resp => {
-        const data = resp.data
-        enumItemCache[key] = data
-        resolve(data)
+        resolve(resp.data)
       }, resp => {
         reject(resp)
       })

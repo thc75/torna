@@ -23,4 +23,14 @@ public class PasswordTest extends TornaApplicationTests {
         System.out.println(dbPassword);
     }
 
+    @Test
+    public void testGen2() {
+        String username = "zs@qq.com";
+        String password = DigestUtils.md5DigestAsHex("123123".getBytes(StandardCharsets.UTF_8));
+        String dbPassword = userInfoService.getDbPassword(username, password);
+        System.out.println(dbPassword);
+    }
+
+
+
 }

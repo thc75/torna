@@ -55,7 +55,9 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Space space = new Space();
         space.setName(spaceName);
         space.setCreatorId(spaceAddDTO.getCreatorId());
+        space.setCreatorName(spaceAddDTO.getCreatorName());
         space.setModifierId(spaceAddDTO.getCreatorId());
+        space.setModifierName(spaceAddDTO.getCreatorName());
         this.saveIgnoreNull(space);
 
         // 添加管理员
@@ -155,9 +157,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Space space = getById(spaceId);
         SpaceInfoDTO spaceInfoDTO = CopyUtil.copyBean(space, SpaceInfoDTO::new);
         List<UserInfoDTO> leaders = this.listSpaceLeader(spaceId);
-        Long creatorId = space.getCreatorId();
-        UserInfo userInfo = userInfoService.getById(creatorId);
-        spaceInfoDTO.setCreator(userInfo.getRealname());
+        spaceInfoDTO.setCreator(space.getCreatorName());
         spaceInfoDTO.setLeaders(leaders);
         return spaceInfoDTO;
     }
@@ -205,7 +205,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
      * @return 返回空间信息
      */
     public List<SpaceDTO> listSpace(User user) {
-        if (user.isAdmin()) {
+        if (user.isSuperAdmin()) {
             return this.listAll(SpaceDTO::new);
         }
         List<Long> spaceIds;

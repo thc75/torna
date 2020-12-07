@@ -4,18 +4,15 @@ import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import torna.common.bean.Booleans;
 import torna.common.exception.BizException;
-import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.EnumInfo;
 import torna.dao.entity.EnumItem;
-import torna.dao.mapper.EnumInfoMapper;
 import torna.service.dto.EnumInfoDTO;
 import torna.service.dto.EnumItemDTO;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +35,8 @@ public class EnumService {
         return CopyUtil.copyList(enumInfoList, EnumInfoDTO::new);
     }
 
+
+
     public List<EnumInfoDTO> listEnumInfo(long moduleId) {
         List<EnumInfoDTO> enumInfoDTOS = this.listBase(moduleId);
         for (EnumInfoDTO enumInfoDTO : enumInfoDTOS) {
@@ -47,9 +46,39 @@ public class EnumService {
         return enumInfoDTOS;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public EnumInfo saveEnumInfo(EnumInfoDTO enumInfoDTO) {
+        String dataId = enumInfoDTO.buildDataId();
+        EnumInfo enumInfo = enumInfoService.getByDataId(dataId);
+        if (enumInfo == null) {
+            enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
+            enumInfo.setDataId(dataId);
+            enumInfoService.saveIgnoreNull(enumInfo);
+            List<EnumItemDTO> items = enumInfoDTO.getItems();
+            this.updateItems(enumInfo, items);
+        } else {
+            enumInfo.setDescription(enumInfoDTO.getDescription());
+            enumInfoService.updateIgnoreNull(enumInfo);
+            List<EnumItemDTO> items = enumInfoDTO.getItems();
+            this.updateItems(enumInfo, items);
+        }
+        return enumInfo;
+    }
+
+    private void updateItems(EnumInfo enumInfo, List<EnumItemDTO> items) {
+        if (items != null) {
+            for (EnumItemDTO item : items) {
+                item.setEnumId(enumInfo.getId());
+                this.saveEnumItem(item);
+            }
+        }
+    }
+
     public EnumInfo addEnumInfo(EnumInfoDTO enumInfoDTO) {
         this.checkInfoExist(enumInfoDTO);
-        EnumInfo enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
+        String dataId = enumInfoDTO.buildDataId();
+        EnumInfo enumInfo  = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
+        enumInfo.setDataId(dataId);
         enumInfoService.saveIgnoreNull(enumInfo);
         return enumInfo;
     }
@@ -57,6 +86,7 @@ public class EnumService {
     public EnumInfo updateEnumInfo(EnumInfoDTO enumInfoDTO) {
         this.checkInfoExist(enumInfoDTO);
         EnumInfo enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
+        enumInfo.setDataId(enumInfoDTO.buildDataId());
         enumInfoService.updateIgnoreNull(enumInfo);
         return enumInfo;
     }
@@ -67,6 +97,17 @@ public class EnumService {
                 .orderby("id", Sort.ASC);
         List<EnumItem> itemList = enumItemService.list(query);
         return CopyUtil.copyList(itemList, EnumItemDTO::new);
+    }
+
+    private void saveEnumItem(EnumItemDTO itemDTO) {
+        EnumItem enumItem = enumItemService.getByEnumIdAndName(itemDTO.getEnumId(), itemDTO.getName());
+        if (enumItem == null) {
+            enumItem = CopyUtil.copyBean(itemDTO, EnumItem::new);
+            enumItemService.saveIgnoreNull(enumItem);
+        } else {
+            CopyUtil.copyPropertiesIgnoreNull(itemDTO, enumItem);
+            enumItemService.updateIgnoreNull(enumItem);
+        }
     }
 
     public EnumItem addEnumItem(EnumItemDTO itemDTO) {
@@ -96,11 +137,7 @@ public class EnumService {
     }
 
     private void checkItemExist(EnumItemDTO itemDTO) {
-        Query query = new Query()
-                .eq("enum_id", itemDTO.getEnumId())
-                .eq("name", itemDTO.getName())
-                ;
-        EnumItem enumItem = enumItemService.get(query);
+        EnumItem enumItem = enumItemService.getByEnumIdAndName(itemDTO.getEnumId(), itemDTO.getName());
         if (enumItem != null) {
             if (enumItem.getId() == null || !enumItem.getId().equals(itemDTO.getId())) {
                 throw new BizException(itemDTO.getName() + "已存在");

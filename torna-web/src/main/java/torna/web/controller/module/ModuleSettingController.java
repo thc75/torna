@@ -50,11 +50,11 @@ public class ModuleSettingController {
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         String allowMethod = moduleConfigService.getAllowMethod(moduleId);
-        String debugHost = moduleConfigService.getDebugHost(moduleId );
+        String baseUrl = moduleConfigService.getDebugHost(moduleId);
         ModuleSettingVO moduleSettingVO = new ModuleSettingVO();
         moduleSettingVO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, ModuleConfigVO::new));
         moduleSettingVO.setAllowMethod(allowMethod);
-        moduleSettingVO.setDebugHost(debugHost);
+        moduleSettingVO.setBaseUrl(baseUrl);
         moduleSettingVO.setModuleVO(moduleVO);
         return Result.ok(moduleSettingVO);
     }
@@ -88,23 +88,11 @@ public class ModuleSettingController {
      * @param param
      * @return
      */
-    @PostMapping("/debughost/set")
-    public Result debughost(@RequestBody DebugHostParam param) {
+    @PostMapping("/baseurl/set")
+    public Result setBaseUrl(@RequestBody DebugHostParam param) {
         Long moduleId = param.getModuleId();
-        String key = ModuleConfigService.getDebugHostKey(moduleId);
-        ModuleConfig commonConfig = moduleConfigService.getCommonConfig(moduleId, key);
-        String value = param.getDebugHost();
-        if (commonConfig == null) {
-            commonConfig = new ModuleConfig();
-            commonConfig.setModuleId(moduleId);
-            commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
-            commonConfig.setConfigKey(key);
-            commonConfig.setConfigValue(value);
-            moduleConfigService.saveIgnoreNull(commonConfig);
-        } else {
-            commonConfig.setConfigValue(value);
-            moduleConfigService.update(commonConfig);
-        }
+        String baseUrl = param.getBaseUrl();
+        moduleConfigService.setBaseUrl(moduleId, baseUrl);
         return Result.ok();
     }
 

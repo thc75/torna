@@ -13,9 +13,9 @@ public class UserAddDTO {
     /** 登录密码, 数据库字段：password */
     private String password;
 
-    /** 真实姓名, 数据库字段：realname */
-    private String realname;
+    /** 昵称, 数据库字段：nickname */
+    private String nickname;
 
     /** 是否是管理员, 数据库字段：is_admin */
-    private Byte isAdmin;
+    private Byte isSuperAdmin;
 }

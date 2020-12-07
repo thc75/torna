@@ -30,8 +30,14 @@ public class Space {
     /** 创建者userid, 数据库字段：creator_id */
     private Long creatorId;
 
+    /**  数据库字段：creator_name */
+    private String creatorName;
+
     /** 创建者userid, 数据库字段：modifier_id */
     private Long modifierId;
+
+    /**  数据库字段：modifier_name */
+    private String modifierName;
 
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete

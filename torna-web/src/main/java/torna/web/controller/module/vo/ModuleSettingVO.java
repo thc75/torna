@@ -12,6 +12,6 @@ public class ModuleSettingVO {
     private ModuleVO moduleVO;
     private List<ModuleConfigVO> globalHeaders;
     private String allowMethod;
-    private String debugHost;
+    private String baseUrl;
 
 }

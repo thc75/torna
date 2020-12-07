@@ -11,6 +11,6 @@ import torna.common.support.IdCodec;
 public class DebugHostParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
-    private String debugHost;
+    private String baseUrl;
 
 }

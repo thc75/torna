@@ -17,6 +17,7 @@ import torna.common.bean.HttpTool;
 import torna.common.bean.User;
 import torna.common.enums.ParamStyleEnum;
 import torna.common.exception.BizException;
+import torna.common.util.DataIdUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
 import torna.dao.entity.Module;
@@ -143,23 +144,24 @@ public class DocImportService {
             , User user
     ) {
         DocParam docParam = new DocParam();
+        ParamStyleEnum styleEnum = styleEnumFunction.apply(docParameter);
+        String dataId = DataIdUtil.getDocParamDataId(docInfo.getId(), parentId, styleEnum.getStyle(), docParameter.getName());
+        docParam.setDataId(dataId);
         docParam.setName(docParameter.getName());
         docParam.setType(docParameter.getType());
         docParam.setRequired(BooleanUtils.toIntegerObject(docParameter.getRequired()).byteValue());
         docParam.setMaxLength(docParameter.getMaxLength());
         docParam.setExample(docParameter.getExample());
         docParam.setDescription(docParameter.getDescription());
-        List<String> enums = docParameter.getEnums();
         docParam.setDocId(docInfo.getId());
         docParam.setParentId(parentId);
-        ParamStyleEnum styleEnum = styleEnumFunction.apply(docParameter);
         docParam.setStyle(styleEnum.getStyle());
         docParam.setCreateMode(user.getOperationModel());
         docParam.setModifyMode(user.getOperationModel());
         docParam.setCreatorId(user.getUserId());
         docParam.setModifierId(user.getUserId());
         // 保存操作
-        DocParam savedDoc = docParamService.saveParam(docParam);
+        DocParam savedDoc = docParamService.saveParam(docParam, user);
 
         // 处理子节点
         List<DocParameter> children = docParameter.getRefs();

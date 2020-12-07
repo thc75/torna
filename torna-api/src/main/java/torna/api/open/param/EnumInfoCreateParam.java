@@ -17,7 +17,7 @@ public class EnumInfoCreateParam {
     /** 枚举名称, 数据库字段：name */
     @NotBlank(message = "名称不能为空")
     @Length(max = 100, message = "名称长度不能超过100")
-    @ApiDocField(description = "字典分类名称", required = true, example = "支付状态")
+    @ApiDocField(description = "字典分类名称", required = true, example = "支付枚举")
     private String name;
 
     /** 枚举说明, 数据库字段：description */

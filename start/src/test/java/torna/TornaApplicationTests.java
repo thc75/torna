@@ -22,7 +22,7 @@ class TornaApplicationTests {
         LoginUser loginUser = new LoginUser();
         loginUser.setId(1L);
         loginUser.setUsername("test@test.com");
-        loginUser.setRealname("张三");
+        loginUser.setNickname("张三");
         loginUser.setGmtCreate(new Date());
         tokenManager.setUser(test_token, loginUser);
     }

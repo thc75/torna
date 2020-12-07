@@ -2,7 +2,7 @@ package torna.sdk.request;
 
 import lombok.Getter;
 import lombok.Setter;
-import torna.sdk.param.EnumItemCreateParam;
+import torna.sdk.param.EnumItemParam;
 import torna.sdk.response.EnumPushResponse;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class EnumPushRequest extends BaseRequest<EnumPushResponse> {
     private String description;
 
     /** 枚举项 */
-    private List<EnumItemCreateParam> items;
+    private List<EnumItemParam> items;
 
     public EnumPushRequest(String token) {
         super(token);

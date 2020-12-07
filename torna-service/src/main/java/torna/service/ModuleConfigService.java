@@ -52,4 +52,20 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
                 .orElse(defaultValue);
     }
 
+    public void setBaseUrl(long moduleId, String baseUrl) {
+        String key = ModuleConfigService.getDebugHostKey(moduleId);
+        ModuleConfig commonConfig = getCommonConfig(moduleId, key);
+        if (commonConfig == null) {
+            commonConfig = new ModuleConfig();
+            commonConfig.setModuleId(moduleId);
+            commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
+            commonConfig.setConfigKey(key);
+            commonConfig.setConfigValue(baseUrl);
+            saveIgnoreNull(commonConfig);
+        } else {
+            commonConfig.setConfigValue(baseUrl);
+            update(commonConfig);
+        }
+    }
+
 }

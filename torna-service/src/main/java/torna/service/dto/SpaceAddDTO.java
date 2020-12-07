@@ -17,4 +17,6 @@ public class SpaceAddDTO {
     private List<Long> adminIds;
 
     private Long creatorId;
+
+    private String creatorName;
 }

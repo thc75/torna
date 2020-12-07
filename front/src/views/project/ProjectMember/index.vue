@@ -36,7 +36,7 @@
         width="400"
       >
         <template slot-scope="scope">
-          {{ `${scope.row.realname}(${scope.row.username})` }}
+          {{ `${scope.row.nickname}(${scope.row.username})` }}
           <el-tag v-if="isSelf(scope.row.id)">我</el-tag>
         </template>
       </el-table-column>
@@ -46,8 +46,19 @@
         width="250"
       >
         <template slot-scope="scope">
-          <el-select v-if="hasRole(`project:${projectId}`, Role.admin)" v-model="scope.row.roleCode" size="mini" @change="onRoleChange(scope.row)">
-            <el-option v-for="item in getProjectRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
+          <el-select
+            v-if="hasRole(`project:${projectId}`, Role.admin)"
+            v-model="scope.row.roleCode"
+            size="mini"
+            :disabled="isSelf(scope.row.id)"
+            @change="onRoleChange(scope.row)"
+          >
+            <el-option
+              v-for="item in getProjectRoleCodeConfig()"
+              :key="item.code"
+              :value="item.code"
+              :label="item.label"
+            >
               {{ item.label }}
             </el-option>
           </el-select>
@@ -68,10 +79,11 @@
       >
         <template slot-scope="scope">
           <el-popconfirm
-            :title="`确定要移除 ${scope.row.realname}(${scope.row.username}) 吗？`"
+            v-if="!isSelf(scope.row.id)"
+            :title="`确定要移除 ${scope.row.nickname}(${scope.row.username}) 吗？`"
             @onConfirm="onMemberRemove(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">移除</el-link>
+            <el-link slot="reference" :disabled="isSelf(scope.row.id)" type="danger">移除</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>

@@ -48,7 +48,7 @@ public class PermissionService {
                 .collect(Collectors.toMap(roleDTO -> roleDTO.getPrefix() + ":" + IdUtil.encode(roleDTO.getId()), RoleDTO::getRole));
         UserPermDTO userPermDTO = new UserPermDTO();
         userPermDTO.setRoleData(roleMap);
-        userPermDTO.setIsAdmin(BooleanUtils.toIntegerObject(user.isAdmin()).byteValue());
+        userPermDTO.setIsSuperAdmin(BooleanUtils.toIntegerObject(user.isSuperAdmin()).byteValue());
         return userPermDTO;
     }
 

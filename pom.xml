@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>net.oschina.durcframework</groupId>
                 <artifactId>easyopen-spring-boot-starter</artifactId>
-                <version>1.16.13</version>
+                <version>1.16.14.2</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>

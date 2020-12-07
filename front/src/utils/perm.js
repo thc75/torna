@@ -5,9 +5,9 @@ function setUserPerm(data) {
   store.state.user.perms = data
 }
 
-function is_admin() {
+function is_super_admin() {
   const userPerm = getUserPerm()
-  return userPerm && userPerm.isAdmin
+  return userPerm && userPerm.isSuperAdmin
 }
 
 function getUserPerm() {
@@ -15,7 +15,7 @@ function getUserPerm() {
 }
 
 function has_role(key, roleCode) {
-  if (is_admin()) {
+  if (is_super_admin()) {
     return true
   }
   const userPerm = getUserPerm()
@@ -33,8 +33,8 @@ Object.assign(Vue.prototype, {
   setPerm(perm) {
     setUserPerm(perm)
   },
-  isAdmin() {
-    return is_admin()
+  isSuperAdmin() {
+    return is_super_admin()
   },
   /**
    * 是否拥有角色

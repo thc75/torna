@@ -40,7 +40,7 @@
             </router-link>
           </div>
         </el-submenu>
-        <el-submenu v-if="isAdmin()" index="/admin">
+        <el-submenu v-if="isSuperAdmin()" index="/admin">
           <template slot="title">
             <i class="el-icon-s-platform"></i>
             <span>后台管理</span>

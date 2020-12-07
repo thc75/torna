@@ -48,9 +48,16 @@
     </el-container>
   </el-container>
 </template>
-<style scoped>
-.markdown-body table {
-  font-size: 14px;
+<style>
+.markdown-body table td, .markdown-body table th {
+  padding: 2px 4px;
+  font-size: 12px;
+}
+.markdown-body table th {
+  background-color: #f3f3f3;
+}
+.markdown-body table tr:nth-child(2n) {
+   background-color: #FFFFFF;
 }
 .el-header {
   background-color: #545c64;

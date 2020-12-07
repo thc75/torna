@@ -30,7 +30,7 @@ public class OpenUser {
     /** secret, 数据库字段：secret */
     private String secret;
 
-    /** 1启用，2禁用, 数据库字段：status */
+    /** 1启用，0禁用, 数据库字段：status */
     private Byte status;
 
     /** 备注, 数据库字段：remark */

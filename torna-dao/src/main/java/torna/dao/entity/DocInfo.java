@@ -24,6 +24,9 @@ public class DocInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name), 数据库字段：data_id */
+    private String dataId;
+
     /** 文档名称, 数据库字段：name */
     private String name;
 
@@ -57,8 +60,14 @@ public class DocInfo {
     /** 创建人, 数据库字段：creator_id */
     private Long creatorId;
 
+    /** 创建者昵称user_info.nickname, 数据库字段：creator_name */
+    private String creatorName;
+
     /** 修改人, 数据库字段：modifier_id */
     private Long modifierId;
+
+    /** 创建者昵称user_info.nickname, 数据库字段：modifier_name */
+    private String modifierName;
 
     /** 是否显示, 数据库字段：is_show */
     private Byte isShow;

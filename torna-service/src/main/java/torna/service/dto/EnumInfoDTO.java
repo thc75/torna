@@ -3,6 +3,7 @@ package torna.service.dto;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import torna.common.support.IdCodec;
+import torna.service.dataid.EnumInfoDataId;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class EnumInfoDTO {
+public class EnumInfoDTO implements EnumInfoDataId {
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;

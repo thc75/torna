@@ -10,15 +10,6 @@
     class="param-table"
   >
     <el-table-column
-      prop="id"
-      label="参数ID"
-      width="160"
-    >
-      <template slot-scope="scope">
-        {{ scope.row.isNew ? '' : scope.row.id }}
-      </template>
-    </el-table-column>
-    <el-table-column
       v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"
@@ -60,7 +51,7 @@
       width="120"
     >
       <template slot-scope="scope">
-        <el-select v-model="scope.row.enumId" size="mini">
+        <el-select v-model="scope.row.enumId" :clearable="true" size="mini">
           <el-option v-for="enumInfo in enumData" :key="enumInfo.id" :label="enumInfo.name" :value="enumInfo.id">
             {{ enumInfo.name }}
           </el-option>

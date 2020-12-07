@@ -116,7 +116,6 @@
                     <th>示例值</th>
                     <th>描述</th>
                 </tr>
-                                <tr><td>id</td><td>string</td><td>Br2jqzG7</td><td>文档id<br/></td></tr>
                             </table>
         </td>
     </tr>
@@ -127,9 +126,7 @@
 ```json
 {
 	"code":"0",
-	"data":{
-		"id":"Br2jqzG7"
-	},
+	"data":{},
 	"msg":""
 }
 ```

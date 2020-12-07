@@ -5,10 +5,18 @@
     :header-cell-style="cellStyleSmall()"
     :cell-style="cellStyleSmall()"
   >
-    <el-table-column label="名称" prop="name"/>
-    <el-table-column label="类型" prop="type"/>
-    <el-table-column label="值" prop="value"/>
-    <el-table-column label="描述" prop="description"/>
+    <el-table-column label="字典值" prop="name">
+      <template slot-scope="scope">
+        <div v-if="scope.row.name === scope.row.value">
+          {{ scope.row.name }}
+        </div>
+        <div v-else>
+          {{ scope.row.name }}({{ scope.row.value }})
+        </div>
+      </template>
+    </el-table-column>
+    <el-table-column label="类型" prop="type" />
+    <el-table-column label="描述" prop="description" />
   </el-table>
 </template>
 <script>

@@ -26,7 +26,7 @@
 
     <update id="removeProjectLeader">
         UPDATE project_user set is_deleted=1
-        WHERE project_id=#{projectId} AND role_code='leader'
+        WHERE project_id=#{projectId} AND role_code=#{adminCode}
     </update>
 
 </mapper>

@@ -4,12 +4,13 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import torna.common.bean.User;
 import torna.common.support.IdCodec;
+import torna.service.dataid.DocInfoDataId;
 
 /**
  * @author tanghc
  */
 @Data
-public class DocItemCreateDTO {
+public class DocItemCreateDTO implements DocInfoDataId {
     /** 文档名称, 数据库字段：name */
     private String name;
 

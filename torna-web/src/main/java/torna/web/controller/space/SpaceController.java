@@ -34,8 +34,11 @@ public class SpaceController {
 
     @PostMapping("/updateName")
     public Result updateName(@RequestBody @Valid SpaceUpdateParam param) {
+        User user = UserContext.getUser();
         Space space = spaceService.getById(param.getId());
         space.setName(param.getName());
+        space.setModifierId(user.getUserId());
+        space.setModifierName(user.getNickname());
         spaceService.updateIgnoreNull(space);
         return Result.ok();
     }
@@ -65,7 +68,8 @@ public class SpaceController {
     public Result add(@RequestBody SpaceAddDTO space) {
         User user = UserContext.getUser();
         space.setCreatorId(user.getUserId());
-        if (!user.isAdmin()) {
+        space.setCreatorName(user.getNickname());
+        if (!user.isSuperAdmin()) {
             space.setAdminIds(Collections.singletonList(user.getUserId()));
         }
         spaceService.addSpace(space);

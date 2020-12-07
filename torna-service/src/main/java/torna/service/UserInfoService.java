@@ -47,7 +47,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     @Transactional
     public void addUser(UserAddDTO userAddDTO) {
         // 1. 保存用户
-        userAddDTO.setIsAdmin(Booleans.FALSE);
+        userAddDTO.setIsSuperAdmin(Booleans.FALSE);
         UserInfo userInfo = CopyUtil.copyBean(userAddDTO, UserInfo::new);
         String password = getDbPassword(userAddDTO.getUsername(), userAddDTO.getPassword());
         userInfo.setPassword(password);
@@ -58,6 +58,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         SpaceAddDTO spaceAddDTO = new SpaceAddDTO();
         spaceAddDTO.setAdminIds(Collections.singletonList(userId));
         spaceAddDTO.setCreatorId(userId);
+        spaceAddDTO.setCreatorName(userInfo.getNickname());
         spaceAddDTO.setName(defaultSpaceName);
         spaceService.addSpace(spaceAddDTO);
     }
@@ -84,8 +85,8 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         List<Long> userIdList = CopyUtil.copyList(existUsers, userIdGetter);
         Query query = new Query().in("id", userIdList).setQueryAll(true);
         List<UserInfo> list = list(query);
-        List<String> usernames = CopyUtil.copyList(list, UserInfo::getRealname);
-        throw new BizException(String.join("、", usernames) + " 已存在");
+        List<String> nicknames = CopyUtil.copyList(list, UserInfo::getNickname);
+        throw new BizException(String.join("、", nicknames) + " 已存在");
     }
 
     public LoginUser getLoginUser(String username, String password) {

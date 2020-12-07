@@ -20,7 +20,7 @@
           maxlength="50"
         />
       </el-form-item>
-      <el-form-item v-if="isAdmin()" label="空间管理员" required>
+      <el-form-item v-if="isSuperAdmin()" label="空间管理员" required>
         <user-select ref="userSelect" multiple />
       </el-form-item>
     </el-form>

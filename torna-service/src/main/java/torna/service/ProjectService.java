@@ -64,9 +64,9 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
     @Transactional(rollbackFor = Exception.class)
     public void saveLeader(long projectId, List<Long> adminIds) {
         Assert.notEmpty(adminIds, () -> "组长不能为空");
-        // 1. 移除现有的组长
-        projectUserMapper.removeProjectLeader(projectId);
-        // 2. 添加新组长
+        // 1. 移除现有项目管理员
+        removeProjectAdmin(projectId);
+        // 2. 添加新项目管理员
         List<ProjectUser> projectUsers = adminIds
                 .stream()
                 .map(adminId -> {
@@ -78,6 +78,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
                 })
                 .collect(Collectors.toList());
         projectUserMapper.insertBatch(projectUsers);
+    }
+
+    private void removeProjectAdmin(long projectId) {
+        projectUserMapper.removeProjectLeader(projectId, RoleEnum.ADMIN.getCode());
     }
 
     /**
@@ -187,7 +191,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         List<UserInfoDTO> userInfoDTOS = this.listProjectLeader(projectId);
         Long creatorId = project.getCreatorId();
         UserInfo userInfo = userInfoService.getById(creatorId);
-        projectInfoDTO.setCreator(userInfo.getRealname());
+        projectInfoDTO.setCreator(userInfo.getNickname());
         projectInfoDTO.setAdmins(userInfoDTOS);
         return projectInfoDTO;
     }

@@ -96,7 +96,7 @@ export default {
         this.get('/space/info', { spaceId: spaceId }, resp => {
           const data = resp.data
           const leaders = data.leaders.map(userInfo => {
-            return userInfo.realname
+            return userInfo.nickname
           })
           data.leader = leaders.join(' / ')
           this.form = data

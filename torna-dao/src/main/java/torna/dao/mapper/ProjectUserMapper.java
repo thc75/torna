@@ -12,5 +12,5 @@ import java.util.List;
 public interface ProjectUserMapper extends CrudMapper<ProjectUser, Long> {
     int insertBatch(@Param("items") List<ProjectUser> items);
 
-    int removeProjectLeader(@Param("projectId") long projectId);
+    int removeProjectLeader(@Param("projectId") long projectId, @Param("adminCode") String adminCode);
 }

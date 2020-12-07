@@ -14,10 +14,10 @@
         <el-option
           v-for="item in userOptions"
           :key="item.id"
-          :label="item.realname"
+          :label="item.nickname"
           :value="item.id"
         >
-          {{ item.realname }}({{ item.username }})
+          {{ item.nickname }}({{ item.username }})
         </el-option>
       </el-select>
     </el-form-item>
