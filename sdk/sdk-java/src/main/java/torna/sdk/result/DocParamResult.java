@@ -39,10 +39,10 @@ public class DocParamResult {
     private Byte style;
 
     /** 创建人 */
-    private String creator;
+    private String creatorName;
 
     /** 修改人 */
-    private String modifier;
+    private String modifierName;
 
     /** 创建时间 */
     private Date gmtCreate;

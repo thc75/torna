@@ -1,12 +1,20 @@
 package torna.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import torna.common.bean.Booleans;
 import torna.common.bean.LoginUser;
+import torna.common.bean.User;
+import torna.common.bean.UserCacheManager;
 import torna.common.exception.BizException;
 import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
 import torna.common.util.GenerateUtil;
+import torna.common.util.IdUtil;
+import torna.common.util.JwtUtil;
 import torna.dao.entity.UserInfo;
 import torna.dao.mapper.UserInfoMapper;
 import torna.service.dto.SpaceAddDTO;
@@ -21,7 +29,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -34,11 +44,20 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     @Autowired
     private SpaceService spaceService;
 
+    @Autowired
+    private UserCacheManager userCacheManager;
+
     @Value("${torna.config.default-space-name:默认空间}")
     private String defaultSpaceName;
 
     @Value("${torna.password.salt:@3dG%gm^uu&=.}")
     private String salt;
+
+    @Value("${torna.jwt.timeout-days:365}")
+    private int jwtTimeoutDays;
+
+    @Value("${torna.jwt.secret:CHezCvjte^WHy5^#MqSVx9A%6.F$eV}")
+    private String jwtSecret;
 
     /**
      * 添加新用户，用于注册
@@ -51,7 +70,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         UserInfo userInfo = CopyUtil.copyBean(userAddDTO, UserInfo::new);
         String password = getDbPassword(userAddDTO.getUsername(), userAddDTO.getPassword());
         userInfo.setPassword(password);
-        this.saveIgnoreNull(userInfo);
+        this.save(userInfo);
 
         // 2. 为用户生成一个默认空间，且自己是管理员
         Long userId = userInfo.getId();
@@ -60,7 +79,19 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         spaceAddDTO.setCreatorId(userId);
         spaceAddDTO.setCreatorName(userInfo.getNickname());
         spaceAddDTO.setName(defaultSpaceName);
+        spaceAddDTO.setIsDefault(Booleans.TRUE);
         spaceService.addSpace(spaceAddDTO);
+    }
+
+    public void logout(String token) {
+        if (StringUtils.hasText(token)) {
+            this.getMapper().logout(token);
+        }
+    }
+
+    public User getLoginUser(long id) {
+        UserInfo userInfo = getById(id);
+        return CopyUtil.copyBean(userInfo, LoginUser::new);
     }
 
     public String getDbPassword(String username, String password) {
@@ -89,7 +120,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         throw new BizException(String.join("、", nicknames) + " 已存在");
     }
 
-    public LoginUser getLoginUser(String username, String password) {
+    public LoginUser login(String username, String password) {
         Assert.notNull(username, () -> "用户名不能为空");
         Assert.notNull(password, () -> "密码不能为空");
         Query query = new Query()
@@ -97,6 +128,23 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
                 .eq("password", password);
         UserInfo userInfo = get(query);
         Assert.notNull(userInfo, () -> "用户名密码不正确");
-        return CopyUtil.copyBean(userInfo, LoginUser::new);
+        // 登录成功
+        LoginUser loginUser = CopyUtil.copyBean(userInfo, LoginUser::new);
+        // 创建token
+        String token = this.createToken(loginUser);
+        loginUser.setToken(token);
+        userCacheManager.saveUser(loginUser);
+        // jwt保存到数据库
+        this.getMapper().updateToken(userInfo.getId(), token);
+        return loginUser;
     }
+
+    private String createToken(User user) {
+        String id = IdUtil.encode(user.getUserId());
+        Map<String, String> data = new HashMap<>(4);
+        data.put("id", user.getUserId().toString());
+        String jwt = JwtUtil.createJwt(data, jwtTimeoutDays, jwtSecret);
+        return id + ":" + jwt;
+    }
+
 }

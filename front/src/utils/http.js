@@ -32,12 +32,21 @@ export function get(uri, data, callback, errorCallback) {
   const that = this
   needle.request('GET', getFullUrl(uri), data, {
     // 设置header
-    headers: {
-      token: getToken()
-    }
+    headers: get_headers()
   }, (error, response) => {
     doResponse.call(that, error, response, callback, errorCallback)
   })
+}
+
+function get_headers() {
+  return {
+    Authorization: get_token()
+  }
+}
+
+function get_token() {
+  const token = getToken() || ''
+  return `Bearer ${token}`
 }
 
 /**
@@ -52,9 +61,7 @@ export function post(uri, data, callback, errorCallback) {
   needle.request('POST', getFullUrl(uri), data, {
     // 指定这一句即可
     json: true,
-    headers: {
-      token: getToken()
-    }
+    headers: get_headers()
   }, (error, response) => {
     doResponse.call(that, error, response, callback, errorCallback)
   })
@@ -70,6 +77,7 @@ export function request(method, uri, data, headers, isJson, isForm, files, callb
   if (isForm) {
     headers['Content-Type'] = 'application/x-www-form-urlencoded'
   }
+  Object.assign(headers, get_headers())
   needle.request(method, baseURL + uri, data, {
     // 设置header
     headers: headers,
@@ -136,9 +144,9 @@ function doResponse(error, response, callback, errorCallback) {
   // 成功
   if (!error && response.statusCode === 200) {
     const resp = response.body
-    const code = resp.code
+    const code = resp.code || ''
     // 未登录
-    if (code === '9') {
+    if (code === '1000') {
       this.goLogin()
       return
     }

@@ -31,4 +31,9 @@ public class ApiUser implements User {
     public String getNickname() {
         return "OpenAPI";
     }
+
+    @Override
+    public String getToken() {
+        return "";
+    }
 }

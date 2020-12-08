@@ -54,21 +54,24 @@
         <tr>
         <td>data</td>
         <td>object</td>
-        <td>返回的数据，没有则返回{}
-            <table>
-                <tr>
-                    <th>名称</th>
-                    <th>类型</th>
-                    <th>最大长度</th>
-                    <th>示例值</th>
-                    <th>描述</th>
-                </tr>
-                                <tr><td>id</td><td>long</td><td>12</td><td>9VXEyXvg</td><td>分类id<br/></td></tr>
-                                <tr><td>name</td><td>string</td><td>50</td><td>商品分类</td><td>分类名称<br/></td></tr>
-                            </table>
-        </td>
+        <td>返回的数据，没有则返回{}。详情见data部分</td>
     </tr>
     </table>
+
+**data部分**
+
+<table>
+    <tr>
+        <th>名称</th>
+        <th>类型</th>
+        <th>最大长度</th>
+        <th>示例值</th>
+        <th>描述</th>
+    </tr>
+        <tr><td>id</td><td>long</td><td>12</td><td>9VXEyXvg</td><td>分类id<br/></td></tr>
+        <tr><td>name</td><td>string</td><td>50</td><td>商品分类</td><td>分类名称<br/></td></tr>
+    </table>
+
 
 **返回示例**
 

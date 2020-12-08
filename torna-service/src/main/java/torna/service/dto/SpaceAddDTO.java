@@ -19,4 +19,6 @@ public class SpaceAddDTO {
     private Long creatorId;
 
     private String creatorName;
+
+    private Byte isDefault;
 }

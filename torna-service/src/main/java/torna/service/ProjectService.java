@@ -17,7 +17,6 @@ import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.Project;
 import torna.dao.entity.ProjectUser;
-import torna.dao.entity.UserInfo;
 import torna.dao.mapper.ProjectMapper;
 import torna.dao.mapper.ProjectUserMapper;
 import torna.service.dto.ProjectAddDTO;
@@ -56,7 +55,9 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         Project exist = get(query);
         Assert.isNull(exist, () -> projectAddDTO.getName() + "已存在");
         Project project = CopyUtil.copyBean(projectAddDTO, Project::new);
-        this.saveIgnoreNull(project);
+        project.setModifierId(projectAddDTO.getCreatorId());
+        project.setModifierName(projectAddDTO.getCreatorName());
+        this.save(project);
 
         this.saveLeader(project.getId(), projectAddDTO.getAdminIds());
     }
@@ -144,7 +145,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
     public void updateProject(ProjectUpdateDTO projectUpdateDTO) {
         Project project = getById(projectUpdateDTO.getId());
         CopyUtil.copyProperties(projectUpdateDTO, project);
-        this.updateIgnoreNull(project);
+        this.update(project);
 
         List<Long> adminIds = projectUpdateDTO.getAdminIds();
         this.saveLeader(project.getId(), adminIds);
@@ -189,9 +190,6 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         Project project = this.getById(projectId);
         ProjectInfoDTO projectInfoDTO = CopyUtil.copyBean(project, ProjectInfoDTO::new);
         List<UserInfoDTO> userInfoDTOS = this.listProjectLeader(projectId);
-        Long creatorId = project.getCreatorId();
-        UserInfo userInfo = userInfoService.getById(creatorId);
-        projectInfoDTO.setCreator(userInfo.getNickname());
         projectInfoDTO.setAdmins(userInfoDTOS);
         return projectInfoDTO;
     }

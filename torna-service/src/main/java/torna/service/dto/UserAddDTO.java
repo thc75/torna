@@ -18,4 +18,5 @@ public class UserAddDTO {
 
     /** 是否是管理员, 数据库字段：is_admin */
     private Byte isSuperAdmin;
+
 }

@@ -75,6 +75,9 @@ public class DocParam {
     /**  数据库字段：modifier_name */
     private String modifierName;
 
+    /** 排序索引, 数据库字段：order_index */
+    private Integer orderIndex;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;

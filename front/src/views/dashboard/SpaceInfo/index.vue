@@ -13,12 +13,12 @@
         {{ form.leader }}
       </el-form-item>
       <el-form-item label="创建人">
-        {{ form.creator }}
+        {{ form.creatorName }}
       </el-form-item>
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item v-if="hasRole(`space:${spaceId}`, Role.admin)">
+      <el-form-item v-if="hasRole(`space:${spaceId}`, Role.admin) && form.isDefault === 0">
         <el-button type="danger" size="mini" @click="onSpaceDel">删除空间</el-button>
       </el-form-item>
     </el-form>
@@ -40,7 +40,9 @@ export default {
       form: {
         id: '',
         name: '',
-        creator: '',
+        creatorName: '',
+        creatorId: '',
+        isDefault: 0,
         gmtCreate: ''
       },
       popoverShow: false,

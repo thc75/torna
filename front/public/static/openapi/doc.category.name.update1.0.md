@@ -56,19 +56,22 @@
         <tr>
         <td>data</td>
         <td>object</td>
-        <td>返回的数据，没有则返回{}
-            <table>
-                <tr>
-                    <th>名称</th>
-                    <th>类型</th>
-                    <th>最大长度</th>
-                    <th>示例值</th>
-                    <th>描述</th>
-                </tr>
-                            </table>
-        </td>
+        <td>返回的数据，没有则返回{}。详情见data部分</td>
     </tr>
     </table>
+
+**data部分**
+
+<table>
+    <tr>
+        <th>名称</th>
+        <th>类型</th>
+        <th>最大长度</th>
+        <th>示例值</th>
+        <th>描述</th>
+    </tr>
+    </table>
+
 
 **返回示例**
 

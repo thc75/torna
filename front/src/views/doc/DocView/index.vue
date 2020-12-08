@@ -1,10 +1,14 @@
 <template>
   <div>
-    <div class="doc-baseinfo">
+    <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
-        <span style="font-size: 14px;color: #8d8d8d">文档ID：{{ docInfo.id }}</span>
+        <span style="font-size: 14px;color: #8d8d8d">文档ID：<span>{{ docInfo.id }}</span></span>
       </h2>
+      <span class="doc-modify-info">
+        {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
+        {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
+      </span>
     </div>
     <h3>接口描述</h3>
     <div class="doc-overview">{{ docInfo.description || docInfo.name }}</div>
@@ -12,6 +16,8 @@
     <span class="normal-text">
       <el-tag type="info">{{ docInfo.httpMethod }}</el-tag> {{ docInfo.url }}
     </span>
+    <h3>ContentType</h3>
+    {{ docInfo.contentType }}
     <h3>请求Header</h3>
     <parameter-table
       :data="docInfo.headerParams"
@@ -36,6 +42,13 @@
     />
   </div>
 </template>
+
+<style scoped>
+.doc-title { padding-bottom: 20px; }
+.doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
+.doc-modify-info { font-size: 12px;color: #909399 }
+.doc-request-method {margin-bottom: 20px;color: #666;font-size: 14px;}
+</style>
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
@@ -74,6 +87,10 @@ export default {
         parentId: '',
         moduleId: '',
         isShow: 1,
+        creatorName: '',
+        modifierName: '',
+        gmtCreate: '',
+        gmtModified: '',
         headerParams: [],
         requestParams: [],
         responseParams: [],
@@ -134,7 +151,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
-.doc-request-method {margin-bottom: 20px;color: #666;font-size: 14px;}
-</style>

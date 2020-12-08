@@ -29,7 +29,7 @@ public class OpenUserService extends BaseService<OpenUser, OpenUserMapper> {
         OpenUser openUser = new OpenUser();
         openUser.setAppKey(AppKeyUtil.createAppKey());
         openUser.setSecret(createSecret());
-        this.saveIgnoreNull(openUser);
+        this.save(openUser);
     }
 
     public static String createSecret() {

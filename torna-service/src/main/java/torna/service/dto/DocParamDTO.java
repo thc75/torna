@@ -53,11 +53,11 @@ public class DocParamDTO {
     /** 修改操作方式，0：人工操作，1：开放平台推送, 数据库字段：modify_mode */
     private Byte modifyMode;
 
-    /** 创建人, 数据库字段：creator */
-    private String creator;
+    /** 创建人 */
+    private String creatorName;
 
-    /** 修改人, 数据库字段：modifier */
-    private String modifier;
+    /** 修改人 */
+    private String modifierName;
 
     private Byte isDeleted;
 

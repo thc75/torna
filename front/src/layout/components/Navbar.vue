@@ -7,7 +7,18 @@
         <el-tag>{{ currentSpace.name }} <i class="el-icon-caret-bottom el-icon--right" style="font-size: 16px;"></i></el-tag>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item v-for="(item) in spaceData" :key="item.id" :command="function(){ onSpaceSelect(item) }">{{ item.name }}</el-dropdown-item>
+        <div class="dropdown-operation">
+          <el-checkbox v-model="isShowDefault">显示个人空间</el-checkbox>
+        </div>
+        <el-dropdown-item v-for="(item, index) in spaceData" v-show="item.isDefault ? isShowDefault : true" :key="item.id" :divided="index === 0" :command="function(){ onSpaceSelect(item) }">
+          {{ item.name }}
+          <span v-if="item.isDefault" class="space-user">
+            <el-tooltip placement="top" content="个人空间">
+              <i v-if="item.isDefault" class="el-icon-user"></i>
+            </el-tooltip>
+            ({{ item.creatorName }})
+          </span>
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 
@@ -25,7 +36,7 @@
             <span>修改密码</span>
           </el-dropdown-item>
           <el-dropdown-item :command="doLogout" divided>
-            <span style="display: block;">退出</span>
+            <span style="display: block;">注销</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -69,6 +80,7 @@ export default {
       currentSpace: {
         id: ''
       },
+      isShowDefault: false,
       spaceData: []
     }
   },
@@ -85,6 +97,9 @@ export default {
     initSpace() {
       this.get('/space/list', {}, resp => {
         this.spaceData = resp.data
+        if (this.spaceData.length === 0) {
+          return
+        }
         let selected = false
         const cacheId = this.getSpaceId()
         if (cacheId) {
@@ -131,6 +146,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.dropdown-operation {
+  padding: 0 10px;
+}
+.space-user {
+  color: #909399;
+}
 .el-dropdown-link {
   cursor: pointer;
   //color: #409EFF;

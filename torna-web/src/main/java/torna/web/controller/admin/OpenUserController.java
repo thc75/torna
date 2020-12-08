@@ -50,7 +50,7 @@ public class OpenUserController {
     public Result resetSecret(@RequestBody @Valid IdParam param) {
         OpenUser openUser = openUserService.getById(param.getId());
         openUser.setSecret(OpenUserService.createSecret());
-        openUserService.updateIgnoreNull(openUser);
+        openUserService.update(openUser);
         return Result.ok();
     }
 
@@ -58,7 +58,7 @@ public class OpenUserController {
     public Result disable(@RequestBody @Valid IdParam param) {
         OpenUser openUser = openUserService.getById(param.getId());
         openUser.setStatus(StatusEnum.DISABLED.getStatus());
-        openUserService.updateIgnoreNull(openUser);
+        openUserService.update(openUser);
         return Result.ok();
     }
 
@@ -66,7 +66,7 @@ public class OpenUserController {
     public Result enable(@RequestBody @Valid IdParam param) {
         OpenUser openUser = openUserService.getById(param.getId());
         openUser.setStatus(StatusEnum.ENABLE.getStatus());
-        openUserService.updateIgnoreNull(openUser);
+        openUserService.update(openUser);
         return Result.ok();
     }
     

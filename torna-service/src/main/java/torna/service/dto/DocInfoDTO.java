@@ -7,6 +7,7 @@ import torna.common.support.IdCodec;
 import torna.common.util.IdUtil;
 import torna.service.dataid.DocInfoDataId;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,16 +44,22 @@ public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
-    /** 创建人, 数据库字段：creator */
-    private String creator;
+    /** 创建人 */
+    private String creatorName;
 
-    /** 修改人, 数据库字段：modifier */
-    private String modifier;
+    /** 修改人 */
+    private String modifierName;
 
     /** 是否显示, 数据库字段：is_show */
     private Byte isShow;
 
     private Byte isDeleted;
+
+    /**  数据库字段：gmt_create */
+    private Date gmtCreate;
+
+    /**  数据库字段：gmt_modified */
+    private Date gmtModified;
 
     private List<DocParamDTO> headerParams;
     private List<DocParamDTO> requestParams;

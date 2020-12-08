@@ -16,23 +16,23 @@ public class DocInfoResult {
     private Long id;
 
     /** 文档名称, 数据库字段：name */
-    @ApiDocField(description = "文档名称", example = "获取商品信息")
+    @ApiDocField(description = "文档名称", maxLength = "50", example = "获取商品信息")
     private String name;
 
     /** 文档概述, 数据库字段：description */
-    @ApiDocField(description = "文档概述", example = "根据ID查询商品信息")
+    @ApiDocField(description = "文档概述", maxLength = "200", example = "根据ID查询商品信息")
     private String description;
 
     /** 访问URL, 数据库字段：url */
-    @ApiDocField(description = "url", example = "/goods/get")
+    @ApiDocField(description = "url", maxLength = "100", example = "/goods/get")
     private String url;
 
     /** http方法, 数据库字段：http_method */
-    @ApiDocField(description = "http方法", example = "GET")
+    @ApiDocField(description = "http方法", maxLength = "50", example = "GET")
     private String httpMethod;
 
     /** contentType, 数据库字段：content_type */
-    @ApiDocField(description = "contentType", example = "application/json")
+    @ApiDocField(description = "contentType", maxLength = "50", example = "application/json")
     private String contentType;
 
     /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */

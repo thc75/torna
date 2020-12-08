@@ -29,4 +29,6 @@ public interface User {
      * @return
      */
     String getNickname();
+
+    String getToken();
 }

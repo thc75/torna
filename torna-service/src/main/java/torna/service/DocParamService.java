@@ -77,16 +77,19 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
             docParamExist.setEnumId(docParam.getEnumId());
             docParamExist.setStyle(docParam.getStyle());
             docParamExist.setModifyMode(docParam.getModifyMode());
-            docParamExist.setModifierName(docParam.getModifierName());
             docParamExist.setModifierId(docParam.getModifierId());
+            docParamExist.setModifierName(docParam.getModifierName());
             docParamExist.setIsDeleted(Booleans.FALSE);
-            updateIgnoreNull(docParamExist);
+            update(docParamExist);
             return docParamExist;
         } else {
             docParam.setCreatorId(user.getUserId());
             docParam.setCreateMode(user.getOperationModel());
             docParam.setCreatorName(user.getNickname());
-            saveIgnoreNull(docParam);
+            docParam.setModifierId(user.getUserId());
+            docParam.setModifyMode(user.getOperationModel());
+            docParam.setModifierName(user.getNickname());
+            save(docParam);
             return docParam;
         }
     }

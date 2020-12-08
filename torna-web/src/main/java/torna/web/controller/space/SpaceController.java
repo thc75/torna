@@ -39,7 +39,7 @@ public class SpaceController {
         space.setName(param.getName());
         space.setModifierId(user.getUserId());
         space.setModifierName(user.getNickname());
-        spaceService.updateIgnoreNull(space);
+        spaceService.update(space);
         return Result.ok();
     }
 

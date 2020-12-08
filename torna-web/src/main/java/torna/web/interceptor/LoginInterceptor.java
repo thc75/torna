@@ -26,6 +26,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if (noLogin != null) {
             return true;
         }
+
         if (UserContext.getUser() == null) {
             throw new LoginFailureException();
         }

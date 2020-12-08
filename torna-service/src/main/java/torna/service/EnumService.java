@@ -53,12 +53,12 @@ public class EnumService {
         if (enumInfo == null) {
             enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
             enumInfo.setDataId(dataId);
-            enumInfoService.saveIgnoreNull(enumInfo);
+            enumInfoService.save(enumInfo);
             List<EnumItemDTO> items = enumInfoDTO.getItems();
             this.updateItems(enumInfo, items);
         } else {
             enumInfo.setDescription(enumInfoDTO.getDescription());
-            enumInfoService.updateIgnoreNull(enumInfo);
+            enumInfoService.update(enumInfo);
             List<EnumItemDTO> items = enumInfoDTO.getItems();
             this.updateItems(enumInfo, items);
         }
@@ -79,7 +79,7 @@ public class EnumService {
         String dataId = enumInfoDTO.buildDataId();
         EnumInfo enumInfo  = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
         enumInfo.setDataId(dataId);
-        enumInfoService.saveIgnoreNull(enumInfo);
+        enumInfoService.save(enumInfo);
         return enumInfo;
     }
 
@@ -87,7 +87,7 @@ public class EnumService {
         this.checkInfoExist(enumInfoDTO);
         EnumInfo enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
         enumInfo.setDataId(enumInfoDTO.buildDataId());
-        enumInfoService.updateIgnoreNull(enumInfo);
+        enumInfoService.update(enumInfo);
         return enumInfo;
     }
 
@@ -103,17 +103,17 @@ public class EnumService {
         EnumItem enumItem = enumItemService.getByEnumIdAndName(itemDTO.getEnumId(), itemDTO.getName());
         if (enumItem == null) {
             enumItem = CopyUtil.copyBean(itemDTO, EnumItem::new);
-            enumItemService.saveIgnoreNull(enumItem);
+            enumItemService.save(enumItem);
         } else {
             CopyUtil.copyPropertiesIgnoreNull(itemDTO, enumItem);
-            enumItemService.updateIgnoreNull(enumItem);
+            enumItemService.update(enumItem);
         }
     }
 
     public EnumItem addEnumItem(EnumItemDTO itemDTO) {
         this.checkItemExist(itemDTO);
         EnumItem enumItem = CopyUtil.copyBean(itemDTO, EnumItem::new);
-        enumItemService.saveIgnoreNull(enumItem);
+        enumItemService.save(enumItem);
         return enumItem;
     }
 

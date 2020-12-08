@@ -22,8 +22,6 @@ const baseTypeConfig = [
   'boolean'
 ]
 
-const enumItemCache = {}
-
 let paramIdGen = 0
 
 Object.assign(Vue.prototype, {

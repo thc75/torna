@@ -15,6 +15,6 @@ public class DocCategoryResult {
     private Long id;
 
     /** 文档名称, 数据库字段：name */
-    @ApiDocField(description = "分类名称", maxLength = "50" ,example = "商品分类")
+    @ApiDocField(description = "分类名称", maxLength = "50", example = "商品分类")
     private String name;
 }

@@ -36,6 +36,9 @@ public class UserInfo {
     /** 是否是超级管理员, 数据库字段：is_super_admin */
     private Byte isSuperAdmin;
 
+    /** 登录token, 数据库字段：token */
+    private String token;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;

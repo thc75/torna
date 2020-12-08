@@ -7,8 +7,7 @@
       </div>
       <h3>使用步骤</h3>
       <p>1、找到超级管理员索要AppKey和Secret</p>
-      <p>2、下载SDK</p>
-      <p>3、使用SDK中的API调用接口</p>
+      <p>2、项目依赖SDK，使用SDK中的API调用接口</p>
     </div>
     <el-form class="text-form token-form" label-width="120px">
       <el-form-item label="请求路径">

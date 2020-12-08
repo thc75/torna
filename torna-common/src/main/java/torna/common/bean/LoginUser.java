@@ -31,6 +31,8 @@ public class LoginUser implements User {
 	/**  数据库字段：gmt_create */
     private Date gmtCreate;
 
+    private String token;
+
     @Override
     public byte getOperationModel() {
         return OperationMode.MANUAL.getType();
@@ -45,4 +47,5 @@ public class LoginUser implements User {
     public Long getUserId() {
         return id;
     }
+
 }

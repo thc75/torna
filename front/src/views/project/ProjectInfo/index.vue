@@ -14,7 +14,7 @@
         {{ form.isPrivate === 1 ? '私有' : '公开' }}
       </el-form-item>
       <el-form-item label="创建人">
-        {{ form.creator }}
+        {{ form.creatorName }}
       </el-form-item>
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
@@ -144,8 +144,7 @@ export default {
     onProjectDel() {
       this.confirm('确认要删除该项目吗？', () => {
         this.post('/project/delete', { id: this.projectId }, () => {
-          this.tipSuccess('删除成功')
-          this.goHome()
+          location.reload()
         })
       })
     },

@@ -22,6 +22,8 @@ public class ProjectUpdateDTO {
 
     private Long modifierId;
 
+    private String modifierName;
+
     /** 所属组，space.id, 数据库字段：space_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;

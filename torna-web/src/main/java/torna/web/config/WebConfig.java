@@ -15,10 +15,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import torna.common.bean.DefaultTokenManager;
-import torna.common.bean.TokenManager;
 import torna.common.context.SpringContext;
 import torna.common.support.HashIdParamResolver;
 import torna.web.interceptor.AdminInterceptor;
@@ -39,7 +36,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        String[] excludes = { "/api" };
+        String[] excludes = { "/api", "/api/**", "/opendoc/**" };
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(excludes);
         registry.addInterceptor(new AdminInterceptor())
@@ -50,11 +47,6 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new HashIdParamResolver());
-    }
-
-    @Bean
-    public TokenManager defaultTokenManager() {
-        return new DefaultTokenManager();
     }
 
     /**

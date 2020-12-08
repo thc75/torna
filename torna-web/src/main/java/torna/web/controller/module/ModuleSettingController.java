@@ -75,7 +75,7 @@ public class ModuleSettingController {
             commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
             commonConfig.setConfigKey(ModuleConfigKeys.KEY_ALLOW_METHODS);
             commonConfig.setConfigValue(method);
-            moduleConfigService.saveIgnoreNull(commonConfig);
+            moduleConfigService.save(commonConfig);
         } else {
             commonConfig.setConfigValue(method);
             moduleConfigService.update(commonConfig);
@@ -102,7 +102,7 @@ public class ModuleSettingController {
         BeanUtils.copyProperties(systemConfigParam, systemConfig);
         systemConfig.setModuleId(systemConfigParam.getModuleId());
         systemConfig.setType(ModuleConfigTypeEnum.GLOBAL_HEADERS.getType());
-        moduleConfigService.saveIgnoreNull(systemConfig);
+        moduleConfigService.save(systemConfig);
         return Result.ok();
     }
 
@@ -118,7 +118,7 @@ public class ModuleSettingController {
         ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
         moduleConfig.setConfigKey(param.getConfigKey());
         moduleConfig.setConfigValue(param.getConfigValue());
-        moduleConfigService.updateIgnoreNull(moduleConfig);
+        moduleConfigService.update(moduleConfig);
         return Result.ok();
     }
 

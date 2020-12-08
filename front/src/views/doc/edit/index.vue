@@ -26,6 +26,13 @@
               </el-select>
             </el-input>
           </el-form-item>
+          <el-form-item prop="contentType" label="ContentType">
+            <el-select v-model="docInfo.contentType" :clearable="true" placeholder="请选择" style="width: 300px;">
+              <el-option v-for="contentType in contentTypeConfig" :key="contentType" :label="contentType" :value="contentType">
+                {{ contentType }}
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item prop="parentId" label="所属分类">
             <el-select v-model="docInfo.parentId" placeholder="请选择" style="width: 100%;">
               <el-option label="无" :value="0">无</el-option>
@@ -154,6 +161,14 @@ export default {
         responseParams: [],
         errorCodeParams: []
       },
+      contentTypeConfig: [
+        '*/*',
+        'application/x-www-form-urlencoded',
+        'multipart/form-data',
+        'application/json',
+        'application/xml',
+        'text/plain'
+      ],
       folders: [],
       rules: {
         name: [

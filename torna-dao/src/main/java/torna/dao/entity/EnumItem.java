@@ -39,6 +39,9 @@ public class EnumItem {
     /** 枚举描述, 数据库字段：description */
     private String description;
 
+    /** 排序索引, 数据库字段：order_index */
+    private Integer orderIndex;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;

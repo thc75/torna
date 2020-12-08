@@ -61,7 +61,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
             commonConfig.setConfigKey(key);
             commonConfig.setConfigValue(baseUrl);
-            saveIgnoreNull(commonConfig);
+            save(commonConfig);
         } else {
             commonConfig.setConfigValue(baseUrl);
             update(commonConfig);

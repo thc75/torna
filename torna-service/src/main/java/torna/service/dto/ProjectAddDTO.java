@@ -17,9 +17,6 @@ public class ProjectAddDTO {
     /** 项目描述, 数据库字段：description */
     private String description;
 
-    /** 创建人, 数据库字段：creator */
-    private String creator;
-
     /** 所属组，space.id, 数据库字段：space_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
@@ -32,5 +29,5 @@ public class ProjectAddDTO {
 
     private Long creatorId;
 
-    private Long modifierId;
+    private String creatorName;
 }

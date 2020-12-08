@@ -39,8 +39,17 @@ public class Project {
     /** 创建者userid, 数据库字段：creator_id */
     private Long creatorId;
 
+    /**  数据库字段：creator_name */
+    private String creatorName;
+
     /**  数据库字段：modifier_id */
     private Long modifierId;
+
+    /**  数据库字段：modifier_name */
+    private String modifierName;
+
+    /** 排序索引, 数据库字段：order_index */
+    private Integer orderIndex;
 
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete

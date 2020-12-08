@@ -50,6 +50,7 @@ public class ProjectController {
     public Result update(@RequestBody @Valid ProjectUpdateDTO param) {
         User user = UserContext.getUser();
         param.setModifierId(user.getUserId());
+        param.setModifierName(user.getNickname());
         projectService.updateProject(param);
         return Result.ok();
     }
@@ -75,8 +76,7 @@ public class ProjectController {
     public Result add(@RequestBody ProjectAddDTO projectAddDTO) {
         User user = UserContext.getUser();
         projectAddDTO.setCreatorId(user.getUserId());
-        projectAddDTO.setCreatorId(user.getUserId());
-        projectAddDTO.setModifierId(user.getUserId());
+        projectAddDTO.setCreatorName(user.getNickname());
         projectService.addProject(projectAddDTO);
         return Result.ok();
     }

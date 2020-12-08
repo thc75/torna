@@ -52,14 +52,14 @@ public class EnumInfoService extends BaseService<EnumInfo, EnumInfoMapper> {
     public EnumInfo addEnumInfo(EnumInfoDTO enumInfoDTO) {
         this.checkInfoExist(enumInfoDTO);
         EnumInfo enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
-        this.saveIgnoreNull(enumInfo);
+        this.save(enumInfo);
         return enumInfo;
     }
 
     public EnumInfo updateEnumInfo(EnumInfoDTO enumInfoDTO) {
         this.checkInfoExist(enumInfoDTO);
         EnumInfo enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
-        this.updateIgnoreNull(enumInfo);
+        this.update(enumInfo);
         return enumInfo;
     }
 
@@ -74,7 +74,7 @@ public class EnumInfoService extends BaseService<EnumInfo, EnumInfoMapper> {
     public EnumItem add(EnumItemDTO itemDTO) {
         this.checkItemExist(itemDTO);
         EnumItem enumItem = CopyUtil.copyBean(itemDTO, EnumItem::new);
-        enumItemService.saveIgnoreNull(enumItem);
+        enumItemService.save(enumItem);
         return enumItem;
     }
 

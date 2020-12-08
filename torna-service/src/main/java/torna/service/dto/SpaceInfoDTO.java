@@ -19,8 +19,11 @@ public class SpaceInfoDTO {
     /** 分组名称, 数据库字段：name */
     private String name;
 
-    /** 创建人, 数据库字段：creator */
-    private String creator;
+    /**  数据库字段：creator_name */
+    private String creatorName;
+
+    /** 是否是个人默认空间，1：是，0：否, 数据库字段：is_default */
+    private Byte isDefault;
 
     /** 空间管理员 */
     private List<UserInfoDTO> leaders;

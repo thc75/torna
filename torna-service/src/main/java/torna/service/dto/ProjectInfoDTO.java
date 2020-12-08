@@ -25,11 +25,11 @@ public class ProjectInfoDTO {
     /** 创建者userid, 数据库字段：creator_id */
     private Long creatorId;
 
-    /** 创建人, 数据库字段：creator */
-    private String creator;
+    /** 创建人 */
+    private String creatorName;
 
-    /** 修改人, 数据库字段：modifier */
-    private String modifier;
+    /** 修改人 */
+    private String modifierName;
 
     /** 所属空间，space.id, 数据库字段：space_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

@@ -21,10 +21,10 @@ import torna.dao.entity.UserInfo;
 import torna.dao.mapper.SpaceMapper;
 import torna.dao.mapper.SpaceUserMapper;
 import torna.service.dto.SpaceAddDTO;
+import torna.service.dto.SpaceDTO;
 import torna.service.dto.SpaceInfoDTO;
 import torna.service.dto.SpaceUserInfoDTO;
 import torna.service.dto.UserInfoDTO;
-import torna.service.dto.SpaceDTO;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +58,8 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         space.setCreatorName(spaceAddDTO.getCreatorName());
         space.setModifierId(spaceAddDTO.getCreatorId());
         space.setModifierName(spaceAddDTO.getCreatorName());
-        this.saveIgnoreNull(space);
+        space.setIsDefault(spaceAddDTO.getIsDefault());
+        this.save(space);
 
         // 添加管理员
         this.addSpaceUser(space.getId(), spaceAddDTO.getAdminIds(), RoleEnum.ADMIN);
@@ -157,7 +158,6 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Space space = getById(spaceId);
         SpaceInfoDTO spaceInfoDTO = CopyUtil.copyBean(space, SpaceInfoDTO::new);
         List<UserInfoDTO> leaders = this.listSpaceLeader(spaceId);
-        spaceInfoDTO.setCreator(space.getCreatorName());
         spaceInfoDTO.setLeaders(leaders);
         return spaceInfoDTO;
     }
@@ -220,6 +220,5 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         List<Space> spaces = this.list(new Query().in("id", spaceIds));
         return CopyUtil.copyList(spaces, SpaceDTO::new);
     }
-
 
 }

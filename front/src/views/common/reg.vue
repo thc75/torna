@@ -18,9 +18,9 @@
           show-word-limit
         />
       </el-form-item>
-      <el-form-item prop="realname">
+      <el-form-item prop="nickname">
         <el-input
-          v-model="regForm.realname"
+          v-model="regForm.nickname"
           placeholder="昵称"
           prefix-icon="el-icon-user"
           maxlength="100"
@@ -92,14 +92,14 @@ export default {
         username: '',
         password: '',
         password2: '',
-        realname: ''
+        nickname: ''
       },
       regRules: {
         username: [
           { required: true, message: '请填写邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur'] }
         ],
-        realname: [
+        nickname: [
           { required: true, message: '请填写', trigger: 'blur' }
         ],
         password: [

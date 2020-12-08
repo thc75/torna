@@ -72,22 +72,12 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
     }
 
     /**
-     * 新增，插入所有字段
-     *
-     * @param entity 新增的记录
-     * @return 返回影响行数
-     */
-    public int save(E entity) {
-        return mapper.save(entity);
-    }
-
-    /**
      * 新增，忽略null字段
      *
      * @param entity 新增的记录
      * @return 返回影响行数
      */
-    public int saveIgnoreNull(E entity) {
+    public int save(E entity) {
         return mapper.saveIgnoreNull(entity);
     }
 
@@ -101,22 +91,12 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
     }
 
     /**
-     * 修改，修改所有字段
-     *
-     * @param entity 修改的记录
-     * @return 返回影响行数
-     */
-    public int update(E entity) {
-        return mapper.update(entity);
-    }
-
-    /**
      * 修改，忽略null字段
      *
      * @param entity 修改的记录
      * @return 返回影响行数
      */
-    public int updateIgnoreNull(E entity) {
+    public int update(E entity) {
         return mapper.updateIgnoreNull(entity);
     }
 

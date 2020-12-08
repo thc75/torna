@@ -42,7 +42,7 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
             module.setModifyMode(user.getOperationModel());
             module.setCreatorId(user.getUserId());
             module.setModifierId(user.getUserId());
-            this.saveIgnoreNull(module);
+            this.save(module);
         } else {
             module.setType(ModuleTypeEnum.SWAGGER_IMPORT.getType());
             module.setImportUrl(importSwaggerDTO.getImportUrl());
@@ -51,7 +51,7 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
             module.setModifyMode(user.getOperationModel());
             module.setModifierId(user.getUserId());
             module.setIsDeleted(Booleans.FALSE);
-            this.updateIgnoreNull(module);
+            this.update(module);
         }
         return module;
     }

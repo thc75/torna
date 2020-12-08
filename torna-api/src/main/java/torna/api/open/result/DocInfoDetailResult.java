@@ -19,23 +19,23 @@ public class DocInfoDetailResult {
     private Long id;
 
     /** 文档名称 name */
-    @ApiDocField(description = "文档名称", required = true, example = "获取商品信息")
+    @ApiDocField(description = "文档名称", required = true, maxLength = "50", example = "获取商品信息")
     private String name;
 
     /** 文档概述 description */
-    @ApiDocField(description = "文档概述", example = "获取商品信息")
+    @ApiDocField(description = "文档概述", maxLength = "200", example = "获取商品信息")
     private String description;
 
     /** 访问URL url */
-    @ApiDocField(description = "url", example = "/goods/get")
+    @ApiDocField(description = "url", maxLength = "100", example = "/goods/get")
     private String url;
 
     /** http方法 http_method */
-    @ApiDocField(description = "http方法", example = "GET")
+    @ApiDocField(description = "http方法", maxLength = "50", example = "GET")
     private String httpMethod;
 
     /** contentType content_type */
-    @ApiDocField(description = "contentType", example = "application/json")
+    @ApiDocField(description = "contentType", maxLength = "50", example = "application/json")
     private String contentType;
 
     /** 是否是分类，0：不是，1：是 is_folder */
@@ -50,6 +50,14 @@ public class DocInfoDetailResult {
     /** 是否显示 is_show */
     @ApiDocField(description = "是否显示，1：显示，0：不显示", example = "1")
     private Byte isShow;
+
+    /** 创建人 */
+    @ApiDocField(description = "创建人", maxLength = "50", example = "jim")
+    private String creatorName;
+
+    /** 修改人 */
+    @ApiDocField(description = "修改人", maxLength = "50", example = "jim")
+    private String modifierName;
 
     /**  数据库字段：gmt_create */
     @ApiDocField(description = "创建时间")

@@ -66,7 +66,7 @@ public class UserInfoController {
         Assert.isTrue(Objects.equals(oldPwdHex, userInfo.getPassword()), "旧密码错误");
         String newPwdHex = userInfoService.getDbPassword(userInfo.getUsername(), param.getPassword());
         userInfo.setPassword(newPwdHex);
-        userInfoService.updateIgnoreNull(userInfo);
+        userInfoService.update(userInfo);
         return Result.ok();
     }
 

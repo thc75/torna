@@ -32,7 +32,7 @@ public class ModuleTokenController {
         Module module = moduleService.getById(moduleId);
         String token = ModuleService.createToken();
         module.setToken(token);
-        moduleService.updateIgnoreNull(module);
+        moduleService.update(module);
         return Result.ok(token);
     }
 

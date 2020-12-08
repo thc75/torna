@@ -69,7 +69,7 @@ public class ModuleController {
         module.setType(ModuleTypeEnum.CUSTOM_ADD.getType());
         module.setCreatorId(user.getUserId());
         module.setModifierId(user.getUserId());
-        moduleService.saveIgnoreNull(module);
+        moduleService.save(module);
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         return Result.ok(moduleVO);
     }
@@ -83,7 +83,7 @@ public class ModuleController {
     public Result updateName(@RequestBody @Valid ModuleUpdateNameParam param) {
         Module module = moduleService.getById(param.getId());
         module.setName(param.getName());
-        moduleService.updateIgnoreNull(module);
+        moduleService.update(module);
         return Result.ok();
     }
 

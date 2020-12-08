@@ -59,29 +59,36 @@ ${docItem.paramData}
         <tr>
             <td>data</td>
             <td>${docItem.apiDocReturnDefinition.dataType}</td>
-            <td>${docItem.apiDocReturnDefinition.description}。#if(${docItem.apiDocReturnDefinition.example} != "")示例值：${docItem.apiDocReturnDefinition.example}#end</td>
+            <td>返回的数据，没有则返回{}。详情见data部分</td>
         </tr>
     #else
     <tr>
         <td>data</td>
         <td>object</td>
-        <td>返回的数据，没有则返回{}
-            <table>
-                <tr>
-                    <th>名称</th>
-                    <th>类型</th>
-                    <th>最大长度</th>
-                    <th>示例值</th>
-                    <th>描述</th>
-                </tr>
-                #foreach($resultDefinition in ${docItem.resultDefinitions})
-                ${resultDefinition.resultHtml}
-                #end
-            </table>
-        </td>
+        <td>返回的数据，没有则返回{}。详情见data部分</td>
     </tr>
     #end
 </table>
+
+**data部分**
+
+#if(${docItem.singleReturn})
+${docItem.apiDocReturnDefinition.description}。#if(${docItem.apiDocReturnDefinition.example} != "")示例值：${docItem.apiDocReturnDefinition.example}#end
+#else
+<table>
+    <tr>
+        <th>名称</th>
+        <th>类型</th>
+        <th>最大长度</th>
+        <th>示例值</th>
+        <th>描述</th>
+    </tr>
+    #foreach($resultDefinition in ${docItem.resultDefinitions})
+    ${resultDefinition.resultHtml}
+    #end
+</table>
+#end
+
 
 **返回示例**
 

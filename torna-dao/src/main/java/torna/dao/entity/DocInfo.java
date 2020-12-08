@@ -60,14 +60,17 @@ public class DocInfo {
     /** 创建人, 数据库字段：creator_id */
     private Long creatorId;
 
-    /** 创建者昵称user_info.nickname, 数据库字段：creator_name */
+    /** 创建者昵称user_info.realname, 数据库字段：creator_name */
     private String creatorName;
 
     /** 修改人, 数据库字段：modifier_id */
     private Long modifierId;
 
-    /** 创建者昵称user_info.nickname, 数据库字段：modifier_name */
+    /** 创建者昵称user_info.realname, 数据库字段：modifier_name */
     private String modifierName;
+
+    /** 排序索引, 数据库字段：order_index */
+    private Integer orderIndex;
 
     /** 是否显示, 数据库字段：is_show */
     private Byte isShow;

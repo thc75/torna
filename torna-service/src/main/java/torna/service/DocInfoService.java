@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import torna.common.bean.Booleans;
 import torna.common.bean.User;
-import torna.common.enums.OperationMode;
 import torna.common.enums.ParamStyleEnum;
 import torna.common.exception.BizException;
 import torna.common.support.BaseService;
@@ -15,7 +14,6 @@ import torna.common.util.CopyUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
 import torna.dao.mapper.DocInfoMapper;
-import torna.dao.mapper.DocParamMapper;
 import torna.service.dto.DocFolderCreateDTO;
 import torna.service.dto.DocInfoDTO;
 import torna.service.dto.DocItemCreateDTO;
@@ -24,8 +22,6 @@ import torna.service.dto.DocParamDTO;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -103,9 +99,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierName(user.getNickname());
         docInfo.setIsShow(docInfoDTO.getIsShow());
         if (save) {
-            this.saveIgnoreNull(docInfo);
+            this.save(docInfo);
         } else {
-            this.updateIgnoreNull(docInfo);
+            this.update(docInfo);
         }
         return docInfo;
     }
@@ -143,9 +139,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     /**
      * 修改分类名称
      *
-     * @param id
-     * @param name
-     * @param user
+     * @param id 文档id
+     * @param name 文档名称
+     * @param user 操作人
      */
     public void updateDocFolderName(long id, String name, User user) {
         DocInfo folder = getById(id);
@@ -158,7 +154,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         folder.setModifyMode(user.getOperationModel());
         folder.setModifierId(user.getUserId());
         folder.setIsDeleted(Booleans.FALSE);
-        this.updateIgnoreNull(folder);
+        this.update(folder);
     }
 
     /**
@@ -171,7 +167,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifyMode(user.getOperationModel());
         docInfo.setModifierId(user.getUserId());
         docInfo.setIsDeleted(Booleans.TRUE);
-        this.updateIgnoreNull(docInfo);
+        this.update(docInfo);
     }
 
     /**
@@ -236,14 +232,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             docInfo.setModifyMode(user.getOperationModel());
             docInfo.setCreatorId(user.getUserId());
             docInfo.setModifierId(user.getUserId());
-            saveIgnoreNull(docInfo);
+            save(docInfo);
         } else {
             docInfo.setIsFolder(isFolder);
             docInfo.setDataId(dataId);
             docInfo.setModifyMode(user.getOperationModel());
             docInfo.setModifierId(user.getUserId());
             docInfo.setIsDeleted(Booleans.FALSE);
-            updateIgnoreNull(docInfo);
+            update(docInfo);
         }
         return docInfo;
     }

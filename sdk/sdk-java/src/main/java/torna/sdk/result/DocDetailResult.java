@@ -32,6 +32,12 @@ public class DocDetailResult {
     /** 是否显示 */
     private Byte isShow;
 
+    /** 创建人 */
+    private String creatorName;
+
+    /** 修改人 */
+    private String modifierName;
+
     /** 请求头 */
     private List<DocParamResult> headerParams;
 

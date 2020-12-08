@@ -57,7 +57,7 @@
   background-color: #f3f3f3;
 }
 .markdown-body table tr:nth-child(2n) {
-   background-color: #FFFFFF;
+   background-color: #FFFFFF !important;
 }
 .el-header {
   background-color: #545c64;

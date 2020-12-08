@@ -58,7 +58,7 @@ public class SdkTest extends BaseTest {
         // 创建请求对象
         DocGetRequest request = new DocGetRequest(token);
         // 设置请求参数
-        request.setId("9VXEyXvg");
+        request.setId("eW2onQzD");
 
         // 发送请求
         DocGetResponse response = client.execute(request);
