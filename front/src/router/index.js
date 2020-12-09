@@ -5,6 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
+import LayoutView from '@/layout_view'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -125,6 +126,25 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/admin/open/index'),
         meta: { title: '开放用户' }
+      }
+    ]
+  },
+  // 预览模式
+  {
+    path: '/view', // 必须/开头
+    component: LayoutView,
+    name: 'View',
+    meta: { title: '文档', icon: 'example' },
+    children: [
+      {
+        path: '/',
+        name: 'Home',
+        component: () => import('@/views/view/index')
+      },
+      {
+        path: 'doc/:docId(\\w+)',
+        name: 'ViewDoc',
+        component: () => import('@/views/view/index')
       }
     ]
   },

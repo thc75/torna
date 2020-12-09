@@ -12,11 +12,17 @@ import torna.dao.entity.Module;
 import torna.dao.mapper.ModuleMapper;
 import torna.service.dto.ImportSwaggerDTO;
 
+import java.util.List;
+
 /**
  * @author tanghc
  */
 @Service
 public class ModuleService extends BaseService<Module, ModuleMapper> {
+
+    public List<Module> listProjectModules(long projectId) {
+        return list("project_id", projectId);
+    }
 
     /**
      * 创建swagger导入模块

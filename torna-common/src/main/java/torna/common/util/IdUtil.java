@@ -3,6 +3,8 @@ package torna.common.util;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
 
+import java.util.UUID;
+
 /**
  * @author tanghc
  */
@@ -10,6 +12,8 @@ import org.hashids.Hashids;
 public class IdUtil {
 
     private static final Hashids hashids = new Hashids("@r9#8e.N$z>09=dG", 8);
+
+    public static final long MAX = 9007199254740992L;
 
     public static String encode(Long id) {
         if (id == null || id == 0) {
@@ -32,6 +36,10 @@ public class IdUtil {
             log.error("id decode error, id:{}", id, e);
             throw new IllegalArgumentException("id错误");
         }
+    }
+
+    public static String createUuid() {
+        return UUID.randomUUID().toString();
     }
 
 }

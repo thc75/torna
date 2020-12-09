@@ -1,0 +1,125 @@
+#app {
+
+  .main-container-view {
+    min-height: 100%;
+    transition: margin-left .28s;
+    margin-left: $sideBarViewWidth;
+    position: relative;
+  }
+
+  .sidebar-container-view {
+    transition: width 0.28s;
+    border-right: #EBEEF5 1px solid;
+    width: $sideBarViewWidth !important;
+    height: 100%;
+    position: fixed;
+    font-size: 0px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1001;
+    overflow: hidden;
+
+    // reset element-ui css
+    .horizontal-collapse-transition {
+      transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
+    }
+
+    .scrollbar-wrapper {
+      overflow-x: hidden !important;
+    }
+
+    .el-scrollbar__bar.is-vertical {
+      right: 0px;
+    }
+
+    .el-scrollbar {
+      height: 100%;
+    }
+
+    &.has-logo {
+      .el-scrollbar {
+        height: calc(100% - 50px);
+      }
+    }
+
+    .is-horizontal {
+      display: none;
+    }
+
+    a {
+      display: inline-block;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .svg-icon {
+      margin-right: 16px;
+    }
+
+    .el-menu {
+      border: none;
+      height: 100%;
+      width: 100% !important;
+    }
+
+    // menu hover
+    .submenu-title-noDropdown,
+    .el-submenu__title {
+      &:hover {
+        background-color: $menuHover !important;
+      }
+    }
+
+    .is-active>.el-submenu__title {
+      color: $subMenuActiveText !important;
+    }
+
+    & .nest-menu .el-submenu>.el-submenu__title,
+    & .el-submenu .el-menu-item {
+      min-width: $sideBarWidth !important;
+      background-color: $subMenuBg !important;
+
+      &:hover {
+        background-color: $subMenuHover !important;
+      }
+    }
+  }
+
+  .hideSidebarView {
+    .sidebar-container-view {
+      width: 0 !important;
+    }
+    .main-container-view {
+      margin-left: 0 !important;
+    }
+  }
+
+  // mobile responsive
+  .mobile {
+    .main-container-view {
+      margin-left: 0px;
+    }
+
+    .sidebar-container-view {
+      transition: transform .28s;
+      width: $sideBarViewWidth !important;
+    }
+
+    &.hideSidebar-view {
+      .sidebar-container-view {
+        pointer-events: none;
+        transition-duration: 0.3s;
+        transform: translate3d(-$sideBarViewWidth, 0, 0);
+      }
+    }
+  }
+
+  .withoutAnimation {
+
+    .main-container-view,
+    .sidebar-container-view {
+      transition: none;
+    }
+  }
+}

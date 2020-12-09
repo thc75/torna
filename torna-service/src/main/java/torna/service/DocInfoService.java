@@ -33,6 +33,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private DocParamService docParamService;
 
+    public List<DocInfo> listDocMenu(long moduleId) {
+        return list("module_id", moduleId);
+    }
+
     /**
      * 返回文档详情
      * @param docId 文档id

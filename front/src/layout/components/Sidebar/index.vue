@@ -123,6 +123,9 @@ export default {
       this.loadMenu(this.spaceId)
     }
   },
+  mounted() {
+    this.loadMenu(this.getSpaceId())
+  },
   methods: {
     /**
      * 是否显示项目

@@ -1,6 +1,6 @@
 <template>
   <div class="navbar">
-    <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
+    <hamburger :is-active="sidebarView.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
     <el-dropdown v-show="spaceData.length > 0" trigger="click" style="padding: 10px;" @command="handleCommand">
       <span class="el-dropdown-link" style="font-size: 16px;">
@@ -21,59 +21,17 @@
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">预览模式</el-button>
-    <div class="right-menu">
-      <!--<el-button v-if="isIsp()" type="text" style="margin-right: 10px" @click="doLogout">退出</el-button>-->
-      <el-dropdown trigger="click" @command="handleCommand">
-        <el-avatar
-          class="user-head"
-          shape="square"
-          size="medium"
-          icon="el-icon-user-solid"
-        />
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="onResetPwd">
-            <span>修改密码</span>
-          </el-dropdown-item>
-          <el-dropdown-item :command="doLogout" divided>
-            <span style="display: block;">注销</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div>
-    <div class="navbar-div">
-      <el-dropdown trigger="click" @command="handleCommand">
-        <span class="el-dropdown-link">
-          <el-button type="text" class="el-icon-circle-plus" style="font-size: 24px;"></el-button>
-        </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
-          <el-dropdown-item
-            v-if="hasRole(`space:${currentSpace.id}`, [Role.dev, Role.admin])"
-            icon="el-icon-s-management"
-            :command="onProjectCreate"
-          >
-            创建项目
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div>
-    <!-- 添加空间dialog -->
-    <space-create-dialog ref="spaceCreateDlg" :success="initSpace" />
-    <!-- 添加项目dialog -->
-    <project-create-dialog ref="projectCreateDlg" />
+    <el-button type="primary" size="mini" icon="el-icon-monitor" @click="goAdminPage">管理模式</el-button>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import Hamburger from '@/components/Hamburger'
-import SpaceCreateDialog from '@/components/SpaceCreateDialog'
-import ProjectCreateDialog from '@/components/ProjectCreateDialog/index'
 
 export default {
   components: {
-    Hamburger, SpaceCreateDialog, ProjectCreateDialog
+    Hamburger
   },
   data() {
     return {
@@ -86,7 +44,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'sidebar',
+      'sidebarView',
       'avatar'
     ])
   },
@@ -119,30 +77,16 @@ export default {
     },
     onSpaceSelect(item) {
       this.doSelectSpace(item)
-      this.goHome()
     },
     doSelectSpace(item) {
       this.currentSpace = item
       this.setSpaceId(item.id)
     },
-    onSpaceCreate() {
-      this.$refs.spaceCreateDlg.show()
-    },
-    onProjectCreate() {
-      this.$refs.projectCreateDlg.show()
-    },
     toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
+      this.$store.dispatch('app/toggleSideBarView')
     },
-    onResetPwd: function() {
-      this.goRoute('/updatePassword')
-    },
-    goViewPage() {
-      this.goRoute('/view')
-    },
-    doLogout() {
-      this.logout()
-      // this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    goAdminPage() {
+      this.goRoute('/')
     }
   }
 }

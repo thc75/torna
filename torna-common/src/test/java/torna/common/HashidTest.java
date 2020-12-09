@@ -20,4 +20,14 @@ public class HashidTest {
         Assert.assertEquals(val, val2);
     }
 
+    @Test
+    public void testGen2() {
+        Long val = -IdUtil.MAX;
+        String hash = IdUtil.encode(val);
+        System.out.println(hash);
+
+        Long val2 = IdUtil.decode(hash);
+        Assert.assertEquals(val, val2);
+    }
+
 }

@@ -39,7 +39,7 @@ public class DocController {
      */
     @GetMapping("list")
     public Result<List<DocInfoVO>> listProjectDoc(@HashId Long moduleId) {
-        List<DocInfo> docInfos = docInfoService.list("module_id", moduleId);
+        List<DocInfo> docInfos = docInfoService.listDocMenu(moduleId);
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         return Result.ok(docInfoVOS);
     }

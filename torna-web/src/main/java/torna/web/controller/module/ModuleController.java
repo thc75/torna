@@ -52,7 +52,7 @@ public class ModuleController {
      */
     @GetMapping("list")
     public Result<List<ModuleVO>> listModule(@HashId Long projectId) {
-        List<Module> modules = moduleService.list("project_id", projectId);
+        List<Module> modules = moduleService.listProjectModules(projectId);
         List<ModuleVO> moduleVOS = CopyUtil.copyList(modules, ModuleVO::new);
         return Result.ok(moduleVOS);
     }
