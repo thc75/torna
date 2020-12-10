@@ -163,11 +163,10 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
-						<!-- JDK8必须使用下面的配置
+						<!-- JDK8必须使用下面的配置 -->
 						<configuration>
 							<additionalparam>-Xdoclint:none</additionalparam>
 						</configuration>
-						-->
 					</execution>
 				</executions>
 			</plugin>
