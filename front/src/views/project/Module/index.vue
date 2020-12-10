@@ -81,6 +81,8 @@
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
 
+const current_moddule_key = 'torna-module-'
+
 export default {
   name: 'Module',
   components: { DocInfo, ImportSwaggerDialog },
@@ -110,8 +112,18 @@ export default {
       if (projectId) {
         this.get('/module/list', { projectId: projectId }, function(resp) {
           this.moduleData = resp.data
-          if (this.moduleData.length > 0 && !this.module) {
-            this.module = this.moduleData[0]
+          const cacheModuleId = this.getCacheModuleId()
+          if (cacheModuleId) {
+            for (const module of this.moduleData) {
+              if (module.id === cacheModuleId) {
+                this.module = module
+                break
+              }
+            }
+          } else {
+            if (this.moduleData.length > 0 && !this.module) {
+              this.module = this.moduleData[0]
+            }
           }
         })
       }
@@ -121,6 +133,16 @@ export default {
     },
     onModuleSelect(item) {
       this.module = item
+      this.setCurrentModule(item)
+    },
+    getCurrentModuleKey() {
+      return current_moddule_key + this.projectId
+    },
+    setCurrentModule(item) {
+      this.setAttr(this.getCurrentModuleKey(), item.id)
+    },
+    getCacheModuleId() {
+      return this.getAttr(this.getCurrentModuleKey())
     },
     onModuleAdd() {
       this.$prompt('请输入模块名称', '新建模块', {

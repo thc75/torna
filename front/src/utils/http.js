@@ -38,6 +38,16 @@ export function get(uri, data, callback, errorCallback) {
   })
 }
 
+export function doGet(uri, data, callback) {
+  const that = this
+  needle.request('GET', getFullUrl(uri), data, {
+    // 设置header
+    headers: get_headers()
+  }, (error, response) => {
+    callback && callback.call(that, response, error)
+  })
+}
+
 function get_headers() {
   return {
     Authorization: get_token()

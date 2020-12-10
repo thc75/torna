@@ -3,7 +3,7 @@
  */
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
-import { get, post, getBaseUrl, getFile } from './http'
+import { get, post, getBaseUrl, getFile, doGet } from './http'
 
 const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
@@ -34,6 +34,15 @@ Object.assign(Vue.prototype, {
    */
   get: function(uri, data, callback, errorCallback) {
     get.call(this, uri, data, callback, errorCallback)
+  },
+  /**
+   * get请求，自定义callback
+   * @param uri
+   * @param data
+   * @param callback
+   */
+  doGet(uri, data, callback) {
+    doGet.call(this, uri, data, callback)
   },
   /**
    * 请求接口
@@ -217,6 +226,27 @@ Object.assign(Vue.prototype, {
       isNew: true,
       children: []
     }
+  },
+  doCreateResponseExample: function(params) {
+    const responseJson = {}
+    params.forEach(row => {
+      let val
+      // 如果有子节点
+      if (row.children && row.children.length > 0) {
+        const childrenValue = this.doCreateResponseExample(row.children)
+        // 如果是数组
+        if (row.type.toLowerCase() === 'array') {
+          val = [childrenValue]
+        } else {
+          val = childrenValue
+        }
+      } else {
+        // 单值
+        val = row.example
+      }
+      responseJson[row.name] = val
+    })
+    return responseJson
   },
   setSpaceId(id) {
     this.$store.state.settings.spaceId = id

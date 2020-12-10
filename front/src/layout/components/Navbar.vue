@@ -21,7 +21,7 @@
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">预览模式</el-button>
+    <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
     <div class="right-menu">
       <!--<el-button v-if="isIsp()" type="text" style="margin-right: 10px" @click="doLogout">退出</el-button>-->
       <el-dropdown trigger="click" @command="handleCommand">
@@ -44,7 +44,7 @@
     <div class="navbar-div">
       <el-dropdown trigger="click" @command="handleCommand">
         <span class="el-dropdown-link">
-          <el-button type="text" class="el-icon-circle-plus" style="font-size: 24px;"></el-button>
+          <el-button type="text" class="el-icon-circle-plus navbar-btn"></el-button>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
@@ -57,6 +57,9 @@
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <router-link to="/help" target="_blank">
+        <i class="el-icon-question navbar-btn" style="color: #5a5e66" />
+      </router-link>
     </div>
     <!-- 添加空间dialog -->
     <space-create-dialog ref="spaceCreateDlg" :success="initSpace" />
@@ -149,6 +152,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.navbar-btn {
+  font-size: 24px;
+}
 .dropdown-operation {
   padding: 0 10px;
 }

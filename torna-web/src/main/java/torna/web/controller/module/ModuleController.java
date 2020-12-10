@@ -65,11 +65,7 @@ public class ModuleController {
     @PostMapping("add")
     public Result<ModuleVO> add(@RequestBody @Valid ModuleAddParam param) {
         User user = UserContext.getUser();
-        Module module = CopyUtil.copyBean(param, Module::new);
-        module.setType(ModuleTypeEnum.CUSTOM_ADD.getType());
-        module.setCreatorId(user.getUserId());
-        module.setModifierId(user.getUserId());
-        moduleService.save(module);
+        Module module = moduleService.addModule(param.getName(), param.getProjectId(), user);
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         return Result.ok(moduleVO);
     }
@@ -81,8 +77,11 @@ public class ModuleController {
      */
     @PostMapping("name/update")
     public Result updateName(@RequestBody @Valid ModuleUpdateNameParam param) {
+        User user = UserContext.getUser();
         Module module = moduleService.getById(param.getId());
         module.setName(param.getName());
+        module.setModifierId(user.getUserId());
+        module.setModifyMode(user.getOperationModel());
         moduleService.update(module);
         return Result.ok();
     }
@@ -94,8 +93,8 @@ public class ModuleController {
      */
     @PostMapping("delete")
     public Result delete(@RequestBody @Valid ModuleDeleteParam param) {
-        Module module = moduleService.getById(param.getId());
-        moduleService.delete(module);
+        User user = UserContext.getUser();
+        moduleService.delete(param.getId(), user);
         return Result.ok();
     }
 

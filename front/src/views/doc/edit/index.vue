@@ -59,7 +59,7 @@
           ref="headerParamTable"
           :data="docInfo.headerParams"
           :can-add-node="false"
-          :hidden-columns="['type', 'maxLength']"
+          :hidden-columns="['type', 'maxLength', 'enum']"
         />
       </el-tab-pane>
       <el-tab-pane label="请求参数" name="requestParam">
@@ -77,7 +77,7 @@
         <edit-table
           ref="errorCodeParamTable"
           :data="docInfo.errorCodeParams"
-          :hidden-columns="['required', 'maxLength', 'type']"
+          :hidden-columns="['required', 'maxLength', 'type', 'enum']"
           :can-add-node="false"
           name-label="错误码"
           description-label="错误描述"

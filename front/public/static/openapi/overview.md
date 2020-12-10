@@ -4,6 +4,16 @@
 
 使用Torna自带的sdk调用接口。
 
+- pom.xml添加依赖
+
+```xml
+<dependency>
+  <groupId>net.oschina.durcframework</groupId>
+  <artifactId>torna-sdk</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
+
 - 调用示例
 
 ```java

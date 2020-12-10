@@ -1,6 +1,8 @@
 package torna.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import torna.common.bean.Booleans;
 import torna.common.bean.User;
 import torna.common.enums.ParamStyleEnum;
@@ -8,8 +10,10 @@ import torna.common.support.BaseService;
 import torna.common.util.DataIdUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
+import torna.dao.entity.EnumInfo;
 import torna.dao.mapper.DocParamMapper;
 import torna.service.dto.DocParamDTO;
+import torna.service.dto.EnumInfoDTO;
 
 import java.util.List;
 
@@ -18,6 +22,9 @@ import java.util.List;
  */
 @Service
 public class DocParamService extends BaseService<DocParam, DocParamMapper> {
+
+    @Autowired
+    private EnumService enumService;
 
     public DocParam getByDataId(String dataId) {
         return get("data_id", dataId);
@@ -42,7 +49,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setMaxLength(docParamDTO.getMaxLength());
         docParam.setExample(docParamDTO.getExample());
         docParam.setDescription(docParamDTO.getDescription());
-        docParam.setEnumId(docParamDTO.getEnumId());
+        docParam.setEnumId(buildEnumId(docInfo.getModuleId(), docParamDTO));
         docParam.setDocId(docInfo.getId());
         docParam.setParentId(parentId);
         docParam.setStyle(paramStyleEnum.getStyle());
@@ -58,6 +65,16 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
                 this.doSave(child, id, docInfo, paramStyleEnum, user);
             }
         }
+    }
+
+    private Long buildEnumId(long moduleId, DocParamDTO docParamDTO) {
+        EnumInfoDTO enumInfoDTO = docParamDTO.getEnumInfo();
+        if (enumInfoDTO != null) {
+            enumInfoDTO.setModuleId(moduleId);
+            EnumInfo enumInfo = enumService.saveEnumInfo(enumInfoDTO);
+            return enumInfo.getId();
+        }
+        return docParamDTO.getEnumId();
     }
 
     public DocParam saveParam(DocParam docParam, User user) {

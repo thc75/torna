@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 import torna.common.annotation.HashId;
 import torna.common.bean.Booleans;
 import torna.common.bean.Result;
-import torna.common.util.IdUtil;
+import torna.common.util.GenerateUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.Module;
 import torna.service.DocInfoService;
 import torna.service.ModuleService;
 import torna.service.ProjectService;
+import torna.service.dto.DocInfoDTO;
 import torna.service.dto.ProjectDTO;
 import torna.web.controller.doc.vo.TreeVO;
 
@@ -25,7 +26,7 @@ import java.util.List;
  * @author tanghc
  */
 @RestController
-@RequestMapping("doc")
+@RequestMapping("doc/view")
 public class ViewController {
 
     private static final byte TYPE_PROJECT = 0;
@@ -42,18 +43,18 @@ public class ViewController {
     @Autowired
     private DocInfoService docInfoService;
 
-    @GetMapping("/view/data")
+    @GetMapping("data")
     public Result<List<TreeVO>> data(@HashId Long spaceId) {
         List<ProjectDTO> projectDTOS = projectService.listSpaceProject(spaceId);
         List<TreeVO> list = new ArrayList<>();
         for (ProjectDTO projectDTO : projectDTOS) {
-            TreeVO projectVO = new TreeVO(IdUtil.createUuid(), projectDTO.getName(), "", TYPE_PROJECT);
+            TreeVO projectVO = new TreeVO(GenerateUtil.getUUID(), projectDTO.getName(), "", TYPE_PROJECT);
             list.add(projectVO);
             List<Module> modules = moduleService.listProjectModules(projectDTO.getId());
             for (Module module : modules) {
-                TreeVO moduleVO = new TreeVO(IdUtil.createUuid(), module.getName(), projectVO.getId(), TYPE_MODULE);
+                TreeVO moduleVO = new TreeVO(GenerateUtil.getUUID(), module.getName(), projectVO.getId(), TYPE_MODULE);
                 list.add(moduleVO);
-                List<DocInfo> docInfos = docInfoService.listDocMenu(module.getId());
+                List<DocInfo> docInfos = docInfoService.listDocMenuView(module.getId());
                 String base = moduleVO.getId();
                 for (DocInfo docInfo : docInfos) {
                     boolean isFolder = Booleans.isTrue(docInfo.getIsFolder());
@@ -70,6 +71,18 @@ public class ViewController {
             }
         }
         return Result.ok(list);
+    }
+
+    /**
+     * 根据主键查询
+     *
+     * @param id 主键
+     * @return 返回记录，没有返回null
+     */
+    @GetMapping("detail")
+    public Result<DocInfoDTO> detail(@HashId Long id) {
+        DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
+        return Result.ok(docInfoDTO);
     }
 
     private String buildId(String base, Long id) {

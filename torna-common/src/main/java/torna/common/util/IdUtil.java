@@ -38,8 +38,4 @@ public class IdUtil {
         }
     }
 
-    public static String createUuid() {
-        return UUID.randomUUID().toString();
-    }
-
 }

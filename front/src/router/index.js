@@ -64,6 +64,13 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    'path': '/help',
+    'name': 'Help',
+    component: () => import('@/views/help/index'),
+    'meta': { 'title': '帮助中心' },
+    'hidden': true
+  },
+  {
     path: '/updatePassword',
     component: Layout,
     children: [{
@@ -129,7 +136,7 @@ export const constantRoutes = [
       }
     ]
   },
-  // 预览模式
+  // 浏览模式
   {
     path: '/view', // 必须/开头
     component: LayoutView,

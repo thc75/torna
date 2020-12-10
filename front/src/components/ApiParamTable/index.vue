@@ -7,34 +7,14 @@
     :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     :cell-style="cellStyleSmall()"
     :header-cell-style="headCellStyleSmall()"
-    :row-class-name="tableRowClassName"
     :empty-text="emptyText"
   >
     <el-table-column
-      v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"
       width="250"
-    >
-      <template slot-scope="scope">
-        <span>
-          {{ scope.row.name }}
-          <el-tooltip content="查看字典" placement="top">
-            <el-popover
-              placement="right"
-              width="500"
-              trigger="click"
-              @show="onEnumPopoverShow(`enumRef_${scope.row.name}`)"
-            >
-              <enum-item-view :ref="`enumRef_${scope.row.name}`" :enum-id="scope.row.enumId" />
-              <el-button v-if="scope.row.enumId" slot="reference" type="text" icon="el-icon-tickets" />
-            </el-popover>
-          </el-tooltip>
-        </span>
-      </template>
-    </el-table-column>
+    />
     <el-table-column
-      v-if="isColumnShow('type')"
       prop="type"
       label="类型"
       width="100"
@@ -49,7 +29,6 @@
       </template>
     </el-table-column>
     <el-table-column
-      v-if="isColumnShow('required')"
       prop="required"
       label="必须"
       width="60"
@@ -59,12 +38,11 @@
       </template>
     </el-table-column>
     <el-table-column
-      v-if="isColumnShow('maxLength')"
       prop="maxLength"
       label="最大长度"
+      width="100"
     />
     <el-table-column
-      v-if="isColumnShow('description')"
       prop="description"
       :label="descriptionLabel"
     />
@@ -72,15 +50,14 @@
       v-if="isColumnShow('example')"
       prop="example"
       :label="exampleLabel"
+      show-overflow-tooltip
     />
   </el-table>
 </template>
 
 <script>
-import EnumItemView from '../EnumItemView'
 export default {
-  name: 'ParameterTable',
-  components: { EnumItemView },
+  name: 'ApiParamTable',
   props: {
     data: {
       type: Array,
@@ -107,19 +84,7 @@ export default {
       default: () => []
     }
   },
-  data() {
-    return {
-      enumId: ''
-    }
-  },
   methods: {
-    tableRowClassName({ row, index }) {
-      if (row.isDeleted) {
-        row.hidden = true
-        return 'hidden-row'
-      }
-      return ''
-    },
     onEnumPopoverShow(ref) {
       this.$refs[ref].reload()
     },

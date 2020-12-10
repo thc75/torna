@@ -37,6 +37,26 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return list("module_id", moduleId);
     }
 
+    public List<DocInfo> listDocMenuView(long moduleId) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("is_show", Booleans.TRUE);
+        return listAll(query);
+    }
+
+    /**
+     * 返回文档详情
+     * @param docId 文档id
+     * @return 返回文档详情
+     */
+    public DocInfoDTO getDocDetailView(long docId) {
+        Query query = new Query()
+                .eq("id", docId)
+                .eq("is_show", Booleans.TRUE);
+        DocInfo docInfo = get(query);
+        return getDocDetail(docInfo);
+    }
+
     /**
      * 返回文档详情
      * @param docId 文档id
@@ -44,9 +64,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public DocInfoDTO getDocDetail(long docId) {
         DocInfo docInfo = this.getById(docId);
+        return getDocDetail(docInfo);
+    }
+
+    private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
-        List<DocParam> params = docParamService.list("doc_id", docId);
+        List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());

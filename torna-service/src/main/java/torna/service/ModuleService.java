@@ -24,6 +24,19 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
         return list("project_id", projectId);
     }
 
+    public Module addModule(String name, long projectId, User user) {
+        Module module = new Module();
+        module.setType(ModuleTypeEnum.CUSTOM_ADD.getType());
+        module.setName(name);
+        module.setProjectId(projectId);
+        module.setCreateMode(user.getOperationModel());
+        module.setCreatorId(user.getUserId());
+        module.setModifierId(user.getUserId());
+        module.setToken(createToken());
+        save(module);
+        return module;
+    }
+
     /**
      * 创建swagger导入模块
      * @param importSwaggerDTO 导入配置

@@ -44,6 +44,8 @@ public class DocParamDTO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
 
+    private EnumInfoDTO enumInfo;
+
     /** 0：header, 1：请求参数，2：返回参数，3：错误码, 数据库字段：style */
     private Byte style;
 

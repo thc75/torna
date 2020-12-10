@@ -11,7 +11,7 @@ import torna.common.support.IdCodec;
  */
 @Data
 public class DocInfoResult {
-    @ApiDocField(description = "文档id", example = "9VXEyXvg")
+    @ApiDocField(description = "文档id", dataType = DataType.STRING, maxLength = "12",example = "9VXEyXvg")
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 

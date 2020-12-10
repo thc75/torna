@@ -6,7 +6,6 @@ import com.gitee.easyopen.ApiConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import torna.api.bean.OpenApiDocFileCreator;
 import torna.api.manager.ApiAppSecretManager;
 
 /**
@@ -27,8 +26,6 @@ public class ApiCfg {
                 , SerializerFeature.WriteDateUseDateFormat)
         );
         apiConfig.setAppSecretManager(apiAppSecretManager);
-        String docDir = System.getProperty("user.dir") + "/front/public/static/openapi";
-        apiConfig.setDocFileCreator(new OpenApiDocFileCreator(docDir));
         return apiConfig;
     }
 

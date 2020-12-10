@@ -51,13 +51,13 @@ public class DocParamPushParam {
     @Length(max = 100, message = "描述长度不能超过100")
     private String description;
 
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private Long enumId;
-
     /** 父节点, 数据库字段：parent_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     @ApiDocField(description = "父节点, 没有填空字符串", dataType = DataType.STRING)
     private Long parentId;
+
+    @ApiDocField(description = "参数对应的枚举，如果参数是枚举，可以顺便把枚举信息填进来")
+    private EnumInfoCreateParam enumInfo;
 
     private Byte createMode = OperationMode.OPEN.getType();
 

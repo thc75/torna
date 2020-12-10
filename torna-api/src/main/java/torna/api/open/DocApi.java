@@ -52,6 +52,25 @@ public class DocApi {
         }
     }
 
+    public void pushDocItem(DocPushItemParam param) {
+        User user = RequestContext.getCurrentContext().getApiUser();
+        long moduleId = RequestContext.getCurrentContext().getModuleId();
+        DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
+        docInfoDTO.setModuleId(moduleId);
+        if (Booleans.isTrue(param.getIsFolder())) {
+            DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user);
+            List<DocPushItemParam> items = param.getItems();
+            if (items != null) {
+                for (DocPushItemParam item : items) {
+                    item.setParentId(folder.getId());
+                    this.pushDocItem(item);
+                }
+            }
+        } else {
+            docInfoService.saveDocInfo(docInfoDTO, user);
+        }
+    }
+
     @Api(name = "doc.list")
     @ApiDocMethod(description = "获取文档列表"
             , order = 1
@@ -106,24 +125,5 @@ public class DocApi {
         docInfoService.updateDocFolderName(param.getId(), name, user);
     }
 
-
-    public void pushDocItem(DocPushItemParam param) {
-        User user = RequestContext.getCurrentContext().getApiUser();
-        long moduleId = RequestContext.getCurrentContext().getModuleId();
-        DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
-        docInfoDTO.setModuleId(moduleId);
-        if (Booleans.isTrue(param.getIsFolder())) {
-            DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user);
-            List<DocPushItemParam> items = param.getItems();
-            if (items != null) {
-                for (DocPushItemParam item : items) {
-                    item.setParentId(folder.getId());
-                    this.pushDocItem(item);
-                }
-            }
-        } else {
-            docInfoService.saveDocInfo(docInfoDTO, user);
-        }
-    }
 
 }

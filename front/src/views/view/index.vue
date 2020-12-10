@@ -3,7 +3,7 @@
     <el-tabs v-show="docId" v-model="active" type="card">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> 接口信息</span>
-        <doc-view ref="docView" />
+        <doc-view ref="docView" url="/doc/view/detail" />
       </el-tab-pane>
       <el-tab-pane name="debug">
         <span slot="label"><i class="el-icon-s-promotion"></i> 调试接口</span>

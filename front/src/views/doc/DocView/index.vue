@@ -60,6 +60,10 @@ export default {
       type: String,
       default: ''
     },
+    url: {
+      type: String,
+      default: '/doc/detail'
+    },
     docInfoString: {
       type: String,
       default: '{}'
@@ -111,7 +115,7 @@ export default {
   methods: {
     loadData: function(docId) {
       if (docId) {
-        this.get('/doc/detail', { id: docId }, function(resp) {
+        this.get(this.url, { id: docId }, function(resp) {
           const data = resp.data
           data.requestParams = this.convertTree(data.requestParams)
           data.responseParams = this.convertTree(data.responseParams)
@@ -125,27 +129,6 @@ export default {
     },
     createResponseExample: function(data) {
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
-    },
-    doCreateResponseExample: function(params) {
-      const responseJson = {}
-      params.forEach(row => {
-        let val
-        // 如果有子节点
-        if (row.children && row.children.length > 0) {
-          const childrenValue = this.doCreateResponseExample(row.children)
-          // 如果是数组
-          if (row.type === 'Array') {
-            val = [childrenValue]
-          } else {
-            val = childrenValue
-          }
-        } else {
-          // 单值
-          val = row.example
-        }
-        responseJson[row.name] = val
-      })
-      return responseJson
     }
   }
 }

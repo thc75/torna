@@ -1,0 +1,16 @@
+[
+  {
+    "title" : "帮助中心",
+    "icon": "el-icon-question",
+    "children": [
+      {
+        "title": "快速开始",
+        "path": "static/help/start.md"
+      },
+      {
+        "title": "权限介绍",
+        "path": "static/help/permission.md"
+      }
+    ]
+  }
+]
