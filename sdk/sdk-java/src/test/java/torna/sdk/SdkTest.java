@@ -9,6 +9,7 @@ import torna.sdk.param.DocParamCode;
 import torna.sdk.param.DocParamHeader;
 import torna.sdk.param.DocParamReq;
 import torna.sdk.param.DocParamResp;
+import torna.sdk.param.EnumInfoParam;
 import torna.sdk.param.EnumItemParam;
 import torna.sdk.request.DocCategoryCreateRequest;
 import torna.sdk.request.DocCategoryListRequest;
@@ -171,7 +172,16 @@ public class SdkTest extends BaseTest {
         paramCreateParamResp.setDescription("商品id" + suffix);
         paramCreateParamResp.setExample("22");
         paramCreateParamResp.setParentId("");
-        item.setResponseParams(Arrays.asList(paramCreateParamResp));
+
+        DocParamResp paramCreateParamResp2 = new DocParamResp();
+        paramCreateParamResp2.setName("gender");
+        paramCreateParamResp2.setType("enum");
+        paramCreateParamResp2.setDescription("性别枚举" + suffix);
+        paramCreateParamResp2.setExample("1");
+        paramCreateParamResp2.setParentId("");
+        // 枚举信息
+        paramCreateParamResp2.setEnumInfo(getEnumInfoParam());
+        item.setResponseParams(Arrays.asList(paramCreateParamResp, paramCreateParamResp2));
 
         // 设置错误码
         DocParamCode code = new DocParamCode();
@@ -181,6 +191,25 @@ public class SdkTest extends BaseTest {
         item.setErrorCodeParams(Arrays.asList(code));
 
         return item;
+    }
+
+    private static EnumInfoParam getEnumInfoParam() {
+        EnumInfoParam enumInfoParam = new EnumInfoParam();
+        enumInfoParam.setName("性别");
+        EnumItemParam man = new EnumItemParam();
+        man.setName("1");
+        man.setType("byte");
+        man.setValue("1");
+        man.setDescription("男");
+
+        EnumItemParam woman = new EnumItemParam();
+        woman.setName("0");
+        woman.setType("byte");
+        woman.setValue("0");
+        woman.setDescription("女");
+
+        enumInfoParam.setItems(Arrays.asList(man, woman));
+        return enumInfoParam;
     }
 
     /**

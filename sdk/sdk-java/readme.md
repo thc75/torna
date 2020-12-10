@@ -1,9 +1,6 @@
-# easyopen-sdk
+# torna-sdk-java
 
-sdk for java
-
-开放平台对应的sdk，适用于Android
-
+开放平台对应的sdk
 
 ## 接口封装步骤
 
@@ -78,7 +75,7 @@ public class GetGoodsRequest extends BaseRequest<GetGoodsResponse> {
 
 ```
 // 创建请求对象
-GetGoodsRequest request = new GetGoodsRequest();
+GetGoodsRequest request = new GetGoodsRequest(token);
 request.setGoods_name("iphone6");
 
 // 发送请求

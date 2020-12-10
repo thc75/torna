@@ -28,8 +28,8 @@ public class DocParamReq {
     /** 描述  description */
     private String description;
 
-    /** 字典id  */
-    private String enumId;
+    /** 字典信息，如果有的话  */
+    private EnumInfoParam enumInfo;
 
     /** 父节点, 没有填空字符串  parent_id */
     private String parentId;
