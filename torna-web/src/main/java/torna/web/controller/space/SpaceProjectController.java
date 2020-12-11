@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import torna.common.annotation.HashId;
 import torna.common.bean.Result;
+import torna.common.bean.User;
+import torna.common.context.UserContext;
 import torna.service.ProjectService;
 import torna.service.dto.ProjectDTO;
 
@@ -29,7 +31,8 @@ public class SpaceProjectController {
      */
     @GetMapping("/list")
     public Result<List<ProjectDTO>> listSpaceProject(@HashId Long spaceId) {
-        List<ProjectDTO> projectDTOS = projectService.listSpaceProject(spaceId);
+        User user = UserContext.getUser();
+        List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceId, user);
         return Result.ok(projectDTOS);
     }
 

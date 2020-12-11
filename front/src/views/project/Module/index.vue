@@ -50,7 +50,7 @@
         </ul>
       </el-aside>
       <el-main style="padding-top: 0">
-        <doc-info ref="docInfo" :project-id="projectId" :module-id="module.id" />
+        <doc-info v-show="module" ref="docInfo" :project-id="projectId" :module-id="module.id" />
       </el-main>
     </el-container>
     <!-- 导入json -->

@@ -1,6 +1,7 @@
 package torna.web.controller.project;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,8 @@ import torna.service.dto.ProjectUpdateDTO;
 import torna.web.controller.project.param.ProjectParam;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * 项目信息
@@ -77,6 +80,9 @@ public class ProjectController {
         User user = UserContext.getUser();
         projectAddDTO.setCreatorId(user.getUserId());
         projectAddDTO.setCreatorName(user.getNickname());
+        if (CollectionUtils.isEmpty(projectAddDTO.getAdminIds())) {
+            projectAddDTO.setAdminIds(Collections.singletonList(user.getUserId()));
+        }
         projectService.addProject(projectAddDTO);
         return Result.ok();
     }

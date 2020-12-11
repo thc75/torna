@@ -42,23 +42,21 @@
       </el-dropdown>
     </div>
     <div class="navbar-div">
-      <el-dropdown trigger="click" @command="handleCommand">
+      <el-dropdown v-if="hasRole(`space:${currentSpace.id}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <span class="el-dropdown-link">
           <el-button type="text" class="el-icon-circle-plus navbar-btn"></el-button>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">创建空间</el-dropdown-item>
-          <el-dropdown-item
-            v-if="hasRole(`space:${currentSpace.id}`, [Role.dev, Role.admin])"
-            icon="el-icon-s-management"
-            :command="onProjectCreate"
-          >
+          <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">
+            创建空间
+          </el-dropdown-item>
+          <el-dropdown-item icon="el-icon-s-management" :command="onProjectCreate">
             创建项目
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <router-link to="/help" target="_blank">
-        <i class="el-icon-question navbar-btn" style="color: #5a5e66" />
+        <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
       </router-link>
     </div>
     <!-- 添加空间dialog -->
@@ -97,14 +95,14 @@ export default {
     this.initSpace()
   },
   methods: {
-    initSpace() {
+    initSpace(newSpace) {
       this.get('/space/list', {}, resp => {
         this.spaceData = resp.data
         if (this.spaceData.length === 0) {
           return
         }
         let selected = false
-        const cacheId = this.getSpaceId()
+        const cacheId = (newSpace && newSpace.id) || this.getSpaceId()
         if (cacheId) {
           for (let i = 0; i < this.spaceData.length; i++) {
             if (cacheId === this.spaceData[i].id) {
@@ -125,6 +123,7 @@ export default {
       this.goHome()
     },
     doSelectSpace(item) {
+      this.initPerm()
       this.currentSpace = item
       this.setSpaceId(item.id)
     },
@@ -132,7 +131,7 @@ export default {
       this.$refs.spaceCreateDlg.show()
     },
     onProjectCreate() {
-      this.$refs.projectCreateDlg.show()
+      this.$refs.projectCreateDlg.show(this.currentSpace.id)
     },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')

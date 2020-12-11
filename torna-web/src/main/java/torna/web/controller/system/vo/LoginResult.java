@@ -9,5 +9,4 @@ import torna.service.dto.UserPermDTO;
 @Data
 public class LoginResult {
     private String token;
-    private UserPermDTO userPerm;
 }

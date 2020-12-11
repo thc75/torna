@@ -28,25 +28,6 @@
           maxlength="100"
         />
       </el-form-item>
-      <el-form-item label="项目管理员" required>
-        <user-select ref="userSelect" :loader="loadSpaceMember" multiple />
-      </el-form-item>
-      <el-form-item label="所属空间" prop="spaceId">
-        <el-select
-          v-model="projectFormData.spaceId"
-          placeholder="请选择"
-          style="width: 100%"
-        >
-          <el-option
-            v-for="item in spaceData"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          >
-            {{ item.name }}
-          </el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="访问权限">
         <el-radio-group v-model="projectFormData.isPrivate">
           <el-radio class="el-icon-lock" :label="1">私有</el-radio>
@@ -61,11 +42,8 @@
   </el-dialog>
 </template>
 <script>
-import UserSelect from '@/components/UserSelect'
-
 export default {
   name: 'ProjectCreateDialog',
-  components: { UserSelect },
   data() {
     return {
       visible: false,
@@ -73,7 +51,6 @@ export default {
         name: '',
         description: '',
         spaceId: '',
-        adminIds: [],
         isPrivate: 1
       },
       projectRule: {
@@ -89,29 +66,24 @@ export default {
   },
   methods: {
     onProjectCreateSave() {
-      const promise = this.$refs.userSelect.validate()
       const promiseMain = this.$refs.projectForm.validate()
-      Promise.all([promise, promiseMain]).then(validArr => {
+      Promise.all([promiseMain]).then(validArr => {
         // 到这里来表示全部内容校验通过
-        this.projectFormData.adminIds = this.$refs.userSelect.getValue()
         this.post('/project/add', this.projectFormData, resp => {
           this.visible = false
           this.fireEvent('projectChange', new Date().getTime())
           this.tipSuccess('添加成功')
+          this.initPerm()
         })
       }).catch((e) => {
       }) // 加上这个控制台不会报Uncaught (in promise)
     },
-    show() {
-      this.loadSpaceData((data, spaceId) => {
-        this.spaceData = data
-        this.projectFormData.spaceId = spaceId
-      })
+    show(spaceId) {
+      this.projectFormData.spaceId = spaceId
       this.visible = true
     },
     onHide() {
       this.resetForm('projectForm')
-      this.$refs.userSelect.resetForm()
     }
   }
 }

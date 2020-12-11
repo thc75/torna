@@ -30,8 +30,13 @@ function has_role(key, roleCode) {
 }
 
 Object.assign(Vue.prototype, {
-  setPerm(perm) {
-    setUserPerm(perm)
+  /**
+   * 初始化权限
+   */
+  initPerm() {
+    this.get('/perm/get', {}, resp => {
+      setUserPerm(resp.data)
+    })
   },
   isSuperAdmin() {
     return is_super_admin()

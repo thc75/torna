@@ -108,7 +108,7 @@ public class CopyUtil extends BeanUtils {
     }
 
     public static <T> List<T> copyList(List<?> fromList, Supplier<T> toElement) {
-        if (fromList == null) {
+        if (fromList == null || fromList.isEmpty()) {
             return Collections.emptyList();
         }
         return fromList.stream()

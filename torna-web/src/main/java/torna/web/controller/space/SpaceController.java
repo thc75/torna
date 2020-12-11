@@ -10,6 +10,7 @@ import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.bean.User;
 import torna.common.context.UserContext;
+import torna.common.util.CopyUtil;
 import torna.dao.entity.Space;
 import torna.service.SpaceService;
 import torna.service.dto.SpaceAddDTO;
@@ -61,19 +62,20 @@ public class SpaceController {
 
     /**
      * 添加空间
-     * @param space
+     * @param spaceAddDTO
      * @return
      */
     @PostMapping("add")
-    public Result add(@RequestBody SpaceAddDTO space) {
+    public Result<SpaceDTO> add(@RequestBody SpaceAddDTO spaceAddDTO) {
         User user = UserContext.getUser();
-        space.setCreatorId(user.getUserId());
-        space.setCreatorName(user.getNickname());
+        spaceAddDTO.setCreatorId(user.getUserId());
+        spaceAddDTO.setCreatorName(user.getNickname());
         if (!user.isSuperAdmin()) {
-            space.setAdminIds(Collections.singletonList(user.getUserId()));
+            spaceAddDTO.setAdminIds(Collections.singletonList(user.getUserId()));
         }
-        spaceService.addSpace(space);
-        return Result.ok();
+        Space space = spaceService.addSpace(spaceAddDTO);
+        SpaceDTO spaceDTO = CopyUtil.copyBean(space, SpaceDTO::new);
+        return Result.ok(spaceDTO);
     }
 
     @PostMapping("delete")

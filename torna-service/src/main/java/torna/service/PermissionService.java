@@ -1,8 +1,5 @@
 package torna.service;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +7,7 @@ import torna.common.bean.User;
 import torna.common.util.IdUtil;
 import torna.dao.entity.ProjectUser;
 import torna.dao.entity.SpaceUser;
+import torna.service.dto.ProjectDTO;
 import torna.service.dto.RightDTO;
 import torna.service.dto.RoleDTO;
 import torna.service.dto.UserPermDTO;
@@ -17,8 +15,6 @@ import torna.service.dto.UserPermDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -55,16 +51,22 @@ public class PermissionService {
 
     private RightDTO getUserPermission(User user) {
         RightDTO rightDTO = new RightDTO();
-        RightDTO rightSpace = this.buildSpacePerm(user);
-        RightDTO rightProject = this.buildProjectPerm(user);
+        // 用户所在的空间
+        List<SpaceUser> spaceUsers = spaceService.listUserSpace(user.getUserId());
+        RightDTO rightSpace = this.buildSpacePerm(spaceUsers);
+        RightDTO rightProject = this.buildProjectPerm(spaceUsers, user);
         rightDTO.addAll(rightSpace);
         rightDTO.addAll(rightProject);
         return rightDTO;
     }
 
-    private RightDTO buildSpacePerm(User user) {
+    /**
+     * 构建空间权限
+     * @param spaceUsers 用户空间
+     * @return 返回权限信息
+     */
+    private RightDTO buildSpacePerm(List<SpaceUser> spaceUsers) {
         List<RoleDTO> roles = new ArrayList<>();
-        List<SpaceUser> spaceUsers = spaceService.listUserSpace(user.getUserId());
         // 空间权限
         for (SpaceUser spaceUser : spaceUsers) {
             roles.add(new RoleDTO(PREFIX_SPACE, spaceUser.getSpaceId(), spaceUser.getRoleCode()));
@@ -72,26 +74,21 @@ public class PermissionService {
         return new RightDTO(roles);
     }
 
-    private RightDTO buildProjectPerm(User user) {
+    /**
+     * 构建空间下的项目权限
+     * @param spaceUsers 空间用户
+     * @param user 当前用户
+     * @return 返回项目权限
+     */
+    private RightDTO buildProjectPerm(List<SpaceUser> spaceUsers, User user) {
         List<RoleDTO> roles = new ArrayList<>();
-        List<ProjectUser> projectUsers = projectService.listUserProject(user);
-        for (ProjectUser projectUser : projectUsers) {
-            roles.add(new RoleDTO(PREFIX_PROJECT, projectUser.getProjectId(), projectUser.getRoleCode()));
+        for (SpaceUser spaceUser : spaceUsers) {
+            List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceUser.getSpaceId(), user);
+            for (ProjectDTO projectUser : projectDTOS) {
+                roles.add(new RoleDTO(PREFIX_PROJECT, projectUser.getId(), projectUser.getRoleCode()));
+            }
         }
         return new RightDTO(roles);
     }
 
-    private static <T> LoadingCache<Long, Optional<T>> buildCache(int timeout) {
-        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        if (timeout > 0) {
-            cacheBuilder.expireAfterAccess(timeout, TimeUnit.SECONDS);
-        }
-        return cacheBuilder
-                .build(new CacheLoader<Long, Optional<T>>() {
-                    @Override
-                    public Optional<T> load(Long key) throws Exception {
-                        return Optional.empty();
-                    }
-                });
-    }
 }

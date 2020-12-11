@@ -43,7 +43,7 @@
             v-if="hasRole(`space:${spaceId}`, Role.admin)"
             v-model="scope.row.roleCode"
             size="mini"
-            :disabled="isSelf(scope.row)"
+            :disabled="isSelf(scope.row.id)"
             @change="onRoleChange(scope.row)"
           >
             <el-option v-for="item in getSpaceRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
@@ -67,7 +67,7 @@
       >
         <template slot-scope="scope">
           <el-popconfirm
-            v-if="!isSelf(scope.row)"
+            v-if="!isSelf(scope.row.id)"
             :title="`确定要移除 ${scope.row.nickname}(${scope.row.username}) 吗？`"
             @onConfirm="onMemberRemove(scope.row)"
           >

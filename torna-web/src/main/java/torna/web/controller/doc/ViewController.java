@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import torna.common.annotation.HashId;
 import torna.common.bean.Booleans;
 import torna.common.bean.Result;
+import torna.common.bean.User;
+import torna.common.context.UserContext;
 import torna.common.util.GenerateUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.Module;
@@ -45,7 +47,9 @@ public class ViewController {
 
     @GetMapping("data")
     public Result<List<TreeVO>> data(@HashId Long spaceId) {
-        List<ProjectDTO> projectDTOS = projectService.listSpaceProject(spaceId);
+        // 获取空间下的项目
+        User user = UserContext.getUser();
+        List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceId, user);
         List<TreeVO> list = new ArrayList<>();
         for (ProjectDTO projectDTO : projectDTOS) {
             TreeVO projectVO = new TreeVO(GenerateUtil.getUUID(), projectDTO.getName(), "", TYPE_PROJECT);

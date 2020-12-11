@@ -46,7 +46,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     private UserInfoService userInfoService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSpace(SpaceAddDTO spaceAddDTO) {
+    public Space addSpace(SpaceAddDTO spaceAddDTO) {
         String spaceName = spaceAddDTO.getName();
         Query query = new Query().eq("creator_id", spaceAddDTO.getCreatorId())
                 .eq("name", spaceName);
@@ -63,6 +63,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
         // 添加管理员
         this.addSpaceUser(space.getId(), spaceAddDTO.getAdminIds(), RoleEnum.ADMIN);
+        return space;
     }
 
     /**
@@ -157,7 +158,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     public SpaceInfoDTO getSpaceInfo(long spaceId) {
         Space space = getById(spaceId);
         SpaceInfoDTO spaceInfoDTO = CopyUtil.copyBean(space, SpaceInfoDTO::new);
-        List<UserInfoDTO> leaders = this.listSpaceLeader(spaceId);
+        List<UserInfoDTO> leaders = this.listSpaceAdmin(spaceId);
         spaceInfoDTO.setLeaders(leaders);
         return spaceInfoDTO;
     }
@@ -181,7 +182,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
      * @param spaceId
      * @return
      */
-    public List<UserInfoDTO> listSpaceLeader(long spaceId) {
+    public List<UserInfoDTO> listSpaceAdmin(long spaceId) {
         Query query = new Query()
                 .eq("space_id", spaceId)
                 .eq("role_code", RoleEnum.ADMIN.getCode())
@@ -191,10 +192,27 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         return userInfoService.listUserInfo(adminIds);
     }
 
+    /**
+     * 获取空间管理员用户id
+     * @param spaceId 空间
+     * @return 返回用户id
+     */
+    public List<Long> listSpaceAdminId(long spaceId) {
+        return listSpaceAdmin(spaceId)
+                .stream()
+                .map(UserInfoDTO::getId)
+                .collect(Collectors.toList());
+    }
+
     public List<SpaceUser> listSpaceUser(long spaceId) {
         return spaceUserMapper.listByColumn("space_id", spaceId);
     }
 
+    /**
+     * 返回用户所在的空间
+     * @param userId 用户
+     * @return 返回用户空间
+     */
     public List<SpaceUser> listUserSpace(long userId) {
         return spaceUserMapper.listByColumn("user_id", userId);
     }
@@ -217,7 +235,8 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .map(SpaceUser::getSpaceId)
                 .collect(Collectors.toList());
 
-        List<Space> spaces = this.list(new Query().in("id", spaceIds));
+        Query query = new Query().in("id", spaceIds);
+        List<Space> spaces = this.listAll(query);
         return CopyUtil.copyList(spaces, SpaceDTO::new);
     }
 
