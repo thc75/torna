@@ -21,4 +21,6 @@ public class SpaceDTO {
 
     /** 是否是个人默认空间，1：是，0：否, 数据库字段：is_default */
     private Byte isDefault;
+
+    private Date gmtCreate;
 }

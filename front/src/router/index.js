@@ -41,6 +41,12 @@ export const constantRoutes = [
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
+    },
+    {
+      path: 'space/:spaceId(\\w+)',
+      name: 'Space',
+      component: () => import('@/views/space/index'),
+      meta: { title: '空间首页' }
     }]
   },
 

@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <div class="project-header">{{ currentProject.name }}</div>
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane name="Doc">
         <span slot="label"><i class="el-icon-document"></i> 文档管理</span>
@@ -42,12 +41,8 @@ export default {
       activeName: 'Doc'
     }
   },
-  computed: {
-    currentProject() {
-      return this.$store.state.settings.currentProject
-    }
-  },
   mounted() {
+    this.initPerm()
     this.projectId = this.$route.params.projectId
     this.loadData(this.projectId)
   },
@@ -56,6 +51,9 @@ export default {
       this.loadData(this.projectId)
     },
     loadData(projectId) {
+      this.get(`/project/info`, { projectId: projectId }, resp => {
+        this.setCurrentProject(resp.data)
+      })
       this[`projectId${this.activeName}`] = projectId
     }
   }

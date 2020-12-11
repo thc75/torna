@@ -274,6 +274,13 @@ Object.assign(Vue.prototype, {
   fireEvent(eventName, val) {
     this.$store.state.event[eventName] = val
   },
+  setCurrentProject(project) {
+    this.$store.state.settings.currentProject = project
+  },
+  setCurrentSpace(space) {
+    this.$store.state.settings.currentSpace = space
+    this.setSpaceId(space.id)
+  },
   loadSpaceData(callback) {
     this.get('/space/list', {}, resp => {
       const data = resp.data

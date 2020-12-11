@@ -71,9 +71,6 @@ export default {
     ...mapGetters([
       'sidebarView'
     ]),
-    projects() {
-      return this.$store.state.settings.projects
-    },
     spaceId() {
       return this.$store.state.settings.spaceId
     },

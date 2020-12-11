@@ -1,29 +1,15 @@
 <template>
   <div class="navbar">
-    <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
-    <el-dropdown v-show="spaceData.length > 0" trigger="click" style="padding: 10px;" @command="handleCommand">
-      <span class="el-dropdown-link" style="font-size: 16px;">
-        <el-tag>{{ currentSpace.name }} <i class="el-icon-caret-bottom el-icon--right" style="font-size: 16px;"></i></el-tag>
-      </span>
-      <el-dropdown-menu slot="dropdown">
-        <div class="dropdown-operation">
-          <el-checkbox v-model="isShowDefault">显示个人空间</el-checkbox>
-        </div>
-        <el-dropdown-item v-for="(item, index) in spaceData" v-show="item.isDefault ? isShowDefault : true" :key="item.id" :divided="index === 0" :command="function(){ onSpaceSelect(item) }">
-          {{ item.name }}
-          <span v-if="item.isDefault" class="space-user">
-            <el-tooltip placement="top" content="个人空间">
-              <i v-if="item.isDefault" class="el-icon-user"></i>
-            </el-tooltip>
-            ({{ item.creatorName }})
-          </span>
-        </el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
-    <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
+    <router-link class="logo" to="/">
+      <img src="@/assets/images/logo.png" class="sidebar-logo">
+      <h1 class="sidebar-title">Torna</h1>
+    </router-link>
+    <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: `/` }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="currentSpace" :to="{ path: `/space/${currentSpace.id}` }">{{ currentSpace.name }}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
+    </el-breadcrumb>
     <div class="right-menu">
-      <!--<el-button v-if="isIsp()" type="text" style="margin-right: 10px" @click="doLogout">退出</el-button>-->
       <el-dropdown trigger="click" @command="handleCommand">
         <el-avatar
           class="user-head"
@@ -42,6 +28,7 @@
       </el-dropdown>
     </div>
     <div class="navbar-div">
+      <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
       <el-dropdown v-if="hasRole(`space:${currentSpace.id}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <span class="el-dropdown-link">
           <el-button type="text" class="el-icon-circle-plus navbar-btn"></el-button>
@@ -60,7 +47,7 @@
       </router-link>
     </div>
     <!-- 添加空间dialog -->
-    <space-create-dialog ref="spaceCreateDlg" :success="initSpace" />
+    <space-create-dialog ref="spaceCreateDlg" :success="onSpaceCreateSuccess" />
     <!-- 添加项目dialog -->
     <project-create-dialog ref="projectCreateDlg" />
   </div>
@@ -68,19 +55,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Hamburger from '@/components/Hamburger'
 import SpaceCreateDialog from '@/components/SpaceCreateDialog'
 import ProjectCreateDialog from '@/components/ProjectCreateDialog/index'
 
 export default {
   components: {
-    Hamburger, SpaceCreateDialog, ProjectCreateDialog
+    SpaceCreateDialog, ProjectCreateDialog
   },
   data() {
     return {
-      currentSpace: {
-        id: ''
-      },
       isShowDefault: false,
       spaceData: []
     }
@@ -89,52 +72,23 @@ export default {
     ...mapGetters([
       'sidebar',
       'avatar'
-    ])
-  },
-  created() {
-    this.initSpace()
+    ]),
+    currentProject() {
+      return this.$store.state.settings.currentProject
+    },
+    currentSpace() {
+      return this.$store.state.settings.currentSpace
+    }
   },
   methods: {
-    initSpace(newSpace) {
-      this.get('/space/list', {}, resp => {
-        this.spaceData = resp.data
-        if (this.spaceData.length === 0) {
-          return
-        }
-        let selected = false
-        const cacheId = (newSpace && newSpace.id) || this.getSpaceId()
-        if (cacheId) {
-          for (let i = 0; i < this.spaceData.length; i++) {
-            if (cacheId === this.spaceData[i].id) {
-              this.doSelectSpace(this.spaceData[i])
-              selected = true
-              break
-            }
-          }
-        }
-        // 没有选中就选择第一个
-        if (!selected) {
-          this.doSelectSpace(this.spaceData[0])
-        }
-      })
-    },
-    onSpaceSelect(item) {
-      this.doSelectSpace(item)
-      this.goHome()
-    },
-    doSelectSpace(item) {
-      this.initPerm()
-      this.currentSpace = item
-      this.setSpaceId(item.id)
+    onSpaceCreateSuccess(space) {
+      this.goRoute(`/space/${space.id}`)
     },
     onSpaceCreate() {
       this.$refs.spaceCreateDlg.show()
     },
     onProjectCreate() {
       this.$refs.projectCreateDlg.show(this.currentSpace.id)
-    },
-    toggleSideBar() {
-      this.$store.dispatch('app/toggleSideBar')
     },
     onResetPwd: function() {
       this.goRoute('/updatePassword')
@@ -153,6 +107,40 @@ export default {
 <style lang="scss" scoped>
 .navbar-btn {
   font-size: 24px;
+}
+.logo {
+  float: left;
+  margin-left: 10px;
+  margin-right: 20px;
+  display: inline-block;
+}
+.sidebar-logo {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  margin-right: 2px;
+}
+.sidebar-title {
+  display: inline-block;
+  margin: 0;
+  color: #000;
+  font-weight: 600;
+  line-height: 50px;
+  font-size: 14px;
+  font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+  vertical-align: middle;
+}
+.app-breadcrumb.el-breadcrumb {
+  float: left;
+  display: inline-block;
+  line-height: 50px;
+  font-size: 14px;
+  margin-left: 8px;
+
+  .no-redirect {
+    color: #97a8be;
+    cursor: text;
+  }
 }
 .dropdown-operation {
   padding: 0 10px;
