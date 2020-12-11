@@ -56,22 +56,6 @@
         <el-form-item label="项目管理员" required>
           <user-select ref="userSelect" :loader="loadSpaceMember" multiple :value="projectFormData.adminIds" />
         </el-form-item>
-        <el-form-item label="所属空间" prop="spaceId">
-          <el-select
-            v-model="projectFormData.spaceId"
-            placeholder="请选择"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in spaceData"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            >
-              {{ item.name }}
-            </el-option>
-          </el-select>
-        </el-form-item>
         <el-form-item label="访问权限">
           <el-radio-group v-model="projectFormData.isPrivate">
             <el-radio class="el-icon-lock" :label="1">私有</el-radio>
@@ -115,7 +99,6 @@ export default {
       projectFormData: {
         name: '',
         description: '',
-        spaceId: '',
         adminIds: [],
         isPrivate: 1
       },
@@ -134,11 +117,6 @@ export default {
     projectId(projectId) {
       this.loadInfo(projectId)
     }
-  },
-  mounted() {
-    this.loadSpaceData((data, spaceId) => {
-      this.spaceData = data
-    })
   },
   methods: {
     onProjectDel() {

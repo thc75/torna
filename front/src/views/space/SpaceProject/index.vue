@@ -1,9 +1,17 @@
 <template>
   <div>
+    <p style="margin-left: 10px;">
+      <el-button type="primary">创建项目</el-button>
+    </p>
     <div v-for="(project) in data" :key="project.id" class="project-card">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
-          <span>{{ project.name }}</span>
+          <span>
+            <el-tooltip placement="top" content="私有项目">
+              <i v-if="project.isPrivate" class="el-icon-lock"></i>
+            </el-tooltip>
+            {{ project.name }}
+          </span>
           <el-button style="float: right; padding: 4px 4px" type="primary" @click="enterProject(project)">进入项目</el-button>
         </div>
         <el-form ref="form" :model="project" class="text-form" label-width="100px">
@@ -46,6 +54,10 @@ export default {
     spaceId: {
       type: String,
       default: ''
+    },
+    space: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -56,6 +68,9 @@ export default {
   watch: {
     spaceId(val) {
       this.loadData(val)
+    },
+    space(obj) {
+      this.loadData(obj.id)
     }
   },
   methods: {
@@ -67,6 +82,13 @@ export default {
       }
     },
     enterProject(item) {
+      const from = {
+        spaceId: this.space.id,
+        spaceName: this.space.name,
+        projectId: item.id,
+        projectName: item.name
+      }
+      this.setFrom(from)
       this.goRoute(`/project/info/${item.id}`)
     }
   }

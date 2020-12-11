@@ -3,7 +3,7 @@
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane name="Project">
         <span slot="label"><i class="el-icon-s-management"></i> 项目列表</span>
-        <space-project :space-id="spaceIdProject" />
+        <space-project :space="space" :space-id="spaceIdProject" />
       </el-tab-pane>
       <el-tab-pane name="Info">
         <span slot="label"><i class="el-icon-info"></i> 空间信息</span>
@@ -25,7 +25,7 @@ export default {
   components: { SpaceProject, SpaceInfo, SpaceMember },
   data() {
     return {
-      space: '',
+      space: {},
       activeName: 'Project',
       spaceIdProject: '',
       spaceIdInfo: '',
@@ -39,8 +39,8 @@ export default {
   methods: {
     loadData(spaceId) {
       this.get('/space/info', { spaceId: spaceId }, resp => {
-        this.setCurrentSpace(resp.data)
-        this.setCurrentProject('')
+        this.space = resp.data
+        this.setCurrentInfo(this.space, '')
       })
       this[`spaceId${this.activeName}`] = spaceId
     },

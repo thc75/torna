@@ -12,11 +12,14 @@ import torna.common.bean.Result;
 import torna.common.bean.User;
 import torna.common.context.UserContext;
 import torna.dao.entity.Project;
+import torna.dao.entity.Space;
 import torna.service.ProjectService;
+import torna.service.SpaceService;
 import torna.service.dto.ProjectAddDTO;
 import torna.service.dto.ProjectInfoDTO;
 import torna.service.dto.ProjectUpdateDTO;
 import torna.web.controller.project.param.ProjectParam;
+import torna.web.controller.project.vo.ProjectSpaceVO;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -33,6 +36,9 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private SpaceService spaceService;
+
     /**
      * 项目信息
      * @param projectId
@@ -42,6 +48,18 @@ public class ProjectController {
     public Result<ProjectInfoDTO> info(@HashId Long projectId) {
         ProjectInfoDTO projectInfo = projectService.getProjectInfo(projectId);
         return Result.ok(projectInfo);
+    }
+
+    @GetMapping("space")
+    public Result<ProjectSpaceVO> space(@HashId Long projectId) {
+        Project project = projectService.getById(projectId);
+        Space space = spaceService.getById(project.getSpaceId());
+        ProjectSpaceVO projectSpaceVO = new ProjectSpaceVO();
+        projectSpaceVO.setProjectId(projectId);
+        projectSpaceVO.setProjectName(project.getName());
+        projectSpaceVO.setSpaceId(space.getId());
+        projectSpaceVO.setSpaceName(space.getName());
+        return Result.ok(projectSpaceVO);
     }
 
     /**

@@ -10,41 +10,32 @@
       <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="right-menu">
-      <el-dropdown trigger="click" @command="handleCommand">
-        <el-avatar
-          class="user-head"
-          shape="square"
-          size="medium"
-          icon="el-icon-user-solid"
-        />
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="onResetPwd">
-            <span>修改密码</span>
-          </el-dropdown-item>
-          <el-dropdown-item :command="doLogout" divided>
-            <span style="display: block;">注销</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div>
-    <div class="navbar-div">
-      <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
-      <el-dropdown v-if="hasRole(`space:${currentSpace.id}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
-        <span class="el-dropdown-link">
-          <el-button type="text" class="el-icon-circle-plus navbar-btn"></el-button>
-        </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-house" :command="onSpaceCreate">
-            创建空间
-          </el-dropdown-item>
-          <el-dropdown-item icon="el-icon-s-management" :command="onProjectCreate">
-            创建项目
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <router-link to="/help" target="_blank">
-        <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
-      </router-link>
+      <div class="right-menu-item">
+        <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
+      </div>
+      <div class="right-menu-item">
+        <router-link to="/help" target="_blank">
+          <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
+        </router-link>
+      </div>
+      <div class="right-menu-item">
+        <el-dropdown trigger="click" @command="handleCommand">
+          <el-avatar
+            class="user-head"
+            shape="square"
+            size="medium"
+            icon="el-icon-user-solid"
+          />
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item :command="onResetPwd">
+              <span>修改密码</span>
+            </el-dropdown-item>
+            <el-dropdown-item :command="doLogout" divided>
+              <span style="display: block;">注销</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
     </div>
     <!-- 添加空间dialog -->
     <space-create-dialog ref="spaceCreateDlg" :success="onSpaceCreateSuccess" />
@@ -79,6 +70,9 @@ export default {
     currentSpace() {
       return this.$store.state.settings.currentSpace
     }
+  },
+  created() {
+    this.initPerm()
   },
   methods: {
     onSpaceCreateSuccess(space) {
@@ -142,24 +136,13 @@ export default {
     cursor: text;
   }
 }
-.dropdown-operation {
-  padding: 0 10px;
-}
-.space-user {
-  color: #909399;
-}
 .el-dropdown-link {
   cursor: pointer;
-  //color: #409EFF;
 }
 .el-icon-arrow-down {
   font-size: 12px;
 }
 
-.navbar-div {
-  float: right;
-  margin-right: 12px;
-}
 .user-head {
   cursor: pointer;
   margin-top: 6px;margin-right: 10px;
@@ -188,55 +171,5 @@ export default {
     float: left;
   }
 
-  .right-menu {
-    float: right;
-    height: 100%;
-    line-height: 40px;
-
-    &:focus {
-      outline: none;
-    }
-
-    .right-menu-item {
-      display: inline-block;
-      padding: 0 8px;
-      height: 100%;
-      font-size: 18px;
-      color: #5a5e66;
-      vertical-align: text-bottom;
-
-      &.hover-effect {
-        cursor: pointer;
-        transition: background .3s;
-
-        &:hover {
-          background: rgba(0, 0, 0, .025)
-        }
-      }
-    }
-
-    .avatar-container {
-
-      .avatar-wrapper {
-        margin-top: 5px;
-        position: relative;
-
-        .user-avatar {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-        }
-
-        .el-icon-caret-bottom {
-          cursor: pointer;
-          position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
-        }
-      }
-    }
-  }
 }
 </style>

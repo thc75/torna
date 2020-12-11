@@ -7,6 +7,7 @@ import { get, post, getBaseUrl, getFile, doGet } from './http'
 
 const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
+const TORNA_FROM = 'torna-from'
 const typeConfig = [
   'string',
   'number',
@@ -263,6 +264,14 @@ Object.assign(Vue.prototype, {
   getAttr: function(key) {
     return localStorage.getItem(key)
   },
+  setSessionAttr(key, val) {
+    if (val) {
+      sessionStorage.setItem(key, val)
+    }
+  },
+  getSessionAttr(key) {
+    return sessionStorage.getItem(key)
+  },
   setUserType: function(type) {
     this.setAttr(OPC_USER_TYPE_KEY, type)
   },
@@ -279,7 +288,23 @@ Object.assign(Vue.prototype, {
   },
   setCurrentSpace(space) {
     this.$store.state.settings.currentSpace = space
-    this.setSpaceId(space.id)
+  },
+  setFrom(from) {
+    this.setSessionAttr(TORNA_FROM, encodeURIComponent(JSON.stringify(from)))
+  },
+  getFrom() {
+    try {
+      const from = this.getSessionAttr(TORNA_FROM)
+      const jsonStr = decodeURIComponent(from)
+      return JSON.parse(jsonStr)
+    } catch (e) {
+      console.error(e)
+      return ''
+    }
+  },
+  setCurrentInfo(space, project) {
+    this.setCurrentSpace(space)
+    this.setCurrentProject(project)
   },
   loadSpaceData(callback) {
     this.get('/space/list', {}, resp => {

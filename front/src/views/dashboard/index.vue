@@ -8,8 +8,7 @@ import SpaceList from './SpaceList'
 export default {
   components: { SpaceList },
   created() {
-    this.setCurrentSpace('')
-    this.setCurrentProject('')
+    this.setCurrentInfo('', '')
   }
 }
 </script>

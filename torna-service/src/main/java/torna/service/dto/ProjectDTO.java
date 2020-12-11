@@ -33,6 +33,8 @@ public class ProjectDTO {
 
     private String roleCode;
 
+    private Date gmtCreate;
+
     /** 是否私有项目，1：是，0：否, 数据库字段：is_private */
     private Byte isPrivate;
 

@@ -42,11 +42,6 @@ export default {
       }
     }
   },
-  created() {
-    this.get('/perm/get', {}, resp => {
-      this.setPerm(resp.data)
-    })
-  },
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBarView', { withoutAnimation: false })

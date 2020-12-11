@@ -184,3 +184,18 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
     margin-bottom: 2px;
   }
 }
+
+.navbar .right-menu {
+  float: right;
+  height: 100%;
+  line-height: 50px;
+}
+
+.navbar .right-menu .right-menu-item {
+  display: inline-block;
+  padding: 0 8px;
+  height: 100%;
+  font-size: 18px;
+  color: #5a5e66;
+  vertical-align: text-bottom;
+}

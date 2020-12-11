@@ -42,8 +42,8 @@ export default {
     }
   },
   mounted() {
-    this.initPerm()
     this.projectId = this.$route.params.projectId
+    this.initCurrentInfo(this.projectId)
     this.loadData(this.projectId)
   },
   methods: {
@@ -51,10 +51,30 @@ export default {
       this.loadData(this.projectId)
     },
     loadData(projectId) {
-      this.get(`/project/info`, { projectId: projectId }, resp => {
-        this.setCurrentProject(resp.data)
-      })
       this[`projectId${this.activeName}`] = projectId
+    },
+    initCurrentInfo(projectId) {
+      let fromData = this.getFrom()
+      if (!fromData) {
+        this.get('/project/space', { projectId: projectId }, resp => {
+          fromData = resp.data
+          this.setCurrentInfo({
+            id: fromData.spaceId,
+            name: fromData.spaceName
+          }, {
+            id: fromData.projectId,
+            name: fromData.projectName
+          })
+        })
+      } else {
+        this.setCurrentInfo({
+          id: fromData.spaceId,
+          name: fromData.spaceName
+        }, {
+          id: fromData.projectId,
+          name: fromData.projectName
+        })
+      }
     }
   }
 }

@@ -1,6 +1,9 @@
 <template>
-  <div class="app-container">
+  <div>
     <h3>空间列表</h3>
+    <p style="margin-left: 10px;">
+      <el-button type="primary">创建空间</el-button>
+    </p>
     <div v-for="(space) in data" :key="space.id" class="space-card">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">

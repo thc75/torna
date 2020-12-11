@@ -2,6 +2,11 @@
   <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="false" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
+      <el-select v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
+        <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
+          {{ space.name }}
+        </el-option>
+      </el-select>
       <div class="menu-tree">
         <el-input
           v-show="treeData.length > 0"
@@ -42,6 +47,9 @@
   padding: 10px;
   font-size: 14px !important;
 }
+.space-select {
+  padding: 10px 10px 0 10px;
+}
 </style>
 <script>
 import { mapGetters } from 'vuex'
@@ -59,7 +67,9 @@ export default {
   data() {
     return {
       filterText: '',
+      currentSpaceId: '',
       treeData: [],
+      spaceData: [],
       expandKeys: [],
       defaultProps: {
         children: 'children',
@@ -90,9 +100,16 @@ export default {
     }
   },
   mounted() {
-    this.loadMenu(this.getSpaceId())
+    this.loadSpace()
   },
   methods: {
+    loadSpace() {
+      this.loadSpaceData((data, spaceId) => {
+        this.spaceData = data
+        this.currentSpaceId = spaceId
+        this.loadMenu(spaceId)
+      })
+    },
     loadMenu(spaceId) {
       if (spaceId) {
         this.get('/doc/view/data', { spaceId: spaceId }, resp => {
@@ -112,6 +129,9 @@ export default {
           })
         })
       }
+    },
+    onSpaceSelect() {
+      this.loadMenu(this.currentSpaceId)
     },
     setCurrentNode(currentNode) {
       if (currentNode) {
