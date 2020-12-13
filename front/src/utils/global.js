@@ -250,7 +250,6 @@ Object.assign(Vue.prototype, {
     return responseJson
   },
   setSpaceId(id) {
-    this.$store.state.settings.spaceId = id
     this.setAttr(SPACE_ID_KEY, id)
   },
   getSpaceId() {
@@ -274,14 +273,6 @@ Object.assign(Vue.prototype, {
   },
   setUserType: function(type) {
     this.setAttr(OPC_USER_TYPE_KEY, type)
-  },
-  /**
-   * 触发事件
-   * @param eventName
-   * @param val
-   */
-  fireEvent(eventName, val) {
-    this.$store.state.event[eventName] = val
   },
   setCurrentProject(project) {
     this.$store.state.settings.currentProject = project

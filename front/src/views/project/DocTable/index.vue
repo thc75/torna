@@ -41,6 +41,17 @@
         label="请求路径"
       />
       <el-table-column
+        label="是否显示"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <div v-if="isDoc(scope.row)">
+            <span v-if="scope.row.isShow">是</span>
+            <span v-else class="danger">否</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="文档内容"
         width="80"
       >

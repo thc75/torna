@@ -44,6 +44,12 @@
 <script>
 export default {
   name: 'ProjectCreateDialog',
+  props: {
+    success: {
+      type: Function,
+      default: () => {}
+    }
+  },
   data() {
     return {
       visible: false,
@@ -71,14 +77,18 @@ export default {
         // 到这里来表示全部内容校验通过
         this.post('/project/add', this.projectFormData, resp => {
           this.visible = false
-          this.fireEvent('projectChange', new Date().getTime())
           this.tipSuccess('添加成功')
           this.initPerm()
+          this.success(resp.data)
         })
       }).catch((e) => {
       }) // 加上这个控制台不会报Uncaught (in promise)
     },
     show(spaceId) {
+      if (!spaceId) {
+        this.tipError('show()必须传spaceId参数')
+        return false
+      }
       this.projectFormData.spaceId = spaceId
       this.visible = true
     },

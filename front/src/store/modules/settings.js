@@ -6,11 +6,8 @@ const state = {
   showSettings: showSettings,
   fixedHeader: fixedHeader,
   sidebarLogo: sidebarLogo,
-  projectChange: 0,
   currentProject: '',
-  currentSpace: '',
-  projects: [],
-  spaceId: ''
+  currentSpace: ''
 }
 
 const mutations = {

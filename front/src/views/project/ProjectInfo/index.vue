@@ -143,7 +143,6 @@ export default {
             location.reload()
           } else {
             this.tipSuccess('修改成功')
-            this.fireEvent('projectChange', new Date().getTime())
             this.loadInfo(this.projectId)
           }
         })

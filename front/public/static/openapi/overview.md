@@ -61,7 +61,7 @@ OpenAPI定义了6个公共参数，用json接收
 }
 ```
 
-- name:接口名称
+- name：接口名称
 - version：接口版本号
 - app_key：分配给客户端的app_key
 - data：业务参数，见每个文档，json格式并且urlencode

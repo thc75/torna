@@ -2,7 +2,7 @@
   <div>
     <h3>空间列表</h3>
     <p style="margin-left: 10px;">
-      <el-button type="primary">创建空间</el-button>
+      <el-button type="primary" @click="onSpaceAdd">创建空间</el-button>
     </p>
     <div v-for="(space) in data" :key="space.id" class="space-card">
       <el-card shadow="hover" class="box-card">
@@ -20,6 +20,7 @@
         </el-form>
       </el-card>
     </div>
+    <space-create-dialog ref="spaceCreateDlg" :success="onSpaceAddSuccess" />
   </div>
 </template>
 <style lang="scss">
@@ -41,8 +42,10 @@
 }
 </style>
 <script>
+import SpaceCreateDialog from '@/components/SpaceCreateDialog'
 export default {
   name: 'SpaceList',
+  components: { SpaceCreateDialog },
   data() {
     return {
       data: []
@@ -59,6 +62,12 @@ export default {
     },
     enterSpace(space) {
       this.goRoute(`/space/${space.id}`)
+    },
+    onSpaceAdd() {
+      this.$refs.spaceCreateDlg.show()
+    },
+    onSpaceAddSuccess() {
+      this.loadData()
     }
   }
 }

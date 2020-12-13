@@ -1,7 +1,7 @@
 <template>
   <div>
     <p style="margin-left: 10px;">
-      <el-button type="primary">创建项目</el-button>
+      <el-button type="primary" @click="onProjectAdd">创建项目</el-button>
     </p>
     <div v-for="(project) in data" :key="project.id" class="project-card">
       <el-card shadow="hover" class="box-card">
@@ -27,6 +27,7 @@
         </el-form>
       </el-card>
     </div>
+    <project-create-dialog ref="projectCreateDlg" :success="onProjectAddSuccess" />
   </div>
 </template>
 <style lang="scss">
@@ -48,8 +49,10 @@
 }
 </style>
 <script>
+import ProjectCreateDialog from '@/components/ProjectCreateDialog'
 export default {
   name: 'SpaceProject',
+  components: { ProjectCreateDialog },
   props: {
     spaceId: {
       type: String,
@@ -76,6 +79,7 @@ export default {
   methods: {
     loadData(spaceId) {
       if (spaceId) {
+        this.setSpaceId(spaceId)
         this.get('/space/project/list', { spaceId: spaceId }, resp => {
           this.data = resp.data
         })
@@ -90,6 +94,12 @@ export default {
       }
       this.setFrom(from)
       this.goRoute(`/project/info/${item.id}`)
+    },
+    onProjectAdd() {
+      this.$refs.projectCreateDlg.show(this.spaceId)
+    },
+    onProjectAddSuccess() {
+      this.loadData(this.spaceId)
     }
   }
 }

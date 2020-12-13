@@ -71,9 +71,6 @@ export default {
       return this.$store.state.settings.currentSpace
     }
   },
-  created() {
-    this.initPerm()
-  },
   methods: {
     onSpaceCreateSuccess(space) {
       this.goRoute(`/space/${space.id}`)

@@ -14,7 +14,7 @@
         {{ `${getBaseUrl()}/api` }}
       </el-form-item>
       <el-form-item label="AppKey/Secret">
-        超级管理员给到
+        超级管理员提供
       </el-form-item>
       <el-form-item label="token">
         {{ token }}

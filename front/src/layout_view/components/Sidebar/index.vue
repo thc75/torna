@@ -81,9 +81,6 @@ export default {
     ...mapGetters([
       'sidebarView'
     ]),
-    spaceId() {
-      return this.$store.state.settings.spaceId
-    },
     showLogo() {
       return this.$store.state.settings.sidebarLogo
     },
@@ -92,9 +89,6 @@ export default {
     }
   },
   watch: {
-    spaceId(newVal, oldVal) {
-      this.loadMenu(newVal)
-    },
     filterText(val) {
       this.$refs.tree.filter(val)
     }
