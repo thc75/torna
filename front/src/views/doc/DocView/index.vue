@@ -60,6 +60,10 @@ export default {
       type: String,
       default: ''
     },
+    item: {
+      type: Object,
+      default: () => {}
+    },
     url: {
       type: String,
       default: '/doc/detail'
@@ -108,6 +112,9 @@ export default {
     docInfoString(docInfoString) {
       const docInfo = JSON.parse(docInfoString)
       this.setData(docInfo)
+    },
+    item(data) {
+      this.setData(data)
     }
   },
   created() {

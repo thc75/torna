@@ -76,7 +76,7 @@
             :title="`确定要删除 ${scope.row.name} 吗？`"
             @onConfirm="onDocRemove(scope.row)"
           >
-            <el-link v-if="scope.row.children.length === 0 && hasRole(`project:${projectId}`, Role.admin)" slot="reference" type="danger">删除</el-link>
+            <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>

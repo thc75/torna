@@ -21,7 +21,7 @@
                 <i :class="item.icon"></i>
                 <span slot="title">{{ item.title }}</span>
               </template>
-              <el-menu-item v-for="(child) in item.children" :key="child.path" :index="child.path">{{ child.title }}</el-menu-item>
+              <el-menu-item v-for="(child) in item.children" :key="child.path" :index="child.id">{{ child.title }}</el-menu-item>
             </el-submenu>
           </el-menu>
         </el-aside>
@@ -54,14 +54,19 @@ export default {
       activeIndex: '1'
     }
   },
+  watch: {
+    $route() {
+      this.loadMenu()
+    }
+  },
   created() {
-    this.docId = this.$route.query.id
     this.loadMenu()
   },
   methods: {
     loadMenu: function() {
+      this.docId = this.$route.query.id || 'start'
       let currentDoc = null
-      this.getFile('static/help/menu.json', (menus) => {
+      this.getMenu().then(menus => {
         this.menus = menus
         menus.forEach(item => {
           this.openMenu.push(item.title)
@@ -69,9 +74,9 @@ export default {
             const children = item.children || []
             for (let i = 0; i < children.length; i++) {
               const child = children[i]
-              if (child.path && child.path.endsWith(`${this.docId}.md`)) {
+              if (child.id && child.id === this.docId) {
                 currentDoc = child
-                this.defaultActive = child.path
+                this.defaultActive = child.id
                 break
               }
             }
@@ -82,13 +87,26 @@ export default {
         }
       })
     },
+    getMenu() {
+      return new Promise(resolve => {
+        if (this.menus.length > 0) {
+          resolve(this.menus)
+        } else {
+          this.getFile('static/help/menu.json', (menus) => {
+            resolve(menus)
+          })
+        }
+      })
+    },
     onHeaderMenuSelect: function(index) {
 
     },
     onMenuClick: function(index, path) {
-      this.loadMarkdown(index)
+      this.goRoute(`/help?id=${index}`)
+      // this.loadMarkdown(index)
     },
     loadMarkdown: function(path) {
+      // this.goRoute(`/help?id=${id}`)
       this.getFile(`${path}?q=${new Date().getTime()}`, (content) => {
         this.content = content
       })

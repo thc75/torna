@@ -1,14 +1,15 @@
 package torna.common.enums;
 
 /**
- * 0：header, 1：请求参数，2：返回参数
+ * 0：path, 1：header， 2：请求参数，3：返回参数，4：错误码
  * @author tanghc
  */
 public enum ParamStyleEnum {
-    HEADER((byte)0),
-    REQUEST((byte)1),
-    RESPONSE((byte)2),
-    ERROR_CODE((byte)3),
+    PATH((byte)0),
+    HEADER((byte)1),
+    REQUEST((byte)2),
+    RESPONSE((byte)3),
+    ERROR_CODE((byte)4),
     ;
 
     private final byte style;

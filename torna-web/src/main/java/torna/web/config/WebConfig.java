@@ -38,7 +38,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     public void addInterceptors(InterceptorRegistry registry) {
         String[] excludes = { "/api", "/api/**", "/opendoc/**" };
         registry.addInterceptor(new LoginInterceptor())
-                .excludePathPatterns(excludes);
+                .excludePathPatterns(excludes)
+                // 排除调试请求
+                .excludePathPatterns("/doc/debug");
         registry.addInterceptor(new AdminInterceptor())
                 .addPathPatterns("/admin")
                 .excludePathPatterns(excludes);
@@ -55,13 +57,13 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
      * @return
      */
     @Bean
-    @ConditionalOnBean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addExposedHeader("target-response-headers");
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(source);
     }

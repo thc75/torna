@@ -27,6 +27,7 @@
     >
       <el-table-column label="Name" prop="configKey" width="300px" />
       <el-table-column label="Value" prop="configValue" />
+      <el-table-column label="描述" prop="description" />
       <el-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
@@ -68,8 +69,10 @@
         </el-form-item>
       </el-form>
     </div>
-    <el-divider/>
-    <el-button v-if="hasRole(`project:${projectId}`, [Role.admin])" type="danger" size="mini" @click="onModuleDelete">删除模块</el-button>
+    <div v-if="hasRole(`project:${projectId}`, [Role.admin])">
+      <el-divider />
+      <el-button type="danger" size="mini" @click="onModuleDelete">删除模块</el-button>
+    </div>
     <!--dialog-->
     <el-dialog
       :title="dialogHeaderTitle"
@@ -88,13 +91,19 @@
           prop="configKey"
           label="Name"
         >
-          <el-input v-model="dialogHeaderFormData.configKey" placeholder="name" />
+          <el-input v-model="dialogHeaderFormData.configKey" placeholder="name" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="configValue"
           label="Value"
         >
-          <el-input v-model="dialogHeaderFormData.configValue" placeholder="value" />
+          <el-input v-model="dialogHeaderFormData.configValue" placeholder="value" show-word-limit maxlength="200" />
+        </el-form-item>
+        <el-form-item
+          prop="description"
+          label="描述"
+        >
+          <el-input v-model="dialogHeaderFormData.description" type="textarea" placeholder="描述" show-word-limit maxlength="200" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -138,7 +147,8 @@ export default {
         id: '',
         moduleId: '',
         configKey: '',
-        configValue: ''
+        configValue: '',
+        description: ''
       },
       dialogFormRules: {
         configKey: [

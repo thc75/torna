@@ -58,6 +58,9 @@ public class DocImportService {
     @Autowired
     private ModuleService moduleService;
 
+    @Autowired
+    private ModuleConfigService moduleConfigService;
+
     /**
      * 导入swagger文档
      *
@@ -96,6 +99,8 @@ public class DocImportService {
         String title = docBean.getTitle();
         // 创建模块
         Module module = moduleService.createSwaggerModule(importSwaggerDTO, title);
+        // 保存baseUrl
+        moduleConfigService.setBaseUrl(module.getId(), docBean.getRequestUrl());
         // 创建文档分类
         List<DocModule> docModules = docBean.getDocModules();
         docModules.sort(Comparator.comparing(DocModule::getOrder));
@@ -109,10 +114,17 @@ public class DocImportService {
                 // 创建参数
                 List<DocParameter> requestParameters = item.getRequestParameters();
                 this.saveParams(requestParameters, docItem, docParameter -> {
-                    if ("header".equals(docParameter.getIn())) {
-                        return ParamStyleEnum.HEADER;
-                    } else {
-                        return ParamStyleEnum.REQUEST;
+                    String in = docParameter.getIn();
+                    if (in == null) {
+                        in = "request";
+                    }
+                    switch (in) {
+                        case "path":
+                            return ParamStyleEnum.PATH;
+                        case "header":
+                            return ParamStyleEnum.HEADER;
+                        default:
+                            return ParamStyleEnum.REQUEST;
                     }
                 }, user);
                 List<DocParameter> responseParameters = item.getResponseParameters();
@@ -177,7 +189,7 @@ public class DocImportService {
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getSummary());
         docItemCreateDTO.setUrl(item.getPath());
-        docItemCreateDTO.setContentType(Strings.join(item.getProduces(), ','));
+        docItemCreateDTO.setContentType(Strings.join(item.getConsumes(), ','));
         docItemCreateDTO.setHttpMethod(item.getMethod());
         docItemCreateDTO.setDescription(item.getDescription());
         docItemCreateDTO.setModuleId(parent.getModuleId());

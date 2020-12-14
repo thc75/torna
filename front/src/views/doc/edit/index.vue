@@ -65,7 +65,7 @@
       <el-tab-pane label="请求参数" name="requestParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加请求参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入请求参数</el-button>
-        <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" />
+        <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
       </el-tab-pane>
       <el-tab-pane label="响应参数" name="responseParam">
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
@@ -361,8 +361,9 @@ export default {
             throw new Error('格式错误')
           }
           const keyValue = pair.split(smallSplitChar)
-          const value = decodeURIComponent(keyValue[1])
-          this.addParamFormPair(params, keyValue[0], value)
+          const key = keyValue.shift()
+          const value = decodeURIComponent(keyValue.join(''))
+          this.addParamFormPair(params, key, value)
         }
         this.importParamTemplateDlgShow = false
       } catch (e) {

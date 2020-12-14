@@ -172,7 +172,7 @@ export default {
       data.password = md5(data.password)
       callback && callback.call(this, data)
       this.parseEmailUrl()
-      this.post('/common/reg', data, function(resp) {
+      this.post('/system/reg', data, function(resp) {
         // 验证邮箱
         if (data.needVerifyEmail) {
           this.submited = true

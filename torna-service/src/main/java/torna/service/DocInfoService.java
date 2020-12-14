@@ -13,6 +13,7 @@ import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
+import torna.dao.entity.ModuleConfig;
 import torna.dao.mapper.DocInfoMapper;
 import torna.service.dto.DocFolderCreateDTO;
 import torna.service.dto.DocInfoDTO;
@@ -32,6 +33,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private DocParamService docParamService;
+
+    @Autowired
+    private ModuleConfigService moduleConfigService;
 
     public List<DocInfo> listDocMenu(long moduleId) {
         return list("module_id", moduleId);
@@ -70,18 +74,39 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+        String baseUrl = moduleConfigService.getBaseUrl(docInfo.getModuleId());
+        docInfoDTO.setBaseUrl(baseUrl);
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
+        List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
+        List<DocParam> globalHeaders = this.listGlobalHeaders(docInfo.getModuleId());
         List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), Collections.emptyList());
+
+        docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
+        docInfoDTO.setGlobalHeaderParams(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
         docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
         return docInfoDTO;
+    }
+
+    private List<DocParam> listGlobalHeaders(long moduleId) {
+        List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
+        return globalHeaders.stream()
+                .map(moduleConfig -> {
+                    DocParam docParam = new DocParam();
+                    docParam.setName(moduleConfig.getConfigKey());
+                    docParam.setExample(moduleConfig.getConfigValue());
+                    docParam.setDescription(moduleConfig.getDescription());
+                    docParam.setStyle(ParamStyleEnum.HEADER.getStyle());
+                    return docParam;
+                })
+                .collect(Collectors.toList());
     }
 
 
@@ -252,6 +277,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (docInfo == null) {
             docInfo = new DocInfo();
             docInfo.setDataId(dataId);
+            docInfo.setUrl(docItemCreateDTO.getUrl());
+            docInfo.setHttpMethod(docItemCreateDTO.getHttpMethod());
+            docInfo.setContentType(docItemCreateDTO.getContentType());
             docInfo.setName(docItemCreateDTO.getName());
             docInfo.setModuleId(docItemCreateDTO.getModuleId());
             docInfo.setParentId(docItemCreateDTO.getParentId());
@@ -262,6 +290,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             docInfo.setModifierId(user.getUserId());
             save(docInfo);
         } else {
+            docInfo.setName(docItemCreateDTO.getName());
+            docInfo.setContentType(docItemCreateDTO.getContentType());
             docInfo.setIsFolder(isFolder);
             docInfo.setDataId(dataId);
             docInfo.setModifyMode(user.getOperationModel());

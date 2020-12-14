@@ -14,7 +14,7 @@ import torna.service.dto.UserPermDTO;
  * @author tanghc
  */
 @RestController
-@RequestMapping("perm")
+@RequestMapping("user")
 public class PermissionController {
 
     @Autowired
@@ -24,7 +24,7 @@ public class PermissionController {
      * 获取用户权限
      * @return
      */
-    @GetMapping("get")
+    @GetMapping("perm/get")
     public Result<UserPermDTO> getUserPerm() {
         User user = UserContext.getUser();
         UserPermDTO userPerm = permissionService.getUserPerm(user);

@@ -17,7 +17,7 @@ public class ImportSwaggerParam {
     private Long projectId;
 
     @NotBlank(message = "导入URL不能为空")
-    private String url;
+    private String importUrl;
 
     /** basic认证用户名 */
     private String basicAuthUsername;

@@ -58,7 +58,7 @@ export default {
         basicAuthPassword: ''
       },
       importJsonRule: {
-        url: [
+        importUrl: [
           { required: true, message: '不能为空', trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^http(s)?:\/\/.+$/i.test(value)) {

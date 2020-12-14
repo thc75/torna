@@ -27,7 +27,7 @@ import java.util.Objects;
  * @author tanghc
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("user")
 public class UserInfoController {
 
     @Autowired

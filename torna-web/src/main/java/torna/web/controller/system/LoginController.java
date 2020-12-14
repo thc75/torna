@@ -21,7 +21,7 @@ import javax.validation.Valid;
  * @author tanghc
  */
 @RestController
-@RequestMapping("common")
+@RequestMapping("system")
 public class LoginController {
 
     @Autowired

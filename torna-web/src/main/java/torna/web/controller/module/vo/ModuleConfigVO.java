@@ -27,4 +27,6 @@ public class ModuleConfigVO {
     /** 配置值, 数据库字段：config_value */
     private String configValue;
 
+    private String description;
+
 }

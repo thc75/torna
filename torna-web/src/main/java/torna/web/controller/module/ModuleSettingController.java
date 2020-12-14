@@ -1,6 +1,5 @@
 package torna.web.controller.module;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +11,6 @@ import torna.common.bean.Result;
 import torna.common.context.ModuleConfigKeys;
 import torna.common.enums.ModuleConfigTypeEnum;
 import torna.common.util.CopyUtil;
-import torna.common.util.IdUtil;
 import torna.dao.entity.Module;
 import torna.dao.entity.ModuleConfig;
 import torna.service.ModuleConfigService;
@@ -20,6 +18,7 @@ import torna.service.ModuleService;
 import torna.web.controller.module.param.DebugHostParam;
 import torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import torna.web.controller.module.param.ModuleConfigParam;
+import torna.web.controller.module.param.ModuleGlobalHeaderUpdateParam;
 import torna.web.controller.module.vo.ModuleConfigVO;
 import torna.web.controller.module.vo.ModuleSettingVO;
 import torna.web.controller.module.vo.ModuleVO;
@@ -50,7 +49,7 @@ public class ModuleSettingController {
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         String allowMethod = moduleConfigService.getAllowMethod(moduleId);
-        String baseUrl = moduleConfigService.getDebugHost(moduleId);
+        String baseUrl = moduleConfigService.getBaseUrl(moduleId);
         ModuleSettingVO moduleSettingVO = new ModuleSettingVO();
         moduleSettingVO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, ModuleConfigVO::new));
         moduleSettingVO.setAllowMethod(allowMethod);
@@ -97,10 +96,10 @@ public class ModuleSettingController {
     }
 
     @PostMapping("/globalHeader/add")
-    public Result addHadder(@RequestBody ModuleConfigParam systemConfigParam) {
+    public Result addHadder(@RequestBody ModuleConfigParam param) {
         ModuleConfig systemConfig = new ModuleConfig();
-        BeanUtils.copyProperties(systemConfigParam, systemConfig);
-        systemConfig.setModuleId(systemConfigParam.getModuleId());
+        CopyUtil.copyPropertiesIgnoreNull(param, systemConfig);
+        systemConfig.setModuleId(param.getModuleId());
         systemConfig.setType(ModuleConfigTypeEnum.GLOBAL_HEADERS.getType());
         moduleConfigService.save(systemConfig);
         return Result.ok();
@@ -114,10 +113,9 @@ public class ModuleSettingController {
     }
 
     @PostMapping("/globalHeader/update")
-    public Result updateHeader(@RequestBody ModuleConfigParam param) {
+    public Result updateHeader(@RequestBody ModuleGlobalHeaderUpdateParam param) {
         ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
-        moduleConfig.setConfigKey(param.getConfigKey());
-        moduleConfig.setConfigValue(param.getConfigValue());
+        CopyUtil.copyPropertiesIgnoreNull(param, moduleConfig);
         moduleConfigService.update(moduleConfig);
         return Result.ok();
     }

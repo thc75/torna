@@ -149,7 +149,7 @@ Object.assign(Vue.prototype, {
     frm && frm.resetFields()
   },
   logout: function(url) {
-    this.get('/common/logout', {}, resp => {}, resp => {})
+    this.get('/system/logout', {}, resp => {}, resp => {})
     this.goLogin(url)
   },
   goHome() {

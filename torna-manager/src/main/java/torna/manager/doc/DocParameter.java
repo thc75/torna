@@ -15,6 +15,9 @@ public class DocParameter {
 
     private Integer id = idGen.incrementAndGet();
     private String module;
+    /**
+     * path,header,formData
+     */
     private String in;
     private String name;
     private String type;

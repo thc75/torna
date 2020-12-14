@@ -116,7 +116,7 @@ export default {
         password: pwd
       }
       callback && callback.call(this, postData)
-      this.post('/common/login', postData, function(resp) {
+      this.post('/system/login', postData, function(resp) {
         const data = resp.data
         this.setUserType('2')
         setToken(data.token)

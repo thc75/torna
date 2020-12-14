@@ -36,6 +36,9 @@ public class ModuleConfig {
     /** 配置值, 数据库字段：config_value */
     private String configValue;
 
+    /** 描述, 数据库字段：description */
+    private String description;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;

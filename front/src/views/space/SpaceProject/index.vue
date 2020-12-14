@@ -1,7 +1,7 @@
 <template>
   <div>
     <p style="margin-left: 10px;">
-      <el-button type="primary" @click="onProjectAdd">创建项目</el-button>
+      <el-button v-if="hasRole(`project:${spaceId}`, [Role.dev, Role.admin])" type="primary" @click="onProjectAdd">创建项目</el-button>
     </p>
     <div v-for="(project) in data" :key="project.id" class="project-card">
       <el-card shadow="hover" class="box-card">

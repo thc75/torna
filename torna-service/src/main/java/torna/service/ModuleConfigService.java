@@ -32,7 +32,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return getCommonConfigValue(moduleId, ModuleConfigKeys.KEY_ALLOW_METHODS, "POST").toUpperCase();
     }
 
-    public String getDebugHost(long moduleId) {
+    public String getBaseUrl(long moduleId) {
         String debugHostKey = getDebugHostKey(moduleId);
         return getCommonConfigValue(moduleId, debugHostKey, "");
     }

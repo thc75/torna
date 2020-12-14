@@ -61,7 +61,11 @@ public class DocInfoDTO implements DocInfoDataId {
     /**  数据库字段：gmt_modified */
     private Date gmtModified;
 
+    private String baseUrl;
+
+    private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
+    private List<DocParamDTO> globalHeaderParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams;

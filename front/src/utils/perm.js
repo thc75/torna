@@ -34,7 +34,7 @@ Object.assign(Vue.prototype, {
    * 初始化权限
    */
   initPerm() {
-    this.get('/perm/get', {}, resp => {
+    this.get('/user/perm/get', {}, resp => {
       setUserPerm(resp.data)
     })
   },

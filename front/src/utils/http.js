@@ -77,34 +77,41 @@ export function post(uri, data, callback, errorCallback) {
   })
 }
 
-export function request(method, uri, data, headers, isJson, isForm, files, callback) {
-  // 如果是文件上传，使用axios，needle上传文件不完美，不支持一个name对应多个文件
-  if (files && files.length > 0) {
-    doMultipart.call(this, uri, data, files, headers, callback)
+export function request(method, uri, data, headers, isJson, isForm, isMultipart, callback) {
+  // 如果是文件上传，使用axios，needle上传文件不完美
+  if (isMultipart) {
+    doMultipart(uri, data, headers, callback)
     return
   }
   const that = this
   if (isForm) {
     headers['Content-Type'] = 'application/x-www-form-urlencoded'
   }
-  Object.assign(headers, get_headers())
   needle.request(method, baseURL + uri, data, {
     // 设置header
     headers: headers,
+    multipart: isMultipart,
     json: isJson
   }, (error, response) => {
     callback.call(that, error, response)
   })
 }
 
-export function doMultipart(uri, data, files, headers, callback) {
+export function doMultipart(uri, data, headers, callback) {
   const that = this
   const formData = new FormData()
-  files.forEach(fileConfig => {
-    fileConfig.files.forEach(file => {
-      formData.append(fileConfig.name, file)
-    })
-  })
+  for (const name in data) {
+    if (name === '__files__') {
+      const fileConfigs = data[name]
+      fileConfigs.forEach(fileConfig => {
+        fileConfig.files.forEach(file => {
+          formData.append(fileConfig.name, file)
+        })
+      })
+    } else {
+      formData.append(name, data[name])
+    }
+  }
   for (const name in data) {
     formData.append(name, data[name])
   }
