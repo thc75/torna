@@ -26,8 +26,10 @@ mkdir -p $target_dir
 
 cp -r $server_folder_name/target/*.jar $target_dir/$app_name.jar
 
+cp -r front/dist/ ./$target_dir/torna-front
+
 #echo "打成zip包"
 #cd $dist_dir
 #zip -r -q "$app_name.zip" $app_name
 
-echo "服务端构建完毕"
+echo "服务端构建完毕，构建结果在dist文件夹下"
