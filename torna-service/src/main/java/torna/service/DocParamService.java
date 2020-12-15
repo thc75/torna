@@ -42,6 +42,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
         DocParam docParam = new DocParam();
         String dataId = DataIdUtil.getDocParamDataId(docInfo.getId(), parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
+        docParam.setId(docParamDTO.getId());
         docParam.setDataId(dataId);
         docParam.setName(docParamDTO.getName());
         docParam.setType(docParamDTO.getType());
@@ -60,9 +61,9 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         DocParam savedParam = this.saveParam(docParam, user);
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
-            Long id = savedParam.getId();
+            Long pid = savedParam.getId();
             for (DocParamDTO child : children) {
-                this.doSave(child, id, docInfo, paramStyleEnum, user);
+                this.doSave(child, pid, docInfo, paramStyleEnum, user);
             }
         }
     }
@@ -78,13 +79,20 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     public DocParam saveParam(DocParam docParam, User user) {
+        DocParam docParamExist;
+        Long id = docParam.getId();
         String dataId = docParam.getDataId();
-        DocParam docParamExist = getByDataId(dataId);
+        if (id != null) {
+            docParamExist = getById(id);
+        } else {
+            docParamExist = getByDataId(dataId);
+        }
         if (docParamExist != null) {
             if (docParam.getIsDeleted() != null && docParam.getIsDeleted() == Booleans.TRUE) {
                 this.delete(docParamExist);
                 return docParamExist;
             }
+            docParamExist.setDataId(docParam.getDataId());
             docParamExist.setName(docParam.getName());
             docParamExist.setType(docParam.getType());
             docParamExist.setRequired(docParam.getRequired());
@@ -92,6 +100,8 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
             docParamExist.setExample(docParam.getExample());
             docParamExist.setDescription(docParam.getDescription());
             docParamExist.setEnumId(docParam.getEnumId());
+            docParamExist.setDocId(docParam.getDocId());
+            docParamExist.setParentId(docParam.getParentId());
             docParamExist.setStyle(docParam.getStyle());
             docParamExist.setModifyMode(docParam.getModifyMode());
             docParamExist.setModifierId(docParam.getModifierId());

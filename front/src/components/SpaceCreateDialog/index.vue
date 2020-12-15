@@ -66,6 +66,7 @@ export default {
         this.post('/space/add', this.spaceFormData, resp => {
           this.visible = false
           this.tipSuccess('创建成功')
+          this.initPerm()
           this.success(resp.data)
         })
       }).catch((e) => {

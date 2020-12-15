@@ -1,9 +1,11 @@
 package torna.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.gitee.fastmybatis.core.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import torna.common.bean.Booleans;
 import torna.common.bean.LoginUser;
@@ -17,22 +19,13 @@ import torna.common.util.IdUtil;
 import torna.common.util.JwtUtil;
 import torna.dao.entity.UserInfo;
 import torna.dao.mapper.UserInfoMapper;
-import torna.service.dto.SpaceAddDTO;
 import torna.service.dto.UserAddDTO;
 import torna.service.dto.UserInfoDTO;
-import com.gitee.fastmybatis.core.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -42,13 +35,7 @@ import java.util.function.Function;
 public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     @Autowired
-    private SpaceService spaceService;
-
-    @Autowired
     private UserCacheManager userCacheManager;
-
-    @Value("${torna.config.default-space-name:默认空间}")
-    private String defaultSpaceName;
 
     @Value("${torna.password.salt:@3dG%gm^uu&=.}")
     private String salt;
@@ -63,24 +50,12 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
      * 添加新用户，用于注册
      * @param userAddDTO 用户信息
      */
-    @Transactional
     public void addUser(UserAddDTO userAddDTO) {
-        // 1. 保存用户
         userAddDTO.setIsSuperAdmin(Booleans.FALSE);
         UserInfo userInfo = CopyUtil.copyBean(userAddDTO, UserInfo::new);
         String password = getDbPassword(userAddDTO.getUsername(), userAddDTO.getPassword());
         userInfo.setPassword(password);
         this.save(userInfo);
-
-        // 2. 为用户生成一个默认空间，且自己是管理员
-        Long userId = userInfo.getId();
-        SpaceAddDTO spaceAddDTO = new SpaceAddDTO();
-        spaceAddDTO.setAdminIds(Collections.singletonList(userId));
-        spaceAddDTO.setCreatorId(userId);
-        spaceAddDTO.setCreatorName(userInfo.getNickname());
-        spaceAddDTO.setName(defaultSpaceName);
-        spaceAddDTO.setIsDefault(Booleans.TRUE);
-        spaceService.addSpace(spaceAddDTO);
     }
 
     public void logout(String token) {

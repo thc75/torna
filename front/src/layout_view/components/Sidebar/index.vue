@@ -2,7 +2,7 @@
   <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="false" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
-      <el-select v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
+      <el-select v-show="treeData.length > 0" v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
         <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
           {{ space.name }}
         </el-option>
@@ -83,9 +83,6 @@ export default {
     ]),
     showLogo() {
       return this.$store.state.settings.sidebarLogo
-    },
-    isCollapse() {
-      return !this.sidebar.opened
     }
   },
   watch: {
@@ -106,6 +103,7 @@ export default {
     },
     loadMenu(spaceId) {
       if (spaceId) {
+        this.setSpaceId(spaceId)
         this.get('/doc/view/data', { spaceId: spaceId }, resp => {
           const data = resp.data
           this.treeData = this.convertTree(data)

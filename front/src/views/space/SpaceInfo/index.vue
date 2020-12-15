@@ -18,7 +18,7 @@
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item v-if="hasRole(`space:${spaceId}`, Role.admin) && form.isDefault === 0">
+      <el-form-item v-if="form.isDefault === 0 && hasRole(`space:${spaceId}`, Role.admin)">
         <el-button type="danger" size="mini" @click="onSpaceDel">删除空间</el-button>
       </el-form-item>
     </el-form>
@@ -87,7 +87,7 @@ export default {
     onSpaceDel() {
       this.confirm('确认要删除该空间吗？', () => {
         this.post('/space/delete', { id: this.spaceId }, () => {
-          this.setSpaceId(0)
+          this.setSpaceId('')
           alert('删除成功')
           location.reload()
         })

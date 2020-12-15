@@ -26,7 +26,6 @@
 <style lang="scss">
 .space-card {
   display: inline-block;
-  margin: 10px;
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -38,6 +37,7 @@
 
   .box-card {
     width: 300px;
+    margin: 10px;
   }
 }
 </style>
@@ -48,6 +48,7 @@ export default {
   components: { SpaceCreateDialog },
   data() {
     return {
+      showDefault: true,
       data: []
     }
   },

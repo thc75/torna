@@ -118,7 +118,6 @@ export default {
       callback && callback.call(this, postData)
       this.post('/system/login', postData, function(resp) {
         const data = resp.data
-        this.setUserType('2')
         setToken(data.token)
         this.goRoute(this.redirect || '/dashboard')
       })

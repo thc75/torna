@@ -5,7 +5,6 @@ import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { get, post, getBaseUrl, getFile, doGet } from './http'
 
-const OPC_USER_TYPE_KEY = 'torna-user-type'
 const SPACE_ID_KEY = 'torna-spaceid'
 const TORNA_FROM = 'torna-from'
 const typeConfig = [
@@ -270,9 +269,6 @@ Object.assign(Vue.prototype, {
   },
   getSessionAttr(key) {
     return sessionStorage.getItem(key)
-  },
-  setUserType: function(type) {
-    this.setAttr(OPC_USER_TYPE_KEY, type)
   },
   setCurrentProject(project) {
     this.$store.state.settings.currentProject = project

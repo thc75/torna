@@ -128,8 +128,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
+        DocInfo docInfo;
+        Long id = docInfoDTO.getId();
         String dataId = docInfoDTO.buildDataId();
-        DocInfo docInfo = getByDataId(dataId);
+        if (id != null) {
+            docInfo = getById(id);
+        } else {
+            docInfo = getByDataId(dataId);
+        }
         boolean save = false;
         if (docInfo == null) {
             docInfo = new DocInfo();

@@ -1,29 +1,17 @@
 package torna;
 
-import torna.common.bean.LoginUser;
-import torna.common.bean.TokenManager;
-import torna.common.context.UserContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import torna.common.context.UserContext;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
 
 @SpringBootTest
 class TornaApplicationTests {
 
-    @Autowired
-    private TokenManager tokenManager;
 
     @PostConstruct
     public void after() {
-        String test_token = "test-token";
+        String test_token = "7YX0lXxR:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJleHAiOjE2Mzg5NjA3NzYsImlhdCI6MTYwNzQyNDc3Nn0.Lctn_3q3cNSgIjUBlImQByqUTtjH_zI-OnUeC2dNrYU";
         UserContext.setTokenGetter(() -> test_token);
-        LoginUser loginUser = new LoginUser();
-        loginUser.setId(1L);
-        loginUser.setUsername("test@test.com");
-        loginUser.setNickname("张三");
-        loginUser.setGmtCreate(new Date());
-        tokenManager.setUser(test_token, loginUser);
     }
 }

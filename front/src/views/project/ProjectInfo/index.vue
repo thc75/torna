@@ -19,10 +19,9 @@
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item>
-        <!-- role_pos -->
-        <el-button v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" type="primary" size="mini" @click="onProjectUpdate">修改项目</el-button>
-        <el-button v-if="hasRole(`project:${projectId}`, [Role.admin])" type="danger" size="mini" @click="onProjectDel">删除项目</el-button>
+      <el-form-item v-if="hasRole(`project:${projectId}`, [Role.admin])">
+        <el-button type="primary" size="mini" @click="onProjectUpdate">修改项目</el-button>
+        <el-button type="danger" size="mini" @click="onProjectDel">删除项目</el-button>
       </el-form-item>
     </el-form>
     <el-dialog
