@@ -6,6 +6,9 @@
       <div class="right-menu-item">
         <el-button type="primary" size="mini" icon="el-icon-monitor" @click="goAdminPage">管理模式</el-button>
       </div>
+      <div class="right-menu-item">
+        <right-dropdown />
+      </div>
     </div>
   </div>
 </template>
@@ -13,10 +16,11 @@
 <script>
 import { mapGetters } from 'vuex'
 import Hamburger from '@/components/Hamburger'
+import RightDropdown from '@/components/RightDropdown'
 
 export default {
   components: {
-    Hamburger
+    Hamburger, RightDropdown
   },
   computed: {
     ...mapGetters([

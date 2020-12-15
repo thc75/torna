@@ -10,6 +10,9 @@
       <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="right-menu">
+      <div v-if="isSuperAdmin()" class="right-menu-item">
+        <admin-menu />
+      </div>
       <div class="right-menu-item">
         <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
       </div>
@@ -19,39 +22,20 @@
         </router-link>
       </div>
       <div class="right-menu-item">
-        <el-dropdown trigger="click" @command="handleCommand">
-          <el-avatar
-            class="user-head"
-            shape="square"
-            size="medium"
-            icon="el-icon-user-solid"
-          />
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="onResetPwd">
-              <span>修改密码</span>
-            </el-dropdown-item>
-            <el-dropdown-item :command="doLogout" divided>
-              <span style="display: block;">注销</span>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+        <right-dropdown />
       </div>
     </div>
-    <!-- 添加空间dialog -->
-    <space-create-dialog ref="spaceCreateDlg" :success="onSpaceCreateSuccess" />
-    <!-- 添加项目dialog -->
-    <project-create-dialog ref="projectCreateDlg" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import SpaceCreateDialog from '@/components/SpaceCreateDialog'
-import ProjectCreateDialog from '@/components/ProjectCreateDialog/index'
+import RightDropdown from '@/components/RightDropdown'
+import AdminMenu from '@/components/AdminMenu'
 
 export default {
   components: {
-    SpaceCreateDialog, ProjectCreateDialog
+    RightDropdown, AdminMenu
   },
   data() {
     return {
@@ -72,24 +56,8 @@ export default {
     }
   },
   methods: {
-    onSpaceCreateSuccess(space) {
-      this.goRoute(`/space/${space.id}`)
-    },
-    onSpaceCreate() {
-      this.$refs.spaceCreateDlg.show()
-    },
-    onProjectCreate() {
-      this.$refs.projectCreateDlg.show(this.currentSpace.id)
-    },
-    onResetPwd: function() {
-      this.goRoute('/updatePassword')
-    },
     goViewPage() {
       this.goRoute('/view')
-    },
-    doLogout() {
-      this.logout()
-      // this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }
 }
@@ -138,11 +106,6 @@ export default {
 }
 .el-icon-arrow-down {
   font-size: 12px;
-}
-
-.user-head {
-  cursor: pointer;
-  margin-top: 6px;margin-right: 10px;
 }
 .navbar {
   height: 50px;

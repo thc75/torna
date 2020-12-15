@@ -6,7 +6,7 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'vue Admin Template' // page title
+const name = defaultSettings.title || 'Torna' // page title
 const port = 9530 // dev port
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
@@ -25,6 +25,8 @@ module.exports = {
   // false：网页不会看到源码
   productionSourceMap: false,
   devServer: {
+    // 解决内网穿透出现Invalid Host header
+    disableHostCheck: true,
     port: port,
     open: true,
     overlay: {
