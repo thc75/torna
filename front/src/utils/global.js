@@ -302,7 +302,7 @@ Object.assign(Vue.prototype, {
         spaceId = cacheId
       }
       // 没有选中就选择第一个
-      if (!spaceId && data[0].length > 0) {
+      if (!spaceId && data.length > 0) {
         spaceId = data[0].id
       }
       callback && callback.call(this, data, spaceId)
