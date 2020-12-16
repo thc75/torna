@@ -35,9 +35,9 @@ import java.util.List;
 public class SdkTest extends BaseTest {
 
     static String url = "http://localhost:7700/api";
-    static String appKey = "20201127781912960996999168";
-    static String secret = "ltatugCHeRJzCvjVxF39A%6.F$eV#~~L";
-    static String token = "e807db2eb8564c4b89caf5a2f2d15b77";
+    static String appKey = "20201215788408948171472896";
+    static String secret = "WeNAdSucgduD$M?*83?dJR&IvgU~Re75";
+    static String token = "b215b7010db5451e98305152a5fa2ddf";
 
 
     static OpenClient client = new OpenClient(url, appKey, secret);
