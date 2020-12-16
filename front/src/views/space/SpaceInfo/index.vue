@@ -87,8 +87,8 @@ export default {
       this.confirm('确认要删除该空间吗？', () => {
         this.post('/space/delete', { id: this.spaceId }, () => {
           this.setSpaceId('')
-          alert('删除成功')
-          location.reload()
+          this.tipSuccess('删除成功')
+          this.goRoute('/')
         })
       })
     },
