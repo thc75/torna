@@ -22,6 +22,6 @@ cd ..
 
 echo "复制前端文件到$target_dir"
 
-cp -r front/dist/ ./$target_dir
+cp -r front/dist/* ./$target_dir
 
 echo "前端构建完毕，构建结果在${target_dir}文件夹下"
