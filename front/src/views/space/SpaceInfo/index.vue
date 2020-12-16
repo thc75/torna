@@ -18,7 +18,7 @@
       <el-form-item label="创建时间">
         {{ form.gmtCreate }}
       </el-form-item>
-      <el-form-item v-if="form.isDefault === 0 && hasRole(`space:${spaceId}`, Role.admin)">
+      <el-form-item v-if="hasRole(`space:${spaceId}`, Role.admin)">
         <el-button type="danger" size="mini" @click="onSpaceDel">删除空间</el-button>
       </el-form-item>
     </el-form>
@@ -42,7 +42,6 @@ export default {
         name: '',
         creatorName: '',
         creatorId: '',
-        isDefault: 0,
         gmtCreate: ''
       },
       popoverShow: false,

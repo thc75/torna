@@ -39,9 +39,6 @@ public class Space {
     /**  数据库字段：modifier_name */
     private String modifierName;
 
-    /** 是否是个人默认空间，1：是，0：否, 数据库字段：is_default */
-    private Byte isDefault;
-
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
