@@ -13,6 +13,10 @@
         <span slot="label"><i class="el-icon-user"></i> 空间成员</span>
         <space-member :space-id="spaceIdMember" />
       </el-tab-pane>
+      <el-tab-pane v-if="spaceId && hasRole(`space:${spaceId}`, Role.admin)" name="OpenUser">
+        <span slot="label"><i class="el-icon-collection-tag"></i> 开放用户</span>
+        <open-user :space-id="spaceIdOpenUser" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -20,28 +24,36 @@
 import SpaceInfo from './SpaceInfo'
 import SpaceMember from './SpaceMember'
 import SpaceProject from './SpaceProject'
+import OpenUser from './OpenUser'
 export default {
   name: 'SpaceHome',
-  components: { SpaceProject, SpaceInfo, SpaceMember },
+  components: { SpaceProject, SpaceInfo, SpaceMember, OpenUser },
   data() {
     return {
-      space: {},
+      space: {
+        id: 0
+      },
+      spaceId: '',
       activeName: 'Project',
       spaceIdProject: '',
       spaceIdInfo: '',
-      spaceIdMember: ''
+      spaceIdMember: '',
+      spaceIdOpenUser: ''
     }
   },
   mounted() {
-    this.spaceId = this.$route.params.spaceId
-    this.loadData(this.spaceId)
+    const spaceId = this.$route.params.spaceId
+    this.loadData(spaceId)
   },
   methods: {
     loadData(spaceId) {
-      this.get('/space/info', { spaceId: spaceId }, resp => {
-        this.space = resp.data
-        this.setCurrentInfo(this.space, '')
-      })
+      this.spaceId = spaceId
+      if (this.space.id === 0) {
+        this.get('/space/info', { spaceId: spaceId }, resp => {
+          this.space = resp.data
+          this.setCurrentInfo(this.space, '')
+        })
+      }
       this[`spaceId${this.activeName}`] = spaceId
     },
     handleClick() {

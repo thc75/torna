@@ -18,6 +18,7 @@ import torna.web.controller.project.param.ProjectMemberRemoveParam;
 import torna.web.controller.project.param.ProjectMemberUpdateParam;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author tanghc
@@ -33,19 +34,19 @@ public class ProjectMemberController {
      * 分页查询项目成员
      * @return
      */
-    @GetMapping("/page")
-    public Result<PageEasyui<ProjectUserDTO>> page(
+    @GetMapping("/list")
+    public Result<List<ProjectUserDTO>> page(
             @HashId
             Long projectId,
             @RequestParam(required = false) String username,
             @RequestParam(required = false)  String roleCode
     ) {
-        PageEasyui<ProjectUserDTO> projectUser = projectService.pageProjectUser(
+        List<ProjectUserDTO> projectUserDTOList = projectService.pageProjectUser(
                 projectId
                 , username
                 , RoleEnum.of(roleCode)
         );
-        return Result.ok(projectUser);
+        return Result.ok(projectUserDTOList);
     }
 
     /**

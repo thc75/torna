@@ -327,20 +327,9 @@ export default {
         this.contentType = this.hasBody ? 'application/json' : ''
       }
       this.isTextBody = this.contentType.toLowerCase().indexOf('application') > -1
-      this.requestUrl = this.bindUrl(item)
+      this.requestUrl = this.getRequestUrl(item)
       this.bindRequestParam(item)
       this.initActive()
-    },
-    bindUrl(item) {
-      let baseUrl = item.baseUrl
-      if (baseUrl.endsWith('/')) {
-        baseUrl = baseUrl.substring(0, baseUrl.length)
-      }
-      let url = item.url
-      if (url.startsWith('/')) {
-        url = url.substring(1)
-      }
-      return `${baseUrl}/${url}`
     },
     bindRequestParam(item) {
       const queryData = []

@@ -13,10 +13,14 @@
       v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"
-      width="300"
+      :width="nameWidth"
     >
       <template slot-scope="scope">
+        <span v-if="isTextColumn('name')">
+          {{ scope.row.name }}
+        </span>
         <el-form
+          v-else
           :ref="`form_name_${scope.row.id}`"
           :model="scope.row"
           :rules="paramRowRule"
@@ -115,6 +119,7 @@
       </template>
     </el-table-column>
     <el-table-column
+      v-if="isColumnShow('opt')"
       label="操作"
       width="80"
     >
@@ -160,6 +165,14 @@ export default {
       type: String,
       default: '名称'
     },
+    nameWidth: {
+      type: Number,
+      default: 300
+    },
+    textColumns: {
+      type: Array,
+      default: () => []
+    },
     descriptionLabel: {
       type: String,
       default: '描述'
@@ -200,6 +213,9 @@ export default {
   methods: {
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0
+    },
+    isTextColumn(name) {
+      return this.textColumns.filter(val => val === name).length > 0
     },
     loadEnumData(moduleId) {
       this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {

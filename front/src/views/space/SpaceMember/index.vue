@@ -168,7 +168,7 @@ export default {
   },
   methods: {
     loadTable() {
-      this.get('/space/member/page', this.searchFormData, resp => {
+      this.post('/space/member/page', this.searchFormData, resp => {
         this.pageInfo = resp.data
       })
     },

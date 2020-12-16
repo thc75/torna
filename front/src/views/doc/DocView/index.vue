@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="doc-view">
     <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
@@ -10,28 +10,36 @@
         {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h3>接口描述</h3>
-    <div class="doc-overview">{{ docInfo.description || docInfo.name }}</div>
-    <h3>请求地址</h3>
-    <span class="normal-text">
-      <el-tag type="info">{{ docInfo.httpMethod }}</el-tag> {{ docInfo.url }}
-    </span>
-    <h3>ContentType</h3>
-    {{ docInfo.contentType }}
-    <h3>请求Header</h3>
+    <h4>
+      URL：
+      <span>
+        <el-tag type="info" class="http-method">{{ docInfo.httpMethod }}</el-tag> {{ getRequestUrl(docInfo) }}
+      </span>
+    </h4>
+    <h4 v-if="docInfo.description">描述：<span>{{ docInfo.description }}</span></h4>
+    <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
+    <div v-if="docInfo.pathParams.length > 0">
+      <h4>Path参数</h4>
+      <parameter-table
+        :data="docInfo.pathParams"
+        :can-add-node="false"
+        :hidden-columns="['maxLength']"
+      />
+    </div>
+    <h4>请求Header</h4>
     <parameter-table
       :data="docInfo.headerParams"
       :can-add-node="false"
       :hidden-columns="['type', 'maxLength']"
       empty-text="无Header"
     />
-    <h3>请求参数</h3>
+    <h4>请求参数</h4>
     <parameter-table :data="docInfo.requestParams" />
-    <h3>响应参数</h3>
+    <h4>响应参数</h4>
     <parameter-table :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
-    <h3>响应示例</h3>
+    <h4>响应示例</h4>
     <pre class="normal-text">{{ JSON.stringify(responseSuccessExample, null, 4) }}</pre>
-    <h3>错误码</h3>
+    <h4>错误码</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
       empty-text="无错误码"
@@ -43,11 +51,16 @@
   </div>
 </template>
 
-<style scoped>
-.doc-title { padding-bottom: 20px; }
-.doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
-.doc-modify-info { font-size: 12px;color: #909399 }
-.doc-request-method {margin-bottom: 20px;color: #666;font-size: 14px;}
+<style lang="scss" scoped>
+.doc-view {
+  .http-method {
+    height: auto !important;
+    line-height: 20px !important;
+  }
+  .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
+  .doc-modify-info { font-size: 12px;color: #909399 }
+  .doc-request-method {margin-bottom: 20px;color: #666;font-size: 14px;}
+}
 </style>
 
 <script>
@@ -99,6 +112,7 @@ export default {
         modifierName: '',
         gmtCreate: '',
         gmtModified: '',
+        pathParams: [],
         headerParams: [],
         requestParams: [],
         responseParams: [],
@@ -132,6 +146,7 @@ export default {
     },
     setData: function(data) {
       this.docInfo = data
+      this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.createResponseExample(data)
     },
     createResponseExample: function(data) {

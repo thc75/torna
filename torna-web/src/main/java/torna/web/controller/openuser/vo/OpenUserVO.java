@@ -1,4 +1,4 @@
-package torna.web.controller.admin.vo;
+package torna.web.controller.openuser.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;

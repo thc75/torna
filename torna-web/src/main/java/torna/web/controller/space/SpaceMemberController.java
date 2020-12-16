@@ -1,5 +1,6 @@
 package torna.web.controller.space;
 
+import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import torna.service.SpaceService;
 import torna.service.dto.SpaceUserInfoDTO;
 import torna.service.dto.UserInfoDTO;
 import torna.web.controller.space.param.SpaceMemberAddParam;
+import torna.web.controller.space.param.SpaceMemberPageParam;
 import torna.web.controller.space.param.SpaceMemberRemoveParam;
 import torna.web.controller.space.param.SpaceMemberUpdateParam;
 
@@ -46,13 +48,10 @@ public class SpaceMemberController {
      * 分页查询空间成员
      * @return
      */
-    @GetMapping("/page")
-    public Result<PageEasyui<SpaceUserInfoDTO>> page(
-            @HashId
-             Long spaceId
-            , @RequestParam(required = false) String username
-    ) {
-        PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(spaceId, username);
+    @PostMapping("/page")
+    public Result<PageEasyui<SpaceUserInfoDTO>> page(@Valid @RequestBody SpaceMemberPageParam param) {
+        Query query = param.toQuery();
+        PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), query);
         return Result.ok(pageSpaceUser);
     }
 

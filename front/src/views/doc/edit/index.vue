@@ -9,7 +9,7 @@
           :rules="rules"
           label-width="88px"
           size="mini"
-          style="width: 700px"
+          style="width: 800px"
         >
           <el-form-item prop="name" label="文档标题">
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit placeholder="文档名称" />
@@ -18,13 +18,23 @@
             <el-input v-model="docInfo.description" type="textarea" :rows="4" maxlength="200" show-word-limit placeholder="文档概述" />
           </el-form-item>
           <el-form-item prop="url" label="请求地址">
-            <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit placeholder="请求地址">
+            <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit placeholder="请求地址" @input="onUrlInput">
               <el-select slot="prepend" v-model="docInfo.httpMethod" placeholder="请选择" style="width: 100px;">
                 <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
                   {{ method }}
                 </el-option>
               </el-select>
             </el-input>
+            <edit-table
+              v-show="docInfo.url && docInfo.pathParams.length > 0"
+              ref="pathParamTable"
+              :data="docInfo.pathParams"
+              :module-id="moduleId"
+              name-label="Path参数"
+              :name-width="200"
+              :text-columns="['name']"
+              :hidden-columns="['required', 'maxLength', 'enum', 'opt']"
+            />
           </el-form-item>
           <el-form-item prop="contentType" label="ContentType">
             <el-select v-model="docInfo.contentType" :clearable="true" placeholder="请选择" style="width: 300px;">
@@ -34,7 +44,7 @@
             </el-select>
           </el-form-item>
           <el-form-item prop="parentId" label="所属分类">
-            <el-select v-model="docInfo.parentId" placeholder="请选择" style="width: 100%;">
+            <el-select v-model="docInfo.parentId" placeholder="请选择" style="width: 300px;">
               <el-option label="无" :value="0">无</el-option>
               <el-option v-for="item in folders" :key="item.id" :label="item.name" :value="item.id">
                 {{ item.name }}
@@ -156,6 +166,7 @@ export default {
         parentId: '',
         moduleId: '',
         isShow: 1,
+        pathParams: [],
         headerParams: [],
         requestParams: [],
         responseParams: [],
@@ -232,6 +243,34 @@ export default {
             this.alert(resp.msg)
           }
         })
+      }
+    },
+    onUrlInput(url) {
+      if (url && url.indexOf('{')) {
+        // 获取{}之间的字符
+        const params = url.match(/[^{]+(?=})/g)
+        if (params) {
+          const pathParams = this.docInfo.pathParams
+          const pathParamsNew = []
+          for (const paramName of params) {
+            let add = false
+            if (pathParams.length > 0) {
+              for (const pathParam of pathParams) {
+                if (pathParam.name === paramName) {
+                  pathParamsNew.push(pathParam)
+                  add = true
+                  break
+                }
+              }
+            }
+            if (!add) {
+              const row = this.getParamNewRow()
+              row.name = paramName
+              pathParamsNew.push(row)
+            }
+          }
+          this.docInfo.pathParams = pathParamsNew
+        }
       }
     },
     onParamAdd: function(row) {

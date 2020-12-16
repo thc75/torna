@@ -7,7 +7,8 @@ const state = {
   fixedHeader: fixedHeader,
   sidebarLogo: sidebarLogo,
   currentProject: '',
-  currentSpace: ''
+  currentSpace: '',
+  moduleId: ''
 }
 
 const mutations = {

@@ -26,14 +26,18 @@ export default {
     ...mapGetters([
       'sidebarView',
       'avatar'
-    ])
+    ]),
+    moduleId() {
+      return this.$store.state.settings.moduleId
+    }
   },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBarView')
     },
     goAdminPage() {
-      this.goRoute('/')
+      const uri = this.moduleId ? `/project/info/${this.moduleId}` : '/'
+      this.goRoute(uri)
     }
   }
 }

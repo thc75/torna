@@ -17,6 +17,7 @@ import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.Project;
 import torna.dao.entity.ProjectUser;
+import torna.dao.entity.UserInfo;
 import torna.dao.mapper.ProjectMapper;
 import torna.dao.mapper.ProjectUserMapper;
 import torna.service.dto.ProjectAddDTO;
@@ -27,6 +28,7 @@ import torna.service.dto.ProjectUserDTO;
 import torna.service.dto.UserInfoDTO;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,10 +164,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
      * @param roleEnum 项目角色
      * @return
      */
-    public PageEasyui<ProjectUserDTO> pageProjectUser(long projectId, String username, RoleEnum roleEnum) {
+    public List<ProjectUserDTO> pageProjectUser(long projectId, String username, RoleEnum roleEnum) {
         List<ProjectUser> spaceUsers = listProjectUser(projectId, roleEnum);
         if (CollectionUtils.isEmpty(spaceUsers)) {
-            return new PageEasyui<>();
+            return Collections.emptyList();
         }
         Map<Long, ProjectUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(ProjectUser::getUserId, Function.identity()));
@@ -175,14 +177,15 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         if (StringUtils.hasLength(username)) {
             query.like("username", username);
         }
-        PageEasyui<ProjectUserDTO> pageInfo = MapperUtil.queryForEasyuiDatagrid(userInfoService.getMapper(), query, ProjectUserDTO.class);
+        List<UserInfo> userInfos = userInfoService.listAll(query);
+        List<ProjectUserDTO> projectUserDTOList = CopyUtil.copyList(userInfos, ProjectUserDTO::new);
         // 设置添加时间
-        pageInfo.getRows().forEach(userInfoDTO -> {
+        projectUserDTOList.forEach(userInfoDTO -> {
             ProjectUser projectUser = userIdMap.get(userInfoDTO.getId());
             userInfoDTO.setGmtCreate(projectUser.getGmtCreate());
             userInfoDTO.setRoleCode(projectUser.getRoleCode());
         });
-        return pageInfo;
+        return projectUserDTOList;
     }
 
     /**

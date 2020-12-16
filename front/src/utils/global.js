@@ -212,6 +212,20 @@ Object.assign(Vue.prototype, {
     }
     return ret
   },
+  getRequestUrl(item) {
+    let url = item.url
+    if (!url) {
+      return ''
+    }
+    if (url.startsWith('/')) {
+      url = url.substring(1)
+    }
+    let baseUrl = item.baseUrl
+    if (baseUrl && baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.substring(0, baseUrl.length)
+    }
+    return `${baseUrl}/${url}`
+  },
   getParamNewRow: function(name, value) {
     return {
       id: paramIdGen++,

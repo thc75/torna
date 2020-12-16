@@ -1,4 +1,4 @@
-package torna.web.controller.admin;
+package torna.web.controller.openuser;
 
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.PageEasyui;
@@ -13,9 +13,10 @@ import torna.common.bean.Result;
 import torna.common.enums.StatusEnum;
 import torna.dao.entity.OpenUser;
 import torna.service.OpenUserService;
+import torna.web.controller.openuser.param.OpenUserAddParam;
+import torna.web.controller.openuser.param.OpenUserParam;
+import torna.web.controller.openuser.vo.OpenUserVO;
 import torna.web.controller.system.param.IdParam;
-import torna.web.controller.admin.param.OpenUserParam;
-import torna.web.controller.admin.vo.OpenUserVO;
 
 import javax.validation.Valid;
 
@@ -24,7 +25,7 @@ import javax.validation.Valid;
  * @author tanghc
  */
 @RestController
-@RequestMapping("admin/openuser")
+@RequestMapping("openuser")
 public class OpenUserController {
 
     @Autowired
@@ -33,16 +34,16 @@ public class OpenUserController {
     /**
      * 分页查询
      */
-    @GetMapping("page")
-    public Result<PageEasyui<OpenUserVO>> page(OpenUserParam param) {
+    @PostMapping("page")
+    public Result<PageEasyui<OpenUserVO>> page(@RequestBody OpenUserParam param) {
         Query query = Query.build(param);
         PageEasyui<OpenUserVO> pageEasyui = MapperUtil.queryForEasyuiDatagrid(openUserService.getMapper(), query, OpenUserVO.class);
         return Result.ok(pageEasyui);
     }
 
     @PostMapping("add")
-    public Result resetSecret() {
-        openUserService.createOpenUser();
+    public Result resetSecret(@RequestBody OpenUserAddParam param) {
+        openUserService.createOpenUser(param.getSpaceId());
         return Result.ok();
     }
 

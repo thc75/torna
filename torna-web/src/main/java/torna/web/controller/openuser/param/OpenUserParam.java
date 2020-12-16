@@ -1,8 +1,12 @@
-package torna.web.controller.admin.param;
+package torna.web.controller.openuser.param;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.fastmybatis.core.query.annotation.Condition;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import lombok.Data;
+import torna.common.support.IdCodec;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 表名：open_user
@@ -12,6 +16,10 @@ import lombok.Data;
  */
 @Data
 public class OpenUserParam extends PageParam {
+
+    @NotNull
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long spaceId;
 
     /** appKey, 数据库字段：app_key */
     @Condition(ignoreEmptyString = true)

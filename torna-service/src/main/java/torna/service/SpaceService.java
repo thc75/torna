@@ -107,22 +107,18 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     /**
      * 获取空间下的用户
      * @param spaceId 空间id
-     * @param username 登录名
+     * @param query 查询条件
      * @return
      */
-    public PageEasyui<SpaceUserInfoDTO> pageSpaceUser(long spaceId, String username) {
+    public PageEasyui<SpaceUserInfoDTO> pageSpaceUser(Long spaceId, Query query) {
         List<SpaceUser> spaceUsers = listSpaceUser(spaceId);
         if (CollectionUtils.isEmpty(spaceUsers)) {
             return new PageEasyui<>();
         }
         Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
-        Query query = new Query()
-                .in("id", userIdMap.keySet())
+        query.in("id", userIdMap.keySet())
                 .orderby("id", Sort.DESC);
-        if (StringUtils.hasLength(username)) {
-            query.like("username", username);
-        }
         PageEasyui<SpaceUserInfoDTO> pageInfo = MapperUtil.queryForEasyuiDatagrid(userInfoService.getMapper(), query, SpaceUserInfoDTO.class);
         // 设置添加时间
         pageInfo.getRows().forEach(userInfoDTO -> {
@@ -203,7 +199,10 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .collect(Collectors.toList());
     }
 
-    public List<SpaceUser> listSpaceUser(long spaceId) {
+    public List<SpaceUser> listSpaceUser(Long spaceId) {
+        if (spaceId == null) {
+            return Collections.emptyList();
+        }
         return spaceUserMapper.listByColumn("space_id", spaceId);
     }
 

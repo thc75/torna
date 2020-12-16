@@ -26,7 +26,7 @@
       添加成员
     </el-button>
     <el-table
-      :data="pageInfo.rows"
+      :data="userData"
       border
       highlight-current-row
     >
@@ -88,17 +88,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      background
-      style="margin-top: 5px"
-      :current-page="searchFormData.pageIndex"
-      :page-size="searchFormData.pageSize"
-      :page-sizes="[5, 10, 20, 40]"
-      :total="pageInfo.total"
-      layout="total, sizes, prev, pager, next"
-      @size-change="onSizeChange"
-      @current-change="onPageIndexChange"
-    />
 <!--    -->
     <el-dialog
       v-if="hasRole(`project:${projectId}`, Role.admin)"
@@ -151,14 +140,9 @@ export default {
       searchFormData: {
         username: '',
         roleCode: '',
-        projectId: '',
-        pageIndex: 1,
-        pageSize: 20
+        projectId: ''
       },
-      pageInfo: {
-        rows: [],
-        total: 0
-      },
+      userData: [],
       memberAddDlgShow: false,
       memberAddFormData: {
         roleCode: ''
@@ -180,8 +164,8 @@ export default {
   },
   methods: {
     loadTable() {
-      this.get('/project/member/page', this.searchFormData, resp => {
-        this.pageInfo = resp.data
+      this.get('/project/member/list', this.searchFormData, resp => {
+        this.userData = resp.data
       })
     },
     onRoleChange(row) {

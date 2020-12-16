@@ -62,6 +62,7 @@
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
       label="最大长度"
+      width="80"
     />
     <el-table-column
       v-if="isColumnShow('description')"

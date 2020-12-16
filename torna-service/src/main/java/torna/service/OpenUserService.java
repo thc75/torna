@@ -25,10 +25,11 @@ public class OpenUserService extends BaseService<OpenUser, OpenUserMapper> {
         return this.get("app_key", appKey);
     }
 
-    public void createOpenUser() {
+    public void createOpenUser(long spaceId) {
         OpenUser openUser = new OpenUser();
         openUser.setAppKey(AppKeyUtil.createAppKey());
         openUser.setSecret(createSecret());
+        openUser.setSpaceId(spaceId);
         this.save(openUser);
     }
 

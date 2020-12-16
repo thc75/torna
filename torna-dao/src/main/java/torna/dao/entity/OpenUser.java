@@ -36,6 +36,9 @@ public class OpenUser {
     /** 备注, 数据库字段：remark */
     private String remark;
 
+    /** space.id, 数据库字段：space_id */
+    private Long spaceId;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
