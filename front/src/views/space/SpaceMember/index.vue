@@ -68,7 +68,7 @@
         <template slot-scope="scope">
           <el-popconfirm
             v-if="!isSelf(scope.row.id)"
-            :title="`确定要移除 ${scope.row.nickname}(${scope.row.username}) 吗？`"
+            :title="`确定要移除 ${scope.row.nickname} 吗？`"
             @onConfirm="onMemberRemove(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">移除</el-link>
