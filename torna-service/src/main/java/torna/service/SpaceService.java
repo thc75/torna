@@ -58,7 +58,6 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         space.setCreatorName(spaceAddDTO.getCreatorName());
         space.setModifierId(spaceAddDTO.getCreatorId());
         space.setModifierName(spaceAddDTO.getCreatorName());
-        space.setIsDefault(spaceAddDTO.getIsDefault());
         this.save(space);
 
         // 添加管理员
