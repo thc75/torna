@@ -6,7 +6,7 @@
         可通过接口调用方式操作文档，第三方App以此来更新文档内容。
       </div>
       <h3>使用步骤</h3>
-      <p>1、找到超级管理员索要AppKey和Secret</p>
+      <p>1、找到空间管理员索要AppKey和Secret</p>
       <p>2、项目依赖SDK，使用SDK中的API调用接口</p>
     </div>
     <el-form class="text-form token-form" label-width="120px">
@@ -14,7 +14,7 @@
         {{ `${getBaseUrl()}/api` }}
       </el-form-item>
       <el-form-item label="AppKey/Secret">
-        超级管理员提供
+        空间管理员提供
       </el-form-item>
       <el-form-item label="token">
         {{ token }}
