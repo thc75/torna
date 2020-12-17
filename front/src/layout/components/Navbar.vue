@@ -10,9 +10,6 @@
       <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="right-menu">
-      <div v-if="isSuperAdmin()" class="right-menu-item">
-        <admin-menu />
-      </div>
       <div class="right-menu-item">
         <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
       </div>
