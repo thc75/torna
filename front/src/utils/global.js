@@ -269,9 +269,10 @@ Object.assign(Vue.prototype, {
     return this.getAttr(SPACE_ID_KEY)
   },
   setAttr: function(key, val) {
-    if (val) {
-      localStorage.setItem(key, val + '')
+    if (val === undefined) {
+      val = ''
     }
+    localStorage.setItem(key, val + '')
   },
   getAttr: function(key) {
     return localStorage.getItem(key)

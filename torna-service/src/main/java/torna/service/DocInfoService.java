@@ -11,6 +11,7 @@ import torna.common.enums.ParamStyleEnum;
 import torna.common.exception.BizException;
 import torna.common.support.BaseService;
 import torna.common.util.CopyUtil;
+import torna.common.util.ThreadPoolUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
 import torna.dao.entity.ModuleConfig;
@@ -36,6 +37,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private ModuleConfigService moduleConfigService;
+
+    @Autowired
+    private DocSnapshotService docSnapshotService;
 
     public List<DocInfo> listDocMenu(long moduleId) {
         return list("module_id", moduleId);
@@ -125,7 +129,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
         docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
         docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
+        // 保存本次修改快照
+        this.saveSnapshot(docInfo.getId());
         return docInfo;
+    }
+
+    private void saveSnapshot(long docId) {
+        ThreadPoolUtil.execute(() -> {
+            DocInfoDTO docDetail = getDocDetail(docId);
+            docSnapshotService.saveDocSnapshot(docDetail);
+        });
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {

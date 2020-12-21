@@ -3,7 +3,7 @@
     <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
-        <span style="font-size: 14px;color: #8d8d8d">文档ID：<span>{{ docInfo.id }}</span></span>
+        <el-link type="primary" :underline="false" style="margin-left: 10px">变更历史</el-link>
       </h2>
       <span class="doc-modify-info">
         {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
