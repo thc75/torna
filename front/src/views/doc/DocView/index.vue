@@ -3,7 +3,7 @@
     <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
-        <el-link type="primary" :underline="false" style="margin-left: 10px" @click="onShowHistory">变更历史</el-link>
+        <el-link v-if="showHistory" type="primary" :underline="false" style="margin-left: 10px" @click="onShowHistory">变更历史</el-link>
       </h2>
       <span class="doc-modify-info">
         {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
@@ -93,6 +93,10 @@ export default {
     docInfoString: {
       type: String,
       default: '{}'
+    },
+    showHistory: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
