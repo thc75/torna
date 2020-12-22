@@ -18,7 +18,7 @@
         </div>
         <doc-compare-view ref="oldView" />
       </el-col>
-      <el-col :span="10">
+      <el-col v-show="treeData.length > 0" :span="10">
         <div class="version-title" :class="{ 'has-fixed': needFix }">
           <el-alert title="当前版本" type="info" effect="dark" :closable="false" />
         </div>
@@ -42,6 +42,7 @@
 </style>
 <script>
 import DocCompareView from '../DocCompareView'
+import md5 from 'js-md5'
 
 export default {
   name: 'DocCompare',
@@ -55,6 +56,7 @@ export default {
   data() {
     return {
       treeData: [],
+      currentData: {},
       defaultProps: {
         children: 'children',
         label: 'modifierTime'
@@ -80,8 +82,8 @@ export default {
     },
     loadData(docId) {
       if (docId) {
-        this.loadTree(docId)
         this.$refs.currentView.loadData(docId)
+        this.loadTree(docId)
       }
     },
     loadTree(docId) {
@@ -107,9 +109,51 @@ export default {
         docInfo.requestParams = this.convertTree(docInfo.requestParams)
         docInfo.responseParams = this.convertTree(docInfo.responseParams)
         this.$refs.oldView.setData(docInfo)
-        // compare
-        this.$refs.currentView.compare(docInfo)
+        const oldData = this.$refs.oldView.getData()
+        const currentData = this.$refs.currentView.getData()
+        this.compare(oldData, currentData)
       })
+    },
+    compare(otherData, currentData) {
+      this.compareParams(otherData.pathParams, currentData.pathParams)
+      this.compareParams(otherData.headerParams, currentData.headerParams)
+      this.compareParams(otherData.requestParams, currentData.requestParams)
+      this.compareParams(otherData.responseParams, currentData.responseParams)
+      this.compareParams(otherData.errorCodeParams, currentData.errorCodeParams)
+    },
+    compareParams(otherParams, thisParams) {
+      const thisJson = {}
+      for (const thisParam of thisParams) {
+        // this.setChanged(thisParam)
+        thisJson[thisParam.id] = thisParam
+      }
+      for (const otherParam of otherParams) {
+        const thisParam = thisJson[otherParam.id]
+        // 如果没找到，表示已删除
+        if (!thisParam) {
+          this.setChanged(otherParam)
+        } else {
+          const otherMd5 = md5(this.buildParamContent(otherParam))
+          const thisMd5 = md5(this.buildParamContent(thisParam))
+          if (otherMd5 !== thisMd5) {
+            this.setChanged(otherParam)
+            this.setChanged(thisParam)
+          }
+          const otherChildren = otherParam.children || []
+          const thisChildren = thisParam.children || []
+          if (otherChildren.length > 0 && thisChildren.length > 0) {
+            this.compareParams(otherChildren, thisChildren)
+          }
+        }
+      }
+    },
+    buildParamContent(param) {
+      return `${param.name}:${param.type}:${param.required}:${param.description}:${param.example}`
+    },
+    setChanged(obj) {
+      if (obj) {
+        obj._changed = true
+      }
     }
   }
 }

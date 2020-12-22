@@ -64,7 +64,6 @@
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
-import md5 from 'js-md5'
 
 export default {
   name: 'DocCompareView',
@@ -100,7 +99,7 @@ export default {
       commonResult: [],
       docBaseInfoData: [],
       docInfo: {
-        docId: '',
+        id: '',
         name: '',
         url: '',
         contentType: '',
@@ -151,46 +150,6 @@ export default {
     },
     getData() {
       return this.docInfo
-    },
-    compare(otherData) {
-      this.compareParams(otherData.pathParams, this.docInfo.pathParams)
-      this.compareParams(otherData.headerParams, this.docInfo.headerParams)
-      this.compareParams(otherData.requestParams, this.docInfo.requestParams)
-      this.compareParams(otherData.responseParams, this.docInfo.responseParams)
-      this.compareParams(otherData.errorCodeParams, this.docInfo.errorCodeParams)
-    },
-    compareParams(otherParams, thisParams) {
-      const thisJson = {}
-      for (const thisParam of thisParams) {
-        thisJson[thisParam.id] = thisParam
-      }
-      for (const otherParam of otherParams) {
-        const thisParam = thisJson[otherParam.id]
-        // 如果没找到，表示已删除
-        if (!thisParam) {
-          this.setChanged(otherParam)
-        } else {
-          const otherMd5 = md5(this.buildParamContent(otherParam))
-          const thisMd5 = md5(this.buildParamContent(thisParam))
-          if (otherMd5 !== thisMd5) {
-            this.setChanged(otherParam)
-            this.setChanged(thisParam)
-          }
-          const otherChildren = otherParam.children || []
-          const thisChildren = thisParam.children || []
-          if (otherChildren.length > 0 && thisChildren.length > 0) {
-            this.compareParams(otherChildren, thisChildren)
-          }
-        }
-      }
-    },
-    buildParamContent(param) {
-      return `${param.name}:${param.type}:${param.required}:${param.description}:${param.example}`
-    },
-    setChanged(obj) {
-      if (obj) {
-        obj._changed = true
-      }
     },
     createResponseExample: function(data) {
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
