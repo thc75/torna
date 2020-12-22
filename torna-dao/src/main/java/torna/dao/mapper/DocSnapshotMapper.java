@@ -13,7 +13,7 @@ import java.util.List;
 public interface DocSnapshotMapper extends CrudMapper<DocSnapshot, Long> {
 
     @Select("SELECT id, modifier_name modifierName, modifier_time modifierTime " +
-            "FROM doc_snapshot WHERE doc_id=#{docId} LIMIT 10 ORDER BY id DESC")
+            "FROM doc_snapshot WHERE doc_id=#{docId} ORDER BY id DESC LIMIT 100")
     @ResultType(DocSnapshot.class)
     List<DocSnapshot> listDocSnapshotBaseInfo(long docId);
 	

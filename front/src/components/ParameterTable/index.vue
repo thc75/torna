@@ -76,7 +76,11 @@
     />
   </el-table>
 </template>
-
+<style>
+.el-table .warning-row {
+  background: oldlace;
+}
+</style>
 <script>
 import EnumItemView from '../EnumItemView'
 export default {
@@ -118,6 +122,9 @@ export default {
       if (row.isDeleted) {
         row.hidden = true
         return 'hidden-row'
+      }
+      if (row._changed) {
+        return 'warning-row'
       }
       return ''
     },

@@ -3,7 +3,6 @@
     <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
-        <el-link type="primary" :underline="false" style="margin-left: 10px" @click="onShowHistory">变更历史</el-link>
       </h2>
       <span class="doc-modify-info">
         {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
@@ -48,14 +47,6 @@
       description-label="错误描述"
       example-label="解决方案"
     />
-    <el-dialog
-      ref="historyDlg"
-      title="变更历史"
-      :visible.sync="historyShow"
-      fullscreen
-    >
-      <doc-compare :doc-id="historyDocId" />
-    </el-dialog>
   </div>
 </template>
 
@@ -73,10 +64,11 @@
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
-import DocCompare from '../DocCompare'
+import md5 from 'js-md5'
+
 export default {
-  name: 'DocView',
-  components: { ParameterTable, DocCompare },
+  name: 'DocCompareView',
+  components: { ParameterTable },
   props: {
     docId: {
       type: String,
@@ -108,7 +100,7 @@ export default {
       commonResult: [],
       docBaseInfoData: [],
       docInfo: {
-        id: '',
+        docId: '',
         name: '',
         url: '',
         contentType: '',
@@ -128,9 +120,7 @@ export default {
         errorCodeParams: [],
         folders: []
       },
-      responseSuccessExample: {},
-      historyShow: false,
-      historyDocId: ''
+      responseSuccessExample: {}
     }
   },
   watch: {
@@ -157,17 +147,53 @@ export default {
     },
     setData: function(data) {
       this.docInfo = data
-      this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.createResponseExample(data)
+    },
+    getData() {
+      return this.docInfo
+    },
+    compare(otherData) {
+      this.compareParams(otherData.pathParams, this.docInfo.pathParams)
+      this.compareParams(otherData.headerParams, this.docInfo.headerParams)
+      this.compareParams(otherData.requestParams, this.docInfo.requestParams)
+      this.compareParams(otherData.responseParams, this.docInfo.responseParams)
+      this.compareParams(otherData.errorCodeParams, this.docInfo.errorCodeParams)
+    },
+    compareParams(otherParams, thisParams) {
+      const thisJson = {}
+      for (const thisParam of thisParams) {
+        thisJson[thisParam.id] = thisParam
+      }
+      for (const otherParam of otherParams) {
+        const thisParam = thisJson[otherParam.id]
+        // 如果没找到，表示已删除
+        if (!thisParam) {
+          this.setChanged(otherParam)
+        } else {
+          const otherMd5 = md5(this.buildParamContent(otherParam))
+          const thisMd5 = md5(this.buildParamContent(thisParam))
+          if (otherMd5 !== thisMd5) {
+            this.setChanged(otherParam)
+            this.setChanged(thisParam)
+          }
+          const otherChildren = otherParam.children || []
+          const thisChildren = thisParam.children || []
+          if (otherChildren.length > 0 && thisChildren.length > 0) {
+            this.compareParams(otherChildren, thisChildren)
+          }
+        }
+      }
+    },
+    buildParamContent(param) {
+      return `${param.name}:${param.type}:${param.required}:${param.description}:${param.example}`
+    },
+    setChanged(obj) {
+      if (obj) {
+        obj._changed = true
+      }
     },
     createResponseExample: function(data) {
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
-    },
-    onShowHistory() {
-      this.historyShow = true
-      this.$nextTick(() => {
-        this.historyDocId = this.docInfo.id
-      })
     }
   }
 }

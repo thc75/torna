@@ -53,7 +53,7 @@ export function processEmail(email, callback) {
     const url = getEmailSite(domain)
     callback(url)
   } catch (e) {
-    console.log('解析邮箱失败, email:' + email, e)
+    console.error('解析邮箱失败, email:' + email, e)
   }
 }
 

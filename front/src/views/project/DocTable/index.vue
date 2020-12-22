@@ -56,7 +56,9 @@
         width="80"
       >
         <template slot-scope="scope">
-          <el-button v-if="isDoc(scope.row)" type="text" icon="el-icon-view" @click="onDocView(scope.row)">预览</el-button>
+          <router-link :to="`/view/doc/${scope.row.id}`" target="_blank">
+            <el-button v-if="isDoc(scope.row)" type="text" icon="el-icon-view">预览</el-button>
+          </router-link>
         </template>
       </el-table-column>
       <el-table-column
@@ -81,20 +83,11 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-      title="预览"
-      :visible.sync="viewDialogVisible"
-      width="70%"
-    >
-      <doc-view ref="docView" />
-    </el-dialog>
   </div>
 </template>
 <script>
-import DocView from '../../doc/DocView'
 export default {
   name: 'DocTable',
-  components: { DocView },
   props: {
     moduleId: {
       type: String,
@@ -108,8 +101,7 @@ export default {
   data() {
     return {
       tableData: [],
-      tableSearch: '',
-      viewDialogVisible: false
+      tableSearch: ''
     }
   },
   watch: {
@@ -213,12 +205,6 @@ export default {
       } else {
         this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
       }
-    },
-    onDocView: function(row) {
-      this.viewDialogVisible = true
-      this.$nextTick(() => {
-        this.$refs.docView.loadData(row.id)
-      })
     }
   }
 }

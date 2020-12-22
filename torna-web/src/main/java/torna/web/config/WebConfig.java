@@ -1,5 +1,6 @@
 package torna.web.config;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import torna.common.context.SpringContext;
 import torna.common.support.HashIdParamResolver;
+import torna.common.util.FastjsonUtil;
 import torna.web.interceptor.AdminInterceptor;
 import torna.web.interceptor.LoginInterceptor;
 
@@ -66,9 +68,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     public HttpMessageConverters fastJsonConfigure(){
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
-        fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteNullStringAsEmpty, SerializerFeature.WriteMapNullValue);
+        fastJsonConfig.setSerializerFeatures(FastjsonUtil.SERIALIZER_FEATURES);
         // 日期格式化
-        fastJsonConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
+        fastJsonConfig.setDateFormat(FastjsonUtil.DATE_FORMAT);
         converter.setFastJsonConfig(fastJsonConfig);
         return new HttpMessageConverters(converter);
     }

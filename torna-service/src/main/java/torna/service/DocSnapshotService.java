@@ -1,11 +1,10 @@
 package torna.service;
 
-import com.alibaba.fastjson.JSON;
+import org.springframework.stereotype.Service;
 import torna.common.support.BaseService;
+import torna.common.util.FastjsonUtil;
 import torna.dao.entity.DocSnapshot;
 import torna.dao.mapper.DocSnapshotMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import torna.service.dto.DocInfoDTO;
 
 import java.util.List;
@@ -25,11 +24,12 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
      * @param docInfoDTO 文档
      */
     public void saveDocSnapshot(DocInfoDTO docInfoDTO) {
+        String content = FastjsonUtil.toJSONString(docInfoDTO);
         DocSnapshot docSnapshot = new DocSnapshot();
         docSnapshot.setDocId(docInfoDTO.getId());
         docSnapshot.setModifierName(docInfoDTO.getModifierName());
         docSnapshot.setModifierTime(docInfoDTO.getGmtModified());
-        docSnapshot.setContent(JSON.toJSONString(docInfoDTO));
+        docSnapshot.setContent(content);
         this.save(docSnapshot);
     }
 

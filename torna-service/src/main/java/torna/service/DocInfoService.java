@@ -121,6 +121,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     @Transactional(rollbackFor = Exception.class)
     public DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+        // 保存上一次的快照
+        this.saveOldSnapshot(docInfoDTO);
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
@@ -129,15 +131,24 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
         docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
         docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
-        // 保存本次修改快照
-        this.saveSnapshot(docInfo.getId());
         return docInfo;
     }
 
-    private void saveSnapshot(long docId) {
+    private void saveOldSnapshot(DocInfoDTO docInfoDTO) {
+        DocInfo docInfo;
+        Long id = docInfoDTO.getId();
+        String dataId = docInfoDTO.buildDataId();
+        if (id != null) {
+            docInfo = getById(id);
+        } else {
+            docInfo = getByDataId(dataId);
+        }
+        if (docInfo == null) {
+            return;
+        }
         ThreadPoolUtil.execute(() -> {
-            DocInfoDTO docDetail = getDocDetail(docId);
-            docSnapshotService.saveDocSnapshot(docDetail);
+            DocInfoDTO detail = this.getDocDetail(docInfo);
+            docSnapshotService.saveDocSnapshot(detail);
         });
     }
 
