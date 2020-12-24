@@ -54,7 +54,7 @@
       :visible.sync="historyShow"
       fullscreen
     >
-      <doc-compare :doc-id="historyDocId" />
+      <doc-diff :doc-info="currentDocInfo" />
     </el-dialog>
   </div>
 </template>
@@ -73,10 +73,10 @@
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
-import DocCompare from '../DocCompare'
+import DocDiff from '../DocDiff'
 export default {
   name: 'DocView',
-  components: { ParameterTable, DocCompare },
+  components: { ParameterTable, DocDiff },
   props: {
     docId: {
       type: String,
@@ -111,6 +111,7 @@ export default {
       commonParams: [],
       commonResult: [],
       docBaseInfoData: [],
+      currentDocInfo: {},
       docInfo: {
         id: '',
         name: '',
@@ -170,6 +171,7 @@ export default {
     onShowHistory() {
       this.historyShow = true
       this.$nextTick(() => {
+        this.currentDocInfo = this.docInfo
         this.historyDocId = this.docInfo.id
       })
     }
