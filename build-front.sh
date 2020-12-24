@@ -16,6 +16,9 @@ rm -rf $target_dir/*
 
 # 先执行前端构建
 cd front
+
+npm install
+
 sh build.sh
 
 cd ..
