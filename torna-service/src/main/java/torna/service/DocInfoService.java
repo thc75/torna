@@ -75,6 +75,19 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return getDocDetail(docInfo);
     }
 
+    /**
+     * 返回模块下所有文档详情
+     * @param moduleId 模块id
+     * @return 返回文档详情
+     */
+    public List<DocInfoDTO> listDocDetail(long moduleId) {
+        List<DocInfo> docInfos = this.list("module_id", moduleId);
+        return docInfos.stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+    }
+
+
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);

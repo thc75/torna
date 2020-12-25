@@ -1,16 +1,20 @@
 package torna.service;
 
 import com.gitee.fastmybatis.core.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import torna.common.bean.Booleans;
 import torna.common.bean.User;
 import torna.common.enums.ModuleTypeEnum;
 import torna.common.support.BaseService;
+import torna.common.util.CopyUtil;
 import torna.common.util.GenerateUtil;
 import torna.dao.entity.Module;
 import torna.dao.mapper.ModuleMapper;
+import torna.service.dto.DocInfoDTO;
 import torna.service.dto.ImportSwaggerDTO;
+import torna.service.dto.ModuleDTO;
 
 import java.util.List;
 
@@ -19,6 +23,17 @@ import java.util.List;
  */
 @Service
 public class ModuleService extends BaseService<Module, ModuleMapper> {
+
+    @Autowired
+    private DocInfoService docInfoService;
+
+    public ModuleDTO getModuleDTO(long moduleId) {
+        Module module = getById(moduleId);
+        ModuleDTO moduleDTO = CopyUtil.copyBean(module, ModuleDTO::new);
+        List<DocInfoDTO> docInfoDTOS = docInfoService.listDocDetail(moduleId);
+        moduleDTO.setDocInfoList(docInfoDTOS);
+        return moduleDTO;
+    }
 
     public List<Module> listProjectModules(long projectId) {
         return list("project_id", projectId);

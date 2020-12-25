@@ -10,17 +10,34 @@
           <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">新建分类</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-tooltip placement="top" content="刷新表格">
-        <el-button type="primary" size="mini" icon="el-icon-refresh" style="float: right;margin-left: 10px;" @click="refreshTable" />
-      </el-tooltip>
-      <el-input
-        v-model="tableSearch"
-        prefix-icon="el-icon-search"
-        clearable
-        size="mini"
-        placeholder="过滤: 支持ID、名称、路径"
-        style="width: 300px;float: right;margin-bottom: 10px;"
-      />
+      <div class="table-right">
+        <div class="table-right-item">
+          <el-input
+            v-model="tableSearch"
+            prefix-icon="el-icon-search"
+            clearable
+            size="mini"
+            placeholder="过滤: 支持ID、名称、路径"
+            style="width: 300px;"
+          />
+        </div>
+        <div class="table-right-item">
+          <el-tooltip placement="top" content="刷新表格">
+            <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
+          </el-tooltip>
+        </div>
+        <div class="table-right-item">
+          <el-dropdown v-show="tableData.length > 0" trigger="click" @command="handleCommand">
+            <el-button type="primary" size="mini">
+              导出 <i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-document" :command="onExportMarkdownSinglePage">导出markdown(单页)</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-document" :command="onExportMarkdownMultiPages">导出markdown(多页)</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+      </div>
     </div>
     <el-table
       :data="tableData"
@@ -35,20 +52,29 @@
       <el-table-column
         prop="name"
         label="文档名称"
-      />
+      >
+        <template slot-scope="scope">
+          {{ scope.row.name }}
+          <el-tag
+            v-if="!scope.row.isShow"
+            type="warning"
+            disable-transitions>
+            隐藏
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="url"
         label="请求路径"
-      />
-      <el-table-column
-        label="是否显示"
-        width="80"
       >
         <template slot-scope="scope">
-          <div v-if="isDoc(scope.row)">
-            <span v-if="scope.row.isShow">是</span>
-            <span v-else class="danger">否</span>
-          </div>
+          <el-tag
+            v-if="scope.row.url"
+            :type="getTagType(scope.row)"
+            disable-transitions>
+            {{ scope.row.httpMethod }}
+          </el-tag>
+          <span style="margin-left: 5px;">{{ scope.row.url }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -56,7 +82,7 @@
         width="80"
       >
         <template slot-scope="scope">
-          <router-link :to="`/view/doc/${scope.row.id}`" target="_blank">
+          <router-link v-if="scope.row.isShow" :to="`/view/doc/${scope.row.id}`" target="_blank">
             <el-button v-if="isDoc(scope.row)" type="text" icon="el-icon-view">预览</el-button>
           </router-link>
         </template>
@@ -85,7 +111,35 @@
     </el-table>
   </div>
 </template>
+<style lang="scss">
+.table-right {
+  float: right;
+  margin-bottom: 10px;
+  .table-right-item {
+    display: inline-block;
+    //margin-left: 4px;
+  }
+}
+
+.cell .el-tag {
+  height: inherit !important;
+  padding: 0 4px !important;
+  line-height: inherit !important;
+}
+</style>
 <script>
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
+import MarkdownUtil from '@/utils/markdown'
+
+const tagMap = {
+  'GET': 'info',
+  'POST': '',
+  'PUT': 'warning',
+  'DELETE': 'danger',
+  'HEAD': 'success'
+}
+
 export default {
   name: 'DocTable',
   props: {
@@ -120,10 +174,12 @@ export default {
     },
     loadTable: function(moduleId, callback) {
       this.get('/doc/list', { moduleId: moduleId }, function(resp) {
-        const data = resp.data
-        this.tableData = this.convertTree(data)
+        this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
       })
+    },
+    getTagType(row) {
+      return tagMap[row.httpMethod] || ''
     },
     onFolderUpdate(row) {
       this.$prompt('请输入分类名称', '修改分类', {
@@ -205,6 +261,68 @@ export default {
       } else {
         this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
       }
+    },
+    onExportMarkdownSinglePage() {
+      this.get('/module/detail', { moduleId: this.moduleId }, resp => {
+        const moduleDTO = resp.data
+        const docInfoList = moduleDTO.docInfoList
+        const treeData = this.convertTree(docInfoList)
+        const markdown_content = []
+        const appendMarkdown = (doc_info) => {
+          this.initDocInfo(doc_info)
+          const markdown = MarkdownUtil.toMarkdown(doc_info)
+          if (markdown_content.length > 0) {
+            markdown_content.push('\n---\n')
+          }
+          markdown_content.push(markdown)
+        }
+        treeData.forEach(docInfo => {
+          const children = docInfo.children
+          const isFolder = children && children.length > 0
+          if (isFolder) {
+            children.forEach(child => {
+              appendMarkdown(child)
+            })
+          } else {
+            appendMarkdown(docInfo)
+          }
+        })
+        const markdownContent = markdown_content.join('')
+        this.downloadText(`${moduleDTO.name}-${new Date().getTime()}.md`, markdownContent)
+      })
+    },
+    onExportMarkdownMultiPages() {
+      const zip = new JSZip()
+      this.get('/module/detail', { moduleId: this.moduleId }, resp => {
+        const moduleDTO = resp.data
+        const docInfoList = moduleDTO.docInfoList
+        const treeData = this.convertTree(docInfoList)
+        const appendFile = (zip, doc_info) => {
+          this.initDocInfo(doc_info)
+          const markdown = MarkdownUtil.toMarkdown(doc_info)
+          zip.file(`${doc_info.name}.md`, markdown)
+        }
+        treeData.forEach(docInfo => {
+          const children = docInfo.children
+          const isFolder = children && children.length > 0
+          if (isFolder) {
+            // 创建文件夹
+            const folderZip = zip.folder(docInfo.name)
+            children.forEach(child => {
+              // 文件放入文件夹中
+              appendFile(folderZip, child)
+            })
+          } else {
+            appendFile(zip, docInfo)
+          }
+        })
+        // 下载
+        zip.generateAsync({ type: 'blob' }).then(function(content) {
+          const zipFile = `${moduleDTO.name}-${new Date().getTime()}.zip`
+          // see FileSaver.js
+          saveAs(content, zipFile)
+        })
+      })
     }
   }
 }

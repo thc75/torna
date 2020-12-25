@@ -1,8 +1,9 @@
 <template>
   <div>
     <el-container>
-      <el-aside width="200px">
-        <ul class="module-menu el-menu">
+      <el-aside :width="sidebarOpen ? '200px' : '40px'">
+        <hamburger :is-active="sidebarOpen" class="hamburger-container" @toggleClick="toggleSideBar" />
+        <ul v-show="sidebarOpen" class="module-menu el-menu">
           <li class="el-submenu is-active is-opened">
             <div class="el-submenu__title" style="padding-left: 20px;">
               <span slot="title">
@@ -57,7 +58,10 @@
     <import-swagger-dialog ref="importSwaggerDlg" :project-id="projectId" :success="reload" />
   </div>
 </template>
-<style>
+<style lang="scss">
+.hamburger-container {
+  cursor: pointer;
+}
 .module-menu .el-submenu__title {
   height: 36px;
   line-height: 36px;
@@ -78,14 +82,16 @@
 }
 </style>
 <script>
+import Hamburger from '@/components/Hamburger'
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
 
-const current_moddule_key = 'torna-module-'
+const current_module_key = 'torna-module-'
+const sidebar_key = 'torna-projectsidebar-'
 
 export default {
   name: 'Module',
-  components: { DocInfo, ImportSwaggerDialog },
+  components: { Hamburger, DocInfo, ImportSwaggerDialog },
   props: {
     projectId: {
       type: String,
@@ -96,6 +102,7 @@ export default {
     return {
       module: '',
       moduleData: [],
+      sidebarOpen: true,
       refreshSwaggerLoading: false
     }
   },
@@ -108,8 +115,21 @@ export default {
     reload() {
       this.loadModule(this.projectId)
     },
+    toggleSideBar() {
+      this.setSidebarStatus(!this.sidebarOpen)
+    },
+    setSidebarStatus(open) {
+      this.sidebarOpen = open
+      this.setAttr(`${sidebar_key}${this.projectId}`, open)
+    },
+    initSidebarStatus(projectId) {
+      const opened = this.getAttr(`${sidebar_key}${projectId}`)
+      const sidebarOpen = opened ? opened === 'true' : true
+      this.setSidebarStatus(sidebarOpen)
+    },
     loadModule: function(projectId) {
       if (projectId) {
+        this.initSidebarStatus(projectId)
         this.get('/module/list', { projectId: projectId }, function(resp) {
           this.moduleData = resp.data
           const cacheModuleId = this.getCacheModuleId()
@@ -136,7 +156,7 @@ export default {
       this.setCurrentModule(item)
     },
     getCurrentModuleKey() {
-      return current_moddule_key + this.projectId
+      return current_module_key + this.projectId
     },
     setCurrentModule(item) {
       this.setAttr(this.getCurrentModuleKey(), item.id)

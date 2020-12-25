@@ -1,4 +1,5 @@
 import { Enums } from './enums'
+import { createResponseExample } from './common'
 
 const split_char = ' | '
 
@@ -90,6 +91,9 @@ function createTrContent(params, rowConfig, prefix) {
 }
 
 function createTable(params, style) {
+  if (!params || params.length === 0) {
+    return '无'
+  }
   const rowConfig = style_config[style + '']
   if (!rowConfig) {
     return ''
@@ -106,6 +110,10 @@ const MarkdownUtil = {
     const html = []
     const append = (str) => {
       html.push(`\n${str}\n`)
+    }
+    const appendCode = (str) => {
+      const codeWrap = '```'
+      html.push(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`# ${docInfo.name}`)
     append(`URL：${docInfo.httpMethod} ${getRequestUrl(docInfo)}`)
@@ -126,6 +134,10 @@ const MarkdownUtil = {
     append(`## 响应参数`)
     const responseParamsTable = createTable(docInfo.responseParams, Enums.PARAM_STYLE.response)
     append(responseParamsTable)
+
+    append(`## 响应示例`)
+    const responseExample = createResponseExample(docInfo.responseParams)
+    appendCode(JSON.stringify(responseExample, null, 4))
 
     append(`## 错误码`)
     const errorCodeParamsTable = createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code)

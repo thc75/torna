@@ -116,8 +116,7 @@ export default {
         const data = resp.data
         const content = data.content
         const docInfo = JSON.parse(content)
-        docInfo.requestParams = this.convertTree(docInfo.requestParams)
-        docInfo.responseParams = this.convertTree(docInfo.responseParams)
+        this.initDocInfo(docInfo)
         const currentData = this.docInfo
         this.compare(docInfo, currentData)
       })

@@ -3,7 +3,12 @@
     <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
-        <el-link v-if="showHistory" type="primary" :underline="false" style="margin-left: 10px" @click="onShowHistory">变更历史</el-link>
+        <div style="float: right">
+          <el-button-group>
+            <el-button v-if="showHistory" type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
+            <el-button type="primary" size="mini" @click="onExportMarkdown">导出markdown</el-button>
+          </el-button-group>
+        </div>
       </h2>
       <span class="doc-modify-info">
         {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
@@ -74,6 +79,7 @@
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import DocDiff from '../DocDiff'
+import MarkdownUtil from '@/utils/markdown'
 export default {
   name: 'DocView',
   components: { ParameterTable, DocDiff },
@@ -154,8 +160,7 @@ export default {
       if (docId) {
         this.get(this.url, { id: docId }, function(resp) {
           const data = resp.data
-          data.requestParams = this.convertTree(data.requestParams)
-          data.responseParams = this.convertTree(data.responseParams)
+          this.initDocInfo(data)
           this.setData(data)
         })
       }
@@ -167,6 +172,10 @@ export default {
     },
     createResponseExample: function(data) {
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
+    },
+    onExportMarkdown() {
+      const markdown = MarkdownUtil.toMarkdown(this.docInfo)
+      this.downloadText(`${this.docInfo.name}-${new Date().getTime()}.md`, markdown)
     },
     onShowHistory() {
       this.historyShow = true

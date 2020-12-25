@@ -15,7 +15,9 @@ import torna.common.util.CopyUtil;
 import torna.dao.entity.Module;
 import torna.service.DocImportService;
 import torna.service.ModuleService;
+import torna.service.dto.DocInfoDTO;
 import torna.service.dto.ImportSwaggerDTO;
+import torna.service.dto.ModuleDTO;
 import torna.web.controller.module.param.ImportSwaggerParam;
 import torna.web.controller.module.param.ModuleAddParam;
 import torna.web.controller.module.param.ModuleDeleteParam;
@@ -43,6 +45,18 @@ public class ModuleController {
         Module module = moduleService.getById(moduleId);
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         return Result.ok(moduleVO);
+    }
+
+    /**
+     * 返回模块下面的所有文档详情
+     *
+     * @param moduleId 主键
+     * @return 返回记录，没有返回null
+     */
+    @GetMapping("detail")
+    public Result<ModuleDTO> detail(@HashId Long moduleId) {
+        ModuleDTO moduleDTO = moduleService.getModuleDTO(moduleId);
+        return Result.ok(moduleDTO);
     }
 
     /**

@@ -32,8 +32,7 @@ export default {
         this.get('/doc/view/detail', { id: docId }, function(resp) {
           this.load = true
           const data = resp.data
-          data.requestParams = this.convertTree(data.requestParams)
-          data.responseParams = this.convertTree(data.responseParams)
+          this.initDocInfo(data)
           this.item = data
         })
       }

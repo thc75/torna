@@ -231,8 +231,7 @@ export default {
       if (docId) {
         this.get('/doc/detail', { id: docId }, function(resp) {
           const data = resp.data
-          data.requestParams = this.convertTree(data.requestParams)
-          data.responseParams = this.convertTree(data.responseParams)
+          this.initDocInfo(data)
           Object.assign(this.docInfo, data)
         }, (resp) => {
           if (resp.code === '1000') {

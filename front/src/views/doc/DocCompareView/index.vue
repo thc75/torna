@@ -138,8 +138,7 @@ export default {
       if (docId) {
         this.get(this.url, { id: docId }, function(resp) {
           const data = resp.data
-          data.requestParams = this.convertTree(data.requestParams)
-          data.responseParams = this.convertTree(data.responseParams)
+          this.initDocInfo(data)
           this.setData(data)
         })
       }

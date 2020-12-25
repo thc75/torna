@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { get, post, getBaseUrl, getFile, doGet } from './http'
+import { createResponseExample } from './common'
 
 const SPACE_ID_KEY = 'torna-spaceid'
 const TORNA_FROM = 'torna-from'
@@ -168,6 +169,11 @@ Object.assign(Vue.prototype, {
   goRoute: function(path) {
     this.$router.push({ path: path })
   },
+  initDocInfo(data) {
+    data.requestParams = this.convertTree(data.requestParams)
+    data.responseParams = this.convertTree(data.responseParams)
+    return data
+  },
   /**
    * array转tree，必须要有id,parentId属性
    * @param arr 数组
@@ -184,11 +190,11 @@ Object.assign(Vue.prototype, {
     // arr是返回的数据parentId父id
     const temp = []
     const treeArr = arr
-    treeArr.forEach((item, index) => {
+    treeArr.forEach(item => {
       if (item.parentId === parentId) {
         // 递归调用此函数
-        treeArr[index].children = this.convertTree(treeArr, treeArr[index].id)
-        temp.push(treeArr[index])
+        item.children = this.convertTree(treeArr, item.id)
+        temp.push(item)
       }
     })
     return temp
@@ -242,25 +248,7 @@ Object.assign(Vue.prototype, {
     }
   },
   doCreateResponseExample: function(params) {
-    const responseJson = {}
-    params.forEach(row => {
-      let val
-      // 如果有子节点
-      if (row.children && row.children.length > 0) {
-        const childrenValue = this.doCreateResponseExample(row.children)
-        // 如果是数组
-        if (row.type.toLowerCase() === 'array') {
-          val = [childrenValue]
-        } else {
-          val = childrenValue
-        }
-      } else {
-        // 单值
-        val = row.example
-      }
-      responseJson[row.name] = val
-    })
-    return responseJson
+    return createResponseExample(params)
   },
   setSpaceId(id) {
     this.setAttr(SPACE_ID_KEY, id)
@@ -418,6 +406,23 @@ Object.assign(Vue.prototype, {
     if (!isJson) {
       errorCallback.call(this)
     }
+  },
+  /**
+   * 下载文本内容
+   * @param filename 文件名
+   * @param text 文件内容
+   */
+  downloadText(filename, text) {
+    const element = document.createElement('a')
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+    element.setAttribute('download', filename)
+
+    element.style.display = 'none'
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
   },
   handleCommand: function(command) {
     command()
