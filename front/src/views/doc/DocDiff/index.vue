@@ -14,7 +14,7 @@
       </el-col>
       <el-col v-show="treeData.length > 0" :span="20">
         <div class="version-bar">
-          <div style="float: left;display: inline-block">旧版文档</div>
+          <div style="float: left;display: inline-block">修改于 {{ currentChange }}</div>
           <div style="float: right;display: inline-block">当前文档</div>
         </div>
         <div id="diffView" style="margin-top: 20px;"></div>
@@ -84,7 +84,8 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'modifierTime'
-      }
+      },
+      currentChange: ''
     }
   },
   watch: {
@@ -109,6 +110,7 @@ export default {
       })
     },
     handleNodeClick(data) {
+      this.currentChange = data.modifierTime
       this.$refs.tree.setCurrentKey(data.id)
       this.get('/doc/snapshot/get', { id: data.id }, resp => {
         const data = resp.data
