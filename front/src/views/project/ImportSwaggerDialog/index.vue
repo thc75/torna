@@ -11,7 +11,7 @@
       size="mini"
       label-width="100px"
     >
-      <el-form-item label="URL" prop="url">
+      <el-form-item label="URL" prop="importUrl">
         <el-input
           v-model="importJsonFormData.importUrl"
           placeholder="输入URL，如：http://xxx:8080/swagger/doc.json"
