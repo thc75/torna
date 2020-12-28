@@ -145,13 +145,10 @@ export default {
     },
     setData: function(data) {
       this.docInfo = data
-      this.createResponseExample(data)
+      this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     },
     getData() {
       return this.docInfo
-    },
-    createResponseExample: function(data) {
-      this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     }
   }
 }

@@ -4,7 +4,7 @@
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { get, post, getBaseUrl, getFile, doGet } from './http'
-import { createResponseExample } from './common'
+import { create_response_example, convert_tree, get_requestUrl, init_docInfo } from './common'
 
 const SPACE_ID_KEY = 'torna-spaceid'
 const TORNA_FROM = 'torna-from'
@@ -170,9 +170,7 @@ Object.assign(Vue.prototype, {
     this.$router.push({ path: path })
   },
   initDocInfo(data) {
-    data.requestParams = this.convertTree(data.requestParams)
-    data.responseParams = this.convertTree(data.responseParams)
-    return data
+    return init_docInfo(data)
   },
   /**
    * array转tree，必须要有id,parentId属性
@@ -181,23 +179,7 @@ Object.assign(Vue.prototype, {
    * @returns {Array} 返回树array
    */
   convertTree: function(arr, parentId) {
-    if (!parentId) {
-      parentId = ''
-    }
-    if (!arr) {
-      return []
-    }
-    // arr是返回的数据parentId父id
-    const temp = []
-    const treeArr = arr
-    treeArr.forEach(item => {
-      if (item.parentId === parentId) {
-        // 递归调用此函数
-        item.children = this.convertTree(treeArr, item.id)
-        temp.push(item)
-      }
-    })
-    return temp
+    return convert_tree(arr, parentId)
   },
   /**
    * 将树转换成行，convertTree的反操作
@@ -219,18 +201,7 @@ Object.assign(Vue.prototype, {
     return ret
   },
   getRequestUrl(item) {
-    let url = item.url
-    if (!url) {
-      return ''
-    }
-    if (url.startsWith('/')) {
-      url = url.substring(1)
-    }
-    let baseUrl = item.baseUrl
-    if (baseUrl && baseUrl.endsWith('/')) {
-      baseUrl = baseUrl.substring(0, baseUrl.length)
-    }
-    return `${baseUrl}/${url}`
+    return get_requestUrl(item)
   },
   getParamNewRow: function(name, value) {
     return {
@@ -248,7 +219,7 @@ Object.assign(Vue.prototype, {
     }
   },
   doCreateResponseExample: function(params) {
-    return createResponseExample(params)
+    return create_response_example(params)
   },
   setSpaceId(id) {
     this.setAttr(SPACE_ID_KEY, id)
@@ -406,23 +377,6 @@ Object.assign(Vue.prototype, {
     if (!isJson) {
       errorCallback.call(this)
     }
-  },
-  /**
-   * 下载文本内容
-   * @param filename 文件名
-   * @param text 文件内容
-   */
-  downloadText(filename, text) {
-    const element = document.createElement('a')
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
-    element.setAttribute('download', filename)
-
-    element.style.display = 'none'
-    document.body.appendChild(element)
-
-    element.click()
-
-    document.body.removeChild(element)
   },
   handleCommand: function(command) {
     command()

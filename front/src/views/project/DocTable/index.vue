@@ -32,8 +32,10 @@
               导出 <i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-document" :command="onExportMarkdownSinglePage">导出markdown(单页)</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-document" :command="onExportMarkdownMultiPages">导出markdown(多页)</el-dropdown-item>
+              <el-dropdown-item :command="onExportMarkdownSinglePage">导出markdown(单页)</el-dropdown-item>
+              <el-dropdown-item :command="onExportMarkdownMultiPages">导出markdown(多页)</el-dropdown-item>
+              <el-dropdown-item divided :command="onExportHtmlSinglePage">导出html(单页)</el-dropdown-item>
+              <el-dropdown-item :command="onExportHtmlMultiPages">导出html(多页)</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -128,9 +130,7 @@
 }
 </style>
 <script>
-import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
-import MarkdownUtil from '@/utils/markdown'
+import ExportUtil from '@/utils/export'
 
 const tagMap = {
   'GET': 'info',
@@ -263,66 +263,16 @@ export default {
       }
     },
     onExportMarkdownSinglePage() {
-      this.get('/module/detail', { moduleId: this.moduleId }, resp => {
-        const moduleDTO = resp.data
-        const docInfoList = moduleDTO.docInfoList
-        const treeData = this.convertTree(docInfoList)
-        const markdown_content = []
-        const appendMarkdown = (doc_info) => {
-          this.initDocInfo(doc_info)
-          const markdown = MarkdownUtil.toMarkdown(doc_info)
-          if (markdown_content.length > 0) {
-            markdown_content.push('\n---\n')
-          }
-          markdown_content.push(markdown)
-        }
-        treeData.forEach(docInfo => {
-          const children = docInfo.children
-          const isFolder = children && children.length > 0
-          if (isFolder) {
-            children.forEach(child => {
-              appendMarkdown(child)
-            })
-          } else {
-            appendMarkdown(docInfo)
-          }
-        })
-        const markdownContent = markdown_content.join('')
-        this.downloadText(`${moduleDTO.name}-${new Date().getTime()}.md`, markdownContent)
-      })
+      ExportUtil.exportMarkdownAllInOne(this.moduleId)
     },
     onExportMarkdownMultiPages() {
-      const zip = new JSZip()
-      this.get('/module/detail', { moduleId: this.moduleId }, resp => {
-        const moduleDTO = resp.data
-        const docInfoList = moduleDTO.docInfoList
-        const treeData = this.convertTree(docInfoList)
-        const appendFile = (zip, doc_info) => {
-          this.initDocInfo(doc_info)
-          const markdown = MarkdownUtil.toMarkdown(doc_info)
-          zip.file(`${doc_info.name}.md`, markdown)
-        }
-        treeData.forEach(docInfo => {
-          const children = docInfo.children
-          const isFolder = children && children.length > 0
-          if (isFolder) {
-            // 创建文件夹
-            const folderZip = zip.folder(docInfo.name)
-            children.forEach(child => {
-              // 文件放入文件夹中
-              appendFile(folderZip, child)
-            })
-          } else {
-            appendFile(zip, docInfo)
-          }
-        })
-        // 下载
-        zip.generateAsync({ type: 'blob' }).then(function(content) {
-          const zipFile = `${moduleDTO.name}-${new Date().getTime()}.zip`
-          // see FileSaver.js
-          saveAs(content, zipFile)
-        })
-      })
+      ExportUtil.exportMarkdownMultiPages(this.moduleId)
+    },
+    onExportHtmlSinglePage() {
+      ExportUtil.exportHtmlAllInOne(this.moduleId)
+    },
+    onExportHtmlMultiPages() {
+      ExportUtil.exportHtmlMultiPages(this.moduleId)
     }
   }
 }

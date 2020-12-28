@@ -51,7 +51,7 @@ window.diff_match_patch = DiffMatchPatch
 window.DIFF_DELETE = -1
 window.DIFF_INSERT = 1
 window.DIFF_EQUAL = 0
-import MarkdownUtil from '@/utils/markdown'
+import MarkdownUtil from '@/utils/convert-markdown'
 
 function initUI(oldStr, newStr) {
   const target = document.getElementById('diffView')

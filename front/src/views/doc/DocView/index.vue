@@ -4,10 +4,16 @@
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
         <div style="float: right">
-          <el-button-group>
-            <el-button v-if="showHistory" type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
-            <el-button type="primary" size="mini" @click="onExportMarkdown">导出markdown</el-button>
-          </el-button-group>
+          <el-button v-if="showHistory" type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
+          <el-dropdown trigger="click" @command="handleCommand">
+            <el-button type="primary" size="mini">
+              导出 <i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item :command="onExportMarkdown">导出markdown</el-dropdown-item>
+              <el-dropdown-item :command="onExportHtml">导出html</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
       </h2>
       <span class="doc-modify-info">
@@ -79,7 +85,7 @@
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import DocDiff from '../DocDiff'
-import MarkdownUtil from '@/utils/markdown'
+import ExportUtil from '@/utils/export'
 export default {
   name: 'DocView',
   components: { ParameterTable, DocDiff },
@@ -168,14 +174,13 @@ export default {
     setData: function(data) {
       this.docInfo = data
       this.$store.state.settings.moduleId = this.docInfo.moduleId
-      this.createResponseExample(data)
-    },
-    createResponseExample: function(data) {
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     },
     onExportMarkdown() {
-      const markdown = MarkdownUtil.toMarkdown(this.docInfo)
-      this.downloadText(`${this.docInfo.name}-${new Date().getTime()}.md`, markdown)
+      ExportUtil.exportMarkdownSinglePage(this.docInfo)
+    },
+    onExportHtml() {
+      ExportUtil.exportHtmlSinglePage(this.docInfo)
     },
     onShowHistory() {
       this.historyShow = true
