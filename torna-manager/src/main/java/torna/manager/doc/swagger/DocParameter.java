@@ -1,4 +1,4 @@
-package torna.manager.doc;
+package torna.manager.doc.swagger;
 
 import com.alibaba.fastjson.annotation.JSONField;
 

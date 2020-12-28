@@ -1,4 +1,4 @@
-package torna.manager.doc;
+package torna.manager.doc.swagger;
 
 import java.util.List;
 
@@ -6,8 +6,6 @@ import java.util.List;
  * @author tanghc
  */
 public class DocBean {
-    private Integer projectId;
-    private Integer swaggerId;
 
     private String title;
     private String version;
@@ -16,22 +14,6 @@ public class DocBean {
     private String basePath;
     private String requestUrl;
     private List<DocModule> docModules;
-
-    public Integer getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
-
-    public Integer getSwaggerId() {
-        return swaggerId;
-    }
-
-    public void setSwaggerId(Integer swaggerId) {
-        this.swaggerId = swaggerId;
-    }
 
     public String getVersion() {
         return version;

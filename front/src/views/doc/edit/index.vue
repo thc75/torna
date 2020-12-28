@@ -287,7 +287,7 @@ export default {
         if (valid) {
           const promiseHeaderArr = this.$refs.headerParamTable.validate()
           const promiseRequestArr = this.$refs.requestParamTable.validate()
-          const promiseResponseArr = this.$refs.requestParamTable.validate()
+          const promiseResponseArr = this.$refs.responseParamTable.validate()
           const promiseErrorCodeArr = this.$refs.errorCodeParamTable.validate()
           const promiseArr = promiseHeaderArr.concat(promiseRequestArr, promiseResponseArr, promiseErrorCodeArr)
           Promise.all(promiseArr).then(validArr => {

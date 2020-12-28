@@ -1,4 +1,4 @@
-package torna.manager.doc;
+package torna.manager.doc.swagger;
 
 public class RefInfo {
     private boolean isArray;

@@ -192,10 +192,7 @@ export default {
       enumData: [],
       paramRowRule: {
         name: [
-          { required: true, message: '请填写', trigger: ['blur', 'change'] }
-        ],
-        description: [
-          { required: true, message: '请填写', trigger: ['blur', 'change'] }
+          { required: true, message: '请填写名称', trigger: ['blur', 'change'] }
         ]
       }
     }

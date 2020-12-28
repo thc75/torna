@@ -1,4 +1,4 @@
-package torna.manager.doc;
+package torna.manager.doc.swagger;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -8,7 +8,10 @@ import com.alibaba.fastjson.parser.Feature;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
+import torna.manager.doc.ApiInfo;
+import torna.manager.doc.DataType;
+import torna.manager.doc.DocParser;
+import torna.manager.doc.ParseConfig;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -24,26 +27,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 解析swagger2的json内容
+ * 解析swagger3的json内容
  *
  * @author tanghc
  */
-@Service("swaggerDocParserV2")
-public class SwaggerDocParserV2 implements DocParser {
+@Service("swaggerDocParserV3")
+public class SwaggerDocParserV3 implements DocParser {
 
     private final Set<String> cycleCache = new HashSet<>(8);
 
     @Override
-    public DocBean parseJson(String swaggerJson, ParseConfig config) {
+    public DocBean parseJson(String json, ParseConfig config) {
         cycleCache.clear();
-        JSONObject docRoot = JSON.parseObject(swaggerJson, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
+        JSONObject docRoot = JSON.parseObject(json, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
         JSONObject info = docRoot.getJSONObject("info");
         String requestUrl = this.getRequestUrl(docRoot);
         List<DocItem> docItems = new ArrayList<>();
         String allowMethod = config.getAllowMethod();
-        if (StringUtils.isEmpty(allowMethod)) {
-            allowMethod = "POST";
-        }
 
         JSONObject paths = docRoot.getJSONObject("paths");
         if (paths == null) {
@@ -118,25 +118,6 @@ public class SwaggerDocParserV2 implements DocParser {
         docBean.setRequestUrl(requestUrl);
         docBean.setDocModules(docModuleList);
         return docBean;
-    }
-
-    private String getRequestUrl(JSONObject docRoot) {
-        String host = docRoot.getString("host");
-        String basePath = docRoot.getString("basePath");
-        if ("/".equals(basePath)) {
-            basePath = "";
-        }
-        return "http://" + host + basePath;
-    }
-
-    private List<String> getConsumes(JSONObject docBean) {
-        JSONArray consumes = docBean.getJSONArray("consumes");
-        return consumes == null ? Collections.emptyList() : consumes.toJavaList(String.class);
-    }
-
-    private List<String> getProduces(JSONObject docBean) {
-        JSONArray produces = docBean.getJSONArray("produces");
-        return produces == null ? Collections.emptyList() : produces.toJavaList(String.class);
     }
 
     private DocItem buildDocItem(ApiInfo apiInfo, JSONObject docBean, JSONObject docRoot) {
@@ -249,16 +230,6 @@ public class SwaggerDocParserV2 implements DocParser {
                 .collect(Collectors.toList());
     }
 
-    private JSONObject formatFieldJson(JSONObject docRoot, JSONObject fieldJson) {
-        return fieldJson;
-    }
-
-
-    private JSONArray getParameterObject(JSONObject docBean) {
-        Optional<JSONArray> parametersOptional = Optional.ofNullable(docBean.getJSONArray("parameters"));
-        return parametersOptional.orElseGet(JSONArray::new);
-    }
-
     private void setType(JSONObject fieldJson, DocParameter docParameter) {
         String type = getFieldType(fieldJson);
         docParameter.setType(type);
@@ -291,23 +262,7 @@ public class SwaggerDocParserV2 implements DocParser {
         this.setEnum(fieldJson, docParameter);
     }
 
-    private String getFieldType(JSONObject fieldJson) {
-        boolean isFile = Optional.ofNullable(fieldJson.getJSONObject("schema"))
-                            .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getString("format")))
-                            .map(DataType.BINARY::equals)
-                            .orElse(false);
-        if (isFile) {
-            return DataType.FILE;
-        } else {
-            String type = fieldJson.getString("type");
-            if (type == null) {
-                type = Optional.ofNullable(fieldJson.getJSONObject("schema"))
-                        .map(jsonObject -> jsonObject.getString("type"))
-                        .orElse("string");
-            }
-            return type;
-        }
-    }
+
 
     private void setEnum(JSONObject fieldJson, DocParameter docParameter) {
         JSONArray enumsArr = getEnum(fieldJson);
@@ -329,20 +284,48 @@ public class SwaggerDocParserV2 implements DocParser {
     }
 
     private List<DocParameter> buildResponseParameterList(ApiInfo apiInfo, JSONObject docBean, JSONObject docRoot) {
-        RefInfo refInfo = getResponseRefInfo(docBean);
-        List<DocParameter> respParameterList = Collections.emptyList();
-        if (refInfo != null) {
-            respParameterList = this.buildDocParameters(apiInfo, refInfo, docRoot, true);
-            // 如果返回数组
-            if (refInfo.getIsArray()) {
-                DocParameter docParameter = new DocParameter();
-                docParameter.setName(refInfo.getRef());
-                docParameter.setType(DataType.ARRAY);
-                docParameter.setRefs(respParameterList);
-                respParameterList = Collections.singletonList(docParameter);
+        if (isJsonArray(docBean)) {
+            DocParameter docParameter = new DocParameter();
+            docParameter.setType(DataType.ARRAY);
+            return Collections.singletonList(docParameter);
+        } else {
+            RefInfo refInfo = getResponseRefInfo(docBean);
+            List<DocParameter> respParameterList = Collections.emptyList();
+            if (refInfo != null) {
+                respParameterList = this.buildDocParameters(apiInfo, refInfo, docRoot, true);
+                // 如果返回数组
+                if (refInfo.getIsArray()) {
+                    DocParameter docParameter = new DocParameter();
+                    docParameter.setName(refInfo.getRef());
+                    docParameter.setType(DataType.ARRAY);
+                    docParameter.setRefs(respParameterList);
+                    respParameterList = Collections.singletonList(docParameter);
+                }
             }
+            return respParameterList;
         }
-        return respParameterList;
+    }
+
+    private boolean isJsonArray(JSONObject docBean) {
+        return Optional.ofNullable(docBean.getJSONObject("responses"))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("200")))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
+                .map(jsonObject -> {
+                    String mediaType = jsonObject.keySet().iterator().next();
+                    JSONObject schema = jsonObject
+                            .getJSONObject(mediaType)
+                            .getJSONObject("schema");
+                    if (mediaType.contains("json")) {
+                        boolean isArray = DataType.ARRAY.equals(schema.getString("type"));
+                        if (isArray) {
+                            JSONObject items = schema.getJSONObject("items");
+                            String elementType = items.getString("type");
+                            return elementType != null;
+                        }
+                    }
+                    return false;
+                })
+                .orElse(false);
     }
 
     private List<DocParameter> buildDocParameters(ApiInfo apiInfo, RefInfo currentRef, JSONObject docRoot, boolean doSubRef) {
@@ -392,31 +375,10 @@ public class SwaggerDocParserV2 implements DocParser {
         return docParameterList;
     }
 
-    private JSONObject getDefinitions(JSONObject docRoot, RefInfo refInfo) {
-        return Optional.ofNullable(docRoot)
-                .map(jsonObject -> jsonObject.getJSONObject("definitions"))
-                .orElseGet(JSONObject::new);
-    }
 
     private boolean isSameRef(String ref, String subRef) {
         return Objects.equals(ref, subRef);
     }
-
-
-    /**
-     * 返回对象
-     *
-     * @param docBean 文档内容
-     * @return 返回关联对象
-     */
-    private RefInfo getResponseRefInfo(JSONObject docBean) {
-        return Optional.ofNullable(docBean.getJSONObject("responses"))
-                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("200")))
-                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("schema")))
-                .map(this::getRefInfo)
-                .orElse(null);
-    }
-
 
     private RefInfo getRefInfo(JSONObject schema) {
         if (schema == null) {
@@ -458,5 +420,145 @@ public class SwaggerDocParserV2 implements DocParser {
         return ref;
     }
 
+    
+    private String getRequestUrl(JSONObject docRoot) {
+        /*
+        "servers": [
+            {
+                "url": "http://localhost:8080",
+                "description": "Inferred Url"
+            }
+        ]
+         */
+        return Optional.ofNullable(docRoot)
+                .flatMap(root -> Optional.ofNullable(root.getJSONArray("servers")))
+                .filter(servers -> servers.size() > 0)
+                .map(servers -> servers.getJSONObject(0))
+                .map(server -> server.getString("url"))
+                .orElse("");
+    }
 
+    /**
+     * <pre>
+     * "requestBody": {
+     *                     "content": {
+     *                         "application/json": {
+     *                             "schema": {
+     *                                 "$ref": "#/components/schemas/用户基本信息"
+     *                             }
+     *                         }
+     *                     }
+     *                 }
+     * </pre>
+     * @param docBean 文档内容
+     * @return 返回consume
+     */
+    
+    private List<String> getConsumes(JSONObject docBean) {
+        Set<String> consumes = Optional.ofNullable(docBean.getJSONObject("requestBody"))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
+                .map(JSONObject::keySet)
+                .orElse(Collections.emptySet());
+        return new ArrayList<>(consumes);
+    }
+
+    
+    private List<String> getProduces(JSONObject docBean) {
+        Set<String> consumes = Optional.ofNullable(docBean.getJSONObject("responses"))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("200")))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
+                .map(JSONObject::keySet)
+                .orElse(Collections.emptySet());
+        return new ArrayList<>(consumes);
+    }
+
+    
+    private JSONObject formatFieldJson(JSONObject docRoot, JSONObject fieldJson) {
+        if (fieldJson.containsKey("$ref")) {
+            RefInfo refInfo = getRefInfo(fieldJson);
+            return getDefinitions(docRoot, refInfo).getJSONObject(refInfo.getRef());
+        }
+        return fieldJson;
+    }
+
+    // components.schemas.xx
+    // components.parameters.xx
+    
+    private JSONObject getDefinitions(JSONObject docRoot, RefInfo refInfo) {
+        String rawRef = refInfo.getRawRef();
+        if (rawRef.contains("schemas")) {
+            return docRoot.getJSONObject("components").getJSONObject("schemas");
+        } else if (rawRef.contains("parameters")) {
+            return docRoot.getJSONObject("components").getJSONObject("parameters");
+        }
+        return new JSONObject();
+    }
+
+    
+    private RefInfo getResponseRefInfo(JSONObject docBean) {
+        return Optional.ofNullable(docBean.getJSONObject("responses"))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("200")))
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
+                .flatMap(jsonObject -> {
+                    String mediaType = jsonObject.keySet().iterator().next();
+                    JSONObject schema = jsonObject
+                            .getJSONObject(mediaType)
+                            .getJSONObject("schema");
+                    return Optional.ofNullable(schema);
+                })
+                .map(this::getRefInfo)
+                .orElse(null);
+    }
+
+    /*
+    "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/用户基本信息"
+                            }
+                        }
+                    }
+                }
+     */
+    
+    private JSONArray getParameterObject(JSONObject docBean) {
+        Optional<JSONArray> parametersOptional = Optional.ofNullable(docBean.getJSONArray("parameters"));
+        JSONArray jsonArray = parametersOptional.orElseGet(JSONArray::new);
+        if (jsonArray.isEmpty()) {
+            JSONObject requestBody = docBean.getJSONObject("requestBody");
+            Optional.ofNullable(requestBody)
+                    .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
+                    .flatMap(jsonObject -> {
+                        String mediaType = jsonObject.keySet().iterator().next();
+                        JSONObject schema = jsonObject
+                                .getJSONObject(mediaType);
+                        return Optional.ofNullable(schema);
+                    })
+                    .ifPresent(jsonArray::add);
+        }
+        return jsonArray;
+    }
+
+    /*
+        {
+                            "name": "pageIndex",
+                            "in": "query",
+                            "description": "查看第几页",
+                            "required": true,
+                            "style": "form",
+                            "schema": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
+         */
+    
+    private String getFieldType(JSONObject fieldJson) {
+        JSONObject schema = fieldJson.getJSONObject("schema");
+        if (schema == null) {
+            return "string";
+        }
+        return schema.getString("type");
+    }
 }

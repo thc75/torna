@@ -1,4 +1,4 @@
-package torna.manager.doc;
+package torna.manager.doc.swagger;
 
 import java.util.Collection;
 import java.util.List;
