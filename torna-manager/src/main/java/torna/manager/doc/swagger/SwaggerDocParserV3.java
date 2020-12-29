@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service("swaggerDocParserV3")
-public class SwaggerDocParserV3 implements DocParser {
+public class SwaggerDocParserV3 implements DocParser<DocBean> {
 
     private final Set<String> cycleCache = new HashSet<>(8);
 

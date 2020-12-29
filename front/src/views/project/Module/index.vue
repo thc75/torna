@@ -19,6 +19,7 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">新建模块</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">导入Swagger文档</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-download" :command="onImportPostman">导入Postman文档</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </span>
@@ -35,7 +36,7 @@
                 <span>
                   {{ item.name }}
                 </span>
-                <el-tooltip effect="dark" content="同步Swagger文档" placement="top">
+                <el-tooltip effect="dark" content="同步Swagger文档" placement="bottom">
                   <el-button
                     v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
                     v-show="module.id === item.id && item.type === 1"
@@ -56,6 +57,7 @@
     </el-container>
     <!-- 导入json -->
     <import-swagger-dialog ref="importSwaggerDlg" :project-id="projectId" :success="reload" />
+    <import-postman-dialog ref="importPostmanDlg" :project-id="projectId" :success="reload" />
   </div>
 </template>
 <style lang="scss">
@@ -85,13 +87,14 @@
 import Hamburger from '@/components/Hamburger'
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
+import ImportPostmanDialog from '@/views/project/ImportPostmanDialog/index'
 
 const current_module_key = 'torna-module-'
 const sidebar_key = 'torna-projectsidebar-'
 
 export default {
   name: 'Module',
-  components: { Hamburger, DocInfo, ImportSwaggerDialog },
+  components: { ImportPostmanDialog, Hamburger, DocInfo, ImportSwaggerDialog },
   props: {
     projectId: {
       type: String,
@@ -112,8 +115,9 @@ export default {
     }
   },
   methods: {
-    reload() {
-      this.loadModule(this.projectId)
+    reload(resp) {
+      const moduleId = resp && resp.data.id
+      this.loadModule(this.projectId, moduleId)
     },
     toggleSideBar() {
       this.setSidebarStatus(!this.sidebarOpen)
@@ -127,23 +131,26 @@ export default {
       const sidebarOpen = opened ? opened === 'true' : true
       this.setSidebarStatus(sidebarOpen)
     },
-    loadModule: function(projectId) {
+    loadModule: function(projectId, moduleId) {
       if (projectId) {
         this.initSidebarStatus(projectId)
         this.get('/module/list', { projectId: projectId }, function(resp) {
           this.moduleData = resp.data
-          const cacheModuleId = this.getCacheModuleId()
+          const cacheModuleId = moduleId || this.getCacheModuleId()
+          let currentModule
           if (cacheModuleId) {
             for (const module of this.moduleData) {
               if (module.id === cacheModuleId) {
-                this.module = module
+                currentModule = module
                 break
               }
             }
-          } else {
-            if (this.moduleData.length > 0 && !this.module) {
-              this.module = this.moduleData[0]
-            }
+          }
+          if (!currentModule && this.moduleData.length > 0) {
+            currentModule = this.moduleData[0]
+          }
+          if (currentModule) {
+            this.setCurrentModule(currentModule)
           }
         })
       }
@@ -152,13 +159,13 @@ export default {
       return this.module.id === item.id
     },
     onModuleSelect(item) {
-      this.module = item
       this.setCurrentModule(item)
     },
     getCurrentModuleKey() {
       return current_module_key + this.projectId
     },
     setCurrentModule(item) {
+      this.module = item
       this.setAttr(this.getCurrentModuleKey(), item.id)
     },
     getCacheModuleId() {
@@ -195,6 +202,9 @@ export default {
     },
     onImportSwagger() {
       this.$refs.importSwaggerDlg.show()
+    },
+    onImportPostman() {
+      this.$refs.importPostmanDlg.show()
     }
   }
 }

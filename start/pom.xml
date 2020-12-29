@@ -51,7 +51,7 @@
     </dependencies>
 
     <build>
-        <finalName>torna-${project.version}</finalName>
+        <finalName>torna</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -13,6 +13,7 @@ import torna.common.util.GenerateUtil;
 import torna.dao.entity.Module;
 import torna.dao.mapper.ModuleMapper;
 import torna.service.dto.DocInfoDTO;
+import torna.service.dto.ImportPostmanDTO;
 import torna.service.dto.ImportSwaggerDTO;
 import torna.service.dto.ModuleDTO;
 
@@ -49,6 +50,32 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
         module.setModifierId(user.getUserId());
         module.setToken(createToken());
         save(module);
+        return module;
+    }
+
+    public Module createPostmanModule(ImportPostmanDTO importPostmanDTO, String name) {
+        Assert.notNull(name, () -> "name不能为空");
+        User user = importPostmanDTO.getUser();
+        Long projectId = importPostmanDTO.getProjectId();
+        Module module = getByProjectIdAndName(projectId, name);
+        if (module == null) {
+            module = new Module();
+            module.setName(name);
+            module.setProjectId(projectId);
+            module.setType(ModuleTypeEnum.POSTMAN_IMPORT.getType());
+            module.setToken(createToken());
+            module.setCreateMode(user.getOperationModel());
+            module.setModifyMode(user.getOperationModel());
+            module.setCreatorId(user.getUserId());
+            module.setModifierId(user.getUserId());
+            this.save(module);
+        } else {
+            module.setType(ModuleTypeEnum.POSTMAN_IMPORT.getType());
+            module.setModifyMode(user.getOperationModel());
+            module.setModifierId(user.getUserId());
+            module.setIsDeleted(Booleans.FALSE);
+            this.update(module);
+        }
         return module;
     }
 

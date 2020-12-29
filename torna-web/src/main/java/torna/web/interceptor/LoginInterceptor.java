@@ -19,7 +19,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
-        ResourceHttpRequestHandler resourceHttpRequestHandler;
         NoLogin noLogin = handlerMethod.getMethodAnnotation(NoLogin.class);
         if (noLogin != null) {
             return true;

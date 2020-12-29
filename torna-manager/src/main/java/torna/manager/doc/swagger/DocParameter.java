@@ -1,6 +1,7 @@
 package torna.manager.doc.swagger;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import torna.manager.doc.IParam;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 参数	类型	是否必填	最大长度	描述	示例值
  * @author tanghc
  */
-public class DocParameter {
+public class DocParameter implements IParam {
 
     private static final AtomicInteger idGen = new AtomicInteger();
 
@@ -34,6 +35,11 @@ public class DocParameter {
      * 数组元素类型
      */
     private String elementType;
+
+    @Override
+    public <T extends IParam> List<T> getChildren() {
+        return (List<T>) getRefs();
+    }
 
     public Integer getId() {
         return id;

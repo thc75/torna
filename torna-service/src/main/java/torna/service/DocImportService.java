@@ -1,6 +1,7 @@
 package torna.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import lombok.extern.slf4j.Slf4j;
@@ -21,17 +22,28 @@ import torna.common.util.DataIdUtil;
 import torna.dao.entity.DocInfo;
 import torna.dao.entity.DocParam;
 import torna.dao.entity.Module;
+import torna.manager.doc.DocParser;
+import torna.manager.doc.IParam;
+import torna.manager.doc.postman.Body;
+import torna.manager.doc.postman.Item;
+import torna.manager.doc.postman.Param;
+import torna.manager.doc.postman.Postman;
+import torna.manager.doc.postman.Request;
+import torna.manager.doc.postman.Url;
 import torna.manager.doc.swagger.DocBean;
 import torna.manager.doc.swagger.DocItem;
 import torna.manager.doc.swagger.DocModule;
 import torna.manager.doc.swagger.DocParameter;
-import torna.manager.doc.DocParser;
 import torna.service.dto.DocItemCreateDTO;
+import torna.service.dto.ImportPostmanDTO;
 import torna.service.dto.ImportSwaggerDTO;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -43,11 +55,15 @@ public class DocImportService {
 
     @Autowired
     @Qualifier("swaggerDocParserV2")
-    private DocParser docParserV2;
+    private DocParser<DocBean> docParserV2;
 
     @Autowired
     @Qualifier("swaggerDocParserV3")
-    private DocParser docParserV3;
+    private DocParser<DocBean> docParserV3;
+
+    @Autowired
+    @Qualifier("postmanDocParser")
+    private DocParser<Postman> postmanParser;
 
     @Autowired
     private DocInfoService docInfoService;
@@ -67,7 +83,7 @@ public class DocImportService {
      * @param importSwaggerDTO importSwaggerDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void importSwagger(ImportSwaggerDTO importSwaggerDTO) {
+    public Module importSwagger(ImportSwaggerDTO importSwaggerDTO) {
         String json;
         String url = importSwaggerDTO.getImportUrl();
         try {
@@ -83,9 +99,115 @@ public class DocImportService {
             throw new BizException("导入异常, msg:" + e.getMessage());
         }
         JSONObject docRoot = JSON.parseObject(json, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
-        DocParser docParser = docRoot.containsKey("openapi") ? docParserV3 : docParserV2;
+        DocParser<DocBean> docParser = docRoot.containsKey("openapi") ? docParserV3 : docParserV2;
         DocBean docBean = docParser.parseJson(json);
-        this.saveDocToDb(docBean, importSwaggerDTO);
+        return this.saveDocToDb(docBean, importSwaggerDTO);
+    }
+
+    /**
+     * 导入postman文档
+     *
+     * @param importPostmanDTO 导入配置
+     * @return 返回模块
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Module importPostman(ImportPostmanDTO importPostmanDTO) {
+        String json = importPostmanDTO.getJson();
+        Postman postman = postmanParser.parseJson(json);
+        return this.savePostmanToDB(postman, importPostmanDTO);
+    }
+
+    private Module savePostmanToDB(Postman postman, ImportPostmanDTO importPostmanDTO) {
+        return this.createPostmanModule(postman, importPostmanDTO);
+    }
+
+    private Module createPostmanModule(Postman postman, ImportPostmanDTO importPostmanDTO) {
+        User user = importPostmanDTO.getUser();
+        String title = postman.getInfo().getName();
+        // 创建模块
+        Module module = moduleService.createPostmanModule(importPostmanDTO, title);
+        List<Item> items = postman.getItem();
+        this.saveItems(items, null, module, user);
+        return module;
+    }
+
+    private void saveItems(List<Item> items, DocInfo parent, Module module, User user) {
+        for (Item item : items) {
+            // 如果是文件夹
+            if (item.isFolder()) {
+                Long parentId = parent == null ? 0L : parent.getId();
+                DocInfo folder = docInfoService.createDocFolderNoCheck(item.getName(), parentId, module.getId(), user);
+                // 创建模块下的文档
+                List<Item> subItems = item.getItem();
+                this.saveItems(subItems, folder, module, user);
+            } else {
+                DocItemCreateDTO docItemCreateDTO = this.buildPostmanDocItemCreateDTO(item, parent, module, user);
+                DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
+                // 创建参数
+                List<Param> params = this.buildPostmanParams(item);
+                this.savePostmanParams(params, docItem, docParameter -> {
+                    return ParamStyleEnum.REQUEST;
+                }, user);
+            }
+        }
+    }
+
+    private List<Param> buildPostmanParams(Item item) {
+        List<Param> list = new ArrayList<>();
+        Request request = item.getRequest();
+        Url url = request.getUrl();
+        List<Param> query = url.getQuery();
+        if (query != null) {
+            list.addAll(query);
+        }
+        Body body = request.getBody();
+        if (body != null) {
+            List<Param> params = this.parseBody(body);
+            list.addAll(params);
+        }
+        return list;
+    }
+
+    private List<Param> parseBody(Body body) {
+        String mode = body.getMode();
+        switch (mode) {
+            case "raw":
+                String json = body.getRaw();
+                JSONObject jsonObject = JSON.parseObject(json);
+                return this.parseParams(jsonObject);
+            case "urlencoded":
+                return body.getUrlencoded();
+            default:
+                return Collections.emptyList();
+        }
+    }
+
+    private List<Param> parseParams(JSONObject jsonObject) {
+        List<Param> list = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+            Param param = new Param();
+            list.add(param);
+            param.setKey(entry.getKey());
+            param.setType("string");
+            Object value = entry.getValue();
+            if (value instanceof JSONObject) {
+                param.setType("object");
+                JSONObject valueObject = (JSONObject) value;
+                List<Param> params = this.parseParams(valueObject);
+                param.setChildren(params);
+            } else if (value instanceof JSONArray) {
+                param.setType("array");
+                JSONArray array = (JSONArray) value;
+                if (array.size() > 0) {
+                    JSONObject el = array.getJSONObject(0);
+                    List<Param> params = this.parseParams(el);
+                    param.setChildren(params);
+                }
+            } else {
+                param.setValue(String.valueOf(entry.getValue()));
+            }
+        }
+        return list;
     }
 
     /**
@@ -94,7 +216,7 @@ public class DocImportService {
      * @param docBean
      * @param importSwaggerDTO
      */
-    private void saveDocToDb(DocBean docBean, ImportSwaggerDTO importSwaggerDTO) {
+    private Module saveDocToDb(DocBean docBean, ImportSwaggerDTO importSwaggerDTO) {
         User user = importSwaggerDTO.getUser();
         String title = docBean.getTitle();
         // 创建模块
@@ -114,7 +236,7 @@ public class DocImportService {
                 // 创建参数
                 List<DocParameter> requestParameters = item.getRequestParameters();
                 this.saveParams(requestParameters, docItem, docParameter -> {
-                    String in = docParameter.getIn();
+                    String in = ((DocParameter) docParameter).getIn();
                     if (in == null) {
                         in = "request";
                     }
@@ -131,12 +253,13 @@ public class DocImportService {
                 this.saveParams(responseParameters, docItem, p -> ParamStyleEnum.RESPONSE, user);
             }
         }
+        return module;
     }
 
     private void saveParams(
             List<DocParameter> parameters
             , DocInfo docItem
-            , Function<DocParameter, ParamStyleEnum> styleEnumFunction
+            , Function<IParam, ParamStyleEnum> styleEnumFunction
             , User user
     ) {
         if (CollectionUtils.isEmpty(parameters)) {
@@ -148,11 +271,26 @@ public class DocImportService {
 
     }
 
+    private void savePostmanParams(
+            List<Param> parameters
+            , DocInfo docItem
+            , Function<IParam, ParamStyleEnum> styleEnumFunction
+            , User user
+    ) {
+        if (CollectionUtils.isEmpty(parameters)) {
+            return;
+        }
+        for (Param parameter : parameters) {
+            this.saveDocParam(parameter, docItem, 0, styleEnumFunction, user);
+        }
+
+    }
+
     private void saveDocParam(
-             DocParameter docParameter
+            IParam docParameter
             , DocInfo docInfo
             , long parentId
-            , Function<DocParameter, ParamStyleEnum> styleEnumFunction
+            , Function<IParam, ParamStyleEnum> styleEnumFunction
             , User user
     ) {
         DocParam docParam = new DocParam();
@@ -176,9 +314,9 @@ public class DocImportService {
         DocParam savedDoc = docParamService.saveParam(docParam, user);
 
         // 处理子节点
-        List<DocParameter> children = docParameter.getRefs();
+        List<IParam> children = docParameter.getChildren();
         if (children != null) {
-            for (DocParameter child : children) {
+            for (IParam child : children) {
                 this.saveDocParam(child, docInfo, savedDoc.getId(), styleEnumFunction, user);
             }
         }
@@ -194,6 +332,22 @@ public class DocImportService {
         docItemCreateDTO.setDescription(item.getDescription());
         docItemCreateDTO.setModuleId(parent.getModuleId());
         docItemCreateDTO.setParentId(parent.getId());
+        docItemCreateDTO.setUser(user);
+        return docItemCreateDTO;
+    }
+
+    private DocItemCreateDTO buildPostmanDocItemCreateDTO(Item item, DocInfo parent, Module module, User user) {
+        Request request = item.getRequest();
+        DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
+        docItemCreateDTO.setName(item.getName());
+        docItemCreateDTO.setUrl(request.getUrl().getFullUrl());
+        docItemCreateDTO.setContentType("");
+        docItemCreateDTO.setHttpMethod(request.getMethod());
+        docItemCreateDTO.setDescription(request.getDescription());
+        docItemCreateDTO.setModuleId(module.getId());
+        if (parent != null) {
+            docItemCreateDTO.setParentId(parent.getId());
+        }
         docItemCreateDTO.setUser(user);
         return docItemCreateDTO;
     }

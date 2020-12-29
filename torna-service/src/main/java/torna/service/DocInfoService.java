@@ -284,17 +284,22 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     /**
      * 创建文档分类，不检查名称是否存在
      * @param folderName 分类名称
+     * @param parentId 父节点id
      * @param moduleId 模块id
      * @param user 操作人
      * @return 返回添加后的文档
      */
-    public DocInfo createDocFolderNoCheck(String folderName, long moduleId, User user) {
+    public DocInfo createDocFolderNoCheck(String folderName, Long parentId, long moduleId, User user) {
         DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
         docFolderCreateDTO.setName(folderName);
         docFolderCreateDTO.setModuleId(moduleId);
-        docFolderCreateDTO.setParentId(0L);
+        docFolderCreateDTO.setParentId(parentId);
         docFolderCreateDTO.setUser(user);
         return this.createDocFolder(docFolderCreateDTO);
+    }
+
+    public DocInfo createDocFolderNoCheck(String folderName, long moduleId, User user) {
+        return createDocFolderNoCheck(folderName, 0L, moduleId, user);
     }
 
     /**

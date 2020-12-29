@@ -8,6 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Info {
-    private String name;
+public class Header {
+    private String key;
+    private String value;
 }

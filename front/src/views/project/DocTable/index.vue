@@ -70,12 +70,7 @@
         label="请求路径"
       >
         <template slot-scope="scope">
-          <el-tag
-            v-if="scope.row.url"
-            :type="getTagType(scope.row)"
-            disable-transitions>
-            {{ scope.row.httpMethod }}
-          </el-tag>
+          <http-method v-if="scope.row.url" :method="scope.row.httpMethod" />
           <span style="margin-left: 5px;">{{ scope.row.url }}</span>
         </template>
       </el-table-column>
@@ -119,29 +114,16 @@
   margin-bottom: 10px;
   .table-right-item {
     display: inline-block;
-    //margin-left: 4px;
   }
-}
-
-.cell .el-tag {
-  height: inherit !important;
-  padding: 0 4px !important;
-  line-height: inherit !important;
 }
 </style>
 <script>
 import ExportUtil from '@/utils/export'
-
-const tagMap = {
-  'GET': 'info',
-  'POST': '',
-  'PUT': 'warning',
-  'DELETE': 'danger',
-  'HEAD': 'success'
-}
+import HttpMethod from '@/components/HttpMethod'
 
 export default {
   name: 'DocTable',
+  components: { HttpMethod },
   props: {
     moduleId: {
       type: String,
@@ -177,9 +159,6 @@ export default {
         this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
       })
-    },
-    getTagType(row) {
-      return tagMap[row.httpMethod] || ''
     },
     onFolderUpdate(row) {
       this.$prompt('请输入分类名称', '修改分类', {

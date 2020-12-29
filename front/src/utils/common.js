@@ -34,6 +34,9 @@ export function get_requestUrl(item) {
     url = url.substring(1)
   }
   let baseUrl = item.baseUrl
+  if (!baseUrl) {
+    return url
+  }
   if (baseUrl && baseUrl.endsWith('/')) {
     baseUrl = baseUrl.substring(0, baseUrl.length)
   }

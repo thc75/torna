@@ -2,7 +2,7 @@ import needle from 'needle'
 import axios from 'axios'
 import { getToken } from '@/utils/auth'
 
-const baseURL = process.env.VUE_APP_BASE_API
+const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
 
 // 创建axios实例
 const client = axios.create({
@@ -14,7 +14,7 @@ export function getBaseUrl() {
   return baseURL
 }
 
-function getFullUrl(uri) {
+export function get_full_url(uri) {
   if (!uri.startsWith('/')) {
     uri = '/' + uri
   }
@@ -30,7 +30,7 @@ function getFullUrl(uri) {
  */
 export function get(uri, data, callback, errorCallback) {
   const that = this
-  needle.request('GET', getFullUrl(uri), data, {
+  needle.request('GET', get_full_url(uri), data, {
     // 设置header
     headers: get_headers()
   }, (error, response) => {
@@ -40,7 +40,7 @@ export function get(uri, data, callback, errorCallback) {
 
 export function doGet(uri, data, callback) {
   const that = this
-  needle.request('GET', getFullUrl(uri), data, {
+  needle.request('GET', get_full_url(uri), data, {
     // 设置header
     headers: get_headers()
   }, (error, response) => {
@@ -48,7 +48,7 @@ export function doGet(uri, data, callback) {
   })
 }
 
-function get_headers() {
+export function get_headers() {
   return {
     Authorization: get_token()
   }
@@ -68,7 +68,7 @@ function get_token() {
  */
 export function post(uri, data, callback, errorCallback) {
   const that = this
-  needle.request('POST', getFullUrl(uri), data, {
+  needle.request('POST', get_full_url(uri), data, {
     // 指定这一句即可
     json: true,
     headers: get_headers()

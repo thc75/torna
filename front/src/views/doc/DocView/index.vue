@@ -24,7 +24,7 @@
     <h4>
       URL：
       <span>
-        <el-tag type="info" class="http-method">{{ docInfo.httpMethod }}</el-tag> {{ getRequestUrl(docInfo) }}
+        <http-method :method="docInfo.httpMethod" /> {{ getRequestUrl(docInfo) }}
       </span>
     </h4>
     <h4 v-if="docInfo.description">描述：<span>{{ docInfo.description }}</span></h4>
@@ -75,20 +75,21 @@
   .http-method {
     height: auto !important;
     line-height: 20px !important;
+    padding: 0 4px !important;
   }
   .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
   .doc-modify-info { font-size: 12px;color: #909399 }
-  .doc-request-method {margin-bottom: 20px;color: #666;font-size: 14px;}
 }
 </style>
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
+import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
 export default {
   name: 'DocView',
-  components: { ParameterTable, DocDiff },
+  components: { ParameterTable, HttpMethod, DocDiff },
   props: {
     docId: {
       type: String,

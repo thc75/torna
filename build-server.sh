@@ -2,18 +2,16 @@
 
 # 服务端文件夹名称
 server_folder_name="start"
-# 执行文件名称
-app_name="torna"
 # 构建目录
 dist_dir="dist"
+# 执行文件名称
+app_name="torna"
 # 输出目录
-target_dir="$dist_dir/$app_name/torna-server"
+target_dir="$dist_dir/$app_name"
 
 if [ ! -d "$target_dir" ]; then
   mkdir -p $target_dir
 fi
-
-rm -rf $target_dir/*
 
 echo "开始构建服务端..."
 

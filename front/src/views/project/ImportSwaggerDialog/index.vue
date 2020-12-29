@@ -89,10 +89,14 @@ export default {
           this.importJsonFormData.projectId = this.projectId
           this.formatHost(this.importJsonFormData)
           this.post('/module/import/swagger', this.importJsonFormData, resp => {
-            this.importJsonLoading = false
-            this.importJsonDlgShow = false
-            this.tipSuccess('导入成功')
-            this.success && this.success()
+            if (resp.code !== '0') {
+              this.tipError(resp.msg)
+            } else {
+              this.importJsonLoading = false
+              this.importJsonDlgShow = false
+              this.tipSuccess('导入成功')
+              this.success && this.success(resp)
+            }
           }, () => {
             this.importJsonLoading = false
           })
