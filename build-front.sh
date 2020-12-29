@@ -13,7 +13,7 @@ if [ ! -d "$target_dir" ]; then
   mkdir -p $target_dir
 fi
 
-rm -rf $target_dir/dist/*
+rm -rf $target_dir/*
 
 # 先执行前端构建
 cd front
