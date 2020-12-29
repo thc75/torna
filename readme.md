@@ -51,24 +51,48 @@
 
 ## 部署应用
 
-打开`front/.env.production`文件，指定服务端请求路径（VUE_APP_BASE_API），假设部署机器IP为：`192.168.1.101`，那么填写：`http://192.168.1.101:7700`
-
 - Linux/Mac
 
-执行`build.sh`，构建结果在`torna/dist`目录，把`torna/dist/torna`整个文件夹上传到服务器
+执行`build.sh`，构建结果在`dist/torna`目录
 
-执行`torna/torna-server/startup.sh`，启动应用
+复制`start/src/main/resources/application-dev.properties`文件到`dist/torna`下，并重命名为:`application-prod.properties`
+
+修改`application-prod.properties`配置文件内容
+
+把`dist/torna`整个文件夹上传到服务器
+
+在服务器中执行`dist/torna/startup.sh`，启动应用
 
 访问：`http://ip:7700`
 
 - Windows
 
+本地创建一个`torna`文件夹
+
 执行`mvn clean package`
+
+将`start/target/torna.jar`拷贝到`torna`下
 
 cd front
 
 执行`npm run build:prod`
 
+将`front/dist`文件夹拷贝到`torna`下
 
+复制`start/src/main/resources/application-dev.properties`文件到`torna`下，并重命名为:`application-prod.properties`
 
+最终目录形式如下：
+
+```
+torna # 根目录
+├── application-prod.properties # 配置文件
+├── dist # 前端资源
+├── shutdown.sh # 结束服务脚本
+├── startup.sh # 启动服务脚本
+└── torna.jar # 服务程序
+```
+
+修改application-prod.properties配置文件内容，然后执行`startup.sh`
+
+访问：`http://ip:7700`
 
