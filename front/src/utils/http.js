@@ -174,6 +174,7 @@ function doResponse(error, response, callback, errorCallback) {
       errorCallback && errorCallback.call(this, resp)
     }
   } else {
+    console.error('error', response)
     this.$message.error('请求异常，请查看日志')
   }
 }
