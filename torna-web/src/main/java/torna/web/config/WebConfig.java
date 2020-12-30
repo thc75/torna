@@ -52,6 +52,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
                 .excludePathPatterns(excludes);
     }
 
+    /**
+     * 跨域设置
+     */
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -86,16 +89,6 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new HashIdParamResolver());
     }
-
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowedOrigins("*")
-//                .allowedHeaders("*")
-//                .allowedMethods("*")
-//                .allowCredentials(true);
-//    }
-
 
 
     /**

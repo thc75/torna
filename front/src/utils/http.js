@@ -8,11 +8,15 @@ const client = axios.create({
   baseURL: baseURL, // api 的 base_url
   timeout: 60000, // 请求超时时间,60秒
   headers: {
-    Authorization: get_token(),
     post: {
       'Content-Type': 'application/json'
     }
   }
+})
+client.interceptors.request.use(config => {
+  // 在发送请求之前做些什么
+  Object.assign(config.headers, get_headers())
+  return config
 })
 
 export function getBaseUrl() {

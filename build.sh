@@ -18,7 +18,7 @@ rm -rf $target_dir/*
 # 先执行前端构建
 cd front
 
-npm install
+npm install --registry=https://registry.npm.taobao.org
 
 sh build.sh
 
@@ -34,7 +34,7 @@ echo "开始构建服务端..."
 
 mvn clean package
 
-cp -r $server_folder_name/target/*.jar $target_dir/$app_name.jar
+cp -r start/target/*.jar $target_dir
 cp -r script/* $target_dir
 
 #echo "打成zip包"
