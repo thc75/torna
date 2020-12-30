@@ -199,7 +199,7 @@ export default {
   },
   methods: {
     loadMenu: function() {
-      this.doGet('/api/json/doc', {}, response => {
+      this.do_get('/api/json/doc', {}, response => {
         const resp = response.body
         this.apiModules = resp.apiModules
         this.$nextTick(() => {

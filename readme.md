@@ -57,7 +57,7 @@
 
 复制`start/src/main/resources/application-dev.properties`文件到`dist/torna`下，并重命名为:`application-prod.properties`
 
-修改`application-prod.properties`配置文件内容
+修改`application-prod.properties`配置文件内容，改为线上配置
 
 把`dist/torna`整个文件夹上传到服务器
 
@@ -79,20 +79,24 @@ cd front
 
 将`front/dist`文件夹拷贝到`torna`下
 
+将`script`中的脚本文件拷贝到`torna`下
+
 复制`start/src/main/resources/application-dev.properties`文件到`torna`下，并重命名为:`application-prod.properties`
+
+修改`application-prod.properties`配置文件内容，改为线上配置
 
 最终目录形式如下：
 
 ```
-torna # 根目录
+torna                           # 根目录
 ├── application-prod.properties # 配置文件
-├── dist # 前端资源
-├── shutdown.sh # 结束服务脚本
-├── startup.sh # 启动服务脚本
-└── torna.jar # 服务程序
+├── dist                        # 前端资源
+├── shutdown.sh                 # 结束服务脚本
+├── startup.sh                  # 启动服务脚本
+└── torna.jar                   # 服务程序
 ```
 
-修改application-prod.properties配置文件内容，然后执行`startup.sh`
+把`torna`整个文件夹上传到服务器，然后执行`startup.sh`
 
 访问：`http://ip:7700`
 

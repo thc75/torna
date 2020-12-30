@@ -3,7 +3,7 @@
  */
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
-import { get, post, getBaseUrl, getFile, doGet } from './http'
+import { get, post, getBaseUrl, getFile, do_get } from './http'
 import { create_response_example, convert_tree, get_requestUrl, init_docInfo } from './common'
 
 const SPACE_ID_KEY = 'torna-spaceid'
@@ -42,8 +42,8 @@ Object.assign(Vue.prototype, {
    * @param data
    * @param callback
    */
-  doGet(uri, data, callback) {
-    doGet.call(this, uri, data, callback)
+  do_get(uri, data, callback) {
+    do_get.call(this, uri, data, callback)
   },
   /**
    * 请求接口

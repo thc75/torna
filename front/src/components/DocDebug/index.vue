@@ -440,7 +440,7 @@ export default {
         default:
       }
       this.sendLoading = true
-      request(item.httpMethod, '/doc/debug', data, headers, isJson, isForm, isMultipart, this.doProxyResponse)
+      request.call(this, item.httpMethod, '/doc/debug', data, headers, isJson, isForm, isMultipart, this.doProxyResponse)
     },
     buildRequestHeaders() {
       const headers = {}
@@ -477,22 +477,16 @@ export default {
       }
       return fileConfigs
     },
-    doProxyResponse(error, response) {
+    doProxyResponse(response) {
       this.sendLoading = false
-      if (error) {
-        this.$message.error(error)
-        return
-      }
       this.buildResultHeaders(response)
-      this.buildResultStatus(error, response)
-      this.buildResultContent(error, response)
+      this.buildResultStatus(response)
+      this.buildResultContent(response)
     },
-    buildResultStatus(error, response) {
-      if (!error) {
-        this.result.status = response.statusCode || response.status
-      }
+    buildResultStatus(response) {
+      this.result.status = response.status
     },
-    buildResultContent(error, response) {
+    buildResultContent(response) {
       const headers = response.targetHeaders
       const contentType = headers['content-type'] || ''
       const contentDisposition = headers['content-disposition'] || ''
@@ -503,34 +497,16 @@ export default {
       ) {
         const disposition = headers['content-disposition']
         const filename = this.getDispositionFilename(disposition)
-        this.downloadFile(filename, response.raw)
+        this.downloadFile(filename, response.data)
       } else {
         let content = ''
-        if (error) {
-          content = error.message
-        } else {
-          // axios返回data部分
-          const data = response.data
-          if (data) {
-            try {
-              content = this.formatResponse(contentType, data)
-            } catch (e) {
-              console.error('格式转换错误', e)
-              content = response.data
-            }
-          } else {
-            // needle返回部分
-            const uint8Array = response.raw
-            if (uint8Array && uint8Array.length > 0) {
-              const resp = new TextDecoder().decode(uint8Array)
-              try {
-                content = this.formatResponse(contentType, resp)
-              } catch (e) {
-                console.error('格式转换错误', e)
-                content = resp
-              }
-            }
-          }
+        // axios返回data部分
+        const data = response.data
+        try {
+          content = this.formatResponse(contentType, data)
+        } catch (e) {
+          console.error('格式转换错误', e)
+          content = response.data
         }
         this.result.content = content
       }
