@@ -19,7 +19,7 @@ client.interceptors.request.use(config => {
   return config
 })
 
-export function getBaseUrl() {
+export function get_baseUrl() {
   return baseURL
 }
 
@@ -174,7 +174,7 @@ export function doMultipart(uri, data, headers, callback) {
  * @param path 相对于public文件夹路径，如文件在public/static/sign.md，填：static/sign.md
  * @param callback 回调函数，函数参数是文件内容
  */
-export function getFile(path, callback) {
+export function get_file(path, callback) {
   const that = this
   axios.get(path)
     .then(function(response) {

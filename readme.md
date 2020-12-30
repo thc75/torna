@@ -17,7 +17,6 @@
 ## 开发部署
 
 ```
-运行环境：Java8, Mysql5.7+
 开发环境：Java8, Maven3, Nodejs11+, Mysql5.7+
 软件架构：服务端 SpringBoot-2.3.4.RELEASE，前端 elementUI + vue2
 ```
@@ -51,7 +50,9 @@
 
 ## 部署应用
 
-- Linux/Mac
+> 运行环境：Java8, Mysql5.7+
+
+### Linux/Mac
 
 执行`build.sh`，构建结果在`dist/torna`目录
 
@@ -59,13 +60,13 @@
 
 修改`application-prod.properties`配置文件内容，改为线上配置
 
-把`dist/torna`整个文件夹上传到服务器
+把`torna`文件夹上传到服务器
 
-在服务器中执行`dist/torna/startup.sh`，启动应用
+在服务器中执行`startup.sh`，启动应用
 
 访问：`http://ip:7700`
 
-- Windows
+### Windows
 
 本地创建一个`torna`文件夹
 
@@ -96,7 +97,7 @@ torna                           # 根目录
 └── torna.jar                   # 服务程序
 ```
 
-把`torna`整个文件夹上传到服务器，然后执行`startup.sh`
+把`torna`文件夹上传到服务器，然后执行`startup.sh`
 
 访问：`http://ip:7700`
 
