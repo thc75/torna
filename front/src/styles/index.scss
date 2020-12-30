@@ -201,3 +201,9 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 .el-page-header {
   margin-bottom: 20px;
 }
+
+.cell .el-tag {
+  height: auto !important;
+  padding: 0 4px !important;
+  line-height: 20px !important;
+}
