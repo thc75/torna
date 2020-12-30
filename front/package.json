@@ -1,9 +1,9 @@
 {
   "name": "Torna",
-  "version": "4.1.0",
+  "version": "1.0.0",
   "description": "Torna",
   "author": "tanghc",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "vue-cli-service serve",
     "build:prod": "vue-cli-service build",
