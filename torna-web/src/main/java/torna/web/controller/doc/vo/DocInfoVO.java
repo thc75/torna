@@ -40,6 +40,8 @@ public class DocInfoVO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
+    private String modifierName;
+
     private Byte isShow;
 
     private Byte isDeleted;

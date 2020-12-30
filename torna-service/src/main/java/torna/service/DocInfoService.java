@@ -333,9 +333,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             docInfo.setModuleId(docItemCreateDTO.getModuleId());
             docInfo.setParentId(docItemCreateDTO.getParentId());
             docInfo.setIsFolder(isFolder);
-            docInfo.setCreateMode(user.getOperationModel());
-            docInfo.setModifyMode(user.getOperationModel());
             docInfo.setCreatorId(user.getUserId());
+            docInfo.setCreatorName(user.getNickname());
+            docInfo.setCreateMode(user.getOperationModel());
+            docInfo.setModifierId(user.getUserId());
+            docInfo.setModifierName(user.getNickname());
+            docInfo.setModifyMode(user.getOperationModel());
             docInfo.setModifierId(user.getUserId());
             save(docInfo);
         } else {
@@ -344,6 +347,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             docInfo.setIsFolder(isFolder);
             docInfo.setDataId(dataId);
             docInfo.setModifyMode(user.getOperationModel());
+            docInfo.setModifierName(user.getNickname());
             docInfo.setModifierId(user.getUserId());
             docInfo.setIsDeleted(Booleans.FALSE);
             update(docInfo);

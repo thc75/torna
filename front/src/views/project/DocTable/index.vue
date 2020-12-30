@@ -57,12 +57,13 @@
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
-          <el-tag
-            v-if="!scope.row.isShow"
-            type="warning"
-            disable-transitions>
-            隐藏
-          </el-tag>
+          <div v-if="isDoc(scope.row)" style="display: inline-block;">
+            <div v-if="!scope.row.isShow">
+              <el-tooltip placement="bottom" content="隐藏">
+                <svg-icon icon-class="eye" />
+              </el-tooltip>
+            </div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -75,15 +76,10 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="文档内容"
-        width="80"
-      >
-        <template slot-scope="scope">
-          <router-link v-if="scope.row.isShow" :to="`/view/doc/${scope.row.id}`" target="_blank">
-            <el-button v-if="isDoc(scope.row)" type="text" icon="el-icon-view">预览</el-button>
-          </router-link>
-        </template>
-      </el-table-column>
+        prop="modifierName"
+        label="最后修改人"
+        width="120"
+      />
       <el-table-column
         prop="gmtCreate"
         label="添加时间"
@@ -95,14 +91,21 @@
         width="160"
       >
         <template slot-scope="scope">
-          <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加接口</el-link>
-          <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
-          <el-popconfirm
-            :title="`确定要删除 ${scope.row.name} 吗？`"
-            @onConfirm="onDocRemove(scope.row)"
-          >
-            <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
-          </el-popconfirm>
+          <div v-if="isFolder(scope.row)">
+            <el-link type="primary" @click="onDocAdd(scope.row)">添加接口</el-link>
+          </div>
+          <div v-else>
+            <router-link v-if="scope.row.isShow" :to="`/view/doc/${scope.row.id}`" target="_blank">
+              <el-link type="primary">预览</el-link>
+            </router-link>
+            <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
+            <el-popconfirm
+              :title="`确定要删除 ${scope.row.name} 吗？`"
+              @onConfirm="onDocRemove(scope.row)"
+            >
+              <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
+            </el-popconfirm>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -120,10 +123,11 @@
 <script>
 import ExportUtil from '@/utils/export'
 import HttpMethod from '@/components/HttpMethod'
+import SvgIcon from '@/components/SvgIcon'
 
 export default {
   name: 'DocTable',
-  components: { HttpMethod },
+  components: { HttpMethod, SvgIcon },
   props: {
     moduleId: {
       type: String,

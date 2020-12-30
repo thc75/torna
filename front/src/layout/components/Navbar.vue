@@ -15,7 +15,9 @@
       </div>
       <div class="right-menu-item">
         <router-link to="/help" target="_blank">
-          <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
+          <el-tooltip placement="bottom" content="帮助文档">
+            <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
+          </el-tooltip>
         </router-link>
       </div>
       <div class="right-menu-item">
@@ -28,11 +30,10 @@
 <script>
 import { mapGetters } from 'vuex'
 import RightDropdown from '@/components/RightDropdown'
-import AdminMenu from '@/components/AdminMenu'
 
 export default {
   components: {
-    RightDropdown, AdminMenu
+    RightDropdown
   },
   data() {
     return {

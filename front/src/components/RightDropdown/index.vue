@@ -6,7 +6,7 @@
       size="medium"
       icon="el-icon-user-solid"
     />
-    <el-dropdown-menu slot="dropdown">
+    <el-dropdown-menu slot="dropdown" class="user-drop-menu">
       <el-dropdown-item :command="onResetPwd">
         <span>修改密码</span>
       </el-dropdown-item>
@@ -20,6 +20,9 @@
 .user-head {
   cursor: pointer;
   margin-top: 6px;margin-right: 10px;
+}
+.user-drop-menu {
+  top: 42px !important;
 }
 </style>
 <script>
