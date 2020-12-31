@@ -5,6 +5,7 @@ import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { get, post, get_baseUrl, get_file, do_get } from './http'
 import { create_response_example, convert_tree, get_requestUrl, init_docInfo } from './common'
+import { Enums } from './enums'
 
 const SPACE_ID_KEY = 'torna-spaceid'
 const TORNA_FROM = 'torna-from'
@@ -54,6 +55,9 @@ Object.assign(Vue.prototype, {
    */
   post: function(uri, data, callback, errorCallback) {
     post.call(this, uri, data, callback, errorCallback)
+  },
+  getEnums() {
+    return Enums
   },
   getBaseUrl() {
     return get_baseUrl()

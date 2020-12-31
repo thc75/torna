@@ -8,5 +8,13 @@ export const Enums = {
     request: 2,
     response: 3,
     code: 4
-  }
+  },
+  CONTENT_TYPE: [
+    '*/*',
+    'application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+    'application/xml',
+    'text/plain'
+  ]
 }

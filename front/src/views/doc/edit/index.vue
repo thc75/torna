@@ -38,7 +38,7 @@
           </el-form-item>
           <el-form-item prop="contentType" label="ContentType">
             <el-select v-model="docInfo.contentType" :clearable="true" placeholder="请选择" style="width: 300px;">
-              <el-option v-for="contentType in contentTypeConfig" :key="contentType" :label="contentType" :value="contentType">
+              <el-option v-for="contentType in getEnums().CONTENT_TYPE" :key="contentType" :label="contentType" :value="contentType">
                 {{ contentType }}
               </el-option>
             </el-select>
@@ -172,14 +172,6 @@ export default {
         responseParams: [],
         errorCodeParams: []
       },
-      contentTypeConfig: [
-        '*/*',
-        'application/x-www-form-urlencoded',
-        'multipart/form-data',
-        'application/json',
-        'application/xml',
-        'text/plain'
-      ],
       folders: [],
       rules: {
         name: [

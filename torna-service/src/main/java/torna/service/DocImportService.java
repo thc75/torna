@@ -42,8 +42,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -76,6 +78,14 @@ public class DocImportService {
 
     @Autowired
     private ModuleConfigService moduleConfigService;
+
+    private static final Map<String, String> CONTEXT_TYPE_MAP = new HashMap<>();
+    static {
+        CONTEXT_TYPE_MAP.put("json", "application/json");
+        CONTEXT_TYPE_MAP.put("xml", "application/xml");
+        CONTEXT_TYPE_MAP.put("text", "text/plain");
+    }
+
 
     /**
      * 导入swagger文档
@@ -338,10 +348,11 @@ public class DocImportService {
 
     private DocItemCreateDTO buildPostmanDocItemCreateDTO(Item item, DocInfo parent, Module module, User user) {
         Request request = item.getRequest();
+        String contentType = this.buildContentType(request);
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getName());
         docItemCreateDTO.setUrl(request.getUrl().getFullUrl());
-        docItemCreateDTO.setContentType("");
+        docItemCreateDTO.setContentType(contentType);
         docItemCreateDTO.setHttpMethod(request.getMethod());
         docItemCreateDTO.setDescription(request.getDescription());
         docItemCreateDTO.setModuleId(module.getId());
@@ -350,6 +361,28 @@ public class DocImportService {
         }
         docItemCreateDTO.setUser(user);
         return docItemCreateDTO;
+    }
+
+    private String buildContentType(Request request) {
+        Body body = request.getBody();
+        if (body == null) {
+            return "";
+        }
+        String mode = body.getMode();
+        switch (mode) {
+            case "raw":
+                JSONObject options = body.getOptions();
+                // json/xml/text
+                String lang = Optional.ofNullable(options)
+                        .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("raw")))
+                        .map(jsonObject -> jsonObject.getString("language"))
+                        .orElse("text");
+                return CONTEXT_TYPE_MAP.get(lang);
+            case "urlencoded":
+                return "application/x-www-form-urlencoded";
+            default:
+                return "";
+        }
     }
 
 }
