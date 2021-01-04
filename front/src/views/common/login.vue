@@ -1,5 +1,6 @@
 <template>
-  <div class="app-container">
+  <div class="login-page">
+    <logo />
     <el-form
       ref="loginForm"
       :model="loginForm"
@@ -31,6 +32,8 @@
       <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">登 录</el-button>
       <div class="footer">
         <el-link type="primary" :underline="false" @click="onReg">注册新账号</el-link>
+        <span class="split">|</span>
+        <el-link type="primary" :underline="false" @click="onForgetPwd">忘记密码？</el-link>
       </div>
     </el-form>
   </div>
@@ -38,9 +41,11 @@
 <script>
 import md5 from 'js-md5'
 import { setToken, removeToken } from '@/utils/auth'
+import Logo from '@/components/Logo'
 
 export default {
   name: 'Login',
+  components: { Logo },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (value.length === 0) {
@@ -84,6 +89,9 @@ export default {
   methods: {
     onReg: function() {
       this.$router.push({ path: `/reg` })
+    },
+    onForgetPwd() {
+      this.alert('询问超级管理员重置密码', '忘记密码')
     },
     showPwd() {
       if (this.passwordType === 'password') {

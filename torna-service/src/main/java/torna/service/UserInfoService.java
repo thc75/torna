@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import torna.common.bean.Booleans;
 import torna.common.bean.LoginUser;
@@ -17,11 +18,13 @@ import torna.common.util.CopyUtil;
 import torna.common.util.GenerateUtil;
 import torna.common.util.IdUtil;
 import torna.common.util.JwtUtil;
+import torna.common.util.PasswordUtil;
 import torna.dao.entity.UserInfo;
 import torna.dao.mapper.UserInfoMapper;
 import torna.service.dto.UserAddDTO;
 import torna.service.dto.UserInfoDTO;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -122,4 +125,18 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         return id + ":" + jwt;
     }
 
+    /**
+     * 重置用户密码
+     * @param id id
+     * @return 返回重置后的密码
+     */
+    public String resetPassword(Long id) {
+        UserInfo userInfo = getById(id);
+        String newPwd = PasswordUtil.getRandomSimplePassword(6);
+        String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));
+        password = getDbPassword(userInfo.getUsername(), password);
+        userInfo.setPassword(password);
+        this.update(userInfo);
+        return newPwd;
+    }
 }

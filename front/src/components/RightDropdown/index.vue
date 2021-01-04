@@ -7,11 +7,11 @@
       icon="el-icon-user-solid"
     />
     <el-dropdown-menu slot="dropdown" class="user-drop-menu">
-      <el-dropdown-item :command="onResetPwd">
-        <span>修改密码</span>
+      <el-dropdown-item :command="onUserInfo">
+        <span>个人中心</span>
       </el-dropdown-item>
       <el-dropdown-item :command="doLogout" divided>
-        <span style="display: block;">注销</span>
+        <span>注销</span>
       </el-dropdown-item>
     </el-dropdown-menu>
   </el-dropdown>
@@ -28,8 +28,8 @@
 <script>
 export default {
   methods: {
-    onResetPwd: function() {
-      this.goRoute('/updatePassword')
+    onUserInfo: function() {
+      this.goRoute('/user')
     },
     doLogout() {
       this.logout()

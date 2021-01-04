@@ -141,12 +141,19 @@ span.danger, div.danger {color:#F56C6C;}
 h4 span, .normal-text { font-size: 14px;color: #606266;font-weight: normal; }
 .text-form .el-form-item {margin-bottom: 0}
 .base-info {margin-left: 20px;padding-top: 10px; color: #606266;}
-.open-sphere-log {font-size: 25px; color: #0084db; }
-.open-sphere-log .el-icon-ext-opensphere {color: #0084db;font-size: 30px;}
+.login-page {
+  padding: 10px;
+  background-color: rgba(223, 223, 223, 0.3);
+  height: 100%;
+}
 .center-form {
   width: 500px;
-  margin: 0 auto;
-  padding-top: 80px;
+  padding: 40px;
+  margin: 80px auto;
+  background: #ffffff;
+  border: 1px solid #DCDFE6;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
 }
 .center-form h3 {text-align: center;color: #606266;}
 .center-form .footer {
@@ -206,4 +213,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   height: auto !important;
   padding: 0 4px !important;
   line-height: 20px !important;
+}
+.split {
+  color: #ccc;
 }

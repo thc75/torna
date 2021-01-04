@@ -1,14 +1,11 @@
 package torna.service;
 
+import org.springframework.stereotype.Service;
 import torna.common.support.BaseService;
 import torna.common.util.AppKeyUtil;
 import torna.common.util.PasswordUtil;
 import torna.dao.entity.OpenUser;
 import torna.dao.mapper.OpenUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author tanghc

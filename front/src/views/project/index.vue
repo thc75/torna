@@ -58,6 +58,7 @@ export default {
       if (!fromData) {
         this.get('/project/space', { projectId: projectId }, resp => {
           fromData = resp.data
+          this.setTitle(fromData.projectName)
           this.setCurrentInfo({
             id: fromData.spaceId,
             name: fromData.spaceName
@@ -67,6 +68,7 @@ export default {
           })
         })
       } else {
+        this.setTitle(fromData.projectName)
         this.setCurrentInfo({
           id: fromData.spaceId,
           name: fromData.spaceName

@@ -4,16 +4,19 @@ import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import torna.common.bean.Result;
+import torna.common.bean.User;
 import torna.common.context.UserContext;
 import torna.common.util.CopyUtil;
 import torna.dao.entity.UserInfo;
 import torna.service.UserInfoService;
 import torna.service.dto.UserInfoDTO;
+import torna.web.controller.user.param.UpdateNicknameParam;
 import torna.web.controller.user.param.UpdatePasswordParam;
 import torna.web.controller.user.param.UserIdParam;
 import torna.web.controller.user.param.UserInfoSearchParam;
@@ -41,6 +44,23 @@ public class UserInfoController {
         return Result.ok(userInfoDTOS);
     }
 
+    @GetMapping("/get")
+    public Result<UserInfoDTO> get() {
+        User user = UserContext.getUser();
+        UserInfo userInfo = userInfoService.getById(user.getUserId());
+        UserInfoDTO userInfoDTO = CopyUtil.copyBean(userInfo, UserInfoDTO::new);
+        return Result.ok(userInfoDTO);
+    }
+
+    @PostMapping("/nickname/update")
+    public Result updateNickname(@RequestBody UpdateNicknameParam param) {
+        User user = UserContext.getUser();
+        UserInfo userInfo = userInfoService.getById(user.getUserId());
+        userInfo.setNickname(param.getNickname());
+        userInfoService.update(userInfo);
+        return Result.ok();
+    }
+
     @PostMapping("/search")
     public Result<List<UserInfoDTO>> pageUser(@RequestBody UserInfoSearchParam param) {
         String username = param.getUsername();
@@ -58,7 +78,7 @@ public class UserInfoController {
      * @param param
      * @return
      */
-    @PostMapping("/updatePassword")
+    @PostMapping("/password/update")
     public Result updatePassword(@RequestBody @Valid UpdatePasswordParam param) {
         long userId = UserContext.getUser().getUserId();
         UserInfo userInfo = userInfoService.getById(userId);

@@ -34,6 +34,7 @@ export default {
           const data = resp.data
           this.initDocInfo(data)
           this.item = data
+          this.setTitle(data.name)
         })
       }
     })

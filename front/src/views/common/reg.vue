@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="login-page">
     <el-form
       v-show="!submited"
       ref="regForm"
@@ -48,26 +48,6 @@
         已有账号，<el-button type="text" @click="goLogin">去登录</el-button>
       </div>
     </el-form>
-    <div v-show="submited" class="login-container">
-      <el-form
-        class="login-form"
-      >
-        <div class="title-container">
-          <h3 class="title">账号激活</h3>
-        </div>
-        <el-alert
-          :closable="false"
-          class="el-alert-tip"
-        >
-          <div slot="title">
-            我们向邮箱 {{ formatEmail() }} 发送了一封含有账号激活链接的邮件。请登录邮箱查看，如长时间没有收到邮件，请检查你的垃圾邮件文件夹。
-          </div>
-        </el-alert>
-        <el-button v-show="emailUrl" type="success" style="width: 100%;margin-bottom: 10px;" @click="goEmailPage">前往登录邮箱</el-button>
-        <br>
-        <el-button type="text" style="width: 100%;" @click="() => goRoute('/login')">前往登录页</el-button>
-      </el-form>
-    </div>
   </div>
 </template>
 <script>

@@ -128,17 +128,33 @@ export const constantRoutes = [
       }
     ]
   },
+  // user
+  {
+    path: '/user', // 必须/开头
+    component: Layout,
+    name: 'User',
+    children: [
+      {
+        path: '/',
+        name: 'UserInfo',
+        hidden: true,
+        component: () => import('@/views/user'),
+        meta: { title: '个人中心' }
+      }
+    ]
+  },
+  // admin
   {
     path: '/admin', // 必须/开头
     component: Layout,
     name: 'Admin',
     children: [
       {
-        path: 'openuser',
-        name: 'OpenUser',
+        path: 'users',
+        name: 'Users',
         hidden: true,
-        component: () => import('@/views/admin/open/index'),
-        meta: { title: '开放用户' }
+        component: () => import('@/views/admin/user/index'),
+        meta: { title: '用户管理' }
       }
     ]
   },

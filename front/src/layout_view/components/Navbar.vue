@@ -27,8 +27,8 @@ export default {
       'sidebarView',
       'avatar'
     ]),
-    moduleId() {
-      return this.$store.state.settings.moduleId
+    projectInfo() {
+      return this.$store.state.settings.currentProject
     }
   },
   methods: {
@@ -36,7 +36,7 @@ export default {
       this.$store.dispatch('app/toggleSideBarView')
     },
     goAdminPage() {
-      const uri = this.moduleId ? `/project/info/${this.moduleId}` : '/'
+      const uri = this.projectInfo ? `/project/info/${this.projectInfo.id}` : '/'
       this.goRoute(uri)
     }
   }

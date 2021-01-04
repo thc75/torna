@@ -21,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import torna.common.context.SpringContext;
 import torna.common.support.HashIdParamResolver;
 import torna.common.util.FastjsonUtil;
+import torna.web.interceptor.AdminInterceptor;
 import torna.web.interceptor.LoginInterceptor;
 
 import java.util.List;
@@ -49,6 +50,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
                 "/api", "/api/**", "/opendoc/**", "/doc/debug"
         };
         registry.addInterceptor(new LoginInterceptor())
+                .excludePathPatterns(excludes);
+        registry.addInterceptor(new AdminInterceptor())
+                .addPathPatterns("/admin/**")
                 .excludePathPatterns(excludes);
     }
 

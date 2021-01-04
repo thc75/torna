@@ -254,6 +254,9 @@ Object.assign(Vue.prototype, {
   setCurrentSpace(space) {
     this.$store.state.settings.currentSpace = space
   },
+  setTitle(title) {
+    document.title = title
+  },
   setFrom(from) {
     this.setSessionAttr(TORNA_FROM, encodeURIComponent(JSON.stringify(from)))
   },
