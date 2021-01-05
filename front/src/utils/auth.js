@@ -1,5 +1,5 @@
 
-const TokenKey = 'torna-token'
+const TokenKey = 'torna.token'
 
 export function getToken() {
   return localStorage.getItem(TokenKey)

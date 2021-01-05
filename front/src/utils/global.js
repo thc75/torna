@@ -2,14 +2,14 @@
 注册全局方法
  */
 import Vue from 'vue'
-import {getToken, removeToken} from './auth'
-import {do_get, get, get_baseUrl, get_file, post} from './http'
-import {convert_tree, create_response_example, get_requestUrl, init_docInfo} from './common'
-import {Enums} from './enums'
+import { getToken, removeToken } from './auth'
+import { do_get, get, get_baseUrl, get_file, post } from './http'
+import { convert_tree, create_response_example, get_requestUrl, init_docInfo } from './common'
+import { Enums } from './enums'
 
-const SPACE_ID_KEY = 'torna-spaceid'
-const TORNA_FROM = 'torna-from'
-const TORNA_PROJECT_CONFIG = 'torna-proj-cfg-'
+const SPACE_ID_KEY = 'torna.spaceid'
+const TORNA_FROM = 'torna.from'
+const TORNA_PROJECT_CONFIG = 'torna.project.'
 
 const typeConfig = [
   'string',
