@@ -16,14 +16,6 @@
     </el-tabs>
   </div>
 </template>
-<style>
-.project-header {
-  font-size: 18px;
-  font-weight: bold;
-  color: #303133;
-  margin-bottom: 20px;
-}
-</style>
 <script>
 import Module from './Module'
 import ProjectInfo from './ProjectInfo'
