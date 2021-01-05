@@ -2,13 +2,15 @@
 注册全局方法
  */
 import Vue from 'vue'
-import { getToken, removeToken } from './auth'
-import { get, post, get_baseUrl, get_file, do_get } from './http'
-import { create_response_example, convert_tree, get_requestUrl, init_docInfo } from './common'
-import { Enums } from './enums'
+import {getToken, removeToken} from './auth'
+import {do_get, get, get_baseUrl, get_file, post} from './http'
+import {convert_tree, create_response_example, get_requestUrl, init_docInfo} from './common'
+import {Enums} from './enums'
 
 const SPACE_ID_KEY = 'torna-spaceid'
 const TORNA_FROM = 'torna-from'
+const TORNA_PROJECT_CONFIG = 'torna-proj-cfg-'
+
 const typeConfig = [
   'string',
   'number',
@@ -252,7 +254,33 @@ Object.assign(Vue.prototype, {
     this.$store.state.settings.currentProject = project
   },
   setCurrentSpace(space) {
+    if (space) {
+      this.setSpaceId(space.id)
+    }
     this.$store.state.settings.currentSpace = space
+  },
+  /**
+   * 设置项目配置
+   * @param projectId 项目id
+   * @param config json对象，{ moduleId: 'xx', sidebar: 1 }
+   */
+  setProjectConfig(projectId, config) {
+    const configObj = this.getProjectConfig(projectId)
+    Object.assign(configObj, config)
+    this.setAttr(this.getProjectConfigKey(projectId), JSON.stringify(configObj))
+  },
+  /**
+   * 获取project配置
+   * @param projectId
+   * @returns object，json对象，{ moduleId: 'xx', sidebar: 1 }
+   */
+  getProjectConfig(projectId) {
+    const key = this.getProjectConfigKey(projectId)
+    const configStr = this.getAttr(key) || '{}'
+    return JSON.parse(configStr)
+  },
+  getProjectConfigKey(projectId) {
+    return TORNA_PROJECT_CONFIG + projectId
   },
   setTitle(title) {
     document.title = title

@@ -82,7 +82,6 @@ export default {
   methods: {
     loadData(spaceId) {
       if (spaceId) {
-        this.setSpaceId(spaceId)
         this.get('/space/project/list', { spaceId: spaceId }, resp => {
           this.data = resp.data
         })

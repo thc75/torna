@@ -89,9 +89,6 @@ import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
 import ImportPostmanDialog from '@/views/project/ImportPostmanDialog/index'
 
-const current_module_key = 'torna-module-'
-const sidebar_key = 'torna-projectsidebar-'
-
 export default {
   name: 'Module',
   components: { ImportPostmanDialog, Hamburger, DocInfo, ImportSwaggerDialog },
@@ -124,12 +121,11 @@ export default {
     },
     setSidebarStatus(open) {
       this.sidebarOpen = open
-      this.setAttr(`${sidebar_key}${this.projectId}`, open)
+      this.setProjectConfig(this.projectId, { sidebar: open })
     },
     initSidebarStatus(projectId) {
-      const opened = this.getAttr(`${sidebar_key}${projectId}`)
-      const sidebarOpen = opened ? opened === 'true' : true
-      this.setSidebarStatus(sidebarOpen)
+      const opened = this.getProjectConfig(projectId).sidebar || false
+      this.setSidebarStatus(opened)
     },
     loadModule: function(projectId, moduleId) {
       if (projectId) {
@@ -161,15 +157,12 @@ export default {
     onModuleSelect(item) {
       this.setCurrentModule(item)
     },
-    getCurrentModuleKey() {
-      return current_module_key + this.projectId
-    },
     setCurrentModule(item) {
       this.module = item
-      this.setAttr(this.getCurrentModuleKey(), item.id)
+      this.setProjectConfig(this.projectId, { moduleId: item.id })
     },
     getCacheModuleId() {
-      return this.getAttr(this.getCurrentModuleKey())
+      return this.getProjectConfig(this.projectId).moduleId
     },
     onModuleAdd() {
       this.$prompt('请输入模块名称', '新建模块', {

@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartRequest;
-import sun.nio.ch.IOUtil;
 import torna.common.annotation.HashId;
 import torna.common.bean.Result;
 import torna.common.bean.User;
@@ -19,10 +17,11 @@ import torna.common.enums.ModuleTypeEnum;
 import torna.common.exception.BizException;
 import torna.common.util.CopyUtil;
 import torna.common.util.IdUtil;
+import torna.dao.entity.DocInfo;
 import torna.dao.entity.Module;
 import torna.service.DocImportService;
+import torna.service.DocInfoService;
 import torna.service.ModuleService;
-import torna.service.dto.DocInfoDTO;
 import torna.service.dto.ImportPostmanDTO;
 import torna.service.dto.ImportSwaggerDTO;
 import torna.service.dto.ModuleDTO;
@@ -33,7 +32,6 @@ import torna.web.controller.module.param.ModuleUpdateNameParam;
 import torna.web.controller.module.vo.ModuleVO;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -51,9 +49,20 @@ public class ModuleController {
     @Autowired
     private DocImportService docImportService;
 
+    @Autowired
+    private DocInfoService docInfoService;
+
     @GetMapping("info")
     public Result<ModuleVO> info(@HashId Long moduleId) {
         Module module = moduleService.getById(moduleId);
+        ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
+        return Result.ok(moduleVO);
+    }
+
+    @GetMapping("infoByDocId")
+    public Result<ModuleVO> infoByDocId(@HashId Long docId) {
+        DocInfo docInfo = docInfoService.getById(docId);
+        Module module = moduleService.getById(docInfo.getModuleId());
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         return Result.ok(moduleVO);
     }

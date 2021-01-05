@@ -103,24 +103,27 @@ export default {
     },
     loadMenu(spaceId) {
       if (spaceId) {
-        this.setSpaceId(spaceId)
         this.get('/doc/view/data', { spaceId: spaceId }, resp => {
           const data = resp.data
+          const currentNode = this.getCurrentNode(data)
           this.treeData = this.convertTree(data)
           this.$nextTick(() => {
-            const currentId = this.$route.params.docId
-            let currentNode
-            for (let i = 0; i < data.length; i++) {
-              const node = data[i]
-              if (node.docId === currentId) {
-                currentNode = node
-                break
-              }
-            }
             this.setCurrentNode(currentNode)
           })
         })
       }
+    },
+    getCurrentNode(data) {
+      const docId = this.$route.params.docId
+      let currentNode
+      for (let i = 0; i < data.length; i++) {
+        const node = data[i]
+        if (node.docId === docId) {
+          currentNode = node
+          break
+        }
+      }
+      return currentNode
     },
     onSpaceSelect() {
       this.loadMenu(this.currentSpaceId)

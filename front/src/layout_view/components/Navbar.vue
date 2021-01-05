@@ -26,18 +26,20 @@ export default {
     ...mapGetters([
       'sidebarView',
       'avatar'
-    ]),
-    projectInfo() {
-      return this.$store.state.settings.currentProject
-    }
+    ])
   },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBarView')
     },
     goAdminPage() {
-      const uri = this.projectInfo ? `/project/info/${this.projectInfo.id}` : '/'
-      this.goRoute(uri)
+      const docId = this.$route.params.docId
+      this.get('/module/infoByDocId', { docId: docId }, resp => {
+        const module = resp.data
+        const projectId = module.projectId
+        this.setProjectConfig(projectId, { moduleId: module.id })
+        this.goRoute(`/project/info/${projectId}`)
+      })
     }
   }
 }
