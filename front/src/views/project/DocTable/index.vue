@@ -60,7 +60,7 @@
           <div v-if="isDoc(scope.row)" style="display: inline-block;">
             <div v-if="!scope.row.isShow">
               <el-tooltip placement="bottom" content="隐藏">
-                <svg-icon icon-class="eye" />
+                <svg-icon icon-class="eye" svg-style="color: #e6a23c" />
               </el-tooltip>
             </div>
           </div>
