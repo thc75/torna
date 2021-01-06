@@ -26,7 +26,10 @@ export default {
     ...mapGetters([
       'sidebarView',
       'avatar'
-    ])
+    ]),
+    projectInfo() {
+      return this.$store.state.settings.currentProject
+    }
   },
   methods: {
     toggleSideBar() {
@@ -34,12 +37,18 @@ export default {
     },
     goAdminPage() {
       const docId = this.$route.params.docId
-      this.get('/module/infoByDocId', { docId: docId }, resp => {
-        const module = resp.data
-        const projectId = module.projectId
-        this.setProjectConfig(projectId, { moduleId: module.id })
-        this.goRoute(`/project/info/${projectId}`)
-      })
+      if (docId) {
+        this.get('/module/infoByDocId', { docId: docId }, resp => {
+          const module = resp.data
+          const projectId = module.projectId
+          this.setProjectConfig(projectId, { moduleId: module.id })
+          this.goRoute(`/project/info/${projectId}`)
+        })
+      } else {
+        const projectId = this.projectInfo && this.projectInfo.id
+        const uri = projectId ? `/project/info/${projectId}` : '/'
+        this.goRoute(uri)
+      }
     }
   }
 }
