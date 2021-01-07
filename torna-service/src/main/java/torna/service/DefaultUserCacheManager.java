@@ -10,6 +10,7 @@ import torna.common.bean.User;
 import torna.common.bean.UserCacheManager;
 
 import javax.annotation.PostConstruct;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -35,8 +36,8 @@ public class DefaultUserCacheManager implements UserCacheManager {
 
     @Override
     public void saveUser(User user) {
+        Objects.requireNonNull(user, "用户不能为空");
         userCache.put(user.getUserId(), Optional.of(user));
-
     }
 
     private LoadingCache<Long, Optional<User>> buildCache(int timeout) {

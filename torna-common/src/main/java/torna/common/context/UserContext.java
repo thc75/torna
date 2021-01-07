@@ -4,10 +4,9 @@ import com.auth0.jwt.interfaces.Claim;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
-import torna.common.bean.TokenManager;
-import torna.common.bean.User;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import torna.common.bean.User;
 import torna.common.bean.UserCacheManager;
 import torna.common.util.JwtUtil;
 
@@ -24,6 +23,7 @@ public class UserContext {
     public static final String HEADER_TOKEN = "Authorization";
     public static final String JWT_PREFIX = "Bearer ";
     private static final String SECRET_KEY = "torna.jwt.secret";
+    private static final String TORNA_SINGLE_LOGIN = "torna.single-login";
 
 
     private static Supplier<String> tokenGetter = () -> {
@@ -54,15 +54,16 @@ public class UserContext {
 
     /**
      * 获取登录用户
-     * @param token
-     * @return
+     * @param token 格式：<userId>:<jwt>
+     * @return 返回token对应的用户，没有返回null
      */
     private static User getUser(String token) {
         if (StringUtils.isEmpty(token) || !token.contains(":")) {
             return null;
         }
         String jwt = token.split(":")[1];
-        String secret = SpringContext.getBean(Environment.class).getProperty(SECRET_KEY);
+        Environment environment = SpringContext.getBean(Environment.class);
+        String secret = environment.getProperty(SECRET_KEY);
         Map<String, Claim> data = JwtUtil.verifyJwt(jwt, secret);
         Claim id = data.get("id");
         if (id == null) {
@@ -73,11 +74,13 @@ public class UserContext {
             return null;
         }
         User user = SpringContext.getBean(UserCacheManager.class).getUser(userId);
-        boolean isSameToken = user != null && Objects.equals(user.getToken(), token);
-        if (isSameToken) {
-            return user;
+        // 是否开启单设备登录
+        String singleLogin = environment.getProperty(TORNA_SINGLE_LOGIN, "false");
+        if (singleLogin.equalsIgnoreCase("true")) {
+            boolean isSameToken = user != null && Objects.equals(user.getToken(), token);
+            return isSameToken ? user : null;
         }
-        return null;
+        return user;
     }
 
 }
