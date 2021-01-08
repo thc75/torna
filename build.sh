@@ -32,7 +32,7 @@ echo "开始构建服务端..."
 
 mvn clean package
 
-cp -r server/start/target/*.jar $target_dir
+cp -r server/boot/target/*.jar $target_dir
 cp -r script/* $target_dir
 
 #echo "打成zip包"

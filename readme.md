@@ -79,7 +79,7 @@
 
 执行`mvn clean package`
 
-将`server/start/target/torna.jar`拷贝到`torna`下
+将`server/boot/target/torna.jar`拷贝到`torna`下
 
 cd front
 
