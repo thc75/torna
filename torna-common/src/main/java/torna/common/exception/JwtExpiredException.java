@@ -3,9 +3,9 @@ package torna.common.exception;
 /**
  * @author tanghc
  */
-public class JwtExpiredException extends RuntimeException implements ExceptionCode {
+public class JwtExpiredException extends Exception {
     @Override
-    public ErrorCode getCode() {
-        return ErrorCode.JWT_EXPIRED;
+    public String getMessage() {
+        return "jwt expired";
     }
 }

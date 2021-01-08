@@ -2,7 +2,7 @@
   <div>
     <el-container>
       <el-aside :width="sidebarOpen ? '200px' : '40px'">
-        <hamburger :is-active="sidebarOpen" class="hamburger-container" @toggleClick="toggleSideBar" />
+        <hamburger :is-active="sidebarOpen" :padding="0" class="hamburger-container" style="margin-bottom: 5px" @toggleClick="toggleSideBar" />
         <ul v-show="sidebarOpen" class="module-menu el-menu">
           <li class="el-submenu is-active is-opened">
             <div class="el-submenu__title" style="padding-left: 20px;">
@@ -50,6 +50,34 @@
             </ul>
           </li>
         </ul>
+        <ul v-show="!sidebarOpen" class="el-menu small-menu">
+          <li class="small-menu-item">
+            <el-dropdown
+              v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
+              trigger="click"
+              style="margin-bottom: 5px;"
+              @command="handleCommand"
+            >
+              <el-button type="text" icon="el-icon-circle-plus-outline"></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">新建模块</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">导入Swagger文档</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-download" :command="onImportPostman">导入Postman文档</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </li>
+          <li
+            v-for="item in moduleData"
+            :key="item.id"
+            class="small-menu-item"
+            :class="{'is-active': isActive(item)}"
+            @click="onModuleSelect(item)"
+          >
+            <el-tooltip placement="right" :content="item.name">
+              <div>{{ item.name.substring(0, 1).toUpperCase() }}</div>
+            </el-tooltip>
+          </li>
+        </ul>
       </el-aside>
       <el-main style="padding-top: 0">
         <doc-info v-show="module" ref="docInfo" :project-id="projectId" :module-id="module.id" />
@@ -81,6 +109,26 @@
 .module-menu .el-menu-item {
   height: 36px;
   line-height: 36px;
+}
+
+.small-menu {
+  .small-menu-item {
+    list-style: none;
+    cursor: pointer;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+  }
+  .is-active {
+    outline: 0;
+    background-color: #ecf5ff;
+    color: #409EFF;
+  }
+  button {
+    color: #909399;
+    padding: 0;
+    font-size: 16px;
+  }
 }
 </style>
 <script>

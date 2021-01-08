@@ -27,6 +27,7 @@ import java.util.Set;
 public class JwtUtil {
 
     private static final Map<String, Object> headerClaims = new HashMap<>();
+
     static {
         headerClaims.put("typ", "JWT");
         headerClaims.put("alg", "HS256");
@@ -54,7 +55,7 @@ public class JwtUtil {
         }
     }
 
-    public static Map<String, Claim> verifyJwt(String token, String secret) {
+    public static Map<String, Claim> verifyJwt(String token, String secret) throws JwtExpiredException, JwtErrorException {
         JWTVerifier verifier = null;
         try {
             verifier = JWT.require(Algorithm.HMAC256(secret)).build();
@@ -66,25 +67,11 @@ public class JwtUtil {
         DecodedJWT jwt;
         try {
             jwt = verifier.verify(token);
-        }
-        /*
-         * @throws AlgorithmMismatchException if the algorithm stated in the
-         * token's header it's not equal to the one defined in the {@link
-         * JWTVerifier}.
-         *
-         * @throws SignatureVerificationException if the signature is invalid.
-         *
-         * @throws TokenExpiredException if the token has expired.
-         *
-         * @throws InvalidClaimException if a claim contained a different value
-         * than the expected one.
-         */
-        catch (TokenExpiredException e) {
+        } catch (TokenExpiredException e) {
             throw new JwtExpiredException();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("验证jwt失败", e);
-            throw new LoginFailureException();
+            throw new JwtErrorException();
         }
 
         return jwt.getClaims();

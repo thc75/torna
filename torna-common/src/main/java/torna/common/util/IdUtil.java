@@ -22,6 +22,11 @@ public class IdUtil {
         return hashids.encode(id);
     }
 
+    /**
+     * decode hashid
+     * @param id hashid
+     * @return return true id, otherwise
+     */
     public static Long decode(String id) {
         if (id == null || "".equals(id)) {
             return null;
@@ -34,7 +39,7 @@ public class IdUtil {
             return arr[0];
         } catch (Exception e) {
             log.error("id decode error, id:{}", id, e);
-            throw new IllegalArgumentException("id错误");
+            return null;
         }
     }
 

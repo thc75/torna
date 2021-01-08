@@ -3,10 +3,10 @@ package torna.common.exception;
 /**
  * @author tanghc
  */
-public class JwtErrorException extends RuntimeException implements ExceptionCode {
+public class JwtErrorException extends Exception {
 
     @Override
-    public ErrorCode getCode() {
-        return ErrorCode.JWT_ERROR;
+    public String getMessage() {
+        return "jwt verify error";
     }
 }
