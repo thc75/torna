@@ -14,6 +14,13 @@
 - 支持导出为markdown格式、html格式
 - 提供`管理模式`和`浏览模式`双模式，管理模式用来编辑文档内容，浏览模式纯粹查阅文档，界面无其它元素干扰
 
+## 工程说明
+
+- front: 前端
+- script: 辅助脚本
+- sdk: OpenAPI对应的SDK
+- server: 服务端
+
 ## 开发部署
 
 ```
@@ -23,8 +30,8 @@
 
 - 导入Mysql脚本
 - IDE安装lombok插件，然后打开项目(IDEA下可以打开根pom.xml，然后open as project)
-- 打开`start/src/main/resources/application-dev.properties`，修改数据库配置
-- 运行`start/src/main/java/torna/TornaApplication.java`
+- 打开`server/start/src/main/resources/application-dev.properties`，修改数据库配置
+- 运行`server/start/src/main/java/torna/TornaApplication.java`
 - 运行前端，见：`front/README.md`
 
 
@@ -56,7 +63,7 @@
 
 执行`build.sh`，构建结果在`dist/torna`目录
 
-复制`start/src/main/resources/application-dev.properties`文件到`dist/torna`下，并重命名为:`application-prod.properties`
+复制`server/start/src/main/resources/application-dev.properties`文件到`dist/torna`下，并重命名为:`application-prod.properties`
 
 修改`application-prod.properties`配置文件内容，改为线上配置
 
@@ -72,7 +79,7 @@
 
 执行`mvn clean package`
 
-将`start/target/torna.jar`拷贝到`torna`下
+将`server/start/target/torna.jar`拷贝到`torna`下
 
 cd front
 
@@ -82,7 +89,7 @@ cd front
 
 将`script`中的脚本文件拷贝到`torna`下
 
-复制`start/src/main/resources/application-dev.properties`文件到`torna`下，并重命名为:`application-prod.properties`
+复制`server/start/src/main/resources/application-dev.properties`文件到`torna`下，并重命名为:`application-prod.properties`
 
 修改`application-prod.properties`配置文件内容，改为线上配置
 
