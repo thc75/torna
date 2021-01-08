@@ -4,31 +4,31 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>torna</groupId>
-        <artifactId>torna</artifactId>
+        <artifactId>server</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>torna-web</artifactId>
-
+    <artifactId>server-api</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
             <groupId>torna</groupId>
-            <artifactId>torna-service</artifactId>
+            <artifactId>server-service</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>net.oschina.durcframework</groupId>
+            <artifactId>easyopen-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
-
-
 </project>

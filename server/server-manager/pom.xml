@@ -4,13 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>torna</groupId>
-        <artifactId>torna</artifactId>
+        <artifactId>server</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>torna-manager</artifactId>
+    <artifactId>server-manager</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>

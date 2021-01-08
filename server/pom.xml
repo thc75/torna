@@ -9,24 +9,24 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>torna</groupId>
-    <artifactId>torna</artifactId>
+    <artifactId>server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>server</name>
-    <description>一体化的企业级接口文档解决方案</description>
+    <description>服务端</description>
 
     <properties>
         <java.version>1.8</java.version>
     </properties>
 
     <modules>
-        <module>start</module>
-        <module>torna-api</module>
-        <module>torna-common</module>
-        <module>torna-dao</module>
-        <module>torna-manager</module>
-        <module>torna-service</module>
-        <module>torna-web</module>
+        <module>boot</module>
+        <module>server-api</module>
+        <module>server-common</module>
+        <module>server-dao</module>
+        <module>server-manager</module>
+        <module>server-service</module>
+        <module>server-web</module>
     </modules>
 
     <dependencyManagement>

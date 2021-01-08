@@ -4,31 +4,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>torna</groupId>
-        <artifactId>torna</artifactId>
+        <artifactId>server</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>torna-api</artifactId>
+    <artifactId>server-dao</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>torna</groupId>
-            <artifactId>torna-service</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>net.oschina.durcframework</groupId>
-            <artifactId>easyopen-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
+            <artifactId>fastmybatis-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
+
 </project>
