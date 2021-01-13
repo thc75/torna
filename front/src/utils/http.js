@@ -74,7 +74,7 @@ export function do_get(uri, data, callback) {
     })
     .catch(error => {
       console.error('error', error)
-      this.$message.error('请求异常，请查看日志')
+      that.$message.error('请求异常，请查看日志')
     })
 }
 
