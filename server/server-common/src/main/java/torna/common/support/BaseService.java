@@ -1,22 +1,22 @@
 package torna.common.support;
 
-import torna.common.util.CopyUtil;
 import com.gitee.fastmybatis.core.mapper.CrudMapper;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import torna.common.util.CopyUtil;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * service基类
+ *
  * @author tanghc
  */
 public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
-    
+
     @Autowired
     private Mapper mapper;
 
@@ -24,11 +24,11 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
         return mapper;
     }
 
-    public PageEasyui<E>  page(Query query) {
+    public PageEasyui<E> page(Query query) {
         return MapperUtil.queryForEasyuiDatagrid(mapper, query);
     }
 
-    public <T> PageEasyui<T>  page(Query query, Class<T> clazz) {
+    public <T> PageEasyui<T> page(Query query, Class<T> clazz) {
         return MapperUtil.queryForEasyuiDatagrid(mapper, query, clazz);
     }
 
@@ -83,6 +83,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 批量添加
+     *
      * @param entityList 添加对象
      * @return 返回影响行数
      */

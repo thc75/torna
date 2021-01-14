@@ -39,7 +39,7 @@ export function get_full_url(uri) {
  */
 export function get(uri, data, callback, errorCallback) {
   const that = this
-  do_get(uri, data, response => {
+  do_get.call(this, uri, data, response => {
     doResponse.call(that, response, callback, errorCallback)
   })
 }
@@ -53,7 +53,7 @@ export function get(uri, data, callback, errorCallback) {
  */
 export function post(uri, data, callback, errorCallback) {
   const that = this
-  do_post(uri, data, response => {
+  do_post.call(this, uri, data, response => {
     doResponse.call(that, response, callback, errorCallback)
   })
 }
