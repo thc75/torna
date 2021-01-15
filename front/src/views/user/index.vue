@@ -1,6 +1,6 @@
 <template>
-  <div class="app-container">
-    <el-page-header content="个人中心" @back="goBack()" />
+  <div>
+    <h3>账号信息</h3>
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane label="基本信息" name="1">
         <user-info />

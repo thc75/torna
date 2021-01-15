@@ -6,6 +6,7 @@ Vue.use(Router)
 /* Layout */
 import Layout from '@/layout'
 import LayoutView from '@/layout_view'
+import LayoutUserCenter from '@/layout/index_user'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -131,7 +132,7 @@ export const constantRoutes = [
   // user
   {
     path: '/user', // 必须/开头
-    component: Layout,
+    component: LayoutUserCenter,
     name: 'User',
     children: [
       {
@@ -139,7 +140,7 @@ export const constantRoutes = [
         name: 'UserInfo',
         hidden: true,
         component: () => import('@/views/user'),
-        meta: { title: '个人中心' }
+        meta: { title: '基本设置' }
       }
     ]
   },
