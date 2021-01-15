@@ -1,21 +1,27 @@
 <template>
   <div class="app-wrapper">
-    <div class="main-container">
-      <navbar />
-      <app-main />
-    </div>
+    <navbar />
+    <el-container style="margin: 20px; border: 1px solid #eee;height: 600px;">
+      <el-aside width="200px">
+        <user-center-menu />
+      </el-aside>
+      <el-main>
+        <app-main style="min-height: 100%;" />
+      </el-main>
+    </el-container>
   </div>
 </template>
 
 <script>
-import { Navbar, AppMain } from './components'
+import { Navbar, AppMain, UserCenterMenu } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 
 export default {
   name: 'Layout',
   components: {
     Navbar,
-    AppMain
+    AppMain,
+    UserCenterMenu
   },
   mixins: [ResizeMixin],
   computed: {
