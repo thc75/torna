@@ -33,8 +33,8 @@ public class OpenUser {
     /** 1启用，0禁用, 数据库字段：status */
     private Byte status;
 
-    /** 备注, 数据库字段：remark */
-    private String remark;
+    /** 申请人, 数据库字段：applicant */
+    private String applicant;
 
     /** space.id, 数据库字段：space_id */
     private Long spaceId;

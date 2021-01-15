@@ -22,11 +22,12 @@ public class OpenUserService extends BaseService<OpenUser, OpenUserMapper> {
         return this.get("app_key", appKey);
     }
 
-    public void createOpenUser(long spaceId) {
+    public void createOpenUser(long spaceId, String applicant) {
         OpenUser openUser = new OpenUser();
         openUser.setAppKey(AppKeyUtil.createAppKey());
         openUser.setSecret(createSecret());
         openUser.setSpaceId(spaceId);
+        openUser.setApplicant(applicant);
         this.save(openUser);
     }
 

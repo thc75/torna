@@ -10,8 +10,7 @@
         <el-button type="primary" icon="el-icon-search" @click="reload">查询</el-button>
       </el-form-item>
     </el-form>
-    <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onAdd">创建新用户
-    </el-button>
+    <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onAdd">新建账号</el-button>
     <el-table
       :data="pageInfo.rows"
       border
@@ -24,6 +23,11 @@
       <el-table-column
         prop="secret"
         label="secret"
+      />
+      <el-table-column
+        prop="applicant"
+        label="申请人"
+        width="150px"
       />
       <el-table-column
         prop="status"
@@ -143,9 +147,21 @@ export default {
       })
     },
     onAdd() {
-      this.post('/openuser/add', { spaceId: this.spaceId }, resp => {
-        this.tipSuccess('创建成功')
-        this.reload()
+      this.$prompt('申请人', '新建账号', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^.{1,64}$/,
+        inputErrorMessage: '不能为空且长度在64以内'
+      }).then(({ value }) => {
+        const data = {
+          spaceId: this.spaceId,
+          applicant: value
+        }
+        this.post('/openuser/add', data, resp => {
+          this.tipSuccess('创建成功')
+          this.reload()
+        })
+      }).catch(() => {
       })
     },
     onSizeChange(size) {

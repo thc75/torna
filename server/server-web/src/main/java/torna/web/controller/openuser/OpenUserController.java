@@ -43,7 +43,7 @@ public class OpenUserController {
 
     @PostMapping("add")
     public Result resetSecret(@RequestBody OpenUserAddParam param) {
-        openUserService.createOpenUser(param.getSpaceId());
+        openUserService.createOpenUser(param.getSpaceId(), param.getApplicant());
         return Result.ok();
     }
 
