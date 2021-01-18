@@ -51,7 +51,7 @@ public class UserContext {
         try {
             return getUser(token);
         } catch (ErrorTokenException e) {
-            return null;
+            throw new LoginFailureException();
         }
     }
 
