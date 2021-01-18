@@ -47,4 +47,11 @@ public class UserSubscribeService extends BaseService<UserSubscribe, UserSubscri
         }
     }
 
+    public void cancelSubscribe(long userId, UserSubscribeTypeEnum userSubscribeTypeEnum, long sourceId) {
+        UserSubscribe userSubscribe = this.getSubscribe(userId, userSubscribeTypeEnum, sourceId);
+        if (userSubscribe != null) {
+            this.delete(userSubscribe);
+        }
+    }
+
 }

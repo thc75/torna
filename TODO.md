@@ -1,4 +1,4 @@
 - √ 文档修改备注， doc_info.remark 
-- 关注文档，user_subscribe（userid, type=1:接口，2：项目，sourceid）
+- √ 关注文档，user_subscribe（userid, type=1:接口，2：项目，sourceid）
 - 站内消息，user_message（userid, message, is_read ）
 - CUD文档消息推送，推送给关注的人并发站内消息

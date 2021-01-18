@@ -1,10 +1,15 @@
 package torna.service;
 
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.param.PageParam;
+import com.gitee.fastmybatis.core.query.param.SchPageableParam;
+import com.gitee.fastmybatis.core.support.PageEasyui;
+import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import torna.common.bean.Booleans;
 import torna.common.bean.User;
 import torna.common.enums.ParamStyleEnum;
@@ -50,6 +55,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .eq("module_id", moduleId)
                 .eq("is_show", Booleans.TRUE);
         return listAll(query);
+    }
+
+    public PageEasyui<DocInfo> pageDocByIds(List<Long> docIds, SchPageableParam pageParam) {
+        if (CollectionUtils.isEmpty(docIds)) {
+            return new PageEasyui<>();
+        }
+        Query query = new Query()
+                .in("id", docIds)
+                .limit(pageParam.getStart(), pageParam.getLimit());
+        return MapperUtil.queryForEasyuiDatagrid(this.getMapper(), query);
     }
 
     /**

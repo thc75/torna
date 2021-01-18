@@ -141,6 +141,13 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/user'),
         meta: { title: '基本设置' }
+      },
+      {
+        path: 'subscribe/doc',
+        name: 'SubscribeDoc',
+        hidden: true,
+        component: () => import('@/views/user/subscribe/doc'),
+        meta: { title: '关注文档' }
       }
     ]
   },

@@ -3,6 +3,14 @@
     <div class="doc-title">
       <h2 style="margin-top: 0">
         {{ docInfo.name }}
+        <el-tooltip placement="top" :content="isSubscribe ? '点击取消关注' : '点击关注'">
+          <el-button
+            type="text"
+            :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
+            style="font-size: 16px"
+            @click="onSubscribe"
+          />
+        </el-tooltip>
         <div style="float: right">
           <el-button v-if="showHistory" type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
           <el-dropdown trigger="click" @command="handleCommand">
@@ -152,7 +160,8 @@ export default {
       },
       responseSuccessExample: {},
       historyShow: false,
-      historyDocId: ''
+      historyDocId: '',
+      isSubscribe: false
     }
   },
   watch: {
@@ -176,7 +185,13 @@ export default {
         })
       }
     },
+    loadSubscribe(id) {
+      this.get('/user/subscribe/doc/isSubscribe', { sourceId: id }, resp => {
+        this.isSubscribe = resp.data
+      })
+    },
     setData: function(data) {
+      this.loadSubscribe(data.id)
       this.docInfo = data
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
@@ -193,6 +208,19 @@ export default {
         this.currentDocInfo = this.docInfo
         this.historyDocId = this.docInfo.id
       })
+    },
+    onSubscribe() {
+      if (!this.isSubscribe) {
+        this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
+          this.tipSuccess('关注成功')
+          this.isSubscribe = true
+        })
+      } else {
+        this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
+          this.tipSuccess('取消关注成功')
+          this.isSubscribe = false
+        })
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 package torna.common.util;
 
+import com.gitee.fastmybatis.core.PageInfo;
+import com.gitee.fastmybatis.core.support.PageEasyui;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
@@ -120,6 +122,22 @@ public class CopyUtil extends BeanUtils {
                 .collect(Collectors.toList());
     }
 
+    public static <T> PageEasyui copyPage(PageEasyui pageInfo, Supplier<T> toElement) {
+        if (pageInfo == null || pageInfo.getRows() == null) {
+            return pageInfo;
+        }
+        List list = (List) pageInfo.getRows()
+                .stream()
+                .map(source -> {
+                    Object target = toElement.get();
+                    BeanUtils.copyProperties(source, target);
+                    return target;
+                })
+                .collect(Collectors.toList());
+        pageInfo.setList(list);
+        return pageInfo;
+    }
+
     public static <E, R> List<R> copyList(List<E> fromList, Function<E, R> function) {
         if (fromList == null) {
             return Collections.emptyList();
@@ -146,4 +164,5 @@ public class CopyUtil extends BeanUtils {
                 })
                 .collect(Collectors.toList());
     }
+
 }
