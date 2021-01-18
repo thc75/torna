@@ -95,6 +95,9 @@
         />
       </el-tab-pane>
     </el-tabs>
+    <div style="margin: 20px;">
+      <el-input v-model="remark" size="mini" placeholder="本次修改备注" show-word-limit maxlength="100" />
+    </div>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">返回</el-button>
       <el-button type="primary" icon="el-icon-finished" @click="submitForm">保存</el-button>
@@ -172,6 +175,7 @@ export default {
         responseParams: [],
         errorCodeParams: []
       },
+      remark: '',
       folders: [],
       rules: {
         name: [
@@ -294,7 +298,8 @@ export default {
               headerParams: this.formatData(headerParams),
               requestParams: this.formatData(requestParams),
               responseParams: this.formatData(responseParams),
-              errorCodeParams: this.formatData(errorCodeParams)
+              errorCodeParams: this.formatData(errorCodeParams),
+              remark: this.remark
             })
             this.post('/doc/save', data, function(resp) {
               this.tipSuccess('保存成功')

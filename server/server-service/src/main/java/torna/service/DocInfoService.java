@@ -195,6 +195,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setIsShow(docInfoDTO.getIsShow());
+        docInfo.setRemark(docInfoDTO.getRemark());
         if (save) {
             this.save(docInfo);
         } else {

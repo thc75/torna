@@ -55,6 +55,8 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private Byte isDeleted;
 
+    private String remark;
+
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
 

@@ -59,6 +59,10 @@
       description-label="错误描述"
       example-label="解决方案"
     />
+    <div v-if="docInfo.remark" class="doc-info-remark">
+      <el-divider content-position="left">修改备注</el-divider>
+      <span>{{ docInfo.remark }}</span>
+    </div>
     <el-dialog
       ref="historyDlg"
       title="变更历史"
