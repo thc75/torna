@@ -81,7 +81,7 @@
       style="margin-top: 5px"
       :current-page="searchFormData.pageIndex"
       :page-size="searchFormData.pageSize"
-      :page-sizes="[5, 10, 20, 40]"
+      :page-sizes="getPageSizeConfig()"
       :total="pageInfo.total"
       layout="total, sizes, prev, pager, next"
       @size-change="onSizeChange"

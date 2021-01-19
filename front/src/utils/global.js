@@ -11,6 +11,8 @@ const SPACE_ID_KEY = 'torna.spaceid'
 const TORNA_FROM = 'torna.from'
 const TORNA_PROJECT_CONFIG = 'torna.project.'
 
+const pageSizeConfig = [5, 10, 20, 50, 100]
+
 const typeConfig = [
   'string',
   'number',
@@ -142,6 +144,9 @@ Object.assign(Vue.prototype, {
   },
   getTypeConfig() {
     return typeConfig
+  },
+  getPageSizeConfig() {
+    return pageSizeConfig
   },
   getBaseTypeConfig() {
     return baseTypeConfig

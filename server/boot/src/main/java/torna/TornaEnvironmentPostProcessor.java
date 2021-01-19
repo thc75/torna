@@ -19,11 +19,17 @@ public class TornaEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     private final Properties properties = new Properties();
 
+    private static final String[] PROPERTIES_FILES = {
+            "META-INF/torna.properties",
+    };
+
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        Resource resource = new ClassPathResource("META-INF/torna.properties");
-        // 加载成PropertySource对象，并添加到Environment环境中
-        environment.getPropertySources().addLast(loadProfiles(resource));
+        for (String propertiesFile : PROPERTIES_FILES) {
+            Resource resource = new ClassPathResource(propertiesFile);
+            // 加载成PropertySource对象，并添加到Environment环境中
+            environment.getPropertySources().addLast(loadProfiles(resource));
+        }
     }
 
     private PropertySource<?> loadProfiles(Resource resource) {

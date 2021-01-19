@@ -24,6 +24,9 @@
         </router-link>
       </div>
       <div class="right-menu-item">
+        <user-message />
+      </div>
+      <div class="right-menu-item">
         <right-dropdown />
       </div>
     </div>
@@ -34,10 +37,11 @@
 import { mapGetters } from 'vuex'
 import AdminMenu from '@/components/AdminMenu'
 import RightDropdown from '@/components/RightDropdown'
+import UserMessage from '@/components/UserMessage'
 
 export default {
   components: {
-    AdminMenu, RightDropdown
+    AdminMenu, RightDropdown, UserMessage
   },
   data() {
     return {
@@ -66,9 +70,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.navbar-btn {
-  font-size: 24px;
-}
 .logo {
   float: left;
   margin-left: 10px;

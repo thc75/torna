@@ -19,11 +19,14 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import torna.common.context.SpringContext;
+import torna.common.message.MessageFactory;
 import torna.common.support.HashIdParamResolver;
 import torna.common.util.FastjsonUtil;
 import torna.web.interceptor.AdminInterceptor;
 import torna.web.interceptor.LoginInterceptor;
 
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -110,5 +113,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         return new HttpMessageConverters(converter);
     }
 
+    @PostConstruct
+    public void after() {
+        List<String> messages = Arrays.asList("i18n/message/message");
+        MessageFactory.initMessageSource(messages);
+    }
 
 }

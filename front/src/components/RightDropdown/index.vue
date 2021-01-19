@@ -21,9 +21,6 @@
   cursor: pointer;
   margin-top: 6px;margin-right: 10px;
 }
-.user-drop-menu {
-  top: 42px !important;
-}
 </style>
 <script>
 export default {

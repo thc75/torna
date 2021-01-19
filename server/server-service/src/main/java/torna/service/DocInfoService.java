@@ -1,7 +1,6 @@
 package torna.service;
 
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
@@ -45,6 +44,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private DocSnapshotService docSnapshotService;
+
+    @Autowired
+    private UserMessageService userMessageService;
 
     public List<DocInfo> listDocMenu(long moduleId) {
         return list("module_id", moduleId);
@@ -216,6 +218,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         } else {
             this.update(docInfo);
         }
+        // 发送站内信
+        userMessageService.sendMessageByModifyDoc(docInfo);
         return docInfo;
     }
 
@@ -280,6 +284,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifyMode(user.getOperationModel());
         docInfo.setModifierId(user.getUserId());
         docInfo.setIsDeleted(Booleans.TRUE);
+        this.userMessageService.sendMessageByDeleteDoc(docInfo);
         this.update(docInfo);
     }
 

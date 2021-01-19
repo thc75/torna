@@ -148,6 +148,13 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/user/subscribe/doc'),
         meta: { title: '关注文档' }
+      },
+      {
+        path: 'message',
+        name: 'Message',
+        hidden: true,
+        component: () => import('@/views/user/message'),
+        meta: { title: '我的消息' }
       }
     ]
   },

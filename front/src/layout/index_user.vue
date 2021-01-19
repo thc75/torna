@@ -1,7 +1,7 @@
 <template>
   <div class="app-wrapper">
     <navbar />
-    <el-container style="margin: 20px; border: 1px solid #eee;height: 600px;">
+    <el-container style="margin: 20px; border: 1px solid #eee;">
       <el-aside width="200px">
         <user-center-menu />
       </el-aside>
