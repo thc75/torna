@@ -440,14 +440,18 @@ export default {
         default:
       }
       this.sendLoading = true
-      request.call(this, item.httpMethod, '/doc/debug', data, headers, isJson, isForm, isMultipart, this.doProxyResponse)
+      const targetHeaders = JSON.stringify(headers)
+      const realHeaders = {
+        'target-headers': targetHeaders,
+        'target-url': this.url
+      }
+      request.call(this, item.httpMethod, '/doc/debug', data, realHeaders, isJson, isForm, isMultipart, this.doProxyResponse)
     },
     buildRequestHeaders() {
       const headers = {}
       this.headerData.forEach(row => {
         headers[row.name] = row.example || ''
       })
-      headers['target-url'] = this.url
       return headers
     },
     getParamObj(array) {
@@ -512,7 +516,7 @@ export default {
       }
     },
     formatResponse(contentType, stringBody) {
-      if (this.isObject(stringBody)) {
+      if (this.isObject(stringBody) || this.isArray(stringBody)) {
         return this.formatJson(stringBody)
       }
       if (!contentType) {

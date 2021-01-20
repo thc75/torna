@@ -1,6 +1,7 @@
 package torna.web.controller.doc;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +38,7 @@ import java.util.Map;
 public class DebugController {
 
     private static final String HEADER_TARGET_URL = "target-url";
+    private static final String HEADER_TARGET_HEADERS = "target-headers";
     private static final HttpTool HTTP_TOOL = new HttpTool();
 
     /**
@@ -48,6 +49,7 @@ public class DebugController {
      */
     @RequestMapping("/debug")
     public void proxy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        // TODO: target-headers
         String url = httpServletRequest.getHeader(HEADER_TARGET_URL);
         String method = httpServletRequest.getMethod();
         String contentType = httpServletRequest.getContentType();
@@ -71,9 +73,6 @@ public class DebugController {
         }
 
         Request.Builder requestBuilder = new Request.Builder().url(url);
-        // 添加header
-        headers.remove("host");
-        headers.remove("accept-encoding");
         HttpTool.addHeader(requestBuilder, headers);
 
         switch (method.toUpperCase()) {
@@ -117,7 +116,7 @@ public class DebugController {
             }
             httpServletResponse.flushBuffer();
         } catch (IOException e) {
-            log.error("请求异常, url:{}",url, e);
+            log.error("请求异常, url:{}", url, e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -171,14 +170,12 @@ public class DebugController {
     }
 
     private Map<String, String> getHeaders(HttpServletRequest request) {
-        Enumeration<String> headerNames = request.getHeaderNames();
+        String header = request.getHeader(HEADER_TARGET_HEADERS);
+        JSONObject headersJson = JSON.parseObject(header);
         Map<String, String> headers = new HashMap<>(8);
-        while (headerNames.hasMoreElements()) {
-            String name = headerNames.nextElement();
-            if (!HEADER_TARGET_URL.equals(name)) {
-                headers.put(name, request.getHeader(name));
-            }
-        }
+        headersJson.forEach((key, value) -> {
+            headers.put(key, value.toString());
+        });
         return headers;
     }
 
