@@ -107,18 +107,12 @@ function get_token() {
   return `Bearer ${token}`
 }
 
-export function request(method, uri, data, headers, isJson, isForm, isMultipart, callback) {
+export function request(method, uri, data, headers, isMultipart, callback) {
   if (isMultipart) {
     doMultipart.call(this, uri, data, headers, callback)
     return
   }
   const that = this
-  if (isForm) {
-    headers['Content-Type'] = 'application/x-www-form-urlencoded'
-  }
-  if (isJson) {
-    headers['Content-Type'] = 'application/json'
-  }
   const methodUpper = method.toUpperCase()
   const hasQuery = methodUpper === 'GET' || methodUpper === 'HEAD'
   const params = hasQuery ? data : {}

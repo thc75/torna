@@ -49,11 +49,10 @@ public class DebugController {
      */
     @RequestMapping("/debug")
     public void proxy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        // TODO: target-headers
         String url = httpServletRequest.getHeader(HEADER_TARGET_URL);
         String method = httpServletRequest.getMethod();
-        String contentType = httpServletRequest.getContentType();
-        Map<String, String> headers = this.getHeaders(httpServletRequest);
+        Headers headers = this.getHeaders(httpServletRequest);
+        String contentType = headers.getValue("Content-Type");
         String queryString = httpServletRequest.getQueryString();
         if (StringUtils.hasLength(queryString)) {
             url = url + "?" + queryString;
@@ -169,14 +168,34 @@ public class DebugController {
         return RequestBody.create(MediaType.parse(request.getContentType()), body);
     }
 
-    private Map<String, String> getHeaders(HttpServletRequest request) {
+    private Headers getHeaders(HttpServletRequest request) {
         String header = request.getHeader(HEADER_TARGET_HEADERS);
+        if (StringUtils.isEmpty(header)) {
+            header = "{}";
+        }
         JSONObject headersJson = JSON.parseObject(header);
-        Map<String, String> headers = new HashMap<>(8);
-        headersJson.forEach((key, value) -> {
-            headers.put(key, value.toString());
-        });
-        return headers;
+        return new Headers(headersJson);
+    }
+
+    static class Headers extends HashMap<String, String> {
+
+        public Headers() {
+        }
+
+        public Headers(Map<? extends String, ?> m) {
+            m.forEach((key, value) -> {
+                put(key, value.toString());
+            });
+        }
+
+        public String getValue(String name) {
+            for (Map.Entry<String, String> entry : this.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(name)) {
+                    return entry.getValue();
+                }
+            }
+            return null;
+        }
     }
 
 }

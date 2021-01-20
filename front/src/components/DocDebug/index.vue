@@ -439,13 +439,19 @@ export default {
           break
         default:
       }
+      if (isForm) {
+        headers['Content-Type'] = 'application/x-www-form-urlencoded'
+      }
+      if (isJson) {
+        headers['Content-Type'] = 'application/json'
+      }
       this.sendLoading = true
       const targetHeaders = JSON.stringify(headers)
       const realHeaders = {
         'target-headers': targetHeaders,
         'target-url': this.url
       }
-      request.call(this, item.httpMethod, '/doc/debug', data, realHeaders, isJson, isForm, isMultipart, this.doProxyResponse)
+      request.call(this, item.httpMethod, '/doc/debug', data, realHeaders, isMultipart, this.doProxyResponse)
     },
     buildRequestHeaders() {
       const headers = {}
