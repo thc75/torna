@@ -33,7 +33,7 @@ import java.util.Map;
  * @author tanghc
  */
 @RestController
-@RequestMapping("doc")
+@RequestMapping("doc/debug")
 @Slf4j
 public class DebugController {
 
@@ -47,7 +47,7 @@ public class DebugController {
      * @param httpServletRequest
      * @param httpServletResponse
      */
-    @RequestMapping("/debug")
+    @RequestMapping("/v0")
     public void proxy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String url = httpServletRequest.getHeader(HEADER_TARGET_URL);
         String method = httpServletRequest.getMethod();

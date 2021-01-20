@@ -14,6 +14,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * http请求工具，基于OKHTTP3
+ *
  * @author tanghc
  */
 public class HttpTool {
@@ -55,29 +65,69 @@ public class HttpTool {
     }
 
     protected void initHttpClient(HttpToolConfig httpToolConfig) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                // 设置链接超时时间，默认10秒
-                .connectTimeout(httpToolConfig.connectTimeoutSeconds, TimeUnit.SECONDS)
-                .readTimeout(httpToolConfig.readTimeoutSeconds, TimeUnit.SECONDS)
-                .writeTimeout(httpToolConfig.writeTimeoutSeconds, TimeUnit.SECONDS)
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
-                        cookieStore.put(httpUrl.host(), list);
-                    }
+        try {
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                    // 设置链接超时时间，默认10秒
+                    .connectTimeout(httpToolConfig.connectTimeoutSeconds, TimeUnit.SECONDS)
+                    .readTimeout(httpToolConfig.readTimeoutSeconds, TimeUnit.SECONDS)
+                    .writeTimeout(httpToolConfig.writeTimeoutSeconds, TimeUnit.SECONDS)
+                    .sslSocketFactory(createSSLSocketFactory())
+                    .hostnameVerifier(new TrustAllHostnameVerifier())
+                    .cookieJar(new CookieJar() {
+                        @Override
+                        public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
+                            cookieStore.put(httpUrl.host(), list);
+                        }
 
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl httpUrl) {
-                        List<Cookie> cookies = cookieStore.get(httpUrl.host());
-                        return cookies != null ? cookies : new ArrayList<Cookie>();
-                    }
-                });
-        String basicAuthUsername = httpToolConfig.basicAuthUsername;
-        String basicAuthPassword = httpToolConfig.basicAuthPassword;
-        if (basicAuthUsername != null && basicAuthPassword != null) {
-            builder.addInterceptor(new BasicAuthInterceptor(basicAuthUsername, basicAuthPassword));
+                        @Override
+                        public List<Cookie> loadForRequest(HttpUrl httpUrl) {
+                            List<Cookie> cookies = cookieStore.get(httpUrl.host());
+                            return cookies != null ? cookies : new ArrayList<Cookie>();
+                        }
+                    });
+            String basicAuthUsername = httpToolConfig.basicAuthUsername;
+            String basicAuthPassword = httpToolConfig.basicAuthPassword;
+            if (basicAuthUsername != null && basicAuthPassword != null) {
+                builder.addInterceptor(new BasicAuthInterceptor(basicAuthUsername, basicAuthPassword));
+            }
+            this.httpClient = builder.build();
+        } catch (Exception e) {
+            throw new RuntimeException("创建httpClient对象失败", e);
         }
-        this.httpClient = builder.build();
+    }
+
+    private static class TrustAllHostnameVerifier implements HostnameVerifier {
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    }
+
+    private  SSLSocketFactory createSSLSocketFactory() {
+        SSLSocketFactory ssfFactory = null;
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, new TrustManager[]{new TrustAllCerts()}, new SecureRandom());
+            ssfFactory = sc.getSocketFactory();
+        } catch (Exception e) {
+        }
+
+        return ssfFactory;
+    }
+
+    public static class TrustAllCerts implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
     }
 
     public static class HttpToolConfig {
@@ -192,8 +242,9 @@ public class HttpTool {
 
     /**
      * 请求json数据，contentType=application/json
-     * @param url 请求路径
-     * @param json json数据
+     *
+     * @param url    请求路径
+     * @param json   json数据
      * @param header header
      * @return 返回响应结果
      * @throws IOException
@@ -370,13 +421,13 @@ public class HttpTool {
         return Optional.ofNullable(response)
                 .map(Response::body)
                 .map(body -> {
-            try {
-                return body.string();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "";
-            }
-        }).orElse("");
+                    try {
+                        return body.string();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return "";
+                    }
+                }).orElse("");
     }
 
     public void setCookieStore(Map<String, List<Cookie>> cookieStore) {
@@ -388,15 +439,25 @@ public class HttpTool {
     }
 
     public enum HTTPMethod {
-        /** http GET */
+        /**
+         * http GET
+         */
         GET,
-        /** http POST */
+        /**
+         * http POST
+         */
         POST,
-        /** http PUT */
+        /**
+         * http PUT
+         */
         PUT,
-        /** http HEAD */
+        /**
+         * http HEAD
+         */
         HEAD,
-        /** http DELETE */
+        /**
+         * http DELETE
+         */
         DELETE;
 
         private HTTPMethod() {
@@ -413,6 +474,7 @@ public class HttpTool {
 
     /**
      * 文件上传类
+     *
      * @author tanghc
      */
     public static class UploadFile implements Serializable {
@@ -428,9 +490,9 @@ public class HttpTool {
         }
 
         /**
-         * @param name 表单名称，不能重复
+         * @param name     表单名称，不能重复
          * @param fileName 文件名
-         * @param input 文件流
+         * @param input    文件流
          * @throws IOException
          */
         public UploadFile(String name, String fileName, InputStream input) throws IOException {
@@ -438,7 +500,7 @@ public class HttpTool {
         }
 
         /**
-         * @param name 表单名称，不能重复
+         * @param name     表单名称，不能重复
          * @param fileName 文件名
          * @param fileData 文件数据
          */
@@ -512,6 +574,7 @@ public class HttpTool {
 
         /**
          * 将文件流转换成byte[]
+         *
          * @param input
          * @return
          * @throws IOException
@@ -529,6 +592,7 @@ public class HttpTool {
 
         /**
          * 将文件转换成数据流
+         *
          * @param file 文件
          * @return 返回数据流
          * @throws IOException

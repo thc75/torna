@@ -84,6 +84,16 @@
                 <artifactId>java-jwt</artifactId>
                 <version>3.2.0</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>4.5.12</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

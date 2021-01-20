@@ -447,11 +447,10 @@ export default {
       }
       this.sendLoading = true
       const targetHeaders = JSON.stringify(headers)
-      const realHeaders = {
-        'target-headers': targetHeaders,
-        'target-url': this.url
-      }
-      request.call(this, item.httpMethod, '/doc/debug', data, realHeaders, isMultipart, this.doProxyResponse)
+      const realHeaders = Object.assign({}, headers)
+      realHeaders['target-headers'] = targetHeaders
+      realHeaders['target-url'] = this.url
+      request.call(this, item.httpMethod, '/doc/debug/v1', data, realHeaders, isMultipart, this.doProxyResponse)
     },
     buildRequestHeaders() {
       const headers = {}

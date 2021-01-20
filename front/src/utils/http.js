@@ -115,8 +115,8 @@ export function request(method, uri, data, headers, isMultipart, callback) {
   const that = this
   const methodUpper = method.toUpperCase()
   const hasQuery = methodUpper === 'GET' || methodUpper === 'HEAD'
-  const params = hasQuery ? data : {}
-  const postData = !hasQuery ? data : {}
+  const params = hasQuery ? data : null
+  const postData = !hasQuery ? data : null
   axios.request({
     url: get_full_url(uri),
     method: method,

@@ -237,31 +237,36 @@ export default {
       }
     },
     onUrlInput(url) {
-      if (url && url.indexOf('{')) {
-        // 获取{}之间的字符
-        const params = url.match(/[^{]+(?=})/g)
-        if (params) {
-          const pathParams = this.docInfo.pathParams
-          const pathParamsNew = []
-          for (const paramName of params) {
-            let add = false
-            if (pathParams.length > 0) {
-              for (const pathParam of pathParams) {
-                if (pathParam.name === paramName) {
-                  pathParamsNew.push(pathParam)
-                  add = true
-                  break
-                }
+      // 获取{}之间的字符
+      const params = url.match(/[^{]+(?=})/g)
+      if (params) {
+        const pathParams = this.docInfo.pathParams
+        pathParams.forEach(row => {
+          row.isDeleted = 1
+        })
+        for (const paramName of params) {
+          let add = false
+          if (pathParams.length > 0) {
+            for (const pathParam of pathParams) {
+              // 已经存在
+              if (pathParam.name === paramName) {
+                pathParam.isDeleted = 0
+                add = true
+                break
               }
             }
-            if (!add) {
-              const row = this.getParamNewRow()
-              row.name = paramName
-              pathParamsNew.push(row)
-            }
           }
-          this.docInfo.pathParams = pathParamsNew
+          // 不存在，添加新的
+          if (!add) {
+            const row = this.getParamNewRow()
+            row.name = paramName
+            this.docInfo.pathParams.push(row)
+          }
         }
+      } else {
+        this.docInfo.pathParams.forEach(row => {
+          row.isDeleted = 1
+        })
       }
     },
     onParamAdd: function(row) {
