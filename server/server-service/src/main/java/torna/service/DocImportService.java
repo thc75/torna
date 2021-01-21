@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import torna.common.bean.HttpTool;
+import torna.common.bean.HttpHelper;
 import torna.common.bean.User;
 import torna.common.enums.ParamStyleEnum;
 import torna.common.exception.BizException;
@@ -97,11 +96,20 @@ public class DocImportService {
         String json;
         String url = importSwaggerDTO.getImportUrl();
         try {
-            HttpTool httpTool = new HttpTool(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword());
-            Response response = httpTool.requestForResponse(url, null, null, HttpTool.HTTPMethod.GET);
-            String body = response.body().string();
-            if (response.code() != HttpStatus.OK.value()) {
-                throw new BizException(body);
+            HttpHelper.ResponseResult responseResult = HttpHelper
+                    .create()
+                    .basicAuth(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword())
+                    .url(url)
+                    .method("get")
+                    .execute();
+            String body = responseResult.asString();
+            int status = responseResult.getStatus();
+            if (status == HttpStatus.UNAUTHORIZED.value()) {
+                throw new BizException("认证失败");
+            }
+            if (status != HttpStatus.OK.value()) {
+                log.error("导入swagger错误，url:{}, \n{}", url, body);
+                throw new BizException("导入错误，请查看日志");
             }
             json = body;
         } catch (IOException e) {

@@ -439,15 +439,24 @@ export default {
           break
         default:
       }
+      if (isForm) {
+        headers['Content-Type'] = 'application/x-www-form-urlencoded'
+      }
+      if (isJson) {
+        headers['Content-Type'] = 'application/json'
+      }
       this.sendLoading = true
-      request.call(this, item.httpMethod, '/doc/debug', data, headers, isJson, isForm, isMultipart, this.doProxyResponse)
+      const targetHeaders = JSON.stringify(headers)
+      const realHeaders = Object.assign({}, headers)
+      realHeaders['target-headers'] = targetHeaders
+      realHeaders['target-url'] = this.url
+      request.call(this, item.httpMethod, '/doc/debug/v1', data, realHeaders, isMultipart, this.doProxyResponse)
     },
     buildRequestHeaders() {
       const headers = {}
       this.headerData.forEach(row => {
         headers[row.name] = row.example || ''
       })
-      headers['target-url'] = this.url
       return headers
     },
     getParamObj(array) {
@@ -512,7 +521,7 @@ export default {
       }
     },
     formatResponse(contentType, stringBody) {
-      if (this.isObject(stringBody)) {
+      if (this.isObject(stringBody) || this.isArray(stringBody)) {
         return this.formatJson(stringBody)
       }
       if (!contentType) {

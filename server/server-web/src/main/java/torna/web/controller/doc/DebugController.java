@@ -1,20 +1,14 @@
 package torna.web.controller.doc;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import torna.common.bean.HttpTool;
+import torna.common.bean.HttpHelper;
 import torna.common.util.UploadUtil;
 
 import javax.servlet.ServletInputStream;
@@ -24,162 +18,150 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
  */
 @RestController
-@RequestMapping("doc")
+@RequestMapping("doc/debug")
 @Slf4j
 public class DebugController {
 
     private static final String HEADER_TARGET_URL = "target-url";
-    private static final HttpTool HTTP_TOOL = new HttpTool();
+    private static final String HEADER_TARGET_HEADERS = "target-headers";
 
     /**
      * 代理转发，前端调试请求转发到具体的服务器
-     *
-     * @param httpServletRequest
-     * @param httpServletResponse
      */
-    @RequestMapping("/debug")
-    public void proxy(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        String url = httpServletRequest.getHeader(HEADER_TARGET_URL);
-        String method = httpServletRequest.getMethod();
-        String contentType = httpServletRequest.getContentType();
-        Map<String, String> headers = this.getHeaders(httpServletRequest);
-        String queryString = httpServletRequest.getQueryString();
+    @RequestMapping("/v1")
+    public void proxy(HttpServletRequest request, HttpServletResponse response) {
+        String url = request.getHeader(HEADER_TARGET_URL);
+        String method = request.getMethod();
+        Headers headers = this.getHeaders(request);
+        String contentType = headers.getValue("Content-Type");
+        String queryString = request.getQueryString();
         if (StringUtils.hasLength(queryString)) {
             url = url + "?" + queryString;
         }
 
-        RequestBody requestBody = null;
+        HttpHelper httpHelper;
         if (contentType != null) {
             String contentTypeLower = contentType.toLowerCase();
             // 如果是文件上传
             if (contentTypeLower.contains("multipart")) {
-                requestBody = getMultipartBody(httpServletRequest);
+                Map<String, String> form = getForm(request);
+                List<HttpHelper.UploadFile> multipartFiles = getMultipartFiles(request);
+                httpHelper = HttpHelper.postForm(url, form, multipartFiles.toArray(new HttpHelper.UploadFile[0]));
             } else if (contentTypeLower.contains("x-www-form-urlencoded")) {
-                requestBody = getFormBody(httpServletRequest);
+                Map<String, String> form = getForm(request);
+                httpHelper = HttpHelper.postForm(url, form);
+            } else if (contentTypeLower.contains("json")) {
+                String text = getText(request);
+                httpHelper = HttpHelper.postJson(url, text);
             } else {
-                requestBody = getApplicationBody(httpServletRequest);
+                String text = getText(request);
+                httpHelper = HttpHelper.postText(url, text, contentType);
             }
+        } else {
+            httpHelper = HttpHelper
+                    .create()
+                    .url(url)
+                    .method(method);
         }
+        httpHelper.headers(headers);
 
-        Request.Builder requestBuilder = new Request.Builder().url(url);
-        // 添加header
-        headers.remove("host");
-        headers.remove("accept-encoding");
-        HttpTool.addHeader(requestBuilder, headers);
-
-        switch (method.toUpperCase()) {
-            case "GET":
-                requestBuilder = requestBuilder.get();
-                break;
-            case "POST":
-                requestBuilder = requestBuilder.post(requestBody);
-                break;
-            case "PUT":
-                requestBuilder = requestBuilder.put(requestBody);
-                break;
-            case "PATCH":
-                requestBuilder = requestBuilder.patch(requestBody);
-                break;
-            case "DELETE":
-                requestBuilder = requestBuilder.delete(requestBody);
-                break;
-            case "HEAD":
-                requestBuilder = requestBuilder.head();
-                break;
-            default: {
-                requestBuilder = requestBuilder.get();
-            }
-        }
-
-        Request request = requestBuilder.build();
-        try (Response response = HTTP_TOOL.getHttpClient().newCall(request).execute()) {
-            Map<String, List<String>> headersMap = response.headers().toMultimap();
-            Map<String, String> targetHeaders = new HashMap<>(headersMap.size() * 2);
-            headersMap.forEach((key, value) -> {
-                String headerValue = String.join(",", value);
-                httpServletResponse.setHeader(key, headerValue);
-                targetHeaders.put(key, headerValue);
-            });
-            httpServletResponse.addHeader("target-response-headers", JSON.toJSONString(targetHeaders));
-            ResponseBody body = response.body();
-            if (body != null) {
-                InputStream inputStream = body.byteStream();
-                IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
-            }
-            httpServletResponse.flushBuffer();
+        HttpHelper.ResponseResult responseResult = null;
+        try {
+            responseResult = httpHelper.execute();
+            Map<String, String> targetHeaders = responseResult.getHeaders();
+            response.addHeader("target-response-headers", JSON.toJSONString(targetHeaders));
+            InputStream inputStream = responseResult.asStream();
+            IOUtils.copy(inputStream, response.getOutputStream());
+            response.flushBuffer();
         } catch (IOException e) {
-            log.error("请求异常, url:{}",url, e);
+            log.error("请求异常, url:{}", url, e);
             throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            httpHelper.closeResponse();
         }
     }
 
-    private RequestBody getMultipartBody(HttpServletRequest request) {
-        // 创建MultipartBody.Builder，用于添加请求的数据
-        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
-        bodyBuilder.setType(MultipartBody.FORM);
+    private List<HttpHelper.UploadFile> getMultipartFiles(HttpServletRequest request) {
         Collection<MultipartFile> files = UploadUtil.getUploadFiles(request);
-        for (MultipartFile uploadFile : files) {
-            // 请求的名字
-            try {
-                bodyBuilder.addFormDataPart(
-                        // 表单名
-                        uploadFile.getName(),
-                        // 文件名，服务器端用来解析的
-                        uploadFile.getOriginalFilename(),
-                        // 创建RequestBody，把上传的文件放入
-                        RequestBody.create(null, uploadFile.getBytes())
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        // 设置文本参数
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-            bodyBuilder.addFormDataPart(entry.getKey(), entry.getValue()[0]);
-        }
-        return bodyBuilder.build();
+        return files.stream()
+                .map(multipartFile -> {
+                    try {
+                        return new HttpHelper.UploadFile(multipartFile.getName(),
+                                multipartFile.getOriginalFilename(),
+                                multipartFile.getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    private RequestBody getFormBody(HttpServletRequest request) {
+    private Map<String, String> getForm(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
-        FormBody.Builder paramBuilder = new FormBody.Builder(StandardCharsets.UTF_8);
-        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-            paramBuilder.add(entry.getKey(), entry.getValue()[0]);
+        if (parameterMap == null) {
+            return Collections.emptyMap();
         }
-        return paramBuilder.build();
+        Map<String, String> form = new HashMap<>();
+        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+            form.put(entry.getKey(), entry.getValue()[0]);
+        }
+        return form;
     }
 
-    private RequestBody getApplicationBody(HttpServletRequest request) {
-        byte[] body = new byte[0];
+    private String getText(HttpServletRequest request) {
         try {
             ServletInputStream inputStream = request.getInputStream();
-            body = IOUtils.toByteArray(inputStream);
+            return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return RequestBody.create(MediaType.parse(request.getContentType()), body);
+        return "";
     }
 
-    private Map<String, String> getHeaders(HttpServletRequest request) {
-        Enumeration<String> headerNames = request.getHeaderNames();
-        Map<String, String> headers = new HashMap<>(8);
-        while (headerNames.hasMoreElements()) {
-            String name = headerNames.nextElement();
-            if (!HEADER_TARGET_URL.equals(name)) {
-                headers.put(name, request.getHeader(name));
-            }
+    private Headers getHeaders(HttpServletRequest request) {
+        String header = request.getHeader(HEADER_TARGET_HEADERS);
+        if (StringUtils.isEmpty(header)) {
+            header = "{}";
         }
+        JSONObject headersJson = JSON.parseObject(header);
+        Headers headers = new Headers(headersJson);
+        String contentType = request.getContentType();
+        headers.put("Content-Type", contentType);
         return headers;
+    }
+
+    static class Headers extends HashMap<String, String> {
+
+        public Headers() {
+        }
+
+        public Headers(Map<? extends String, ?> m) {
+            m.forEach((key, value) -> {
+                put(key, value.toString());
+            });
+        }
+
+        public String getValue(String name) {
+            for (Entry<String, String> entry : this.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(name)) {
+                    return entry.getValue();
+                }
+            }
+            return null;
+        }
     }
 
 }
