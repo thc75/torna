@@ -1,5 +1,7 @@
 package torna.common.bean;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -82,31 +84,39 @@ public class HttpHelper {
     }
 
 
-    public static HttpHelper build() {
+    public static HttpHelper create() {
         return new HttpHelper();
     }
 
+
     /**
-     * 创建basic认证
+     * 设置basic认证
      *
      * @param username 用户名
      * @param password 密码
      * @return 返回HttpHelper
      */
-    public static HttpHelper build(String username, String password) {
+    public HttpHelper basicAuth(String username, String password) {
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         Credentials credentials = new UsernamePasswordCredentials(username, password);
         credentialsProvider.setCredentials(AuthScope.ANY, credentials);
         HttpClientContext context = HttpClientContext.create();
         context.setCredentialsProvider(credentialsProvider);
-        return build().content(context);
+        this.context(context);
+        return this;
     }
 
-    public HttpHelper content(HttpContext context) {
+    public HttpHelper context(HttpContext context) {
         this.context = context;
         return this;
     }
 
+    /**
+     * 设置URL
+     *
+     * @param url url
+     * @return 返回HttpHelper
+     */
     public HttpHelper url(String url) {
         this.url = url;
         return this;
@@ -116,8 +126,6 @@ public class HttpHelper {
         this.method = HTTPMethod.of(method);
         return this;
     }
-
-
 
     public HttpHelper headers(Map<String, String> headers) {
         this.headers = headers;
@@ -132,6 +140,12 @@ public class HttpHelper {
         return this;
     }
 
+    /**
+     * 发送请求
+     *
+     * @return 返回响应结果
+     * @throws IOException
+     */
     public ResponseResult execute() throws IOException {
         HttpUriRequest request = this.buildHttpRequest();
         HttpResponse response = this.client.execute(request, this.context);
@@ -148,7 +162,7 @@ public class HttpHelper {
 
 
     public static HttpHelper get(String url) {
-        return build()
+        return create()
                 .url(url)
                 .method(HTTPMethod.GET.value());
     }
@@ -165,7 +179,7 @@ public class HttpHelper {
     }
 
     public static HttpHelper postText(String url, String text, String contentType) {
-        HttpHelper httpHelper = build()
+        HttpHelper httpHelper = create()
                 .url(url)
                 .method(HTTPMethod.POST.value());
         StringEntity entity = new StringEntity(text, ContentType.create(contentType, StandardCharsets.UTF_8));
@@ -229,7 +243,7 @@ public class HttpHelper {
     }
 
     private static HttpHelper post(String url) {
-        return build()
+        return create()
                 .url(url)
                 .method(HTTPMethod.POST.value());
     }
@@ -317,6 +331,7 @@ public class HttpHelper {
 
     public interface ResponseResult {
         int getStatus();
+
         String asString() throws IOException;
 
         InputStream asStream() throws IOException;
@@ -414,7 +429,7 @@ public class HttpHelper {
          * @throws IOException
          */
         public UploadFile(String name, File file) throws IOException {
-            this(name, file.getName(), HttpTool.FileUtil.toBytes(file));
+            this(name, file.getName(), FileUtils.readFileToByteArray(file));
         }
 
         /**
@@ -424,7 +439,7 @@ public class HttpHelper {
          * @throws IOException
          */
         public UploadFile(String name, String fileName, InputStream input) throws IOException {
-            this(name, fileName, HttpTool.FileUtil.toBytes(input));
+            this(name, fileName, IOUtils.toByteArray(input));
         }
 
         /**

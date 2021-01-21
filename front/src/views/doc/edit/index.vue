@@ -29,6 +29,7 @@
               v-show="docInfo.url && docInfo.pathParams.length > 0"
               ref="pathParamTable"
               :data="docInfo.pathParams"
+              :getter="(rows) => { return rows.filter(row => row.isDeleted === 0) }"
               :module-id="moduleId"
               name-label="Path参数"
               :name-width="200"
@@ -239,11 +240,11 @@ export default {
     onUrlInput(url) {
       // 获取{}之间的字符
       const params = url.match(/[^{]+(?=})/g)
+      const pathParams = this.docInfo.pathParams
+      pathParams.forEach(row => {
+        row.isDeleted = 1
+      })
       if (params) {
-        const pathParams = this.docInfo.pathParams
-        pathParams.forEach(row => {
-          row.isDeleted = 1
-        })
         for (const paramName of params) {
           let add = false
           if (pathParams.length > 0) {
@@ -263,10 +264,6 @@ export default {
             this.docInfo.pathParams.push(row)
           }
         }
-      } else {
-        this.docInfo.pathParams.forEach(row => {
-          row.isDeleted = 1
-        })
       }
     },
     onParamAdd: function(row) {

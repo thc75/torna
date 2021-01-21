@@ -1,6 +1,6 @@
 <template>
   <el-table
-    :data="rows"
+    :data="getter(rows)"
     border
     row-key="id"
     default-expand-all
@@ -184,6 +184,10 @@ export default {
     hiddenColumns: {
       type: Array,
       default: () => []
+    },
+    getter: {
+      type: Function,
+      default: (rows) => { return rows }
     }
   },
   data() {

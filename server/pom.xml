@@ -60,11 +60,6 @@
                 <version>29.0-jre</version>
             </dependency>
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>3.14.7</version>
-            </dependency>
-            <dependency>
                 <groupId>org.hashids</groupId>
                 <artifactId>hashids</artifactId>
                 <version>1.0.3</version>

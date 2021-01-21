@@ -96,7 +96,9 @@ public class DocImportService {
         String json;
         String url = importSwaggerDTO.getImportUrl();
         try {
-            HttpHelper.ResponseResult responseResult = HttpHelper.build(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword())
+            HttpHelper.ResponseResult responseResult = HttpHelper
+                    .create()
+                    .basicAuth(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword())
                     .url(url)
                     .method("get")
                     .execute();
