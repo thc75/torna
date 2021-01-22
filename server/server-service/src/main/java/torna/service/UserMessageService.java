@@ -38,12 +38,13 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
     @Autowired
     private UserSubscribeService userSubscribeService;
 
-    public List<UserMessage> listUserUnReadMessage(long userId) {
+    public List<UserMessage> listUserUnReadMessage(long userId, int limit) {
         Query query = new Query()
                 .eq("user_id", userId)
                 .eq("is_read", Booleans.FALSE)
-                .orderby("id", Sort.DESC);
-        return this.listAll(query);
+                .orderby("id", Sort.DESC)
+                .limit(0, limit);
+        return this.list(query);
     }
 
     public PageEasyui<UserMessage> pageMessage(long userId, SchPageableParam pageableParam) {

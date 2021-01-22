@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import torna.common.bean.Result;
 import torna.common.bean.User;
@@ -33,9 +34,9 @@ public class UserMessageController {
      * 查询未读信息
      */
     @GetMapping("unread")
-    public Result<List<UserMessageVO>> unread() {
+    public Result<List<UserMessageVO>> unread(@RequestParam(defaultValue = "10") int limit) {
         User user = UserContext.getUser();
-        List<UserMessage> userMessages = userMessageService.listUserUnReadMessage(user.getUserId());
+        List<UserMessage> userMessages = userMessageService.listUserUnReadMessage(user.getUserId(), limit);
         List<UserMessageVO> userMessageVOS = CopyUtil.copyList(userMessages, UserMessageVO::new);
         return Result.ok(userMessageVOS);
     }
