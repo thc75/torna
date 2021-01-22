@@ -20,19 +20,20 @@
 - script: 辅助脚本
 - sdk: OpenAPI对应的SDK
 - server: 服务端
+- mysql.sql：数据库脚本
 
 ## 开发部署
 
 ```
 开发环境：Java8, Maven3, Nodejs11+, Mysql5.7+
-软件架构：服务端 SpringBoot-2.3.4.RELEASE，前端 elementUI + vue2
+软件架构：服务端 SpringBoot-2.3.4.RELEASE，前端 elementUI-2.13.0 + vue2
 ```
 
 - 导入Mysql脚本
 - IDE安装lombok插件，然后打开项目(IDEA下可以打开根pom.xml，然后open as project)
 - 打开`server/boot/src/main/resources/application-dev.properties`，修改数据库配置
 - 运行`server/boot/src/main/java/torna/TornaApplication.java`
-- 运行前端，见：`front/README.md`
+- 运行前端，见：[front/README.md](./front/README.md)
 
 
 体验账号：
