@@ -200,7 +200,7 @@ export default {
   methods: {
     loadMenu: function() {
       this.do_get('/api/json/doc', {}, response => {
-        const resp = response.body
+        const resp = response.data
         this.apiModules = resp.apiModules
         this.$nextTick(() => {
           this.openMenu = this.apiModules.map(row => row.name)
