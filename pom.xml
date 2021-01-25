@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>torna</groupId>
     <artifactId>torna-pro</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>一体化的企业级接口文档解决方案</description>
 
