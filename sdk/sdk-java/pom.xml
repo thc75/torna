@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.oschina.durcframework</groupId>
 	<artifactId>torna-sdk</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>torna-sdk</name>
@@ -27,7 +27,7 @@
 		<connection>scm:git:https://gitee.com/durcframework/torna.git</connection>
 		<developerConnection>scm:git:https://gitee.com/durcframework/torna.git</developerConnection>
 		<url>https://gitee.com/durcframework/torna.git</url>
-		<tag>HEAD</tag>
+		<tag>torna-sdk-1.0.0</tag>
 	</scm>
 
 	<properties>
