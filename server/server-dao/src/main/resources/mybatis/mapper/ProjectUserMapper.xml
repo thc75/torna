@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="torna.dao.mapper.ProjectUserMapper">
+<mapper namespace="cn.torna.dao.mapper.ProjectUserMapper">
 
     <insert id="insertBatch">
         INSERT INTO `project_user`

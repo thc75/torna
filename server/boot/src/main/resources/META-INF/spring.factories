@@ -1,2 +1,2 @@
 # 自定义自动配置类,如果有多个类，使用逗号（，）分隔，\正斜杠标示换行还可以读取到指定的类
-org.springframework.boot.env.EnvironmentPostProcessor=torna.TornaEnvironmentPostProcessor
+org.springframework.boot.env.EnvironmentPostProcessor=cn.torna.TornaEnvironmentPostProcessor
