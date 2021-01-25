@@ -34,9 +34,9 @@ import java.util.List;
 
 public class SdkTest extends BaseTest {
 
-    static String url = "http://tornaserver.opensphere.cn/api";
-    static String appKey = "20201216788730160688922624";
-    static String secret = "KQW2Y?ETgKfjlmt1#.Jkw.tdD@1HSTbd";
+    static String url = "http://localhost:7700/api";
+    static String appKey = "20201216788835306945118208";
+    static String secret = "W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR";
     static String token = "c16931fa6590483fb7a4e85340fcbfef";
 
 

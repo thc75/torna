@@ -1,4 +1,5 @@
 
+
 CREATE DATABASE IF NOT EXISTS `torna` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
 USE `torna`;
 
@@ -166,7 +167,7 @@ CREATE TABLE `open_user` (
   `app_key` varchar(100) NOT NULL COMMENT 'appKey',
   `secret` varchar(200) DEFAULT NULL COMMENT 'secret',
   `status` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT '1启用，0禁用',
-  `remark` varchar(128) DEFAULT NULL COMMENT '备注',
+  `applicant` varchar(64) NOT NULL DEFAULT '',
   `space_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'space.id',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -192,7 +193,7 @@ CREATE TABLE `project` (
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `uk_name` (`creator_id`,`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='项目表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='项目表';
 
 
 CREATE TABLE `project_user` (
@@ -205,7 +206,7 @@ CREATE TABLE `project_user` (
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_projectid_userid` (`project_id`,`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='项目用户关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COMMENT='项目用户关系表';
 
 
 CREATE TABLE `space` (
@@ -219,7 +220,7 @@ CREATE TABLE `space` (
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='分组表';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='分组表';
 
 
 CREATE TABLE `space_user` (
@@ -232,7 +233,7 @@ CREATE TABLE `space_user` (
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_groupid_userid` (`space_id`,`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COMMENT='分组用户关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='分组用户关系表';
 
 
 CREATE TABLE `user_info` (
@@ -247,7 +248,7 @@ CREATE TABLE `user_info` (
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 
 CREATE TABLE `user_message` (
@@ -279,7 +280,7 @@ CREATE TABLE `user_subscribe` (
 
 
 
-INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'5fa7cd78bc872cd8fdc09ee3d6afedd2','故事接口','','','','',1,0,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
 	(2,'3292c28718c1e74d6e14e0160eecf379','获取分类信息','','/story/category/get/v1','POST','application/json',0,1,1,0,0,3,'',1,'超级管理员',0,'',1,0,'2020-12-15 10:01:48','2021-01-19 17:03:29'),
 	(3,'48ae195650ab5cd4d521b62704d15b57','忽略签名验证','','/story/get/ignore/v1','POST','application/json',0,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
@@ -299,7 +300,7 @@ INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `url`, `http_met
 	(17,'2df0b4e87fc3a8c37d08e3d7a95d0cf4','comment','','phoenix/web/v1/comment/list/101426186','GET','',0,0,1,0,0,2,'研发一部经理',1,'研发一部经理',0,'',1,1,'2021-01-19 17:29:23','2021-01-22 11:52:21');
 
 
-INSERT INTO `doc_param` (`id`, `data_id`, `name`, `type`, `required`, `max_length`, `example`, `description`, `enum_id`, `doc_id`, `parent_id`, `style`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `doc_param` (`id`, `data_id`, `name`, `type`, `required`, `max_length`, `example`, `description`, `enum_id`, `doc_id`, `parent_id`, `style`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'9cedd1b23736a816e96bca9603c2b5f4','categoryName','string',0,'-','娱乐','分类名称',0,2,0,2,0,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 10:01:48','2021-01-19 16:39:35'),
 	(2,'df34a965ab9c44e2e6b0b282c711e9b9','createTime','string',0,'-','2019-09-25 17:12:52','创建时间',0,2,0,2,0,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 10:01:48','2021-01-19 16:39:35'),
 	(3,'841d66d19b087e9982b76ba0a0aab7a4','storyParam','object',0,'-','','',0,2,0,2,0,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 10:01:48','2021-01-19 16:39:35'),
@@ -385,7 +386,7 @@ INSERT INTO `doc_param` (`id`, `data_id`, `name`, `type`, `required`, `max_lengt
 	(83,'14c5f6044d9ce6850dc4e1951d0151f2','commentId','string',1,'64','','',0,17,0,2,0,0,2,'研发一部经理',2,'研发一部经理',0,0,'2021-01-19 17:29:23','2021-01-19 17:29:23');
 
 
-INSERT INTO `doc_snapshot` (`id`, `doc_id`, `modifier_name`, `modifier_time`, `content`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `doc_snapshot` (`id`, `doc_id`, `modifier_name`, `modifier_time`, `content`, `gmt_create`, `gmt_modified`) VALUES
 	(1,16,'后台项目负责人','2020-12-16 15:35:09','{"baseUrl":"http://www.aaa.com","contentType":"","creatorName":"李四","description":"获取用户接口","errorCodeParams":[],"globalHeaderParams":[],"gmtCreate":"2020-12-15 10:15:55","gmtModified":"2020-12-16 15:35:09","headerParams":[],"httpMethod":"GET","id":"4L2kjzPJ","isDeleted":0,"isFolder":0,"isShow":1,"modifierName":"后台项目负责人","moduleId":"rnzdb8jY","name":"获取用户接口","parentId":"","pathParams":[{"children":null,"createMode":0,"creatorName":"后台项目负责人","description":"分组id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-16 15:35:09","gmtModified":"2020-12-16 15:35:09","id":"aBXgBm8G","isDeleted":0,"maxLength":"64","modifierName":"后台项目负责人","modifyMode":0,"name":"groupId","parentId":"","required":1,"style":0,"type":"string"},{"children":null,"createMode":0,"creatorName":"后台项目负责人","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-16 15:35:09","gmtModified":"2020-12-16 15:35:09","id":"ZB2loLzD","isDeleted":0,"maxLength":"64","modifierName":"后台项目负责人","modifyMode":0,"name":"id","parentId":"","required":1,"style":0,"type":"number"}],"remark":"","requestParams":[{"children":null,"createMode":0,"creatorName":"李四","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"123","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2020-12-16 15:35:09","id":"Gez7qE8a","isDeleted":0,"maxLength":"64","modifierName":"后台项目负责人","modifyMode":0,"name":"id","parentId":"","required":1,"style":2,"type":"number"}],"responseParams":[{"children":null,"createMode":0,"creatorName":"李四","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"123","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2020-12-16 15:35:09","id":"oNzvx68D","isDeleted":0,"maxLength":"64","modifierName":"后台项目负责人","modifyMode":0,"name":"id","parentId":"","required":1,"style":3,"type":"number"},{"children":null,"createMode":0,"creatorName":"李四","description":"用户名称","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"jim","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2020-12-16 15:35:09","id":"ga26qYzl","isDeleted":0,"maxLength":"64","modifierName":"后台项目负责人","modifyMode":0,"name":"name","parentId":"","required":1,"style":3,"type":"string"}],"url":"get/group/{groupId}/id/{id}"}','2021-01-18 15:04:04','2021-01-18 15:04:04'),
 	(2,16,'超级管理员','2021-01-18 15:04:04','{"baseUrl":"http://www.aaa.com","contentType":"","creatorName":"李四","description":"获取用户接口","errorCodeParams":[],"globalHeaderParams":[],"gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:04","headerParams":[],"httpMethod":"GET","id":"4L2kjzPJ","isDeleted":0,"isFolder":0,"isShow":1,"modifierName":"超级管理员","moduleId":"rnzdb8jY","name":"获取用户接口","parentId":null,"pathParams":[{"children":null,"createMode":0,"creatorName":"后台项目负责人","description":"分组id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-16 15:35:09","gmtModified":"2021-01-18 15:04:04","id":"aBXgBm8G","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"groupId","parentId":"","required":1,"style":0,"type":"string"},{"children":null,"createMode":0,"creatorName":"后台项目负责人","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-16 15:35:09","gmtModified":"2021-01-18 15:04:04","id":"ZB2loLzD","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"","required":1,"style":0,"type":"number"}],"remark":"bbb","requestParams":[{"children":null,"createMode":0,"creatorName":"李四","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"123","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:04","id":"Gez7qE8a","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"","required":1,"style":2,"type":"number"}],"responseParams":[{"children":null,"createMode":0,"creatorName":"李四","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"123","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:04","id":"oNzvx68D","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"","required":1,"style":3,"type":"number"},{"children":null,"createMode":0,"creatorName":"李四","description":"用户名称","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"jim","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:04","id":"ga26qYzl","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"name","parentId":"","required":1,"style":3,"type":"string"}],"url":"get/group/{groupId}/id/{id}"}','2021-01-18 15:04:49','2021-01-18 15:04:49'),
 	(3,16,'超级管理员','2021-01-18 15:04:48','{"baseUrl":"http://www.aaa.com","contentType":"","creatorName":"李四","description":"获取用户接口","errorCodeParams":[],"globalHeaderParams":[],"gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:48","headerParams":[],"httpMethod":"GET","id":"4L2kjzPJ","isDeleted":0,"isFolder":0,"isShow":1,"modifierName":"超级管理员","moduleId":"rnzdb8jY","name":"获取用户接口","parentId":null,"pathParams":[{"children":null,"createMode":0,"creatorName":"后台项目负责人","description":"分组id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-16 15:35:09","gmtModified":"2021-01-18 15:04:48","id":"aBXgBm8G","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"groupId","parentId":"","required":1,"style":0,"type":"string"},{"children":null,"createMode":0,"creatorName":"后台项目负责人","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-16 15:35:09","gmtModified":"2021-01-18 15:04:49","id":"ZB2loLzD","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"","required":1,"style":0,"type":"number"}],"remark":"ccc","requestParams":[{"children":null,"createMode":0,"creatorName":"李四","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"123","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:49","id":"Gez7qE8a","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"","required":1,"style":2,"type":"number"}],"responseParams":[{"children":null,"createMode":0,"creatorName":"李四","description":"用户id","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"123","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:49","id":"oNzvx68D","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"","required":1,"style":3,"type":"number"},{"children":null,"createMode":0,"creatorName":"李四","description":"用户名称","docId":"4L2kjzPJ","enumId":"","enumInfo":null,"example":"jim","gmtCreate":"2020-12-15 10:15:55","gmtModified":"2021-01-18 15:04:49","id":"ga26qYzl","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"name","parentId":"","required":1,"style":3,"type":"string"}],"url":"get/group/{groupId}/id/{id}"}','2021-01-18 15:05:16','2021-01-18 15:05:16'),
@@ -406,50 +407,53 @@ INSERT INTO `doc_snapshot` (`id`, `doc_id`, `modifier_name`, `modifier_time`, `c
 	(18,2,'超级管理员','2021-01-19 15:33:44','{"baseUrl":"http://localhost:2222","contentType":"application/json","creatorName":"","description":"","errorCodeParams":[],"globalHeaderParams":[],"gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","headerParams":[{"children":null,"createMode":0,"creatorName":"超级管理员","description":"token","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"1111","gmtCreate":"2021-01-19 10:32:09","gmtModified":"2021-01-19 15:33:44","id":"vaXYG42r","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"token","parentId":"","required":1,"style":1,"type":"string"}],"httpMethod":"POST","id":"rnzdb8jY","isDeleted":0,"isFolder":0,"isShow":1,"modifierName":"超级管理员","moduleId":"7YX0lXxR","name":"获取分类信息","parentId":"7YX0lXxR","pathParams":[],"remark":"","requestParams":[{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"分类名称","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"娱乐","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"7YX0lXxR","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"categoryName","parentId":"","required":0,"style":2,"type":"string"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"创建时间","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"2019-09-25 17:12:52","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"rnzdb8jY","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"createTime","parentId":"","required":0,"style":2,"type":"string"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"je24ozLJ","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"storyParam","parentId":"","required":0,"style":2,"type":"object"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"故事ID","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"111","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"9VXEyXvg","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"je24ozLJ","required":0,"style":2,"type":"integer"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"备注 (第二)","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"xx","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"Br2jqzG7","isDeleted":0,"maxLength":"64","modifierName":"超级管理员","modifyMode":0,"name":"remark","parentId":"je24ozLJ","required":0,"style":2,"type":"string"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"故事名称","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"白雪公主","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"m32QA20r","isDeleted":0,"maxLength":"20","modifierName":"超级管理员","modifyMode":0,"name":"name","parentId":"je24ozLJ","required":1,"style":2,"type":"string"}],"responseParams":[{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"分类名称","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"娱乐","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"RqXBwzEl","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"categoryName","parentId":"","required":0,"style":3,"type":"string"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"分类故事","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"kpX9MXr1","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"storyResult","parentId":"","required":0,"style":3,"type":"object"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"创建时间","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"2019-04-14 19:02:12","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"awXPk8nW","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"gmt_create","parentId":"kpX9MXr1","required":0,"style":3,"type":"string"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"故事ID","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"1","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"57zLZ8Qw","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"id","parentId":"kpX9MXr1","required":0,"style":3,"type":"integer"},{"children":null,"createMode":0,"creatorName":"商城项目admin","description":"故事名称","docId":"rnzdb8jY","enumId":"","enumInfo":null,"example":"海底小纵队","gmtCreate":"2020-12-15 10:01:48","gmtModified":"2021-01-19 15:33:44","id":"jP81wzqA","isDeleted":0,"maxLength":"-","modifierName":"超级管理员","modifyMode":0,"name":"name","parentId":"kpX9MXr1","required":0,"style":3,"type":"string"}],"url":"/story/category/get/v1"}','2021-01-19 16:39:35','2021-01-19 16:39:35');
 
 
-INSERT INTO `enum_info` (`id`, `data_id`, `name`, `description`, `module_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `enum_info` (`id`, `data_id`, `name`, `description`, `module_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'0b28cfdbc7f250d85614eacda8248eb4','性别','',2,0,'2020-12-16 13:57:09','2020-12-16 13:57:09');
 
 
 
 
-INSERT INTO `module` (`id`, `name`, `project_id`, `type`, `import_url`, `basic_auth_username`, `basic_auth_password`, `token`, `create_mode`, `modify_mode`, `creator_id`, `modifier_id`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `module` (`id`, `name`, `project_id`, `type`, `import_url`, `basic_auth_username`, `basic_auth_password`, `token`, `create_mode`, `modify_mode`, `creator_id`, `modifier_id`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'故事API',1,1,'http://localhost:2222/v2/api-docs','','','c16931fa6590483fb7a4e85340fcbfef',0,0,3,3,0,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
 	(2,'用户模块',2,0,'','','','b215b7010db5451e98305152a5fa2ddf',0,0,12,12,0,0,'2020-12-15 10:14:55','2020-12-15 10:14:55');
 
 
-INSERT INTO `module_config` (`id`, `module_id`, `type`, `config_key`, `config_value`, `description`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `module_config` (`id`, `module_id`, `type`, `config_key`, `config_value`, `description`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,1,0,'debughost_1','http://10.1.30.165:2222','',0,'2020-12-15 10:01:48','2021-01-22 11:51:05'),
 	(2,2,0,'debughost_2','http://www.aaa.com','',0,'2020-12-16 15:41:14','2020-12-16 15:41:14');
 
 
-INSERT INTO `open_user` (`id`, `app_key`, `secret`, `status`, `remark`, `space_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
-	(1,'20201215788408948171472896','WeNAdSucgduD$M?*83?dJR&IvgU~Re75',1,NULL,0,0,'2020-12-15 14:07:21','2020-12-15 14:07:21'),
-	(2,'20201216788835306945118208','W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR',1,NULL,9,0,'2020-12-16 18:21:33','2020-12-16 18:21:33'),
-	(3,'20201216788835536872669184','Bq.XRN!S0$t8!UYpWgSOl7oHlY#XeenJ',1,NULL,9,0,'2020-12-16 18:22:28','2020-12-16 18:22:28');
+INSERT INTO `open_user` (`id`, `app_key`, `secret`, `status`, `applicant`, `space_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
+	(1,'20201215788408948171472896','WeNAdSucgduD$M?*83?dJR&IvgU~Re75',1,'张三',0,0,'2020-12-15 14:07:21','2021-01-25 09:59:10'),
+	(2,'20201216788835306945118208','W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR',1,'张三',9,0,'2020-12-16 18:21:33','2021-01-25 09:59:10'),
+	(3,'20201216788835536872669184','Bq.XRN!S0$t8!UYpWgSOl7oHlY#XeenJ',1,'张三',9,0,'2020-12-16 18:22:28','2021-01-25 09:59:11');
 
 
-INSERT INTO `project` (`id`, `name`, `description`, `space_id`, `is_private`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
-	(1,'商城项目','商城项目',9,0,3,'商城项目admin',3,'商城项目admin',0,0,'2020-12-15 09:56:39','2020-12-15 09:56:39'),
-	(2,'后台项目','后台项目',11,1,11,'后台项目负责人',11,'后台项目负责人',0,0,'2020-12-15 10:12:37','2020-12-15 10:12:37');
+INSERT INTO `project` (`id`, `name`, `description`, `space_id`, `is_private`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
+	(1,'商城项目','商城项目',9,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 09:56:39','2021-01-25 08:31:33'),
+	(2,'后台项目','后台项目',11,1,11,'后台项目负责人',11,'后台项目负责人',0,0,'2020-12-15 10:12:37','2020-12-15 10:12:37'),
+	(3,'测试项目','这是一个测试项目',17,1,14,'测试A',14,'测试A',0,0,'2021-01-25 09:10:47','2021-01-25 09:10:47');
 
 
-INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
-	(1,1,3,'admin',0,'2020-12-15 09:56:38','2020-12-15 09:56:38'),
-	(2,1,4,'dev',0,'2020-12-15 09:58:35','2020-12-15 09:58:35'),
+INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
+	(1,1,3,'admin',0,'2020-12-15 09:56:38','2021-01-25 08:31:33'),
+	(2,1,4,'dev',0,'2020-12-15 09:58:35','2021-01-25 08:31:38'),
 	(3,1,9,'guest',1,'2020-12-15 09:58:44','2020-12-15 09:59:01'),
 	(4,2,11,'admin',0,'2020-12-15 10:12:37','2020-12-15 10:12:37'),
 	(5,2,12,'dev',0,'2020-12-15 10:12:52','2020-12-15 10:12:52'),
-	(6,2,13,'guest',0,'2020-12-15 11:35:21','2020-12-15 11:35:21');
+	(6,2,13,'guest',0,'2020-12-15 11:35:21','2020-12-15 11:35:21'),
+	(9,3,14,'admin',0,'2021-01-25 09:10:47','2021-01-25 09:10:47');
 
 
-INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(9,'研发一部',2,'研发一部经理',2,'研发一部经理',0,'2020-12-15 09:48:13','2020-12-15 09:48:13'),
 	(11,'研发二部',5,'研发二部经理',5,'研发二部经理',0,'2020-12-15 10:08:39','2020-12-15 10:08:39'),
 	(14,'研发三部',11,'后台项目负责人',11,'后台项目负责人',1,'2020-12-16 10:04:13','2020-12-16 10:04:13'),
-	(16,'研发三部',11,'后台项目负责人',11,'后台项目负责人',1,'2020-12-16 10:06:20','2020-12-16 10:06:20');
+	(16,'研发三部',11,'后台项目负责人',11,'后台项目负责人',1,'2020-12-16 10:06:20','2020-12-16 10:06:20'),
+	(17,'测试空间',14,'测试A',14,'测试A',0,'2021-01-25 09:10:02','2021-01-25 09:10:02');
 
 
-INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,2,1,'admin',0,'2020-12-15 09:41:16','2020-12-15 09:41:16'),
 	(2,3,2,'admin',0,'2020-12-15 09:41:58','2020-12-15 09:41:58'),
 	(3,4,3,'admin',0,'2020-12-15 09:42:12','2020-12-15 09:42:12'),
@@ -471,10 +475,11 @@ INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`
 	(19,10,11,'guest',0,'2020-12-15 10:12:08','2020-12-15 10:12:08'),
 	(20,13,11,'guest',0,'2020-12-15 11:34:59','2020-12-15 11:34:59'),
 	(21,11,14,'admin',0,'2020-12-16 10:04:13','2020-12-16 10:04:13'),
-	(22,11,16,'admin',0,'2020-12-16 10:06:19','2020-12-16 10:06:19');
+	(22,11,16,'admin',0,'2020-12-16 10:06:19','2020-12-16 10:06:19'),
+	(23,14,17,'admin',0,'2021-01-25 09:10:01','2021-01-25 09:10:01');
 
 
-INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `token`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `token`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'admin@torna.org','00e00b343922c877c9e2f581623d337f','超级管理员',1,'',0,'2020-12-15 09:04:13','2020-12-16 10:04:02'),
 	(2,'dev1admin@torna.org','430fe3c097de6aeb37d5649a5dcaf60d','研发一部经理',0,'rnzdb8jY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJleHAiOjE2NDI1NTkwMzcsImlhdCI6MTYxMTAyMzAzN30._C_na3xbXeG1y44cfOgnqxBz44nAKhtteh6iHpKLGQs',0,'2020-12-15 09:41:16','2021-01-19 10:23:57'),
 	(3,'dev1shop_admin@torna.org','16b6c3eb1dcce2986179dbed98e03965','商城项目admin',0,'je24ozLJ:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJleHAiOjE2Mzk2NTAzMzAsImlhdCI6MTYwODExNDMzMH0.6C3sEoXPLrIkT-JsGElVZ95yZm4EqipbfuvlF1QXieY',0,'2020-12-15 09:41:58','2020-12-16 18:25:30'),
@@ -484,7 +489,8 @@ INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_adm
 	(10,'dev2guest_zhaoliu@torna.org','b0e7368bf3f7a124b6c22836e9b6df13','赵六',0,'57zLZ8Qw:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEwIiwiZXhwIjoxNjM5NTQ3NzM3LCJpYXQiOjE2MDgwMTE3Mzd9.NRyuc6I8D9jsTW56iKzSzPPz-q-YADQGr29o6T6rwUs',0,'2020-12-15 09:50:01','2020-12-15 13:55:37'),
 	(11,'dev2back_admin@torna.org','07a04bb0d456346521dc08f85da15f92','后台项目负责人',0,'',0,'2020-12-15 10:10:17','2020-12-16 17:51:43'),
 	(12,'dev2back_lisi@torna.org','c03849d64223094690ee2361d65499db','李四',0,'',0,'2020-12-15 10:10:32','2020-12-15 10:16:04'),
-	(13,'dev2back_guest@torna.org','16fc4db73f6d00f024b5232eee7b3d6a','后台访客',0,'',0,'2020-12-15 11:21:07','2020-12-15 13:36:30');
+	(13,'dev2back_guest@torna.org','16fc4db73f6d00f024b5232eee7b3d6a','后台访客',0,'',0,'2020-12-15 11:21:07','2020-12-15 13:36:30'),
+	(14,'test@torna.cn','c19b85cecd8787ba8712ff764bf70f81','测试A',0,'3E8rDz0p:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE0IiwiZXhwIjoxNjQzMDcyOTEwLCJpYXQiOjE2MTE1MzY5MTB9.fQSyONbCAKAI7WVR8r-z9nIl9zn9f0WSV7uayBjyDvo',0,'2021-01-25 09:08:21','2021-01-25 09:08:30');
 
 
 INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `source_id`, `gmt_create`, `gmt_modified`) VALUES 

@@ -5,13 +5,19 @@
 
 前往首页，点击`创建空间`按钮，输入空间名称
 
+![创建空间](/static/help/images/create_space.png)
+
 - 创建项目
 
 进入空间，点击`创建项目`，填写表单内容
 
+![创建项目](/static/help/images/create_project.png)
+
 - 创建模块
 
-进入项目，点击模块列表右边`＋`，创建模块，也可以导入swagger文档
+进入项目，点击模块列表右边`＋`，创建模块，也可以导入文档
+
+![创建模块](/static/help/images/create_module.png)
 
 - 新建接口
 

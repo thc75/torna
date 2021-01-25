@@ -13,6 +13,7 @@
         {{ userInfo.nickname }}
         <el-tooltip content="修改昵称" placement="top">
           <popover-update
+            title="昵称"
             :on-show="() => {return userInfo.nickname}"
             :on-save="onSaveNickname"
           />
