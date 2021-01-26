@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <p style="margin-left: 10px;">
+  <div class="app-container">
+    <p>
       <el-button v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" type="primary" @click="onProjectAdd">创建项目</el-button>
     </p>
     <div v-if="data.length === 0" class="info-tip">
       暂无项目
     </div>
-    <div v-for="(project) in data" :key="project.id" class="project-card">
+    <div v-for="(project) in data" :key="project.id" class="project-card" @click="enterProject(project)">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
           <span>
@@ -15,7 +15,6 @@
             </el-tooltip>
             {{ project.name }}
           </span>
-          <el-button style="float: right; padding: 4px 4px" type="primary" @click="enterProject(project)">进入项目</el-button>
         </div>
         <el-form ref="form" :model="project" class="text-form" label-width="100px">
           <el-form-item label="项目描述">
@@ -36,7 +35,6 @@
 <style lang="scss">
 .project-card {
   display: inline-block;
-  margin: 10px;
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -48,6 +46,7 @@
 
   .box-card {
     width: 300px;
+    cursor: pointer;
   }
 }
 </style>
@@ -88,14 +87,15 @@ export default {
       }
     },
     enterProject(item) {
+      const space = this.getSpace()
       const from = {
-        spaceId: this.space.id,
-        spaceName: this.space.name,
+        spaceId: space.id,
+        spaceName: space.name,
         projectId: item.id,
         projectName: item.name
       }
       this.setFrom(from)
-      this.goRoute(`/project/info/${item.id}`)
+      this.goRoute(`/project/doc/${item.id}`)
     },
     onProjectAdd() {
       this.$refs.projectCreateDlg.show(this.spaceId)

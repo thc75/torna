@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <el-form :inline="true" :model="searchFormData" size="mini">
       <el-form-item label="登录账号">
         <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录账号" style="width: 250px;" />

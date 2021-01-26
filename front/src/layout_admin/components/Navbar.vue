@@ -4,18 +4,7 @@
       <img src="@/assets/images/logo.png" class="sidebar-logo">
       <h1 class="sidebar-title">Torna</h1>
     </router-link>
-    <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: `/` }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="currentSpace" :to="{ path: `/space/project/${currentSpace.id}` }">{{ currentSpace.name }}</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
-    </el-breadcrumb>
     <div class="right-menu">
-      <div v-if="isSuperAdmin()" class="right-menu-item">
-        <el-button type="primary" size="mini" @click="goRoute('/admin/users')">后台管理</el-button>
-      </div>
-      <div class="right-menu-item">
-        <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
-      </div>
       <div class="right-menu-item">
         <router-link to="/help" target="_blank">
           <el-tooltip placement="bottom" content="帮助文档">
@@ -52,21 +41,7 @@ export default {
     ...mapGetters([
       'sidebar',
       'avatar'
-    ]),
-    currentProject() {
-      return this.$store.state.settings.currentProject
-    },
-    currentSpace() {
-      return this.$store.state.settings.currentSpace
-    }
-  },
-  created() {
-    this.initPerm()
-  },
-  methods: {
-    goViewPage() {
-      this.goRoute('/view')
-    }
+    ])
   }
 }
 </script>

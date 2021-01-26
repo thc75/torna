@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <el-form ref="form" :model="form" class="text-form" label-width="100px">
       <el-form-item label="空间名称">
         {{ form.name }}

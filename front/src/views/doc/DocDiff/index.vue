@@ -18,6 +18,10 @@
           <div style="float: right;display: inline-block">当前文档</div>
         </div>
         <div id="diffView" style="margin-top: 20px;"></div>
+        <div>
+          <div style="float: left">修改备注：{{ remarkOther }}</div>
+          <div style="float: right">修改备注：{{ remarkCurrent }}</div>
+        </div>
       </el-col>
     </el-row>
   </div>
@@ -85,7 +89,9 @@ export default {
         children: 'children',
         label: 'modifierTime'
       },
-      currentChange: ''
+      currentChange: '',
+      remarkOther: '',
+      remarkCurrent: ''
     }
   },
   watch: {
@@ -122,6 +128,8 @@ export default {
       })
     },
     compare(otherData, currentData) {
+      this.remarkOther = otherData.remark
+      this.remarkCurrent = currentData.remark
       const oldStr = MarkdownUtil.toMarkdown(otherData)
       const newStr = MarkdownUtil.toMarkdown(currentData)
       initUI(oldStr, newStr)

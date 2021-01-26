@@ -4,11 +4,10 @@
     <p style="margin-left: 10px;">
       <el-button type="primary" @click="onSpaceAdd">创建空间</el-button>
     </p>
-    <div v-for="(space) in data" :key="space.id" class="space-card">
+    <div v-for="(space) in data" :key="space.id" class="space-card" @click="enterSpace(space)">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
           <span>{{ space.name }}</span>
-          <el-button style="float: right; padding: 4px 4px" type="primary" @click="enterSpace(space)">进入空间</el-button>
         </div>
         <el-form ref="form" :model="space" class="text-form" label-width="100px">
           <el-form-item label="创建人">
@@ -38,6 +37,7 @@
   .box-card {
     width: 300px;
     margin: 10px;
+    cursor: pointer;
   }
 }
 </style>
@@ -62,7 +62,7 @@ export default {
       })
     },
     enterSpace(space) {
-      this.goRoute(`/space/${space.id}`)
+      this.goRoute(`/space/project/${space.id}`)
     },
     onSpaceAdd() {
       this.$refs.spaceCreateDlg.show()

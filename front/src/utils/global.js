@@ -264,6 +264,9 @@ Object.assign(Vue.prototype, {
     }
     this.$store.state.settings.currentSpace = space
   },
+  getSpace() {
+    return this.$store.state.settings.currentSpace
+  },
   /**
    * 设置项目配置
    * @param projectId 项目id

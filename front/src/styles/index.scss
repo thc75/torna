@@ -229,3 +229,32 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 .table-opt-btn {
   margin-bottom: 10px;
 }
+
+.torna-menu {
+  height: calc(100vh - 50px);
+  width: 70px;
+  .el-menu-item {
+    //margin: 8px 0;
+    .title {
+      position: absolute;
+      top: 15px;
+      left: 8px;
+      font-size: 14px;
+      color: #606266;
+    }
+  }
+  .el-menu-item.is-active {
+    .title {
+      color: #409EFF;
+    }
+  }
+  .el-menu-item [class^=el-icon-] {
+    font-size: 24px !important;
+    vertical-align: top !important;
+    margin-top: 10px !important;
+  }
+  .el-menu-item, .el-submenu__title {
+    height: 70px;
+    line-height: 70px;
+  }
+}

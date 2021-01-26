@@ -7,6 +7,9 @@ Vue.use(Router)
 import Layout from '@/layout'
 import LayoutView from '@/layout_view'
 import LayoutUserCenter from '@/layout/index_user'
+import LayoutSpace from '@/layout/index_space'
+import LayoutProject from '@/layout/index_project'
+import LayoutAdmin from '@/layout_admin'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -42,15 +45,8 @@ export const constantRoutes = [
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
-    },
-    {
-      path: 'space/:spaceId(\\w+)',
-      name: 'Space',
-      component: () => import('@/views/space/index'),
-      meta: { title: '空间首页' }
     }]
   },
-
   {
     path: '/login',
     component: () => import('@/views/common/login'),
@@ -89,15 +85,55 @@ export const constantRoutes = [
     }]
   },
   {
-    path: '/project', // 必须/开头
-    component: Layout,
-    name: 'Project',
-    meta: { title: '项目管理', icon: 'example' },
+    path: '/space', // 必须/开头
+    component: LayoutSpace,
+    name: 'Space',
     children: [
       {
+        path: 'project/:spaceId(\\w+)',
+        name: 'SpaceProject',
+        component: () => import('@/views/space/index_project'),
+        meta: { title: '项目列表' }
+      },
+      {
+        path: 'info/:spaceId(\\w+)',
+        name: 'SpaceInfo',
+        component: () => import('@/views/space/index_info'),
+        meta: { title: '空间信息' }
+      },
+      {
+        path: 'member/:spaceId(\\w+)',
+        name: 'SpaceMember',
+        component: () => import('@/views/space/index_member'),
+        meta: { title: '空间成员' }
+      },
+      {
+        path: 'openuser/:spaceId(\\w+)',
+        name: 'SpaceOpenuser',
+        component: () => import('@/views/space/index_openuser'),
+        meta: { title: '开放用户' }
+      }
+    ]
+  },
+  {
+    path: '/project', // 必须/开头
+    component: LayoutProject,
+    name: 'Project',
+    children: [
+      {
+        path: 'doc/:projectId(\\w+)',
+        name: 'ProjectDoc',
+        component: () => import('@/views/project/index_doc')
+      },
+      {
         path: 'info/:projectId(\\w+)',
-        name: 'Info',
-        component: () => import('@/views/project/index')
+        name: 'ProjectInfo',
+        component: () => import('@/views/project/index_info')
+      },
+      {
+        path: 'member/:projectId(\\w+)',
+        name: 'ProjectMember',
+        component: () => import('@/views/project/index_member')
       }
     ]
   },
@@ -161,7 +197,7 @@ export const constantRoutes = [
   // admin
   {
     path: '/admin', // 必须/开头
-    component: Layout,
+    component: LayoutAdmin,
     name: 'Admin',
     children: [
       {

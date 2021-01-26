@@ -37,9 +37,6 @@ export default {
       }
     }
   },
-  created() {
-    this.initPerm()
-  },
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })

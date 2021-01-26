@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <el-page-header content="用户管理" @back="goBack()" />
     <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
       <el-form-item
         label="登录账号"
