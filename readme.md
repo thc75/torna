@@ -25,7 +25,7 @@
 ## 开发部署
 
 ```
-开发环境：Java8, Maven3, Nodejs11+, Mysql5.7+
+开发环境：Java8, Maven3, Nodejs12+, Mysql5.7+
 软件架构：服务端 SpringBoot-2.3.4.RELEASE，前端 elementUI-2.13.0 + vue2
 ```
 
