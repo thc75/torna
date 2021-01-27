@@ -1,10 +1,10 @@
 <template>
   <div>
     <h3>空间列表</h3>
-    <p style="margin-left: 10px;">
+    <p>
       <el-button type="primary" @click="onSpaceAdd">创建空间</el-button>
     </p>
-    <div v-for="(space) in data" :key="space.id" class="space-card" @click="enterSpace(space)">
+    <div v-for="(space) in data" :key="space.id" class="torna-card" @click="enterSpace(space)">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
           <span>{{ space.name }}</span>
@@ -22,25 +22,6 @@
     <space-create-dialog ref="spaceCreateDlg" :success="onSpaceAddSuccess" />
   </div>
 </template>
-<style lang="scss">
-.space-card {
-  display: inline-block;
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
-  }
-  .clearfix:after {
-    clear: both
-  }
-
-  .box-card {
-    width: 300px;
-    margin: 10px;
-    cursor: pointer;
-  }
-}
-</style>
 <script>
 import SpaceCreateDialog from '@/components/SpaceCreateDialog'
 export default {

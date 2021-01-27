@@ -6,7 +6,7 @@
     <div v-if="data.length === 0" class="info-tip">
       暂无项目
     </div>
-    <div v-for="(project) in data" :key="project.id" class="project-card" @click="enterProject(project)">
+    <div v-for="(project) in data" :key="project.id" class="torna-card" @click="enterProject(project)">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
           <span>
@@ -32,24 +32,6 @@
     <project-create-dialog ref="projectCreateDlg" :success="onProjectAddSuccess" />
   </div>
 </template>
-<style lang="scss">
-.project-card {
-  display: inline-block;
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
-  }
-  .clearfix:after {
-    clear: both
-  }
-
-  .box-card {
-    width: 300px;
-    cursor: pointer;
-  }
-}
-</style>
 <script>
 import ProjectCreateDialog from '@/components/ProjectCreateDialog'
 export default {
