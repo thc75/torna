@@ -64,9 +64,9 @@
 
 执行`build.sh`，构建结果在`dist/torna`目录
 
-复制`server/boot/src/main/resources/application-dev.properties`文件到`dist/torna`下，并重命名为:`application-prod.properties`
+复制`server/boot/src/main/resources/application.properties`文件到`dist/torna`下
 
-修改`application-prod.properties`配置文件内容，改为线上配置
+修改`application.properties`配置文件内容，改为线上配置
 
 把`torna`文件夹上传到服务器
 
@@ -90,15 +90,15 @@ cd front
 
 将`script`中的脚本文件拷贝到`torna`下
 
-复制`server/boot/src/main/resources/application-dev.properties`文件到`torna`下，并重命名为:`application-prod.properties`
+复制`server/boot/src/main/resources/application.properties`文件到`torna`下
 
-修改`application-prod.properties`配置文件内容，改为线上配置
+修改`application.properties`配置文件内容，改为线上配置
 
 最终目录形式如下：
 
 ```
 torna                           # 根目录
-├── application-prod.properties # 配置文件
+├── application.properties      # 配置文件
 ├── dist                        # 前端资源
 ├── shutdown.sh                 # 结束服务脚本
 ├── startup.sh                  # 启动服务脚本

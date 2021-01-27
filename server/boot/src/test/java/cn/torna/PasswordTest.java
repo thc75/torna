@@ -40,7 +40,10 @@ public class PasswordTest extends TornaApplicationTests {
         System.out.println(dbPassword);
     }
 
-    @Test
+    /**
+     * 重置所有用户的密码，变成123456。请谨慎操作
+     */
+    /*@Test
     public void testReset() {
         List<UserInfo> userInfos = userInfoService.listAll();
         String newPwd = "123456";
@@ -50,7 +53,7 @@ public class PasswordTest extends TornaApplicationTests {
             userInfo.setPassword(password);
             userInfoService.update(userInfo);
         }
-    }
+    }*/
 
 
 
