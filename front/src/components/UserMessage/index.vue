@@ -54,7 +54,8 @@
 export default {
   data() {
     return {
-      list: []
+      list: [],
+      inter: null
     }
   },
   computed: {
@@ -65,7 +66,12 @@ export default {
   created() {
     this.loadMessage()
     // 每30秒拉取一次
-    setInterval(this.loadMessage, 1000 * 30)
+    this.inter = setInterval(this.loadMessage, 1000 * 30)
+  },
+  destroyed() {
+    if (this.inter) {
+      clearInterval(this.inter)
+    }
   },
   methods: {
     loadMessage: function() {

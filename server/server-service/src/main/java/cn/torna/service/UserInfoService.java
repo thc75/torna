@@ -4,6 +4,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.GenerateUtil;
@@ -12,6 +13,8 @@ import cn.torna.common.util.JwtUtil;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserInfoMapper;
+import cn.torna.service.dto.UserAddDTO;
+import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
-import cn.torna.common.exception.BizException;
-import cn.torna.service.dto.UserAddDTO;
-import cn.torna.service.dto.UserInfoDTO;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -59,12 +58,6 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         String password = getDbPassword(userAddDTO.getUsername(), userAddDTO.getPassword());
         userInfo.setPassword(password);
         this.save(userInfo);
-    }
-
-    public void logout(String token) {
-        if (StringUtils.hasText(token)) {
-            this.getMapper().logout(token);
-        }
     }
 
     public User getLoginUser(long id) {
@@ -109,18 +102,16 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         // 登录成功
         LoginUser loginUser = CopyUtil.copyBean(userInfo, LoginUser::new);
         // 创建token
-        String token = this.createToken(loginUser);
+        String token = this.createToken(userInfo.getId());
         loginUser.setToken(token);
         userCacheManager.saveUser(loginUser);
-        // jwt保存到数据库
-        this.getMapper().updateToken(userInfo.getId(), token);
         return loginUser;
     }
 
-    private String createToken(User user) {
-        String id = IdUtil.encode(user.getUserId());
+    private String createToken(long userId) {
+        String id = IdUtil.encode(userId);
         Map<String, String> data = new HashMap<>(4);
-        data.put("id", user.getUserId().toString());
+        data.put("id", String.valueOf(userId));
         String jwt = JwtUtil.createJwt(data, jwtTimeoutDays, jwtSecret);
         return id + ":" + jwt;
     }

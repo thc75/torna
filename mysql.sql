@@ -242,7 +242,6 @@ CREATE TABLE `user_info` (
   `password` varchar(128) NOT NULL DEFAULT '' COMMENT '登录密码',
   `nickname` varchar(64) NOT NULL DEFAULT '' COMMENT '昵称',
   `is_super_admin` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员',
-  `token` varchar(256) NOT NULL DEFAULT '' COMMENT '登录token',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -479,18 +478,18 @@ INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`
 	(23,14,17,'admin',0,'2021-01-25 09:10:01','2021-01-25 09:10:01');
 
 
-INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `token`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
-	(1,'admin@torna.org','00e00b343922c877c9e2f581623d337f','超级管理员',1,'',0,'2020-12-15 09:04:13','2020-12-16 10:04:02'),
-	(2,'dev1admin@torna.org','430fe3c097de6aeb37d5649a5dcaf60d','研发一部经理',0,'rnzdb8jY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJleHAiOjE2NDI1NTkwMzcsImlhdCI6MTYxMTAyMzAzN30._C_na3xbXeG1y44cfOgnqxBz44nAKhtteh6iHpKLGQs',0,'2020-12-15 09:41:16','2021-01-19 10:23:57'),
-	(3,'dev1shop_admin@torna.org','16b6c3eb1dcce2986179dbed98e03965','商城项目admin',0,'je24ozLJ:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJleHAiOjE2Mzk2NTAzMzAsImlhdCI6MTYwODExNDMzMH0.6C3sEoXPLrIkT-JsGElVZ95yZm4EqipbfuvlF1QXieY',0,'2020-12-15 09:41:58','2020-12-16 18:25:30'),
-	(4,'dev1shop_zhangsan@torna.org','c13d0f5a2b01a5aa1c3eab57373539ed','张三',0,'',0,'2020-12-15 09:42:12','2020-12-15 10:05:51'),
-	(5,'dev2admin@torna.org','a740d4815ff8f3807beabc0071ce1b47','研发二部经理',0,'',0,'2020-12-15 09:42:30','2020-12-15 10:12:12'),
-	(9,'dev1guest_wangwu@torna.org','7e8daff4c7456ab86f9127c5b65e592e','王五',0,'',0,'2020-12-15 09:43:33','2020-12-15 10:09:51'),
-	(10,'dev2guest_zhaoliu@torna.org','b0e7368bf3f7a124b6c22836e9b6df13','赵六',0,'57zLZ8Qw:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEwIiwiZXhwIjoxNjM5NTQ3NzM3LCJpYXQiOjE2MDgwMTE3Mzd9.NRyuc6I8D9jsTW56iKzSzPPz-q-YADQGr29o6T6rwUs',0,'2020-12-15 09:50:01','2020-12-15 13:55:37'),
-	(11,'dev2back_admin@torna.org','07a04bb0d456346521dc08f85da15f92','后台项目负责人',0,'',0,'2020-12-15 10:10:17','2020-12-16 17:51:43'),
-	(12,'dev2back_lisi@torna.org','c03849d64223094690ee2361d65499db','李四',0,'',0,'2020-12-15 10:10:32','2020-12-15 10:16:04'),
-	(13,'dev2back_guest@torna.org','16fc4db73f6d00f024b5232eee7b3d6a','后台访客',0,'',0,'2020-12-15 11:21:07','2020-12-15 13:36:30'),
-	(14,'test@torna.cn','c19b85cecd8787ba8712ff764bf70f81','测试A',0,'3E8rDz0p:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE0IiwiZXhwIjoxNjQzMDcyOTEwLCJpYXQiOjE2MTE1MzY5MTB9.fQSyONbCAKAI7WVR8r-z9nIl9zn9f0WSV7uayBjyDvo',0,'2021-01-25 09:08:21','2021-01-25 09:08:30');
+INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
+	(1,'admin@torna.cn','f1e27f8ec06b0ea415583c26457dd111','超级管理员',1,0,'2020-12-15 09:04:13','2021-01-27 09:14:36'),
+	(2,'dev1admin@torna.cn','1231d3ef9f1a6b3771d19e3ae453b07d','研发一部经理',0,0,'2020-12-15 09:41:16','2021-01-27 09:14:36'),
+	(3,'dev1shop_admin@torna.cn','8429b4b5d6ef210811a25ad6e2e47403','商城项目admin',0,0,'2020-12-15 09:41:58','2021-01-27 09:14:36'),
+	(4,'dev1shop_zhangsan@torna.cn','6903a801b91e1a81247a97bf7cf6b7ee','张三',0,0,'2020-12-15 09:42:12','2021-01-27 09:14:36'),
+	(5,'dev2admin@torna.cn','8a73c745cd35093af0c72b5e97c7f908','研发二部经理',0,0,'2020-12-15 09:42:30','2021-01-27 09:14:36'),
+	(9,'dev1guest_wangwu@torna.cn','997a3b669d4be9b034b23e620fc1c48e','王五',0,0,'2020-12-15 09:43:33','2021-01-27 09:14:36'),
+	(10,'dev2guest_zhaoliu@torna.cn','db4c69808f677df84b76b902203a807e','赵六',0,0,'2020-12-15 09:50:01','2021-01-27 09:14:36'),
+	(11,'dev2back_admin@torna.cn','de017957932b285ff6032a4d0c584471','后台项目负责人',0,0,'2020-12-15 10:10:17','2021-01-27 09:14:36'),
+	(12,'dev2back_lisi@torna.cn','cfb8d9b2e8447520fe0df35242566096','李四',0,0,'2020-12-15 10:10:32','2021-01-27 09:14:36'),
+	(13,'dev2back_guest@torna.cn','211b7fb1fce482e3bd312fcdb5a89d7f','后台访客',0,0,'2020-12-15 11:21:07','2021-01-27 09:14:36'),
+	(14,'test@torna.cn','c19b85cecd8787ba8712ff764bf70f81','测试A',0,0,'2021-01-25 09:08:21','2021-01-27 09:14:36');
 
 
 INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `source_id`, `gmt_create`, `gmt_modified`) VALUES 

@@ -1,11 +1,14 @@
 package cn.torna;
 
+import cn.torna.common.util.PasswordUtil;
+import cn.torna.dao.entity.UserInfo;
 import cn.torna.service.UserInfoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author tanghc
@@ -35,6 +38,18 @@ public class PasswordTest extends TornaApplicationTests {
         String password = DigestUtils.md5DigestAsHex("123123".getBytes(StandardCharsets.UTF_8));
         String dbPassword = userInfoService.getDbPassword(username, password);
         System.out.println(dbPassword);
+    }
+
+    @Test
+    public void testReset() {
+        List<UserInfo> userInfos = userInfoService.listAll();
+        String newPwd = "123456";
+        for (UserInfo userInfo : userInfos) {
+            String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));
+            password = userInfoService.getDbPassword(userInfo.getUsername(), password);
+            userInfo.setPassword(password);
+            userInfoService.update(userInfo);
+        }
     }
 
 

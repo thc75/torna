@@ -38,11 +38,4 @@ public class LoginController {
         return Result.ok(loginResult);
     }
 
-    @GetMapping("logout")
-    public Result logout(HttpServletRequest request) {
-        String token = UserContext.getToken(request);
-        userInfoService.logout(token);
-        return Result.ok();
-    }
-
 }

@@ -1,12 +1,5 @@
 package cn.torna.common.context;
 
-import com.auth0.jwt.interfaces.Claim;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.exception.ErrorTokenException;
@@ -15,6 +8,13 @@ import cn.torna.common.exception.JwtExpiredException;
 import cn.torna.common.exception.LoginFailureException;
 import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.JwtUtil;
+import com.auth0.jwt.interfaces.Claim;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -30,7 +30,6 @@ public class UserContext {
     public static final String HEADER_TOKEN = "Authorization";
     public static final String JWT_PREFIX = "Bearer ";
     private static final String SECRET_KEY = "torna.jwt.secret";
-    private static final String TORNA_SINGLE_LOGIN = "torna.single-login";
 
 
     private static Supplier<String> tokenGetter = () -> {
@@ -88,14 +87,7 @@ public class UserContext {
         }
         Claim id = data.get("id");
         long userId = verifyUserId(id, userIdDecoded);
-        User user = SpringContext.getBean(UserCacheManager.class).getUser(userId);
-        // 是否开启单设备登录
-        String singleLogin = environment.getProperty(TORNA_SINGLE_LOGIN, "false");
-        if (singleLogin.equalsIgnoreCase("true")) {
-            boolean isSameToken = user != null && Objects.equals(user.getToken(), token);
-            return isSameToken ? user : null;
-        }
-        return user;
+        return SpringContext.getBean(UserCacheManager.class).getUser(userId);
     }
 
     /**
