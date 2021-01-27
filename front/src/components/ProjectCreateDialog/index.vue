@@ -33,6 +33,7 @@
           <el-radio class="el-icon-lock" :label="1">私有</el-radio>
           <el-radio :label="0">公开</el-radio>
         </el-radio-group>
+        <question-private />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -42,8 +43,10 @@
   </el-dialog>
 </template>
 <script>
+import QuestionPrivate from '@/components/QuestionPrivate'
 export default {
   name: 'ProjectCreateDialog',
+  components: { QuestionPrivate },
   props: {
     success: {
       type: Function,

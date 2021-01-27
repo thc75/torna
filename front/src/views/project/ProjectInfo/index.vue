@@ -60,6 +60,7 @@
             <el-radio class="el-icon-lock" :label="1">私有</el-radio>
             <el-radio :label="0">公开</el-radio>
           </el-radio-group>
+          <question-private />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -71,10 +72,11 @@
 </template>
 <script>
 import UserSelect from '@/components/UserSelect'
+import QuestionPrivate from '@/components/QuestionPrivate'
 
 export default {
   name: 'ProjectInfo',
-  components: { UserSelect },
+  components: { UserSelect, QuestionPrivate },
   props: {
     projectId: {
       type: String,
