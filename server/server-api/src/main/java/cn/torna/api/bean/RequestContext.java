@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RequestContext extends ConcurrentHashMap<String, Object> {
 
-    protected static Class<? extends RequestContext> contextClass = RequestContext.class;
-
     protected static final ThreadLocal<? extends RequestContext> THREAD_LOCAL = ThreadLocal.withInitial(RequestContext::new);
 
     private static final String MODULE_ID_KEY = "api-module-id";
