@@ -7,7 +7,6 @@
           <li class="el-submenu is-active is-opened">
             <div class="el-submenu__title" style="padding-left: 20px;">
               <span slot="title">
-                <i class="el-icon-box"></i>
                 模块列表
                 <el-dropdown
                   v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
