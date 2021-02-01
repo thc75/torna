@@ -1,17 +1,17 @@
 <template>
   <div class="doc-view">
     <div class="doc-title">
-      <h2 style="margin-top: 0">
-        {{ docInfo.name }}
-        <el-tooltip placement="top" :content="isSubscribe ? '点击取消关注' : '点击关注'">
-          <el-button
-            type="text"
-            :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
-            style="font-size: 16px"
-            @click="onSubscribe"
-          />
-        </el-tooltip>
+      <h2 class="doc-title">
+        {{ docInfo.name }} <span class="doc-id">ID：{{ docInfo.id }}</span>
         <div style="float: right">
+          <el-tooltip placement="top" :content="isSubscribe ? '点击取消关注' : '点击关注'">
+            <el-button
+              type="text"
+              :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
+              style="font-size: 16px"
+              @click="onSubscribe"
+            />
+          </el-tooltip>
           <el-button v-if="showHistory" type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
           <el-dropdown trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
@@ -91,6 +91,13 @@
   }
   .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
   .doc-modify-info { font-size: 12px;color: #909399 }
+}
+.doc-title {
+  margin: 0
+}
+.doc-id {
+  font-size: 14px;
+  color: #909399;
 }
 </style>
 
