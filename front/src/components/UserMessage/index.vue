@@ -77,7 +77,7 @@ export default {
     loadMessage: function() {
       this.get('/user/message/unread', {}, resp => {
         this.list = resp.data
-      })
+      }, () => {})
     },
     hasMessage() {
       return this.messages.length > 0
