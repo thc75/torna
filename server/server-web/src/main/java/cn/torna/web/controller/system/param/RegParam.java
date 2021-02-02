@@ -1,5 +1,7 @@
 package cn.torna.web.controller.system.param;
 
+import cn.torna.manager.captcha.CaptchaAware;
+import com.anji.captcha.model.vo.CaptchaVO;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -9,7 +11,7 @@ import javax.validation.constraints.NotBlank;
  * @author tanghc
  */
 @Data
-public class RegParam {
+public class RegParam implements CaptchaAware {
 
     @NotBlank(message = "username can not be null")
     @Length(max = 128)
@@ -22,6 +24,5 @@ public class RegParam {
     @Length(max = 64)
     private String nickname;
 
-
-
+    private CaptchaVO captcha;
 }

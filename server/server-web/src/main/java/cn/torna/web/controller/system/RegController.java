@@ -3,6 +3,7 @@ package cn.torna.web.controller.system;
 import cn.torna.common.bean.Result;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserInfo;
+import cn.torna.manager.captcha.CaptchaManager;
 import cn.torna.service.UserInfoService;
 import cn.torna.web.controller.system.param.RegParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,12 @@ public class RegController {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Autowired
+    private CaptchaManager captchaManager;
+
     @PostMapping("/reg")
     public Result reg(@RequestBody @Valid RegParam param) {
+        captchaManager.check(param);
         // 校验邮箱是否存在
         this.checkEmail(param.getUsername());
         // 创建用户

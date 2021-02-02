@@ -3,7 +3,7 @@ package cn.torna;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"cn.torna", "com.anji.captcha"})
 public class TornaApplication {
 
     public static void main(String[] args) {

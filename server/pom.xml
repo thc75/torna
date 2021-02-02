@@ -89,6 +89,11 @@
                 <artifactId>httpmime</artifactId>
                 <version>4.5.13</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.anji-plus</groupId>
+                <artifactId>captcha</artifactId>
+                <version>1.1.8</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

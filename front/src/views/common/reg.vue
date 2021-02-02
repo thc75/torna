@@ -43,6 +43,13 @@
           prefix-icon="el-icon-lock"
         />
       </el-form-item>
+      <Verify
+        ref="verify"
+        :imgSize="{ width: '330px', height: '155px' }"
+        :captchaType="'blockPuzzle'"
+        :mode="'pop'"
+        @success="onCaptchaSuccess"
+      />
       <el-button type="primary" style="width: 100%;" native-type="submit" @click="handleReg">注 册</el-button>
       <div class="footer">
         已有账号，<el-button type="text" @click="goLogin">去登录</el-button>
@@ -52,10 +59,11 @@
 </template>
 <script>
 import md5 from 'js-md5'
-import { goEmailSite, encodeEmail } from '@/utils/email'
+import Verify from '@/components/verifition/Verify'
 
 export default {
   name: 'Reg',
+  components: { Verify },
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.regForm.password) {
@@ -65,6 +73,9 @@ export default {
       }
     }
     return {
+      serverConfig: {
+        enableCaptcha: false
+      },
       query: {},
       submited: false,
       emailUrl: '',
@@ -95,6 +106,9 @@ export default {
     }
   },
   created() {
+    this.getServerConfig(config => {
+      Object.assign(this.serverConfig, config)
+    })
   },
   methods: {
     showPwd() {
@@ -123,26 +137,16 @@ export default {
     handleReg() {
       this.$refs.regForm.validate(valid => {
         if (valid) {
-          this.doSubmit()
+          if (this.serverConfig.enableCaptcha) {
+            this.useVerify()
+          } else {
+            this.doSubmit()
+          }
         }
       })
     },
-    parseEmailUrl: function() {
-      const that = this
-      goEmailSite(this.regForm.username, function(url) {
-        that.emailUrl = url
-      })
-    },
-    goEmailPage: function() {
-      if (this.emailUrl) {
-        window.open(this.emailUrl)
-      }
-    },
-    formatEmail: function() {
-      return encodeEmail(this.regForm.username)
-    },
     onCaptchaSuccess(params) {
-      this.doSubmit(function(data) {
+      this.doSubmit(data => {
         data.captcha = params
       })
     },
@@ -151,7 +155,6 @@ export default {
       Object.assign(data, this.regForm)
       data.password = md5(data.password)
       callback && callback.call(this, data)
-      this.parseEmailUrl()
       this.post('/system/reg', data, function(resp) {
         // 验证邮箱
         if (data.needVerifyEmail) {
@@ -161,8 +164,6 @@ export default {
             this.goRoute(`/login`)
           })
         }
-      }, (resp) => {
-        this.tipError(resp.msg)
       })
     },
     useVerify() {

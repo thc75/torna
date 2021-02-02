@@ -168,6 +168,13 @@ Object.assign(Vue.prototype, {
   goBack() {
     this.$router.go(-1)
   },
+  getServerConfig(callback) {
+    this.get('/system/config', {}, resp => {
+      if (callback) {
+        callback.call(this, resp.data)
+      }
+    })
+  },
   goLogin(url) {
     removeToken()
     // this.$router.replace({ path: `/login` })
