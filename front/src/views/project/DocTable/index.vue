@@ -76,13 +76,23 @@
         </template>
       </el-table-column>
       <el-table-column
+        prop="creatorName"
+        label="创建人"
+        width="120"
+      />
+      <el-table-column
+        prop="gmtCreate"
+        label="创建时间"
+        width="160"
+      />
+      <el-table-column
         prop="modifierName"
         label="最后修改人"
         width="120"
       />
       <el-table-column
-        prop="gmtCreate"
-        label="添加时间"
+        prop="gmtModified"
+        label="修改时间"
         width="160"
       />
       <el-table-column
