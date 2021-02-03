@@ -2,8 +2,8 @@
   <div class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        {{ docInfo.name }} <span class="doc-id">ID：{{ docInfo.id }}</span>
-        <div style="float: right">
+        {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
+        <div v-show="showOptBar" style="float: right">
           <el-tooltip placement="top" :content="isSubscribe ? '点击取消关注' : '点击关注'">
             <el-button
               type="text"
@@ -12,7 +12,7 @@
               @click="onSubscribe"
             />
           </el-tooltip>
-          <el-button v-if="showHistory" type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
+          <el-button type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
           <el-dropdown trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
               导出 <i class="el-icon-arrow-down el-icon--right"></i>
@@ -24,7 +24,7 @@
           </el-dropdown>
         </div>
       </h2>
-      <span class="doc-modify-info">
+      <span v-show="showOptBar" class="doc-modify-info">
         {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
         {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
       </span>
@@ -106,6 +106,7 @@ import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
+
 export default {
   name: 'DocView',
   components: { ParameterTable, HttpMethod, DocDiff },
@@ -126,7 +127,7 @@ export default {
       type: String,
       default: '{}'
     },
-    showHistory: {
+    showOptBar: {
       type: Boolean,
       default: true
     }
@@ -198,7 +199,9 @@ export default {
       })
     },
     setData: function(data) {
-      this.loadSubscribe(data.id)
+      if (data.id) {
+        this.loadSubscribe(data.id)
+      }
       this.docInfo = data
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)

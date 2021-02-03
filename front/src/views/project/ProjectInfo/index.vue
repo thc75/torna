@@ -123,7 +123,8 @@ export default {
     onProjectDel() {
       this.confirm('确认要删除该项目吗？', () => {
         this.post('/project/delete', { id: this.projectId }, () => {
-          location.reload()
+          this.tipSuccess('删除成功')
+          this.goRoute(`/space/project/${this.form.spaceId}`)
         })
       })
     },

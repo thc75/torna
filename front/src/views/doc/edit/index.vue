@@ -110,7 +110,7 @@
       :visible.sync="viewDialogVisible"
       width="70%"
     >
-      <doc-view :doc-info-string="docInfoString" :show-history="false" />
+      <doc-view :doc-info-string="docInfoString" :show-opt-bar="false" />
     </el-dialog>
     <el-dialog
       :title="importParamTemplateTitle"

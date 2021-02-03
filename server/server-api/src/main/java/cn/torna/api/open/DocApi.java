@@ -4,12 +4,16 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocInfo;
+import com.alibaba.fastjson.JSON;
+import com.gitee.easyopen.ApiContext;
+import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.annotation.Api;
 import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.NoResultWrapper;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.CategoryAddParam;
@@ -32,6 +36,7 @@ import java.util.List;
  */
 @ApiService
 @ApiDoc(value = "文档API", order = 1)
+@Slf4j
 public class DocApi {
 
     @Autowired
@@ -43,6 +48,12 @@ public class DocApi {
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档",  order = 0)
     public void pushDoc(DocPushParam param) {
+        ApiParam apiParam = ApiContext.getApiParam();
+        log.debug("推送文档, appKey:{}, token:{}, 推送内容：\n{}",
+                apiParam.fatchAppKey(),
+                apiParam.fatchAccessToken(),
+                JSON.toJSONString(param)
+        );
         long moduleId = RequestContext.getCurrentContext().getModuleId();
         String baseUrl = param.getBaseUrl();
         moduleConfigService.setBaseUrl(moduleId, baseUrl);
