@@ -95,10 +95,6 @@
 .doc-title {
   margin: 0
 }
-.doc-id {
-  font-size: 14px;
-  color: #909399;
-}
 </style>
 
 <script>

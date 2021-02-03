@@ -1,10 +1,6 @@
 <template>
   <div class="navbar">
-    <router-link class="logo" to="/">
-      <img src="@/assets/images/logo.png" class="sidebar-logo">
-      <h1 class="sidebar-title">Torna</h1>
-    </router-link>
-    <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
+    <el-breadcrumb v-if="showBreadcrumb" class="app-breadcrumb" separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: `/` }">首页</el-breadcrumb-item>
       <el-breadcrumb-item v-if="currentSpace" :to="{ path: `/space/project/${currentSpace.id}` }">{{ currentSpace.name }}</el-breadcrumb-item>
       <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
@@ -42,6 +38,12 @@ export default {
   components: {
     RightDropdown, UserMessage
   },
+  props: {
+    showBreadcrumb: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
       isShowDefault: false,
@@ -72,28 +74,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.logo {
-  float: left;
-  margin-left: 10px;
-  margin-right: 20px;
-  display: inline-block;
-}
-.sidebar-logo {
-  width: 32px;
-  height: 32px;
-  vertical-align: middle;
-  margin-right: 2px;
-}
-.sidebar-title {
-  display: inline-block;
-  margin: 0;
-  color: #000;
-  font-weight: 600;
-  line-height: 50px;
-  font-size: 14px;
-  font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
-  vertical-align: middle;
-}
+
 .app-breadcrumb.el-breadcrumb {
   float: left;
   display: inline-block;

@@ -53,7 +53,7 @@
 </style>
 <script>
 import { mapGetters } from 'vuex'
-import Logo from './Logo'
+import Logo from '@/components/Logo'
 
 const file_typ_map = {
   '0': 'el-icon-s-management',

@@ -87,6 +87,10 @@ export default {
     width: 0
   }
 
+  .hideSidebarView .fixed-header {
+    width: 100%;
+  }
+
   .mobile .fixed-header {
     width: 100%;
   }

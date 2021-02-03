@@ -9,7 +9,8 @@ $menuHover:#263445;
 $subMenuBg:#1f2d3d;
 $subMenuHover:#001528;
 
-$sideBarWidth: 0px;
+$sideBarWidth: 70px;
+$sideBarUserWidth: 200px;
 $sideBarViewWidth: 300px;
 
 // the :export directive is the magic sauce for webpack
@@ -24,4 +25,5 @@ $sideBarViewWidth: 300px;
   subMenuHover: $subMenuHover;
   sideBarWidth: $sideBarWidth;
   sideBarViewWidth: $sideBarViewWidth;
+  sideBarUserWidth: $sideBarUserWidth;
 }

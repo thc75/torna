@@ -1,7 +1,10 @@
 <template>
   <div class="app-wrapper">
+    <home-menu />
     <div class="main-container">
-      <navbar />
+      <div :class="{'fixed-header':fixedHeader}">
+        <navbar />
+      </div>
       <app-main />
     </div>
   </div>
@@ -10,12 +13,14 @@
 <script>
 import { Navbar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import HomeMenu from '@/components/HomeMenu'
 
 export default {
   name: 'Layout',
   components: {
     Navbar,
-    AppMain
+    AppMain,
+    HomeMenu
   },
   mixins: [ResizeMixin],
   computed: {
@@ -45,18 +50,3 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  @import "~@/styles/variables.scss";
-
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    &.mobile.openSidebar{
-      position: fixed;
-      top: 0;
-    }
-  }
-</style>

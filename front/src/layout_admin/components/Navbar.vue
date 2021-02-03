@@ -1,9 +1,5 @@
 <template>
   <div class="navbar">
-    <router-link class="logo" to="/">
-      <img src="@/assets/images/logo.png" class="sidebar-logo">
-      <h1 class="sidebar-title">Torna</h1>
-    </router-link>
     <div class="right-menu">
       <div class="right-menu-item">
         <el-button type="primary" size="mini" @click="goRoute('/')">文档管理</el-button>
@@ -48,71 +44,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.logo {
-  float: left;
-  margin-left: 10px;
-  margin-right: 20px;
-  display: inline-block;
-}
-.sidebar-logo {
-  width: 32px;
-  height: 32px;
-  vertical-align: middle;
-  margin-right: 2px;
-}
-.sidebar-title {
-  display: inline-block;
-  margin: 0;
-  color: #000;
-  font-weight: 600;
-  line-height: 50px;
-  font-size: 14px;
-  font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
-  vertical-align: middle;
-}
-.app-breadcrumb.el-breadcrumb {
-  float: left;
-  display: inline-block;
-  line-height: 50px;
-  font-size: 14px;
-  margin-left: 8px;
-
-  .no-redirect {
-    color: #97a8be;
-    cursor: text;
-  }
-}
-.el-dropdown-link {
-  cursor: pointer;
-}
-.el-icon-arrow-down {
-  font-size: 12px;
-}
-.navbar {
-  height: 50px;
-  overflow: hidden;
-  position: relative;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
-
-  .hamburger-container {
-    line-height: 46px;
-    height: 100%;
-    float: left;
-    cursor: pointer;
-    transition: background .3s;
-    -webkit-tap-highlight-color:transparent;
-
-    &:hover {
-      background: rgba(0, 0, 0, .025)
-    }
-  }
-
-  .breadcrumb-container {
-    float: left;
-  }
-
-}
-</style>

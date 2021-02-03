@@ -1,14 +1,12 @@
 <template>
   <div class="app-wrapper">
-    <navbar />
-    <el-container style="margin: 20px; border: 1px solid #eee;">
-      <el-aside width="200px">
-        <user-center-menu />
-      </el-aside>
-      <el-main>
-        <app-main style="min-height: 100%;" />
-      </el-main>
-    </el-container>
+    <user-center-menu />
+    <div class="main-container">
+      <div :class="{'fixed-header':fixedHeader}">
+        <navbar :show-breadcrumb="false" />
+      </div>
+      <app-main />
+    </div>
   </div>
 </template>
 
@@ -23,22 +21,20 @@ export default {
     AppMain,
     UserCenterMenu
   },
-  mixins: [ResizeMixin]
-}
-</script>
-
-<style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  @import "~@/styles/variables.scss";
-
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    &.mobile.openSidebar{
-      position: fixed;
-      top: 0;
+  mixins: [ResizeMixin],
+  computed: {
+    fixedHeader() {
+      return this.$store.state.settings.fixedHeader
     }
   }
+}
+</script>
+<style lang="scss" scoped>
+@import "~@/styles/variables.scss";
+.main-container {
+  margin-left: $sideBarUserWidth !important;
+}
+.fixed-header {
+  width: calc(100% - #{$sideBarUserWidth});
+}
 </style>

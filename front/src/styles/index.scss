@@ -232,7 +232,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 
 .torna-menu {
   height: calc(100vh - 50px);
-  width: 70px;
+  width: $sideBarWidth;
   .el-menu-item {
     //margin: 8px 0;
     .title {
@@ -276,4 +276,66 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
     width: 300px;
     cursor: pointer;
   }
+}
+
+// index
+.app-wrapper {
+  @include clearfix;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  &.mobile.openSidebar{
+    position: fixed;
+    top: 0;
+  }
+}
+.drawer-bg {
+  background: #000;
+  opacity: 0.3;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  position: absolute;
+  z-index: 999;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9;
+  width: calc(100% - #{$sideBarWidth});
+  transition: width 0.28s;
+}
+
+// nav
+.navbar {
+  height: 50px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+
+  .hamburger-container {
+    line-height: 46px;
+    height: 100%;
+    float: left;
+    cursor: pointer;
+    transition: background .3s;
+    -webkit-tap-highlight-color:transparent;
+
+    &:hover {
+      background: rgba(0, 0, 0, .025)
+    }
+  }
+
+  .breadcrumb-container {
+    float: left;
+  }
+
+}
+
+.doc-id {
+  font-size: 14px;
+  color: #909399;
 }

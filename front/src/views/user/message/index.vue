@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <h3>我的消息</h3>
     <div class="table-opt-btn">
       <el-button

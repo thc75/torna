@@ -1,15 +1,11 @@
 <template>
   <div class="app-wrapper">
+    <admin-menu />
     <div class="main-container">
-      <navbar />
-      <el-container>
-        <el-aside style="width: auto;">
-          <admin-menu />
-        </el-aside>
-        <el-main style="padding: 0">
-          <app-main style="min-height: 100%;" />
-        </el-main>
-      </el-container>
+      <div :class="{'fixed-header':fixedHeader}">
+        <navbar />
+      </div>
+      <app-main />
     </div>
   </div>
 </template>
@@ -27,6 +23,11 @@ export default {
     AdminMenu
   },
   mixins: [ResizeMixin],
+  computed: {
+    fixedHeader() {
+      return this.$store.state.settings.fixedHeader
+    }
+  },
   mounted() {
     const projectId = this.$route.params.projectId
     this.initCurrentInfo(projectId)
@@ -60,19 +61,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-@import "~@/styles/mixin.scss";
-@import "~@/styles/variables.scss";
-
-.app-wrapper {
-  @include clearfix;
-  position: relative;
-  height: 100%;
-  width: 100%;
-  &.mobile.openSidebar{
-    position: fixed;
-    top: 0;
-  }
-}
-</style>

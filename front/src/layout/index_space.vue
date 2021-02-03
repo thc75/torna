@@ -1,15 +1,11 @@
 <template>
   <div class="app-wrapper">
+    <space-menu />
     <div class="main-container">
-      <navbar />
-      <el-container>
-        <el-aside style="width: auto;">
-          <space-menu />
-        </el-aside>
-        <el-main style="padding: 0">
-          <app-main style="min-height: 100%;" />
-        </el-main>
-      </el-container>
+      <div :class="{'fixed-header':fixedHeader}">
+        <navbar />
+      </div>
+      <app-main />
     </div>
   </div>
 </template>
@@ -32,6 +28,11 @@ export default {
       space: ''
     }
   },
+  computed: {
+    fixedHeader() {
+      return this.$store.state.settings.fixedHeader
+    }
+  },
   created() {
     const spaceId = this.$route.params.spaceId
     this.loadData(spaceId)
@@ -48,19 +49,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  @import "~@/styles/variables.scss";
-
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    &.mobile.openSidebar{
-      position: fixed;
-      top: 0;
-    }
-  }
-</style>

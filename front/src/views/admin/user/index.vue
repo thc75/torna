@@ -7,7 +7,7 @@
         <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录账号" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="loadTable">查询</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="onSearch">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -85,6 +85,10 @@ export default {
     this.loadTable()
   },
   methods: {
+    onSearch() {
+      this.searchFormData.pageIndex = 1
+      this.loadTable()
+    },
     loadTable() {
       this.post('/admin/user/page', this.searchFormData, resp => {
         this.pageInfo = resp.data

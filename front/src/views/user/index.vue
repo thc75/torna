@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <h3>账号信息</h3>
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane label="基本信息" name="1">

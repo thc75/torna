@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <h3>我关注的接口</h3>
     <el-table
       :data="pageInfo.rows"

@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="sidebar-container">
+    <logo :collapse="false" />
     <el-menu
       :default-openeds="['1', '2', '3']"
       :router="true"
@@ -30,8 +31,10 @@
   </div>
 </template>
 <script>
+import Logo from '@/components/Logo'
 export default {
   name: 'UserCenterMenu',
+  components: { Logo },
   computed: {
     currentActive() {
       return this.$route.path
@@ -39,4 +42,12 @@ export default {
   }
 }
 </script>
-
+<style lang="scss" scoped>
+@import "~@/styles/variables.scss";
+.sidebar-container {
+  width: $sideBarUserWidth !important;
+}
+.main-container {
+  margin-left: $sideBarUserWidth !important;
+}
+</style>

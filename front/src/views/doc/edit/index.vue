@@ -1,6 +1,6 @@
 <template>
   <div class="app-container route-doc-edit">
-    <h3>{{ docInfo.name }}</h3>
+    <h3>{{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span></h3>
     <el-tabs v-model="activeName" tab-position="left">
       <el-tab-pane label="基本信息" name="info">
         <el-form

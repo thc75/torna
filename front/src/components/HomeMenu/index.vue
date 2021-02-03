@@ -1,14 +1,14 @@
 <template>
   <div class="sidebar-container">
-    <logo :collapse="true" />
+    <logo />
     <el-menu
       class="torna-menu"
       router
       :default-active="currentActive"
     >
-      <el-menu-item index="/admin/users">
-        <i class="el-icon-user"></i>
-        <span class="title">用户管理</span>
+      <el-menu-item index="/dashboard">
+        <i class="el-icon-house"></i>
+        <span class="title">空间列表</span>
       </el-menu-item>
     </el-menu>
   </div>
@@ -19,13 +19,16 @@ export default {
   components: { Logo },
   data() {
     return {
-      projectId: ''
+      spaceId: ''
     }
   },
   computed: {
     currentActive() {
       return this.$route.path
     }
+  },
+  created() {
+    this.spaceId = this.$route.params.spaceId
   }
 }
 </script>
