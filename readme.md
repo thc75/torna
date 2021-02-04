@@ -31,8 +31,8 @@
 
 - 导入Mysql脚本
 - IDE安装lombok插件，然后打开项目(IDEA下可以打开根pom.xml，然后open as project)
-- 打开`server/boot/src/main/resources/application-dev.properties`，修改数据库配置
-- 运行`server/boot/src/main/java/torna/TornaApplication.java`
+- 打开`server/boot/src/main/resources/application.properties`，修改数据库配置
+- 运行`server/boot/src/main/java/cn/torna/TornaApplication.java`
 - 运行前端，见：[front/README.md](./front/README.md)
 
 
@@ -56,7 +56,7 @@
 研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
 ```
 
-## 部署应用
+## 打包发布
 
 > 运行环境：Java8, Mysql5.7+
 
