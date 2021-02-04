@@ -1,8 +1,8 @@
 # Torna前端页面
 
-> 前提：先安装好npm，[npm安装教程](https://blog.csdn.net/zhangwenwu2/article/details/52778521)
+> 前提：先安装好nodejs，建议安装nodejs12+，版本太高可能会有问题
 
-- 执行`npm install --registry=https://registry.npm.taobao.org`
+- 执行`npm install`
 - 执行`npm run dev`，访问`http://localhost:9530/`
 
 

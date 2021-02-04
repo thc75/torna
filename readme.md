@@ -60,54 +60,29 @@
 
 > 运行环境：Java8, Mysql5.7+
 
-### Linux/Mac
+- `Linux/Mac`：执行`build.sh`
+- `Windows系统`：执行`build.bat`
 
-执行`build.sh`，构建结果在`dist/torna`目录
-
-复制`server/boot/src/main/resources/application.properties`文件到`dist/torna`下
-
-修改`application.properties`配置文件内容，改为线上配置
-
-把`torna`文件夹上传到服务器
-
-在服务器中执行`startup.sh`，启动应用
-
-访问：`http://ip:7700`
-
-### Windows
-
-本地创建一个`torna`文件夹
-
-执行`mvn clean package`
-
-将`server/boot/target/torna.jar`拷贝到`torna`下
-
-cd front
-
-执行`npm run build:prod`
-
-将`front/dist`文件夹拷贝到`torna`下
-
-将`script`中的脚本文件拷贝到`torna`下
-
-复制`server/boot/src/main/resources/application.properties`文件到`torna`下
-
-修改`application.properties`配置文件内容，改为线上配置
-
-最终目录形式如下：
+构建结果在`dist/torna`目录，最终结构如下：
 
 ```
 torna                           # 根目录
 ├── application.properties      # 配置文件
 ├── dist                        # 前端资源
+├── debug.sh                    # 线上调试
 ├── shutdown.sh                 # 结束服务脚本
 ├── startup.sh                  # 启动服务脚本
 └── torna.jar                   # 服务程序
 ```
 
-把`torna`文件夹上传到服务器，然后执行`startup.sh`
+把`torna`文件夹上传到服务器
+
+修改`application.properties`配置文件内容，改为线上配置
+
+执行`startup.sh`，启动应用
 
 访问：`http://ip:7700`
+
 
 如果需要前后端分离，参考：[前后端分离](https://gitee.com/durcframework/torna/wikis/pages?sort_id=3338322&doc_id=1160582)
 
