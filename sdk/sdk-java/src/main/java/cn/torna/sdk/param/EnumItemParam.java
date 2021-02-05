@@ -1,8 +1,10 @@
 package cn.torna.sdk.param;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class EnumItemParam {
 
     /** 名称，字面值 */

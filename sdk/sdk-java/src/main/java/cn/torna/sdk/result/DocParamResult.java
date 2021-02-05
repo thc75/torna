@@ -29,7 +29,7 @@ public class DocParamResult {
     /** 描述 */
     private String description;
 
-    /** doc_info.id */
+    /** 文档id */
     private String docId;
 
     /** 父节点 */

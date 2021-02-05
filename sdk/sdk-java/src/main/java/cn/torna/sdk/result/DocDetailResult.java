@@ -1,13 +1,15 @@
 package cn.torna.sdk.result;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 /**
  * @author tanghc
  */
-@Data
+@Getter
+@Setter
 public class DocDetailResult {
     private String id;
 

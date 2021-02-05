@@ -1,10 +1,12 @@
 package cn.torna.sdk.result;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author tanghc
  */
-@Data
+@Getter
+@Setter
 public class DocPushResult {
 }

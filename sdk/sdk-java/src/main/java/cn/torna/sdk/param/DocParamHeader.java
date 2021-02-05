@@ -1,6 +1,5 @@
 package cn.torna.sdk.param;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,16 +10,16 @@ import lombok.Setter;
 @Setter
 public class DocParamHeader {
 
-    /** header名称 name */
+    /** header名称 */
     private String name;
 
     /** 是否必须，1：是，0：否 required */
     private Byte required;
 
-    /** 示例值 example */
+    /** 示例值 */
     private String example;
 
-    /** 描述 description */
+    /** 描述 */
     private String description;
 
 }

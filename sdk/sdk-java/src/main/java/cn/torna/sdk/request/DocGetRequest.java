@@ -16,6 +16,9 @@ public class DocGetRequest extends BaseRequest<DocGetResponse> {
     /** 文档id */
     private String id;
 
+    /**
+     * @param token OpenAPI对应的token
+     */
     public DocGetRequest(String token) {
         super(token);
     }

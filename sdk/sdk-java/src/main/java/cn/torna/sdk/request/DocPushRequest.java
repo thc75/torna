@@ -22,6 +22,9 @@ public class DocPushRequest extends BaseRequest<DocPushResponse> {
     /** 接口项 */
     private List<DocItem> apis;
 
+    /**
+     * @param token OpenAPI对应的token
+     */
     public DocPushRequest(String token) {
         super(token);
     }

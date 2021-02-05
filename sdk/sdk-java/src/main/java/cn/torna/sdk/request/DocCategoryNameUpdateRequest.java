@@ -19,6 +19,9 @@ public class DocCategoryNameUpdateRequest extends BaseRequest<DocCategoryNameUpd
     /** 分类名称 */
     private String name;
 
+    /**
+     * @param token OpenAPI对应的token
+     */
     public DocCategoryNameUpdateRequest(String token) {
         super(token);
     }

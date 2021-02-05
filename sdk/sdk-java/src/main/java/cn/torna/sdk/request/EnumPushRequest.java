@@ -1,9 +1,9 @@
 package cn.torna.sdk.request;
 
+import cn.torna.sdk.param.EnumItemParam;
 import cn.torna.sdk.response.EnumPushResponse;
 import lombok.Getter;
 import lombok.Setter;
-import cn.torna.sdk.param.EnumItemParam;
 
 import java.util.List;
 
@@ -25,6 +25,9 @@ public class EnumPushRequest extends BaseRequest<EnumPushResponse> {
     /** 枚举项 */
     private List<EnumItemParam> items;
 
+    /**
+     * @param token OpenAPI对应的token
+     */
     public EnumPushRequest(String token) {
         super(token);
     }

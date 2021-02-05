@@ -16,6 +16,9 @@ public class DocCategoryCreateRequest extends BaseRequest<DocCategoryCreateRespo
     /** 分类名称 */
     private String name;
 
+    /**
+     * @param token OpenAPI对应的token
+     */
     public DocCategoryCreateRequest(String token) {
         super(token);
     }

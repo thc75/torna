@@ -12,6 +12,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DocCategoryListRequest extends BaseRequest<DocCategoryListResponse> {
+
+    /**
+     * @param token OpenAPI对应的token
+     */
     public DocCategoryListRequest(String token) {
         super(token);
     }

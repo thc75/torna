@@ -12,25 +12,25 @@ import java.util.List;
 @Setter
 public class DocItem {
 
-    /** 文档名称 name */
+    /** 文档名称 */
     private String name;
 
-    /** 文档概述 description */
+    /** 文档概述 */
     private String description;
 
-    /** 访问URL url */
+    /** 访问URL */
     private String url;
 
-    /** http方法 http_method */
+    /** http方法 */
     private String httpMethod;
 
-    /** contentType content_type */
+    /** contentType */
     private String contentType;
 
-    /** 父节点 parent_id */
+    /** 父节点 */
     private String parentId;
 
-    /** 是否显示 is_show */
+    /** 是否显示 */
     private Byte isShow;
 
     /** 是否分类 */
