@@ -67,6 +67,9 @@ public class DocInfoDetailResult {
     @ApiDocField(description = "最后修改时间")
     private Date gmtModified;
 
+    @ApiDocField(description = "调试环境", elementClass = DebugEnvResult.class)
+    private List<DebugEnvResult> debugEnvs;
+
     @ApiDocField(description = "请求头", elementClass = DocHeaderResult.class)
     private List<DocHeaderResult> headerParams;
 

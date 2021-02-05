@@ -9,6 +9,7 @@ import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleService;
 import cn.torna.web.controller.module.param.DebugHostParam;
+import cn.torna.web.controller.module.param.DebugHostSaveParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import cn.torna.web.controller.module.param.ModuleConfigParam;
 import cn.torna.web.controller.module.param.ModuleGlobalHeaderUpdateParam;
@@ -49,11 +50,11 @@ public class ModuleSettingController {
         ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
         List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         String allowMethod = moduleConfigService.getAllowMethod(moduleId);
-        String baseUrl = moduleConfigService.getBaseUrl(moduleId);
+        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
         ModuleSettingVO moduleSettingVO = new ModuleSettingVO();
         moduleSettingVO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, ModuleConfigVO::new));
         moduleSettingVO.setAllowMethod(allowMethod);
-        moduleSettingVO.setBaseUrl(baseUrl);
+        moduleSettingVO.setDebugEnvs(CopyUtil.copyList(debugEnvs, ModuleConfigVO::new));
         moduleSettingVO.setModuleVO(moduleVO);
         return Result.ok(moduleSettingVO);
     }
@@ -82,16 +83,37 @@ public class ModuleSettingController {
         return Result.ok();
     }
 
-    /**
-     * 设置调试host
-     * @param param
-     * @return
-     */
-    @PostMapping("/baseurl/set")
-    public Result setBaseUrl(@RequestBody DebugHostParam param) {
-        Long moduleId = param.getModuleId();
-        String baseUrl = param.getBaseUrl();
-        moduleConfigService.setBaseUrl(moduleId, baseUrl);
+    @PostMapping("/debugEnv/set")
+    public Result setDebugHost(@RequestBody DebugHostParam param) {
+        moduleConfigService.setDebugHost(
+                param.getModuleId(),
+                param.getConfigKey(),
+                param.getConfigValue()
+        );
+        return Result.ok();
+    }
+
+    @GetMapping("/debugEnv/list")
+    public Result<List<ModuleConfigVO>> listDebugHost(@HashId Long moduleId) {
+        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
+        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(debugEnvs, ModuleConfigVO::new);
+        return Result.ok(moduleConfigVOS);
+    }
+
+    @PostMapping("/debugEnv/save")
+    public Result saveDebugHost(@RequestBody DebugHostSaveParam param) {
+        for (DebugHostParam debugHostParam : param.getDebugEnvs()) {
+            this.setDebugHost(debugHostParam);
+        }
+        return Result.ok();
+    }
+
+    @PostMapping("/debugEnv/delete")
+    public Result deleteDebugHost(@RequestBody ModuleConfigParam param) {
+        ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
+        if (moduleConfig != null) {
+            this.moduleConfigService.delete(moduleConfig);
+        }
         return Result.ok();
     }
 

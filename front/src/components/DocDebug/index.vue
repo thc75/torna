@@ -2,12 +2,22 @@
   <div class="doc-debug">
     <el-row :gutter="20">
       <el-col :span="24-rightSpanSize">
-        <el-input v-model="url" :readonly="pathData.length > 0" class="request-url">
-          <span slot="prepend">
-            {{ currentMethod }}
-          </span>
-          <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send"> 发 送 </el-button>
-        </el-input>
+        <div v-if="currentItem.debugEnvs.length > 0">
+          <el-radio-group v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
+            <el-radio-button
+              v-for="hostConfig in currentItem.debugEnvs"
+              :key="hostConfig.configKey"
+              :label="hostConfig.configKey"
+            />
+          </el-radio-group>
+          <el-input v-model="requestUrl" :readonly="pathData.length > 0" class="request-url">
+            <span slot="prepend">
+              {{ currentMethod }}
+            </span>
+            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send"> 发 送 </el-button>
+          </el-input>
+        </div>
+        <el-alert v-else :closable="false" title="尚未指定调试环境，请前往【模块配置】进行添加" />
         <div v-show="pathData.length > 0" class="path-param">
           <el-table
             :data="pathData"
@@ -256,6 +266,10 @@
 require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
 import { request } from '@/utils/http'
+import { get_effective_url } from '@/utils/common'
+
+const HOST_KEY = 'torna.debug-host'
+
 export default {
   name: 'DocDebug',
   props: {
@@ -267,7 +281,9 @@ export default {
   data() {
     return {
       rightSpanSize: 0,
-      currentItem: null,
+      currentItem: {
+        debugEnvs: []
+      },
       itemMap: null,
       currentMethod: 'GET',
       cellStyle: { paddingTop: '5px', paddingBottom: '5px' },
@@ -289,6 +305,7 @@ export default {
       ],
       headerData: [],
       pathData: [],
+      debugEnv: '',
       resultActive: 'result',
       sendLoading: false,
       result: {
@@ -327,9 +344,36 @@ export default {
         this.contentType = this.hasBody ? 'application/json' : ''
       }
       this.isTextBody = this.contentType.toLowerCase().indexOf('application') > -1
-      this.requestUrl = this.getRequestUrl(item)
+      this.initDebugHost()
       this.bindRequestParam(item)
       this.initActive()
+    },
+    onHostEnvClick(tab, event) {
+      this.changeHostEnv(tab.label)
+    },
+    initDebugHost() {
+      const debugEnv = this.getAttr(HOST_KEY) || ''
+      this.changeHostEnv(debugEnv)
+    },
+    changeHostEnv(debugEnv) {
+      const item = this.currentItem
+      const debugEnvs = item.debugEnvs
+      if (!debugEnv && debugEnvs.length > 0) {
+        debugEnv = debugEnvs[0].configKey
+      }
+      this.setAttr(HOST_KEY, debugEnv)
+      this.debugEnv = debugEnv
+      if (debugEnv) {
+        debugEnvs.forEach(row => {
+          if (row.configKey === debugEnv) {
+            const baseUrl = row.configValue
+            const url = item.url
+            this.requestUrl = get_effective_url(baseUrl, url)
+          }
+        })
+      } else {
+        this.requestUrl = item.url
+      }
     },
     bindRequestParam(item) {
       const queryData = []

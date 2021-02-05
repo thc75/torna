@@ -1,11 +1,11 @@
 import { Enums } from './enums'
 import {
   create_response_example,
-  get_requestUrl,
   convert_tree,
   init_docInfo,
   StringBuilder,
-  style_config
+  style_config,
+  get_effective_url
 } from './common'
 
 const split_char = ' | '
@@ -106,7 +106,19 @@ const MarkdownUtil = {
       builder.append(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`### ${docInfo.name}`)
-    append(`URL：\`${docInfo.httpMethod}\` ${get_requestUrl(docInfo)}`)
+    append(`#### URL`)
+    const debugEnvs = docInfo.debugEnvs || []
+    if (debugEnvs.length > 0) {
+      const ul = new StringBuilder()
+      docInfo.debugEnvs.forEach(hostConfig => {
+        const baseUrl = hostConfig.configValue
+        const url = get_effective_url(baseUrl, docInfo.url)
+        ul.append(`- ${hostConfig.configKey}: \`${docInfo.httpMethod}\` ${url}\n`)
+      })
+      append(ul.toString())
+    } else {
+      append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
+    }
     append(`描述：${docInfo.description}`)
     append(`ContentType：${docInfo.contentType}`)
     append(`#### Path参数`)

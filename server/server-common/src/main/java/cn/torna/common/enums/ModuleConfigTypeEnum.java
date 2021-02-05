@@ -14,6 +14,10 @@ public enum ModuleConfigTypeEnum {
      * 全局header
      */
     GLOBAL_HEADERS((byte) 1),
+    /**
+     * 调试host
+     */
+    DEBUG_HOST((byte) 2),
     ;
 
     private final byte type;

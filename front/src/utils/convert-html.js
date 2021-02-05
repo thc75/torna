@@ -2,10 +2,10 @@ import { Enums } from './enums'
 import {
   convert_tree,
   create_response_example,
-  get_requestUrl,
   init_docInfo,
   StringBuilder,
-  style_config
+  style_config,
+  get_effective_url
 } from './common'
 
 const thWrapper = (content) => {
@@ -122,8 +122,21 @@ const HtmlUtil = {
     }
     sb.append('<div class="doc-item">')
       .append(`<h3 id="${docInfo.id}">${link(docInfo.id, docInfo.name)}</h3>`)
-      .append(`<p><strong>URL：</strong>${docInfo.httpMethod} ${get_requestUrl(docInfo)}</p>`)
-      .append(`<p><strong>描述：</strong>${docInfo.description}</p>`)
+      .append(`<p><strong>URL</strong></p>`)
+    const debugEnvs = docInfo.debugEnvs || []
+    if (debugEnvs.length > 0) {
+      const ul = new StringBuilder('<ul>')
+      docInfo.debugEnvs.forEach(hostConfig => {
+        const baseUrl = hostConfig.configValue
+        const url = get_effective_url(baseUrl, docInfo.url)
+        ul.append(`<li>${hostConfig.configKey}: ${docInfo.httpMethod} ${url}</li>`)
+      })
+      ul.append('</ul>')
+      sb.append(ul.toString())
+    } else {
+      sb.append(`<span>${docInfo.httpMethod} ${docInfo.url}</span>`)
+    }
+    sb.append(`<p><strong>描述：</strong>${docInfo.description}</p>`)
       .append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
     sb.append('<h4>Path参数</h4>')
     const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)

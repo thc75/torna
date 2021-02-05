@@ -43,6 +43,16 @@ export function get_requestUrl(item) {
   return `${baseUrl}/${url}`
 }
 
+export function get_effective_url(baseUrl, url) {
+  if (baseUrl && baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.substring(0, baseUrl.length)
+  }
+  if (url && url.startsWith('/')) {
+    url = url.substring(1)
+  }
+  return `${baseUrl}/${url}`
+}
+
 /**
  * array转tree，必须要有id,parentId属性
  * @param arr 数组

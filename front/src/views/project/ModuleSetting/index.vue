@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>
+    <h2>
       {{ settings.moduleVO.name }}
       <popover-update
         v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
@@ -8,8 +8,8 @@
         :on-show="() => {return settings.moduleVO.name}"
         :on-save="onSaveName"
       />
-    </h3>
-    <h4>全局Headers</h4>
+    </h2>
+    <h3>全局Headers</h3>
     <el-button
       v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
       type="primary"
@@ -44,18 +44,44 @@
         </template>
       </el-table-column>
     </el-table>
-    <h4>BaseUrl</h4>
-    <el-alert title="请求基本路径" :closable="false" style="margin-bottom: 10px;" />
+    <h3>调试环境 <span class="doc-id">请求基本路径</span></h3>
+    <el-button
+      v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+      type="primary"
+      size="mini"
+      style="margin-bottom: 10px"
+      @click="onDebugHostAdd"
+    >
+      添加环境
+    </el-button>
     <el-form ref="debugHostRef" :model="settings" size="mini">
-      <el-form-item prop="baseUrl">
-        <el-input v-model="settings.baseUrl" placeholder="如：http://10.0.10.11:8080" />
+      <el-form-item>
+        <el-tabs
+          v-model="settings.debugEnv"
+          type="card"
+          :closable="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
+          @tab-remove="onDebugHostDelete"
+        >
+          <el-tab-pane
+            v-for="item in settings.debugEnvs"
+            :key="item.configKey"
+            :label="item.configKey"
+            :name="item.configKey"
+          >
+            <el-input
+              v-model="item.configValue"
+              placeholder="如：http://10.0.10.11:8080"
+              :disabled="!hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
+            />
+          </el-tab-pane>
+        </el-tabs>
       </el-form-item>
       <el-form-item v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])">
         <el-button type="primary" @click="onSaveDebugHost">保存</el-button>
       </el-form-item>
     </el-form>
     <div v-if="settings.moduleVO.type === 1">
-      <h4>Swagger多个Method重复，只显示</h4>
+      <h3>Swagger多个Method重复，只显示</h3>
       <el-form ref="allowMethodsRef" :model="settings" size="mini">
         <el-form-item prop="allowMethods">
           <el-select v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" v-model="settings.allowMethod" @change="onSaveAllowMethods">
@@ -82,7 +108,7 @@
     >
       <el-form
         ref="dialogHeaderForm"
-        :rules="dialogFormRules"
+        :rules="dialogHeaderFormRules"
         :model="dialogHeaderFormData"
         label-width="120px"
         size="mini"
@@ -111,6 +137,37 @@
         <el-button type="primary" @click="onDialogHeaderSave">保 存</el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      :title="dialogDebugHostTitle"
+      :visible.sync="dialogDebugHostVisible"
+      :close-on-click-modal="false"
+      @close="resetForm('dialogDebugHostForm')"
+    >
+      <el-form
+        ref="dialogDebugHostForm"
+        :rules="dialogDebugHostFormRules"
+        :model="dialogDebugHostFormData"
+        label-width="120px"
+        size="mini"
+      >
+        <el-form-item
+          prop="configKey"
+          label="环境名称"
+        >
+          <el-input v-model="dialogDebugHostFormData.configKey" placeholder="环境名称，如：测试环境" show-word-limit maxlength="50" />
+        </el-form-item>
+        <el-form-item
+          prop="configValue"
+          label="调试路径"
+        >
+          <el-input v-model="dialogDebugHostFormData.configValue" placeholder="如：http://10.0.10.11:8080" show-word-limit maxlength="200" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogDebugHostVisible = false">取 消</el-button>
+        <el-button type="primary" @click="onDialogDebugHostSave">保 存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -131,11 +188,13 @@ export default {
   data() {
     return {
       settings: {
+        debugEnv: '',
         moduleVO: {
           id: '',
           name: '',
           type: 0
         },
+        debugEnvs: [],
         globalHeaders: [],
         allowMethod: 'POST',
         baseUrl: ''
@@ -150,7 +209,7 @@ export default {
         configValue: '',
         description: ''
       },
-      dialogFormRules: {
+      dialogHeaderFormRules: {
         configKey: [
           { required: true, message: '不能为空', trigger: 'blur' },
           { validator: (rule, value, callback) => {
@@ -161,6 +220,22 @@ export default {
             }
           }, trigger: 'blur' }
         ], configValue: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ]
+      },
+      // debugEnv
+      dialogDebugHostVisible: false,
+      dialogDebugHostTitle: '',
+      dialogDebugHostFormData: {
+        moduleId: '',
+        configKey: '',
+        configValue: ''
+      },
+      dialogDebugHostFormRules: {
+        configKey: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ],
+        configValue: [
           { required: true, message: '不能为空', trigger: 'blur' }
         ]
       }
@@ -180,11 +255,25 @@ export default {
         this.settings.globalHeaders = resp.data
       })
     },
+    loadDebugHosts(init) {
+      this.get('/module/setting/debugEnv/list', { moduleId: this.moduleId }, resp => {
+        this.settings.debugEnvs = resp.data
+        if (init) {
+          this.initDebugHost()
+        }
+      })
+    },
     loadSettings(moduleId) {
       if (moduleId) {
         this.get('/module/setting/get', { moduleId: moduleId }, function(resp) {
           this.settings = resp.data
+          this.initDebugHost()
         })
+      }
+    },
+    initDebugHost() {
+      if (this.settings.debugEnvs.length > 0) {
+        this.settings.debugEnv = this.settings.debugEnvs[0].configKey
       }
     },
     onSaveName(value, done) {
@@ -202,6 +291,25 @@ export default {
       this.dialogHeaderTitle = '新增Header'
       this.dialogHeaderVisible = true
       this.dialogHeaderFormData.id = ''
+    },
+    onDebugHostAdd() {
+      this.dialogDebugHostTitle = '新增调试环境'
+      this.dialogDebugHostVisible = true
+      this.dialogDebugHostFormData.id = ''
+    },
+    onDialogDebugHostSave() {
+      this.$refs.dialogDebugHostForm.validate((valid) => {
+        if (valid) {
+          const uri = '/module/setting/debugEnv/set'
+          this.dialogDebugHostFormData.moduleId = this.moduleId
+          this.post(uri, this.dialogDebugHostFormData, () => {
+            this.tipSuccess('添加成功')
+            this.settings.debugEnv = this.dialogDebugHostFormData.configKey
+            this.dialogDebugHostVisible = false
+            this.loadDebugHosts()
+          })
+        }
+      })
     },
     onHeaderUpdate(row) {
       this.dialogHeaderTitle = '修改Header'
@@ -241,13 +349,24 @@ export default {
       this.$refs.debugHostRef.validate((valid) => {
         if (valid) {
           const data = {
-            moduleId: this.moduleId,
-            baseUrl: this.settings.baseUrl
+            debugEnvs: this.settings.debugEnvs
           }
-          this.post('/module/setting/baseurl/set', data, () => {
+          this.post('/module/setting/debugEnv/save', data, () => {
             this.tipSuccess('保存成功')
           })
         }
+      })
+    },
+    onDebugHostDelete(name) {
+      this.confirm(`确认要删除 ${name} 吗？`, () => {
+        this.settings.debugEnvs.forEach(row => {
+          if (row.configKey === name) {
+            this.post('/module/setting/debugEnv/delete', row, () => {
+              this.tipSuccess('删除成功')
+              this.loadDebugHosts(true)
+            })
+          }
+        })
       })
     },
     onModuleDelete() {

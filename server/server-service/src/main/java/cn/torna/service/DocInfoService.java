@@ -10,6 +10,7 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.mapper.DocInfoMapper;
+import cn.torna.service.dto.DebugHostDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
@@ -108,8 +109,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
-        String baseUrl = moduleConfigService.getBaseUrl(docInfo.getModuleId());
-        docInfoDTO.setBaseUrl(baseUrl);
+        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(docInfo.getModuleId());
+        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));

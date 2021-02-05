@@ -18,9 +18,36 @@ import java.util.Optional;
 public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigMapper> {
 
     public List<ModuleConfig> listGlobalHeaders(long moduleId) {
+        return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_HEADERS);
+    }
+
+    public void setDebugHost(long moduleId, String name, String url) {
         Query query = new Query()
                 .eq("module_id", moduleId)
-                .eq("type", ModuleConfigTypeEnum.GLOBAL_HEADERS.getType());
+                .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
+                .eq("config_key", name);
+        ModuleConfig commonConfig = this.get(query);
+        if (commonConfig == null) {
+            commonConfig = new ModuleConfig();
+            commonConfig.setModuleId(moduleId);
+            commonConfig.setType(ModuleConfigTypeEnum.DEBUG_HOST.getType());
+            commonConfig.setConfigKey(name);
+            commonConfig.setConfigValue(url);
+            save(commonConfig);
+        } else {
+            commonConfig.setConfigValue(url);
+            update(commonConfig);
+        }
+    }
+
+    public List<ModuleConfig> listDebugHost(long moduleId) {
+        return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.DEBUG_HOST);
+    }
+
+    public List<ModuleConfig> listByModuleIdAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type", typeEnum.getType());
         return this.listAll(query);
     }
 

@@ -1,6 +1,8 @@
 HELP.md
+TODO.md
 target/
 log/
+release/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**

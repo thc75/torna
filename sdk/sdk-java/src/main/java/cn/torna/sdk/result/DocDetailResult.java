@@ -40,6 +40,9 @@ public class DocDetailResult {
     /** 修改人 */
     private String modifierName;
 
+    /** 调试环境 */
+    private List<DebugEnvResult> debugEnvs;
+
     /** 请求头 */
     private List<DocParamResult> headerParams;
 

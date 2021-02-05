@@ -29,12 +29,15 @@
         {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4>
-      URL：
-      <span>
-        <http-method :method="docInfo.httpMethod" /> {{ getRequestUrl(docInfo) }}
-      </span>
-    </h4>
+    <h4>URL</h4>
+    <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
+      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
+        {{ hostConfig.configKey }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
+      </li>
+    </ul>
+    <span v-else class="debug-url">
+      <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
+    </span>
     <h4 v-if="docInfo.description">描述：<span>{{ docInfo.description }}</span></h4>
     <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
@@ -91,6 +94,7 @@
   }
   .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
   .doc-modify-info { font-size: 12px;color: #909399 }
+  .debug-url { font-size: 14px;color: #606266 }
 }
 .doc-title {
   margin: 0
@@ -102,6 +106,7 @@ import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
+import { get_effective_url } from '@/utils/common'
 
 export default {
   name: 'DocView',
@@ -160,6 +165,7 @@ export default {
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
+        debugEnvs: [],
         folders: []
       },
       responseSuccessExample: {},
@@ -201,6 +207,11 @@ export default {
       this.docInfo = data
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
+    },
+    buildRequestUrl(hostConfig) {
+      const baseUrl = hostConfig.configValue
+      const url = this.docInfo.url
+      return get_effective_url(baseUrl, url)
     },
     onExportMarkdown() {
       ExportUtil.exportMarkdownSinglePage(this.docInfo)
