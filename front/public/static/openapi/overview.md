@@ -8,9 +8,9 @@
 
 ```xml
 <dependency>
-  <groupId>net.oschina.durcframework</groupId>
-  <artifactId>torna-sdk</artifactId>
-  <version>0.0.1</version>
+    <groupId>cn.torna</groupId>
+    <artifactId>torna-sdk</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -61,8 +61,8 @@ OpenAPI定义了6个公共参数，用json接收
 }
 ```
 
-- name：接口名称
-- version：接口版本号
+- name：接口名称，参见各接口文档
+- version：接口版本号，参见各接口文档
 - app_key：分配给客户端的app_key
 - data：业务参数，见每个文档，json格式并且urlencode
 - timestamp：时间戳，yyyy-MM-dd HH:mm:ss
