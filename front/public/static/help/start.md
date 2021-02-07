@@ -5,19 +5,19 @@
 
 前往首页，点击`创建空间`按钮，输入空间名称
 
-![创建空间](/static/help/images/create_space.png)
+<img src="/static/help/images/create_space.png" style="height: 400px" title="创建空间" />
 
 - 创建项目
 
 进入空间，点击`创建项目`，填写表单内容
 
-![创建项目](/static/help/images/create_project.png)
+<img src="/static/help/images/create_project.png" style="height: 400px" title="创建项目" />
 
 - 创建模块
 
 进入项目，点击模块列表右边`＋`，创建模块，也可以导入文档
 
-![创建模块](/static/help/images/create_module.png)
+<img src="/static/help/images/create_module.png" style="height: 300px" title="创建模块" />
 
 - 新建接口
 
