@@ -44,6 +44,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         SpringContext.setApplicationContext(applicationContext);
     }
 
+    /**
+     * 配置拦截器
+     * @param registry
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         String[] excludes = {
@@ -76,6 +80,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
     }
 
 
+    /**
+     * 配置静态资源
+     * @param registry
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String frontRoot;
@@ -91,6 +99,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         registry.addResourceHandler("/favicon.ico").addResourceLocations(frontLocation + "/favicon.ico");
         registry.addResourceHandler("/static/**").addResourceLocations(frontLocation + "/static/");
     }
+
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
