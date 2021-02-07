@@ -52,6 +52,13 @@ export default {
       this.loadData(moduleId)
     }
   },
+  created() {
+    const query = this.$route.query
+    const active = query.id
+    if (active) {
+      this.activeName = active
+    }
+  },
   methods: {
     reload() {
       this.activeName = 'DocList'

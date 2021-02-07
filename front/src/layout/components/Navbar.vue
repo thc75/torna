@@ -14,8 +14,8 @@
       </div>
       <div class="right-menu-item">
         <router-link to="/help" target="_blank">
-          <el-tooltip placement="bottom" content="帮助文档">
-            <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
+          <el-tooltip placement="bottom" content="帮助中心">
+            <el-button type="text" class="el-icon-question navbar-btn" />
           </el-tooltip>
         </router-link>
       </div>

@@ -3,16 +3,7 @@
     <el-backtop />
     <el-container>
       <el-header>
-        <el-menu
-          :default-active="activeIndex"
-          mode="horizontal"
-          text-color="#303133"
-        >
-          <el-menu-item index="0">
-            <logo no-style />
-          </el-menu-item>
-          <el-menu-item index="1">帮助中心</el-menu-item>
-        </el-menu>
+        <help-menu />
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -41,18 +32,18 @@
   </div>
 </template>
 <script>
-import Logo from '@/components/Logo'
+import HelpMenu from '@/components/HelpMenu'
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 export default {
-  components: { mavonEditor, Logo },
+  components: { HelpMenu, mavonEditor },
   data() {
     return {
       defaultActive: '',
       docId: '',
       menus: [],
       openMenu: [],
-      content: '帮助中心',
+      content: '使用手册',
       activeIndex: '1'
     }
   },

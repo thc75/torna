@@ -1,16 +1,7 @@
 <template>
   <el-container>
     <el-header>
-      <el-menu
-        :default-active="activeIndex"
-        mode="horizontal"
-        text-color="#303133"
-      >
-        <el-menu-item index="0">
-          <logo no-style />
-        </el-menu-item>
-        <el-menu-item index="1">OpenAPI文档</el-menu-item>
-      </el-menu>
+      <help-menu />
     </el-header>
     <el-container>
       <el-aside width="300px">
@@ -131,28 +122,9 @@
     </el-container>
   </el-container>
 </template>
-<style>
-.markdown-body table td, .markdown-body table th {
-  padding: 2px 4px;
-  font-size: 12px;
-}
-.markdown-body table th {
-  background-color: #f3f3f3;
-}
-.markdown-body table tr:nth-child(2n) {
-   background-color: #FFFFFF !important;
-}
-.el-header {
-  color: #333;
-  line-height: 60px;
-}
-.el-aside {
-  color: #333;
-}
-</style>
 <script>
+import HelpMenu from '@/components/HelpMenu'
 import ApiParamTable from '@/components/ApiParamTable'
-import Logo from '@/components/Logo'
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 
@@ -160,7 +132,7 @@ let idGen = 1
 
 export default {
   name: 'OpenApiDoc',
-  components: { mavonEditor, ApiParamTable, Logo },
+  components: { HelpMenu, mavonEditor, ApiParamTable },
   data() {
     return {
       defaultActive: 'overview.md',
@@ -270,3 +242,22 @@ export default {
   }
 }
 </script>
+<style>
+.markdown-body table td, .markdown-body table th {
+  padding: 2px 4px;
+  font-size: 12px;
+}
+.markdown-body table th {
+  background-color: #f3f3f3;
+}
+.markdown-body table tr:nth-child(2n) {
+  background-color: #FFFFFF !important;
+}
+.el-header {
+  color: #333;
+  line-height: 60px;
+}
+.el-aside {
+  color: #333;
+}
+</style>

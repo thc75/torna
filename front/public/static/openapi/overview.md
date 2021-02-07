@@ -1,4 +1,10 @@
-# 如何请求接口
+# OpenAPI
+
+## 什么是OpenAPI
+
+Torna提供了一组开放接口，第三方服务可以通过开放接口来创建文档，也就是说通过接口调用，把第三方文档推送到Torna中来。
+
+<img src="/static/openapi/images/openapi1.png" style="height: 250px" title="OpenAPI" />
 
 ## Java语言
 

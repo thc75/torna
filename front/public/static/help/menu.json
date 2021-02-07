@@ -1,6 +1,6 @@
 [
   {
-    "title" : "帮助中心",
+    "title" : "使用手册",
     "icon": "el-icon-question",
     "children": [
       {
@@ -12,6 +12,11 @@
         "id": "permission",
         "title": "权限介绍",
         "path": "static/help/permission.md"
+      },
+      {
+        "id": "debug",
+        "title": "调试接口",
+        "path": "static/help/debug.md"
       }
     ]
   }

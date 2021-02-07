@@ -70,7 +70,7 @@ export const constantRoutes = [
     'path': '/help',
     'name': 'Help',
     component: () => import('@/views/help/index'),
-    'meta': { 'title': '帮助中心' },
+    'meta': { 'title': '使用手册' },
     'hidden': true
   },
   {
