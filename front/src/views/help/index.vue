@@ -6,16 +6,17 @@
         <el-menu
           :default-active="activeIndex"
           mode="horizontal"
-          background-color="#545c64"
-          text-color="#fff"
-          active-text-color="#ffd04b"
+          text-color="#303133"
         >
+          <el-menu-item index="0">
+            <logo no-style />
+          </el-menu-item>
           <el-menu-item index="1">帮助中心</el-menu-item>
         </el-menu>
       </el-header>
       <el-container>
         <el-aside width="200px">
-          <el-menu :default-openeds="openMenu" :default-active="defaultActive" @select="onMenuClick">
+          <el-menu :default-openeds="openMenu" :default-active="defaultActive" class="normal-menu" @select="onMenuClick">
             <el-submenu v-for="(item) in menus" :key="item.path" :index="item.title">
               <template slot="title">
                 <i :class="item.icon"></i>
@@ -40,10 +41,11 @@
   </div>
 </template>
 <script>
+import Logo from '@/components/Logo'
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 export default {
-  components: { mavonEditor },
+  components: { mavonEditor, Logo },
   data() {
     return {
       defaultActive: '',
@@ -117,12 +119,9 @@ export default {
 <style scoped>
 .app-container2 {
   position: relative;
-  width: 80%;
   max-width: 100%;
-  margin: 0 auto;
 }
 .el-header {
-  background-color: #545c64;
   color: #333;
   line-height: 60px;
 }

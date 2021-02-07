@@ -4,20 +4,17 @@
       <el-menu
         :default-active="activeIndex"
         mode="horizontal"
-        background-color="#545c64"
-        text-color="#fff"
-        active-text-color="#ffd04b"
+        text-color="#303133"
       >
         <el-menu-item index="0">
-          <router-link to="/">Torna</router-link>
+          <logo no-style />
         </el-menu-item>
         <el-menu-item index="1">OpenAPI文档</el-menu-item>
       </el-menu>
     </el-header>
     <el-container>
-      <el-backtop />
       <el-aside width="300px">
-        <el-menu :default-openeds="openMenu" :default-active="defaultActive" @select="onMenuClick">
+        <el-menu :default-openeds="openMenu" :default-active="defaultActive" class="normal-menu" @select="onMenuClick">
           <el-menu-item index="overview.md">
             <i class="el-icon-house"></i>
             使用前阅读
@@ -146,7 +143,6 @@
    background-color: #FFFFFF !important;
 }
 .el-header {
-  background-color: #545c64;
   color: #333;
   line-height: 60px;
 }
@@ -156,6 +152,7 @@
 </style>
 <script>
 import ApiParamTable from '@/components/ApiParamTable'
+import Logo from '@/components/Logo'
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 
@@ -163,7 +160,7 @@ let idGen = 1
 
 export default {
   name: 'OpenApiDoc',
-  components: { mavonEditor, ApiParamTable },
+  components: { mavonEditor, ApiParamTable, Logo },
   data() {
     return {
       defaultActive: 'overview.md',

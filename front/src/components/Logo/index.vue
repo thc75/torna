@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}">
+  <div class="sidebar-logo-container" :class="{'collapse':collapse, 'sidebar-logo-container-style': !noStyle}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" to="/" class="sidebar-logo-link">
         <img src="@/assets/images/logo.png" class="sidebar-logo">
@@ -19,6 +19,10 @@ export default {
     collapse: {
       type: Boolean,
       default: true
+    },
+    noStyle: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -42,15 +46,6 @@ export default {
 }
 
 .sidebar-logo-container {
-  box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-  position: relative;
-  width: 100%;
-  height: 50px;
-  line-height: 50px;
-  /*text-align: center;*/
-  padding-left: 16px;
-  overflow: hidden;
-
   & .sidebar-logo-link {
     height: 100%;
     width: 100%;
@@ -78,5 +73,14 @@ export default {
       margin-right: 0px;
     }
   }
+}
+.sidebar-logo-container-style {
+  box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+  position: relative;
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  padding-left: 16px;
+  overflow: hidden;
 }
 </style>
