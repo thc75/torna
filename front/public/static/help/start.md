@@ -5,7 +5,7 @@
 
 前往首页，点击`创建空间`按钮，输入空间名称
 
-<img src="/static/help/images/create_space.png" style="height: 400px" title="创建空间" />
+<img src="/static/help/images/create_space.png" style="height: 350px" title="创建空间" />
 
 - 创建项目
 
