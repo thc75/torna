@@ -139,7 +139,7 @@ export const constantRoutes = [
   },
   {
     path: '/doc', // 必须/开头
-    component: Layout,
+    component: LayoutProject,
     name: 'Doc',
     children: [
       {
