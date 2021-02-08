@@ -3,6 +3,7 @@ package cn.torna.web.controller.module.param;
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -18,10 +19,12 @@ public class DebugHostParam {
 
     /** 配置key, 数据库字段：config_key */
     @NotBlank
+    @Length(max = 50)
     private String configKey;
 
     /** 配置值, 数据库字段：config_value */
     @NotBlank
+    @Length(max = 100)
     private String configValue;
 
 }

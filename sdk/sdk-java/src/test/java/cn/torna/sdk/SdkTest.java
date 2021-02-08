@@ -2,6 +2,7 @@ package cn.torna.sdk;
 
 import cn.torna.sdk.client.OpenClient;
 import cn.torna.sdk.common.Booleans;
+import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
 import cn.torna.sdk.param.DocParamCode;
 import cn.torna.sdk.param.DocParamHeader;
@@ -129,7 +130,7 @@ public class SdkTest extends BaseTest {
         // 再创建一个没有分类的文档
         DocItem docItem = buildDocItem(time, items.size() + 1);
 
-        request.setBaseUrl("http://localhost:8090");
+        request.setDebugEnvs(Arrays.asList(new DebugEnv("测试环境", "http://localhost:8090")));
         request.setApis(Arrays.asList(folder, docItem));
 
         DocPushResponse response = client.execute(request);

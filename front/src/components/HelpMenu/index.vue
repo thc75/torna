@@ -5,7 +5,7 @@
     text-color="#303133"
     router
   >
-    <el-menu-item index="0">
+    <el-menu-item index="/" style="padding-left: 0">
       <logo no-style />
     </el-menu-item>
     <el-menu-item index="/help">帮助中心</el-menu-item>

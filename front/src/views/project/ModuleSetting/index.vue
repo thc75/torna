@@ -54,32 +54,32 @@
     >
       添加环境
     </el-button>
-    <el-form ref="debugHostRef" :model="settings" size="mini">
-      <el-form-item>
-        <el-tabs
-          v-model="settings.debugEnv"
-          type="card"
-          :closable="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
-          @tab-remove="onDebugHostDelete"
-        >
-          <el-tab-pane
-            v-for="item in settings.debugEnvs"
-            :key="item.configKey"
-            :label="item.configKey"
-            :name="item.configKey"
-          >
+    <el-tabs
+      v-model="activeEnv"
+      type="card"
+      :closable="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
+      @tab-remove="onDebugHostDelete"
+    >
+      <el-tab-pane
+        v-for="debugEnv in settings.debugEnvs"
+        :key="debugEnv.configKey"
+        :label="debugEnv.configKey"
+        :name="debugEnv.configKey"
+      >
+        <el-form :ref="`debugHostRef_${debugEnv.id}`" :model="debugEnv" :rules="debugHostFormRules" size="mini" label-width="80px">
+          <el-form-item prop="configValue" label="调试路径">
             <el-input
-              v-model="item.configValue"
+              v-model="debugEnv.configValue"
               placeholder="如：http://10.0.10.11:8080"
               :readonly="!hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
             />
-          </el-tab-pane>
-        </el-tabs>
-      </el-form-item>
-      <el-form-item v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])">
-        <el-button type="primary" @click="onSaveDebugHost">保存</el-button>
-      </el-form-item>
-    </el-form>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+    </el-tabs>
+    <div v-if="settings.debugEnvs.length > 0 && hasRole(`project:${projectId}`, [Role.dev, Role.admin])">
+      <el-button type="primary" size="mini" @click="onSaveDebugHost">保存</el-button>
+    </div>
     <div v-if="settings.moduleVO.type === 1">
       <h3>Swagger多个Method重复，只显示</h3>
       <el-form ref="allowMethodsRef" :model="settings" size="mini">
@@ -187,8 +187,8 @@ export default {
   },
   data() {
     return {
+      activeEnv: '',
       settings: {
-        debugEnv: '',
         moduleVO: {
           id: '',
           name: '',
@@ -238,6 +238,11 @@ export default {
         configValue: [
           { required: true, message: '不能为空', trigger: 'blur' }
         ]
+      },
+      debugHostFormRules: {
+        configValue: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -257,23 +262,25 @@ export default {
     },
     loadDebugHosts(init) {
       this.get('/module/setting/debugEnv/list', { moduleId: this.moduleId }, resp => {
-        this.settings.debugEnvs = resp.data
+        const list = resp.data
         if (init) {
-          this.initDebugHost()
+          this.initDebugHost(list)
         }
+        this.settings.debugEnvs = list
       })
     },
     loadSettings(moduleId) {
       if (moduleId) {
         this.get('/module/setting/get', { moduleId: moduleId }, function(resp) {
-          this.settings = resp.data
-          this.initDebugHost()
+          const data = resp.data
+          this.initDebugHost(data.debugEnvs)
+          this.settings = data
         })
       }
     },
-    initDebugHost() {
-      if (this.settings.debugEnvs.length > 0) {
-        this.settings.debugEnv = this.settings.debugEnvs[0].configKey
+    initDebugHost(list) {
+      if (list.length > 0) {
+        this.activeEnv = list[0].configKey
       }
     },
     onSaveName(value, done) {
@@ -304,7 +311,7 @@ export default {
           this.dialogDebugHostFormData.moduleId = this.moduleId
           this.post(uri, this.dialogDebugHostFormData, () => {
             this.tipSuccess('添加成功')
-            this.settings.debugEnv = this.dialogDebugHostFormData.configKey
+            this.activeEnv = this.dialogDebugHostFormData.configKey
             this.dialogDebugHostVisible = false
             this.loadDebugHosts()
           })
@@ -346,8 +353,16 @@ export default {
       })
     },
     onSaveDebugHost() {
-      this.$refs.debugHostRef.validate((valid) => {
-        if (valid) {
+      if (this.settings.debugEnvs.length > 0) {
+        let allRight = true
+        for (const debugEnv of this.settings.debugEnvs) {
+          if (!debugEnv.configValue) {
+            allRight = false
+            this.activeEnv = debugEnv.configKey
+            break
+          }
+        }
+        if (allRight) {
           const data = {
             debugEnvs: this.settings.debugEnvs
           }
@@ -355,7 +370,7 @@ export default {
             this.tipSuccess('保存成功')
           })
         }
-      })
+      }
     },
     onDebugHostDelete(name) {
       this.confirm(`确认要删除 ${name} 吗？`, () => {

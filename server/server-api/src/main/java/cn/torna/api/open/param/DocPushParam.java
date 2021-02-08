@@ -16,11 +16,8 @@ import java.util.List;
 @Setter
 public class DocPushParam {
 
-    /** baseUrl，如：http://localhost:8080 */
-    @ApiDocField(description = "baseUrl", required = true, example = "http://localhost:8080")
-    @NotBlank(message = "baseUrl不能为空")
-    @Length(max = 100, message = "baseUrl长度不能超过100")
-    private String baseUrl;
+    @ApiDocField(description = "调试环境", elementClass = DebugEnvParam.class)
+    private List<DebugEnvParam> debugEnvs;
 
     @ApiDocField(description = "api列表", required = true, elementClass = DocPushItemParam.class)
     @NotEmpty(message = "文档内容不能为空")

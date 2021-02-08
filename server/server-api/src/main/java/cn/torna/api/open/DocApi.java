@@ -1,9 +1,23 @@
 package cn.torna.api.open;
 
+import cn.torna.api.bean.RequestContext;
+import cn.torna.api.open.param.CategoryAddParam;
+import cn.torna.api.open.param.CategoryUpdateParam;
+import cn.torna.api.open.param.DebugEnvParam;
+import cn.torna.api.open.param.DocPushItemParam;
+import cn.torna.api.open.param.DocPushParam;
+import cn.torna.api.open.param.IdParam;
+import cn.torna.api.open.result.DocCategoryResult;
+import cn.torna.api.open.result.DocInfoDetailResult;
+import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.json.JsonUtil;
 import cn.torna.dao.entity.DocInfo;
+import cn.torna.service.DocInfoService;
+import cn.torna.service.ModuleConfigService;
+import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.ApiParam;
@@ -15,19 +29,6 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import cn.torna.api.bean.RequestContext;
-import cn.torna.api.open.param.CategoryAddParam;
-import cn.torna.api.open.param.CategoryUpdateParam;
-import cn.torna.api.open.param.DocPushItemParam;
-import cn.torna.api.open.param.DocPushParam;
-import cn.torna.api.open.param.IdParam;
-import cn.torna.api.open.result.DocCategoryResult;
-import cn.torna.api.open.result.DocInfoDetailResult;
-import cn.torna.api.open.result.DocInfoResult;
-import cn.torna.common.util.json.JsonUtil;
-import cn.torna.service.DocInfoService;
-import cn.torna.service.ModuleConfigService;
-import cn.torna.service.dto.DocInfoDTO;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class DocApi {
     private ModuleConfigService moduleConfigService;
 
     @Api(name = "doc.push")
-    @ApiDocMethod(description = "推送文档",  order = 0)
+    @ApiDocMethod(description = "推送文档",  order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
         ApiParam apiParam = ApiContext.getApiParam();
         log.debug("推送文档, appKey:{}, token:{}, 推送内容：\n{}",
@@ -55,8 +56,11 @@ public class DocApi {
                 JSON.toJSONString(param)
         );
         long moduleId = RequestContext.getCurrentContext().getModuleId();
-        String baseUrl = param.getBaseUrl();
-        moduleConfigService.setBaseUrl(moduleId, baseUrl);
+
+        // 设置调试环境
+        for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+            moduleConfigService.setDebugHost(moduleId, debugEnv.getName(), debugEnv.getUrl());
+        }
 
         for (DocPushItemParam detailPushParam : param.getApis()) {
             this.pushDocItem(detailPushParam);

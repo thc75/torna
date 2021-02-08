@@ -1,9 +1,10 @@
 package cn.torna.sdk.request;
 
+import cn.torna.sdk.param.DebugEnv;
+import cn.torna.sdk.param.DocItem;
 import cn.torna.sdk.response.DocPushResponse;
 import lombok.Getter;
 import lombok.Setter;
-import cn.torna.sdk.param.DocItem;
 
 import java.util.List;
 
@@ -16,8 +17,7 @@ import java.util.List;
 @Getter
 public class DocPushRequest extends BaseRequest<DocPushResponse> {
 
-    /** baseUrl */
-    private String baseUrl;
+    private List<DebugEnv> debugEnvs;
 
     /** 接口项 */
     private List<DocItem> apis;
