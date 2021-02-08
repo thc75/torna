@@ -71,7 +71,7 @@
             <el-input
               v-model="item.configValue"
               placeholder="如：http://10.0.10.11:8080"
-              :disabled="!hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
+              :readonly="!hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
             />
           </el-tab-pane>
         </el-tabs>

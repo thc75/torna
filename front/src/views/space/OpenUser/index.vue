@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-if="spaceId && hasRole(`space:${spaceId}`, Role.admin)" class="app-container">
     <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
       <el-form-item
         label="appKey"

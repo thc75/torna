@@ -18,7 +18,7 @@
         <i class="el-icon-user"></i>
         <span class="title">空间成员</span>
       </el-menu-item>
-      <el-menu-item :index="`/space/openuser/${spaceId}`">
+      <el-menu-item v-if="spaceId && hasRole(`space:${spaceId}`, Role.admin)" :index="`/space/openuser/${spaceId}`">
         <i class="el-icon-collection-tag"></i>
         <span class="title">开放用户</span>
       </el-menu-item>
