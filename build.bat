@@ -6,23 +6,23 @@ set app_name=torna
 
 set target_dir=%dist_dir%\%app_name%
 
-rd /q /s %target_dir%
-
-md %target_dir%
-
 cd front
 
 call build.bat
 
 cd ..
 
-::copy front files
+call mvn clean package
+
+::copy files
+
+rd /q /s %target_dir%
+
+md %target_dir%
 
 md %target_dir%\dist
 
 xcopy /e /y /q front\dist .\%target_dir%\dist
-
-call mvn clean package
 
 copy server\boot\target\torna.jar %target_dir%
 copy server\boot\src\main\resources\application.properties %target_dir%

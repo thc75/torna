@@ -9,12 +9,6 @@ app_name="torna"
 # 输出目录
 target_dir="$dist_dir/$app_name"
 
-if [ ! -d "$target_dir" ]; then
-  mkdir -p $target_dir
-fi
-
-rm -rf $target_dir/*
-
 # 先执行前端构建
 cd front
 
@@ -22,16 +16,24 @@ sh build.sh
 
 cd ..
 
-# 复制前端资源
-echo "复制前端文件到$target_dir"
-cp -r front/dist ./$target_dir
-
 # ----
 
 echo "开始构建服务端..."
 
 mvn clean package
 
+# 复制文件
+if [ ! -d "$target_dir" ]; then
+  mkdir -p $target_dir
+fi
+
+rm -rf $target_dir/*
+
+# 复制前端资源
+echo "复制前端文件到$target_dir"
+cp -r front/dist ./$target_dir
+
+# 复制服务端资源
 cp -r server/boot/target/*.jar $target_dir
 cp -r server/boot/src/main/resources/application.properties $target_dir
 cp -r script/* $target_dir
