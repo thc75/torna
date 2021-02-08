@@ -17,10 +17,10 @@
 
 ## 工程说明
 
-- front: 前端
+- front: 前端工程
 - script: 辅助脚本
 - sdk: OpenAPI对应的SDK
-- server: 服务端
+- server: 服务端工程
 - mysql.sql：数据库脚本
 
 ## 开发部署
