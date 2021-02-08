@@ -17,6 +17,7 @@ import java.util.List;
 @Getter
 public class DocPushRequest extends BaseRequest<DocPushResponse> {
 
+    /** 调试环境 */
     private List<DebugEnv> debugEnvs;
 
     /** 接口项 */
