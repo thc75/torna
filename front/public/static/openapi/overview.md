@@ -54,15 +54,16 @@ public void testDocGetRequest() {
 
 ## 其它语言封装接口
 
-OpenAPI定义了6个公共参数，用json接收
+OpenAPI定义了7个公共参数，用json接收
 
 ```
 {
-	"name":"goods.get",
-	"version":"2.0",
-	"app_key":"test",
+	"name":"doc.push",
+	"version":"1.0",
+	"app_key":"xxx",
 	"data":"%7B%22goods_name%22%3A%22iphone6%22%7D",	
 	"timestamp":"2018-01-16 17:02:02",
+	"access_token":"ccc",
 	"sign":"4CB446DF67DB3637500D4715298CE4A3"
 }
 ```
@@ -72,6 +73,7 @@ OpenAPI定义了6个公共参数，用json接收
 - app_key：分配给客户端的app_key
 - data：业务参数，见每个文档，json格式并且urlencode
 - timestamp：时间戳，yyyy-MM-dd HH:mm:ss
+- access_token：项目模块对应的token
 - sign：签名串
 
 其中`sign`需要使用双方约定的签名算法来生成。
@@ -133,68 +135,46 @@ import junit.framework.TestCase;
 
 public class PostTest extends TestCase {
 
+    static String url = "http://localhost:7700/api";
+    static String appKey = "20201127781912960996999168";
+    static String secret = "ltatugCHeRJzCvjVxF39A%6.F$eV#~~L";
+    static String token = "e807db2eb8564c4b89caf5a2f2d15b77";
+
     @Test
     public void testPost() throws IOException {
-        String appKey = "test";
-        String secret = "123456";
         // 业务参数
-        Map<String, String> bizParams = new HashMap<String, String>();
-        bizParams.put("goodsName", "iphoneX");
+        Map<String, Object> bizParams = new HashMap<String, Object>();
+        bizParams.put("id", "9VXEyXvg");
 
         String json = JSON.toJSONString(bizParams);
         json = URLEncoder.encode(json, "utf-8");
 
         // 公共参数
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("name", "goods.get");
+        // 设置接口名
+        param.put("name", "doc.get");
+        // 设置appKey
         param.put("app_key", appKey);
+        // 设置业务参数
         param.put("data", json);
+        // 设置时间戳
         param.put("timestamp", getTime());
+        // 设置版本号
         param.put("version", "1.0");
-        param.put("access_token", "");
+        // 设置token
+        param.put("access_token", token);
 
+        // 生成签名串
         String sign = buildSign(param, secret);
 
+        // 把签名串放入参数中
         param.put("sign", sign);
 
-        /*
-        // 最终请求数据
-        {
-            "sign": "2AE534A15AACE112EE43B9CCF6BD4383",
-            "timestamp": "2018-03-21 12:57:30",
-            "name": "goods.get",
-            "data": "%7B%22goodsName%22%3A%22iphoneX%22%7D",
-            "app_key": "test",
-            "version": "1.0"
-        }
-        */
         System.out.println("=====请求数据=====");
         String postJson = JSON.toJSONString(param);
         System.out.println(postJson);
-        // String resp = HttpUtil.post(postJson); // 发送请求
-        /*
-        响应结果:
-        {
-            "code":"0",
-            "data":{
-                "pageIndex":1,
-                "pageSize":10,
-                "rows":[
-                    {
-	                    "goods_name":"iPhoneX",
-	                    "id":1,
-	                    "price":8000
-                    },
-                    {
-	                    "goods_name":"三星",
-	                    "id":2,
-	                    "price":7000
-                    }
-	           ],
-	           "total":100
-            }
-        }
-        */
+        // 发送请求
+        String resp = HttpUtil.postJson(url, postJson);
     }
 
     /**
@@ -274,3 +254,7 @@ public class PostTest extends TestCase {
     }
 }
 ```
+
+- 参数调用示意图
+
+<img src="/static/openapi/images/openapi2.png" title="参数调用示意图" />

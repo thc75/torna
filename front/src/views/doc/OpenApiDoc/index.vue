@@ -38,7 +38,7 @@
         </div>
         <div v-show="!contentShow && api.description">
           <h3>{{ api.description }}</h3>
-          <div v-if="api.remark">
+          <div v-if="api.remark" class="api-remark">
             {{ api.remark }}
           </div>
           <div>
@@ -153,6 +153,7 @@ export default {
         { 'name': 'timestamp', 'type': 'string', 'required': 1,
           'description': '时间戳，格式为yyyy-MM-dd HH:mm:ss，时区为GMT+8。服务端允许客户端请求最大时间误差为5分钟',
           'example': '2020-11-01 13:44:11' },
+        { 'name': 'access_token', 'type': 'string', 'required': 1, 'description': '项目模块对应的token', 'example': 'c16931fa65983fb7a4e85340fcbfef' },
         { 'name': 'sign', 'type': 'string', 'required': 1, 'description': '请求参数的签名串', 'example': 'xxxx' }
       ],
       resultData: [
@@ -242,7 +243,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .markdown-body table td, .markdown-body table th {
   padding: 2px 4px;
   font-size: 12px;
@@ -259,5 +260,10 @@ export default {
 }
 .el-aside {
   color: #333;
+}
+.api-remark {
+  margin: 10px 0;
+  font-size: 13px;
+  color: #606266;
 }
 </style>
