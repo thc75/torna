@@ -59,7 +59,7 @@ public class DocApi {
 
         // 设置调试环境
         for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
-            moduleConfigService.setDebugHost(moduleId, debugEnv.getName(), debugEnv.getUrl());
+            moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
         }
 
         for (DocPushItemParam detailPushParam : param.getApis()) {

@@ -9,9 +9,9 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class DebugHostSaveParam {
+public class DebugEnvSaveParam {
 
     @NotEmpty
-    private List<DebugHostParam> debugEnvs;
+    private List<DebugEnvParam> debugEnvs;
 
 }

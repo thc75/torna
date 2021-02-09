@@ -8,8 +8,8 @@ import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleService;
-import cn.torna.web.controller.module.param.DebugHostParam;
-import cn.torna.web.controller.module.param.DebugHostSaveParam;
+import cn.torna.web.controller.module.param.DebugEnvParam;
+import cn.torna.web.controller.module.param.DebugEnvSaveParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import cn.torna.web.controller.module.param.ModuleConfigParam;
 import cn.torna.web.controller.module.param.ModuleGlobalHeaderUpdateParam;
@@ -84,8 +84,8 @@ public class ModuleSettingController {
     }
 
     @PostMapping("/debugEnv/set")
-    public Result setDebugHost(@RequestBody DebugHostParam param) {
-        moduleConfigService.setDebugHost(
+    public Result setDebugEnv(@RequestBody DebugEnvParam param) {
+        moduleConfigService.setDebugEnv(
                 param.getModuleId(),
                 param.getConfigKey(),
                 param.getConfigValue()
@@ -101,19 +101,16 @@ public class ModuleSettingController {
     }
 
     @PostMapping("/debugEnv/save")
-    public Result saveDebugHost(@RequestBody DebugHostSaveParam param) {
-        for (DebugHostParam debugHostParam : param.getDebugEnvs()) {
-            this.setDebugHost(debugHostParam);
+    public Result saveDebugHost(@RequestBody DebugEnvSaveParam param) {
+        for (DebugEnvParam debugHostParam : param.getDebugEnvs()) {
+            this.setDebugEnv(debugHostParam);
         }
         return Result.ok();
     }
 
     @PostMapping("/debugEnv/delete")
-    public Result deleteDebugHost(@RequestBody ModuleConfigParam param) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
-        if (moduleConfig != null) {
-            this.moduleConfigService.delete(moduleConfig);
-        }
+    public Result deleteDebugHost(@RequestBody DebugEnvParam param) {
+        moduleConfigService.deleteDebugEnv(param.getModuleId(), param.getConfigKey());
         return Result.ok();
     }
 

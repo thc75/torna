@@ -16,6 +16,8 @@ import cn.torna.sdk.request.DocGetRequest;
 import cn.torna.sdk.request.DocListRequest;
 import cn.torna.sdk.request.DocPushRequest;
 import cn.torna.sdk.request.EnumPushRequest;
+import cn.torna.sdk.request.ModuleDebugEnvDeleteRequest;
+import cn.torna.sdk.request.ModuleDebugEnvSetRequest;
 import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.response.DocCategoryCreateResponse;
 import cn.torna.sdk.response.DocCategoryListResponse;
@@ -24,6 +26,8 @@ import cn.torna.sdk.response.DocGetResponse;
 import cn.torna.sdk.response.DocListResponse;
 import cn.torna.sdk.response.DocPushResponse;
 import cn.torna.sdk.response.EnumPushResponse;
+import cn.torna.sdk.response.ModuleDebugEnvDeleteResponse;
+import cn.torna.sdk.response.ModuleDebugEnvSetResponse;
 import cn.torna.sdk.result.DocDetailResult;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -231,6 +235,27 @@ public class SdkTest extends BaseTest {
         request.setItems(items);
         request.setDescription("描述");
         EnumPushResponse response = client.execute(request);
+        this.printResponse(response);
+    }
+
+    /**
+     * 设置调试环境
+     */
+    public void testDebugEnvSet() {
+        ModuleDebugEnvSetRequest request = new ModuleDebugEnvSetRequest(token);
+        request.setName("测试环境2");
+        request.setUrl("http://192.168.10.11:8080");
+        ModuleDebugEnvSetResponse response = client.execute(request);
+        this.printResponse(response);
+    }
+
+    /**
+     * 设置调试环境
+     */
+    public void testDebugEnvDelete() {
+        ModuleDebugEnvDeleteRequest request = new ModuleDebugEnvDeleteRequest(token);
+        request.setName("测试环境2");
+        ModuleDebugEnvDeleteResponse response = client.execute(request);
         this.printResponse(response);
     }
 

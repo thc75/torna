@@ -21,7 +21,13 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_HEADERS);
     }
 
-    public void setDebugHost(long moduleId, String name, String url) {
+    /**
+     * 设置模块调试环境
+     * @param moduleId 模块id
+     * @param name 环境名称
+     * @param url 调试路径
+     */
+    public void setDebugEnv(long moduleId, String name, String url) {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
@@ -37,6 +43,22 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         } else {
             commonConfig.setConfigValue(url);
             update(commonConfig);
+        }
+    }
+
+    /**
+     * 删除模块调试环境
+     * @param moduleId 模块id
+     * @param name 环境名称
+     */
+    public void deleteDebugEnv(long moduleId, String name) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
+                .eq("config_key", name);
+        ModuleConfig commonConfig = this.get(query);
+        if (commonConfig != null) {
+            this.delete(commonConfig);
         }
     }
 

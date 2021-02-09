@@ -44,7 +44,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <h3>调试环境 <span class="doc-id">请求基本路径</span></h3>
+    <h3>调试环境</h3>
     <el-button
       v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
       type="primary"

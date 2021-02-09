@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * @author tanghc
  */
 @Data
-public class DebugHostParam {
+public class DebugEnvParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     @NotNull
     private Long moduleId;
