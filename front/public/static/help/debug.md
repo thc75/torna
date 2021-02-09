@@ -14,6 +14,6 @@
 
 切换到【浏览模式】预览文档，在调试页面会出现刚才配置的调试环境
 
-<img src="/static/help/images/debug4.png" style="height: 250px" />
+<img src="/static/help/images/debug4.png" style="height: 200px" />
 
 此外还可以添加测试环境等其它环境，方便在不同环境中进行调试。
