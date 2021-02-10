@@ -7,6 +7,7 @@
       :model="regForm"
       :rules="regRules"
       class="center-form"
+      style="margin: 60px auto;"
       @submit.native.prevent
     >
       <h3>用户注册</h3>
