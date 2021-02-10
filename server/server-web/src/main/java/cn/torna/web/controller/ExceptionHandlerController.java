@@ -1,11 +1,10 @@
 package cn.torna.web.controller;
 
 import cn.torna.common.bean.Result;
-import cn.torna.common.exception.ErrorCode;
 import cn.torna.common.exception.BizException;
+import cn.torna.common.exception.ErrorCode;
 import cn.torna.common.exception.ExceptionCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,16 +20,15 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @RestControllerAdvice
+@Slf4j
 public class ExceptionHandlerController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerController.class);
 
     @ExceptionHandler(Exception.class)
     public Object exceptionHandler(Exception e) {
         if (e instanceof ExceptionCode) {
             ExceptionCode exceptionCode = (ExceptionCode) e;
             ErrorCode errorCode = exceptionCode.getCode();
-            logger.error("报错，code:{}, msg:{}", errorCode.getCode(), errorCode.getMsg(), e);
+            log.error("报错，code:{}, msg:{}", errorCode.getCode(), errorCode.getMsg(), e);
             return Result.err(errorCode.getCode(), errorCode.getMsg());
         }
         if (e instanceof BizException || e instanceof IllegalArgumentException) {
@@ -46,7 +44,7 @@ public class ExceptionHandlerController {
                     .collect(Collectors.joining(", "));
             return Result.err(msg);
         }
-        logger.error("未知错误：", e);
+        log.error("未知错误：", e);
         return Result.err("系统错误，请查看日志");
     }
 
