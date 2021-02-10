@@ -1,6 +1,6 @@
 <template>
   <div class="login-page">
-    <logo />
+    <logo no-style :collapse="false" />
     <el-form
       ref="loginForm"
       :model="loginForm"

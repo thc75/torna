@@ -1,5 +1,6 @@
 <template>
   <div class="login-page">
+    <logo no-style :collapse="false" />
     <el-form
       v-show="!submited"
       ref="regForm"
@@ -60,10 +61,11 @@
 <script>
 import md5 from 'js-md5'
 import Verify from '@/components/verifition/Verify'
+import Logo from '@/components/Logo'
 
 export default {
   name: 'Reg',
-  components: { Verify },
+  components: { Verify, Logo },
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.regForm.password) {
@@ -91,7 +93,7 @@ export default {
           { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur'] }
         ],
         nickname: [
-          { required: true, message: '请填写', trigger: 'blur' }
+          { required: true, message: '请填写昵称', trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
