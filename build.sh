@@ -6,8 +6,12 @@ dist_dir="dist"
 # 执行文件名称
 app_name="torna"
 
+version="1.0.0"
+
+build_folder="${app_name}-${version}"
+
 # 输出目录
-target_dir="$dist_dir/$app_name"
+target_dir="$dist_dir/${build_folder}"
 
 # 先执行前端构建
 cd front
@@ -37,9 +41,5 @@ cp -r front/dist ./$target_dir
 cp -r server/boot/target/*.jar $target_dir
 cp -r server/boot/src/main/resources/application.properties $target_dir
 cp -r script/* $target_dir
-
-#echo "打成zip包"
-#cd $dist_dir
-#zip -r -q "$app_name.zip" $app_name
 
 echo "服务端构建完毕，构建结果在${target_dir}文件夹下"

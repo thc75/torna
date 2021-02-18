@@ -4,7 +4,11 @@ set dist_dir=dist
 
 set app_name=torna
 
-set target_dir=%dist_dir%\%app_name%
+set version="1.0.0"
+
+set build_folder=%app_name%-%version%
+
+set target_dir=%dist_dir%\%build_folder%
 
 cd front
 
