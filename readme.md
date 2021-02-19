@@ -15,29 +15,17 @@
 - 支持多环境接口调试
 - 支持文档权限管理，访客、开发者、管理员对应不同权限
 - 提供`管理模式`和`浏览模式`双模式，管理模式用来编辑文档内容，浏览模式纯粹查阅文档，界面无其它元素干扰
-- 部署简单，直接运行打包脚本即可完成构建
+- 部署简单，直接运行脚本启动程序
 
-## 工程说明
+## 使用步骤
 
-- front: 前端工程
-- script: 辅助脚本
-- sdk: OpenAPI对应的SDK
-- server: 服务端工程
-- mysql.sql：数据库脚本
+前往发行版页面，下载最新版本，解压zip
 
-## 开发部署
+打开`application.properties`配置文件，修改数据库链接配置
 
-```
-开发环境：Java8, Maven3, Nodejs12+, Mysql5.7+
-软件架构：服务端 SpringBoot-2.3.4.RELEASE，前端 elementUI-2.13.0 + vue2
-```
+执行`startup.sh`，启动应用（Windows执行`startup.bat`）
 
-- 导入Mysql脚本
-- IDE安装lombok插件，然后打开项目(IDEA下可以打开根pom.xml，然后open as project)
-- 打开`server/boot/src/main/resources/application.properties`，修改数据库配置
-- 运行`server/boot/src/main/java/cn/torna/TornaApplication.java`
-- 运行前端，见：[front/README.md](./front/README.md)
-
+访问：`http://ip:7700`
 
 体验账号：
 
@@ -59,32 +47,9 @@
 研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
 ```
 
-## 打包发布
+## 开发部署
 
-> 运行环境：Java8, Mysql5.7+
-
-- `Linux/Mac`：执行`build.sh`
-- `Windows系统`：执行`build.bat`
-
-构建结果在`dist/torna`目录，最终结构如下：
-
-```
-torna                           # 根目录
-├── application.properties      # 配置文件
-├── dist                        # 前端资源
-├── debug.sh                    # 线上调试
-├── shutdown.sh                 # 结束服务脚本
-├── startup.sh                  # 启动服务脚本
-└── torna.jar                   # 服务程序
-```
-
-把`torna`文件夹上传到服务器
-
-修改`application.properties`配置文件内容，改为线上配置
-
-执行`startup.sh`，启动应用
-
-访问：`http://ip:7700`
+参见：[开发文档](http://torna.cn/dev/)
 
 ---
 
