@@ -19,11 +19,20 @@
 
 ## 使用步骤
 
+- 准备工作
+
+```
+安装Java环境，最低要求Java8
+安装MySQL
+```
+
+执行mysql.sql，导入数据库
+
 前往发行版页面，下载最新版本，解压zip
 
 打开`application.properties`配置文件，修改数据库链接配置
 
-执行`startup.sh`启动应用（Windows执行`startup.bat`）
+执行`sh startup.sh`启动（Windows执行`startup.bat`）
 
 访问：`http://ip:7700`
 
