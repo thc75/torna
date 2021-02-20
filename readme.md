@@ -23,7 +23,7 @@
 
 打开`application.properties`配置文件，修改数据库链接配置
 
-执行`startup.sh`，启动应用（Windows执行`startup.bat`）
+执行`startup.sh`启动应用（Windows执行`startup.bat`）
 
 访问：`http://ip:7700`
 
@@ -65,4 +65,4 @@
 
 ## 沟通交流
 
-讨论Q群：194673097
+Q群：194673097
