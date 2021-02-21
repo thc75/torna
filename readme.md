@@ -22,7 +22,7 @@
 - 准备工作
 
     - Java环境，最低要求Java8
-    - MySQL，要求5.6.5及以后的版本执行[mysql.sql](./mysql.sql)
+    - MySQL，要求5.6.5及以后的版本执行[mysql.sql](./mysql.sql)，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
 
 执行mysql.sql，导入数据库
 
