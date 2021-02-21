@@ -1,6 +1,7 @@
--- 适用于MySQL5.6.5+，支持emoji
+-- 适用于低版本的MySQL
+-- 备注：5.5.3之前不支持utf8mb4，5.6.5不支持CURRENT_TIMESTAMP
 
-CREATE DATABASE IF NOT EXISTS `torna` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
+CREATE DATABASE IF NOT EXISTS `torna` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8mb4_general_ci;
 USE `torna`;
 
 
@@ -44,12 +45,12 @@ CREATE TABLE `doc_info` (
   `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
   `is_show` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_data_id` (`data_id`) USING BTREE,
   KEY `idx_moduleid` (`module_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='文档信息';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='文档信息';
 
 
 CREATE TABLE `doc_param` (
@@ -73,11 +74,11 @@ CREATE TABLE `doc_param` (
   `modifier_name` varchar(64) NOT NULL DEFAULT '',
   `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_docid` (`doc_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COMMENT='文档参数';
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8 COMMENT='文档参数';
 
 
 CREATE TABLE `doc_snapshot` (
@@ -86,11 +87,11 @@ CREATE TABLE `doc_snapshot` (
   `modifier_name` varchar(64) NOT NULL DEFAULT '' COMMENT '修改人',
   `modifier_time` datetime NOT NULL COMMENT '修改时间',
   `content` text COMMENT '修改内容',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_docid` (`doc_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='文档快照';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='文档快照';
 
 
 CREATE TABLE `enum_info` (
@@ -100,12 +101,12 @@ CREATE TABLE `enum_info` (
   `description` varchar(128) NOT NULL DEFAULT '' COMMENT '枚举说明',
   `module_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'module.id',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_moduleid` (`module_id`) USING BTREE,
   KEY `idx_dataid` (`data_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='枚举信息';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='枚举信息';
 
 
 CREATE TABLE `enum_item` (
@@ -117,11 +118,11 @@ CREATE TABLE `enum_item` (
   `description` varchar(128) NOT NULL DEFAULT '' COMMENT '枚举描述',
   `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_enumid` (`enum_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='枚举详情';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='枚举详情';
 
 
 CREATE TABLE `module` (
@@ -139,12 +140,12 @@ CREATE TABLE `module` (
   `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_token` (`token`) USING BTREE,
   KEY `idx_projectid` (`project_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='项目模块';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='项目模块';
 
 
 CREATE TABLE `module_config` (
@@ -155,11 +156,11 @@ CREATE TABLE `module_config` (
   `config_value` varchar(128) NOT NULL DEFAULT '' COMMENT '配置值',
   `description` varchar(256) NOT NULL DEFAULT '' COMMENT '描述',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_moduleid_type` (`module_id`,`type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='系统配置';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='系统配置';
 
 
 CREATE TABLE `open_user` (
@@ -170,11 +171,11 @@ CREATE TABLE `open_user` (
   `applicant` varchar(64) NOT NULL DEFAULT '',
   `space_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'space.id',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_app_key` (`app_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='开放用户';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='开放用户';
 
 
 CREATE TABLE `project` (
@@ -189,11 +190,11 @@ CREATE TABLE `project` (
   `modifier_name` varchar(64) NOT NULL DEFAULT '',
   `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `uk_name` (`creator_id`,`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='项目表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='项目表';
 
 
 CREATE TABLE `project_user` (
@@ -202,11 +203,11 @@ CREATE TABLE `project_user` (
   `user_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'user_info.id',
   `role_code` varchar(64) NOT NULL DEFAULT '0' COMMENT '角色，guest：访客，dev：开发者，admin：项目管理员',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_projectid_userid` (`project_id`,`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COMMENT='项目用户关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='项目用户关系表';
 
 
 CREATE TABLE `space` (
@@ -217,10 +218,10 @@ CREATE TABLE `space` (
   `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者userid',
   `modifier_name` varchar(64) NOT NULL DEFAULT '',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='分组表';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='分组表';
 
 
 CREATE TABLE `space_user` (
@@ -229,11 +230,11 @@ CREATE TABLE `space_user` (
   `space_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'space.id',
   `role_code` varchar(64) NOT NULL DEFAULT '' COMMENT '角色，guest：访客，dev：开发者，admin：空间管理员',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_groupid_userid` (`space_id`,`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='分组用户关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COMMENT='分组用户关系表';
 
 
 CREATE TABLE `user_info` (
@@ -243,11 +244,11 @@ CREATE TABLE `user_info` (
   `nickname` varchar(64) NOT NULL DEFAULT '' COMMENT '昵称',
   `is_super_admin` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COMMENT='用户表';
 
 
 CREATE TABLE `user_message` (
@@ -257,11 +258,11 @@ CREATE TABLE `user_message` (
   `is_read` tinyint(4) NOT NULL DEFAULT '0',
   `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '同user_subscribe.type',
   `source_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '同user_subscribe.source_id',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_userid` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COMMENT='站内消息';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='站内消息';
 
 
 CREATE TABLE `user_subscribe` (
@@ -270,11 +271,11 @@ CREATE TABLE `user_subscribe` (
   `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，1：订阅接口，2：订阅项目',
   `source_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '关联id，当type=1对应doc_info.id；type=2对应project.id',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_userid_type_sourceid` (`user_id`,`type`,`source_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='用户订阅表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='用户订阅表';
 
 
 

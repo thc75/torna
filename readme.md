@@ -21,10 +21,8 @@
 
 - 准备工作
 
-```
-安装Java环境，最低要求Java8
-安装MySQL
-```
+    - Java环境，最低要求Java8
+    - MySQL，MySQL5.6.5及以后的版本执行[mysql.sql](./mysql.sql)，MySQL5.6.5之前的版本执行[mysql_compat.sql](./mysql_compat.sql)
 
 执行mysql.sql，导入数据库
 
