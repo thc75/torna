@@ -1,4 +1,5 @@
 -- 适用于MySQL5.6.5+，支持emoji
+-- 备注：5.5.3开始支持utf8mb4，5.6.5开始支持CURRENT_TIMESTAMP(datetime)
 
 CREATE DATABASE IF NOT EXISTS `torna` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
 USE `torna`;

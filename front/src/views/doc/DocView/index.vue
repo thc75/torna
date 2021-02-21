@@ -204,7 +204,7 @@ export default {
       if (data.id) {
         this.loadSubscribe(data.id)
       }
-      this.docInfo = data
+      Object.assign(this.docInfo, data)
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     },

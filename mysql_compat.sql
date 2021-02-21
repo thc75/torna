@@ -1,7 +1,6 @@
--- 适用于低版本的MySQL
--- 备注：5.5.3之前不支持utf8mb4，5.6.5不支持CURRENT_TIMESTAMP
+-- 适用于MySQL5.6.5之前的版本
 
-CREATE DATABASE IF NOT EXISTS `torna` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8mb4_general_ci;
+CREATE DATABASE IF NOT EXISTS `torna` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 USE `torna`;
 
 

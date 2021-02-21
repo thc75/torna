@@ -365,22 +365,17 @@ export default {
     changeHostEnv(debugEnv) {
       const item = this.currentItem
       const debugEnvs = item.debugEnvs
-      if (!debugEnv && debugEnvs.length > 0) {
-        debugEnv = debugEnvs[0].configKey
+      if (debugEnvs.length === 0) {
+        this.requestUrl = item.url
+        return
       }
+      const debugConfigs = debugEnvs.filter(row => row.configKey === debugEnv)
+      const debugConfig = debugConfigs.length === 0 ? debugEnvs[0] : debugConfigs[0]
+      debugEnv = debugConfig.configKey
+      const baseUrl = debugConfig.configValue
+      this.requestUrl = get_effective_url(baseUrl, item.url)
       this.setAttr(HOST_KEY, debugEnv)
       this.debugEnv = debugEnv
-      if (debugEnv) {
-        debugEnvs.forEach(row => {
-          if (row.configKey === debugEnv) {
-            const baseUrl = row.configValue
-            const url = item.url
-            this.requestUrl = get_effective_url(baseUrl, url)
-          }
-        })
-      } else {
-        this.requestUrl = item.url
-      }
     },
     bindRequestParam(item) {
       const queryData = []
