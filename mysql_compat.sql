@@ -242,6 +242,7 @@ CREATE TABLE `user_info` (
   `password` varchar(128) NOT NULL DEFAULT '' COMMENT '登录密码',
   `nickname` varchar(64) NOT NULL DEFAULT '' COMMENT '昵称',
   `is_super_admin` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '0：禁用，1：启用，2：重设密码',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
