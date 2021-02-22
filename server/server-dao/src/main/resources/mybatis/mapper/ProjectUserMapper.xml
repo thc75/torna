@@ -10,6 +10,8 @@
             `user_id`
             , `project_id`
             , `role_code`
+            , gmt_create
+            , gmt_modified
         )
         VALUES
         <foreach collection="items" item="data" separator="," >
@@ -17,6 +19,8 @@
                 #{data.userId}
                 ,#{data.projectId}
                 ,#{data.roleCode}
+                ,now()
+                ,now()
             )
         </foreach>
         ON DUPLICATE KEY UPDATE
