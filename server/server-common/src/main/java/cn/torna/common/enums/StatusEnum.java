@@ -6,6 +6,7 @@ package cn.torna.common.enums;
 public enum StatusEnum {
     DISABLED((byte)0),
     ENABLE((byte)1),
+    SET_PWD((byte)2),
     ;
 
     private final byte status;

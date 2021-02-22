@@ -183,6 +183,9 @@ Object.assign(Vue.prototype, {
       this.$router.push({ path: `/login?redirect=${url}` })
     }
   },
+  goSetPassword() {
+    this.goRoute('/setPassword')
+  },
   goRoute: function(path) {
     this.$router.push({ path: path })
   },
@@ -321,12 +324,16 @@ Object.assign(Vue.prototype, {
       const data = resp.data
       let spaceId = ''
       const cacheId = this.getSpaceId()
-      if (cacheId) {
-        spaceId = cacheId
-      }
-      // 没有选中就选择第一个
-      if (!spaceId && data.length > 0) {
-        spaceId = data[0].id
+      if (data.length > 0) {
+        for (const space of data) {
+          if (cacheId === space.id) {
+            spaceId = cacheId
+            break
+          }
+        }
+        if (!spaceId) {
+          spaceId = data[0].id
+        }
       }
       callback && callback.call(this, data, spaceId)
     })

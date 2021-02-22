@@ -1,21 +1,15 @@
 <template>
-  <div class="app-container">
-    <h3>修改密码</h3>
+  <div class="login-page">
     <div class="pwd-info">
       <el-form
         ref="updatePwdForm"
         :model="updatePwdData"
         :rules="updatePwdRules"
         label-width="120px"
+        class="center-form"
         style="width: 500px;"
       >
-        <el-form-item label="旧密码" prop="oldPassword">
-          <el-input
-            v-model="updatePwdData.oldPassword"
-            type="password"
-            placeholder="旧密码"
-          />
-        </el-form-item>
+        <el-alert title="首次登录需要修改原始密码" effect="dark" :closable="false" style="margin-bottom: 20px" />
         <el-form-item label="新密码" prop="password">
           <el-input
             v-model="updatePwdData.password"
@@ -31,18 +25,19 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="text" @click.native.prevent="$router.go(-1)">取 消</el-button>
           <el-button type="primary" @click.native.prevent="handleUpdate">修 改</el-button>
+          <el-button type="text" @click.native.prevent="goLogin('/')">返回登录</el-button>
         </el-form-item>
       </el-form>
     </div>
   </div>
 </template>
 <script>
-
+import Logo from '@/components/Logo'
 import md5 from 'js-md5'
 
 export default {
+  components: { Logo },
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.updatePwdData.password) {
@@ -53,14 +48,10 @@ export default {
     }
     return {
       updatePwdData: {
-        oldPassword: '',
         password: '',
         password2: ''
       },
       updatePwdRules: {
-        oldPassword: [
-          { required: true, message: '请输入旧密码', trigger: 'blur' }
-        ],
         password: [
           { required: true, message: '请输入新密码', trigger: 'blur' }
         ],
@@ -74,9 +65,8 @@ export default {
         if (valid) {
           const data = {}
           Object.assign(data, this.updatePwdData)
-          data.oldPassword = md5(data.oldPassword)
           data.password = md5(data.password)
-          this.post('/user/password/update', data, function(resp) {
+          this.post('/system/password/updateByFirstLogin', data, function(resp) {
             alert('修改成功，请重新登录')
             this.logout('/')
           })
@@ -87,5 +77,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .pwd-info table th {text-align: right;padding: 5px 10px;}
+.pwd-info table th {text-align: right;padding: 5px 10px;}
 </style>

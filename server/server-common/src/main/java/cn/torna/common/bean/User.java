@@ -30,5 +30,7 @@ public interface User {
      */
     String getNickname();
 
+    Byte getStatus();
+
     String getToken();
 }

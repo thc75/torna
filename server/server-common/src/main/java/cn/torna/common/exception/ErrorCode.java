@@ -8,7 +8,8 @@ public enum ErrorCode {
     LOGIN_FAIL("1000", "login error"),
     JWT_CREATE("1000", "create token error"),
     JWT_ERROR("1000", "invalid token"),
-    JWT_EXPIRED("1000", "token expired")
+    JWT_EXPIRED("1000", "token expired"),
+    SET_PASSWORD("2000", "set password"),
     ;
 
     ErrorCode(String code, String msg) {

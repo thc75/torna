@@ -31,6 +31,8 @@ public class LoginUser implements User {
 	/**  数据库字段：gmt_create */
     private Date gmtCreate;
 
+    private Byte status;
+
     private String token;
 
     @Override

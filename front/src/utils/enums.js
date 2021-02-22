@@ -16,5 +16,8 @@ export const Enums = {
     'application/json',
     'application/xml',
     'text/plain'
-  ]
+  ],
+  USER_STATUS: {
+    SET_PASSWORD: 2
+  }
 }

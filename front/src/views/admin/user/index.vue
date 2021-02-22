@@ -10,6 +10,9 @@
         <el-button type="primary" icon="el-icon-search" @click="onSearch">查询</el-button>
       </el-form-item>
     </el-form>
+    <div class="table-opt-btn">
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">创建新用户</el-button>
+    </div>
     <el-table
       :data="pageInfo.rows"
       border
@@ -22,7 +25,14 @@
       <el-table-column
         prop="nickname"
         label="昵称"
-      />
+      >
+        <template slot-scope="scope">
+          {{ scope.row.nickname }}
+          <el-tooltip v-show="scope.row.isSuperAdmin" content="超级管理员" placement="top">
+            <i class="el-icon-s-custom"></i>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="gmtCreate"
         label="注册时间"
@@ -39,6 +49,13 @@
           >
             <el-link slot="reference" :underline="false" type="primary">重置密码</el-link>
           </el-popconfirm>
+          <el-popconfirm
+            v-if="!isSelf(scope.row.id)"
+            :title="`确定要禁用 ${scope.row.nickname} ？`"
+            @onConfirm="onUserDisable(scope.row)"
+          >
+            <el-link slot="reference" :underline="false" type="danger">禁用</el-link>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -53,6 +70,49 @@
       @size-change="onSizeChange"
       @current-change="onPageIndexChange"
     />
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      @close="resetForm('dialogForm')"
+    >
+      <el-form
+        ref="dialogForm"
+        :rules="dialogFormRules"
+        :model="dialogFormData"
+        label-width="120px"
+        size="mini"
+      >
+        <el-form-item
+          prop="username"
+          label="登录账号"
+        >
+          <el-input v-model="dialogFormData.username" placeholder="建议使用邮箱" />
+        </el-form-item>
+        <el-form-item
+          prop="nickname"
+          label="昵称"
+        >
+          <el-input v-model="dialogFormData.nickname" placeholder="建议使用姓名或花名" />
+        </el-form-item>
+        <el-form-item
+          prop="isSuperAdmin"
+          label="是否超级管理员"
+        >
+          <el-switch
+            v-model="dialogFormData.isSuperAdmin"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            :active-value="1"
+            :inactive-value="0"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="onDialogSave">保 存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -70,14 +130,19 @@ export default {
         total: 0
       },
       dialogVisible: false,
-      dialogTitle: '',
+      dialogTitle: '新建用户',
       dialogFormData: {
-        id: '',
         username: '',
-        password: '',
-        nickname: ''
+        nickname: '',
+        isSuperAdmin: 0
       },
       dialogFormRules: {
+        username: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ],
+        nickname: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -99,23 +164,19 @@ export default {
         this.alert(`新密码：${resp.data}`, '重置成功')
       })
     },
-    onTableDelete(row) {
-      this.confirm(`确认要删除该记录吗？`, function(done) {
-        const data = {
-          id: row.id
-        }
-        this.post('/userInfo/del', data, () => {
-          done()
-          this.tip('删除成功')
-          this.loadTable()
-        })
+    onUserDisable(row) {
+      this.post('/admin/user/disable', row, () => {
+        this.tipSuccess('操作成功')
+        this.loadTable()
       })
     },
     onDialogSave() {
       this.$refs.dialogForm.validate((valid) => {
         if (valid) {
-          const uri = this.dialogFormData.id ? '/userInfo/update' : '/userInfo/add'
-          this.post(uri, this.dialogFormData, () => {
+          const uri = '/admin/user/create'
+          this.post(uri, this.dialogFormData, (resp) => {
+            const data = resp.data
+            this.alert(`登录账号：${data.username}\n密码：${data.password}`, '创建成功')
             this.dialogVisible = false
             this.loadTable()
           })
@@ -127,9 +188,7 @@ export default {
       this.loadTable()
     },
     onAdd() {
-      this.dialogTitle = '新增'
       this.dialogVisible = true
-      this.dialogFormData.id = 0
     },
     onPageIndexChange(pageIndex) {
       this.searchFormData.pageIndex = pageIndex

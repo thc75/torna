@@ -24,4 +24,6 @@ public class UserInfoDTO {
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
 
+    private Byte isSuperAdmin;
+
 }

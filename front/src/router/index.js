@@ -54,6 +54,12 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/setPassword',
+    component: () => import('@/views/common/setPassword'),
+    meta: { title: '设置密码' },
+    hidden: true
+  },
+  {
     path: '/reg',
     component: () => import('@/views/common/reg'),
     meta: { title: '用户注册' },

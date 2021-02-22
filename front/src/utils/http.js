@@ -186,6 +186,10 @@ function doResponse(response, callback, errorCallback) {
       this.goLogin()
       return
     }
+    if (code === '2000') {
+      this.goSetPassword()
+      return
+    }
     if (code === '0') { // 成功
       callback && callback.call(this, resp)
     } else {

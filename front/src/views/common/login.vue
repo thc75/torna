@@ -40,6 +40,7 @@
 </template>
 <script>
 import md5 from 'js-md5'
+import { Enums } from '@/utils/enums'
 import { setToken, removeToken } from '@/utils/auth'
 import Logo from '@/components/Logo'
 
@@ -127,7 +128,11 @@ export default {
       this.post('/system/login', postData, function(resp) {
         const data = resp.data
         setToken(data.token)
-        this.goRoute(this.redirect || '/dashboard')
+        if (data.status === Enums.USER_STATUS.SET_PASSWORD) {
+          this.goSetPassword()
+        } else {
+          this.goRoute(this.redirect || '/dashboard')
+        }
       })
     },
     useVerify() {

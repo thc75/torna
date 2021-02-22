@@ -96,9 +96,11 @@ export default {
   methods: {
     loadSpace() {
       this.loadSpaceData((data, spaceId) => {
-        this.spaceData = data
-        this.currentSpaceId = spaceId
-        this.loadMenu(spaceId)
+        if (data.length > 0) {
+          this.spaceData = data
+          this.currentSpaceId = spaceId
+          this.loadMenu(spaceId)
+        }
       })
     },
     loadMenu(spaceId) {

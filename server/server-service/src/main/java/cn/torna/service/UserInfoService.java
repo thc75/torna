@@ -4,7 +4,10 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
+import cn.torna.common.enums.StatusEnum;
+import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.exception.BizException;
+import cn.torna.common.exception.SetPasswordException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.GenerateUtil;
@@ -53,11 +56,17 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
      * @param userAddDTO 用户信息
      */
     public void addUser(UserAddDTO userAddDTO) {
-        userAddDTO.setIsSuperAdmin(Booleans.FALSE);
+        // 校验邮箱是否存在
+        checkEmail(userAddDTO.getUsername());
         UserInfo userInfo = CopyUtil.copyBean(userAddDTO, UserInfo::new);
         String password = getDbPassword(userAddDTO.getUsername(), userAddDTO.getPassword());
         userInfo.setPassword(password);
         this.save(userInfo);
+    }
+
+    public void checkEmail(String email) {
+        UserInfo userInfo = get("username", email);
+        Assert.isNull(userInfo, () -> "账号已被注册");
     }
 
     public User getLoginUser(long id) {
@@ -94,11 +103,15 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     public LoginUser login(String username, String password) {
         Assert.notNull(username, () -> "用户名不能为空");
         Assert.notNull(password, () -> "密码不能为空");
+        password = getDbPassword(username, password);
         Query query = new Query()
                 .eq("username", username)
                 .eq("password", password);
         UserInfo userInfo = get(query);
         Assert.notNull(userInfo, () -> "用户名密码不正确");
+        if (UserStatusEnum.of(userInfo.getStatus()) == UserStatusEnum.DISABLED) {
+            throw new BizException("用户已禁用，请联系管理员");
+        }
         // 登录成功
         LoginUser loginUser = CopyUtil.copyBean(userInfo, LoginUser::new);
         // 创建token
@@ -127,7 +140,18 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));
         password = getDbPassword(userInfo.getUsername(), password);
         userInfo.setPassword(password);
+        userInfo.setStatus(UserStatusEnum.SET_PASSWORD.getStatus());
         this.update(userInfo);
         return newPwd;
+    }
+
+    /**
+     * 禁用用户
+     * @param id id
+     */
+    public void disableUser(Long id) {
+        UserInfo userInfo = getById(id);
+        userInfo.setStatus(UserStatusEnum.DISABLED.getStatus());
+        this.update(userInfo);
     }
 }

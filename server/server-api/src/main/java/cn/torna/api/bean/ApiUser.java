@@ -2,6 +2,7 @@ package cn.torna.api.bean;
 
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.OperationMode;
+import cn.torna.common.enums.UserStatusEnum;
 import lombok.Data;
 
 /**
@@ -30,6 +31,11 @@ public class ApiUser implements User {
     @Override
     public String getNickname() {
         return "OpenAPI";
+    }
+
+    @Override
+    public Byte getStatus() {
+        return UserStatusEnum.ENABLE.getStatus();
     }
 
     @Override

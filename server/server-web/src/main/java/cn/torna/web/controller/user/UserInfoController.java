@@ -6,6 +6,7 @@ import cn.torna.common.context.UserContext;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.service.UserInfoService;
+import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.web.controller.user.param.UpdateNicknameParam;
 import cn.torna.web.controller.user.param.UpdatePasswordParam;
 import cn.torna.web.controller.user.param.UserIdParam;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.service.dto.UserInfoDTO;
 
 import javax.validation.Valid;
 import java.util.Collections;
