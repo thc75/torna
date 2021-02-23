@@ -12,6 +12,7 @@ import cn.torna.web.controller.admin.param.UserInfoParam;
 import cn.torna.web.controller.admin.param.UserSearch;
 import cn.torna.web.controller.admin.vo.UserCreateVO;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ public class UserController {
     @PostMapping("page")
     public Result<PageEasyui<UserInfoDTO>> page(@RequestBody UserSearch userSearch) {
         Query query = userSearch.toQuery();
+        query.orderby("id", Sort.DESC);
         PageEasyui<UserInfoDTO> page = MapperUtil.queryForEasyuiDatagrid(userInfoService.getMapper(), query, UserInfoDTO.class);
         return Result.ok(page);
     }
