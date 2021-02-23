@@ -35,7 +35,7 @@ public class UserController {
     @Autowired
     private UserInfoService userInfoService;
 
-    @Value("${torna.user.init-password}")
+    @Value("${torna.user.initial-password}")
     private String initPassword;
 
     @PostMapping("page")
