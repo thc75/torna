@@ -28,7 +28,7 @@
 
 前往发行版页面，下载最新版本，解压zip
 
-打开`application.properties`配置文件，修改数据库链接配置
+打开`application.properties`配置文件，修改数据库连接配置
 
 执行`sh startup.sh`启动（Windows执行`startup.bat`）
 
