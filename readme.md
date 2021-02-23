@@ -24,9 +24,9 @@
     - Java环境，最低要求Java8
     - MySQL，要求5.6.5及以后，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
 
-执行[mysql.sql](./mysql.sql)，导入数据库
-
 前往发行版页面，下载最新版本，解压zip
+
+执行[mysql.sql](./mysql.sql)，导入数据库
 
 打开`application.properties`配置文件，修改数据库连接配置
 
