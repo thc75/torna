@@ -32,29 +32,19 @@ public class PasswordTest extends TornaApplicationTests {
         System.out.println(String.format(ADMIN_INSERT, username, dbPassword));
     }
 
+    /**
+     * 生成数据库中保存的密码
+     */
     @Test
-    public void testGen2() {
-        String username = "zs@qq.com";
-        String password = DigestUtils.md5DigestAsHex("123123".getBytes(StandardCharsets.UTF_8));
+    public void testPasswordInDb() {
+        // 登录账号
+        String username = "admin@torna.cn";
+        // 密码，明文
+        String password = "123456";
+        password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
         String dbPassword = userInfoService.getDbPassword(username, password);
         System.out.println(dbPassword);
     }
-
-    /**
-     * 重置所有用户的密码，变成123456。请谨慎操作
-     */
-    /*@Test
-    public void testReset() {
-        List<UserInfo> userInfos = userInfoService.listAll();
-        String newPwd = "123456";
-        for (UserInfo userInfo : userInfos) {
-            String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));
-            password = userInfoService.getDbPassword(userInfo.getUsername(), password);
-            userInfo.setPassword(password);
-            userInfoService.update(userInfo);
-        }
-    }*/
-
 
 
 }
