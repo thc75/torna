@@ -154,4 +154,14 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         userInfo.setStatus(UserStatusEnum.DISABLED.getStatus());
         this.update(userInfo);
     }
+
+    /**
+     * 启用用户
+     * @param id id
+     */
+    public void enableUser(Long id) {
+        UserInfo userInfo = getById(id);
+        userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
+        this.update(userInfo);
+    }
 }

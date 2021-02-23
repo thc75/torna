@@ -34,6 +34,17 @@
         </template>
       </el-table-column>
       <el-table-column
+        prop="status"
+        label="状态"
+        width="100"
+      >
+        <template slot-scope="scope">
+          <span v-if="scope.row.status === 0" class="danger">禁用</span>
+          <span v-if="scope.row.status === 1" class="success">正常</span>
+          <span v-if="scope.row.status === 2" class="warning">未激活</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="gmtCreate"
         label="注册时间"
         width="200"
@@ -42,20 +53,28 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-popconfirm
-            v-if="!isSelf(scope.row.id)"
-            :title="`确定要重置 ${scope.row.nickname} 密码？`"
-            @onConfirm="onRestPwd(scope.row)"
-          >
-            <el-link slot="reference" :underline="false" type="primary">重置密码</el-link>
-          </el-popconfirm>
-          <el-popconfirm
-            v-if="!isSelf(scope.row.id)"
-            :title="`确定要禁用 ${scope.row.nickname} ？`"
-            @onConfirm="onUserDisable(scope.row)"
-          >
-            <el-link slot="reference" :underline="false" type="danger">禁用</el-link>
-          </el-popconfirm>
+          <div v-if="!isSelf(scope.row.id)">
+            <el-popconfirm
+              :title="`确定要重置 ${scope.row.nickname} 密码？`"
+              @onConfirm="onRestPwd(scope.row)"
+            >
+              <el-link slot="reference" :underline="false" type="primary">重置密码</el-link>
+            </el-popconfirm>
+            <el-popconfirm
+              v-if="scope.row.status === 1"
+              :title="`确定要禁用 ${scope.row.nickname} ？`"
+              @onConfirm="onUserDisable(scope.row)"
+            >
+              <el-link slot="reference" :underline="false" type="danger">禁用</el-link>
+            </el-popconfirm>
+            <el-popconfirm
+              v-if="scope.row.status === 0"
+              :title="`确定要启用 ${scope.row.nickname} ？`"
+              @onConfirm="onUserEnable(scope.row)"
+            >
+              <el-link slot="reference" :underline="false" type="primary">启用</el-link>
+            </el-popconfirm>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -166,6 +185,12 @@ export default {
     },
     onUserDisable(row) {
       this.post('/admin/user/disable', row, () => {
+        this.tipSuccess('操作成功')
+        this.loadTable()
+      })
+    },
+    onUserEnable(row) {
+      this.post('/admin/user/enable', row, () => {
         this.tipSuccess('操作成功')
         this.loadTable()
       })

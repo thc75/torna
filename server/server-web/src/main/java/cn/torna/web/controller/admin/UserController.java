@@ -64,6 +64,13 @@ public class UserController {
         return Result.ok();
     }
 
+    @PostMapping("enable")
+    public Result enable(@RequestBody UserInfoParam param) {
+        Long id = param.getId();
+        userInfoService.enableUser(id);
+        return Result.ok();
+    }
+
     @PostMapping("password/reset")
     public Result<String> resetPwd(@RequestBody ResetPasswordParam param) {
         Long id = param.getId();

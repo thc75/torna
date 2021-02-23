@@ -26,4 +26,6 @@ public class UserInfoDTO {
 
     private Byte isSuperAdmin;
 
+    private Byte status;
+
 }
