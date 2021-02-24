@@ -113,7 +113,7 @@
             <el-link type="primary" @click="onDocAdd(scope.row)">添加接口</el-link>
           </div>
           <div v-else>
-            <router-link v-if="scope.row.isShow" :to="`/view/doc/${scope.row.id}`" target="_blank">
+            <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
               <el-link type="primary">预览</el-link>
             </router-link>
             <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
@@ -133,7 +133,7 @@
       >
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
-            <router-link v-if="scope.row.isShow" :to="`/view/doc/${scope.row.id}`" target="_blank">
+            <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
               <el-link type="primary">预览</el-link>
             </router-link>
           </div>

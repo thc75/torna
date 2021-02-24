@@ -41,7 +41,7 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
         cycleCache.clear();
         JSONObject docRoot = JSON.parseObject(json, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
         JSONObject info = docRoot.getJSONObject("info");
-        String requestUrl = this.getRequestUrl(docRoot);
+        List<Server> servers = this.getServers(docRoot);
         List<DocItem> docItems = new ArrayList<>();
         String allowMethod = config.getAllowMethod();
 
@@ -57,7 +57,6 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
             Set<String> httpMethodList = pathInfo.keySet();
             for (String method : httpMethodList) {
                 ApiInfo apiInfo = new ApiInfo();
-                apiInfo.setRequestUrl(requestUrl);
                 apiInfo.setPath(path);
                 apiInfo.setMethod(method);
 
@@ -115,7 +114,7 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
         docBean.setTitle(info.getString("title"));
         docBean.setVersion(info.getString("version"));
         docBean.setDescription(info.getString("description"));
-        docBean.setRequestUrl(requestUrl);
+        docBean.setServers(servers);
         docBean.setDocModules(docModuleList);
         return docBean;
     }
@@ -421,7 +420,7 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
     }
 
     
-    private String getRequestUrl(JSONObject docRoot) {
+    private List<Server> getServers(JSONObject docRoot) {
         /*
         "servers": [
             {
@@ -430,12 +429,10 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
             }
         ]
          */
-        return Optional.ofNullable(docRoot)
+        JSONArray servers = Optional.ofNullable(docRoot)
                 .flatMap(root -> Optional.ofNullable(root.getJSONArray("servers")))
-                .filter(servers -> servers.size() > 0)
-                .map(servers -> servers.getJSONObject(0))
-                .map(server -> server.getString("url"))
-                .orElse("");
+                .orElse(new JSONArray(0));
+        return servers.toJavaList(Server.class);
     }
 
     /**

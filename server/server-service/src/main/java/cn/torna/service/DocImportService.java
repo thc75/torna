@@ -6,6 +6,7 @@ import cn.torna.common.util.DataIdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
+import cn.torna.manager.doc.swagger.Server;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -239,8 +240,10 @@ public class DocImportService {
         String title = docBean.getTitle();
         // 创建模块
         Module module = moduleService.createSwaggerModule(importSwaggerDTO, title);
-        // 保存baseUrl
-        moduleConfigService.setBaseUrl(module.getId(), docBean.getRequestUrl());
+        // 保存调试环境
+        for (Server server : docBean.getServers()) {
+            moduleConfigService.setDebugEnv(module.getId(), server.getDescription(), server.getUrl());
+        }
         // 创建文档分类
         List<DocModule> docModules = docBean.getDocModules();
         docModules.sort(Comparator.comparing(DocModule::getOrder));

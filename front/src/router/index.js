@@ -228,7 +228,7 @@ export const constantRoutes = [
         component: () => import('@/views/view/index')
       },
       {
-        path: 'doc/:docId(\\w+)',
+        path: ':docId(\\w+)',
         name: 'ViewDoc',
         component: () => import('@/views/view/index')
       }

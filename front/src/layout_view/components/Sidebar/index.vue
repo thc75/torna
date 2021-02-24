@@ -150,7 +150,7 @@ export default {
     // 树点击事件
     onNodeClick(data, node, tree) {
       if (data.docId) {
-        this.goRoute(`/view/doc/${data.docId}`)
+        this.goRoute(`/view/${data.docId}`)
       }
     }
   }

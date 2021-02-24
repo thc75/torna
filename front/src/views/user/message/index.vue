@@ -43,7 +43,7 @@
         width="200px"
       >
         <template slot-scope="scope">
-          <router-link :to="`/view/doc/${scope.row.sourceId}`">
+          <router-link :to="`/view/${scope.row.sourceId}`">
             <el-button type="text" size="mini" @click="setRead(scope.row)">查看文档</el-button>
           </router-link>
           <el-button v-show="scope.row.isRead === 0" type="text" size="mini" @click="setRead(scope.row)">标记已读</el-button>

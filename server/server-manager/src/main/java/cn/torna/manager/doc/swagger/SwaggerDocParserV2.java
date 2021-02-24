@@ -43,6 +43,7 @@ public class SwaggerDocParserV2 implements DocParser<DocBean> {
         JSONObject docRoot = JSON.parseObject(json, Feature.OrderedField, Feature.DisableCircularReferenceDetect);
         JSONObject info = docRoot.getJSONObject("info");
         String requestUrl = this.getRequestUrl(docRoot);
+        List<Server> servers = Collections.singletonList(new Server(requestUrl, "调试环境"));
         List<DocItem> docItems = new ArrayList<>();
         String allowMethod = config.getAllowMethod();
         if (StringUtils.isEmpty(allowMethod)) {
@@ -120,6 +121,7 @@ public class SwaggerDocParserV2 implements DocParser<DocBean> {
         docBean.setVersion(info.getString("version"));
         docBean.setDescription(info.getString("description"));
         docBean.setRequestUrl(requestUrl);
+        docBean.setServers(servers);
         docBean.setDocModules(docModuleList);
         return docBean;
     }

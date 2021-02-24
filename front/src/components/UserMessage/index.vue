@@ -15,7 +15,7 @@
           {{ item.message }}
         </div>
         <div>
-          <router-link :to="`/view/doc/${item.sourceId}`">
+          <router-link :to="`/view/${item.sourceId}`">
             <el-link type="primary" @click="setRead(item)">查看文档</el-link>
           </router-link>
           |
