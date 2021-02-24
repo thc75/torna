@@ -126,6 +126,19 @@
           </div>
         </template>
       </el-table-column>
+      <el-table-column
+        v-else
+        label="操作"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <div v-if="!isFolder(scope.row)">
+            <router-link v-if="scope.row.isShow" :to="`/view/doc/${scope.row.id}`" target="_blank">
+              <el-link type="primary">预览</el-link>
+            </router-link>
+          </div>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>

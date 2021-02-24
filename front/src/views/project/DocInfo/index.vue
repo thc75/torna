@@ -8,7 +8,7 @@
       <span slot="label"><i class="el-icon-tickets"></i> 字典管理</span>
       <enum-info :project-id="projectId" :module-id="moduleIdEnumInfo" />
     </el-tab-pane>
-    <el-tab-pane name="ModuleSetting">
+    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ModuleSetting">
       <span slot="label"><i class="el-icon-setting"></i> 模块配置</span>
       <module-setting :project-id="projectId" :module-id="moduleIdModuleSetting" />
     </el-tab-pane>
