@@ -82,6 +82,10 @@ public class UserInfoController {
     public Result updatePassword(@RequestBody @Valid UpdatePasswordParam param) {
         long userId = UserContext.getUser().getUserId();
         UserInfo userInfo = userInfoService.getById(userId);
+        // 演示账号禁止修改
+        if ("guest@torna.cn".equalsIgnoreCase(userInfo.getUsername())) {
+            return Result.ok();
+        }
         String oldPwdHex = userInfoService.getDbPassword(userInfo.getUsername(), param.getOldPassword());
         Assert.isTrue(Objects.equals(oldPwdHex, userInfo.getPassword()), "旧密码错误");
         String newPwdHex = userInfoService.getDbPassword(userInfo.getUsername(), param.getPassword());
