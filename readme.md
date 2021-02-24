@@ -4,6 +4,8 @@
 
 [官网](http://torna.cn)
 
+[演示地址](http://demo.torna.cn/) 演示账号：`guest@torna.cn` 密码：`123456`
+
 ## 特性介绍
 
 - 支持接口文档增删改查
