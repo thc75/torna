@@ -3,6 +3,8 @@ package cn.torna.sdk.param;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * @author tanghc
  */
@@ -33,5 +35,7 @@ public class DocParamReq {
 
     /** 父节点, 没有填空字符串 */
     private String parentId;
+
+    private List<DocParamReq> children;
 
 }

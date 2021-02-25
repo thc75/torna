@@ -168,7 +168,16 @@ public class SdkTest extends BaseTest {
         paramCreateParamReq.setMaxLength("64");
         paramCreateParamReq.setRequired(Booleans.TRUE);
         paramCreateParamReq.setParentId("");
-        item.setRequestParams(Arrays.asList(paramCreateParamReq));
+
+        DocParamReq paramCreateParamReq2 = new DocParamReq();
+        paramCreateParamReq2.setName("array" + suffix);
+        paramCreateParamReq2.setType("array");
+        paramCreateParamReq2.setDescription("数组" + suffix);
+        paramCreateParamReq2.setRequired(Booleans.TRUE);
+        List<DocParamReq> children = buildChildren();
+        paramCreateParamReq2.setChildren(children);
+
+        item.setRequestParams(Arrays.asList(paramCreateParamReq, paramCreateParamReq2));
 
         // 设置返回参数
         DocParamResp paramCreateParamResp = new DocParamResp();
@@ -186,7 +195,15 @@ public class SdkTest extends BaseTest {
         paramCreateParamResp2.setParentId("");
         // 枚举信息
         paramCreateParamResp2.setEnumInfo(getEnumInfoParam());
-        item.setResponseParams(Arrays.asList(paramCreateParamResp, paramCreateParamResp2));
+
+        DocParamResp paramCreateParamResp3 = new DocParamResp();
+        paramCreateParamResp3.setName("resp" + suffix);
+        paramCreateParamResp3.setType("object");
+        paramCreateParamResp3.setDescription("数组" + suffix);
+        paramCreateParamResp3.setRequired(Booleans.TRUE);
+        List<DocParamReq> childrenResp = buildChildren();
+        paramCreateParamResp3.setChildren(childrenResp);
+        item.setResponseParams(Arrays.asList(paramCreateParamResp, paramCreateParamResp2, paramCreateParamResp3));
 
         // 设置错误码
         DocParamCode code = new DocParamCode();
@@ -196,6 +213,21 @@ public class SdkTest extends BaseTest {
         item.setErrorCodeParams(Arrays.asList(code));
 
         return item;
+    }
+
+    private static List<DocParamReq> buildChildren() {
+        List<DocParamReq> list = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            DocParamReq paramCreateParamReq2_child = new DocParamReq();
+            paramCreateParamReq2_child.setName("price" + i);
+            paramCreateParamReq2_child.setType("string");
+            paramCreateParamReq2_child.setDescription("子节点描述");
+            paramCreateParamReq2_child.setExample("100");
+            paramCreateParamReq2_child.setMaxLength("64");
+            paramCreateParamReq2_child.setRequired(Booleans.TRUE);
+            list.add(paramCreateParamReq2_child);
+        }
+        return list;
     }
 
     private static EnumInfoParam getEnumInfoParam() {

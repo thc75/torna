@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @author tanghc
@@ -24,7 +25,7 @@ public class DocParamPushParam {
     private String name;
 
     /** 字段类型, 数据库字段：type */
-    @ApiDocField(description = "字段类型", required = true, example = "string")
+    @ApiDocField(description = "字段类型", required = true, example = "string/array/object")
     @NotBlank(message = "字段类型不能为空")
     @Length(max = 50, message = "字段类型不能超过50")
     private String type;
@@ -57,8 +58,12 @@ public class DocParamPushParam {
     @ApiDocField(description = "参数对应的枚举，如果参数是枚举，可以顺便把枚举信息填进来")
     private EnumInfoCreateParam enumInfo;
 
+    @ApiDocField(description = "子节点，内容同父节点")
+    private List<DocParamPushParam> children;
+
     private Byte createMode = OperationMode.OPEN.getType();
 
     private Byte modifyMode = OperationMode.OPEN.getType();
+
 
 }

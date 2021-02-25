@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.EnumInfoDTO;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -46,7 +48,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setName(docParamDTO.getName());
         docParam.setType(docParamDTO.getType());
         docParam.setRequired(docParamDTO.getRequired());
-        docParam.setMaxLength(docParamDTO.getMaxLength());
+        docParam.setMaxLength(buildMaxLength(docParamDTO));
         docParam.setExample(docParamDTO.getExample());
         docParam.setDescription(docParamDTO.getDescription());
         docParam.setEnumId(buildEnumId(docInfo.getModuleId(), docParamDTO));
@@ -65,6 +67,10 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
                 this.doSave(child, pid, docInfo, paramStyleEnum, user);
             }
         }
+    }
+
+    private static String buildMaxLength(DocParamDTO docParamDTO) {
+        return CollectionUtils.isEmpty(docParamDTO.getChildren()) ? docParamDTO.getMaxLength() : "";
     }
 
     private Long buildEnumId(long moduleId, DocParamDTO docParamDTO) {
