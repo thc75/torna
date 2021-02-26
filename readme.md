@@ -74,4 +74,4 @@
 
 ## 沟通交流
 
-![group](https://images.gitee.com/uploads/images/2021/0226/140830_a7810047_332975.jpeg "group.jpg")
+<img src="https://images.gitee.com/uploads/images/2021/0226/140830_a7810047_332975.jpeg" style="width: 300px;" />
