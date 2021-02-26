@@ -1,6 +1,5 @@
 package cn.torna.sdk;
 
-import cn.torna.sdk.client.OpenClient;
 import cn.torna.sdk.common.Booleans;
 import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
@@ -9,6 +8,7 @@ import cn.torna.sdk.param.DocParamHeader;
 import cn.torna.sdk.param.DocParamReq;
 import cn.torna.sdk.param.DocParamResp;
 import cn.torna.sdk.param.EnumInfoParam;
+import cn.torna.sdk.param.EnumItemParam;
 import cn.torna.sdk.request.DocCategoryCreateRequest;
 import cn.torna.sdk.request.DocCategoryListRequest;
 import cn.torna.sdk.request.DocCategoryNameUpdateRequest;
@@ -31,21 +31,12 @@ import cn.torna.sdk.response.ModuleDebugEnvSetResponse;
 import cn.torna.sdk.result.DocDetailResult;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import cn.torna.sdk.param.EnumItemParam;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class SdkTest extends BaseTest {
-
-    static String url = "http://localhost:7700/api";
-    static String appKey = "20201216788835306945118208";
-    static String secret = "W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR";
-    static String token = "c16931fa6590483fb7a4e85340fcbfef";
-
-
-    static OpenClient client = new OpenClient(url, appKey, secret);
 
     /**
      * 获取文档列表
@@ -123,14 +114,14 @@ public class SdkTest extends BaseTest {
         folder.setName("推送目录" + time);
 
         List<DocItem> items = new ArrayList<>(8);
-        // 分类下面有文档
-        folder.setItems(items);
-
         // 创建三个文档
         for (int i = 0; i < 3; i++) {
             DocItem docItem = buildDocItem(time, i);
             items.add(docItem);
         }
+        // 分类下面有文档
+        folder.setItems(items);
+
         // 再创建一个没有分类的文档
         DocItem docItem = buildDocItem(time, items.size() + 1);
 
@@ -289,16 +280,6 @@ public class SdkTest extends BaseTest {
         request.setName("测试环境2");
         ModuleDebugEnvDeleteResponse response = client.execute(request);
         this.printResponse(response);
-    }
-
-    private void printResponse(BaseResponse<?> response) {
-        if (response.isSuccess()) {
-            // 返回结果
-            Object data = response.getData();
-            System.out.println(JSON.toJSONString(data, SerializerFeature.PrettyFormat));
-        } else {
-            System.out.println("errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
-        }
     }
 
 }
