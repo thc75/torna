@@ -2,7 +2,7 @@
 
 企业接口文档解决方案，目标是让文档管理变得更加方便、快捷。
 
-![arc](https://images.gitee.com/uploads/images/2021/0226/134021_fe08d4c2_332975.png "arc.png")
+![arc](https://images.gitee.com/uploads/images/2021/0226/135005_3a7b9c22_332975.png "arc.png")
 
 ## 特性介绍
 
