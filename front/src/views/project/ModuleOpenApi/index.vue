@@ -47,25 +47,18 @@
 <script>
 export default {
   name: 'ModuleOpenApi',
-  props: {
-    moduleId: {
-      type: String,
-      default: ''
-    }
-  },
   data() {
     return {
+      moduleId: '',
       token: '',
       menus: []
     }
   },
-  watch: {
-    moduleId(id) {
-      this.loadToken(id)
-    }
-  },
   methods: {
-    reload() {
+    reload(moduleId) {
+      if (moduleId) {
+        this.moduleId = moduleId
+      }
       this.loadToken(this.moduleId)
     },
     refreshToken() {

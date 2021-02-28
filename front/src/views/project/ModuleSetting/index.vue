@@ -176,10 +176,6 @@ export default {
   name: 'ModuleSetting',
   components: { PopoverUpdate },
   props: {
-    moduleId: {
-      type: String,
-      default: ''
-    },
     projectId: {
       type: String,
       default: ''
@@ -187,6 +183,7 @@ export default {
   },
   data() {
     return {
+      moduleId: '',
       activeEnv: '',
       settings: {
         moduleVO: {
@@ -246,13 +243,11 @@ export default {
       }
     }
   },
-  watch: {
-    moduleId(id) {
-      this.loadSettings(id)
-    }
-  },
   methods: {
-    reload() {
+    reload(moduleId) {
+      if (moduleId) {
+        this.moduleId = moduleId
+      }
       this.loadSettings(this.moduleId)
     },
     loadHeaders() {

@@ -6,6 +6,7 @@ import { getToken, removeToken } from './auth'
 import { do_get, get, get_baseUrl, get_file, post } from './http'
 import { convert_tree, create_response_example, get_requestUrl, init_docInfo } from './common'
 import { Enums } from './enums'
+import { add_init } from './init'
 
 const SPACE_ID_KEY = 'torna.spaceid'
 const TORNA_FROM = 'torna.from'
@@ -460,6 +461,9 @@ Object.assign(Vue.prototype, {
   },
   _add0: function(m) {
     return m < 10 ? '0' + m : m
+  },
+  addInit(fn) {
+    add_init.call(this, fn)
   }
 })
 

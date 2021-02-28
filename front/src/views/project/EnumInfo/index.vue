@@ -143,10 +143,6 @@
 export default {
   name: 'EnumInfo',
   props: {
-    moduleId: {
-      type: String,
-      default: ''
-    },
     projectId: {
       type: String,
       default: ''
@@ -154,6 +150,7 @@ export default {
   },
   data() {
     return {
+      moduleId: '',
       enumData: [],
       dialogEnumInfoVisible: false,
       dialogEnumInfoTitle: '',
@@ -195,13 +192,11 @@ export default {
       }
     }
   },
-  watch: {
-    moduleId(moduleId) {
-      this.loadData(moduleId)
-    }
-  },
   methods: {
-    reload() {
+    reload(moduleId) {
+      if (moduleId) {
+        this.moduleId = moduleId
+      }
       this.loadData(this.moduleId)
     },
     loadData(moduleId) {

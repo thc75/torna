@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import store from '@/store'
+import { run_init } from './init'
 
 function setUserPerm(data) {
   store.state.user.perms = data
@@ -36,6 +37,9 @@ Object.assign(Vue.prototype, {
   initPerm() {
     this.get('/user/perm/get', {}, resp => {
       setUserPerm(resp.data)
+      this.$nextTick(() => {
+        run_init.call(this)
+      })
     })
   },
   isSuperAdmin() {

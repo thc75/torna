@@ -161,10 +161,6 @@ export default {
   name: 'DocTable',
   components: { HttpMethod, SvgIcon, TimeTooltip },
   props: {
-    moduleId: {
-      type: String,
-      default: ''
-    },
     projectId: {
       type: String,
       default: ''
@@ -172,26 +168,25 @@ export default {
   },
   data() {
     return {
+      moduleId: '',
       tableData: [],
       tableSearch: ''
     }
   },
-  watch: {
-    moduleId(moduleId) {
-      this.loadTable(moduleId)
-    }
-  },
   methods: {
     refreshTable() {
-      this.reload(function() {
+      this.loadTable(function() {
         this.tipSuccess('刷新成功')
       })
     },
-    reload(callback) {
-      this.loadTable(this.moduleId, callback)
+    loadTable(callback) {
+      this.reload(this.moduleId, callback)
     },
-    loadTable: function(moduleId, callback) {
-      this.get('/doc/list', { moduleId: moduleId }, function(resp) {
+    reload(moduleId, callback) {
+      if (moduleId) {
+        this.moduleId = moduleId
+      }
+      this.get('/doc/list', { moduleId: this.moduleId }, function(resp) {
         this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
       })

@@ -2,19 +2,19 @@
   <el-tabs v-model="activeName" @tab-click="handleClick">
     <el-tab-pane name="DocList">
       <span slot="label"><i class="el-icon-s-grid"></i> 接口列表</span>
-      <doc-table ref="docTable" :project-id="projectId" :module-id="moduleIdDocList" />
+      <doc-table ref="moduleIdDocList" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane name="EnumInfo">
       <span slot="label"><i class="el-icon-tickets"></i> 字典管理</span>
-      <enum-info :project-id="projectId" :module-id="moduleIdEnumInfo" />
+      <enum-info ref="moduleIdEnumInfo" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ModuleSetting">
       <span slot="label"><i class="el-icon-setting"></i> 模块配置</span>
-      <module-setting :project-id="projectId" :module-id="moduleIdModuleSetting" />
+      <module-setting ref="moduleIdModuleSetting" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="OpenApi">
       <span slot="label"><i class="el-icon-collection-tag"></i> OpenAPI</span>
-      <module-open-api :module-id="moduleIdOpenApi" />
+      <module-open-api ref="moduleIdOpenApi" />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -40,35 +40,29 @@ export default {
   },
   data() {
     return {
-      activeName: 'DocList',
-      moduleIdDocList: '',
-      moduleIdEnumInfo: '',
-      moduleIdModuleSetting: '',
-      moduleIdOpenApi: ''
+      activeName: ''
     }
   },
   watch: {
     moduleId(moduleId) {
-      this.loadData(moduleId)
-    }
-  },
-  created() {
-    const query = this.$route.query
-    const active = query.id
-    if (active) {
-      this.activeName = active
+      this.initActive()
+      if (moduleId) {
+        this.loadData(moduleId)
+      }
     }
   },
   methods: {
-    reload() {
-      this.activeName = 'DocList'
-      this.$refs.docTable.reload()
+    initActive() {
+      const query = this.$route.query
+      const active = query.id
+      this.activeName = active || 'DocList'
     },
     handleClick() {
       this.loadData(this.moduleId)
     },
     loadData(moduleId) {
-      this[`moduleId${this.activeName}`] = moduleId
+      const ref = this.$refs[`moduleId${this.activeName}`]
+      ref && ref.reload(moduleId)
     }
   }
 }
