@@ -6,4 +6,4 @@ app_name="torna"
 # 先关闭服务
 sh shutdown.sh
 
-nohup java -jar -Xmn100m -Xms256m -Xmx256m $app_name.jar >/dev/null 2>&1 &
+nohup java -jar -Xms256m -Xmx256m $app_name.jar >/dev/null 2>&1 &
