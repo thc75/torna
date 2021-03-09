@@ -17,7 +17,11 @@
 - 提供`管理模式`和`浏览模式`双模式，管理模式用来编辑文档内容，浏览模式纯粹查阅文档，界面无其它元素干扰
 - 部署简单，直接运行脚本启动程序
 
+---
+
 [演示地址](http://demo.torna.cn/) 演示账号：`guest@torna.cn` 密码：`123456`
+
+[成功案列](http://demo.torna.cn/case/)
 
 ## 使用步骤
 
@@ -70,9 +74,6 @@
 ![浏览文档](./front/public/static/images/view.png "view.png")
 
 ![调试接口](./front/public/static/images/debug.png "debug.png")
-
-## 成功案列
-
 
 
 ## 沟通交流
