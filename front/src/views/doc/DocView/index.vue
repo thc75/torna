@@ -1,5 +1,5 @@
 <template>
-  <currentDocInfodiv class="doc-view">
+  <div class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
         {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
@@ -12,6 +12,7 @@
               @click="onSubscribe"
             />
           </el-tooltip>
+          <el-button type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
           <el-dropdown trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
               导出 <i class="el-icon-arrow-down el-icon--right"></i>
@@ -73,7 +74,15 @@
       <el-divider content-position="left">修改备注</el-divider>
       <span>{{ docInfo.remark }}</span>
     </div>
-  </currentDocInfodiv>
+    <el-dialog
+      ref="historyDlg"
+      title="变更历史"
+      :visible.sync="historyShow"
+      fullscreen
+    >
+      <doc-diff :doc-info="currentDocInfo" />
+    </el-dialog>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -95,12 +104,13 @@
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
+import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
 import { get_effective_url } from '@/utils/common'
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod },
+  components: { ParameterTable, HttpMethod, DocDiff },
   props: {
     docId: {
       type: String,
@@ -135,6 +145,7 @@ export default {
       commonParams: [],
       commonResult: [],
       docBaseInfoData: [],
+      currentDocInfo: {},
       docInfo: {
         id: '',
         name: '',
@@ -158,6 +169,8 @@ export default {
         folders: []
       },
       responseSuccessExample: {},
+      historyShow: false,
+      historyDocId: '',
       isSubscribe: false
     }
   },
@@ -205,6 +218,13 @@ export default {
     },
     onExportHtml() {
       ExportUtil.exportHtmlSinglePage(this.docInfo)
+    },
+    onShowHistory() {
+      this.historyShow = true
+      this.$nextTick(() => {
+        this.currentDocInfo = this.docInfo
+        this.historyDocId = this.docInfo.id
+      })
     },
     onSubscribe() {
       if (!this.isSubscribe) {
