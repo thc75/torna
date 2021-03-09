@@ -26,6 +26,7 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocParamDTO;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -116,13 +117,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
         List<DocParam> globalHeaders = this.listGlobalHeaders(docInfo.getModuleId());
-        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
+        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), new ArrayList<>(globalHeaders.size()));
+        headerParams.addAll(globalHeaders);
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), Collections.emptyList());
 
         docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
-        docInfoDTO.setGlobalHeaderParams(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
         docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
@@ -139,6 +140,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                     docParam.setExample(moduleConfig.getConfigValue());
                     docParam.setDescription(moduleConfig.getDescription());
                     docParam.setStyle(ParamStyleEnum.HEADER.getStyle());
+                    docParam.setRequired(Booleans.TRUE);
                     return docParam;
                 })
                 .collect(Collectors.toList());

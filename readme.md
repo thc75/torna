@@ -63,15 +63,15 @@
 
 ## 界面预览
 
-![文档管理](https://images.gitee.com/uploads/images/2021/0210/095322_c94cd7bf_332975.png "table.png")
+![文档管理](./front/public/static/images/table.png "table.png")
 
-![编辑接口](https://images.gitee.com/uploads/images/2021/0210/095338_01fd24b6_332975.png "edit.png")
+![编辑接口](./front/public/static/images/edit.png "edit.png")
 
-![浏览文档](https://images.gitee.com/uploads/images/2021/0210/095347_734567f3_332975.png "view.png")
+![浏览文档](./front/public/static/images/view.png "view.png")
 
-![调试接口](https://images.gitee.com/uploads/images/2021/0210/095359_4d9a5182_332975.png "debug.png")
+![调试接口](./front/public/static/images/debug.png "debug.png")
 
 
 ## 沟通交流
 
-<img src="https://images.gitee.com/uploads/images/2021/0226/140830_a7810047_332975.jpeg" width="50%" height="50%" />
+<img src="./front/public/static/images/group.jpg" width="50%" height="50%" />

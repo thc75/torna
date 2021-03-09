@@ -396,7 +396,7 @@ export default {
         }
       })
       this.pathData = item.pathParams
-      this.headerData = item.globalHeaderParams.concat(item.headerParams)
+      this.headerData = item.headerParams
       this.queryData = queryData
       this.formData = formData
       this.multipartData = multipartData

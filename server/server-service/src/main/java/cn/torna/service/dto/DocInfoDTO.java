@@ -67,7 +67,6 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
-    private List<DocParamDTO> globalHeaderParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams;
