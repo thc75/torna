@@ -21,7 +21,7 @@
 
 [演示地址](http://demo.torna.cn/) 演示账号：`guest@torna.cn` 密码：`123456`
 
-[成功案列](http://demo.torna.cn/case/)
+[成功案列](http://torna.cn/case/)
 
 ## 使用步骤
 
