@@ -1,13 +1,14 @@
 package cn.torna.sdk.request;
 
-import cn.torna.sdk.response.BaseResponse;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONField;
 import cn.torna.sdk.common.OpenConfig;
 import cn.torna.sdk.common.RequestForm;
 import cn.torna.sdk.common.UploadFile;
+import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.util.ClassUtil;
+import cn.torna.sdk.util.JsonUtil;
 import cn.torna.sdk.util.StringUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -64,11 +65,20 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
         return requestForm;
     }
 
+    /**
+     * 解析返回结果
+     * @param resp 返回结果
+     * @return 返回解析后的对象
+     */
+    public T parseResponse(String resp) {
+        return JsonUtil.parseObject(resp, getResponseClass());
+    }
+
     private void setFiles(List<UploadFile> files) {
         this.files = files;
     }
 
-    public Class<T> getResponseClass() {
+    private Class<T> getResponseClass() {
         return responseClass;
     }
 }

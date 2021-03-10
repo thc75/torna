@@ -30,12 +30,13 @@ public class DocParamReq {
     /** 描述 */
     private String description;
 
-    /** 字典信息，如果有的话  */
+    /** 字典信息，如果有的话 */
     private EnumInfoParam enumInfo;
 
     /** 父节点, 没有填空字符串 */
     private String parentId;
 
+    /** 子节点 */
     private List<DocParamReq> children;
 
 }

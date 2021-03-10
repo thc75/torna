@@ -1,5 +1,5 @@
 <template>
-  <currentDocInfodiv class="doc-view">
+  <div class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
         {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
@@ -73,7 +73,7 @@
       <el-divider content-position="left">修改备注</el-divider>
       <span>{{ docInfo.remark }}</span>
     </div>
-  </currentDocInfodiv>
+  </div>
 </template>
 
 <style lang="scss" scoped>

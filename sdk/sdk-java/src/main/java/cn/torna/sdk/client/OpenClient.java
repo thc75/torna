@@ -63,15 +63,11 @@ public class OpenClient {
 
         String resp = doExecute(this.url, requestForm, header);
 
-        return this.parseResponse(resp, request);
+        return request.parseResponse(resp);
     }
 
     protected String doExecute(String url, RequestForm requestForm, Map<String, String> header) {
         return openRequest.request(this.url, requestForm, header);
-    }
-
-    protected <T extends BaseResponse<?>> T parseResponse(String resp, BaseRequest<T> request) {
-        return JsonUtil.parseObject(resp, request.getResponseClass());
     }
 
     protected Map<String, String> buildHeader(String jwt) {

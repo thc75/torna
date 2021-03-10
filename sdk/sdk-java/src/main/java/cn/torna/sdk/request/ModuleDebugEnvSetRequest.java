@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
+ * 设置调试环境
+ * 接口名：module.debug.env.set 版本号：1.0
  * @author tanghc
  */
 @Getter

@@ -7,4 +7,5 @@ import cn.torna.sdk.result.DocDetailResult;
  */
 public class DocGetResponse extends BaseResponse<DocDetailResult> {
 
+
 }
