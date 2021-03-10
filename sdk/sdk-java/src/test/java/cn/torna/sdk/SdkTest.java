@@ -59,13 +59,7 @@ public class SdkTest extends BaseTest {
 
         // 发送请求
         DocGetResponse response = client.execute(request);
-        if (response.isSuccess()) {
-            // 返回结果
-            DocDetailResult data = response.getData();
-            System.out.println(JSON.toJSONString(data, SerializerFeature.PrettyFormat));
-        } else {
-            System.out.println("errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
-        }
+        this.printResponse(response);
     }
 
     /**

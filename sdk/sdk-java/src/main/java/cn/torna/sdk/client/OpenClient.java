@@ -1,12 +1,10 @@
 package cn.torna.sdk.client;
 
-import cn.torna.sdk.request.BaseRequest;
-import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.common.OpenConfig;
 import cn.torna.sdk.common.RequestForm;
-import cn.torna.sdk.util.JsonUtil;
+import cn.torna.sdk.request.BaseRequest;
+import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.util.SignUtil;
-import cn.torna.sdk.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,15 +15,19 @@ import java.util.Map;
  */
 public class OpenClient {
     private static final String ACCEPT_LANGUAGE = "Accept-Language";
-    private static final String AUTHORIZATION = "Authorization";
-    private static final String PREFIX_BEARER = "Bearer ";
 
-    private String url;
-    private String appKey;
-    private String secret;
+    private final String url;
+    private final String appKey;
+    private final String secret;
 
     private OpenRequest openRequest = new OpenRequest();
 
+    /**
+     * 创建客户端
+     * @param url 请求URL
+     * @param appKey appKey
+     * @param secret secret
+     */
     public OpenClient(String url, String appKey, String secret) {
         this.url = url;
         this.appKey = appKey;
@@ -38,18 +40,7 @@ public class OpenClient {
      * @param <T> 返回对应的Response
      * @return 返回Response
      */
-    public <T extends BaseResponse<?>> T execute(BaseRequest<T> request) {
-        return this.execute(request, null);
-    }
-
-    /**
-     * 请求接口
-     * @param request 请求对象
-     * @param jwt jwt
-     * @param <T> 返回对应的Response
-     * @return 返回Response
-     */
-    private <T extends BaseResponse<?>> T execute(BaseRequest<T> request, String jwt) {
+    public  <T extends BaseResponse<?>> T execute(BaseRequest<T> request) {
         RequestForm requestForm = request.createRequestForm();
         // 表单数据
         Map<String, Object> form = requestForm.getForm();
@@ -59,7 +50,7 @@ public class OpenClient {
         form.put(OpenConfig.signName, sign);
 
         // 构建http请求header
-        Map<String, String> header = this.buildHeader(jwt);
+        Map<String, String> header = this.buildHeader();
 
         String resp = doExecute(this.url, requestForm, header);
 
@@ -67,32 +58,17 @@ public class OpenClient {
     }
 
     protected String doExecute(String url, RequestForm requestForm, Map<String, String> header) {
-        return openRequest.request(this.url, requestForm, header);
+        return openRequest.request(url, requestForm, header);
     }
 
-    protected Map<String, String> buildHeader(String jwt) {
-        Map<String, String> header = new HashMap<String, String>();
+    protected Map<String, String> buildHeader() {
+        Map<String, String> header = new HashMap<>();
         header.put(ACCEPT_LANGUAGE, OpenConfig.locale);
-        if (StringUtil.isNotEmpty(jwt)) {
-            header.put(AUTHORIZATION, PREFIX_BEARER + jwt);
-        }
         return header;
-    }
-
-    public OpenRequest getOpenRequest() {
-        return openRequest;
     }
 
     public void setOpenRequest(OpenRequest openRequest) {
         this.openRequest = openRequest;
-    }
-
-    public String getAppKey() {
-        return appKey;
-    }
-
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
     }
 
 }

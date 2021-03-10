@@ -24,14 +24,14 @@ import java.util.Map;
 public abstract class BaseRequest<T extends BaseResponse<?>> {
 
     @JSONField(serialize = false)
-    private String token;
+    private final String token;
 
     /** 上传文件 */
     @JSONField(serialize = false)
     private List<UploadFile> files;
 
     @JSONField(serialize = false)
-    private Class<T> responseClass;
+    private final Class<T> responseClass;
 
     @JSONField(serialize = false)
     public abstract String name();
@@ -50,7 +50,7 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
     public RequestForm createRequestForm() {
         String data = JSON.toJSONString(this);
         // 公共参数
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         String name = name();
         if (name == null) {
             throw new IllegalArgumentException("name不能为null");
