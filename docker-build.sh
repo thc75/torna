@@ -2,7 +2,15 @@
 
 # 打包并运行docker镜像
 
-# 打包
+# 先执行前端构建
+cd front
+
+sh build.sh
+
+cd ..
+
+# ----
+
 mvn clean package
 
 # 创建镜像
