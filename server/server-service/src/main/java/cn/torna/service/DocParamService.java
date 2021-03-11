@@ -9,14 +9,19 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.mapper.DocParamMapper;
+import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -32,12 +37,56 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
-        if (docParamDTOS == null) {
+        if (CollectionUtils.isEmpty(docParamDTOS)) {
+            removeAllParams(docInfo, paramStyleEnum, user);
             return;
         }
+        Map<String, DocParam> docParamMap = this.listParentParam(docInfo.getId(), paramStyleEnum)
+                .stream()
+                .collect(Collectors.toMap(DocParam::getName, Function.identity()));
         for (DocParamDTO docParamDTO : docParamDTOS) {
+            docParamMap.remove(docParamDTO.getName());
             this.doSave(docParamDTO, 0L, docInfo, paramStyleEnum, user);
         }
+        // 剩下的需要删除
+        Collection<DocParam> deleteParams = docParamMap.values();
+        this.removeParams(docInfo, deleteParams, user);
+    }
+
+    private List<DocParam> listParentParam(long docId, ParamStyleEnum paramStyleEnum) {
+        Query query = new Query()
+                .eq("doc_id", docId)
+                .eq("style", paramStyleEnum.getStyle())
+                .eq("parent_id", 0);
+        return this.list(query);
+    }
+
+    private void removeParams(DocInfo docInfo, Collection<DocParam> docParams, User user) {
+        if (CollectionUtils.isEmpty(docParams)) {
+            return;
+        }
+        Map<String, Object> set = new HashMap<>(4);
+        set.put("is_deleted", Booleans.TRUE);
+        set.put("modify_mode", user.getOperationModel());
+        set.put("modifier_name", user.getNickname());
+        List<Long> names = docParams.stream()
+                .map(DocParam::getId)
+                .collect(Collectors.toList());
+        Query query = new Query()
+                .eq("doc_id", docInfo.getId())
+                .in("id", names);
+        this.updateByMap(set, query);
+    }
+
+    private void removeAllParams(DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
+        Map<String, Object> set = new HashMap<>(4);
+        set.put("is_deleted", Booleans.TRUE);
+        set.put("modify_mode", user.getOperationModel());
+        set.put("modifier_name", user.getNickname());
+        Query query = new Query()
+                .eq("doc_id", docInfo.getId())
+                .eq("style", paramStyleEnum.getStyle());
+        this.updateByMap(set, query);
     }
 
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
