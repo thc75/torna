@@ -15,3 +15,5 @@ mvn clean package
 
 # 创建镜像
 docker build -t tanghc2020/torna .
+
+#  docker run --name torna -p 7700:7700 -v /etc/torna/config:/torna/config -d <IMAGE ID>

@@ -1,9 +1,10 @@
 FROM java:8
 
 MAINTAINER tanghc
+EXPOSE 7700
 
 VOLUME /tmp
-VOLUME /torna
+RUN mkdir -p /torna/config
 
 ADD server/boot/target/torna.jar torna/torna.jar
 ADD front/dist torna/
