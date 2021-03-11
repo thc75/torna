@@ -39,6 +39,19 @@
 
 访问：`http://ip:7700`
 
+### docker运行
+
+下载公共镜像
+
+`docker pull tanghc2020/torna:latest`
+
+复制`server/boot/src/main/resources/application.properties`文件到`/opt/torna/config`下，修改数据库连接配置
+
+执行`docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <镜像ID>`
+
+浏览器访问`http://ip:7700/`
+
+
 体验账号：
 
 ```
