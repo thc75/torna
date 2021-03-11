@@ -1,14 +1,18 @@
 package cn.torna.web.config;
 
 import cn.torna.common.context.SpringContext;
+import cn.torna.common.message.MessageFactory;
 import cn.torna.common.support.HashIdParamResolver;
 import cn.torna.common.util.FastjsonUtil;
+import cn.torna.web.interceptor.AdminInterceptor;
+import cn.torna.web.interceptor.LoginInterceptor;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -21,11 +25,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import cn.torna.common.message.MessageFactory;
-import cn.torna.web.interceptor.AdminInterceptor;
-import cn.torna.web.interceptor.LoginInterceptor;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,7 +92,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         if (StringUtils.hasText(frontLocation)) {
             frontRoot = StringUtils.trimTrailingCharacter(frontLocation, '/');
         } else {
-            String homeDir = System.getProperty("user.dir");
+            ApplicationHome applicationHome = new ApplicationHome(getClass());
+            File file = applicationHome.getSource();
+            String homeDir = file.getParentFile().toString();
             frontRoot = homeDir + "/dist";
         }
         log.info("前端资源目录：{}", frontRoot);
