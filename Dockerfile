@@ -11,4 +11,4 @@ ADD front/dist torna/
 
 # set jvm
 ENV JAVA_OPTS="-server -Xmx512m -Xms512m -Djava.awt.headless=true"
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /torna/torna.jar" ]
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /torna/torna.jar --spring.config.location=/torna/config/application.properties" ]
