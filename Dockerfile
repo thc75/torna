@@ -7,7 +7,7 @@ VOLUME /tmp
 RUN mkdir -p /torna/config
 
 ADD server/boot/target/torna.jar torna/torna.jar
-ADD front/dist torna/
+ADD front/dist torna/dist
 
 # set jvm
 ENV JAVA_OPTS="-server -Xmx512m -Xms512m -Djava.awt.headless=true"
