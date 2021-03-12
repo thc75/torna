@@ -6,7 +6,7 @@
       router
       :default-active="currentActive"
     >
-      <el-menu-item :index="`/project/doc/${projectId}`">
+      <el-menu-item :index="`/project/${projectId}`">
         <i class="el-icon-document"></i>
         <span class="title">接口文档</span>
       </el-menu-item>

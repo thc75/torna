@@ -4,6 +4,8 @@
 
 - [feat]支持docker部署 [#I3AWCB](https://gitee.com/durcframework/torna/issues/I3AWCB)
 - [fix]OpenAPI推送无法删除字段
+- [fix]进入admin管理页报错问题
+- [fix]调试页面跳转模块管理无法设置调试环境问题
 
 ## 1.0.0
 

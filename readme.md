@@ -20,7 +20,6 @@
 
 [演示地址](http://demo.torna.cn/) 演示账号：`guest@torna.cn` 密码：`123456`
 
-[成功案列](http://torna.cn/case/)
 
 ## 使用步骤
 
@@ -78,6 +77,9 @@
 
 参见：[开发文档](http://torna.cn/dev/)
 
+## 更新日志
+
+[changelog](./changelog.md)
 
 ## 界面预览
 

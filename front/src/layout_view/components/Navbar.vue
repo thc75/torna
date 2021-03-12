@@ -46,11 +46,11 @@ export default {
           const module = resp.data
           const projectId = module.projectId
           this.setProjectConfig(projectId, { moduleId: module.id })
-          this.goRoute(`/project/doc/${projectId}`)
+          this.goRoute(`/project/${projectId}`)
         })
       } else {
         const projectId = this.projectInfo && this.projectInfo.id
-        const uri = projectId ? `/project/doc/${projectId}` : '/'
+        const uri = projectId ? `/project/${projectId}` : '/'
         this.goRoute(uri)
       }
     }
