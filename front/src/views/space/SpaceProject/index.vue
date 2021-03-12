@@ -77,7 +77,7 @@ export default {
         projectName: item.name
       }
       this.setFrom(from)
-      this.goRoute(`/project/doc/${item.id}`)
+      this.goRoute(`/project/${item.id}`)
     },
     onProjectAdd() {
       this.$refs.projectCreateDlg.show(this.spaceId)

@@ -8,6 +8,7 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.service.dto.DebugHostDTO;
@@ -49,6 +50,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private UserMessageService userMessageService;
+
+    @Autowired
+    private ModuleService moduleService;
 
     public List<DocInfo> listDocMenu(long moduleId) {
         return list("module_id", moduleId);
@@ -110,6 +114,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+        Module module = moduleService.getById(docInfo.getModuleId());
+        docInfoDTO.setProjectId(module.getProjectId());
         List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(docInfo.getModuleId());
         docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());

@@ -127,7 +127,7 @@ export const constantRoutes = [
     name: 'Project',
     children: [
       {
-        path: 'doc/:projectId(\\w+)',
+        path: ':projectId(\\w+)',
         name: 'ProjectDoc',
         component: () => import('@/views/project/index_doc')
       },
