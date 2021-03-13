@@ -74,7 +74,10 @@
 研发二部-后台项目（私有）-访客：dev2back_guest@torna.cn
 研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
 ```
-
+### docker-compose部署torna
+[【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-docker-compose)
+### kubernetes部署torna
+[【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-on-kubernetes)
 ## 开发部署
 
 参见：[开发文档](http://torna.cn/dev/)
