@@ -92,3 +92,8 @@ spec:
 # 访问
 如果你采用官方默认的模板来部署，则部署完成后访问地址为: http://{node server}:30011
 >登录账号相关信息直接查看项目的顶层readme文档。
+
+# 官方模板下载
+```
+wget https://gitee.com/durcframework/torna/raw/master/torna-on-kubernetes/torna-deployment.yaml
+```
