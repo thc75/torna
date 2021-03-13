@@ -1,0 +1,78 @@
+# Example usage: kubectl apply -f <this_file>
+
+# ------------------- config -------------------- #
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: torna-config
+  namespace: default
+  labels:
+    k8s-app: torna
+data:
+  application.properties: |-
+    server.port=7700
+    mysql.host=192.168.130.1:3306
+    mysql.username=root
+    mysql.password=root
+---
+# --------------------------- Service ---------------------- #
+apiVersion: v1
+kind: Service
+metadata:
+  name: torna-svc
+  namespace: default
+spec:
+ type: NodePort
+ ports:
+ - port: 7700
+   targetPort: 7700
+   nodePort: 30011
+ selector:
+  app: torna
+  tier: backend
+  version: 1.0.0
+---
+# --------------------------- Deployment ------------------- #
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torna-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: torna
+      tier: backend
+      version: 1.0.0
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: torna
+        tier: backend
+        version: 1.0.0
+    spec:
+      containers:
+        - name: torna
+          image: tanghc2020/torna:latest
+          imagePullPolicy: Always
+          env:
+              - name:  JAVA_OPTS
+              # Override the jvm param setting in dockerfile
+                value: "-server -Xmx512m -Xms512m -Djava.awt.headless=true"
+          volumeMounts:
+          - name: torna-config
+            mountPath: /torna/config/application.properties
+            readOnly: true
+            subPath: application.properties
+          ports:
+            - containerPort: 7700
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: torna-config
+        configMap:
+          defaultMode: 0600
+          name: torna-config
+      imagePullSecrets:
+      - name: harbor-key
+---
