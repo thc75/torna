@@ -4,7 +4,7 @@
 
 - [fix]同步swagger前端报错问题
 - [fix]Postman导入后无法调试问题
-- []
+- [feat]升级服务
 
 ## 1.0.1
 
