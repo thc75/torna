@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE  mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.torna.dao.mapper.UpgradeMapper">
+
+    <update id="runSql">
+        ${sql}
+    </update>
+
+    <update id="addColumn">
+        ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}
+    </update>
+
+    <select id="listColumnInfo" resultType="cn.torna.dao.entity.ColumnInfo">
+        select COLUMN_NAME as 'name', DATA_TYPE as 'type'
+        from information_schema.COLUMNS
+        where table_name = '${tableName}'
+    </select>
+
+
+    <select id="listTableName" resultType="String">
+        select table_name from information_schema.tables
+        where table_schema='torna'
+    </select>
+
+    <select id="listTableIndex" resultType="java.util.Map">
+        show index from ${tableName}
+    </select>
+
+</mapper>

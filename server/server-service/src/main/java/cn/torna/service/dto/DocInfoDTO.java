@@ -42,6 +42,10 @@ public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
+    /** 项目id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long projectId;
+
     /** 创建人 */
     private String creatorName;
 
@@ -65,9 +69,10 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private List<DebugHostDTO> debugEnvs;
 
+    private Byte moduleType;
+
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
-    private List<DocParamDTO> globalHeaderParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams;

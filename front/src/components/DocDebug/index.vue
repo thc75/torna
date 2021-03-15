@@ -2,8 +2,8 @@
   <div class="doc-debug">
     <el-row :gutter="20">
       <el-col :span="24-rightSpanSize">
-        <div v-if="currentItem.debugEnvs.length > 0">
-          <el-radio-group v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
+        <div v-if="currentItem.debugEnvs.length > 0 || currentItem.moduleType === 2">
+          <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
             <el-radio-button
               v-for="hostConfig in currentItem.debugEnvs"
               :key="hostConfig.configKey"
@@ -20,7 +20,7 @@
         <el-alert v-else :closable="false">
           <span slot="title">
             尚未指定调试环境，请前往
-            【<router-link class="el-link el-link--primary" :to="`/project/doc/${currentItem.moduleId}?id=ModuleSetting`">模块配置</router-link>】
+            【<router-link class="el-link el-link--primary" :to="`/project/doc/${currentItem.projectId}?id=ModuleSetting`">模块配置</router-link>】
             进行添加。
             <router-link class="el-link el-link--primary" target="_blank" to="/help?id=debug">参考文档</router-link>
           </span>
@@ -396,7 +396,7 @@ export default {
         }
       })
       this.pathData = item.pathParams
-      this.headerData = item.globalHeaderParams.concat(item.headerParams)
+      this.headerData = item.headerParams
       this.queryData = queryData
       this.formData = formData
       this.multipartData = multipartData

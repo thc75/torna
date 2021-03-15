@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class DocDetailResult {
+    /** 文档id */
     private String id;
 
     /** 文档名称 */

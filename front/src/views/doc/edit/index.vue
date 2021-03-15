@@ -1,6 +1,8 @@
 <template>
   <div class="app-container route-doc-edit">
-    <h3>{{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span></h3>
+    <h3>
+      {{ docInfo.name || initTitle }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
+    </h3>
     <el-tabs v-model="activeName" tab-position="left">
       <el-tab-pane label="基本信息" name="info">
         <el-form
@@ -157,6 +159,7 @@ export default {
   data() {
     return {
       params: {},
+      initTitle: '',
       activeName: 'info',
       allMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       moduleId: '',
@@ -206,6 +209,9 @@ export default {
     }
   },
   created() {
+    if (this.$route.path.indexOf('new') > -1) {
+      this.initTitle = '新建文档'
+    }
     this.initData()
   },
   methods: {

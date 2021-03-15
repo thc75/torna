@@ -76,6 +76,7 @@ CREATE TABLE `doc_param` (
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_dataid` (`data_id`) USING BTREE,
   KEY `idx_docid` (`doc_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8 COMMENT='文档参数';
 

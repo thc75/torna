@@ -1,13 +1,14 @@
 package cn.torna.sdk.request;
 
-import cn.torna.sdk.response.BaseResponse;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONField;
 import cn.torna.sdk.common.OpenConfig;
 import cn.torna.sdk.common.RequestForm;
 import cn.torna.sdk.common.UploadFile;
+import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.util.ClassUtil;
+import cn.torna.sdk.util.JsonUtil;
 import cn.torna.sdk.util.StringUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,14 +24,14 @@ import java.util.Map;
 public abstract class BaseRequest<T extends BaseResponse<?>> {
 
     @JSONField(serialize = false)
-    private String token;
+    private final String token;
 
     /** 上传文件 */
     @JSONField(serialize = false)
     private List<UploadFile> files;
 
     @JSONField(serialize = false)
-    private Class<T> responseClass;
+    private final Class<T> responseClass;
 
     @JSONField(serialize = false)
     public abstract String name();
@@ -49,7 +50,7 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
     public RequestForm createRequestForm() {
         String data = JSON.toJSONString(this);
         // 公共参数
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         String name = name();
         if (name == null) {
             throw new IllegalArgumentException("name不能为null");
@@ -64,11 +65,20 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
         return requestForm;
     }
 
+    /**
+     * 解析返回结果
+     * @param resp 返回结果
+     * @return 返回解析后的对象
+     */
+    public T parseResponse(String resp) {
+        return JsonUtil.parseObject(resp, getResponseClass());
+    }
+
     private void setFiles(List<UploadFile> files) {
         this.files = files;
     }
 
-    public Class<T> getResponseClass() {
+    private Class<T> getResponseClass() {
         return responseClass;
     }
 }

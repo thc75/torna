@@ -27,37 +27,6 @@ export default {
     fixedHeader() {
       return this.$store.state.settings.fixedHeader
     }
-  },
-  mounted() {
-    const projectId = this.$route.params.projectId
-    this.initCurrentInfo(projectId)
-  },
-  methods: {
-    initCurrentInfo(projectId) {
-      let fromData = this.getFrom()
-      if (!fromData) {
-        this.get('/project/space', { projectId: projectId }, resp => {
-          fromData = resp.data
-          this.setTitle(fromData.projectName)
-          this.setCurrentInfo({
-            id: fromData.spaceId,
-            name: fromData.spaceName
-          }, {
-            id: fromData.projectId,
-            name: fromData.projectName
-          })
-        })
-      } else {
-        this.setTitle(fromData.projectName)
-        this.setCurrentInfo({
-          id: fromData.spaceId,
-          name: fromData.spaceName
-        }, {
-          id: fromData.projectId,
-          name: fromData.projectName
-        })
-      }
-    }
   }
 }
 </script>

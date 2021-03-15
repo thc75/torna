@@ -8,7 +8,7 @@ Torna提供了一组开放接口，第三方服务可以通过开放接口来创
 
 ## Java语言
 
-使用Torna自带的sdk调用接口。
+使用Torna自带的sdk调用接口（要求Java7+）。
 
 - pom.xml添加依赖
 

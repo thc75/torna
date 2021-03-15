@@ -8,6 +8,7 @@ import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -152,5 +153,15 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      */
     public int delete(E entity) {
         return mapper.delete(entity);
+    }
+
+    /**
+     * 根据条件修改
+     * @param set set部分
+     * @param query 条件
+     * @return 返回影响行数
+     */
+    public int updateByMap(Map<String, Object> set, Query query) {
+        return mapper.updateByMap(set, query);
     }
 }

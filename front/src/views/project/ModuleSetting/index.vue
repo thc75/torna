@@ -55,6 +55,7 @@
       添加环境
     </el-button>
     <el-tabs
+      v-show="settings.debugEnvs.length > 0"
       v-model="activeEnv"
       type="card"
       :closable="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"

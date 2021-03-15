@@ -1,14 +1,16 @@
 package cn.torna.sdk.result;
 
+import cn.torna.sdk.common.TreeAware;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tanghc
  */
 @Data
-public class DocParamResult {
+public class DocParamResult implements TreeAware<DocParamResult, String> {
     private String id;
 
     /** 字段名称 */
@@ -49,5 +51,8 @@ public class DocParamResult {
 
     /** 最后修改时间 */
     private Date gmtModified;
+
+    /** 子节点 */
+    private List<DocParamResult> children;
 
 }

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
+ * 删除调试环境
+ * 接口名：module.debug.env.delete 版本号：1.0
  * @author tanghc
  */
 @Getter

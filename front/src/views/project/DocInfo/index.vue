@@ -40,7 +40,8 @@ export default {
   },
   data() {
     return {
-      activeName: ''
+      activeName: '',
+      isLoad: true
     }
   },
   watch: {
@@ -52,6 +53,11 @@ export default {
     }
   },
   methods: {
+    reload() {
+      if (this.moduleId) {
+        this.loadData(this.moduleId)
+      }
+    },
     initActive() {
       const query = this.$route.query
       const active = query.id
@@ -61,6 +67,16 @@ export default {
       this.loadData(this.moduleId)
     },
     loadData(moduleId) {
+      if (this.isLoad) {
+        this.isLoad = false
+        this.addInit(() => {
+          this.doLoad(moduleId)
+        })
+      } else {
+        this.doLoad(moduleId)
+      }
+    },
+    doLoad(moduleId) {
       const ref = this.$refs[`moduleId${this.activeName}`]
       ref && ref.reload(moduleId)
     }
