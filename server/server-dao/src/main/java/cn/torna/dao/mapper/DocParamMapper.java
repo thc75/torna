@@ -8,4 +8,6 @@ import com.gitee.fastmybatis.core.mapper.CrudMapper;
  */
 public interface DocParamMapper extends CrudMapper<DocParam, Long> {
 
+    int saveParam(DocParam docParam);
+
 }

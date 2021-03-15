@@ -104,11 +104,14 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setDocId(docInfo.getId());
         docParam.setParentId(parentId);
         docParam.setStyle(paramStyleEnum.getStyle());
-        docParam.setModifyMode(user.getOperationModel());
+        docParam.setCreatorId(user.getUserId());
+        docParam.setCreateMode(user.getOperationModel());
+        docParam.setCreatorName(user.getNickname());
         docParam.setModifierId(user.getUserId());
+        docParam.setModifyMode(user.getOperationModel());
         docParam.setModifierName(user.getNickname());
         docParam.setIsDeleted(docParamDTO.getIsDeleted());
-        DocParam savedParam = this.saveParam(docParam, user);
+        DocParam savedParam = this.saveParam(docParam);
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
             Long pid = savedParam.getId();
@@ -132,7 +135,12 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         return docParamDTO.getEnumId();
     }
 
-    public DocParam saveParam(DocParam docParam, User user) {
+    public DocParam saveParam(DocParam docParam) {
+        this.getMapper().saveParam(docParam);
+        return docParam;
+    }
+
+    public DocParam saveParam0(DocParam docParam, User user) {
         DocParam docParamExist;
         Long id = docParam.getId();
         String dataId = docParam.getDataId();

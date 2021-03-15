@@ -53,6 +53,11 @@ export default {
     }
   },
   methods: {
+    reload() {
+      if (this.moduleId) {
+        this.loadData(this.moduleId)
+      }
+    },
     initActive() {
       const query = this.$route.query
       const active = query.id

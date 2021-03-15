@@ -69,6 +69,8 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private List<DebugHostDTO> debugEnvs;
 
+    private Byte moduleType;
+
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
     private List<DocParamDTO> requestParams;

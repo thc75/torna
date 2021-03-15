@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.0.2
+
+- [fix]同步swagger前端报错问题
+- [fix]Postman导入后无法调试问题
+- []
+
 ## 1.0.1
 
 - [feat]支持docker部署 [#I3AWCB](https://gitee.com/durcframework/torna/issues/I3AWCB)

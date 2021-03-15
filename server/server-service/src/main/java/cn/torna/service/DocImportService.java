@@ -327,12 +327,14 @@ public class DocImportService {
         docParam.setDocId(docInfo.getId());
         docParam.setParentId(parentId);
         docParam.setStyle(styleEnum.getStyle());
-        docParam.setCreateMode(user.getOperationModel());
-        docParam.setModifyMode(user.getOperationModel());
         docParam.setCreatorId(user.getUserId());
+        docParam.setCreateMode(user.getOperationModel());
+        docParam.setCreatorName(user.getNickname());
         docParam.setModifierId(user.getUserId());
+        docParam.setModifyMode(user.getOperationModel());
+        docParam.setModifierName(user.getNickname());
         // 保存操作
-        DocParam savedDoc = docParamService.saveParam(docParam, user);
+        DocParam savedDoc = docParamService.saveParam(docParam);
 
         // 处理子节点
         List<IParam> children = docParameter.getChildren();
