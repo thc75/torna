@@ -11,9 +11,12 @@
     </update>
 
     <select id="listColumnInfo" resultType="cn.torna.dao.entity.ColumnInfo">
-        select COLUMN_NAME as 'name', DATA_TYPE as 'type'
+        select
+            COLUMN_NAME as 'name'
+            , DATA_TYPE as 'type'
+            , CHARACTER_MAXIMUM_LENGTH as 'length'
         from information_schema.COLUMNS
-        where table_name = '${tableName}'
+        where table_schema='torna' and table_name = '${tableName}'
     </select>
 
 

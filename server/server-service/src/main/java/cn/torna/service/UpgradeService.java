@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 升级
@@ -32,14 +33,21 @@ public class UpgradeService {
     }
 
     /**
-     * 升级v1.0.2
+     * 升级v1.0.2，添加索引
      */
     private void upgradeV1_0_2() {
         if (hasIndex("doc_param", "uk_dataid")) {
             return;
         }
         // 添加索引
-        runSql("CREATE UNIQUE INDEX `uk_dataid` USING BTREE ON `torna`.`doc_param` (`data_id`)");
+        runSql("CREATE UNIQUE INDEX `uk_dataid` USING BTREE ON `doc_param` (`data_id`)");
+    }
+
+
+    private Optional<ColumnInfo> findColumn(String tableName, String columnName) {
+        return this.upgradeMapper.listColumnInfo(tableName)
+                .stream().filter(c -> columnName.equals(c.getName()))
+                .findFirst();
     }
 
     private void runSql(String sql) {
