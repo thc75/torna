@@ -582,9 +582,6 @@ export default {
         return stringBody
       }
     },
-    formatJson(json) {
-      return JSON.stringify(json, null, 4)
-    },
     downloadFile(filename, buffer) {
       const url = window.URL.createObjectURL(new Blob([buffer]))
       const link = document.createElement('a')

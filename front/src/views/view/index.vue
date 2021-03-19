@@ -1,13 +1,17 @@
 <template>
   <div class="app-container">
-    <el-tabs v-show="load" v-model="active" type="card">
+    <el-tabs v-show="load" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> 接口信息</span>
-        <doc-view ref="docView" :item="item" />
+        <doc-view ref="docView" :item="infoItem" />
       </el-tab-pane>
       <el-tab-pane name="debug">
         <span slot="label"><i class="el-icon-s-promotion"></i> 调试接口</span>
-        <doc-debug :item="item" />
+        <doc-debug :item="debugItem" />
+      </el-tab-pane>
+      <el-tab-pane name="mock">
+        <span slot="label"><i class="el-icon-s-marketing"></i> Mock</span>
+        <mock :item="mockItem" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -15,14 +19,18 @@
 <script>
 import DocView from '../doc/DocView'
 import DocDebug from '@/components/DocDebug'
+import Mock from '@/components/Mock'
 
 export default {
-  components: { DocView, DocDebug },
+  components: { DocView, DocDebug, Mock },
   data() {
     return {
       active: 'info',
       load: false,
-      item: {}
+      item: {},
+      infoItem: {},
+      debugItem: {},
+      mockItem: {}
     }
   },
   created() {
@@ -34,10 +42,16 @@ export default {
           const data = resp.data
           this.initDocInfo(data)
           this.item = data
+          this.infoItem = data
           this.setTitle(data.name)
         })
       }
     })
+  },
+  methods: {
+    onTabSelect(tab) {
+      this[`${tab.name}Item`] = this.item
+    }
   }
 }
 </script>

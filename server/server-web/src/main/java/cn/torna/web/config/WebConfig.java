@@ -56,7 +56,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
                 // 排除前端资源
                 "/", "/*.html", "/*.ico", "/static/**",
                 // 排除服务端请求
-                "/api", "/api/**", "/opendoc/**", "/doc/debug/**", "/system/**", "/captcha/**"
+                "/api", "/api/**", "/opendoc/**", "/doc/debug/**", "/system/**", "/captcha/**",
+                "/mock/**"
         };
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(excludes);

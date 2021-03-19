@@ -5,6 +5,7 @@ import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { do_get, get, get_baseUrl, get_file, post } from './http'
 import { convert_tree, create_response_example, get_requestUrl, init_docInfo } from './common'
+import { format_json } from '@/utils/format'
 import { Enums } from './enums'
 import { add_init } from './init'
 
@@ -30,6 +31,7 @@ const baseTypeConfig = [
 ]
 
 let paramIdGen = 0
+let next_id = 0
 
 Object.assign(Vue.prototype, {
   /**
@@ -142,6 +144,9 @@ Object.assign(Vue.prototype, {
         callback && callback.call(that, action)
       }
     })
+  },
+  nextId() {
+    return next_id++
   },
   getTypeConfig() {
     return typeConfig
@@ -362,6 +367,9 @@ Object.assign(Vue.prototype, {
       })
     })
   },
+  formatJson(jsonObject) {
+    return format_json(jsonObject)
+  },
   formatHost(obj) {
     let url = obj.url
     if (url) {
@@ -383,6 +391,7 @@ Object.assign(Vue.prototype, {
     // 找到元素，删除
     if (index >= 0) {
       arr.splice(index, 1)
+      return index
     } else {
       // 如果没有找到，则查找子节点
       for (let i = 0; i < arr.length; i++) {
