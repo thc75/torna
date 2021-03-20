@@ -1,8 +1,9 @@
-package cn.torna.service.dto;
+package cn.torna.web.controller.doc.vo;
 
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 import java.util.List;
@@ -10,20 +11,11 @@ import java.util.List;
 /**
  * @author tanghc
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class MockDTO {
-
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private Long id;
-
-    /** 名称, 数据库字段：name */
-    private String name;
-
-    /** md5(path+query), 数据库字段：data_id */
-    private String dataId;
-
-    /** 请求参数, 数据库字段：request_data */
-    private Object requestData;
+public class MockConfigVO extends MockBaseVO {
+    private List<NameValueVO> dataKv;
+    private String dataJson;
 
     /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
     private Byte requestDataType;
@@ -35,7 +27,7 @@ public class MockDTO {
     private Integer delayMills;
 
     /** 响应header，数组结构, 数据库字段：response_headers */
-    private List<NameValueDTO> responseHeaders;
+    private List<NameValueVO> responseHeaders;
 
     /** 响应结果, 数据库字段：response_body */
     private String responseBody;

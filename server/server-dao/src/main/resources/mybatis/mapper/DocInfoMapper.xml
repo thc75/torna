@@ -21,7 +21,6 @@
             <if test="orderIndex != null">order_index,</if>
             <if test="remark != null">remark,</if>
             <if test="isShow != null">is_show,</if>
-            <if test="isDeleted != null">is_deleted,</if>
             gmt_create,
             gmt_modified,
         </trim>
@@ -44,7 +43,6 @@
             <if test="orderIndex != null">#{orderIndex},</if>
             <if test="remark != null">#{remark},</if>
             <if test="isShow != null">#{isShow},</if>
-            <if test="isDeleted != null">#{isDeleted},</if>
             now(),
             now(),
         </trim>
@@ -66,7 +64,7 @@
         <if test="orderIndex != null">order_index = VALUES(order_index),</if>
         <if test="remark != null">remark = VALUES(remark),</if>
         <if test="isShow != null">is_show = VALUES(is_show),</if>
-        <if test="isDeleted != null">is_deleted = VALUES(is_deleted),</if>
+        is_deleted = 0,
         gmt_modified = now()
     </insert>
 </mapper>

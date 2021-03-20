@@ -6,6 +6,8 @@ import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
 import cn.torna.service.dto.NameValueDTO;
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -23,6 +27,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("mock")
+@Slf4j
 public class MockController {
 
     @Autowired
@@ -72,6 +77,13 @@ public class MockController {
     }
 
     private String buildDataId(Long docId, HttpServletRequest request) {
+        String body;
+        try {
+            body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("获取body出错，url:{}", request.getRequestURI(), e);
+            body = "";
+        }
         Enumeration<String> parameterNames = request.getParameterNames();
         List<NameValueDTO> nameValueDTOList = new ArrayList<>(8);
         while (parameterNames.hasMoreElements()) {
@@ -82,7 +94,7 @@ public class MockController {
             nameValueDTO.setValue(value);
             nameValueDTOList.add(nameValueDTO);
         }
-        return MockConfigService.buildDataId(docId, nameValueDTOList);
+        return MockConfigService.buildDataId(docId, nameValueDTOList, body);
     }
 
 }

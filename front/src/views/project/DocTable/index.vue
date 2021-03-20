@@ -106,22 +106,20 @@
       <el-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
-        width="150"
+        width="120"
       >
         <template slot-scope="scope">
-          <div v-if="isFolder(scope.row)">
-            <el-link type="primary" @click="onDocAdd(scope.row)">添加接口</el-link>
-          </div>
-          <div v-else>
-            <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="primary">预览</el-link>
+          <div class="table-opt-icons">
+            <el-link v-if="isFolder(scope.row)" type="primary" title="添加文档" icon="el-icon-circle-plus-outline" @click="onDocAdd(scope.row)" />
+            <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
+              <el-link type="success" icon="el-icon-view" title="预览" />
             </router-link>
-            <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
+            <el-link type="primary" icon="el-icon-edit" title="修改" @click="onDocUpdate(scope.row)" />
             <el-popconfirm
               :title="`确定要删除 ${scope.row.name} 吗？`"
               @onConfirm="onDocRemove(scope.row)"
             >
-              <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
+              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger" icon="el-icon-delete" title="删除" />
             </el-popconfirm>
           </div>
         </template>
@@ -134,7 +132,9 @@
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
             <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="primary">预览</el-link>
+              <el-tooltip placement="top" content="预览" :open-delay="500">
+                <el-link type="success" icon="el-icon-view" />
+              </el-tooltip>
             </router-link>
           </div>
         </template>
@@ -149,6 +149,9 @@
   .table-right-item {
     display: inline-block;
   }
+}
+.table-opt-icons {
+  .el-link { margin-right: 15px }
 }
 </style>
 <script>
@@ -259,7 +262,7 @@ export default {
       }
       this.post('/doc/delete', data, () => {
         this.tipSuccess('删除成功')
-        this.reload()
+        this.loadTable()
       })
     },
     onDocAdd(row) {

@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 public class ResponseUtil {
 
     public static void writeText(HttpServletResponse response, String content) {
+        response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.TEXT_PLAIN_VALUE);
         write(response, content);
     }

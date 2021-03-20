@@ -29,13 +29,21 @@ public class UpgradeService {
      * 升级
      */
     public void upgrade() {
-        upgradeV1_0_2();
+        v1_0_2();
+        v1_1_0();
+    }
+
+    /**
+     * 升级v1.1.0，添加表
+     */
+    private void v1_1_0() {
+        this.createTable("mock_config", "upgrade/1.1.0_ddl.txt");
     }
 
     /**
      * 升级v1.0.2，添加索引
      */
-    private void upgradeV1_0_2() {
+    private void v1_0_2() {
         if (hasIndex("doc_param", "uk_dataid")) {
             return;
         }
@@ -86,20 +94,19 @@ public class UpgradeService {
     /**
      * 创建表
      * @param tableName 表名
+     * @param ddlFile DDL文件
      * @return 创建成功返回true
      */
-    public boolean createTable(String tableName) {
+    public boolean createTable(String tableName, String ddlFile) {
         if (!isTableExist(tableName)) {
-            String sql = this.loadDDL(tableName);
+            String sql = this.loadDDL(tableName, ddlFile);
             upgradeMapper.runSql(sql);
             return true;
         }
         return false;
     }
 
-    private String loadDDL(String tableName) {
-        String tmp = "ddl_%s_mysql.txt";
-        String filename = "upgrade/" + String.format(tmp, tableName);
+    private String loadDDL(String tableName, String filename) {
         ClassPathResource resource = new ClassPathResource(filename);
         if (!resource.exists()) {
             throw new RuntimeException("找不到文件：" + filename);
@@ -125,6 +132,7 @@ public class UpgradeService {
                 .stream()
                 .anyMatch(columnInfo -> Objects.equals(columnInfo.getName(), columnName));
     }
+
 
     /**
      * 表是否存在

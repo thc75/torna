@@ -55,17 +55,41 @@
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
         <el-form-item label="参数">
-          <name-value-table :data="formData.queryData" />
+          <el-switch
+            v-model="formData.requestDataType"
+            active-text="json格式"
+            inactive-text=""
+            :active-value="1"
+            :inactive-value="0"
+          />
+          <name-value-table v-if="formData.requestDataType === 0" ref="dataKvRef" :data="formData.dataKv" />
+          <editor
+            v-if="formData.requestDataType === 1"
+            v-model="formData.dataJson"
+            lang="json"
+            theme="chrome"
+            height="200"
+            style="border: 1px #EBEEF5 solid"
+            @init="editorInit"
+          />
         </el-form-item>
         <el-divider content-position="left">响应</el-divider>
         <el-form-item label="Http Status">
           <el-input-number v-model="formData.httpStatus" controls-position="right" />
         </el-form-item>
         <el-form-item label="延迟">
-          <el-input-number v-model="formData.delayMills" :min="0" controls-position="right" /> ms
+          <el-input-number v-model="formData.delayMills" :min="0" :max="60000" controls-position="right" /> ms
+          <el-tooltip placement="top" content="延迟响应，可模拟服务端耗时操作">
+            <i class="el-icon-question"></i>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="响应Header">
-          <name-value-table :data="formData.responseHeaders" />
+          <name-value-table
+            ref="responseHeadersRef"
+            :data="formData.responseHeaders"
+            :name-suggest-data="nameSuggestData"
+            :value-suggest-data="valueSuggestData"
+          />
         </el-form-item>
         <el-form-item label="响应内容">
           <editor
@@ -86,6 +110,8 @@
 </template>
 <script>
 import NameValueTable from '@/components/NameValueTable'
+import { header_names, header_values } from '@/utils/headers'
+
 export default {
   name: 'Mock',
   components: { NameValueTable, editor: require('vue2-ace-editor') },
@@ -102,8 +128,10 @@ export default {
       responseSuccessExample: '',
       mockConfigs: [],
       formData: {
+        dataKv: [],
+        dataJson: '',
         name: '',
-        queryData: [],
+        requestDataType: 0,
         httpStatus: 200,
         delayMills: 0,
         responseHeaders: [],
@@ -116,6 +144,18 @@ export default {
           { required: true, message: '请填写名称', trigger: ['blur', 'change'] }
         ]
       }
+    }
+  },
+  computed: {
+    nameSuggestData() {
+      return header_names.map(name => {
+        return { value: name }
+      })
+    },
+    valueSuggestData() {
+      return header_values.map(value => {
+        return { value: value }
+      })
     }
   },
   watch: {
@@ -172,7 +212,9 @@ export default {
       const node = {
         id: '' + this.nextId(),
         name: '新建配置',
-        queryData: [],
+        dataKv: [],
+        dataJson: '',
+        requestDataType: 0,
         httpStatus: 200,
         delayMills: 0,
         responseHeaders: [],
@@ -212,26 +254,40 @@ export default {
       }
     },
     onSave() {
-      this.$refs.mockForm.validate(valid => {
-        if (valid) {
-          this.filterData()
-          this.formData.docId = this.item.id
-          this.post('/doc/mock/save', this.formData, resp => {
-            this.tipSuccess('保存成功')
-            this.activeMock = resp.data.id
-            this.reload()
-          })
-        } else {
-          this.tipError('请完善表单')
-        }
+      this.validate(() => {
+        this.formatData()
+        this.formData.docId = this.item.id
+        this.post('/doc/mock/save', this.formData, resp => {
+          this.tipSuccess('保存成功')
+          this.activeMock = resp.data.id
+          this.reload()
+        })
+      })
+    },
+    validate(callback) {
+      const promiseForm = this.$refs.mockForm.validate()
+      let promiseArr = [promiseForm]
+      if (this.$refs.dataKvRef) {
+        const promiseKv = this.$refs.dataKvRef.validate()
+        const promiseHeader = this.$refs.responseHeadersRef.validate()
+        promiseArr = promiseArr.concat(promiseKv).concat(promiseHeader)
+      }
+      Promise.all(promiseArr).then(validArr => {
+        // 到这里来表示全部内容校验通过
+        callback.call(this)
+      }).catch((e) => {
+        this.tipError('请完善表单')
       })
     },
     isAdded() {
       return !this.formData.isNew
     },
-    filterData() {
-      this.formData.queryData = this.formData.queryData.filter(row => row.isDeleted === 0)
-      this.formData.responseHeaders = this.formData.responseHeaders.filter(row => row.isDeleted === 0)
+    formatData() {
+      const filter = row => {
+        return row.isDeleted === undefined || row.isDeleted === 0
+      }
+      this.formData.dataKv = this.formData.dataKv.filter(filter)
+      this.formData.responseHeaders = this.formData.responseHeaders.filter(filter)
     }
   }
 }

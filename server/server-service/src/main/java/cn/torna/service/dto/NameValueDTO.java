@@ -11,7 +11,6 @@ import lombok.Setter;
 public class NameValueDTO {
     private String name;
     private String value;
-    private Byte isDeleted = 0;
 
     @Override
     public String toString() {

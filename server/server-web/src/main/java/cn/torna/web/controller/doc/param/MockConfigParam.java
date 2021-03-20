@@ -1,29 +1,25 @@
-package cn.torna.service.dto;
+package cn.torna.web.controller.doc.param;
 
 import cn.torna.common.support.IdCodec;
+import cn.torna.service.dto.NameValueDTO;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * @author tanghc
  */
 @Data
-public class MockDTO {
-
+public class MockConfigParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     /** 名称, 数据库字段：name */
     private String name;
 
-    /** md5(path+query), 数据库字段：data_id */
-    private String dataId;
-
-    /** 请求参数, 数据库字段：request_data */
-    private Object requestData;
+    private List<NameValueDTO> dataKv;
+    private String dataJson;
 
     /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
     private Byte requestDataType;
@@ -47,15 +43,4 @@ public class MockDTO {
     /** 备注, 数据库字段：remark */
     private String remark;
 
-    /** 创建人姓名, 数据库字段：creator_name */
-    private String creatorName;
-
-    /** 修改人, 数据库字段：modifier_name */
-    private String modifierName;
-
-    /**  数据库字段：gmt_create */
-    private Date gmtCreate;
-
-    /**  数据库字段：gmt_modified */
-    private Date gmtModified;
 }

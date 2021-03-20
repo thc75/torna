@@ -33,8 +33,11 @@ public class MockConfig {
     /** 过滤ip, 数据库字段：ip */
     private String ip;
 
-    /** 请求参数，数组结构, 数据库字段：query_string */
-    private String queryString;
+    /** 请求参数, 数据库字段：request_data */
+    private String requestData;
+
+    /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
+    private Byte requestDataType;
 
     /** http状态, 数据库字段：http_status */
     private Integer httpStatus;
