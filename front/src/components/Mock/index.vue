@@ -6,17 +6,21 @@
         <el-button
           type="primary"
           size="mini"
-          style="margin-bottom: 10px"
+          style="margin-bottom: 10px;margin-right: 10px;"
           @click="onMockAdd"
         >
           添加配置
         </el-button>
+        <el-tooltip placement="top" content="帮助文档">
+          <router-link class="el-link" target="_blank" to="/help?id=mock">
+            <i class="el-icon-question"></i>
+          </router-link>
+        </el-tooltip>
       </div>
     </h3>
     <div v-show="mockConfigs.length > 0">
       <el-tabs
         v-model="activeMock"
-        type="card"
         @tab-click="onTabSelect"
       >
         <el-tab-pane
@@ -33,13 +37,13 @@
         </div>
         <div class="right-div">
           <el-tooltip v-show="isAdded()" content="复制当前配置" placement="top">
-            <el-link type="primary" icon="el-icon-document-copy" @click="onCopy">复制</el-link>
+            <el-link type="primary" icon="el-icon-document-copy" @click="onCopy" />
           </el-tooltip>
           <el-popconfirm
             :title="`确定要当前配置删除吗？`"
             @onConfirm="onMockDelete(formData)"
           >
-            <el-link slot="reference" type="danger" icon="el-icon-delete">删除</el-link>
+            <el-link slot="reference" type="danger" icon="el-icon-delete" title="删除" />
           </el-popconfirm>
         </div>
       </div>
@@ -54,7 +58,7 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
-        <el-form-item label="参数">
+        <el-form-item label="条件参数">
           <el-switch
             v-model="formData.requestDataType"
             active-text="json格式"
@@ -69,7 +73,7 @@
             lang="json"
             theme="chrome"
             height="200"
-            style="border: 1px #EBEEF5 solid"
+            class="normal-boarder"
             @init="editorInit"
           />
         </el-form-item>
@@ -77,11 +81,8 @@
         <el-form-item label="Http Status">
           <el-input-number v-model="formData.httpStatus" controls-position="right" />
         </el-form-item>
-        <el-form-item label="延迟">
+        <el-form-item label="延迟响应">
           <el-input-number v-model="formData.delayMills" :min="0" :max="60000" controls-position="right" /> ms
-          <el-tooltip placement="top" content="延迟响应，可模拟服务端耗时操作">
-            <i class="el-icon-question"></i>
-          </el-tooltip>
         </el-form-item>
         <el-form-item label="响应Header">
           <name-value-table
@@ -92,25 +93,86 @@
           />
         </el-form-item>
         <el-form-item label="响应内容">
-          <editor
-            v-model="formData.responseBody"
-            lang="json"
-            theme="chrome"
-            height="400"
-            style="border: 1px #EBEEF5 solid"
-            @init="editorInit"
+          <el-switch
+            v-model="formData.resultType"
+            active-text="Mock脚本"
+            inactive-text=""
+            :active-value="1"
+            :inactive-value="0"
+            style="margin-bottom: 10px;"
           />
+          <div v-if="formData.resultType === 0">
+            <editor
+              v-model="formData.responseBody"
+              lang="json"
+              theme="chrome"
+              height="400"
+              class="normal-boarder"
+              :options="aceEditorConfig"
+              @init="editorInit"
+            />
+          </div>
+          <div v-else>
+            <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">运行</el-button>
+            <span class="info-tip">
+              基于mockjs，
+              <router-link class="el-link el-link--primary" target="_blank" to="/help?id=mock">帮助文档</router-link>
+            </span>
+            <editor
+              v-model="formData.mockScript"
+              lang="javascript"
+              theme="chrome"
+              height="350"
+              class="normal-boarder"
+              :options="aceEditorConfig"
+              @init="editorInit"
+            />
+          </div>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="medium" @click="onSave">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
+    <el-dialog
+      title="运行结果"
+      :visible.sync="mockResultDlgShow"
+    >
+      <el-alert v-if="mockResultRunResult" title="运行成功" type="success" :closable="false" />
+      <el-alert v-else title="运行错误" type="error" :closable="false" />
+      <el-input
+        v-model="mockResultDlgView"
+        type="textarea"
+        :autosize="{ minRows: 2, maxRows: 15}"
+        readonly
+        style="margin-top: 20px;"
+      />
+    </el-dialog>
   </div>
 </template>
 <script>
 import NameValueTable from '@/components/NameValueTable'
 import { header_names, header_values } from '@/utils/headers'
+// eslint-disable-next-line no-unused-vars
+const Mock = require('mockjs')
+// eslint-disable-next-line no-unused-vars
+const Random = require('mockjs')
+
+const FORM_DATA = {
+  dataKv: [],
+  dataJson: '',
+  name: '',
+  requestDataType: 0,
+  httpStatus: 200,
+  delayMills: 0,
+  responseHeaders: [],
+  resultType: 0,
+  responseBody: '',
+  mockScript: '',
+  mockResult: '',
+  remark: '',
+  creatorName: ''
+}
 
 export default {
   name: 'Mock',
@@ -124,26 +186,24 @@ export default {
   data() {
     return {
       activeMock: null,
+      activeResult: 'content',
       mockUrl: '',
       responseSuccessExample: '',
       mockConfigs: [],
-      formData: {
-        dataKv: [],
-        dataJson: '',
-        name: '',
-        requestDataType: 0,
-        httpStatus: 200,
-        delayMills: 0,
-        responseHeaders: [],
-        responseBody: '',
-        remark: '',
-        creatorName: ''
-      },
+      formData: Object.assign({}, FORM_DATA),
       formRules: {
         name: [
           { required: true, message: '请填写名称', trigger: ['blur', 'change'] }
         ]
-      }
+      },
+      aceEditorConfig: {
+        // 去除编辑器里的竖线
+        showPrintMargin: false
+      },
+      mockResultDlgTitle: '运行结果',
+      mockResultDlgView: '',
+      mockResultDlgShow: false,
+      mockResultRunResult: false
     }
   },
   computed: {
@@ -171,8 +231,8 @@ export default {
     editorInit: function() {
       // language extension prerequsite...
       require('brace/ext/language_tools')
-      require('brace/mode/json')
       // language
+      require('brace/mode/json')
       require('brace/mode/javascript')
       require('brace/mode/less')
       require('brace/theme/chrome')
@@ -207,22 +267,43 @@ export default {
       this.formData = node
       this.activeMock = node.id
     },
+    runScript(successCall, errorCall) {
+      const script = this.formData.mockScript
+      try {
+        // eslint-disable-next-line no-eval
+        const data = eval(script)
+        if (data === undefined) {
+          throw new Error('无数据返回，函数是否缺少return？')
+        }
+        successCall.call(this, data)
+        return true
+      } catch (e) {
+        errorCall.call(this, e)
+        return false
+      }
+    },
+    onRunMockScript() {
+      this.runScript(data => {
+        this.formData.mockResult = this.formatJson(data)
+        this.mockResultDlgTitle = '运行结果'
+        this.mockResultDlgView = this.formData.mockResult
+        this.mockResultRunResult = true
+      }, e => {
+        this.mockResultRunResult = false
+        this.mockResultDlgTitle = '运行错误'
+        this.mockResultDlgView = e
+      })
+      this.mockResultDlgShow = true
+    },
     onMockAdd() {
       const respBody = this.doCreateResponseExample(this.item.responseParams)
-      const node = {
+      const node = Object.assign({}, FORM_DATA)
+      Object.assign(node, {
         id: '' + this.nextId(),
         name: '新建配置',
-        dataKv: [],
-        dataJson: '',
-        requestDataType: 0,
-        httpStatus: 200,
-        delayMills: 0,
-        responseHeaders: [],
         responseBody: this.formatJson(respBody),
-        remark: '',
-        creatorName: '',
         isNew: true
-      }
+      })
       this.addMock(node)
     },
     onCopy() {
@@ -255,6 +336,16 @@ export default {
     },
     onSave() {
       this.validate(() => {
+        if (this.formData.resultType === 1) {
+          const success = this.runScript(data => {
+            this.formData.mockResult = this.formatJson(data)
+          }, e => {
+            this.tipError('Mock脚本错误')
+          })
+          if (!success) {
+            return
+          }
+        }
         this.formatData()
         this.formData.docId = this.item.id
         this.post('/doc/mock/save', this.formData, resp => {

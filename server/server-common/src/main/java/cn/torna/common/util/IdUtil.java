@@ -25,7 +25,7 @@ public class IdUtil {
     /**
      * decode hashid
      * @param id hashid
-     * @return return true id, otherwise
+     * @return return true id, otherwise return null
      */
     public static Long decode(String id) {
         if (id == null || "".equals(id)) {

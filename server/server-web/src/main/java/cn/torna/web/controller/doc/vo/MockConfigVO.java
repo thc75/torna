@@ -29,8 +29,16 @@ public class MockConfigVO extends MockBaseVO {
     /** 响应header，数组结构, 数据库字段：response_headers */
     private List<NameValueVO> responseHeaders;
 
+    private Byte resultType;
+
     /** 响应结果, 数据库字段：response_body */
     private String responseBody;
+
+    private String mockScript;
+
+    private String mockResult;
+
+    private Byte responseBodyType;
 
     /** 文档id, 数据库字段：doc_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

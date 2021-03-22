@@ -3,6 +3,7 @@ package cn.torna.service;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.mapper.UpgradeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
@@ -24,6 +25,9 @@ public class UpgradeService {
     @Autowired
     private UpgradeMapper upgradeMapper;
 
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClass;
+
 
     /**
      * 升级
@@ -37,7 +41,7 @@ public class UpgradeService {
      * 升级v1.1.0，添加表
      */
     private void v1_1_0() {
-        this.createTable("mock_config", "upgrade/1.1.0_ddl.txt");
+        this.createTable("mock_config", "upgrade/1.1.0_ddl.txt", "upgrade/1.1.0_ddl_compatible.txt");
     }
 
     /**
@@ -86,7 +90,7 @@ public class UpgradeService {
      * @param type 字段类型，如：varchar(128),text,integer
      * @return 返回true，插入成功
      */
-    public boolean addColumn(String tableName, String columnName, String type) {
+    private boolean addColumn(String tableName, String columnName, String type) {
         upgradeMapper.addColumn(tableName, columnName, type);
         return false;
     }
@@ -95,11 +99,13 @@ public class UpgradeService {
      * 创建表
      * @param tableName 表名
      * @param ddlFile DDL文件
+     * @param ddlFileCompatible 低版本DDL文件
      * @return 创建成功返回true
      */
-    public boolean createTable(String tableName, String ddlFile) {
+    private boolean createTable(String tableName, String ddlFile, String ddlFileCompatible) {
+        String file = isLowerVersion() ? ddlFileCompatible : ddlFile;
         if (!isTableExist(tableName)) {
-            String sql = this.loadDDL(tableName, ddlFile);
+            String sql = this.loadDDL(tableName, file);
             upgradeMapper.runSql(sql);
             return true;
         }
@@ -126,7 +132,7 @@ public class UpgradeService {
      * @param columnName 列名
      * @return true：存在
      */
-    public boolean isColumnExist(String tableName, String columnName) {
+    private boolean isColumnExist(String tableName, String columnName) {
         List<ColumnInfo> columnInfoList = upgradeMapper.listColumnInfo(tableName);
         return columnInfoList
                 .stream()
@@ -139,9 +145,17 @@ public class UpgradeService {
      * @param tableName
      * @return
      */
-    public boolean isTableExist(String tableName) {
+    private boolean isTableExist(String tableName) {
         List<String> tableNameList = upgradeMapper.listTableName();
         return tableNameList != null && tableNameList.contains(tableName);
+    }
+
+    /**
+     * 是否是低版本mysql
+     * @return
+     */
+    private boolean isLowerVersion() {
+        return Objects.equals(driverClass, "com.mysql.jdbc.Driver");
     }
 
 }

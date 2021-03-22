@@ -1,5 +1,6 @@
 package cn.torna.web.controller.mock;
 
+import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.ResponseUtil;
 import cn.torna.dao.entity.MockConfig;
@@ -30,6 +31,8 @@ import java.util.List;
 @Slf4j
 public class MockController {
 
+    public static final int ONE_MINUTE_MILLS = 60000;
+
     @Autowired
     private MockConfigService mockConfigService;
 
@@ -40,6 +43,7 @@ public class MockController {
         Long docId = IdUtil.decode(docIdHash);
         if (docId == null) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
+            ResponseUtil.writeText(response, "mock地址不存在");
             return;
         }
         String dataId = this.buildDataId(docId, request);
@@ -52,14 +56,30 @@ public class MockController {
         this.delay(mockConfig);
         this.setResponseHeaders(response, mockConfig);
         response.setStatus(mockConfig.getHttpStatus());
-        String responseBody = mockConfig.getResponseBody();
+        String responseBody = getResponseBody(mockConfig);
         ResponseUtil.write(response, responseBody);
+    }
+
+    private String getResponseBody(MockConfig mockConfig) {
+        Byte resultType = mockConfig.getResultType();
+        switch (MockResultTypeEnum.of(resultType)) {
+            case CUSTOM:
+                return mockConfig.getResponseBody();
+            case SCRIPT:
+                return mockConfig.getMockResult();
+            default:
+                return "";
+        }
     }
 
     private void delay(MockConfig mockConfig) {
         Integer delayMills = mockConfig.getDelayMills();
         // 延迟返回
         if (delayMills > 0) {
+            // 最多允许等待1分钟
+            if (delayMills > ONE_MINUTE_MILLS) {
+                delayMills = ONE_MINUTE_MILLS;
+            }
             try {
                 Thread.sleep(delayMills);
             } catch (InterruptedException e) {

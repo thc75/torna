@@ -5,6 +5,7 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.MockRequestDataTypeEnum;
+import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
@@ -16,6 +17,7 @@ import cn.torna.web.controller.doc.vo.NameValueVO;
 import cn.torna.web.controller.system.param.IdParam;
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,6 +64,9 @@ public class MockConfigController {
                 break;
         }
         mockConfigVO.setResponseHeaders(JSON.parseArray(mockConfig.getResponseHeaders(), NameValueVO.class));
+        MockResultTypeEnum mockResponseBodyTypeEnum = StringUtils.hasLength(mockConfig.getMockScript()) ?
+                MockResultTypeEnum.SCRIPT : MockResultTypeEnum.CUSTOM;
+        mockConfigVO.setResponseBodyType(mockResponseBodyTypeEnum.getType());
         return mockConfigVO;
     }
 
@@ -88,8 +93,11 @@ public class MockConfigController {
         mockConfig.setRequestData(getRequestData(param));
         mockConfig.setHttpStatus(param.getHttpStatus());
         mockConfig.setDelayMills(param.getDelayMills());
+        mockConfig.setResultType(param.getResultType());
         mockConfig.setResponseHeaders(JSON.toJSONString(param.getResponseHeaders()));
         mockConfig.setResponseBody(param.getResponseBody());
+        mockConfig.setMockScript(param.getMockScript());
+        mockConfig.setMockResult(param.getMockResult());
         mockConfig.setRemark(param.getRemark());
         mockConfig.setModifierId(user.getUserId());
         mockConfig.setModifierName(user.getNickname());

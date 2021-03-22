@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS `enum_item`;
 DROP TABLE IF EXISTS `enum_info`;
 DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
+DROP TABLE IF EXISTS `mock_config`;
 
 
 CREATE TABLE `doc_info` (
@@ -264,7 +265,32 @@ CREATE TABLE `user_subscribe` (
   UNIQUE KEY `uk_userid_type_sourceid` (`user_id`,`type`,`source_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='用户订阅表';
 
-
+CREATE TABLE `mock_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '名称',
+  `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'md5(docId+query)',
+  `ip` varchar(64) NOT NULL DEFAULT '' COMMENT '过滤ip',
+  `request_data` text NOT NULL COMMENT '请求参数',
+  `request_data_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '参数类型，0：KV形式，1：json形式',
+  `http_status` int(11) NOT NULL DEFAULT '200' COMMENT 'http状态',
+  `delay_mills` int(11) NOT NULL DEFAULT '0' COMMENT '延迟时间，单位毫秒',
+  `result_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '返回类型，0：自定义内容，1：脚本内容',
+  `response_headers` text NOT NULL COMMENT '响应header，数组结构',
+  `response_body` text NOT NULL COMMENT '响应结果',
+  `mock_script` text COMMENT 'mock脚本',
+  `mock_result` text COMMENT 'mock结果',
+  `doc_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '文档id',
+  `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
+  `creator_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '创建人id',
+  `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人姓名',
+  `modifier_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '修改人id',
+  `modifier_name` varchar(64) DEFAULT NULL COMMENT '修改人',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_docid_dataid` (`doc_id`,`data_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='mock配置';
 
 
 INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES

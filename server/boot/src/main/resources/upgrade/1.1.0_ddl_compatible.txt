@@ -19,8 +19,8 @@ CREATE TABLE `mock_config` (
   `modifier_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '修改人id',
   `modifier_name` varchar(64) DEFAULT NULL COMMENT '修改人',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_docid_dataid` (`doc_id`,`data_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='mock配置'

@@ -45,11 +45,20 @@ public class MockConfig {
     /** 延迟时间，单位毫秒, 数据库字段：delay_mills */
     private Integer delayMills;
 
+    /** 返回类型，0：自定义内容，1：脚本内容, 数据库字段：result_type */
+    private Byte resultType;
+
     /** 响应header，数组结构, 数据库字段：response_headers */
     private String responseHeaders;
 
     /** 响应结果, 数据库字段：response_body */
     private String responseBody;
+
+    /** mock脚本, 数据库字段：mock_script */
+    private String mockScript;
+
+    /** mock结果, 数据库字段：mock_result */
+    private String mockResult;
 
     /** 文档id, 数据库字段：doc_id */
     private Long docId;
