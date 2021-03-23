@@ -58,7 +58,17 @@ public class UpgradeService {
 
     private Optional<ColumnInfo> findColumn(String tableName, String columnName) {
         return this.upgradeMapper.listColumnInfo(tableName)
-                .stream().filter(c -> columnName.equals(c.getName()))
+                .stream()
+                .filter(map -> {
+                    Object name = map.get("Field");
+                    return Objects.equals(name, columnName);
+                })
+                .map(map -> {
+                    Object field = map.get("Field");
+                    ColumnInfo columnInfo = new ColumnInfo();
+                    columnInfo.setName(String.valueOf(field));
+                    return columnInfo;
+                })
                 .findFirst();
     }
 
@@ -133,10 +143,7 @@ public class UpgradeService {
      * @return true：存在
      */
     private boolean isColumnExist(String tableName, String columnName) {
-        List<ColumnInfo> columnInfoList = upgradeMapper.listColumnInfo(tableName);
-        return columnInfoList
-                .stream()
-                .anyMatch(columnInfo -> Objects.equals(columnInfo.getName(), columnName));
+        return findColumn(tableName, columnName).isPresent();
     }
 
 

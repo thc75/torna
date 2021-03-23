@@ -29,7 +29,7 @@ public interface UpgradeMapper {
      * @param tableName 表名
      * @return 返回字段信息
      */
-    List<ColumnInfo> listColumnInfo(@Param("tableName") String tableName);
+    List<Map<String, Object>> listColumnInfo(@Param("tableName") String tableName);
 
     List<String> listTableName();
 

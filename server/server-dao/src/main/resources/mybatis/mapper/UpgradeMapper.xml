@@ -10,19 +10,13 @@
         ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}
     </update>
 
-    <select id="listColumnInfo" resultType="cn.torna.dao.entity.ColumnInfo">
-        select
-            COLUMN_NAME as 'name'
-            , DATA_TYPE as 'type'
-            , CHARACTER_MAXIMUM_LENGTH as 'length'
-        from information_schema.COLUMNS
-        where table_schema='torna' and table_name = '${tableName}'
+    <select id="listColumnInfo" resultType="java.util.Map">
+        SHOW COLUMNS FROM ${tableName}
     </select>
 
 
     <select id="listTableName" resultType="String">
-        select table_name from information_schema.tables
-        where table_schema='torna'
+        SHOW TABLES
     </select>
 
     <select id="listTableIndex" resultType="java.util.Map">
