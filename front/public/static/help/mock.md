@@ -136,7 +136,7 @@ return data;
 
 postman请求结果如下：
 
-<img src="/static/help/images/mock7.png" style="height: 400px" />
+<img src="/static/help/images/mock6.png" style="height: 400px" />
 
 - 例子3：map遍历
 
@@ -246,7 +246,7 @@ return menuSource;
 
 首先定义请求参数
 
-<img src="/static/help/images/mock8.png" style="height: 200px" />
+<img src="/static/help/images/mock7.png" style="height: 200px" />
 
 然后编写脚本：
 
@@ -259,7 +259,7 @@ return {
 
 运行结果如下：
 
-<img src="/static/help/images/mock9.png" style="height: 300px" />
+<img src="/static/help/images/mock8.png" style="height: 300px" />
 
 同理，如果参数填的是json格式，可以使用`var name = $body.name`获取变量。
 
