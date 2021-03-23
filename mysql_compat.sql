@@ -268,7 +268,6 @@ CREATE TABLE `user_subscribe` (
 CREATE TABLE `mock_config` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL DEFAULT '' COMMENT '名称',
-  `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'md5(docId+query)',
   `ip` varchar(64) NOT NULL DEFAULT '' COMMENT '过滤ip',
   `request_data` text NOT NULL COMMENT '请求参数',
   `request_data_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '参数类型，0：KV形式，1：json形式',

@@ -105,14 +105,14 @@ public class UpgradeService {
     private boolean createTable(String tableName, String ddlFile, String ddlFileCompatible) {
         String file = isLowerVersion() ? ddlFileCompatible : ddlFile;
         if (!isTableExist(tableName)) {
-            String sql = this.loadDDL(tableName, file);
+            String sql = this.loadDDL(file);
             upgradeMapper.runSql(sql);
             return true;
         }
         return false;
     }
 
-    private String loadDDL(String tableName, String filename) {
+    private String loadDDL(String filename) {
         ClassPathResource resource = new ClassPathResource(filename);
         if (!resource.exists()) {
             throw new RuntimeException("找不到文件：" + filename);

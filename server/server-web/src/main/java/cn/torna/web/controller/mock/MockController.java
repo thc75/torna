@@ -8,19 +8,13 @@ import cn.torna.service.MockConfigService;
 import cn.torna.service.dto.NameValueDTO;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -36,18 +30,16 @@ public class MockController {
     @Autowired
     private MockConfigService mockConfigService;
 
-    @RequestMapping("{docIdHash}")
+    @RequestMapping("{mockId}")
     public void mock(
-            @PathVariable("docIdHash") String docIdHash,
-            HttpServletRequest request, HttpServletResponse response) {
-        Long docId = IdUtil.decode(docIdHash);
-        if (docId == null) {
+            @PathVariable("mockId") String mockId, HttpServletResponse response) {
+        Long id = IdUtil.decode(mockId);
+        if (id == null) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             ResponseUtil.writeText(response, "mock地址不存在");
             return;
         }
-        String dataId = this.buildDataId(docId, request);
-        MockConfig mockConfig = mockConfigService.getMockConfig(docId, dataId);
+        MockConfig mockConfig = mockConfigService.getById(id);
         if (mockConfig == null) {
             response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             ResponseUtil.writeText(response, "mock未配置");
@@ -94,27 +86,6 @@ public class MockController {
         for (NameValueDTO nameValueDTO : nameValueDTOList) {
             response.setHeader(nameValueDTO.getName(), nameValueDTO.getValue());
         }
-    }
-
-    private String buildDataId(Long docId, HttpServletRequest request) {
-        String body;
-        try {
-            body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("获取body出错，url:{}", request.getRequestURI(), e);
-            body = "";
-        }
-        Enumeration<String> parameterNames = request.getParameterNames();
-        List<NameValueDTO> nameValueDTOList = new ArrayList<>(8);
-        while (parameterNames.hasMoreElements()) {
-            String name = parameterNames.nextElement();
-            String value = request.getParameter(name);
-            NameValueDTO nameValueDTO = new NameValueDTO();
-            nameValueDTO.setName(name);
-            nameValueDTO.setValue(value);
-            nameValueDTOList.add(nameValueDTO);
-        }
-        return MockConfigService.buildDataId(docId, nameValueDTOList, body);
     }
 
 }

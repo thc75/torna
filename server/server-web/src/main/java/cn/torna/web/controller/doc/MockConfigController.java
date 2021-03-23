@@ -9,7 +9,6 @@ import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
-import cn.torna.service.dto.NameValueDTO;
 import cn.torna.web.controller.doc.param.MockConfigParam;
 import cn.torna.web.controller.doc.vo.MockBaseVO;
 import cn.torna.web.controller.doc.vo.MockConfigVO;
@@ -77,7 +76,6 @@ public class MockConfigController {
     @PostMapping("save")
     public Result<MockBaseVO> save(@RequestBody MockConfigParam param) {
         User user = UserContext.getUser();
-        String dataId = buildDataId(param);
         MockConfig mockConfig = mockConfigService.getById(param.getId());
         boolean save = false;
         if (mockConfig == null) {
@@ -88,7 +86,6 @@ public class MockConfigController {
             save = true;
         }
         mockConfig.setName(param.getName());
-        mockConfig.setDataId(dataId);
         mockConfig.setRequestDataType(param.getRequestDataType());
         mockConfig.setRequestData(getRequestData(param));
         mockConfig.setHttpStatus(param.getHttpStatus());
@@ -124,21 +121,6 @@ public class MockConfigController {
                 throw new IllegalArgumentException("error MockParamTypeEnum");
         }
         return data;
-    }
-
-    private String buildDataId(MockConfigParam param) {
-        Byte paramType = param.getRequestDataType();
-        Long docId = param.getDocId();
-        MockRequestDataTypeEnum mockParamTypeEnum = MockRequestDataTypeEnum.of(paramType);
-        switch (mockParamTypeEnum) {
-            case KV:
-                List<NameValueDTO> requestData = param.getDataKv();
-                return MockConfigService.buildDataId(docId, requestData, "");
-            case JSON:
-                return MockConfigService.buildDataId(docId, null, param.getDataJson());
-            default:
-                throw new IllegalArgumentException("error MockParamTypeEnum");
-        }
     }
 
     /**

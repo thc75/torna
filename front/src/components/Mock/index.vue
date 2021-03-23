@@ -1,36 +1,34 @@
 <template>
-  <div class="mock-content">
-    <h3>
-      Mock地址：<span class="doc-id">{{ mockUrl }}</span>
-      <div style="float: right">
-        <el-button
-          type="primary"
-          size="mini"
-          style="margin-bottom: 10px;margin-right: 10px;"
-          @click="onMockAdd"
-        >
-          添加配置
-        </el-button>
-        <el-tooltip placement="top" content="帮助文档">
-          <router-link class="el-link" target="_blank" to="/help?id=mock">
-            <i class="el-icon-question"></i>
-          </router-link>
-        </el-tooltip>
-      </div>
-    </h3>
-    <div v-show="mockConfigs.length > 0">
-      <el-tabs
-        v-model="activeMock"
-        @tab-click="onTabSelect"
+  <div>
+    <div>
+      <el-button
+        type="primary"
+        size="mini"
+        style="margin-bottom: 10px;margin-right: 10px;"
+        @click="onMockAdd"
       >
-        <el-tab-pane
-          v-for="mock in mockConfigs"
-          :key="mock.id"
-          :label="mock.name"
-          :name="mock.id"
-        >
-        </el-tab-pane>
-      </el-tabs>
+        添加配置
+      </el-button>
+      <el-tooltip placement="top" content="帮助文档">
+        <router-link class="el-link" target="_blank" to="/help?id=mock">
+          <i class="el-icon-question"></i>
+        </router-link>
+      </el-tooltip>
+    </div>
+    <el-tabs
+      v-show="isShow"
+      v-model="activeMock"
+      @tab-click="onTabSelect"
+    >
+      <el-tab-pane
+        v-for="mock in mockConfigs"
+        :key="mock.id"
+        :label="mock.name"
+        :name="mock.id"
+      >
+      </el-tab-pane>
+    </el-tabs>
+    <div v-show="isShow" class="mock-content">
       <div class="doc-modify-info">
         <div v-show="isAdded()" class="left-div">
           {{ formData.creatorName }} 创建于 {{ formData.gmtCreate }}，{{ formData.modifierName }} 最后修改于 {{ formData.gmtModified }}
@@ -53,12 +51,16 @@
         :rules="formRules"
         size="mini"
         label-width="120px"
-        style="margin-top: 40px;"
+        class="mock-form"
       >
+        <el-form-item label="Mock地址">
+          <span v-if="!formData.isNew" class="normal-text">{{ mockUrl }}</span>
+          <span v-else class="doc-id">保存后生成</span>
+        </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
-        <el-form-item label="条件参数">
+        <el-form-item label="参数">
           <el-switch
             v-model="formData.requestDataType"
             active-text="json格式"
@@ -74,6 +76,7 @@
             theme="chrome"
             height="200"
             class="normal-boarder"
+            :options="aceEditorConfig"
             @init="editorInit"
           />
         </el-form-item>
@@ -115,8 +118,7 @@
           <div v-else>
             <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">运行</el-button>
             <span class="info-tip">
-              基于mockjs，
-              <router-link class="el-link el-link--primary" target="_blank" to="/help?id=mock">帮助文档</router-link>
+              基于mockjs，<router-link class="el-link el-link--primary" target="_blank" to="/help?id=mock">帮助文档</router-link>
             </span>
             <editor
               v-model="formData.mockScript"
@@ -153,9 +155,7 @@
 <script>
 import NameValueTable from '@/components/NameValueTable'
 import { header_names, header_values } from '@/utils/headers'
-// eslint-disable-next-line no-unused-vars
 const Mock = require('mockjs')
-// eslint-disable-next-line no-unused-vars
 const Random = require('mockjs')
 
 const FORM_DATA = {
@@ -216,6 +216,9 @@ export default {
       return header_values.map(value => {
         return { value: value }
       })
+    },
+    isShow() {
+      return this.mockConfigs.length > 0
     }
   },
   watch: {
@@ -225,7 +228,6 @@ export default {
   },
   methods: {
     init(item) {
-      this.mockUrl = `${this.getBaseUrl()}/mock/${item.id}`
       this.loadTab(item)
     },
     editorInit: function() {
@@ -266,14 +268,21 @@ export default {
     selectTab(node) {
       this.formData = node
       this.activeMock = node.id
+      this.mockUrl = `${this.getBaseUrl()}/mock/${node.id}`
     },
     runScript(successCall, errorCall) {
+      const globalVariable = this.getGlobalVariable()
       const script = this.formData.mockScript
       try {
+        const code = `(function() {
+          ${script}
+        }())`
         // eslint-disable-next-line no-eval
-        const data = eval(script)
+        // const data = eval(fn)
+        const fn = new Function('$params', '$body', 'Mock', 'Random', `return ${code}`)
+        const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random)
         if (data === undefined) {
-          throw new Error('无数据返回，函数是否缺少return？')
+          throw new Error('无数据返回，是否缺少return？')
         }
         successCall.call(this, data)
         return true
@@ -281,6 +290,18 @@ export default {
         errorCall.call(this, e)
         return false
       }
+    },
+    getGlobalVariable() {
+      const globalVariable = {}
+      const params = {}
+      this.formData.dataKv.forEach(row => {
+        params[row.name] = row.value
+      })
+      globalVariable.$params = params
+      if (this.formData.dataJson) {
+        globalVariable.$body = JSON.parse(this.formData.dataJson)
+      }
+      return globalVariable
     },
     onRunMockScript() {
       this.runScript(data => {
@@ -307,7 +328,9 @@ export default {
       this.addMock(node)
     },
     onCopy() {
-      const node = {}
+      const node = {
+        isNew: true
+      }
       Object.assign(node, this.formData)
       node.id = '' + this.nextId()
       node.name = node.name + ' copy'
@@ -383,9 +406,11 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
   .mock-content {
-    margin: 10px;
     width: 800px;
+  }
+  .mock-form {
+    padding-top: 40px;
   }
 </style>

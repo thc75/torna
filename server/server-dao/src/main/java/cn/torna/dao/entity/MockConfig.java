@@ -27,9 +27,6 @@ public class MockConfig {
     /** 名称, 数据库字段：name */
     private String name;
 
-    /** md5(docId+query), 数据库字段：data_id */
-    private String dataId;
-
     /** 过滤ip, 数据库字段：ip */
     private String ip;
 

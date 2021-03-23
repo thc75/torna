@@ -2,14 +2,12 @@
 
 在后端没有提供接口数据的情况下，前端开发人员可以配置Mock，模拟返回数据。
 
-Mock地址格式为：`http://ip:port/mock/<文档id>`
-
 点击`添加配置`，填入基本信息，如下图所示：
 
 <img src="/static/help/images/mock1.png" style="height: 300px" />
 
 - 名称：配置名称
-- 条件参数：添加一个请求参数，用来区分对应的Mock配置，比如配置A的请求参数为：`type=1`，配置B的参数为：`type=2`
+- 参数：请求参数
 
 接着填写返回信息
 
@@ -28,19 +26,21 @@ Mock地址格式为：`http://ip:port/mock/<文档id>`
 
 Mock脚本基于 [mockjs](http://mockjs.com/) ，可书写js代码，[示例](http://mockjs.com/examples.html)
 
-- 方式1：单行脚本
+> 约定：最后一行需要`return`数据
 
-在编辑器中填入下面这个脚本
+- 例子1：直接返回
 
 ```javascript
-Mock.mock({
-  "object|2-4": {
-    "110000": "北京市",
-    "120000": "天津市",
-    "130000": "河北省",
-    "140000": "山西省"
-  }
+var data = Mock.mock({
+   "object|2-4": {
+     "110000": "北京市",
+     "120000": "天津市",
+     "130000": "河北省",
+     "140000": "山西省"
+   }
 })
+// 最后一行返回数据
+return data;
 ```
 
 <img src="/static/help/images/mock4.png" style="height: 250px" />
@@ -49,28 +49,31 @@ Mock.mock({
 
 <img src="/static/help/images/mock5.png" style="height: 400px" />
 
+
 再来一个复杂点的
 
 ```javascript
-Mock.mock({
-  // 20条数据
-  "data|20": [{
-    // 商品种类
-    "goodsClass": "女装",
-    // 商品Id
-    "goodsId|+1": 1,
-    // 商品名称
-    "goodsName": "@ctitle(10)",
-    // 商品地址
-    "goodsAddress": "@county(true)",
-    // 商品等级评价★
-    "goodsStar|1-5": "★",
-    // 商品图片
-    "goodsImg": "@Image('100x100','@color','小甜甜')",
-    // 商品售价
-    "goodsSale|30-500": 30
-  }]
-})
+var data = Mock.mock({
+   // 20条数据
+   "data|20": [{
+     // 商品种类
+     "goodsClass": "女装",
+     // 商品Id
+     "goodsId|+1": 1,
+     // 商品名称
+     "goodsName": "@ctitle(10)",
+     // 商品地址
+     "goodsAddress": "@county(true)",
+     // 商品等级评价★
+     "goodsStar|1-5": "★",
+     // 商品图片
+     "goodsImg": "@Image('100x100','@color','小甜甜')",
+     // 商品售价
+     "goodsSale|30-500": 30
+   }]
+ })
+// 最终返回数据
+return data;
 ```
 
 运行结果：
@@ -110,9 +113,7 @@ Mock.mock({
 }
 ```
 
-- 方式2：编写函数
-
-可以编写函数，然后运行函数生成数据，如编写如下脚本
+- 例子2：编写多个函数
 
 ```javascript
 function getItems() {
@@ -123,46 +124,32 @@ function getItems() {
     })
 }
 
-// 必须要有一个主函数
-function main() {
-    var result = {
-        "id": 1,
-        "name": "分类"
-    }
-    var items = getItems()
-    Object.assign(result, items)
-    return result;
+var data = {
+    "id": 1,
+    "name": "分类"
 }
-// 最后一行执行并返回
-main();
+var items = getItems()
+Object.assign(data, items)
+// 最后一行返回
+return data;
 ```
-
-<img src="/static/help/images/mock6.png" style="height: 400px" />
 
 postman请求结果如下：
 
 <img src="/static/help/images/mock7.png" style="height: 400px" />
 
-**注意**：在编写函数的情况下，最后一行必须执行一个主函数，然后返回数据
-
-更多方式：
-
+- 例子3：map遍历
 
 ```javascript
-// 必须要有一个主函数
-function main() {
-    var arr = [1,1,1,1,1,1,1,1]
-    var result = {
-        "id": 1,
-        "name": "省份",
-        "items": arr.map(item => {
-            return Mock.mock('@province')
-        })
-    }
-    return result;
+var arr = [1,1,1,1,1,1,1,1]
+var result = {
+    "id": 1,
+    "name": "省份",
+    "items": arr.map(item => {
+        return Mock.mock('@province')
+    })
 }
-// 最后一行执行并返回
-main();
+return result;
 ```
 
 返回：
@@ -183,5 +170,97 @@ main();
     ]
 }
 ```
+
+- 例子4: 扩展
+
+```javascript
+var random = Mock.Random;
+
+//扩展数据模板
+random.extend({
+  type: function(index) {
+    const types = ['products', 'industryApp', 'solution', 'experts'];
+    return this.pick(types[index])
+  }
+});
+
+// 定义数据类型
+const menuSource = [];
+menuSource[0] = Mock.mock({
+  "type": "@type(0)",
+   'data|3-4':[{
+     'id|+1': 1,
+     name: "@ctitle( 4,6)",
+     "childs|5-10": [{
+       'id|+1': 1,
+       name: "@ctitle(4,6)",
+     }]
+   }]
+});
+
+return menuSource;
+```
+
+返回:
+
+```json
+[
+    {
+        "type": "products",
+        "data": [
+            {
+                "id": 1,
+                "name": "心没积战",
+                "childs": [
+                    {
+                        "id": 1,
+                        "name": "决料听国立"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "name": "属化政却外",
+                "childs": [
+                    {
+                        "id": 2,
+                        "name": "众他易族"
+                    },
+                    {
+                        "id": 3,
+                        "name": "结值自别难"
+                    }
+                ]
+            }
+        ]
+    }
+]
+```
+
+### 使用内置变量
+
+默认提供了两个内置变量：
+
+- $params：获取请求参数
+- $body：获取请求体json对象
+
+首先定义请求参数
+
+<img src="/static/help/images/mock8.png" style="height: 200px" />
+
+然后编写脚本：
+
+```javascript
+var name = $params.name;
+return {
+    "myName": name
+}
+```
+
+运行结果如下：
+
+<img src="/static/help/images/mock9.png" style="height: 300px" />
+
+同理，如果参数填的是json格式，可以使用`var name = $body.name`获取变量。
 
 > 备注：Mock脚本是预先生成结果然后保存到数据库中等待请求，因此每次请求的结果都是一样的。
