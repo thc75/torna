@@ -4,6 +4,7 @@
 
 - [feat]支持Mock
 - [fix]文档分类无法删除问题
+- [fix]smart-doc推送无法删除旧文档问题 [#I3CNBF](https://gitee.com/smart-doc-team/smart-doc/issues/I3CNBF)
 
 ## 1.0.2
 
