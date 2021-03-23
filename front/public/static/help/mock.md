@@ -124,9 +124,13 @@ function getItems() {
     })
 }
 
+function getName() {
+    return "分类";
+}
+
 var data = {
     "id": 1,
-    "name": "分类"
+    "name": getName()
 }
 var items = getItems()
 Object.assign(data, items)
