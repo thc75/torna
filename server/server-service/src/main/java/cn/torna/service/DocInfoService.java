@@ -360,4 +360,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         return docInfo;
     }
+
+    /**
+     * 删除模块下所有文档
+     * @param moduleId 模块id
+     * @param userId 用户id，只能删除自己创建的
+     */
+    public void deleteModuleDocs(long moduleId, long userId) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("creator_id", userId);
+        this.getMapper().deleteByQuery(query);
+    }
 }

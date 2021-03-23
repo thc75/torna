@@ -29,6 +29,7 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class DocApi {
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档",  order = 0, remark = "把第三方文档推送给Torna服务器")
+    @Transactional(rollbackFor = Exception.class)
     public void pushDoc(DocPushParam param) {
         ApiParam apiParam = ApiContext.getApiParam();
         log.debug("推送文档, appKey:{}, token:{}, 推送内容：\n{}",
@@ -56,12 +58,13 @@ public class DocApi {
                 JSON.toJSONString(param)
         );
         long moduleId = RequestContext.getCurrentContext().getModuleId();
-
         // 设置调试环境
         for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
             moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
         }
-
+        User user = RequestContext.getCurrentContext().getApiUser();
+        // 先删除之前的文档
+        docInfoService.deleteModuleDocs(moduleId, user.getUserId());
         for (DocPushItemParam detailPushParam : param.getApis()) {
             this.pushDocItem(detailPushParam);
         }

@@ -34,7 +34,7 @@
             <dependency>
                 <groupId>net.oschina.durcframework</groupId>
                 <artifactId>fastmybatis-spring-boot-starter</artifactId>
-                <version>1.9.1</version>
+                <version>1.10.0</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -86,9 +86,9 @@
 
     <repositories>
         <repository>
-            <id>aliyun</id>
-            <name>aliyun</name>
-            <url>https://maven.aliyun.com/repository/public</url>
+            <id>maven2</id>
+            <name>maven2</name>
+            <url>https://repo.maven.apache.org/maven2</url>
         </repository>
     </repositories>
 
