@@ -106,20 +106,20 @@
       <el-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
-        width="120"
+        width="140"
       >
         <template slot-scope="scope">
-          <div class="table-opt-icons">
-            <el-link v-if="isFolder(scope.row)" type="primary" title="添加文档" icon="el-icon-circle-plus-outline" @click="onDocAdd(scope.row)" />
+          <div>
+            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加文档</el-link>
             <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success" icon="el-icon-view" title="预览" />
+              <el-link type="success">预览</el-link>
             </router-link>
-            <el-link type="primary" icon="el-icon-edit" title="修改" @click="onDocUpdate(scope.row)" />
+            <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
             <el-popconfirm
               :title="`确定要删除 ${scope.row.name} 吗？`"
               @onConfirm="onDocRemove(scope.row)"
             >
-              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger" icon="el-icon-delete" title="删除" />
+              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
             </el-popconfirm>
           </div>
         </template>
@@ -132,9 +132,7 @@
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
             <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-tooltip placement="top" content="预览" :open-delay="500">
-                <el-link type="success" icon="el-icon-view" />
-              </el-tooltip>
+              <el-link type="success">预览</el-link>
             </router-link>
           </div>
         </template>
@@ -149,9 +147,6 @@
   .table-right-item {
     display: inline-block;
   }
-}
-.table-opt-icons {
-  .el-link { margin-right: 15px }
 }
 </style>
 <script>
