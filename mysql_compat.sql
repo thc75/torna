@@ -288,7 +288,7 @@ CREATE TABLE `mock_config` (
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_docid_dataid` (`doc_id`,`data_id`) USING BTREE
+  KEY `idx_docid` (`doc_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='mock配置';
 
 
