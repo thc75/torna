@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.1.1
+
+- [fix]smart-doc推送无法显示文档问题 [#I3CSJS](https://gitee.com/durcframework/torna/issues/I3CSJS)
+
 ## 1.1.0
 
 - [feat]支持Mock
