@@ -62,8 +62,8 @@ public class DocApi {
         for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
             moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
         }
-        User user = RequestContext.getCurrentContext().getApiUser();
         // 先删除之前的文档
+//        User user = RequestContext.getCurrentContext().getApiUser();
 //        docInfoService.deleteModuleDocs(moduleId, user.getUserId());
         for (DocPushItemParam detailPushParam : param.getApis()) {
             this.pushDocItem(detailPushParam);
