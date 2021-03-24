@@ -197,6 +197,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setIsShow(docInfoDTO.getIsShow());
         docInfo.setIsDeleted(docInfoDTO.getIsDeleted());
         this.getMapper().saveDocInfo(docInfo);
+        // 强制显示父文档
+        this.getMapper().showDoc(docInfo.getParentId());
         return docInfo;
     }
 
