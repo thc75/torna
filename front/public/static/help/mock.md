@@ -119,7 +119,7 @@ return data;
 function getItems() {
     return Mock.mock({
       "items|4-10": [
-        { "id": 2, "label": "华为" }
+        { "id": 2, "label": "手机" }
       ]
     })
 }
@@ -138,9 +138,32 @@ Object.assign(data, items)
 return data;
 ```
 
-postman请求结果如下：
+运行结果：
 
-<img src="/static/help/images/mock6.png" style="height: 400px" />
+```json
+{
+    "id": 1,
+    "name": "分类",
+    "items": [
+        {
+            "id": 2,
+            "label": "手机"
+        },
+        {
+            "id": 2,
+            "label": "手机"
+        },
+        {
+            "id": 2,
+            "label": "手机"
+        },
+        {
+            "id": 2,
+            "label": "手机"
+        }
+    ]
+}
+```
 
 - 例子3：map遍历
 
@@ -156,7 +179,7 @@ var result = {
 return result;
 ```
 
-返回：
+运行结果：
 
 ```json
 {
@@ -205,7 +228,7 @@ menuSource[0] = Mock.mock({
 return menuSource;
 ```
 
-返回:
+运行结果：
 
 ```json
 [
@@ -250,7 +273,7 @@ return menuSource;
 
 首先定义请求参数
 
-<img src="/static/help/images/mock7.png" style="height: 200px" />
+<img src="/static/help/images/mock6.png" style="height: 200px" />
 
 然后编写脚本：
 
@@ -263,7 +286,7 @@ return {
 
 运行结果如下：
 
-<img src="/static/help/images/mock8.png" style="height: 300px" />
+<img src="/static/help/images/mock7.png" style="height: 300px" />
 
 同理，如果参数填的是json格式，可以使用`var name = $body.name`获取变量。
 
