@@ -155,7 +155,7 @@ public class DocImportService {
             // 如果是文件夹
             if (item.isFolder()) {
                 Long parentId = parent == null ? 0L : parent.getId();
-                DocInfo folder = docInfoService.createDocFolderNoCheck(item.getName(), parentId, module.getId(), user);
+                DocInfo folder = docInfoService.createDocFolder(item.getName(), parentId, module.getId(), user);
                 // 创建模块下的文档
                 List<Item> subItems = item.getItem();
                 this.saveItems(subItems, folder, module, user);
@@ -248,7 +248,7 @@ public class DocImportService {
         List<DocModule> docModules = docBean.getDocModules();
         docModules.sort(Comparator.comparing(DocModule::getOrder));
         for (DocModule docModule : docModules) {
-            DocInfo moduleDocInfo = docInfoService.createDocFolderNoCheck(docModule.getModule(), module.getId(), user);
+            DocInfo moduleDocInfo = docInfoService.createDocFolder(docModule.getModule(), module.getId(), user);
             // 创建模块下的文档
             List<DocItem> items = docModule.getItems();
             for (DocItem item : items) {

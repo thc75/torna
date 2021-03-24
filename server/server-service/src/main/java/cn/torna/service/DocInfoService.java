@@ -12,7 +12,6 @@ import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.service.dto.DebugHostDTO;
-import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocParamDTO;
@@ -273,11 +272,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        DocInfo folder = getByModuleIdAndParentIdAndName(moduleId, 0L, folderName);
-        if (folder != null) {
-            return folder;
-        }
-        return this.createDocFolderNoCheck(folderName, moduleId, user);
+        return createDocFolder(folderName, 0L, moduleId, user);
     }
 
     /**
@@ -288,33 +283,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 操作人
      * @return 返回添加后的文档
      */
-    public DocInfo createDocFolderNoCheck(String folderName, Long parentId, long moduleId, User user) {
-        DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
-        docFolderCreateDTO.setName(folderName);
-        docFolderCreateDTO.setModuleId(moduleId);
-        docFolderCreateDTO.setParentId(parentId);
-        docFolderCreateDTO.setUser(user);
-        return this.createDocFolder(docFolderCreateDTO);
-    }
-
-    public DocInfo createDocFolderNoCheck(String folderName, long moduleId, User user) {
-        return createDocFolderNoCheck(folderName, 0L, moduleId, user);
-    }
-
-    /**
-     * 创建文档目录
-     * @param docFolderCreateDTO 分类信息
-     * @return DocInfo
-     */
-    public DocInfo createDocFolder(DocFolderCreateDTO docFolderCreateDTO) {
-        User user = docFolderCreateDTO.getUser();
-        DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
-        docItemCreateDTO.setModuleId(docFolderCreateDTO.getModuleId());
-        docItemCreateDTO.setName(docFolderCreateDTO.getName());
-        docItemCreateDTO.setParentId(docFolderCreateDTO.getParentId());
-        docItemCreateDTO.setUser(user);
-        docItemCreateDTO.setIsFolder(Booleans.TRUE);
-        return this.createDocItem(docItemCreateDTO);
+    public DocInfo createDocFolder(String folderName, Long parentId, long moduleId, User user) {
+        DocInfoDTO docInfoDTO = new DocInfoDTO();
+        docInfoDTO.setName(folderName);
+        docInfoDTO.setModuleId(moduleId);
+        docInfoDTO.setParentId(parentId);
+        docInfoDTO.setIsFolder(Booleans.TRUE);
+        return insertDocInfo(docInfoDTO, user);
     }
 
     public DocInfo createDocItem(DocItemCreateDTO docItemCreateDTO) {
@@ -322,43 +297,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docItemCreateDTO, DocInfoDTO::new);
         docInfoDTO.setIsDeleted(Booleans.FALSE);
         return insertDocInfo(docInfoDTO, user);
-    }
-
-    public DocInfo createDocItem0(DocItemCreateDTO docItemCreateDTO) {
-        User user = docItemCreateDTO.getUser();
-        Byte isFolder = docItemCreateDTO.getIsFolder();
-        String dataId = docItemCreateDTO.buildDataId();
-        DocInfo docInfo = getByDataId(dataId);
-        if (docInfo == null) {
-            docInfo = new DocInfo();
-            docInfo.setDataId(dataId);
-            docInfo.setUrl(docItemCreateDTO.getUrl());
-            docInfo.setHttpMethod(docItemCreateDTO.getHttpMethod());
-            docInfo.setContentType(docItemCreateDTO.getContentType());
-            docInfo.setName(docItemCreateDTO.getName());
-            docInfo.setModuleId(docItemCreateDTO.getModuleId());
-            docInfo.setParentId(docItemCreateDTO.getParentId());
-            docInfo.setIsFolder(isFolder);
-            docInfo.setCreatorId(user.getUserId());
-            docInfo.setCreatorName(user.getNickname());
-            docInfo.setCreateMode(user.getOperationModel());
-            docInfo.setModifierId(user.getUserId());
-            docInfo.setModifierName(user.getNickname());
-            docInfo.setModifyMode(user.getOperationModel());
-            docInfo.setModifierId(user.getUserId());
-            save(docInfo);
-        } else {
-            docInfo.setName(docItemCreateDTO.getName());
-            docInfo.setContentType(docItemCreateDTO.getContentType());
-            docInfo.setIsFolder(isFolder);
-            docInfo.setDataId(dataId);
-            docInfo.setModifyMode(user.getOperationModel());
-            docInfo.setModifierName(user.getNickname());
-            docInfo.setModifierId(user.getUserId());
-            docInfo.setIsDeleted(Booleans.FALSE);
-            update(docInfo);
-        }
-        return docInfo;
     }
 
     /**
