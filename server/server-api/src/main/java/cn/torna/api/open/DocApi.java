@@ -64,7 +64,7 @@ public class DocApi {
         }
         User user = RequestContext.getCurrentContext().getApiUser();
         // 先删除之前的文档
-        docInfoService.deleteModuleDocs(moduleId, user.getUserId());
+//        docInfoService.deleteModuleDocs(moduleId, user.getUserId());
         for (DocPushItemParam detailPushParam : param.getApis()) {
             this.pushDocItem(detailPushParam);
         }
