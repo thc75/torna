@@ -68,7 +68,4 @@
         gmt_modified = now()
     </insert>
 
-    <update id="showDoc">
-        UPDATE doc_info SET is_deleted=0 WHERE id=#{value} AND is_deleted=1
-    </update>
 </mapper>

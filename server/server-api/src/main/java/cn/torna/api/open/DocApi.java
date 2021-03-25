@@ -13,12 +13,13 @@ import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.common.util.json.JsonUtil;
 import cn.torna.dao.entity.DocInfo;
+import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.dto.DocInfoDTO;
-import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.annotation.Api;
@@ -29,7 +30,6 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,27 +47,35 @@ public class DocApi {
     @Autowired
     private ModuleConfigService moduleConfigService;
 
+    @Autowired
+    private TornaTransactionManager tornaTransactionManager;
+
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档",  order = 0, remark = "把第三方文档推送给Torna服务器")
-    @Transactional(rollbackFor = Exception.class)
     public void pushDoc(DocPushParam param) {
         ApiParam apiParam = ApiContext.getApiParam();
-        log.debug("推送文档, appKey:{}, token:{}, 推送内容：\n{}",
-                apiParam.fatchAppKey(),
-                apiParam.fatchAccessToken(),
-                JSON.toJSONString(param)
-        );
-        long moduleId = RequestContext.getCurrentContext().getModuleId();
-        // 设置调试环境
-        for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
-            moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
-        }
-        // 先删除之前的文档
-//        User user = RequestContext.getCurrentContext().getApiUser();
-//        docInfoService.deleteModuleDocs(moduleId, user.getUserId());
-        for (DocPushItemParam detailPushParam : param.getApis()) {
-            this.pushDocItem(detailPushParam);
-        }
+        ThreadPoolUtil.execute(() -> doPush(param, apiParam));
+    }
+
+    private void doPush(DocPushParam param, ApiParam apiParam) {
+        RequestContext context = RequestContext.getCurrentContext();
+        String appKey = apiParam.fatchAppKey();
+        String token = context.getToken();
+        log.info("收到文档推送，appKey:{}, token:{}", appKey, token);
+        long moduleId = context.getModuleId();
+        tornaTransactionManager.execute(() -> {
+            // 设置调试环境
+            for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+                moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
+            }
+            // 先删除之前的文档
+            User user = context.getApiUser();
+            docInfoService.deleteModuleDocs(moduleId, user.getUserId());
+            for (DocPushItemParam detailPushParam : param.getApis()) {
+                this.pushDocItem(detailPushParam);
+            }
+            return null;
+        }, e -> log.error("保存文档出错，appKey:{}, token:{}", appKey, token, e));
     }
 
     public void pushDocItem(DocPushItemParam param) {

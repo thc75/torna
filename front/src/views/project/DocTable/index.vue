@@ -42,14 +42,14 @@
       </div>
     </div>
     <el-table
-      :data="tableData"
+      v-loading="loading"
+      :data="tableRows"
       row-key="id"
       border
       default-expand-all
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       :cell-style="cellStyleSmall()"
       :header-cell-style="headCellStyleSmall()"
-      :row-class-name="tableRowClassName"
     >
       <el-table-column
         prop="name"
@@ -168,7 +168,39 @@ export default {
     return {
       moduleId: '',
       tableData: [],
-      tableSearch: ''
+      tableSearch: '',
+      loading: false
+    }
+  },
+  computed: {
+    tableRows() {
+      let search = this.tableSearch.trim()
+      if (!search) {
+        return this.tableData
+      }
+      search = search.toLowerCase()
+      const data = []
+      for (const row of this.tableData) {
+        // 如果是分类，需要找分类中的子文档
+        if (this.isFolder(row)) {
+          const children = row.children || []
+          const newChildren = children.filter(child => {
+            return this.searchContent(search, child)
+          })
+          // 如果找到了
+          if (newChildren.length > 0) {
+            const rowCopy = Object.assign({}, row)
+            rowCopy.children = newChildren
+            data.push(rowCopy)
+          }
+        } else {
+          // 不是分类找到了直接加入
+          if (this.searchContent(search, row)) {
+            data.push(row)
+          }
+        }
+      }
+      return data
     }
   },
   methods: {
@@ -184,9 +216,11 @@ export default {
       if (moduleId) {
         this.moduleId = moduleId
       }
+      this.loading = true
       this.get('/doc/list', { moduleId: this.moduleId }, function(resp) {
         this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
+        this.loading = false
       })
     },
     onFolderUpdate(row) {
@@ -235,21 +269,10 @@ export default {
     isFolder(row) {
       return row.isFolder === 1
     },
-    tableRowClassName({ row, index }) {
-      row.hidden = false
-      if (this.tableSearch.length === 0) {
-        return ''
-      }
-      const searchText = this.tableSearch.toLowerCase()
-      const find = (row.id && row.id.toLowerCase().indexOf(searchText) > -1) ||
+    searchContent(searchText, row) {
+      return (row.url && row.url.toLowerCase().indexOf(searchText) > -1) ||
         (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
-        (row.url && row.url.toLowerCase().indexOf(searchText) > -1)
-      // 没有找到，隐藏
-      if (!find) {
-        row.hidden = true
-        return 'hidden-row'
-      }
-      return ''
+        (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onDocRemove(row) {
       const data = {

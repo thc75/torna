@@ -10,6 +10,4 @@ public interface DocInfoMapper extends CrudMapper<DocInfo, Long> {
 
     int saveDocInfo(DocInfo docInfo);
 
-    int showDoc(Long id);
-
 }

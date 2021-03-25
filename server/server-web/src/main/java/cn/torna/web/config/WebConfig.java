@@ -3,6 +3,7 @@ package cn.torna.web.config;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.message.MessageFactory;
 import cn.torna.common.support.HashIdParamResolver;
+import cn.torna.common.thread.TornaAsyncConfigurer;
 import cn.torna.common.util.FastjsonUtil;
 import cn.torna.web.interceptor.AdminInterceptor;
 import cn.torna.web.interceptor.LoginInterceptor;
@@ -125,6 +126,11 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         fastJsonConfig.setDateFormat(FastjsonUtil.DATE_FORMAT);
         converter.setFastJsonConfig(fastJsonConfig);
         return new HttpMessageConverters(converter);
+    }
+
+    @Bean
+    public TornaAsyncConfigurer asyncConfigurer(@Value("${torna.thread-pool-size:4}") int threadPoolSize) {
+        return new TornaAsyncConfigurer("torna-sync", threadPoolSize);
     }
 
     @PostConstruct

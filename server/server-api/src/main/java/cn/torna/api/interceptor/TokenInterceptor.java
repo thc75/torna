@@ -27,7 +27,9 @@ public class TokenInterceptor extends ApiInterceptorAdapter {
         if (module == null) {
             throw Errors.ERROR_ACCESS_TOKEN.getException();
         }
-        RequestContext.getCurrentContext().setModuleId(module.getId());
+        RequestContext currentContext = RequestContext.getCurrentContext();
+        currentContext.setModuleId(module.getId());
+        currentContext.setToken(accessToken);
         return true;
     }
 

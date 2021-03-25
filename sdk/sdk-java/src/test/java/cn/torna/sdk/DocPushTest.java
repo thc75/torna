@@ -26,7 +26,7 @@ public class DocPushTest extends BaseTest {
         // 创建分类
         DocItem folder = new DocItem();
         folder.setIsFolder(Booleans.TRUE);
-        folder.setName("手机分类");
+        folder.setName("手机分类2");
 
         List<DocItem> items = new ArrayList<>(8);
         // 分类下面有文档
