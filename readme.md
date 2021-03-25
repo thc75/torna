@@ -75,10 +75,19 @@
 研发二部-后台项目（私有）-访客：dev2back_guest@torna.cn
 研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
 ```
+
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-docker-compose)
+
 ### kubernetes部署torna
 [【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-on-kubernetes)
+
+## 推荐组合
+
+**smart-doc + Torna实现文档全流程自动化**
+
+[smart-doc](https://gitee.com/smart-doc-team/smart-doc) + Torna 组成行业领先的文档生成和管理解决方案，使用smart-doc无侵入完成Java源代码和注释提取生成API文档，自动将文档推送到Torna企业级接口文档管理平台。
+
 ## 开发部署
 
 参见：[开发文档](http://torna.cn/dev/)
@@ -86,6 +95,8 @@
 ## 更新日志
 
 [changelog](./changelog.md)
+
+
 
 ## 界面预览
 
