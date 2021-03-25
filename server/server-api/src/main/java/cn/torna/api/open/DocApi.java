@@ -30,6 +30,7 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -40,6 +41,9 @@ import java.util.List;
 @ApiDoc(value = "文档API", order = 1)
 @Slf4j
 public class DocApi {
+
+    private static final String HTTP = "http:";
+    private static final String HTTPS = "https:";
 
     @Autowired
     private DocInfoService docInfoService;
@@ -93,8 +97,37 @@ public class DocApi {
                 }
             }
         } else {
+            formatUrl(docInfoDTO);
             docInfoService.saveDocInfo(docInfoDTO, user);
         }
+    }
+
+    private static void formatUrl(DocInfoDTO docInfoDTO) {
+        String url = docInfoDTO.getUrl();
+        url = removePrefix(url);
+        docInfoDTO.setUrl(url);
+    }
+
+    private static String removePrefix(String url) {
+        if (StringUtils.isEmpty(url)) {
+            return url;
+        }
+        char split = '/';
+        String urlLowerCase = url.toLowerCase();
+        if (urlLowerCase.startsWith(HTTP)) {
+            url = url.substring(HTTP.length());
+            url = StringUtils.trimLeadingCharacter(url, split);
+        } else if (urlLowerCase.startsWith(HTTPS)) {
+            url = url.substring(HTTPS.length());
+            url = StringUtils.trimLeadingCharacter(url, split);
+        } else if (url.charAt(0) != split) {
+            url = split + url;
+        }
+        int index = url.indexOf(split);
+        if (index > 0) {
+            url = url.substring(index);
+        }
+        return url;
     }
 
     @Api(name = "doc.list")
