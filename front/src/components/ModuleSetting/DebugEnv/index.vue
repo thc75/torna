@@ -6,7 +6,7 @@
       style="margin-bottom: 10px"
       @click="onDebugEnvAdd"
     >
-      添加环境
+      新增环境
     </el-button>
     <el-table
       :data="debugEnv"
