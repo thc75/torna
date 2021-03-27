@@ -1,7 +1,10 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.bean.Result;
+import cn.torna.common.util.CopyUtil;
+import cn.torna.dao.entity.EnumInfo;
 import cn.torna.service.EnumService;
+import cn.torna.service.dto.EnumInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,21 +28,16 @@ public class EnumController {
     private EnumService enumService;
 
     @GetMapping("info/baselist")
-    public Result<List<EnumInfoDTO>> baselist(@HashId Long moduleId) {
+    public Result<List<EnumInfoDTO>> listBase(@HashId Long moduleId) {
         List<EnumInfoDTO> enumInfoDTOS = enumService.listBase(moduleId);
         return Result.ok(enumInfoDTOS);
     }
 
-    @GetMapping("info/list")
-    public Result<List<EnumInfoDTO>> list(@HashId Long moduleId) {
-        List<EnumInfoDTO> enumInfoDTOS = enumService.listEnumInfo(moduleId);
-        return Result.ok(enumInfoDTOS);
-    }
-
     @PostMapping("info/add")
-    public Result add(@RequestBody EnumInfoDTO enumInfoDTO) {
-        enumService.addEnumInfo(enumInfoDTO);
-        return Result.ok();
+    public Result<EnumInfoDTO> add(@RequestBody EnumInfoDTO enumInfoDTO) {
+        EnumInfo enumInfo = enumService.addEnumInfo(enumInfoDTO);
+        EnumInfoDTO ret = CopyUtil.copyBean(enumInfo, EnumInfoDTO::new);
+        return Result.ok(ret);
     }
 
     @GetMapping("info/delete")
@@ -49,9 +47,10 @@ public class EnumController {
     }
 
     @PostMapping("info/update")
-    public Result update(@RequestBody EnumInfoDTO enumInfoDTO) {
-        enumService.updateEnumInfo(enumInfoDTO);
-        return Result.ok();
+    public Result<EnumInfoDTO> update(@RequestBody EnumInfoDTO enumInfoDTO) {
+        EnumInfo enumInfo = enumService.updateEnumInfo(enumInfoDTO);
+        EnumInfoDTO ret = CopyUtil.copyBean(enumInfo, EnumInfoDTO::new);
+        return Result.ok(ret);
     }
 
     @GetMapping("item/list")

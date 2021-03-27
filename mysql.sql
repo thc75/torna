@@ -59,7 +59,7 @@ CREATE TABLE `doc_param` (
   `name` varchar(64) NOT NULL DEFAULT '' COMMENT '字段名称',
   `type` varchar(64) NOT NULL DEFAULT 'String' COMMENT '字段类型',
   `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必须，1：是，0：否',
-  `max_length` varchar(64) NOT NULL DEFAULT '0' COMMENT '最大长度',
+  `max_length` varchar(64) NOT NULL DEFAULT '-' COMMENT '最大长度',
   `example` varchar(128) NOT NULL DEFAULT '' COMMENT '示例值',
   `description` varchar(256) NOT NULL DEFAULT '' COMMENT '描述',
   `enum_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'enum_info.id',

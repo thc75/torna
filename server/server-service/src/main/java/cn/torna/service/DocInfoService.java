@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +37,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
+
+    /** 数据节点占位符 */
+    public static final String DATA_PLACEHOLDER = "$data$";
 
     @Autowired
     private DocParamService docParamService;
@@ -119,8 +123,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
         List<DocParam> globalHeaders = this.listGlobalHeaders(docInfo.getModuleId());
-        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), new ArrayList<>(globalHeaders.size()));
-        headerParams.addAll(globalHeaders);
+        List<DocParam> globalParams = this.listGlobalParams(docInfo);
+        List<DocParam> globalReturns = this.listGlobalReturns(docInfo);
+        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), Collections.emptyList());
@@ -130,6 +135,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+
+        docInfoDTO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
+        docInfoDTO.setGlobalParams(CopyUtil.copyList(globalParams, DocParamDTO::new));
+        docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
         return docInfoDTO;
     }
 
@@ -143,6 +152,51 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                     docParam.setDescription(moduleConfig.getDescription());
                     docParam.setStyle(ParamStyleEnum.HEADER.getStyle());
                     docParam.setRequired(Booleans.TRUE);
+                    return docParam;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<DocParam> listGlobalParams(DocInfo docInfo) {
+        Long moduleId = docInfo.getModuleId();
+        List<ModuleConfig> globalParams = moduleConfigService.listGlobalParams(moduleId);
+        AtomicLong id = new AtomicLong(System.currentTimeMillis());
+        return globalParams.stream()
+                .map(moduleConfig -> {
+                    DocParam docParam = new DocParam();
+                    docParam.setId(id.incrementAndGet());
+                    docParam.setName(moduleConfig.getConfigKey());
+                    docParam.setExample(moduleConfig.getConfigValue());
+                    docParam.setDescription(moduleConfig.getDescription());
+                    docParam.setStyle(ParamStyleEnum.REQUEST.getStyle());
+                    docParam.setType(moduleConfig.getDataType());
+                    docParam.setDocId(docInfo.getId());
+                    docParam.setParentId(0L);
+                    docParam.setMaxLength("-");
+                    docParam.setRequired(Booleans.TRUE);
+                    return docParam;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<DocParam> listGlobalReturns(DocInfo docInfo) {
+        Long moduleId = docInfo.getModuleId();
+        List<ModuleConfig> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
+        AtomicLong id = new AtomicLong(System.currentTimeMillis());
+        return globalReturns.stream()
+                .map(moduleConfig -> {
+                    DocParam docParam = new DocParam();
+                    docParam.setId(id.incrementAndGet());
+                    docParam.setName(moduleConfig.getConfigKey());
+                    docParam.setExample(moduleConfig.getConfigValue());
+                    docParam.setDescription(moduleConfig.getDescription());
+                    docParam.setStyle(ParamStyleEnum.RESPONSE.getStyle());
+                    docParam.setType(moduleConfig.getDataType());
+                    docParam.setDocId(docInfo.getId());
+                    docParam.setEnumId(moduleConfig.getExtendId());
+                    docParam.setParentId(0L);
+                    docParam.setMaxLength("-");
+                    docParam.setRequired(Booleans.FALSE);
                     return docParam;
                 })
                 .collect(Collectors.toList());
@@ -187,6 +241,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setIsFolder(isFolder);
         docInfo.setParentId(docInfoDTO.getParentId());
         docInfo.setModuleId(docInfoDTO.getModuleId());
+        docInfo.setIsUseGlobalHeaders(docInfoDTO.getIsUseGlobalHeaders());
+        docInfo.setIsUseGlobalParams(docInfoDTO.getIsUseGlobalParams());
+        docInfo.setIsUseGlobalReturns(docInfoDTO.getIsUseGlobalReturns());
         docInfo.setCreateMode(user.getOperationModel());
         docInfo.setModifyMode(user.getOperationModel());
         docInfo.setCreatorId(user.getUserId());

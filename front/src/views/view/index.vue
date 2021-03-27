@@ -40,7 +40,7 @@ export default {
         this.get('/doc/view/detail', { id: docId }, function(resp) {
           this.load = true
           const data = resp.data
-          this.initDocInfo(data)
+          this.initDocInfoView(data)
           this.item = data
           this.infoItem = data
           this.setTitle(data.name)

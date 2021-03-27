@@ -15,6 +15,9 @@ import javax.validation.constraints.NotNull;
 public class DebugEnvParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     @NotNull
+    private Long id;
+
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
     /** 配置key, 数据库字段：config_key */

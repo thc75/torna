@@ -35,6 +35,21 @@ public class UpgradeService {
     public void upgrade() {
         v1_0_2();
         v1_1_0();
+        v1_2_0();
+    }
+
+    private void v1_2_0() {
+        String alterColumnUseGlobalHeaders = "ALTER TABLE `doc_info` ADD COLUMN `is_use_global_headers` TINYINT(4) NOT NULL DEFAULT 1  COMMENT '是否使用全局请求参数' AFTER `module_id`";
+        String alterColumnUseGlobalParams = "ALTER TABLE `doc_info` ADD COLUMN `is_use_global_params` TINYINT NOT NULL DEFAULT 1 COMMENT '是否使用全局请求参数' AFTER `is_use_global_headers`";
+        String alterColumnUseGlobalReturns = "ALTER TABLE `doc_info` ADD COLUMN `is_use_global_returns` TINYINT NOT NULL DEFAULT 1 COMMENT '是否使用全局返回参数' AFTER `is_use_global_params`";
+        this.addColumn("doc_info", "is_use_global_headers", alterColumnUseGlobalHeaders);
+        this.addColumn("doc_info", "is_use_global_params", alterColumnUseGlobalParams);
+        this.addColumn("doc_info", "is_use_global_returns", alterColumnUseGlobalReturns);
+
+        String alterColumnExtendId = "ALTER TABLE `module_config` ADD COLUMN `extend_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER `config_value`";
+        String alertColumnDataType = "ALTER TABLE `module_config` ADD COLUMN `data_type` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '数据类型' AFTER `config_value`";
+        this.addColumn("module_config", "extend_id", alterColumnExtendId);
+        this.addColumn("module_config", "data_type", alertColumnDataType);
     }
 
     /**
@@ -97,12 +112,15 @@ public class UpgradeService {
      * 添加表字段
      * @param tableName 表名
      * @param columnName 字段名
-     * @param type 字段类型，如：varchar(128),text,integer
+     * @param sql 添加字段sql
      * @return 返回true，插入成功
      */
-    private boolean addColumn(String tableName, String columnName, String type) {
-        upgradeMapper.addColumn(tableName, columnName, type);
-        return false;
+    private boolean addColumn(String tableName, String columnName, String sql) {
+        if (isColumnExist(tableName, columnName)) {
+            return false;
+        }
+        upgradeMapper.runSql(sql);
+        return true;
     }
 
     /**

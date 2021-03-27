@@ -22,6 +22,11 @@
         "id": "mock",
         "title": "Mock接口",
         "path": "static/help/mock.md"
+      },
+      {
+        "id": "global",
+        "title": "全局参数",
+        "path": "static/help/global.md"
       }
     ]
   }

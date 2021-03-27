@@ -9,12 +9,13 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.mapper.DocParamMapper;
+import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.EnumInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import cn.torna.service.dto.DocParamDTO;
-import cn.torna.service.dto.EnumInfoDTO;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -122,7 +123,11 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     private static String buildMaxLength(DocParamDTO docParamDTO) {
-        return CollectionUtils.isEmpty(docParamDTO.getChildren()) ? docParamDTO.getMaxLength() : "";
+        String maxLength = docParamDTO.getMaxLength();
+        if (StringUtils.isEmpty(maxLength) || "0".equals(maxLength)) {
+            maxLength = "-";
+        }
+        return CollectionUtils.isEmpty(docParamDTO.getChildren()) ? maxLength : "";
     }
 
     private Long buildEnumId(long moduleId, DocParamDTO docParamDTO) {
@@ -140,47 +145,5 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         return docParam;
     }
 
-    public DocParam saveParam0(DocParam docParam, User user) {
-        DocParam docParamExist;
-        Long id = docParam.getId();
-        String dataId = docParam.getDataId();
-        if (id != null) {
-            docParamExist = getById(id);
-        } else {
-            docParamExist = getByDataId(dataId);
-        }
-        if (docParamExist != null) {
-            if (docParam.getIsDeleted() != null && docParam.getIsDeleted() == Booleans.TRUE) {
-                this.delete(docParamExist);
-                return docParamExist;
-            }
-            docParamExist.setDataId(docParam.getDataId());
-            docParamExist.setName(docParam.getName());
-            docParamExist.setType(docParam.getType());
-            docParamExist.setRequired(docParam.getRequired());
-            docParamExist.setMaxLength(docParam.getMaxLength());
-            docParamExist.setExample(docParam.getExample());
-            docParamExist.setDescription(docParam.getDescription());
-            docParamExist.setEnumId(docParam.getEnumId());
-            docParamExist.setDocId(docParam.getDocId());
-            docParamExist.setParentId(docParam.getParentId());
-            docParamExist.setStyle(docParam.getStyle());
-            docParamExist.setModifyMode(docParam.getModifyMode());
-            docParamExist.setModifierId(docParam.getModifierId());
-            docParamExist.setModifierName(docParam.getModifierName());
-            docParamExist.setIsDeleted(Booleans.FALSE);
-            update(docParamExist);
-            return docParamExist;
-        } else {
-            docParam.setCreatorId(user.getUserId());
-            docParam.setCreateMode(user.getOperationModel());
-            docParam.setCreatorName(user.getNickname());
-            docParam.setModifierId(user.getUserId());
-            docParam.setModifyMode(user.getOperationModel());
-            docParam.setModifierName(user.getNickname());
-            save(docParam);
-            return docParam;
-        }
-    }
 
 }

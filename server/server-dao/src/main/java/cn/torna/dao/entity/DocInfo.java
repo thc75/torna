@@ -51,6 +51,15 @@ public class DocInfo {
     /** 模块id，module.id, 数据库字段：module_id */
     private Long moduleId;
 
+    /** 是否使用全局请求参数, 数据库字段：is_use_global_headers */
+    private Byte isUseGlobalHeaders;
+
+    /** 是否使用全局请求参数, 数据库字段：is_use_global_params */
+    private Byte isUseGlobalParams;
+
+    /** 是否使用全局返回参数, 数据库字段：is_use_global_returns */
+    private Byte isUseGlobalReturns;
+
     /** 新增操作方式，0：人工操作，1：开放平台推送, 数据库字段：create_mode */
     private Byte createMode;
 
@@ -60,13 +69,13 @@ public class DocInfo {
     /** 创建人, 数据库字段：creator_id */
     private Long creatorId;
 
-    /** 创建者昵称user_info.realname, 数据库字段：creator_name */
+    /** 创建者昵称user_info.nickname, 数据库字段：creator_name */
     private String creatorName;
 
     /** 修改人, 数据库字段：modifier_id */
     private Long modifierId;
 
-    /** 创建者昵称user_info.nickname, 数据库字段：modifier_name */
+    /** 创建者昵称user_info.realname, 数据库字段：modifier_name */
     private String modifierName;
 
     /** 排序索引, 数据库字段：order_index */

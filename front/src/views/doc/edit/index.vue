@@ -68,6 +68,14 @@
       <el-tab-pane label="请求头" name="headerParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">添加Header</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">导入Header</el-button>
+        <span class="split">|</span>
+        <el-switch
+          v-model="docInfo.isUseGlobalHeaders"
+          active-text="使用全局请求头"
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
         <edit-table
           ref="headerParamTable"
           :data="docInfo.headerParams"
@@ -78,11 +86,27 @@
       <el-tab-pane label="请求参数" name="requestParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加请求参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入请求参数</el-button>
+        <span class="split">|</span>
+        <el-switch
+          v-model="docInfo.isUseGlobalParams"
+          active-text="使用全局请求参数"
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
         <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
       </el-tab-pane>
       <el-tab-pane label="响应参数" name="responseParam">
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">导入响应参数</el-button>
+        <span class="split">|</span>
+        <el-switch
+          v-model="docInfo.isUseGlobalReturns"
+          active-text="使用全局响应参数"
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
         <edit-table ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
       </el-tab-pane>
       <el-tab-pane label="错误码" name="errorCode">
@@ -172,6 +196,9 @@ export default {
         httpMethod: 'GET',
         parentId: '',
         moduleId: '',
+        isUseGlobalHeaders: 1,
+        isUseGlobalParams: 1,
+        isUseGlobalReturns: 1,
         isShow: 1,
         pathParams: [],
         headerParams: [],
@@ -330,6 +357,7 @@ export default {
         viewData.requestParams = this.getRequestParamsData()
         viewData.responseParams = this.getResponseParamsData()
         viewData.errorCodeParams = this.getErrorCodeParamsData()
+        this.initDocInfoCompleteView(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })
     },

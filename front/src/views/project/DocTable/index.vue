@@ -41,17 +41,19 @@
         </div>
       </div>
     </div>
-    <el-table
-      v-loading="loading"
+    <u-table
+      ref="plTreeTable"
       :data="tableRows"
-      row-key="id"
+      row-id="id"
+      use-virtual
+      show-body-overflow
+      :treeConfig="{ children: 'children', iconClose: 'el-icon-folder-add', iconOpen: 'el-icon-folder-remove', expandAll: true}"
+      :height="tableHeight"
+      :row-height="30"
       border
-      default-expand-all
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-      :cell-style="cellStyleSmall()"
-      :header-cell-style="headCellStyleSmall()"
     >
-      <el-table-column
+      <u-table-column
+        :tree-node="true"
         prop="name"
         label="文档名称"
       >
@@ -65,8 +67,8 @@
             </div>
           </div>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         prop="url"
         label="请求路径"
       >
@@ -74,27 +76,27 @@
           <http-method v-if="scope.row.url" :method="scope.row.httpMethod" />
           <span style="margin-left: 5px;">{{ scope.row.url }}</span>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         prop="creatorName"
         label="创建人"
         width="100"
       />
-      <el-table-column
+      <u-table-column
         prop="gmtCreate"
         label="创建时间"
         width="100"
       >
         <template slot-scope="scope">
-          <time-tooltip :time="scope.row.gmtCreate" />
+          <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         prop="modifierName"
         label="最后修改人"
         width="100"
       />
-      <el-table-column
+      <u-table-column
         prop="gmtModified"
         label="修改时间"
         width="100"
@@ -102,8 +104,8 @@
         <template slot-scope="scope">
           <time-tooltip :time="scope.row.gmtModified" />
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
         width="140"
@@ -123,8 +125,8 @@
             </el-popconfirm>
           </div>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-else
         label="操作"
         width="80"
@@ -136,8 +138,8 @@
             </router-link>
           </div>
         </template>
-      </el-table-column>
-    </el-table>
+      </u-table-column>
+    </u-table>
   </div>
 </template>
 <style lang="scss">
@@ -167,6 +169,7 @@ export default {
   data() {
     return {
       moduleId: '',
+      tableHeight: 0,
       tableData: [],
       tableSearch: '',
       loading: false
@@ -203,6 +206,13 @@ export default {
       return data
     }
   },
+  created() {
+    this.initHeight()
+    window.addEventListener('resize', this.initHeight)
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.initHeight)
+  },
   methods: {
     refreshTable() {
       this.loadTable(function() {
@@ -222,6 +232,9 @@ export default {
         callback && callback.call(this)
         this.loading = false
       })
+    },
+    initHeight() {
+      this.tableHeight = window.innerHeight - 165
     },
     onFolderUpdate(row) {
       this.$prompt('请输入分类名称', '修改分类', {

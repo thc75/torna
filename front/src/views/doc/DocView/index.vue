@@ -57,7 +57,7 @@
     <h4>请求参数</h4>
     <parameter-table :data="docInfo.requestParams" />
     <h4>响应参数</h4>
-    <parameter-table :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
+    <parameter-table :data="docInfo.responseParams" />
     <h4>响应示例</h4>
     <pre class="normal-text">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>错误码</h4>
@@ -153,6 +153,9 @@ export default {
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
+        globalHeaders: [],
+        globalParams: [],
+        globalReturns: [],
         debugEnvs: [],
         folders: []
       },
@@ -176,7 +179,7 @@ export default {
       if (docId) {
         this.get(this.url, { id: docId }, function(resp) {
           const data = resp.data
-          this.initDocInfo(data)
+          this.initDocInfoView(data)
           this.setData(data)
         })
       }

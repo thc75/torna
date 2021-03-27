@@ -4,7 +4,14 @@
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { do_get, get, get_baseUrl, get_file, post } from './http'
-import { convert_tree, create_response_example, get_requestUrl, init_docInfo } from './common'
+import {
+  convert_tree,
+  create_response_example,
+  get_requestUrl,
+  init_docInfo,
+  init_docInfo_view,
+  init_docInfo_complete_view
+} from './common'
 import { format_json } from '@/utils/format'
 import { Enums } from './enums'
 import { add_init } from './init'
@@ -21,7 +28,8 @@ const typeConfig = [
   'boolean',
   'array',
   'object',
-  'file'
+  'file',
+  'enum'
 ]
 
 const baseTypeConfig = [
@@ -181,6 +189,11 @@ Object.assign(Vue.prototype, {
       }
     })
   },
+  loadEnumData(moduleId, callback) {
+    this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
+      callback.call(this, resp.data)
+    })
+  },
   goLogin(url) {
     removeToken()
     // this.$router.replace({ path: `/login` })
@@ -197,6 +210,12 @@ Object.assign(Vue.prototype, {
   },
   initDocInfo(data) {
     return init_docInfo(data)
+  },
+  initDocInfoView(data) {
+    return init_docInfo_view(data)
+  },
+  initDocInfoCompleteView(data) {
+    return init_docInfo_complete_view(data)
   },
   /**
    * array转tree，必须要有id,parentId属性

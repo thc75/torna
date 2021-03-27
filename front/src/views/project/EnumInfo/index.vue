@@ -1,59 +1,75 @@
 <template>
   <div>
-    <el-button
-      v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-      type="primary"
-      size="mini"
-      @click="onItemInfoAdd"
-    >
-      添加字典分类
-    </el-button>
-    <div v-for="enumInfo in enumData" :key="enumInfo.id">
-      <h3 class="enum-title">
-        {{ enumInfo.name }}
-        <el-link v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" type="primary" icon="el-icon-edit" @click="onEnumInfoUpdate(enumInfo)" />
-        <el-popconfirm
-          :title="`确定要删除 ${enumInfo.name} 吗？`"
-          @onConfirm="onEnumInfoDelete(enumInfo)"
-        >
-          <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" icon="el-icon-delete" />
-        </el-popconfirm>
-      </h3>
-      <el-alert v-if="enumInfo.description" :closable="false" :title="enumInfo.description" style="margin-bottom: 10px;" />
+    <h3>
       <el-button
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-        type="text"
-        @click="onEnumItemAdd(enumInfo)"
+        type="primary"
+        size="mini"
+        @click="onItemInfoAdd"
       >
-        添加字典
+        添加字典分类
       </el-button>
-      <el-table
-        :data="enumInfo.items"
-        border
-        :header-cell-style="cellStyleSmall()"
-        :cell-style="cellStyleSmall()"
-      >
-        <el-table-column label="名称" prop="name"/>
-        <el-table-column label="类型" prop="type"/>
-        <el-table-column label="值" prop="value"/>
-        <el-table-column label="描述" prop="description"/>
-        <el-table-column
+    </h3>
+    <el-tabs v-show="baseData.length > 0" v-model="activeName" type="border-card" @tab-click="onTabClick">
+      <el-tab-pane v-for="info in baseData" :key="info.id" :label="info.name" :name="info.id">
+        <span slot="label">
+          {{ info.name }}
+          <el-dropdown
+            v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+            v-show="info.id === enumInfo.id"
+            trigger="click"
+            style="margin-left: 5px;"
+            @command="handleCommand"
+          >
+            <span class="el-dropdown-link">
+              <el-tooltip placement="top" content="更多操作" :open-delay="500">
+                <a class="el-icon-setting el-icon--right"></a>
+              </el-tooltip>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-edit" :command="onEnumInfoUpdate">修改</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-delete" :command="onEnumInfoDelete">删除</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </span>
+      </el-tab-pane>
+      <div>
+        <el-alert v-if="enumInfo.description" :closable="false" :title="enumInfo.description" style="margin-bottom: 10px;" />
+        <el-button
           v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-          label="操作"
-          width="150"
+          type="text"
+          @click="onEnumItemAdd"
         >
-          <template slot-scope="scope">
-            <el-link type="primary" @click="onEnumItemUpdate(scope.row)">修改</el-link>
-            <el-popconfirm
-              :title="`确定要删除 ${scope.row.name} 吗？`"
-              @onConfirm="onEnumItemDelete(scope.row)"
-            >
-              <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">删除</el-link>
-            </el-popconfirm>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+          添加字典
+        </el-button>
+        <el-table
+          :data="enumData"
+          border
+          :header-cell-style="cellStyleSmall()"
+          :cell-style="cellStyleSmall()"
+        >
+          <el-table-column label="名称" prop="name" />
+          <el-table-column label="类型" prop="type" />
+          <el-table-column label="值" prop="value" />
+          <el-table-column label="描述" prop="description" />
+          <el-table-column
+            v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+            label="操作"
+            width="150"
+          >
+            <template slot-scope="scope">
+              <el-link type="primary" @click="onEnumItemUpdate(scope.row)">修改</el-link>
+              <el-popconfirm
+                :title="`确定要删除 ${scope.row.name} 吗？`"
+                @onConfirm="onEnumItemDelete(scope.row)"
+              >
+                <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">删除</el-link>
+              </el-popconfirm>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-tabs>
     <!--dialog-->
     <el-dialog
       :title="dialogEnumInfoTitle"
@@ -150,7 +166,13 @@ export default {
   },
   data() {
     return {
+      activeName: '',
       moduleId: '',
+      enumInfo: {
+        id: '',
+        name: ''
+      },
+      baseData: [],
       enumData: [],
       dialogEnumInfoVisible: false,
       dialogEnumInfoTitle: '',
@@ -200,19 +222,28 @@ export default {
       this.loadData(this.moduleId)
     },
     loadData(moduleId) {
-      this.get('/doc/enum/info/list', { moduleId: moduleId }, resp => {
-        this.enumData = resp.data
+      this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
+        this.baseData = resp.data
+        if (this.enumInfo.id) {
+          this.loadTable(this.enumInfo.id)
+        } else if (this.baseData.length > 0) {
+          this.loadTable(this.baseData[0].id)
+        }
       })
     },
+    onTabClick(tab) {
+      this.loadTable(tab.name)
+    },
     loadTable(enumId) {
-      this.loadEnumItem(enumId).then(data => {
-        for (let i = 0; i < this.enumData.length; i++) {
-          const row = this.enumData[i]
-          if (row.id === enumId) {
-            row.items = data
-            break
-          }
+      for (const info of this.baseData) {
+        if (enumId === info.id) {
+          this.enumInfo = info
+          break
         }
+      }
+      this.activeName = enumId
+      this.loadEnumItem(enumId).then(data => {
+        this.enumData = data
       })
     },
     onItemInfoAdd() {
@@ -221,14 +252,26 @@ export default {
       this.dialogEnumInfoFormData.id = 0
       this.dialogEnumInfoFormData.moduleId = this.moduleId
     },
-    onEnumInfoUpdate(row) {
+    onEnumInfoUpdate() {
+      const row = this.enumInfo
       this.dialogEnumInfoTitle = '修改字典分类'
       this.dialogEnumInfoVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogEnumInfoFormData, row)
       })
     },
-    onEnumItemAdd(enumInfo) {
+    onEnumInfoDelete() {
+      const row = this.enumInfo
+      this.confirm(`确认要删除 ${row.name} 吗？`, () => {
+        this.get('/doc/enum/info/delete', { id: row.id }, () => {
+          this.enumInfo.id = ''
+          this.reload()
+        })
+      })
+    },
+    // item
+    onEnumItemAdd() {
+      const enumInfo = this.enumInfo
       this.dialogEnumItemTitle = '新增字典'
       this.dialogEnumItemVisible = true
       this.dialogEnumItemFormData.id = 0
@@ -245,7 +288,8 @@ export default {
       this.$refs.dialogEnumInfoForm.validate((valid) => {
         if (valid) {
           const uri = this.dialogEnumInfoFormData.id ? '/doc/enum/info/update' : '/doc/enum/info/add'
-          this.post(uri, this.dialogEnumInfoFormData, () => {
+          this.post(uri, this.dialogEnumInfoFormData, resp => {
+            this.enumInfo = resp.data
             this.reload()
             this.dialogEnumInfoVisible = false
           })
@@ -263,11 +307,6 @@ export default {
         }
       })
     },
-    onEnumInfoDelete(row) {
-      this.get('/doc/enum/info/delete', { id: row.id }, () => {
-        this.reload()
-      })
-    },
     onEnumItemDelete(row) {
       this.get('/doc/enum/item/delete', { id: row.id }, () => {
         this.loadTable(row.enumId)
@@ -276,3 +315,10 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.el-dropdown-link {
+  a:hover {
+    color: #409eff;
+  }
+}
+</style>

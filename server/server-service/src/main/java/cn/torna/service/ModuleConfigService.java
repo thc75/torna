@@ -21,6 +21,14 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_HEADERS);
     }
 
+    public List<ModuleConfig> listGlobalParams(long moduleId) {
+        return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_PARAMS);
+    }
+
+    public List<ModuleConfig> listGlobalReturns(long moduleId) {
+        return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_RETURNS);
+    }
+
     /**
      * 设置模块调试环境
      * @param moduleId 模块id

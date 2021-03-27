@@ -46,6 +46,15 @@ public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long projectId;
 
+    /** 是否使用全局请求参数, 数据库字段：is_use_global_headers */
+    private Byte isUseGlobalHeaders;
+
+    /** 是否使用全局请求参数, 数据库字段：is_use_global_params */
+    private Byte isUseGlobalParams;
+
+    /** 是否使用全局返回参数, 数据库字段：is_use_global_returns */
+    private Byte isUseGlobalReturns;
+
     /** 创建人 */
     private String creatorName;
 
@@ -76,5 +85,9 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams;
+
+    private List<DocParamDTO> globalHeaders;
+    private List<DocParamDTO> globalParams;
+    private List<DocParamDTO> globalReturns;
 
 }

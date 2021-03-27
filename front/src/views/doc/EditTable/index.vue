@@ -155,7 +155,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: '无参数'
+      default: '无数据'
     },
     canAddNode: {
       type: Boolean,
@@ -208,7 +208,9 @@ export default {
   },
   mounted() {
     if (this.moduleId) {
-      this.loadEnumData(this.moduleId)
+      this.loadEnumData(this.moduleId, data => {
+        this.enumData = data
+      })
     }
   },
   methods: {
@@ -217,11 +219,6 @@ export default {
     },
     isTextColumn(name) {
       return this.textColumns.filter(val => val === name).length > 0
-    },
-    loadEnumData(moduleId) {
-      this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
-        this.enumData = resp.data
-      })
     },
     onParamNodeAdd(row) {
       const children = row.children || []
