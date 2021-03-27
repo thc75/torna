@@ -39,7 +39,7 @@ public List<User> findAll(){
 
 在这种情况下，可以配置全局返回参数，然后指定数据节点，具体操作方式如下：
 
-前往`模块配置` -> `全局返回参数`，点击`添加返回参数`
+前往`模块配置` -> `全局返回参数`，点击`添加`
 
 <img src="/static/help/images/global1.png" style="height: 300px" />
 

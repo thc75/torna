@@ -6,7 +6,7 @@
       style="margin-bottom: 10px"
       @click="onHeaderAdd"
     >
-      添加Header
+      添加
     </el-button>
     <el-table
       :data="globalHeaders"
