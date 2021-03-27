@@ -6,7 +6,7 @@
       style="margin-bottom: 10px"
       @click="onParamAdd"
     >
-      添加参数
+      添加返回参数
     </el-button>
     <help-link style="margin-left: 20px;" to="/help?id=global" />
     <el-table
