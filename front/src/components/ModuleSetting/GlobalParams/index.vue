@@ -8,6 +8,7 @@
     >
       添加参数
     </el-button>
+    <help-link style="margin-left: 20px;" to="/help?id=global" />
     <el-table
       :data="globalParams"
       border
@@ -82,7 +83,9 @@
   </div>
 </template>
 <script>
+import HelpLink from '@/components/HelpLink'
 export default {
+  components: { HelpLink },
   data() {
     return {
       globalParams: [],

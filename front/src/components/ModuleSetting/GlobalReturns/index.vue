@@ -6,8 +6,9 @@
       style="margin-bottom: 10px"
       @click="onParamAdd"
     >
-      添加返回参数
+      添加参数
     </el-button>
+    <help-link style="margin-left: 20px;" to="/help?id=global" />
     <el-table
       :data="globalReturns"
       border
@@ -102,10 +103,11 @@
   </div>
 </template>
 <script>
-
+import HelpLink from '@/components/HelpLink'
 const DATA_PLACEHOLDER = '$data$'
 
 export default {
+  components: { HelpLink },
   data() {
     return {
       globalReturns: [],
