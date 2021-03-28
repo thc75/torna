@@ -1,14 +1,10 @@
 # 调试接口
 
-如果要调试接口，必须先设置调试环境。前往【模块配置】
+如果要调试接口，必须先设置调试环境。前往【模块配置】-> 【调试环境】
 
-<img src="/static/help/images/debug1.png" style="height: 200px" />
+<img src="/static/help/images/debug1.png" style="height: 300px" />
 
-找到 【调试环境】，点击添加环境
-
-<img src="/static/help/images/debug2.png" style="height: 100px" />
-
-输入环境名称以及调试路径，到端口号即可
+点击`新增环境`，输入环境名称以及调试路径，到端口号即可
 
 <img src="/static/help/images/debug3.png" style="height: 300px" />
 
