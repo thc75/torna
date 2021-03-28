@@ -16,6 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <fastmybatis.version>1.10.0</fastmybatis.version>
     </properties>
 
     <modules>
@@ -28,13 +29,26 @@
         <module>server-web</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <!-- https://gitee.com/durcframework/fastmybatis -->
             <dependency>
                 <groupId>net.oschina.durcframework</groupId>
                 <artifactId>fastmybatis-spring-boot-starter</artifactId>
-                <version>1.10.0</version>
+                <version>${fastmybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.oschina.durcframework</groupId>
+                <artifactId>fastmybatis-core</artifactId>
+                <version>${fastmybatis.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -80,6 +94,11 @@
                 <groupId>com.github.anji-plus</groupId>
                 <artifactId>captcha</artifactId>
                 <version>1.1.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.12.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

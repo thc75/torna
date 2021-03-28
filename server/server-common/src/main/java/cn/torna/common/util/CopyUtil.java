@@ -1,6 +1,5 @@
 package cn.torna.common.util;
 
-import com.gitee.fastmybatis.core.PageInfo;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
