@@ -96,6 +96,9 @@
 
 [changelog](./changelog.md)
 
+## 参与贡献
+
+欢迎贡献代码，PR请提交到`develop`分支
 
 
 ## 界面预览
