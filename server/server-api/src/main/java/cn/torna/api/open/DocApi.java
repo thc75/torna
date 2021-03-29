@@ -58,11 +58,11 @@ public class DocApi {
     @ApiDocMethod(description = "推送文档",  order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
         ApiParam apiParam = ApiContext.getApiParam();
-        ThreadPoolUtil.execute(() -> doPush(param, apiParam));
+        RequestContext context = RequestContext.getCurrentContext();
+        ThreadPoolUtil.execute(() -> doPush(param, apiParam, context));
     }
 
-    private void doPush(DocPushParam param, ApiParam apiParam) {
-        RequestContext context = RequestContext.getCurrentContext();
+    private void doPush(DocPushParam param, ApiParam apiParam, RequestContext context) {
         String appKey = apiParam.fatchAppKey();
         String token = context.getToken();
         log.info("收到文档推送，appKey:{}, token:{}", appKey, token);
@@ -76,15 +76,15 @@ public class DocApi {
             User user = context.getApiUser();
             docInfoService.deleteModuleDocs(moduleId, user.getUserId());
             for (DocPushItemParam detailPushParam : param.getApis()) {
-                this.pushDocItem(detailPushParam);
+                this.pushDocItem(detailPushParam, context);
             }
             return null;
         }, e -> log.error("保存文档出错，appKey:{}, token:{}", appKey, token, e));
     }
 
-    public void pushDocItem(DocPushItemParam param) {
-        User user = RequestContext.getCurrentContext().getApiUser();
-        long moduleId = RequestContext.getCurrentContext().getModuleId();
+    public void pushDocItem(DocPushItemParam param, RequestContext context) {
+        User user = context.getApiUser();
+        long moduleId = context.getModuleId();
         DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
         docInfoDTO.setModuleId(moduleId);
         if (Booleans.isTrue(param.getIsFolder())) {
@@ -93,7 +93,7 @@ public class DocApi {
             if (items != null) {
                 for (DocPushItemParam item : items) {
                     item.setParentId(folder.getId());
-                    this.pushDocItem(item);
+                    this.pushDocItem(item, context);
                 }
             }
         } else {

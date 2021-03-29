@@ -9,12 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RequestContext extends ConcurrentHashMap<String, Object> {
 
-    protected static final InheritableThreadLocal<? extends RequestContext> THREAD_LOCAL = new InheritableThreadLocal<RequestContext>() {
-        @Override
-        protected RequestContext initialValue() {
-            return new RequestContext();
-        }
-    };
+    protected static final ThreadLocal<? extends RequestContext> THREAD_LOCAL = ThreadLocal.withInitial(() -> new RequestContext());
 
     private static final String MODULE_ID_KEY = "api-module-id";
     private static final String API_USER_KEY = "api-user-obj";

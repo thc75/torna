@@ -2,6 +2,7 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
@@ -35,9 +36,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
-
-    /** 数据节点占位符 */
-    public static final String DATA_PLACEHOLDER = "$data$";
 
     @Autowired
     private DocParamService docParamService;
@@ -302,6 +300,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     public void deleteModuleDocs(long moduleId, long userId) {
         Query query = new Query()
                 .eq("module_id", moduleId)
+                .eq("create_mode", OperationMode.OPEN.getType())
                 .eq("creator_id", userId);
         this.getMapper().deleteByQuery(query);
     }
