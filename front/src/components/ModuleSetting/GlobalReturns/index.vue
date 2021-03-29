@@ -15,12 +15,12 @@
       :header-cell-style="cellStyleSmall()"
       :cell-style="cellStyleSmall()"
     >
-      <el-table-column label="参数名" prop="configKey" width="300px" />
-      <el-table-column label="类型" prop="dataType" width="120px" />
-      <el-table-column label="示例值" prop="configValue" >
+      <el-table-column label="参数名" prop="name" width="300px" />
+      <el-table-column label="类型" prop="type" width="120px" />
+      <el-table-column label="示例值" prop="example" >
         <template slot-scope="scope">
           <span v-show="!isNodeData(scope.row)">
-            {{ scope.row.configValue }}
+            {{ scope.row.example }}
           </span>
         </template>
       </el-table-column>
@@ -32,7 +32,7 @@
         <template slot-scope="scope">
           <el-link type="primary" size="mini" @click="onParamUpdate(scope.row)">修改</el-link>
           <el-popconfirm
-            :title="`确定要删除 ${scope.row.configKey} 吗？`"
+            :title="`确定要删除 ${scope.row.name} 吗？`"
             @onConfirm="onParamDelete(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">删除</el-link>
@@ -55,30 +55,30 @@
         size="mini"
       >
         <el-form-item
-          prop="configKey"
+          prop="name"
           label="参数名称"
         >
-          <el-input v-model="dialogParamFormData.configKey" placeholder="参数名称" show-word-limit maxlength="50" />
+          <el-input v-model="dialogParamFormData.name" placeholder="参数名称" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="dataType"
           label="参数类型"
         >
-          <el-select v-model="dialogParamFormData.dataType" size="mini">
+          <el-select v-model="dialogParamFormData.type" size="mini">
             <el-option v-for="type in getTypeConfig()" :key="type" :label="type" :value="type"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item
           label="关联字典"
         >
-          <el-select v-model="dialogParamFormData.extendId" :clearable="true" size="mini">
+          <el-select v-model="dialogParamFormData.enumId" :clearable="true" size="mini">
             <el-option v-for="enumInfo in enumData" :key="enumInfo.id" :label="enumInfo.name" :value="enumInfo.id">
               {{ enumInfo.name }}
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item
-          prop="configValue"
+          prop="example"
           label="示例值"
         >
           <el-switch
@@ -86,7 +86,7 @@
             active-text="是否数据节点"
             inactive-text=""
           />
-          <el-input v-show="!isDataNode" v-model="dialogParamFormData.configValue" placeholder="示例值" show-word-limit maxlength="200" />
+          <el-input v-show="!isDataNode" v-model="dialogParamFormData.example" placeholder="示例值" show-word-limit maxlength="200" />
         </el-form-item>
         <el-form-item
           prop="description"
@@ -118,14 +118,14 @@ export default {
       dialogParamFormData: {
         id: '',
         moduleId: '',
-        configKey: '',
-        configValue: '',
-        extendId: '',
-        dataType: 'string',
+        name: '',
+        example: '',
+        type: 'string',
+        enumId: '',
         description: ''
       },
       dialogParamFormRules: {
-        configKey: [
+        name: [
           { required: true, message: '不能为空', trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^[a-zA-Z0-9\-_]+$/.test(value)) {
@@ -142,11 +142,11 @@ export default {
     isDataNode: {
       set(b) {
         if (b) {
-          this.dialogParamFormData.dataType = 'object'
-          this.dialogParamFormData.configValue = DATA_PLACEHOLDER
+          this.dialogParamFormData.type = 'object'
+          this.dialogParamFormData.example = DATA_PLACEHOLDER
         } else {
-          this.dialogParamFormData.dataType = 'string'
-          this.dialogParamFormData.configValue = ''
+          this.dialogParamFormData.type = 'string'
+          this.dialogParamFormData.example = ''
         }
       },
       get() {
@@ -172,13 +172,13 @@ export default {
       })
     },
     isNodeData(row) {
-      return row.configValue === DATA_PLACEHOLDER
+      return row.example === DATA_PLACEHOLDER
     },
     onParamAdd() {
       this.dialogParamTitle = '新增参数'
       this.dialogParamVisible = true
       this.dialogParamFormData.id = ''
-      this.dialogParamFormData.extendId = ''
+      this.dialogParamFormData.type = 'string'
     },
     onParamUpdate(row) {
       this.dialogParamTitle = '修改参数'

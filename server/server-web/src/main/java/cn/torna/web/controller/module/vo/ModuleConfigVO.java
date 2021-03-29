@@ -30,8 +30,6 @@ public class ModuleConfigVO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long extendId;
 
-    private String dataType;
-
     private String description;
 
 }

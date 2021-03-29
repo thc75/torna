@@ -25,11 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -113,18 +111,19 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
-        Module module = moduleService.getById(docInfo.getModuleId());
+        Long moduleId = docInfo.getModuleId();
+        Module module = moduleService.getById(moduleId);
         docInfoDTO.setProjectId(module.getProjectId());
         docInfoDTO.setModuleType(module.getType());
-        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(docInfo.getModuleId());
+        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
         docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
-        List<DocParam> globalHeaders = this.listGlobalHeaders(docInfo.getModuleId());
-        List<DocParam> globalParams = this.listGlobalParams(docInfo);
-        List<DocParam> globalReturns = this.listGlobalReturns(docInfo);
+        List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
+        List<DocParam> globalParams = moduleConfigService.listGlobalParams(moduleId);
+        List<DocParam> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
         List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
@@ -141,67 +140,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
         return docInfoDTO;
     }
-
-    private List<DocParam> listGlobalHeaders(long moduleId) {
-        List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
-        return globalHeaders.stream()
-                .map(moduleConfig -> {
-                    DocParam docParam = new DocParam();
-                    docParam.setName(moduleConfig.getConfigKey());
-                    docParam.setExample(moduleConfig.getConfigValue());
-                    docParam.setDescription(moduleConfig.getDescription());
-                    docParam.setStyle(ParamStyleEnum.HEADER.getStyle());
-                    docParam.setRequired(Booleans.TRUE);
-                    return docParam;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private List<DocParam> listGlobalParams(DocInfo docInfo) {
-        Long moduleId = docInfo.getModuleId();
-        List<ModuleConfig> globalParams = moduleConfigService.listGlobalParams(moduleId);
-        AtomicLong id = new AtomicLong(System.currentTimeMillis());
-        return globalParams.stream()
-                .map(moduleConfig -> {
-                    DocParam docParam = new DocParam();
-                    docParam.setId(id.incrementAndGet());
-                    docParam.setName(moduleConfig.getConfigKey());
-                    docParam.setExample(moduleConfig.getConfigValue());
-                    docParam.setDescription(moduleConfig.getDescription());
-                    docParam.setStyle(ParamStyleEnum.REQUEST.getStyle());
-                    docParam.setType(moduleConfig.getDataType());
-                    docParam.setDocId(docInfo.getId());
-                    docParam.setParentId(0L);
-                    docParam.setMaxLength("-");
-                    docParam.setRequired(Booleans.TRUE);
-                    return docParam;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private List<DocParam> listGlobalReturns(DocInfo docInfo) {
-        Long moduleId = docInfo.getModuleId();
-        List<ModuleConfig> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
-        AtomicLong id = new AtomicLong(System.currentTimeMillis());
-        return globalReturns.stream()
-                .map(moduleConfig -> {
-                    DocParam docParam = new DocParam();
-                    docParam.setId(id.incrementAndGet());
-                    docParam.setName(moduleConfig.getConfigKey());
-                    docParam.setExample(moduleConfig.getConfigValue());
-                    docParam.setDescription(moduleConfig.getDescription());
-                    docParam.setStyle(ParamStyleEnum.RESPONSE.getStyle());
-                    docParam.setType(moduleConfig.getDataType());
-                    docParam.setDocId(docInfo.getId());
-                    docParam.setEnumId(moduleConfig.getExtendId());
-                    docParam.setParentId(0L);
-                    docParam.setMaxLength("-");
-                    docParam.setRequired(Booleans.FALSE);
-                    return docParam;
-                })
-                .collect(Collectors.toList());
-    }
-
 
     /**
      * 保存文档信息

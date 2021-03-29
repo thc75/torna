@@ -39,9 +39,6 @@ public class ModuleConfig {
     /** 扩展ID, 数据库字段：extend_id */
     private Long extendId;
 
-    /** 数据类型, 数据库字段：data_type */
-    private String dataType;
-
     /** 描述, 数据库字段：description */
     private String description;
 

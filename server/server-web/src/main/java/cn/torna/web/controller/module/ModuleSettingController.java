@@ -5,16 +5,15 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.context.ModuleConfigKeys;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.service.ModuleConfigService;
-import cn.torna.service.ModuleService;
+import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
-import cn.torna.web.controller.module.param.ModuleConfigParam;
-import cn.torna.web.controller.module.param.ModuleGlobalHeaderUpdateParam;
-import cn.torna.web.controller.module.param.ModuleGlobalParamsUpdateParam;
-import cn.torna.web.controller.module.param.ModuleGlobalReturnsUpdateParam;
+import cn.torna.web.controller.module.param.ModuleGlobalParam;
 import cn.torna.web.controller.module.vo.ModuleConfigVO;
+import cn.torna.web.controller.module.vo.ModuleGlobalVO;
 import cn.torna.web.controller.module.vo.SwaggerSettingVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +30,6 @@ import java.util.List;
 @RestController
 @RequestMapping("module/setting")
 public class ModuleSettingController {
-
-    @Autowired
-    private ModuleService moduleService;
 
     @Autowired
     private ModuleConfigService moduleConfigService;
@@ -80,103 +76,103 @@ public class ModuleSettingController {
         return Result.ok();
     }
 
+    private static List<ModuleGlobalVO> convertModuleGlobalVO(List<DocParam> docParams, long moduleId) {
+        List<ModuleGlobalVO> moduleConfigVOS = CopyUtil.copyList(docParams, ModuleGlobalVO::new, vo -> {
+            vo.setModuleId(moduleId);
+        });
+        return moduleConfigVOS;
+    }
+
+    // globalHeaders
+
     @PostMapping("/globalHeaders/add")
-    public Result addHadder(@RequestBody ModuleConfigParam param) {
-        ModuleConfig systemConfig = new ModuleConfig();
-        CopyUtil.copyPropertiesIgnoreNull(param, systemConfig);
-        systemConfig.setModuleId(param.getModuleId());
-        systemConfig.setType(ModuleConfigTypeEnum.GLOBAL_HEADERS.getType());
-        moduleConfigService.save(systemConfig);
+    public Result addHeader(@RequestBody ModuleGlobalParam param) {
+        DocParamDTO docParamDTO = CopyUtil.copyBean(param, DocParamDTO::new);
+        moduleConfigService.addGlobal(docParamDTO, param.getModuleId(), ModuleConfigTypeEnum.GLOBAL_HEADERS);
         return Result.ok();
     }
 
     @GetMapping("/globalHeaders/list")
-    public Result<List<ModuleConfigVO>> listHeader(@HashId Long moduleId) {
-        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalHeaders(moduleId);
-        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
+    public Result<List<ModuleGlobalVO>> listHeader(@HashId Long moduleId) {
+        List<DocParam> docParams = moduleConfigService.listGlobal(moduleId, ModuleConfigTypeEnum.GLOBAL_HEADERS);
+        List<ModuleGlobalVO> moduleConfigVOS = convertModuleGlobalVO(docParams, moduleId);
         return Result.ok(moduleConfigVOS);
     }
 
     @PostMapping("/globalHeaders/update")
-    public Result updateHeader(@RequestBody ModuleGlobalHeaderUpdateParam param) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
-        CopyUtil.copyPropertiesIgnoreNull(param, moduleConfig);
-        moduleConfigService.update(moduleConfig);
+    public Result updateHeader(@RequestBody ModuleGlobalParam param) {
+        this.updateGlobal(param);
         return Result.ok();
     }
 
     @PostMapping("/globalHeaders/delete")
-    public Result deleteHeader(@RequestBody ModuleConfigParam systemConfig) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(systemConfig.getId());
-        moduleConfigService.delete(moduleConfig);
+    public Result deleteHeader(@RequestBody ModuleGlobalParam param) {
+        this.deleteGlobal(param);
         return Result.ok();
     }
 
-    //globalParams
+    private void updateGlobal(ModuleGlobalParam param) {
+        DocParamDTO docParamDTO = CopyUtil.copyBean(param, DocParamDTO::new);
+        moduleConfigService.updateGlobal(docParamDTO);
+    }
+
+    public void deleteGlobal(ModuleGlobalParam param) {
+        moduleConfigService.deleteGlobal(param.getModuleId(), param.getId());
+    }
+
+    // globalParams
 
     @PostMapping("/globalParams/add")
-    public Result addParams(@RequestBody ModuleConfigParam param) {
-        ModuleConfig systemConfig = new ModuleConfig();
-        CopyUtil.copyPropertiesIgnoreNull(param, systemConfig);
-        systemConfig.setModuleId(param.getModuleId());
-        systemConfig.setType(ModuleConfigTypeEnum.GLOBAL_PARAMS.getType());
-        moduleConfigService.save(systemConfig);
+    public Result addParams(@RequestBody ModuleGlobalParam param) {
+        DocParamDTO docParamDTO = CopyUtil.copyBean(param, DocParamDTO::new);
+        moduleConfigService.addGlobal(docParamDTO, param.getModuleId(), ModuleConfigTypeEnum.GLOBAL_PARAMS);
         return Result.ok();
     }
 
     @GetMapping("/globalParams/list")
-    public Result<List<ModuleConfigVO>> listParams(@HashId Long moduleId) {
-        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalParams(moduleId);
-        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
+    public Result<List<ModuleGlobalVO>> listParams(@HashId Long moduleId) {
+        List<DocParam> docParams = moduleConfigService.listGlobalParams(moduleId);
+        List<ModuleGlobalVO> moduleConfigVOS = convertModuleGlobalVO(docParams, moduleId);
         return Result.ok(moduleConfigVOS);
     }
 
     @PostMapping("/globalParams/update")
-    public Result updateParams(@RequestBody ModuleGlobalParamsUpdateParam param) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
-        CopyUtil.copyPropertiesIgnoreNull(param, moduleConfig);
-        moduleConfigService.update(moduleConfig);
+    public Result updateParams(@RequestBody ModuleGlobalParam param) {
+        this.updateGlobal(param);
         return Result.ok();
     }
 
     @PostMapping("/globalParams/delete")
-    public Result deleteParams(@RequestBody ModuleConfigParam systemConfig) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(systemConfig.getId());
-        moduleConfigService.delete(moduleConfig);
+    public Result deleteParams(@RequestBody ModuleGlobalParam param) {
+        this.deleteGlobal(param);
         return Result.ok();
     }
 
     // globalReturns
 
     @PostMapping("/globalReturns/add")
-    public Result addReturns(@RequestBody ModuleConfigParam param) {
-        ModuleConfig systemConfig = new ModuleConfig();
-        CopyUtil.copyPropertiesIgnoreNull(param, systemConfig);
-        systemConfig.setModuleId(param.getModuleId());
-        systemConfig.setType(ModuleConfigTypeEnum.GLOBAL_RETURNS.getType());
-        moduleConfigService.save(systemConfig);
+    public Result addReturns(@RequestBody ModuleGlobalParam param) {
+        DocParamDTO docParamDTO = CopyUtil.copyBean(param, DocParamDTO::new);
+        moduleConfigService.addGlobal(docParamDTO, param.getModuleId(), ModuleConfigTypeEnum.GLOBAL_RETURNS);
         return Result.ok();
     }
 
     @GetMapping("/globalReturns/list")
-    public Result<List<ModuleConfigVO>> listReturns(@HashId Long moduleId) {
-        List<ModuleConfig> moduleConfigs = moduleConfigService.listGlobalReturns(moduleId);
-        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
+    public Result<List<ModuleGlobalVO>> listReturns(@HashId Long moduleId) {
+        List<DocParam> docParams = moduleConfigService.listGlobalReturns(moduleId);
+        List<ModuleGlobalVO> moduleConfigVOS = convertModuleGlobalVO(docParams, moduleId);
         return Result.ok(moduleConfigVOS);
     }
 
     @PostMapping("/globalReturns/update")
-    public Result updateReturns(@RequestBody ModuleGlobalReturnsUpdateParam param) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(param.getId());
-        CopyUtil.copyPropertiesIgnoreNull(param, moduleConfig);
-        moduleConfigService.update(moduleConfig);
+    public Result updateReturns(@RequestBody ModuleGlobalParam param) {
+        this.updateGlobal(param);
         return Result.ok();
     }
 
     @PostMapping("/globalReturns/delete")
-    public Result deleteReturns(@RequestBody ModuleConfigParam systemConfig) {
-        ModuleConfig moduleConfig = moduleConfigService.getById(systemConfig.getId());
-        moduleConfigService.delete(moduleConfig);
+    public Result deleteReturns(@RequestBody ModuleGlobalParam param) {
+        this.deleteGlobal(param);
         return Result.ok();
     }
 

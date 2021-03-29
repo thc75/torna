@@ -14,8 +14,8 @@
       :header-cell-style="cellStyleSmall()"
       :cell-style="cellStyleSmall()"
     >
-      <el-table-column label="Name" prop="configKey" width="300px" />
-      <el-table-column label="Value" prop="configValue" />
+      <el-table-column label="Name" prop="name" width="300px" />
+      <el-table-column label="Value" prop="example" />
       <el-table-column label="描述" prop="description" />
       <el-table-column
         label="操作"
@@ -24,7 +24,7 @@
         <template slot-scope="scope">
           <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">修改</el-link>
           <el-popconfirm
-            :title="`确定要删除 ${scope.row.configKey} 吗？`"
+            :title="`确定要删除 ${scope.row.name} 吗？`"
             @onConfirm="onHeaderDelete(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">删除</el-link>
@@ -47,16 +47,16 @@
         size="mini"
       >
         <el-form-item
-          prop="configKey"
+          prop="name"
           label="Name"
         >
-          <el-input v-model="dialogHeaderFormData.configKey" placeholder="name" show-word-limit maxlength="50" />
+          <el-input v-model="dialogHeaderFormData.name" placeholder="name" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
-          prop="configValue"
+          prop="example"
           label="Value"
         >
-          <el-input v-model="dialogHeaderFormData.configValue" placeholder="value" show-word-limit maxlength="200" />
+          <el-input v-model="dialogHeaderFormData.example" placeholder="value" show-word-limit maxlength="200" />
         </el-form-item>
         <el-form-item
           prop="description"
@@ -83,12 +83,12 @@ export default {
       dialogHeaderFormData: {
         id: '',
         moduleId: '',
-        configKey: '',
-        configValue: '',
+        name: '',
+        example: '',
         description: ''
       },
       dialogHeaderFormRules: {
-        configKey: [
+        name: [
           { required: true, message: '不能为空', trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^[a-zA-Z0-9\-_]+$/.test(value)) {
@@ -97,7 +97,7 @@ export default {
               callback()
             }
           }, trigger: 'blur' }
-        ], configValue: [
+        ], example: [
           { required: true, message: '不能为空', trigger: 'blur' }
         ]
       }

@@ -1,7 +1,11 @@
 package cn.torna.service;
 
+import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.dao.entity.ColumnInfo;
+import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.mapper.UpgradeMapper;
+import cn.torna.service.dto.DocParamDTO;
+import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -25,6 +29,9 @@ public class UpgradeService {
     @Autowired
     private UpgradeMapper upgradeMapper;
 
+    @Autowired
+    private ModuleConfigService moduleConfigService;
+
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
 
@@ -47,9 +54,28 @@ public class UpgradeService {
         this.addColumn("doc_info", "is_use_global_returns", alterColumnUseGlobalReturns);
 
         String alterColumnExtendId = "ALTER TABLE `module_config` ADD COLUMN `extend_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER `config_value`";
-        String alertColumnDataType = "ALTER TABLE `module_config` ADD COLUMN `data_type` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '数据类型' AFTER `config_value`";
         this.addColumn("module_config", "extend_id", alterColumnExtendId);
-        this.addColumn("module_config", "data_type", alertColumnDataType);
+
+        this.transferData();
+    }
+
+    private void transferData() {
+        ModuleConfigTypeEnum moduleConfigTypeEnum = ModuleConfigTypeEnum.GLOBAL_HEADERS;
+        Query query = new Query()
+                .eq("type", moduleConfigTypeEnum.getType())
+                .eq("extend_id", 0);
+
+        List<ModuleConfig> moduleConfigList = moduleConfigService.list(query);
+        for (ModuleConfig moduleConfig : moduleConfigList) {
+            DocParamDTO docParamDTO = new DocParamDTO();
+            docParamDTO.setName(moduleConfig.getConfigKey());
+            docParamDTO.setExample(moduleConfig.getConfigValue());
+            docParamDTO.setDescription(moduleConfig.getDescription());
+            moduleConfigService.saveDocParam(docParamDTO, moduleConfigTypeEnum, docParam -> {
+                moduleConfig.setExtendId(docParam.getId());
+                moduleConfigService.update(moduleConfig);
+            });
+        }
     }
 
     /**
