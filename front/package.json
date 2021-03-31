@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "crypto-js": "^4.0.0",
     "diff-match-patch": "^1.0.5",
     "element-ui": "2.13.0",
     "fast-text-encoding": "^1.0.3",
