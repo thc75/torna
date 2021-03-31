@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 public class ConfigVO {
 
-    private Boolean enableCaptcha;
+    private Boolean enableReg;
 
 }

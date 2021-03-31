@@ -30,6 +30,6 @@ public class ConfigController implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        configVO.setEnableCaptcha(BooleanUtils.toBoolean(environment.getProperty("torna.captcha.enable", "false")));
+        configVO.setEnableReg(BooleanUtils.toBoolean(environment.getProperty("torna.register.enable", "true")));
     }
 }
