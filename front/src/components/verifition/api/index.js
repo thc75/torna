@@ -2,8 +2,9 @@
  * 此处可直接引用自己项目封装好的 axios 配合后端联调
  */
 
-import request from './../utils/axios' // 组件内部封装的axios
-// import request from "@/api/axios.js"       // 调用项目封装的axios
+
+import request from "./../utils/axios"  //组件内部封装的axios
+// import request from "@/api/axios.js"       //调用项目封装的axios
 
 const baseURL = process.env.VUE_APP_BASE_API
 
@@ -24,3 +25,4 @@ export function reqCheck(data) {
     data
   })
 }
+

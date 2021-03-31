@@ -1,9 +1,7 @@
 <template>
     <div style="position: relative"
         >
-        <div class="verify-img-out"
-             v-show="showImage"
-             >
+        <div class="verify-img-out">
             <div class="verify-img-panel" :style="{'width': setSize.imgWidth,
                                                    'height': setSize.imgHeight,
                                                    'background-size' : setSize.imgWidth + ' '+ setSize.imgHeight,
@@ -12,7 +10,7 @@
                 <div class="verify-refresh" style="z-index:3" @click="refresh" v-show="showRefresh">
                     <i class="iconfont icon-refresh"></i>
                 </div>
-                <img :src="'data:image/png;base64,'+pointBackImgBase"
+                <img :src="pointBackImgBase?('data:image/png;base64,'+pointBackImgBase):defaultImg" 
                 ref="canvas"
                 alt=""  style="width:100%;height:100%;display:block"
                 @click="bindingClick?canvasClick($event):undefined">
@@ -87,10 +85,15 @@
                         height: '40px'
                     }
                 }
+            },
+            defaultImg: {
+                type: String,
+                default: ''
             }
         },
         data() {
             return {
+                secretKey:'',           //后端返回的ase加密秘钥
                 checkNum:3,             //默认需要点击的字数
                 fontPos: [],            //选中的坐标信息
                 checkPosArr: [],        //用户点击的坐标
@@ -98,14 +101,12 @@
                 pointBackImgBase:'',    //后端获取到的背景图片
                 poinTextList:[],        //后端返回的点击字体顺序
                 backToken:'',           //后端返回的token值
-                imgRand: 0, // //随机的背景图片
                 setSize: {
                     imgHeight: 0,
                     imgWidth: 0,
                     barHeight: 0,
                     barWidth: 0
                 },
-                showImage: true,
                 tempPoints: [],
                 text: '',
                 barAreaColor: undefined,
@@ -141,10 +142,10 @@
                     setTimeout(() => {
                         // var flag = this.comparePos(this.fontPos, this.checkPosArr);
                         //发送后端请求
-                        var captchaVerification = aesEncrypt(this.backToken+'---'+JSON.stringify(this.checkPosArr))
+                        var captchaVerification = this.secretKey? aesEncrypt(this.backToken+'---'+JSON.stringify(this.checkPosArr),this.secretKey):this.backToken+'---'+JSON.stringify(this.checkPosArr)
                         let data = {
                             captchaType:this.captchaType,
-                            "pointJson":aesEncrypt(JSON.stringify(this.checkPosArr)),
+                            "pointJson":this.secretKey? aesEncrypt(JSON.stringify(this.checkPosArr),this.secretKey):JSON.stringify(this.checkPosArr),
                             "token":this.backToken
                         }
                         reqCheck(data).then(res=>{
@@ -176,11 +177,11 @@
                     this.num = this.createPoint(this.getMousePos(this.$refs.canvas, e));
                 }
             },
-
+        
             //获取坐标
             getMousePos: function (obj, e) {
-                var x = e.offsetX
-                var y = e.offsetY
+                var x = e.offsetX 
+                var y = e.offsetY 
                 return {x, y}
             },
             //创建坐标点
@@ -204,26 +205,35 @@
             // 请求背景图片和验证图片
             getPictrue(){
                 let data = {
-                    captchaType:this.captchaType
+                    captchaType:this.captchaType,
+                    clientUid: localStorage.getItem('point'), 
+                    ts: Date.now(), // 现在的时间戳
                 }
                 reqGet(data).then(res=>{
                     if (res.repCode == "0000") {
                         this.pointBackImgBase = res.repData.originalImageBase64
                         this.backToken = res.repData.token
+                        this.secretKey = res.repData.secretKey
                         this.poinTextList = res.repData.wordList
                         this.text = '请依次点击【' + this.poinTextList.join(",") + '】'
                     }else{
                         this.text = res.repMsg;
+                    }
+
+                    // 判断接口请求次数是否失效
+                    if(res.repCode == '6201') {
+                        this.pointBackImgBase = null
                     }
                 })
             },
             //坐标转换函数
             pointTransfrom(pointArr,imgSize){
                 var newPointArr = pointArr.map(p=>{
-                    let x = Math.round(310 * p.x/parseInt(imgSize.imgWidth))
-                    let y =Math.round(155 * p.y/parseInt(imgSize.imgHeight))
+                    let x = Math.round(310 * p.x/parseInt(imgSize.imgWidth)) 
+                    let y =Math.round(155 * p.y/parseInt(imgSize.imgHeight)) 
                     return {x,y}
                 })
+                // console.log(newPointArr,"newPointArr");
                 return newPointArr
             }
         },

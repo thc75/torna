@@ -26,8 +26,8 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.anji-plus</groupId>
-            <artifactId>captcha</artifactId>
+            <groupId>com.anji-plus</groupId>
+            <artifactId>spring-boot-starter-captcha</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

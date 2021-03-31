@@ -5,7 +5,7 @@
             >
             <div class="verify-img-panel" :style="{width: setSize.imgWidth,
                                                    height: setSize.imgHeight,}">
-                <img :src="'data:image/png;base64,'+backImgBase" alt="" style="width:100%;height:100%;display:block">
+                <img :src="backImgBase?('data:image/png;base64,'+backImgBase):defaultImg" alt="" style="width:100%;height:100%;display:block">
                 <div class="verify-refresh" @click="refresh" v-show="showRefresh"><i class="iconfont icon-refresh"></i>
                 </div>
                 <transition name="tips">
@@ -27,15 +27,14 @@
                      :style="{width: barSize.height, height: barSize.height, 'background-color': moveBlockBackgroundColor, left: moveBlockLeft, transition: transitionLeft}">
                     <i :class="['verify-icon iconfont', iconClass]"
                        :style="{color: iconColor}"></i>
-                    <div v-if="type === '2'"
-                         class="verify-sub-block"
-                         :style="{'width':Math.floor(parseInt(setSize.imgWidth)*47/310)+ 'px',
+                    <div v-if="type === '2'" class="verify-sub-block"
+                        :style="{'width':Math.floor(parseInt(setSize.imgWidth)*47/310)+ 'px',
                                   'height': setSize.imgHeight,
                                   'top':'-' + (parseInt(setSize.imgHeight) + vSpace) + 'px',
                                   'background-size': setSize.imgWidth + ' ' + setSize.imgHeight,
                                   }">
-                         <img :src="'data:image/png;base64,'+blockBackImgBase" alt=""  style="width:100%;height:100%;display:block">
-                         </div>
+                        <img :src="'data:image/png;base64,'+blockBackImgBase" alt=""  style="width:100%;height:100%;display:block">
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,10 +99,15 @@
                         height: '40px'
                     }
                 }
+            },
+            defaultImg: {
+                type: String,
+                default: ''
             }
         },
         data() {
             return {
+                secretKey:'',        //后端返回的加密秘钥 字段
                 passFlag:'',         //是否通过的标识
                 backImgBase:'',      //验证码背景图片
                 blockBackImgBase:'', //验证滑块的背景图片
@@ -241,7 +245,7 @@
                     moveLeftDistance = moveLeftDistance * 310/ parseInt(this.setSize.imgWidth)
                     let data = {
                         captchaType:this.captchaType,
-                        "pointJson":aesEncrypt(JSON.stringify({x:moveLeftDistance,y:5.0})),
+                        "pointJson":this.secretKey ? aesEncrypt(JSON.stringify({x:moveLeftDistance,y:5.0}),this.secretKey):JSON.stringify({x:moveLeftDistance,y:5.0}),
                         "token":this.backToken
                     }
                     reqCheck(data).then(res=>{
@@ -260,7 +264,7 @@
                             }
                             this.passFlag = true
                             this.tipWords = `${((this.endMovetime-this.startMoveTime)/1000).toFixed(2)}s验证成功`
-                            var captchaVerification = aesEncrypt(this.backToken+'---'+JSON.stringify({x:moveLeftDistance,y:5.0}))
+                            var captchaVerification = this.secretKey ? aesEncrypt(this.backToken+'---'+JSON.stringify({x:moveLeftDistance,y:5.0}),this.secretKey):this.backToken+'---'+JSON.stringify({x:moveLeftDistance,y:5.0})
                             setTimeout(()=>{
                                 this.tipWords = ""
                                 this.$parent.closeBox();
@@ -313,15 +317,24 @@
             // 请求背景图片和验证图片
             getPictrue(){
                 let data = {
-                    captchaType:this.captchaType
+                    captchaType:this.captchaType,
+                    clientUid: localStorage.getItem('slider'), 
+                    ts: Date.now(), // 现在的时间戳
                 }
                 reqGet(data).then(res=>{
                     if (res.repCode == "0000") {
                         this.backImgBase = res.repData.originalImageBase64
                         this.blockBackImgBase = res.repData.jigsawImageBase64
                         this.backToken = res.repData.token
+                        this.secretKey = res.repData.secretKey
                     }else{
                         this.tipWords = res.repMsg;
+                    }
+
+                    // 判断接口请求次数是否失效
+                    if(res.repCode == '6201') {
+                        this.backImgBase = null
+                        this.blockBackImgBase = null
                     }
                 })
             },
@@ -340,6 +353,7 @@
             this.$el.onselectstart = function () {
                 return false
             }
+            console.log(this.defaultImg)
         },
     }
 </script>

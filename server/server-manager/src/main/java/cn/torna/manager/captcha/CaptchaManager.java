@@ -16,7 +16,6 @@ import org.springframework.util.Assert;
 public class CaptchaManager {
 
     @Autowired
-    @Lazy
     private CaptchaService captchaService;
 
     @Value("${torna.captcha.enable:false}")
@@ -38,7 +37,7 @@ public class CaptchaManager {
         //repCode  6110  验证码已失效，请重新获取
         //repCode  6111  验证失败
         //repCode  6112  获取验证码失败,请联系管理员
-        if (responseModel.isError()) {
+        if (!responseModel.isSuccess()) {
             throw new RuntimeException(responseModel.getRepMsg());
         }
     }
