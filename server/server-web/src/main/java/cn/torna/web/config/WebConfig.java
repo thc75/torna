@@ -11,6 +11,7 @@ import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.system.ApplicationHome;
@@ -27,7 +28,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 @Configuration
 @Slf4j
-public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
+public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, InitializingBean {
 
     @Value("${torna.front-location:}")
     private String frontLocation;
@@ -133,8 +133,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         return new TornaAsyncConfigurer("torna-sync", threadPoolSize);
     }
 
-    @PostConstruct
-    public void after() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         List<String> messages = Arrays.asList("i18n/message/message");
         MessageFactory.initMessageSource(messages);
     }

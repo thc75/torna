@@ -5,11 +5,11 @@ import cn.torna.common.bean.UserCacheManager;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @author tanghc
  */
 @Service
-public class DefaultUserCacheManager implements UserCacheManager {
+public class DefaultUserCacheManager implements UserCacheManager, InitializingBean {
 
     @Autowired
     private UserInfoService userInfoService;
@@ -56,8 +56,9 @@ public class DefaultUserCacheManager implements UserCacheManager {
                 });
     }
 
-    @PostConstruct
-    public void after() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         userCache = buildCache(timeoutMinutes);
     }
+
 }

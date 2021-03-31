@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.2.2
+
+- [fix]Java11无法使用`@PostConstruct`问题
+
 ## 1.2.1
 
 - [fix]推送获取错误token问题
