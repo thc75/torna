@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <fastmybatis.version>1.10.0</fastmybatis.version>
+        <fastmybatis.version>1.10.2</fastmybatis.version>
     </properties>
 
     <modules>
@@ -89,11 +89,6 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
                 <version>4.5.13</version>
-            </dependency>
-            <dependency>
-                <groupId>com.anji-plus</groupId>
-                <artifactId>spring-boot-starter-captcha</artifactId>
-                <version>1.2.8</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

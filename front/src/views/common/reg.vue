@@ -61,12 +61,11 @@
 </template>
 <script>
 import md5 from 'js-md5'
-import Verify from '@/components/verifition/Verify'
 import Logo from '@/components/Logo'
 
 export default {
   name: 'Reg',
-  components: { Verify, Logo },
+  components: { Logo },
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.regForm.password) {
@@ -77,7 +76,7 @@ export default {
     }
     return {
       serverConfig: {
-        enableCaptcha: false
+        enableReg: false
       },
       query: {},
       submited: false,
@@ -138,13 +137,13 @@ export default {
       this.goRoute('/login')
     },
     handleReg() {
+      if (!this.serverConfig.enableReg) {
+        alert('不允许注册')
+        return false
+      }
       this.$refs.regForm.validate(valid => {
         if (valid) {
-          if (this.serverConfig.enableCaptcha) {
-            this.useVerify()
-          } else {
-            this.doSubmit()
-          }
+          this.doSubmit()
         }
       })
     },
@@ -168,9 +167,6 @@ export default {
           })
         }
       })
-    },
-    useVerify() {
-      this.$refs.verify.show()
     }
   }
 }

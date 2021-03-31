@@ -2,7 +2,7 @@
 
 ## 1.2.2
 
-- [fix]Java11无法使用`@PostConstruct`问题
+- [fix]Java11无法打包问题
 
 ## 1.2.1
 

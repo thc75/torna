@@ -31,8 +31,8 @@
       </el-form-item>
       <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">登 录</el-button>
       <div class="footer">
-        <el-link type="primary" :underline="false" @click="onReg">注册新账号</el-link>
-        <span class="split">|</span>
+        <el-link v-if="serverConfig.enableReg" type="primary" :underline="false" @click="onReg">注册新账号</el-link>
+        <span v-if="serverConfig.enableReg" class="split">|</span>
         <el-link type="primary" :underline="false" @click="onForgetPwd">忘记密码？</el-link>
       </div>
     </el-form>
@@ -63,6 +63,9 @@ export default {
       }
     }
     return {
+      serverConfig: {
+        enableReg: false
+      },
       loginForm: {
         username: '',
         password: ''
@@ -86,6 +89,9 @@ export default {
   },
   created() {
     removeToken()
+    this.getServerConfig(config => {
+      Object.assign(this.serverConfig, config)
+    })
   },
   methods: {
     onReg: function() {
