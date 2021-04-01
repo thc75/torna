@@ -107,7 +107,7 @@ function get_token() {
   return `Bearer ${token}`
 }
 
-export function request(method, uri, data, headers, isMultipart, callback) {
+export function request(method, uri, data, headers, isMultipart, callback, errorCall) {
   if (isMultipart) {
     doMultipart.call(this, uri, data, headers, callback)
     return
@@ -118,7 +118,7 @@ export function request(method, uri, data, headers, isMultipart, callback) {
   const params = hasQuery ? data : null
   const postData = !hasQuery ? data : null
   axios.request({
-    url: get_full_url(uri),
+    url: uri,
     method: method,
     headers: headers,
     params: params,
@@ -130,6 +130,7 @@ export function request(method, uri, data, headers, isMultipart, callback) {
     .catch(error => {
       console.error('error', error)
       that.$message.error('请求异常，请查看日志')
+      errorCall && errorCall.call(that)
     })
 }
 

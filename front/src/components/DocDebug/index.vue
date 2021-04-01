@@ -10,6 +10,18 @@
               :label="hostConfig.configKey"
             />
           </el-radio-group>
+          <span class="split">|</span>
+          <el-checkbox v-model="isProxy" label="代理转发" />
+          <el-popover
+            placement="right"
+            title="代理转发"
+            width="400"
+            trigger="hover"
+          >
+            <p>勾选：服务端代理转发请求</p>
+            <p>取消勾选：页面使用axios请求，需要处理跨域</p>
+            <i slot="reference" class="el-icon-question"></i>
+          </el-popover>
           <el-input v-model="requestUrl" :readonly="pathData.length > 0" class="request-url">
             <span slot="prepend">
               {{ currentMethod }}
@@ -272,7 +284,7 @@
 <script>
 require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
-import { request } from '@/utils/http'
+import { request, get_full_url } from '@/utils/http'
 import { get_effective_url } from '@/utils/common'
 
 const HOST_KEY = 'torna.debug-host'
@@ -288,6 +300,7 @@ export default {
   data() {
     return {
       rightSpanSize: 0,
+      isProxy: true,
       currentItem: {
         debugEnvs: []
       },
@@ -495,8 +508,17 @@ export default {
       const targetHeaders = JSON.stringify(headers)
       const realHeaders = Object.assign({}, headers)
       realHeaders['target-headers'] = targetHeaders
-      realHeaders['target-url'] = this.url
-      request.call(this, item.httpMethod, '/doc/debug/v1', data, realHeaders, isMultipart, this.doProxyResponse)
+      let url = this.url
+      if (this.isProxy) {
+        url = this.getProxyUrl('/doc/debug/v1')
+        realHeaders['target-url'] = this.url
+      }
+      request.call(this, item.httpMethod, url, data, realHeaders, isMultipart, this.doProxyResponse, () => {
+        this.sendLoading = false
+      })
+    },
+    getProxyUrl(uri) {
+      return get_full_url(uri)
     },
     buildRequestHeaders() {
       const headers = {}
@@ -602,9 +624,7 @@ export default {
       }
     },
     buildResultHeaders(response) {
-      const headers = response.headers
-      const targetHeadersString = headers['target-response-headers'] || '{}'
-      const targetHeaders = JSON.parse(targetHeadersString)
+      const targetHeaders = this.getTargetHeaders(response)
       response.targetHeaders = targetHeaders
       const headersData = []
       if (targetHeaders) {
@@ -613,6 +633,15 @@ export default {
         }
       }
       this.result.headerData = headersData
+    },
+    getTargetHeaders(response) {
+      const headers = response.headers
+      if (this.isProxy) {
+        const targetHeadersString = headers['target-response-headers'] || '{}'
+        return JSON.parse(targetHeadersString)
+      } else {
+        return headers
+      }
     },
     openRightPanel() {
       this.resultActive = 'body'
