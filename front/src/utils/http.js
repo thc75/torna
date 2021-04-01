@@ -128,9 +128,9 @@ export function request(method, uri, data, headers, isMultipart, callback, error
       callback.call(that, response)
     })
     .catch(error => {
+      errorCall && errorCall.call(that)
       console.error('error', error)
       that.$message.error('请求异常，请查看日志')
-      errorCall && errorCall.call(that)
     })
 }
 
