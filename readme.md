@@ -28,8 +28,8 @@
 
 - 准备工作
 
-    - Java环境，最低要求Java8
-    - MySQL，要求5.6.5及以后，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
+  - Java环境，最低要求Java8
+  - MySQL，要求5.6.5及以后，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
 
 前往 [发行版页面](https://gitee.com/durcframework/torna/releases) ，下载最新版本，解压zip
 
@@ -40,6 +40,16 @@
 执行`sh startup.sh`启动（Windows执行`startup.bat`）
 
 访问：`http://ip:7700`
+
+- 接入第三方登录校验
+  - 打开`application.properties`配置文件，修改third.login.enable=true,third.login.url=xxxxx
+  - 前端登录时勾选第三方登录，后台将获得原文账号密码
+  - 默认仅支持post请求方式:
+    ```text
+    入参 { "username":"xxx", "password":"123456"}
+    返回 { "status":"success" } //status=success时校验通过
+    ```
+  - 需其他方式登录校验重载此方法即可 UserInfoService.thirdLoginCheck
 
 ### docker运行
 

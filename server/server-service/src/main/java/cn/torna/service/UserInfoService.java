@@ -1,36 +1,33 @@
 package cn.torna.service;
 
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
-import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.exception.BizException;
-import cn.torna.common.exception.SetPasswordException;
 import cn.torna.common.support.BaseService;
-import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.GenerateUtil;
-import cn.torna.common.util.IdUtil;
-import cn.torna.common.util.JwtUtil;
-import cn.torna.common.util.PasswordUtil;
+import cn.torna.common.util.*;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserInfoMapper;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
+import com.alibaba.fastjson.JSONObject;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -52,10 +49,25 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     private String jwtSecret;
 
     /**
+     * 是否开启第三方登录
+     */
+    @Value("${third.login.enable:false}")
+    private Boolean thirdLoginEnable;
+
+    /**
+     * 第三方登录接口地址
+     */
+    @Value("${third.login.url:localhost}")
+    private String thirdLoginUrl;
+
+    private RestTemplate restTemplate = new RestTemplate();
+
+    /**
      * 添加新用户，用于注册
      * @param userAddDTO 用户信息
      */
     public void addUser(UserAddDTO userAddDTO) {
+        Assert.isTrue(thirdLoginEnable,"已开启第三方登录，不支持添加新用户");
         // 校验邮箱是否存在
         checkEmail(userAddDTO.getUsername());
         UserInfo userInfo = CopyUtil.copyBean(userAddDTO, UserInfo::new);
@@ -103,12 +115,41 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     public LoginUser login(String username, String password) {
         Assert.notNull(username, () -> "用户名不能为空");
         Assert.notNull(password, () -> "密码不能为空");
-        password = getDbPassword(username, password);
-        Query query = new Query()
-                .eq("username", username)
-                .eq("password", password);
-        UserInfo userInfo = get(query);
-        Assert.notNull(userInfo, () -> "用户名密码不正确");
+
+        UserInfo userInfo = null;
+
+        //是否第三方登录
+        if(thirdLoginEnable){
+            Assert.isTrue(thirdLoginCheck(username, password),"第三方登录校验不通过");
+
+            Query query = new Query()
+                    .eq("username", username);
+            userInfo = get(query);
+
+            //用户第一次登录则插入到user_info表
+            if(userInfo==null){
+                UserInfo newer = new UserInfo();
+                newer.setUsername(username);
+                newer.setPassword(UUID.randomUUID().toString().replace("-",""));
+                newer.setNickname(username);
+                newer.setIsSuperAdmin((byte) 1);
+                newer.setStatus((byte) 1);
+                newer.setIsDeleted((byte) 0);
+
+                this.save(newer);
+
+                userInfo = CopyUtil.copyBean(newer, UserInfo::new);
+            }
+        }else{
+            password = getDbPassword(username, password);
+            Query query = new Query()
+                    .eq("username", username)
+                    .eq("password", password);
+            userInfo = get(query);
+            Assert.notNull(userInfo, () -> "用户名密码不正确");
+        }
+
+
         if (UserStatusEnum.of(userInfo.getStatus()) == UserStatusEnum.DISABLED) {
             throw new BizException("用户已禁用，请联系管理员");
         }
@@ -135,6 +176,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
      * @return 返回重置后的密码
      */
     public String resetPassword(Long id) {
+        Assert.isTrue(thirdLoginEnable,"已开启第三方登录，不支持重置密码");
         UserInfo userInfo = getById(id);
         String newPwd = PasswordUtil.getRandomSimplePassword(6);
         String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));
@@ -164,4 +206,37 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
         this.update(userInfo);
     }
+
+    /**
+     * 第三方登录账号校验
+     * 默认仅支持post请求方式:
+     * 入参 { "username":"xxx", "password":"123456"}
+     * 返回 { "status":"success" }， status=success时校验通过
+     * 其他校验方式需重载此方法
+     * @param username 用户名（原文）
+     * @param password 密码（原文）
+     * @return 校验是否通过
+     */
+    private Boolean thirdLoginCheck(String username, String password) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HashMap<String, String> params= new HashMap<String, String>();
+        params.put("username", username);
+        params.put("password", password);
+
+        HttpEntity requestEntity = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(thirdLoginUrl, requestEntity , String.class );
+
+        if(!StringUtils.isEmpty(response.getBody())){
+            JSONObject jsonObject = FastjsonUtil.toJsonObj(response.getBody());
+
+            return StringUtils.isEmpty(jsonObject.getString("status"))?false:jsonObject.getString("status").equals("success");
+        }
+
+        return false;
+    }
+
 }
