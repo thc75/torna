@@ -16,6 +16,7 @@
             placement="right"
             title="代理转发"
             width="400"
+            :open-delay="500"
             trigger="hover"
           >
             <p>勾选：服务端代理转发请求</p>
@@ -515,6 +516,8 @@ export default {
       }
       request.call(this, item.httpMethod, url, data, realHeaders, isMultipart, this.doProxyResponse, () => {
         this.sendLoading = false
+        this.result.content = '发送失败，请按F12查看Console'
+        this.openRightPanel()
       })
     },
     getProxyUrl(uri) {
@@ -567,7 +570,6 @@ export default {
       const headers = response.targetHeaders
       const contentType = headers['content-type'] || ''
       const contentDisposition = headers['content-disposition'] || ''
-      this.openRightPanel()
       // 如果是下载文件
       if (contentType.indexOf('stream') > -1 ||
         contentDisposition.indexOf('attachment') > -1
@@ -587,6 +589,7 @@ export default {
         }
         this.result.content = content
       }
+      this.openRightPanel()
     },
     formatResponse(contentType, stringBody) {
       if (this.isObject(stringBody) || this.isArray(stringBody)) {
