@@ -26,6 +26,7 @@
           :rules="paramRowRule"
           size="mini"
           style="display: inline-block;width: 220px;"
+          :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''"
         >
           <el-form-item
             prop="name"
@@ -222,8 +223,9 @@ export default {
     },
     onParamNodeAdd(row) {
       const children = row.children || []
-      children.push(this.getParamNewRow())
-      children.hasChildren = true
+      const child = this.getParamNewRow()
+      child.parentId = row.id
+      children.push(child)
       row.children = children
     },
     onParamRemove(row) {
@@ -232,6 +234,11 @@ export default {
       } else {
         row.isDeleted = 1
       }
+    },
+    hasNoParentAndChildren(row) {
+      const children = row.children
+      const noChildren = !children || children.length === 0
+      return !row.parentId && noChildren
     },
     getData() {
       return this.rows
@@ -242,3 +249,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.param-table .el-table--row-no-parent-children {
+  padding-left: 23px !important;
+}
+</style>

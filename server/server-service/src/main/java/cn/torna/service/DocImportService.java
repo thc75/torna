@@ -1,5 +1,6 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ParamStyleEnum;
@@ -333,6 +334,7 @@ public class DocImportService {
         docParam.setModifierId(user.getUserId());
         docParam.setModifyMode(user.getOperationModel());
         docParam.setModifierName(user.getNickname());
+        docParam.setIsDeleted(Booleans.FALSE);
         // 保存操作
         DocParam savedDoc = docParamService.saveParam(docParam);
 

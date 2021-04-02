@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.2.4
+
+- [enhance]优化树形表格显示 [#I3EHAP](https://gitee.com/durcframework/torna/issues/I3EHAP)
+- [fix]同步swagger参数没有更新问题
+- [fix]保存基本信息无效问题
+
 ## 1.2.3
 
 - [feat]调试接口可选择是否使用代理

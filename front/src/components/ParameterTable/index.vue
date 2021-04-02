@@ -8,7 +8,9 @@
     :cell-style="cellStyleSmall()"
     :header-cell-style="headCellStyleSmall()"
     :row-class-name="tableRowClassName"
+    :indent="20"
     :empty-text="emptyText"
+    class="el-table-tree"
   >
     <el-table-column
       v-if="isColumnShow('name')"
@@ -17,7 +19,7 @@
       width="250"
     >
       <template slot-scope="scope">
-        <span>
+        <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
           {{ scope.row.name }}
           <el-tooltip content="查看字典" placement="top">
             <el-popover
@@ -130,6 +132,11 @@ export default {
     },
     onEnumPopoverShow(ref) {
       this.$refs[ref].reload()
+    },
+    hasNoParentAndChildren(row) {
+      const children = row.children
+      const noChildren = !children || children.length === 0
+      return !row.parentId && noChildren
     },
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0

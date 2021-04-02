@@ -33,7 +33,7 @@
         <el-alert v-else :closable="false">
           <span slot="title">
             尚未指定调试环境，请前往
-            【<router-link class="el-link el-link--primary" :to="`/project/doc/${currentItem.projectId}?id=ModuleSetting`">模块配置</router-link>】
+            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">模块配置</router-link>】
             进行添加。
             <router-link class="el-link el-link--primary" target="_blank" to="/help?id=debug">参考文档</router-link>
           </span>

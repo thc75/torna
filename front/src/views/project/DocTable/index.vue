@@ -46,8 +46,7 @@
       :data="tableRows"
       row-id="id"
       use-virtual
-      show-body-overflow
-      :treeConfig="{ children: 'children', iconClose: 'el-icon-folder-add', iconOpen: 'el-icon-folder-remove', expandAll: true}"
+      :treeConfig="{ children: 'children', iconClose: 'el-icon-arrow-right', iconOpen: 'el-icon-arrow-down', expandAll: true}"
       :height="tableHeight"
       :row-height="30"
       border
@@ -56,6 +55,7 @@
         :tree-node="true"
         prop="name"
         label="文档名称"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
@@ -71,6 +71,7 @@
       <u-table-column
         prop="url"
         label="请求路径"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           <http-method v-if="scope.row.url" :method="scope.row.httpMethod" />

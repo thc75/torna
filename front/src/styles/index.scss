@@ -360,3 +360,11 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 }
 
 .normal-boarder {  border: 1px #EBEEF5 solid; }
+
+// el-table fix
+.el-table-tree {
+  .el-table--row-no-parent-children {
+    padding-left: 27px;
+  }
+}
+// el-table end~

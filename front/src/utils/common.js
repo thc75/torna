@@ -94,6 +94,7 @@ export function init_docInfo_view(data) {
   if (data.isUseGlobalParams) {
     data.requestParams = data.globalParams.concat(data.requestParams)
   }
+  // 如果使用全局返回参数
   if (data.isUseGlobalReturns) {
     const dataNode = data.globalReturns
       .filter(row => row.example === DATA_PLACEHOLDER)
@@ -127,8 +128,16 @@ export function init_docInfo_complete_view(data) {
       .filter(row => row.example === DATA_PLACEHOLDER)
       .shift()
     if (dataNode) {
+      const pid = dataNode.id
+      const responseParams = data.responseParams
+      responseParams.forEach(item => {
+        const parentId = item.parentId
+        if (!parentId) {
+          item.parentId = pid
+        }
+      })
       // 将业务返回放到数据节点中
-      dataNode.children = data.responseParams
+      dataNode.children = responseParams
       data.responseParams = data.globalReturns
     }
   }

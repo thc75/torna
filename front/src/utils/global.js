@@ -38,8 +38,7 @@ const baseTypeConfig = [
   'boolean'
 ]
 
-let paramIdGen = 0
-let next_id = 0
+let next_id = 1
 
 Object.assign(Vue.prototype, {
   /**
@@ -250,7 +249,7 @@ Object.assign(Vue.prototype, {
   },
   getParamNewRow: function(name, value) {
     return {
-      id: paramIdGen++,
+      id: this.nextId(),
       name: name || '',
       type: 'string',
       required: 1,
@@ -291,6 +290,32 @@ Object.assign(Vue.prototype, {
   },
   setCurrentProject(project) {
     this.$store.state.settings.currentProject = project
+  },
+  getCurrentProject() {
+    return this.$store.state.settings.currentProject
+  },
+  /**
+   * 返回项目首页地址
+   * @param projectId 项目id
+   * @param query url后面的参数，a=1&b=2
+   * @returns {string} 返回地址
+   */
+  getProjectHomeUrl(projectId, query) {
+    let url = `/project/doc/${projectId}`
+    if (query) {
+      if (!query.startsWith('?')) {
+        query = '?' + query
+      }
+      url = url + query
+    }
+    return url
+  },
+  /**
+   * 前往项目首页
+   * @param projectId 项目id
+   */
+  goProjectHome(projectId) {
+    this.goRoute(this.getProjectHomeUrl(projectId))
   },
   setCurrentSpace(space) {
     if (space) {
