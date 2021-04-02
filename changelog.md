@@ -4,7 +4,7 @@
 
 - [enhance]优化树形表格显示 [#I3EHAP](https://gitee.com/durcframework/torna/issues/I3EHAP)
 - [fix]同步swagger参数没有更新问题
-- [fix]保存基本信息无效问题
+- [fix]保存文档基本信息无效问题
 
 ## 1.2.3
 
