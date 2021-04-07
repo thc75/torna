@@ -210,14 +210,6 @@ export default {
       }).catch((e) => {
       }) // 加上这个控制台不会报Uncaught (in promise)
     },
-    onSizeChange: function(size) {
-      this.searchFormData.pageSize = size
-      this.loadTable()
-    },
-    onPageIndexChange: function(pageIndex) {
-      this.searchFormData.pageIndex = pageIndex
-      this.loadTable()
-    },
     onHide() {
       this.resetForm('memberAddForm')
       this.$refs.userSelect.resetForm()

@@ -1,15 +1,14 @@
 <template>
   <el-table
     :data="data"
-    border
     row-key="id"
-    default-expand-all
     :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    :cell-style="cellStyleSmall()"
-    :header-cell-style="headCellStyleSmall()"
     :row-class-name="tableRowClassName"
     :indent="20"
     :empty-text="emptyText"
+    border
+    highlight-current-row
+    default-expand-all
     class="el-table-tree"
   >
     <el-table-column

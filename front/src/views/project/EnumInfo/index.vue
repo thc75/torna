@@ -45,8 +45,7 @@
         <el-table
           :data="enumData"
           border
-          :header-cell-style="cellStyleSmall()"
-          :cell-style="cellStyleSmall()"
+          highlight-current-row
         >
           <el-table-column label="名称" prop="name" />
           <el-table-column label="类型" prop="type" />

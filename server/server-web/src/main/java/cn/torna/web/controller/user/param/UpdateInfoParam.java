@@ -8,9 +8,11 @@ import javax.validation.constraints.NotBlank;
  * @author tanghc
  */
 @Data
-public class UpdateNicknameParam {
+public class UpdateInfoParam {
 
     @NotBlank(message = "nickname can not be null")
     private String nickname;
+
+    private String email;
 
 }

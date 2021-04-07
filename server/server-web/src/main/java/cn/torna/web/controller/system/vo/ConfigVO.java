@@ -8,6 +8,11 @@ import lombok.Data;
 @Data
 public class ConfigVO {
 
-    private Boolean enableReg;
+    private boolean enableReg;
+    private boolean enableThirdPartyForm;
+    private boolean enableThirdPartyOauth;
+    private boolean enableThirdPartyLogin;
+    private String oauthLoginUrl;
+    private String oauthButtonText;
 
 }

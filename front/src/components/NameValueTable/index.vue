@@ -4,8 +4,6 @@
     <el-table
       :data="data"
       border
-      :cell-style="cellStyleSmall()"
-      :header-cell-style="headCellStyleSmall()"
       class="param-table"
     >
       <el-table-column label="Name" prop="name">

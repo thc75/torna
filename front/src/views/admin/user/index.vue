@@ -34,6 +34,19 @@
         </template>
       </el-table-column>
       <el-table-column
+        prop="email"
+        label="邮箱"
+      />
+      <el-table-column
+        prop="source"
+        label="来源"
+        width="120"
+      >
+        <template slot-scope="scope">
+          <span>{{ getSource(scope.row) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="status"
         label="状态"
         width="100"
@@ -47,14 +60,20 @@
       <el-table-column
         prop="gmtCreate"
         label="注册时间"
-        width="200"
-      />
+        width="120"
+      >
+        <template slot-scope="scope">
+          <time-tooltip :time="scope.row.gmtCreate" />
+        </template>
+      </el-table-column>
       <el-table-column
         label="操作"
+        width="150"
       >
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
             <el-popconfirm
+              v-if="scope.row.source === 'register'"
               :title="`确定要重置 ${scope.row.nickname} 密码？`"
               @onConfirm="onRestPwd(scope.row)"
             >
@@ -136,7 +155,16 @@
 </template>
 
 <script>
+import TimeTooltip from '@/components/TimeTooltip'
+
+const SOURCE_MAP = {
+  'register': '自主注册',
+  'oauth': '第三方登录',
+  'form': '第三方登录',
+  'backend': '后台创建'
+}
 export default {
+  components: { TimeTooltip },
   data() {
     return {
       searchFormData: {
@@ -209,6 +237,7 @@ export default {
       })
     },
     onSizeChange(size) {
+      this.searchFormData.pageIndex = 1
       this.searchFormData.pageSize = size
       this.loadTable()
     },
@@ -218,6 +247,9 @@ export default {
     onPageIndexChange(pageIndex) {
       this.searchFormData.pageIndex = pageIndex
       this.loadTable()
+    },
+    getSource(row) {
+      return SOURCE_MAP[row.source] || '未知'
     }
   }
 }

@@ -5,9 +5,8 @@
     row-key="id"
     default-expand-all
     :tree-props="{ children: 'refs', hasChildren: 'hasChildren' }"
-    :cell-style="cellStyleSmall()"
-    :header-cell-style="headCellStyleSmall()"
     empty-text="无参数"
+    highlight-current-row
   >
     <el-table-column
       prop="name"

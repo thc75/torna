@@ -36,6 +36,12 @@ public class UserInfo {
     /** 是否是超级管理员, 数据库字段：is_super_admin */
     private Byte isSuperAdmin;
 
+    /** 注册来源，数据库字段：source */
+    private String source;
+
+    /** 邮箱，数据库字段：email */
+    private String email;
+
     /** 0：禁用，1：启用，2：重设密码, 数据库字段：status */
     private Byte status;
 

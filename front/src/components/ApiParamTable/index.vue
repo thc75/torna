@@ -5,8 +5,7 @@
     row-key="id"
     default-expand-all
     :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    :cell-style="cellStyleSmall()"
-    :header-cell-style="headCellStyleSmall()"
+    highlight-current-row
     :empty-text="emptyText"
   >
     <el-table-column

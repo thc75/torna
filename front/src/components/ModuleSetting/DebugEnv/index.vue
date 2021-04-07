@@ -11,8 +11,7 @@
     <el-table
       :data="debugEnv"
       border
-      :header-cell-style="cellStyleSmall()"
-      :cell-style="cellStyleSmall()"
+      highlight-current-row
     >
       <el-table-column label="环境名称" prop="configKey" width="300px" />
       <el-table-column label="基本路径" prop="configValue" />

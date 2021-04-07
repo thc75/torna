@@ -1,5 +1,6 @@
 package cn.torna.service.dto;
 
+import cn.torna.common.enums.UserInfoSourceEnum;
 import lombok.Data;
 
 /**
@@ -18,6 +19,8 @@ public class UserAddDTO {
 
     /** 是否是管理员, 数据库字段：is_admin */
     private Byte isSuperAdmin;
+
+    private UserInfoSourceEnum sourceEnum;
 
     private Byte status;
 

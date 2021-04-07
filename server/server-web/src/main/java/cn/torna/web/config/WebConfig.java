@@ -1,10 +1,13 @@
 package cn.torna.web.config;
 
+import cn.torna.common.context.EnvironmentContext;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.message.MessageFactory;
 import cn.torna.common.support.HashIdParamResolver;
 import cn.torna.common.thread.TornaAsyncConfigurer;
 import cn.torna.common.util.FastjsonUtil;
+import cn.torna.service.login.form.ThirdPartyLoginManager;
+import cn.torna.service.login.form.impl.DefaultThirdPartyLoginManager;
 import cn.torna.web.interceptor.AdminInterceptor;
 import cn.torna.web.interceptor.LoginInterceptor;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -12,13 +15,16 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -42,6 +48,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
     @Value("${torna.front-location:}")
     private String frontLocation;
 
+    @Autowired
+    private Environment environment;
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         SpringContext.setApplicationContext(applicationContext);
@@ -58,7 +67,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
                 "/", "/*.html", "/*.ico", "/static/**",
                 // 排除服务端请求
                 "/api", "/api/**", "/opendoc/**", "/doc/debug/**", "/system/**", "/captcha/**",
-                "/mock/**"
+                "/mock/**", "/error"
         };
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(excludes);
@@ -133,10 +142,21 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
         return new TornaAsyncConfigurer("torna-sync", threadPoolSize);
     }
 
+    /**
+     * 第三方简单登录模式默认实现
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public ThirdPartyLoginManager thirdPartyLoginManager() {
+        return new DefaultThirdPartyLoginManager();
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         List<String> messages = Arrays.asList("i18n/message/message");
         MessageFactory.initMessageSource(messages);
+        EnvironmentContext.setEnvironment(environment);
     }
 
 }

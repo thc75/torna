@@ -70,7 +70,7 @@ export default {
     return {
       searchFormData: {
         pageIndex: 1,
-        pageSize: 20
+        pageSize: 10
       },
       pageInfo: {
         rows: [],
@@ -101,6 +101,7 @@ export default {
       return this.pageInfo.rows.filter(row => row.isRead === 0).length > 0
     },
     onSizeChange(size) {
+      this.searchFormData.pageIndex = 1
       this.searchFormData.pageSize = size
       this.loadTable()
     },

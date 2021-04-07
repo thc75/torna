@@ -49,6 +49,17 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * HTTP请求辅助类
+ * <pre>
+ * HttpHelper.ResponseResult responseResult = HttpHelper
+ *  .create()
+ *  .basicAuth(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword())
+ *  .url(url)
+ *  .method("get")
+ *  .execute();
+ *  String body = responseResult.asString();
+ *  int status = responseResult.getStatus();
+ * </pre>
  * @author tanghc
  */
 public class HttpHelper {

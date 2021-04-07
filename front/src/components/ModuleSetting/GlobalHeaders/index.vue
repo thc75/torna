@@ -11,8 +11,7 @@
     <el-table
       :data="globalHeaders"
       border
-      :header-cell-style="cellStyleSmall()"
-      :cell-style="cellStyleSmall()"
+      highlight-current-row
     >
       <el-table-column label="Name" prop="name" width="300px" />
       <el-table-column label="Value" prop="example" />

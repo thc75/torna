@@ -1,6 +1,7 @@
 package cn.torna.web.controller.admin;
 
 import cn.torna.common.bean.Result;
+import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.service.UserInfoService;
@@ -18,7 +19,6 @@ import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +52,7 @@ public class UserController {
         UserAddDTO userAddDTO = CopyUtil.copyBean(param, UserAddDTO::new);
         userAddDTO.setPassword(DigestUtils.md5DigestAsHex(initPassword.getBytes(StandardCharsets.UTF_8)));
         userAddDTO.setStatus(UserStatusEnum.SET_PASSWORD.getStatus());
+        userAddDTO.setSourceEnum(UserInfoSourceEnum.BACKEND);
         userInfoService.addUser(userAddDTO);
         UserCreateVO userCreateVO = new UserCreateVO();
         userCreateVO.setUsername(param.getUsername());

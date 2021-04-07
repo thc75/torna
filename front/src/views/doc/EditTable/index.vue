@@ -1,11 +1,10 @@
 <template>
   <el-table
     :data="getter(rows)"
-    border
     row-key="id"
+    border
     default-expand-all
-    :cell-style="cellStyleSmall()"
-    :header-cell-style="headCellStyleSmall()"
+    highlight-current-row
     :empty-text="emptyText"
     class="param-table"
   >

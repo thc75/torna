@@ -23,9 +23,22 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.oschina.durcframework</groupId>
+            <artifactId>fastmybatis-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.xkcoding.justauth</groupId>
+            <artifactId>justauth-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 

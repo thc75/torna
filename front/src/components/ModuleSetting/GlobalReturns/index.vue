@@ -12,8 +12,7 @@
     <el-table
       :data="globalReturns"
       border
-      :header-cell-style="cellStyleSmall()"
-      :cell-style="cellStyleSmall()"
+      highlight-current-row
     >
       <el-table-column label="参数名" prop="name" width="300px" />
       <el-table-column label="类型" prop="type" width="120px" />

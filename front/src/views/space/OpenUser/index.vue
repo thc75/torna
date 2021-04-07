@@ -99,7 +99,7 @@ export default {
         appKey: '',
         spaceId: '',
         pageIndex: 1,
-        pageSize: 20
+        pageSize: 10
       },
       pageInfo: {
         rows: [],
@@ -165,6 +165,7 @@ export default {
       })
     },
     onSizeChange(size) {
+      this.searchFormData.pageIndex = 1
       this.searchFormData.pageSize = size
       this.reload()
     },
