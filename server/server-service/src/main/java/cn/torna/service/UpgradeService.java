@@ -51,7 +51,7 @@ public class UpgradeService {
         if (version <= 3) {
             this.addColumn("user_info",
                     "source",
-                    "ALTER TABLE `user_info` ADD COLUMN `source` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'reg' AFTER `is_super_admin`");
+                    "ALTER TABLE `user_info` ADD COLUMN `source` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'register' AFTER `is_super_admin`");
             boolean success = this.addColumn("user_info",
                     "email",
                     "ALTER TABLE `user_info` ADD COLUMN `email` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' AFTER `source`");
