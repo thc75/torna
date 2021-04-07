@@ -14,6 +14,7 @@
 - 支持多环境接口调试
 - 支持Mock数据
 - 支持文档权限管理，访客、开发者、管理员对应不同权限
+- 支持OAuth认证登录
 - 提供`管理模式`和`浏览模式`双模式，管理模式用来编辑文档内容，浏览模式纯粹查阅文档，界面无其它元素干扰
 - 部署简单，直接运行脚本启动程序
 - 支持docker运行
@@ -40,16 +41,6 @@
 执行`sh startup.sh`启动（Windows执行`startup.bat`）
 
 访问：`http://ip:7700`
-
-- 接入第三方登录校验
-  - 打开`application.properties`配置文件，修改third.login.enable=true,third.login.url=xxxxx
-  - 前端登录时勾选第三方登录，后台将获得原文账号密码
-  - 默认仅支持post请求方式:
-    ```text
-    入参 { "username":"xxx", "password":"123456"}
-    返回 { "status":"success" } //status=success时校验通过
-    ```
-  - 需其他方式登录校验重载此方法即可 UserInfoService.thirdLoginCheck
 
 ### docker运行
 
