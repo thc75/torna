@@ -27,16 +27,19 @@ export default {
   components: { Logo },
   data() {
     return {
-      projectId: ''
+      // projectId: ''
     }
   },
   computed: {
     currentActive() {
       return this.$route.path
+    },
+    projectId() {
+      return this.$store.state.settings.projectId
     }
   },
   created() {
-    this.projectId = this.$route.params.projectId
+    this.$store.state.settings.projectId = this.$route.params.projectId
   }
 }
 </script>

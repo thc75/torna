@@ -8,7 +8,8 @@ const state = {
   sidebarLogo: sidebarLogo,
   currentProject: '',
   currentSpace: '',
-  moduleId: ''
+  moduleId: '',
+  projectId: ''
 }
 
 const mutations = {

@@ -45,6 +45,8 @@ public class DocApi {
     private static final String HTTP = "http:";
     private static final String HTTPS = "https:";
 
+    private final Object lock = new Object();
+
     @Autowired
     private DocInfoService docInfoService;
 
@@ -55,7 +57,7 @@ public class DocApi {
     private TornaTransactionManager tornaTransactionManager;
 
     @Api(name = "doc.push")
-    @ApiDocMethod(description = "推送文档",  order = 0, remark = "把第三方文档推送给Torna服务器")
+    @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
         ApiParam apiParam = ApiContext.getApiParam();
         RequestContext context = RequestContext.getCurrentContext();
@@ -65,18 +67,23 @@ public class DocApi {
     private void doPush(DocPushParam param, ApiParam apiParam, RequestContext context) {
         String appKey = apiParam.fatchAppKey();
         String token = context.getToken();
-        log.info("收到文档推送，appKey:{}, token:{}", appKey, token);
         long moduleId = context.getModuleId();
+        log.info("收到文档推送，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId);
         tornaTransactionManager.execute(() -> {
-            // 设置调试环境
-            for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
-                moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
-            }
-            // 先删除之前的文档
-            User user = context.getApiUser();
-            docInfoService.deleteModuleDocs(moduleId, user.getUserId());
-            for (DocPushItemParam detailPushParam : param.getApis()) {
-                this.pushDocItem(detailPushParam, context);
+            // fix:MySQL多个session下insert on duplicate key update导致死锁问题
+            // https://blog.csdn.net/li563868273/article/details/105213266/
+            // 解决思路：只能有一个线程在执行，当一个线程处理完后，下一个线程再接着执行
+            synchronized (lock) {
+                // 设置调试环境
+                for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+                    moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
+                }
+                // 先删除之前的文档
+                User user = context.getApiUser();
+                docInfoService.deleteModuleDocs(moduleId, user.getUserId());
+                for (DocPushItemParam detailPushParam : param.getApis()) {
+                    this.pushDocItem(detailPushParam, context);
+                }
             }
             return null;
         }, e -> log.error("保存文档出错，appKey:{}, token:{}", appKey, token, e));
@@ -98,7 +105,7 @@ public class DocApi {
             }
         } else {
             formatUrl(docInfoDTO);
-            docInfoService.saveDocInfo(docInfoDTO, user);
+            docInfoService.doSaveDocInfo(docInfoDTO, user);
         }
     }
 

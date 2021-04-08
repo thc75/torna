@@ -196,6 +196,7 @@ export default {
         httpMethod: 'GET',
         parentId: '',
         moduleId: '',
+        projectId: '',
         isUseGlobalHeaders: 1,
         isUseGlobalParams: 1,
         isUseGlobalReturns: 1,
@@ -263,6 +264,7 @@ export default {
           const data = resp.data
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
+          this.$store.state.settings.projectId = data.projectId
         }, (resp) => {
           if (resp.code === '1000') {
             this.alert('文档不存在', '提示', function() {

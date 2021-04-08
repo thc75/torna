@@ -145,7 +145,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 用户
      */
     @Transactional(rollbackFor = Exception.class)
-    public DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+    public synchronized DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+        return doSaveDocInfo(docInfoDTO, user);
+    }
+
+    public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
