@@ -40,7 +40,7 @@
           v-if="serverConfig.enableThirdPartyOauth"
           type="primary"
           :underline="false"
-          @click="goAuth"
+          :href="serverConfig.oauthLoginUrl"
         >
           {{ serverConfig.oauthButtonText }}
         </el-link>
@@ -135,9 +135,6 @@ export default {
       this.doSubmit(function(data) {
         data.captcha = params
       })
-    },
-    goAuth() {
-      location.href = this.serverConfig.oauthLoginUrl
     },
     doSubmit: function(callback) {
       const data = this.loginForm
