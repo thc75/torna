@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.3.1
+
+- [feat]推送支持path参数
+
 ## 1.3.0
 
 - 支持第三方登录（OAuth） [doc](http://torna.cn/dev/third-party-login.html)
