@@ -59,11 +59,22 @@ public class DocPushTest extends BaseTest {
         /* 设置基本信息 */
         item.setName("获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
-        item.setUrl("/goods/get" + i);
+        item.setUrl("/goods/{id}/get" + i);
         item.setHttpMethod("GET");
         item.setContentType("application/json");
         item.setParentId("");
         item.setIsShow(Booleans.TRUE);
+
+        /* 设置请求参数 */
+        DocParamReq pathParam = new DocParamReq();
+        pathParam.setName("id");
+        pathParam.setType("int");
+        pathParam.setDescription("id");
+        pathParam.setExample("123");
+        pathParam.setMaxLength("-");
+        pathParam.setRequired(Booleans.TRUE);
+        pathParam.setParentId("");
+        item.setPathParams(Arrays.asList(pathParam));
 
         /* 设置header */
         DocParamHeader header = new DocParamHeader();

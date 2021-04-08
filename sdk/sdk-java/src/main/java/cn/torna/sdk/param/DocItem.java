@@ -39,6 +39,9 @@ public class DocItem {
     /** 接口项 */
     private List<DocItem> items;
 
+    /** path参数 */
+    private List<DocParamReq> pathParams;
+
     /** 请求头 */
     private List<DocParamHeader> headerParams;
 

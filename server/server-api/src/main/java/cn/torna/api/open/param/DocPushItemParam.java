@@ -54,6 +54,9 @@ public class DocPushItemParam {
     @ApiDocField(description = "是否显示，1：显示，0：不显示", example = "1")
     private Byte isShow;
 
+    @ApiDocField(description = "path参数", elementClass = DocParamPushParam.class)
+    private List<DocParamPushParam> pathParams;
+
     @ApiDocField(description = "请求头", elementClass = HeaderParamPushParam.class)
     private List<HeaderParamPushParam> headerParams;
 
