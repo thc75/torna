@@ -40,7 +40,7 @@ public class DocItem {
     private List<DocItem> items;
 
     /** path参数 */
-    private List<DocParamReq> pathParams;
+    private List<DocParamPath> pathParams;
 
     /** 请求头 */
     private List<DocParamHeader> headerParams;

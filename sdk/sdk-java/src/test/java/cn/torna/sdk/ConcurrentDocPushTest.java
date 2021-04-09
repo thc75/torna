@@ -5,6 +5,7 @@ import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
 import cn.torna.sdk.param.DocParamCode;
 import cn.torna.sdk.param.DocParamHeader;
+import cn.torna.sdk.param.DocParamPath;
 import cn.torna.sdk.param.DocParamReq;
 import cn.torna.sdk.param.DocParamResp;
 import cn.torna.sdk.param.EnumInfoParam;
@@ -14,7 +15,9 @@ import cn.torna.sdk.response.DocPushResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -24,42 +27,15 @@ public class ConcurrentDocPushTest extends BaseTest {
 
     public void testDocPush() throws InterruptedException {
         final CountDownLatch count = new CountDownLatch(1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                DocPushRequest request = getRequest("A", "c7e795e89b6c4d1d9fdc847ed2b31ddf");
-                try {
-                    count.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                push(request);
-            }
-        }).start();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                DocPushRequest request = getRequest("B", "1c659839bff3470badff731431aa51e7");
-                try {
-                    count.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                push(request);
-            }
-        }).start();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                DocPushRequest request = getRequest("C", "67fe7060780140b6b38a94a6dafae243");
-                try {
-                    count.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                push(request);
-            }
-        }).start();
+        Map<String, String> map = new HashMap<>();
+        map.put("A", "c7e795e89b6c4d1d9fdc847ed2b31ddf");
+        map.put("B", "1c659839bff3470badff731431aa51e7");
+        map.put("C", "67fe7060780140b6b38a94a6dafae243");
+        map.put("D", "5757dcec82b24234ae663d44124aa072");
+        map.put("E", "3351d2d7e17a4b49962efb74efcf8a85");
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            getThread(entry.getKey(), entry.getValue(), count).start();
+        }
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -67,6 +43,21 @@ public class ConcurrentDocPushTest extends BaseTest {
         }
         count.countDown();
         Thread.sleep(3000);
+    }
+
+    private Thread getThread(final String name, final String token, final CountDownLatch count) {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DocPushRequest request = getRequest(name, token);
+                try {
+                    count.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                push(request);
+            }
+        });
     }
 
     private DocPushRequest getRequest(String name, String token) {
@@ -117,14 +108,13 @@ public class ConcurrentDocPushTest extends BaseTest {
         item.setIsShow(Booleans.TRUE);
 
         /* 设置请求参数 */
-        DocParamReq pathParam = new DocParamReq();
+        DocParamPath pathParam = new DocParamPath();
         pathParam.setName("id");
         pathParam.setType("int");
         pathParam.setDescription("id");
         pathParam.setExample("123");
         pathParam.setMaxLength("-");
         pathParam.setRequired(Booleans.TRUE);
-        pathParam.setParentId("");
         item.setPathParams(Arrays.asList(pathParam));
 
         /* 设置header */

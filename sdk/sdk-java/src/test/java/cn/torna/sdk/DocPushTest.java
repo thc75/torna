@@ -5,6 +5,7 @@ import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
 import cn.torna.sdk.param.DocParamCode;
 import cn.torna.sdk.param.DocParamHeader;
+import cn.torna.sdk.param.DocParamPath;
 import cn.torna.sdk.param.DocParamReq;
 import cn.torna.sdk.param.DocParamResp;
 import cn.torna.sdk.param.EnumInfoParam;
@@ -66,14 +67,13 @@ public class DocPushTest extends BaseTest {
         item.setIsShow(Booleans.TRUE);
 
         /* 设置请求参数 */
-        DocParamReq pathParam = new DocParamReq();
+        DocParamPath pathParam = new DocParamPath();
         pathParam.setName("id");
         pathParam.setType("int");
         pathParam.setDescription("id");
         pathParam.setExample("123");
         pathParam.setMaxLength("-");
         pathParam.setRequired(Booleans.TRUE);
-        pathParam.setParentId("");
         item.setPathParams(Arrays.asList(pathParam));
 
         /* 设置header */
