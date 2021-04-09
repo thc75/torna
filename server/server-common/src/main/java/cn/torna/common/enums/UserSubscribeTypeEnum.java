@@ -11,7 +11,11 @@ public enum UserSubscribeTypeEnum {
     /**
      * 订阅项目
      */
-    PROJECT((byte)2)
+    PROJECT((byte)2),
+    /**
+     * 推送文档
+     */
+    PUSH_DOC((byte) 3),
     ;
 
     private final byte type;

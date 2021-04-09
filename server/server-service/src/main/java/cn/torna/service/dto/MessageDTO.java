@@ -1,7 +1,10 @@
 package cn.torna.service.dto;
 
-import lombok.Data;
+import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
+import lombok.Data;
+
+import java.util.Locale;
 
 /**
  * @author tanghc
@@ -9,6 +12,7 @@ import cn.torna.common.message.MessageEnum;
 @Data
 public class MessageDTO {
     private MessageEnum messageEnum;
-    private Byte type;
+    private UserSubscribeTypeEnum type;
     private Long sourceId;
+    private Locale locale;
 }

@@ -12,6 +12,8 @@ import cn.torna.api.open.result.DocInfoDetailResult;
 import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.UserSubscribeTypeEnum;
+import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.common.util.json.JsonUtil;
@@ -19,7 +21,9 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
+import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.MessageDTO;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.annotation.Api;
@@ -56,6 +60,9 @@ public class DocApi {
     @Autowired
     private TornaTransactionManager tornaTransactionManager;
 
+    @Autowired
+    private UserMessageService userMessageService;
+
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
@@ -86,7 +93,15 @@ public class DocApi {
                 }
             }
             return null;
-        }, e -> log.error("保存文档出错，appKey:{}, token:{}", appKey, token, e));
+        }, e -> {
+            log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
+            MessageDTO messageDTO = new MessageDTO();
+            messageDTO.setMessageEnum(MessageEnum.SYSTEM_ERROR);
+            messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
+            messageDTO.setLocale(ApiContext.getLocal());
+            messageDTO.setSourceId(0L);
+            userMessageService.sendMessageToAdmin(messageDTO, e.getMessage());
+        });
     }
 
     public void pushDocItem(DocPushItemParam param, RequestContext context) {

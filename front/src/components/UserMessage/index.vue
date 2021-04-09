@@ -14,11 +14,10 @@
         <div>
           {{ item.message }}
         </div>
-        <div>
-          <router-link :to="`/view/${item.sourceId}`">
+        <div class="user-message-link">
+          <router-link v-if="item.type === 1" :to="`/view/${item.sourceId}`">
             <el-link type="primary" @click="setRead(item)">查看文档</el-link>
           </router-link>
-          |
           <el-link type="primary" @click.stop="setRead(item)">标记已读</el-link>
         </div>
       </el-dropdown-item>
@@ -36,6 +35,9 @@
   .el-badge__content {
     top: 12px !important;
   }
+}
+.user-message-link a {
+  margin-right: 5px;
 }
 .user-message-menu {
   padding: 5px 0 !important;

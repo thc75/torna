@@ -274,4 +274,8 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         this.update(userInfo);
     }
 
+    public List<UserInfo> listSuperAdmin() {
+        return this.list("is_super_admin", Booleans.TRUE);
+    }
+
 }
