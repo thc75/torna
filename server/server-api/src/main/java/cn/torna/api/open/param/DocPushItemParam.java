@@ -42,7 +42,7 @@ public class DocPushItemParam {
     @Length(max = 128, message = "'contentType' 长度不能超过128")
     private String contentType;
 
-    @ApiDocField(description = "contentType", example = "1")
+    @ApiDocField(description = "是否是文件夹，1：是，0：否", example = "1")
     private Byte isFolder;
 
     /** 父节点, 数据库字段：parent_id */

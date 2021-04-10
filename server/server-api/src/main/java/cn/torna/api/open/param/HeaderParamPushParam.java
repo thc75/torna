@@ -31,8 +31,8 @@ public class HeaderParamPushParam {
     private String example;
 
     /** 描述, 数据库字段：description */
-    @ApiDocField(description = "描述", example = "商品名称描述")
-    @Length(max = 100, message = "描述长度不能超过100")
+    @ApiDocField(description = "描述", example = "商品名称描述", maxLength = "256")
+    @Length(max = 256, message = "描述长度不能超过256")
     private String description;
 
     private Byte createMode = OperationMode.OPEN.getType();
