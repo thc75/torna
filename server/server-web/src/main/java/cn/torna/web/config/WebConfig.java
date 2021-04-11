@@ -6,6 +6,7 @@ import cn.torna.common.message.MessageFactory;
 import cn.torna.common.support.HashIdParamResolver;
 import cn.torna.common.thread.TornaAsyncConfigurer;
 import cn.torna.common.util.FastjsonUtil;
+import cn.torna.common.util.SystemUtil;
 import cn.torna.service.login.form.ThirdPartyLoginManager;
 import cn.torna.service.login.form.impl.DefaultThirdPartyLoginManager;
 import cn.torna.web.interceptor.AdminInterceptor;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
-import org.springframework.boot.system.ApplicationHome;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +34,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -103,9 +102,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
         if (StringUtils.hasText(frontLocation)) {
             frontRoot = StringUtils.trimTrailingCharacter(frontLocation, '/');
         } else {
-            ApplicationHome applicationHome = new ApplicationHome(getClass());
-            File file = applicationHome.getSource();
-            String homeDir = file.getParentFile().toString();
+            String homeDir = SystemUtil.getBinPath();
             frontRoot = homeDir + "/dist";
         }
         log.info("前端资源目录：{}", frontRoot);

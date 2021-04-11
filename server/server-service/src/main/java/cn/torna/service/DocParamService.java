@@ -38,6 +38,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
+        // 如果参数是空的，则移除这个类型的所有参数
         if (CollectionUtils.isEmpty(docParamDTOS)) {
             removeAllParams(docInfo, paramStyleEnum, user);
             return;

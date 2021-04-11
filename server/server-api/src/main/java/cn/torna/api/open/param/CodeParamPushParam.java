@@ -1,5 +1,6 @@
 package cn.torna.api.open.param;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.OperationMode;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
@@ -38,5 +39,7 @@ public class CodeParamPushParam {
     private Byte createMode = OperationMode.OPEN.getType();
 
     private Byte modifyMode = OperationMode.OPEN.getType();
+
+    private Byte isDeleted = Booleans.FALSE;
 
 }

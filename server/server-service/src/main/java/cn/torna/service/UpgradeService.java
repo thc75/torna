@@ -25,8 +25,6 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private int version = 3;
-
     @Autowired
     private UpgradeMapper upgradeMapper;
 
@@ -48,18 +46,15 @@ public class UpgradeService {
     }
 
     private void v1_3_0() {
-        if (version <= 3) {
-            this.addColumn("user_info",
-                    "source",
-                    "ALTER TABLE `user_info` ADD COLUMN `source` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'register' AFTER `is_super_admin`");
-            boolean success = this.addColumn("user_info",
-                    "email",
-                    "ALTER TABLE `user_info` ADD COLUMN `email` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' AFTER `source`");
-            // 更新邮箱
-            if (success) {
-                this.runSql("UPDATE user_info SET email=username WHERE email='' AND locate('@', username)");
-            }
-
+        this.addColumn("user_info",
+                "source",
+                "ALTER TABLE `user_info` ADD COLUMN `source` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'register' AFTER `is_super_admin`");
+        boolean success = this.addColumn("user_info",
+                "email",
+                "ALTER TABLE `user_info` ADD COLUMN `email` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' AFTER `source`");
+        // 更新邮箱
+        if (success) {
+            this.runSql("UPDATE user_info SET email=username WHERE email='' AND locate('@', username)");
         }
     }
 

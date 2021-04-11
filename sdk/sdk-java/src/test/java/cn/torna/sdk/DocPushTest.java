@@ -66,7 +66,7 @@ public class DocPushTest extends BaseTest {
         item.setParentId("");
         item.setIsShow(Booleans.TRUE);
 
-        /* 设置请求参数 */
+        /* 设置path参数 */
         DocParamPath pathParam = new DocParamPath();
         pathParam.setName("id");
         pathParam.setType("int");

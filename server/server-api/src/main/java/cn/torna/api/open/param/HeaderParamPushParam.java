@@ -1,5 +1,6 @@
 package cn.torna.api.open.param;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.OperationMode;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
@@ -38,5 +39,7 @@ public class HeaderParamPushParam {
     private Byte createMode = OperationMode.OPEN.getType();
 
     private Byte modifyMode = OperationMode.OPEN.getType();
+
+    private Byte isDeleted = Booleans.FALSE;
 
 }

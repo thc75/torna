@@ -16,7 +16,6 @@ import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.ThreadPoolUtil;
-import cn.torna.common.util.json.JsonUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
@@ -107,7 +106,7 @@ public class DocApi {
     public void pushDocItem(DocPushItemParam param, RequestContext context) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
-        DocInfoDTO docInfoDTO = JsonUtil.parseObject(JsonUtil.toJSONString(param), DocInfoDTO.class);
+        DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
         docInfoDTO.setModuleId(moduleId);
         if (Booleans.isTrue(param.getIsFolder())) {
             DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user);
