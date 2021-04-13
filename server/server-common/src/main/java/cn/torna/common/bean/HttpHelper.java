@@ -60,6 +60,7 @@ import java.util.Objects;
  *  String body = responseResult.asString();
  *  int status = responseResult.getStatus();
  * </pre>
+ *
  * @author tanghc
  */
 public class HttpHelper {
@@ -95,6 +96,11 @@ public class HttpHelper {
     }
 
 
+    /**
+     * 创建一个HttpHelper实例
+     *
+     * @return 返回HttpHelper
+     */
     public static HttpHelper create() {
         return new HttpHelper();
     }
@@ -117,6 +123,12 @@ public class HttpHelper {
         return this;
     }
 
+    /**
+     * 设置HttpContext
+     *
+     * @param context context
+     * @return 返回HttpHelper
+     */
     public HttpHelper context(HttpContext context) {
         this.context = context;
         return this;
@@ -133,16 +145,35 @@ public class HttpHelper {
         return this;
     }
 
+    /**
+     * 设置method
+     *
+     * @param method method，GET、POST
+     * @return 返回HttpHelper
+     */
     public HttpHelper method(String method) {
         this.method = HTTPMethod.of(method);
         return this;
     }
 
+    /**
+     * 设置总的header
+     *
+     * @param headers headers
+     * @return 返回HttpHelper
+     */
     public HttpHelper headers(Map<String, String> headers) {
         this.headers = headers;
         return this;
     }
 
+    /**
+     * 设置一个header
+     *
+     * @param name  name
+     * @param value value
+     * @return 返回HttpHelper
+     */
     public HttpHelper setHeader(String name, String value) {
         if (this.headers == null) {
             this.headers = new HashMap<>(8);
@@ -172,6 +203,12 @@ public class HttpHelper {
     }
 
 
+    /**
+     * 创建get请求
+     *
+     * @param url url
+     * @return 返回HttpHelper
+     */
     public static HttpHelper get(String url) {
         return create()
                 .url(url)
@@ -189,6 +226,14 @@ public class HttpHelper {
         return postText(url, json, ContentType.APPLICATION_JSON.getMimeType());
     }
 
+    /**
+     * post请求文本
+     *
+     * @param url         url
+     * @param text        文本内容
+     * @param contentType contentType
+     * @return 返回HttpHelper
+     */
     public static HttpHelper postText(String url, String text, String contentType) {
         HttpHelper httpHelper = create()
                 .url(url)
@@ -340,6 +385,9 @@ public class HttpHelper {
         }
     }
 
+    /**
+     * 结果包装类
+     */
     public interface ResponseResult {
         int getStatus();
 
