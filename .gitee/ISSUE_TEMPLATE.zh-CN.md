@@ -6,7 +6,7 @@
 - JDK版本：
 - MySQL版本：
 - 浏览器：
-- smart-doc版本[选填]：
+- smart-doc版本(如果使用)：
 
 # 描述
 
