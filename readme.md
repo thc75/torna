@@ -27,6 +27,8 @@
 
 ## 使用步骤
 
+### 方式1：下载zip本地运行
+
 - 准备工作
 
   - Java环境，最低要求Java8
@@ -42,7 +44,7 @@
 
 访问：`http://ip:7700`
 
-### docker运行
+### 方式2：docker运行
 
 下载公共镜像
 
@@ -54,8 +56,9 @@
 
 执行`docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <镜像ID>`
 
-浏览器访问`http://ip:7700/`
+浏览器访问`http://ip:7700`
 
+---
 
 体验账号：
 
