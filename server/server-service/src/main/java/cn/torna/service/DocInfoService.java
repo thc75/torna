@@ -29,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -270,18 +269,19 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        return createDocFolder(folderName, 0L, moduleId, user);
+        return createDocFolder(folderName,  moduleId, user, 0L);
     }
 
     /**
      * 创建文档分类，不检查名称是否存在
+     *
      * @param folderName 分类名称
-     * @param parentId 父节点id
-     * @param moduleId 模块id
-     * @param user 操作人
+     * @param moduleId   模块id
+     * @param user       操作人
+     * @param parentId   父节点id
      * @return 返回添加后的文档
      */
-    public DocInfo createDocFolder(String folderName, Long parentId, long moduleId, User user) {
+    public DocInfo createDocFolder(String folderName, long moduleId, User user, Long parentId) {
         DocInfoDTO docInfoDTO = new DocInfoDTO();
         docInfoDTO.setName(folderName);
         docInfoDTO.setModuleId(moduleId);
@@ -299,19 +299,29 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除模块下所有文档
-     *
-     * @param moduleId  模块id
-     * @param userId    用户id，只能删除自己创建的
-     * @param parentIds 父级文档id列表
+     * @param moduleId 模块id
+     * @param userId 用户id，只能删除自己创建的
      */
-    public void deleteModuleDocs(long moduleId, long userId, Set<Long> parentIds) {
+    public void deleteOpenAPIModuleDocs(long moduleId, long userId) {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("create_mode", OperationMode.OPEN.getType())
                 .eq("creator_id", userId);
-        if (parentIds != null && parentIds.size() > 0) {
-            query.notIn("id", parentIds);
+        // 查询出文档id
+        List<Long> idList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
+        if (CollectionUtils.isEmpty(idList)) {
+            return;
         }
-        this.getMapper().deleteByQuery(query);
+        // 删除文档
+        Query delQuery = new Query()
+                .in("id", idList);
+        // DELETE FROM doc_info WHERE id in (..)
+        this.getMapper().deleteByQuery(delQuery);
+
+        // 删除文档对应的参数
+        Query paramDelQuery = new Query()
+                .in("doc_id", idList);
+        // DELETE FROM doc_param WHERE doc_id in (..)
+        docParamService.getMapper().deleteByQuery(paramDelQuery);
     }
 }

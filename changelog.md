@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.3.3
+
+- [enhance]优化文档浏览页描述字段显示，支持HTML标签
+- [enhance]支持多级推送（嵌套文件夹）
+- [fix]修复接口更新返回值对象后推送不更新问题 [#I3IGWT](https://gitee.com/durcframework/torna/issues/I3IGWT)
+
 ## 1.3.2
 
 - [fix]参数删除后推送文档，再还原后推送不显示问题

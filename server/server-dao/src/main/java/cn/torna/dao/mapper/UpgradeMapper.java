@@ -1,6 +1,5 @@
 package cn.torna.dao.mapper;
 
-import cn.torna.dao.entity.ColumnInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,15 +13,6 @@ import java.util.Map;
 public interface UpgradeMapper {
 
     void runSql(@Param("sql") String sql);
-
-
-    /**
-     * 新增mysql表字段
-     * @param tableName 表名
-     * @param columnName 字段名
-     * @param type 类型
-     */
-    void addColumn(@Param("tableName") String tableName, @Param("columnName")String columnName, @Param("type") String type);
 
     /**
      * 查看MYSQL表字段信息

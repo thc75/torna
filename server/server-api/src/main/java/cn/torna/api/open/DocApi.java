@@ -36,9 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -78,9 +75,6 @@ public class DocApi {
         String token = context.getToken();
         long moduleId = context.getModuleId();
         log.info("收到文档推送，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId);
-        Set<Long> parentIds = param.getApis().parallelStream().map(DocPushItemParam::getParentId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
         tornaTransactionManager.execute(() -> {
             // fix:MySQL多个session下insert on duplicate key update导致死锁问题
             // https://blog.csdn.net/li563868273/article/details/105213266/
@@ -92,9 +86,9 @@ public class DocApi {
                 }
                 // 先删除之前的文档
                 User user = context.getApiUser();
-                docInfoService.deleteModuleDocs(moduleId, user.getUserId(), parentIds);
+                docInfoService.deleteOpenAPIModuleDocs(moduleId, user.getUserId());
                 for (DocPushItemParam detailPushParam : param.getApis()) {
-                    this.pushDocItem(detailPushParam, context);
+                    this.pushDocItem(detailPushParam, context, 0L);
                 }
             }
             return null;
@@ -109,21 +103,22 @@ public class DocApi {
         });
     }
 
-    public void pushDocItem(DocPushItemParam param, RequestContext context) {
+    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
-        DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
-        docInfoDTO.setModuleId(moduleId);
         if (Booleans.isTrue(param.getIsFolder())) {
-            DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user);
+            DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user, parentId);
             List<DocPushItemParam> items = param.getItems();
             if (items != null) {
                 for (DocPushItemParam item : items) {
-                    item.setParentId(folder.getId());
-                    this.pushDocItem(item, context);
+                    Long pid = folder.getId();
+                    this.pushDocItem(item, context, pid);
                 }
             }
         } else {
+            DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+            docInfoDTO.setModuleId(moduleId);
+            docInfoDTO.setParentId(parentId);
             formatUrl(docInfoDTO);
             docInfoService.doSaveDocInfo(docInfoDTO, user);
         }

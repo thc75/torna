@@ -5,9 +5,9 @@
     </el-badge>
     <el-dropdown-menu slot="dropdown" class="user-message-menu user-drop-menu">
       <el-dropdown-item style="padding: 0 20px">
-        <el-button v-show="hasMessage()" type="text" icon="el-icon-circle-check" style="margin-right: 10px" @click="setReadAll">全部标记已读</el-button>
+        <el-link v-show="hasMessage()" type="primary" icon="el-icon-circle-check" style="margin-right: 10px" @click="setReadAll">全部标记已读</el-link>
         <router-link to="/user/message">
-          <el-button type="text" icon="el-icon-message-solid">消息中心</el-button>
+          <el-link type="primary" icon="el-icon-message-solid">消息中心</el-link>
         </router-link>
       </el-dropdown-item>
       <el-dropdown-item v-for="item in messages" :key="item.id" class="user-message-item" divided>

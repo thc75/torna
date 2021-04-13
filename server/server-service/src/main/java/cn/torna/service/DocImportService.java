@@ -156,7 +156,7 @@ public class DocImportService {
             // 如果是文件夹
             if (item.isFolder()) {
                 Long parentId = parent == null ? 0L : parent.getId();
-                DocInfo folder = docInfoService.createDocFolder(item.getName(), parentId, module.getId(), user);
+                DocInfo folder = docInfoService.createDocFolder(item.getName(), module.getId(), user, parentId);
                 // 创建模块下的文档
                 List<Item> subItems = item.getItem();
                 this.saveItems(subItems, folder, module, user);

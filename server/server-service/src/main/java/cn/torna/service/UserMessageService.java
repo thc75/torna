@@ -17,6 +17,7 @@ import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -37,6 +38,9 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Value("${torna.message.max-length:250}")
+    private int messageMaxLength;
 
     public List<UserMessage> listUserUnReadMessage(long userId, int limit) {
         Query query = new Query()
@@ -102,11 +106,15 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
             }
             Message message = messageEnum.getMessageMeta().getMessage(locale, params);
             String content = message.getContent();
+            if (content != null && content.length() > messageMaxLength) {
+                content = content.substring(0, messageMaxLength);
+            }
+            String finalContent = content;
             List<UserMessage> userMessages = userIds.stream()
                     .map(userId -> {
                         UserMessage userMessage = new UserMessage();
                         userMessage.setUserId(userId);
-                        userMessage.setMessage(content);
+                        userMessage.setMessage(finalContent);
                         userMessage.setIsRead(Booleans.FALSE);
                         userMessage.setType(messageDTO.getType().getType());
                         userMessage.setSourceId(messageDTO.getSourceId());

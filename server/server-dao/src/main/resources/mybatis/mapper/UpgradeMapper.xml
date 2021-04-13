@@ -6,10 +6,6 @@
         ${sql}
     </update>
 
-    <update id="addColumn">
-        ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${type}
-    </update>
-
     <select id="listColumnInfo" resultType="java.util.Map">
         SHOW COLUMNS FROM ${tableName}
     </select>

@@ -69,7 +69,20 @@
       v-if="isColumnShow('description')"
       prop="description"
       :label="descriptionLabel"
-    />
+    >
+      <template slot-scope="scope">
+        <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
+        <div v-else>
+          <el-popover
+            placement="left"
+            trigger="click"
+          >
+            <div v-html="scope.row.description"></div>
+            <el-button slot="reference" type="text">点击查看</el-button>
+          </el-popover>
+        </div>
+      </template>
+    </el-table-column>
     <el-table-column
       v-if="isColumnShow('example')"
       prop="example"
