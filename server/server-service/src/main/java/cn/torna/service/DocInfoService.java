@@ -29,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -298,14 +299,19 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除模块下所有文档
-     * @param moduleId 模块id
-     * @param userId 用户id，只能删除自己创建的
+     *
+     * @param moduleId  模块id
+     * @param userId    用户id，只能删除自己创建的
+     * @param parentIds 父级文档id列表
      */
-    public void deleteModuleDocs(long moduleId, long userId) {
+    public void deleteModuleDocs(long moduleId, long userId, Set<Long> parentIds) {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("create_mode", OperationMode.OPEN.getType())
                 .eq("creator_id", userId);
+        if (parentIds != null && parentIds.size() > 0) {
+            query.notIn("id", parentIds);
+        }
         this.getMapper().deleteByQuery(query);
     }
 }
