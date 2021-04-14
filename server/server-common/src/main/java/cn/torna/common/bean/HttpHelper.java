@@ -174,11 +174,21 @@ public class HttpHelper {
      * @param value value
      * @return 返回HttpHelper
      */
-    public HttpHelper setHeader(String name, String value) {
+    public HttpHelper header(String name, String value) {
         if (this.headers == null) {
             this.headers = new HashMap<>(8);
         }
         this.headers.put(name, value);
+        return this;
+    }
+
+    /**
+     * 设置entity
+     * @param entity entity
+     * @return 返回HttpHelper
+     */
+    public HttpHelper entity(HttpEntity entity) {
+        this.entity = entity;
         return this;
     }
 
