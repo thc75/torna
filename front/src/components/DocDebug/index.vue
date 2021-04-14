@@ -423,7 +423,8 @@ export default {
     initActive() {
       if (this.hasBody) {
         this.requestActive = 'body'
-        if (this.multipartData.length > 0) {
+        const contentType = this.contentType || ''
+        if (contentType.toLowerCase().indexOf('multipart') > -1 || this.multipartData.length > 0) {
           this.postActive = 'multipart'
         } else {
           this.postActive = this.isTextBody ? 'text' : 'form'
