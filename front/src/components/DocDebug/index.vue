@@ -369,9 +369,6 @@ export default {
       this.bindRequestParam(item)
       this.initActive()
     },
-    onHostEnvClick(tab, event) {
-      this.changeHostEnv(tab.label)
-    },
     initDebugHost() {
       const debugEnv = this.getAttr(HOST_KEY) || ''
       this.changeHostEnv(debugEnv)
