@@ -494,7 +494,7 @@ export default {
           data = this.getParamObj(this.formData)
           break
         case 'multipart':
-          isMultipart = this.multipartData.length > 0 || this.uploadFiles.length > 0
+          isMultipart = true
           data = this.getParamObj(this.multipartData)
           break
         default:
@@ -568,14 +568,13 @@ export default {
     },
     buildResultContent(response) {
       const headers = response.targetHeaders
-      const contentType = headers['content-type'] || ''
-      const contentDisposition = headers['content-disposition'] || ''
+      const contentType = this.getHeaderValue(headers, 'Content-Type') || ''
+      const contentDisposition = this.getHeaderValue(headers, 'Content-Disposition') || ''
       // 如果是下载文件
       if (contentType.indexOf('stream') > -1 ||
         contentDisposition.indexOf('attachment') > -1
       ) {
-        const disposition = headers['content-disposition']
-        const filename = this.getDispositionFilename(disposition)
+        const filename = this.getDispositionFilename(contentDisposition)
         this.downloadFile(filename, response.data)
       } else {
         let content = ''
@@ -590,6 +589,9 @@ export default {
         this.result.content = content
       }
       this.openRightPanel()
+    },
+    getHeaderValue(headers, key) {
+      return headers[key] || headers[key.toLowerCase()]
     },
     formatResponse(contentType, stringBody) {
       if (this.isObject(stringBody) || this.isArray(stringBody)) {
