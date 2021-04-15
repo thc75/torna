@@ -12,6 +12,9 @@
             <if test="isFolder != null">is_folder,</if>
             <if test="parentId != null">parent_id,</if>
             <if test="moduleId != null">module_id,</if>
+            <if test="isUseGlobalHeaders != null">is_use_global_headers,</if>
+            <if test="isUseGlobalParams != null">is_use_global_params,</if>
+            <if test="isUseGlobalReturns != null">is_use_global_returns,</if>
             <if test="createMode != null">create_mode,</if>
             <if test="modifyMode != null">modify_mode,</if>
             <if test="creatorId != null">creator_id,</if>
@@ -21,7 +24,6 @@
             <if test="orderIndex != null">order_index,</if>
             <if test="remark != null">remark,</if>
             <if test="isShow != null">is_show,</if>
-            <if test="isDeleted != null">is_deleted,</if>
             gmt_create,
             gmt_modified,
         </trim>
@@ -35,6 +37,9 @@
             <if test="isFolder != null">#{isFolder},</if>
             <if test="parentId != null">#{parentId},</if>
             <if test="moduleId != null">#{moduleId},</if>
+            <if test="isUseGlobalHeaders != null">#{isUseGlobalHeaders},</if>
+            <if test="isUseGlobalParams != null">#{isUseGlobalParams},</if>
+            <if test="isUseGlobalReturns != null">#{isUseGlobalReturns},</if>
             <if test="createMode != null">#{createMode},</if>
             <if test="modifyMode != null">#{modifyMode},</if>
             <if test="creatorId != null">#{creatorId},</if>
@@ -44,7 +49,6 @@
             <if test="orderIndex != null">#{orderIndex},</if>
             <if test="remark != null">#{remark},</if>
             <if test="isShow != null">#{isShow},</if>
-            <if test="isDeleted != null">#{isDeleted},</if>
             now(),
             now(),
         </trim>
@@ -57,6 +61,9 @@
         <if test="isFolder != null">is_folder = VALUES(is_folder),</if>
         <if test="parentId != null">parent_id = VALUES(parent_id),</if>
         <if test="moduleId != null">module_id = VALUES(module_id),</if>
+        <if test="isUseGlobalHeaders != null">is_use_global_headers = VALUES(is_use_global_headers),</if>
+        <if test="isUseGlobalParams != null">is_use_global_params = VALUES(is_use_global_params),</if>
+        <if test="isUseGlobalReturns != null">is_use_global_returns = VALUES(is_use_global_returns),</if>
         <if test="createMode != null">create_mode = VALUES(create_mode),</if>
         <if test="modifyMode != null">modify_mode = VALUES(modify_mode),</if>
         <if test="creatorId != null">creator_id = VALUES(creator_id),</if>
@@ -66,7 +73,8 @@
         <if test="orderIndex != null">order_index = VALUES(order_index),</if>
         <if test="remark != null">remark = VALUES(remark),</if>
         <if test="isShow != null">is_show = VALUES(is_show),</if>
-        <if test="isDeleted != null">is_deleted = VALUES(is_deleted),</if>
+        is_deleted = 0,
         gmt_modified = now()
     </insert>
+
 </mapper>

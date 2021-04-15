@@ -15,7 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>net.oschina.durcframework</groupId>
-            <artifactId>fastmybatis-spring-boot-starter</artifactId>
+            <artifactId>fastmybatis-core</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -38,17 +39,8 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hashids</groupId>
@@ -67,9 +59,18 @@
             <artifactId>httpmime</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <!-- test -->
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
         </dependency>
     </dependencies>
 

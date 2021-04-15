@@ -27,6 +27,9 @@ public class ModuleConfigVO {
     /** 配置值, 数据库字段：config_value */
     private String configValue;
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long extendId;
+
     private String description;
 
 }

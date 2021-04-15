@@ -1,7 +1,5 @@
 <template>
-  <el-tooltip :effect="effect" :content="time" :placement="placement">
-    <span>{{ time.split(' ')[0] }}</span>
-  </el-tooltip>
+  <span :title="time">{{ time.split(' ')[0] }}</span>
 </template>
 <script>
 export default {
@@ -9,14 +7,6 @@ export default {
     time: {
       type: String,
       required: true
-    },
-    effect: {
-      type: String,
-      default: 'dark'
-    },
-    placement: {
-      type: String,
-      default: 'top'
     }
   }
 }

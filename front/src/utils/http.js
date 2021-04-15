@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getToken } from '@/utils/auth'
+import {getToken} from '@/utils/auth'
 
 const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
 
@@ -107,9 +107,9 @@ function get_token() {
   return `Bearer ${token}`
 }
 
-export function request(method, uri, data, headers, isMultipart, callback) {
+export function request(method, url, data, headers, isMultipart, callback, errorCall) {
   if (isMultipart) {
-    doMultipart.call(this, uri, data, headers, callback)
+    doMultipart.call(this, url, data, headers, callback, errorCall)
     return
   }
   const that = this
@@ -118,7 +118,7 @@ export function request(method, uri, data, headers, isMultipart, callback) {
   const params = hasQuery ? data : null
   const postData = !hasQuery ? data : null
   axios.request({
-    url: get_full_url(uri),
+    url: url,
     method: method,
     headers: headers,
     params: params,
@@ -128,12 +128,11 @@ export function request(method, uri, data, headers, isMultipart, callback) {
       callback.call(that, response)
     })
     .catch(error => {
-      console.error('error', error)
-      that.$message.error('请求异常，请查看日志')
+      errorCall && errorCall.call(that, error)
     })
 }
 
-export function doMultipart(uri, data, headers, callback) {
+export function doMultipart(url, data, headers, callback, errorCall) {
   const that = this
   const formData = new FormData()
   for (const name in data) {
@@ -151,15 +150,14 @@ export function doMultipart(uri, data, headers, callback) {
   for (const name in data) {
     formData.append(name, data[name])
   }
-  axios.post(get_full_url(uri), formData, {
+  axios.post(url, formData, {
     headers: headers
   })
     .then(response => {
       callback.call(that, response)
     })
     .catch(error => {
-      console.error('error', error)
-      that.$message.error('请求异常，请查看日志')
+      errorCall && errorCall.call(that, error)
     })
 }
 

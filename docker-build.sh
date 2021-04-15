@@ -1,5 +1,7 @@
 #!/bin/sh
 
+git pull
+
 # 打包并运行docker镜像
 
 # 先执行前端构建

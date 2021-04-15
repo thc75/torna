@@ -56,10 +56,10 @@ export default {
       'avatar'
     ]),
     currentProject() {
-      return this.$store.state.settings.currentProject
+      return this.getCurrentProject()
     },
     currentSpace() {
-      return this.$store.state.settings.currentSpace
+      return this.getSpace()
     }
   },
   created() {

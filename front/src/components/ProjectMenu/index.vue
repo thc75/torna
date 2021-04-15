@@ -6,7 +6,7 @@
       router
       :default-active="currentActive"
     >
-      <el-menu-item :index="`/project/doc/${projectId}`">
+      <el-menu-item :index="getProjectHomeUrl(projectId)">
         <i class="el-icon-document"></i>
         <span class="title">接口文档</span>
       </el-menu-item>
@@ -27,16 +27,19 @@ export default {
   components: { Logo },
   data() {
     return {
-      projectId: ''
+      // projectId: ''
     }
   },
   computed: {
     currentActive() {
       return this.$route.path
+    },
+    projectId() {
+      return this.$store.state.settings.projectId
     }
   },
   created() {
-    this.projectId = this.$route.params.projectId
+    this.$store.state.settings.projectId = this.$route.params.projectId
   }
 }
 </script>

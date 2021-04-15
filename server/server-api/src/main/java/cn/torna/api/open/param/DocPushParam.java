@@ -3,9 +3,7 @@ package cn.torna.api.open.param;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 

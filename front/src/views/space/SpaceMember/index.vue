@@ -213,6 +213,7 @@ export default {
       }) // 加上这个控制台不会报Uncaught (in promise)
     },
     onSizeChange: function(size) {
+      this.searchFormData.pageIndex = 1
       this.searchFormData.pageSize = size
       this.loadTable()
     },

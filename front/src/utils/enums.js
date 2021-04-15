@@ -19,5 +19,14 @@ export const Enums = {
   ],
   USER_STATUS: {
     SET_PASSWORD: 2
+  },
+  /**
+   * 注册来源
+   */
+  SOURCE: {
+    REGISTER: 'register',
+    BACKEND: 'backend',
+    FORM: 'form',
+    OAUTH: 'oauth'
   }
 }

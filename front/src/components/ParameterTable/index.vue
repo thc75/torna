@@ -1,14 +1,15 @@
 <template>
   <el-table
     :data="data"
-    border
     row-key="id"
-    default-expand-all
     :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    :cell-style="cellStyleSmall()"
-    :header-cell-style="headCellStyleSmall()"
     :row-class-name="tableRowClassName"
+    :indent="20"
     :empty-text="emptyText"
+    border
+    highlight-current-row
+    default-expand-all
+    class="el-table-tree"
   >
     <el-table-column
       v-if="isColumnShow('name')"
@@ -17,7 +18,7 @@
       width="250"
     >
       <template slot-scope="scope">
-        <span>
+        <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
           {{ scope.row.name }}
           <el-tooltip content="查看字典" placement="top">
             <el-popover
@@ -68,7 +69,20 @@
       v-if="isColumnShow('description')"
       prop="description"
       :label="descriptionLabel"
-    />
+    >
+      <template slot-scope="scope">
+        <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
+        <div v-else>
+          <el-popover
+            placement="left"
+            trigger="click"
+          >
+            <div v-html="scope.row.description"></div>
+            <el-button slot="reference" type="text">点击查看</el-button>
+          </el-popover>
+        </div>
+      </template>
+    </el-table-column>
     <el-table-column
       v-if="isColumnShow('example')"
       prop="example"
@@ -130,6 +144,11 @@ export default {
     },
     onEnumPopoverShow(ref) {
       this.$refs[ref].reload()
+    },
+    hasNoParentAndChildren(row) {
+      const children = row.children
+      const noChildren = !children || children.length === 0
+      return !row.parentId && noChildren
     },
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0

@@ -41,19 +41,21 @@
         </div>
       </div>
     </div>
-    <el-table
-      :data="tableData"
-      row-key="id"
+    <u-table
+      ref="plTreeTable"
+      :data="tableRows"
+      row-id="id"
+      use-virtual
+      :treeConfig="{ children: 'children', iconClose: 'el-icon-arrow-right', iconOpen: 'el-icon-arrow-down', expandAll: true}"
+      :height="tableHeight"
+      :row-height="30"
       border
-      default-expand-all
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-      :cell-style="cellStyleSmall()"
-      :header-cell-style="headCellStyleSmall()"
-      :row-class-name="tableRowClassName"
     >
-      <el-table-column
+      <u-table-column
+        :tree-node="true"
         prop="name"
         label="文档名称"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
@@ -65,36 +67,37 @@
             </div>
           </div>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         prop="url"
         label="请求路径"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           <http-method v-if="scope.row.url" :method="scope.row.httpMethod" />
           <span style="margin-left: 5px;">{{ scope.row.url }}</span>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         prop="creatorName"
         label="创建人"
         width="100"
       />
-      <el-table-column
+      <u-table-column
         prop="gmtCreate"
         label="创建时间"
         width="100"
       >
         <template slot-scope="scope">
-          <time-tooltip :time="scope.row.gmtCreate" />
+          <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         prop="modifierName"
         label="最后修改人"
         width="100"
       />
-      <el-table-column
+      <u-table-column
         prop="gmtModified"
         label="修改时间"
         width="100"
@@ -102,31 +105,29 @@
         <template slot-scope="scope">
           <time-tooltip :time="scope.row.gmtModified" />
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
-        width="150"
+        width="140"
       >
         <template slot-scope="scope">
-          <div v-if="isFolder(scope.row)">
-            <el-link type="primary" @click="onDocAdd(scope.row)">添加接口</el-link>
-          </div>
-          <div v-else>
-            <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="primary">预览</el-link>
+          <div>
+            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加文档</el-link>
+            <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
+              <el-link type="success">预览</el-link>
             </router-link>
             <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
             <el-popconfirm
               :title="`确定要删除 ${scope.row.name} 吗？`"
               @onConfirm="onDocRemove(scope.row)"
             >
-              <el-link v-if="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
+              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
             </el-popconfirm>
           </div>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-else
         label="操作"
         width="80"
@@ -134,12 +135,12 @@
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
             <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="primary">预览</el-link>
+              <el-link type="success">预览</el-link>
             </router-link>
           </div>
         </template>
-      </el-table-column>
-    </el-table>
+      </u-table-column>
+    </u-table>
   </div>
 </template>
 <style lang="scss">
@@ -169,9 +170,49 @@ export default {
   data() {
     return {
       moduleId: '',
+      tableHeight: 0,
       tableData: [],
-      tableSearch: ''
+      tableSearch: '',
+      loading: false
     }
+  },
+  computed: {
+    tableRows() {
+      let search = this.tableSearch.trim()
+      if (!search) {
+        return this.tableData
+      }
+      search = search.toLowerCase()
+      const data = []
+      for (const row of this.tableData) {
+        // 如果是分类，需要找分类中的子文档
+        if (this.isFolder(row)) {
+          const children = row.children || []
+          const newChildren = children.filter(child => {
+            return this.searchContent(search, child)
+          })
+          // 如果找到了
+          if (newChildren.length > 0) {
+            const rowCopy = Object.assign({}, row)
+            rowCopy.children = newChildren
+            data.push(rowCopy)
+          }
+        } else {
+          // 不是分类找到了直接加入
+          if (this.searchContent(search, row)) {
+            data.push(row)
+          }
+        }
+      }
+      return data
+    }
+  },
+  created() {
+    this.initHeight()
+    window.addEventListener('resize', this.initHeight)
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.initHeight)
   },
   methods: {
     refreshTable() {
@@ -186,10 +227,15 @@ export default {
       if (moduleId) {
         this.moduleId = moduleId
       }
+      this.loading = true
       this.get('/doc/list', { moduleId: this.moduleId }, function(resp) {
         this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
+        this.loading = false
       })
+    },
+    initHeight() {
+      this.tableHeight = window.innerHeight - 165
     },
     onFolderUpdate(row) {
       this.$prompt('请输入分类名称', '修改分类', {
@@ -237,21 +283,10 @@ export default {
     isFolder(row) {
       return row.isFolder === 1
     },
-    tableRowClassName({ row, index }) {
-      row.hidden = false
-      if (this.tableSearch.length === 0) {
-        return ''
-      }
-      const searchText = this.tableSearch.toLowerCase()
-      const find = (row.id && row.id.toLowerCase().indexOf(searchText) > -1) ||
+    searchContent(searchText, row) {
+      return (row.url && row.url.toLowerCase().indexOf(searchText) > -1) ||
         (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
-        (row.url && row.url.toLowerCase().indexOf(searchText) > -1)
-      // 没有找到，隐藏
-      if (!find) {
-        row.hidden = true
-        return 'hidden-row'
-      }
-      return ''
+        (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onDocRemove(row) {
       const data = {
@@ -259,7 +294,7 @@ export default {
       }
       this.post('/doc/delete', data, () => {
         this.tipSuccess('删除成功')
-        this.reload()
+        this.loadTable()
       })
     },
     onDocAdd(row) {

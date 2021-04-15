@@ -10,6 +10,19 @@
               :label="hostConfig.configKey"
             />
           </el-radio-group>
+          <span class="split">|</span>
+          <el-checkbox v-model="isProxy" label="代理转发" />
+          <el-popover
+            placement="right"
+            title="代理转发"
+            width="400"
+            :open-delay="500"
+            trigger="hover"
+          >
+            <p>勾选：服务端代理转发请求</p>
+            <p>取消勾选：页面使用axios请求，需要处理跨域</p>
+            <i slot="reference" class="el-icon-question"></i>
+          </el-popover>
           <el-input v-model="requestUrl" :readonly="pathData.length > 0" class="request-url">
             <span slot="prepend">
               {{ currentMethod }}
@@ -20,7 +33,7 @@
         <el-alert v-else :closable="false">
           <span slot="title">
             尚未指定调试环境，请前往
-            【<router-link class="el-link el-link--primary" :to="`/project/doc/${currentItem.projectId}?id=ModuleSetting`">模块配置</router-link>】
+            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">模块配置</router-link>】
             进行添加。
             <router-link class="el-link el-link--primary" target="_blank" to="/help?id=debug">参考文档</router-link>
           </span>
@@ -272,7 +285,7 @@
 <script>
 require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
-import { request } from '@/utils/http'
+import { request, get_full_url } from '@/utils/http'
 import { get_effective_url } from '@/utils/common'
 
 const HOST_KEY = 'torna.debug-host'
@@ -288,6 +301,7 @@ export default {
   data() {
     return {
       rightSpanSize: 0,
+      isProxy: true,
       currentItem: {
         debugEnvs: []
       },
@@ -355,9 +369,6 @@ export default {
       this.bindRequestParam(item)
       this.initActive()
     },
-    onHostEnvClick(tab, event) {
-      this.changeHostEnv(tab.label)
-    },
     initDebugHost() {
       const debugEnv = this.getAttr(HOST_KEY) || ''
       this.changeHostEnv(debugEnv)
@@ -412,7 +423,8 @@ export default {
     initActive() {
       if (this.hasBody) {
         this.requestActive = 'body'
-        if (this.multipartData.length > 0) {
+        const contentType = this.contentType || ''
+        if (contentType.toLowerCase().indexOf('multipart') > -1 || this.multipartData.length > 0) {
           this.postActive = 'multipart'
         } else {
           this.postActive = this.isTextBody ? 'text' : 'form'
@@ -480,7 +492,7 @@ export default {
           data = this.getParamObj(this.formData)
           break
         case 'multipart':
-          isMultipart = this.multipartData.length > 0 || this.uploadFiles.length > 0
+          isMultipart = true
           data = this.getParamObj(this.multipartData)
           break
         default:
@@ -495,8 +507,19 @@ export default {
       const targetHeaders = JSON.stringify(headers)
       const realHeaders = Object.assign({}, headers)
       realHeaders['target-headers'] = targetHeaders
-      realHeaders['target-url'] = this.url
-      request.call(this, item.httpMethod, '/doc/debug/v1', data, realHeaders, isMultipart, this.doProxyResponse)
+      let url = this.url
+      if (this.isProxy) {
+        url = this.getProxyUrl('/doc/debug/v1')
+        realHeaders['target-url'] = this.url
+      }
+      request.call(this, item.httpMethod, url, data, realHeaders, isMultipart, this.doProxyResponse, () => {
+        this.sendLoading = false
+        this.result.content = '发送失败，请按F12查看Console'
+        this.openRightPanel()
+      })
+    },
+    getProxyUrl(uri) {
+      return get_full_url(uri)
     },
     buildRequestHeaders() {
       const headers = {}
@@ -543,15 +566,13 @@ export default {
     },
     buildResultContent(response) {
       const headers = response.targetHeaders
-      const contentType = headers['content-type'] || ''
-      const contentDisposition = headers['content-disposition'] || ''
-      this.openRightPanel()
+      const contentType = this.getHeaderValue(headers, 'Content-Type') || ''
+      const contentDisposition = this.getHeaderValue(headers, 'Content-Disposition') || ''
       // 如果是下载文件
       if (contentType.indexOf('stream') > -1 ||
         contentDisposition.indexOf('attachment') > -1
       ) {
-        const disposition = headers['content-disposition']
-        const filename = this.getDispositionFilename(disposition)
+        const filename = this.getDispositionFilename(contentDisposition)
         this.downloadFile(filename, response.data)
       } else {
         let content = ''
@@ -565,6 +586,10 @@ export default {
         }
         this.result.content = content
       }
+      this.openRightPanel()
+    },
+    getHeaderValue(headers, key) {
+      return headers[key] || headers[key.toLowerCase()]
     },
     formatResponse(contentType, stringBody) {
       if (this.isObject(stringBody) || this.isArray(stringBody)) {
@@ -581,9 +606,6 @@ export default {
       } else {
         return stringBody
       }
-    },
-    formatJson(json) {
-      return JSON.stringify(json, null, 4)
     },
     downloadFile(filename, buffer) {
       const url = window.URL.createObjectURL(new Blob([buffer]))
@@ -605,9 +627,7 @@ export default {
       }
     },
     buildResultHeaders(response) {
-      const headers = response.headers
-      const targetHeadersString = headers['target-response-headers'] || '{}'
-      const targetHeaders = JSON.parse(targetHeadersString)
+      const targetHeaders = this.getTargetHeaders(response)
       response.targetHeaders = targetHeaders
       const headersData = []
       if (targetHeaders) {
@@ -616,6 +636,15 @@ export default {
         }
       }
       this.result.headerData = headersData
+    },
+    getTargetHeaders(response) {
+      const headers = response.headers
+      if (this.isProxy) {
+        const targetHeadersString = headers['target-response-headers'] || '{}'
+        return JSON.parse(targetHeadersString)
+      } else {
+        return headers
+      }
     },
     openRightPanel() {
       this.resultActive = 'body'

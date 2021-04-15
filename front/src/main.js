@@ -19,6 +19,10 @@ import '@/utils/routeUtil'
 import '@/utils/role-code'
 import '@/utils/perm'
 
+import UmyUi from 'umy-ui'
+import '@/styles/umy-ui.scss'
+Vue.use(UmyUi)
+
 /**
  * If you don't want to use mock-server
  * you want to use mockjs for request interception

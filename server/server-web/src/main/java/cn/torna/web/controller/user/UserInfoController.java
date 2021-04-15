@@ -3,11 +3,12 @@ package cn.torna.web.controller.user;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.service.UserInfoService;
 import cn.torna.service.dto.UserInfoDTO;
-import cn.torna.web.controller.user.param.UpdateNicknameParam;
+import cn.torna.web.controller.user.param.UpdateInfoParam;
 import cn.torna.web.controller.user.param.UpdatePasswordParam;
 import cn.torna.web.controller.user.param.UserIdParam;
 import cn.torna.web.controller.user.param.UserInfoSearchParam;
@@ -52,11 +53,11 @@ public class UserInfoController {
         return Result.ok(userInfoDTO);
     }
 
-    @PostMapping("/nickname/update")
-    public Result updateNickname(@RequestBody UpdateNicknameParam param) {
+    @PostMapping("/update")
+    public Result updateNickname(@RequestBody UpdateInfoParam param) {
         User user = UserContext.getUser();
         UserInfo userInfo = userInfoService.getById(user.getUserId());
-        userInfo.setNickname(param.getNickname());
+        CopyUtil.copyPropertiesIgnoreNull(param, userInfo);
         userInfoService.update(userInfo);
         return Result.ok();
     }
@@ -82,6 +83,9 @@ public class UserInfoController {
     public Result updatePassword(@RequestBody @Valid UpdatePasswordParam param) {
         long userId = UserContext.getUser().getUserId();
         UserInfo userInfo = userInfoService.getById(userId);
+        if (UserInfoService.isThirdPartyUser(userInfo)) {
+            throw new BizException("第三方账号无法修改密码");
+        }
         // 演示账号禁止修改
         if ("guest@torna.cn".equalsIgnoreCase(userInfo.getUsername())) {
             return Result.ok();

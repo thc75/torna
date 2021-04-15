@@ -9,6 +9,7 @@ import cn.torna.service.DocInfoService;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
+import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.system.param.IdParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,10 +51,10 @@ public class DocController {
      * @return
      */
     @PostMapping("save")
-    public Result save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
+    public Result<IdVO> save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
         User user = UserContext.getUser();
-        docInfoService.saveDocInfo(docInfoDTO, user);
-        return Result.ok();
+        DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
+        return Result.ok(new IdVO(docInfo.getId()));
     }
 
     /**

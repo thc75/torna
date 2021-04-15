@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.fastmybatis.core.query.annotation.Condition;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author tanghc
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class OpenUserParam extends PageParam {
 

@@ -1,27 +1,14 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ParamStyleEnum;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
-import cn.torna.manager.doc.swagger.Server;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import cn.torna.common.bean.HttpHelper;
-import cn.torna.common.exception.BizException;
 import cn.torna.manager.doc.DocParser;
 import cn.torna.manager.doc.IParam;
 import cn.torna.manager.doc.postman.Body;
@@ -34,9 +21,23 @@ import cn.torna.manager.doc.swagger.DocBean;
 import cn.torna.manager.doc.swagger.DocItem;
 import cn.torna.manager.doc.swagger.DocModule;
 import cn.torna.manager.doc.swagger.DocParameter;
+import cn.torna.manager.doc.swagger.Server;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.ImportPostmanDTO;
 import cn.torna.service.dto.ImportSwaggerDTO;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -155,7 +156,7 @@ public class DocImportService {
             // 如果是文件夹
             if (item.isFolder()) {
                 Long parentId = parent == null ? 0L : parent.getId();
-                DocInfo folder = docInfoService.createDocFolderNoCheck(item.getName(), parentId, module.getId(), user);
+                DocInfo folder = docInfoService.createDocFolder(item.getName(), module.getId(), user, parentId);
                 // 创建模块下的文档
                 List<Item> subItems = item.getItem();
                 this.saveItems(subItems, folder, module, user);
@@ -248,7 +249,7 @@ public class DocImportService {
         List<DocModule> docModules = docBean.getDocModules();
         docModules.sort(Comparator.comparing(DocModule::getOrder));
         for (DocModule docModule : docModules) {
-            DocInfo moduleDocInfo = docInfoService.createDocFolderNoCheck(docModule.getModule(), module.getId(), user);
+            DocInfo moduleDocInfo = docInfoService.createDocFolder(docModule.getModule(), module.getId(), user);
             // 创建模块下的文档
             List<DocItem> items = docModule.getItems();
             for (DocItem item : items) {
@@ -333,6 +334,7 @@ public class DocImportService {
         docParam.setModifierId(user.getUserId());
         docParam.setModifyMode(user.getOperationModel());
         docParam.setModifierName(user.getNickname());
+        docParam.setIsDeleted(Booleans.FALSE);
         // 保存操作
         DocParam savedDoc = docParamService.saveParam(docParam);
 
@@ -350,7 +352,7 @@ public class DocImportService {
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getSummary());
         docItemCreateDTO.setUrl(item.getPath());
-        docItemCreateDTO.setContentType(Strings.join(item.getConsumes(), ','));
+        docItemCreateDTO.setContentType(StringUtils.join(item.getConsumes(), ','));
         docItemCreateDTO.setHttpMethod(item.getMethod());
         docItemCreateDTO.setDescription(item.getDescription());
         docItemCreateDTO.setModuleId(parent.getModuleId());

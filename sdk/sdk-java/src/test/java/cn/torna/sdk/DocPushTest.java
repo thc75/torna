@@ -5,6 +5,7 @@ import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
 import cn.torna.sdk.param.DocParamCode;
 import cn.torna.sdk.param.DocParamHeader;
+import cn.torna.sdk.param.DocParamPath;
 import cn.torna.sdk.param.DocParamReq;
 import cn.torna.sdk.param.DocParamResp;
 import cn.torna.sdk.param.EnumInfoParam;
@@ -59,11 +60,21 @@ public class DocPushTest extends BaseTest {
         /* 设置基本信息 */
         item.setName("获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
-        item.setUrl("/goods/get" + i);
+        item.setUrl("/goods/{id}/get" + i);
         item.setHttpMethod("GET");
         item.setContentType("application/json");
         item.setParentId("");
         item.setIsShow(Booleans.TRUE);
+
+        /* 设置path参数 */
+        DocParamPath pathParam = new DocParamPath();
+        pathParam.setName("id");
+        pathParam.setType("int");
+        pathParam.setDescription("id");
+        pathParam.setExample("123");
+        pathParam.setMaxLength("-");
+        pathParam.setRequired(Booleans.TRUE);
+        item.setPathParams(Arrays.asList(pathParam));
 
         /* 设置header */
         DocParamHeader header = new DocParamHeader();

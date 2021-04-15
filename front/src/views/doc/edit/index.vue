@@ -68,6 +68,14 @@
       <el-tab-pane label="请求头" name="headerParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">添加Header</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">导入Header</el-button>
+        <span class="split">|</span>
+        <el-switch
+          v-model="docInfo.isUseGlobalHeaders"
+          active-text="使用全局请求头"
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
         <edit-table
           ref="headerParamTable"
           :data="docInfo.headerParams"
@@ -78,11 +86,27 @@
       <el-tab-pane label="请求参数" name="requestParam">
         <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加请求参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入请求参数</el-button>
+        <span class="split">|</span>
+        <el-switch
+          v-model="docInfo.isUseGlobalParams"
+          active-text="使用全局请求参数"
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
         <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
       </el-tab-pane>
       <el-tab-pane label="响应参数" name="responseParam">
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">导入响应参数</el-button>
+        <span class="split">|</span>
+        <el-switch
+          v-model="docInfo.isUseGlobalReturns"
+          active-text="使用全局响应参数"
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
         <edit-table ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
       </el-tab-pane>
       <el-tab-pane label="错误码" name="errorCode">
@@ -172,6 +196,10 @@ export default {
         httpMethod: 'GET',
         parentId: '',
         moduleId: '',
+        projectId: '',
+        isUseGlobalHeaders: 1,
+        isUseGlobalParams: 1,
+        isUseGlobalReturns: 1,
         isShow: 1,
         pathParams: [],
         headerParams: [],
@@ -222,8 +250,8 @@ export default {
         })
       }
     },
-    initData: function() {
-      const docId = this.$route.params.docId || ''
+    initData: function(id) {
+      const docId = id || (this.$route.params.docId || '')
       const parentId = this.$route.params.parentId || ''
       const moduleId = this.$route.params.moduleId || ''
       this.moduleId = moduleId
@@ -236,6 +264,7 @@ export default {
           const data = resp.data
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
+          this.$store.state.settings.projectId = data.projectId
         }, (resp) => {
           if (resp.code === '1000') {
             this.alert('文档不存在', '提示', function() {
@@ -309,9 +338,14 @@ export default {
               errorCodeParams: this.formatData(errorCodeParams),
               remark: this.remark
             })
-            this.post('/doc/save', data, function(resp) {
+            this.post('/doc/save', data, resp => {
               this.tipSuccess('保存成功')
-              this.initData()
+              const id = resp.data.id
+              if (id !== data.id) {
+                this.goRoute(`/doc/edit/${data.moduleId}/${id}`)
+              } else {
+                this.initData()
+              }
             })
           }).catch((e) => {
             this.tipError('请完善表单内容')
@@ -330,6 +364,7 @@ export default {
         viewData.requestParams = this.getRequestParamsData()
         viewData.responseParams = this.getResponseParamsData()
         viewData.errorCodeParams = this.getErrorCodeParamsData()
+        this.initDocInfoCompleteView(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })
     },
@@ -361,7 +396,8 @@ export default {
       return ret
     },
     goBack: function() {
-      this.$router.go(-1)
+      const projectInfo = this.getCurrentProject()
+      this.goProjectHome(projectInfo.id)
     },
     onImportHeaderParamAdd: function() {
       this.importParamTemplateDlgShow = true
@@ -419,6 +455,7 @@ export default {
           const value = this.paramResponseTemplateFormData.value
           const responseParams = this.docInfo.responseParams
           this.parseJSON(value, (json) => {
+            json.id = this.nextId()
             this.doImportResponseParam(responseParams, json)
             this.paramResponseTemplateDlgShow = false
           }, () => this.tipError('JSON格式错误'))
@@ -433,25 +470,28 @@ export default {
     doImportResponseParam: function(responseParams, json) {
       for (const name in json) {
         const value = json[name]
-        const existRow = this.findRow(responseParams, name)
-        const row = this.getParamNewRow(name, value)
+        let row = this.findRow(responseParams, name)
+        const isExist = row !== null
+        if (!isExist) {
+          row = this.getParamNewRow(name, value)
+        }
+        row.example = value
         // 如果有子节点
         if (this.isObject(value)) {
           row.type = 'object'
           row.example = ''
-          const children = existRow ? existRow.children : row.children
+          const children = row.children
           this.doImportResponseParam(children, value)
+          children.forEach(child => { child.parentId = row.id })
         } else if (this.isArray(value)) {
           row.type = 'array'
           row.example = ''
           const oneJson = value.length === 0 ? {} : value[0]
-          const children = existRow ? existRow.children : row.children
+          const children = row.children
           this.doImportResponseParam(children, oneJson)
+          children.forEach(child => { child.parentId = row.id })
         }
-        if (existRow) {
-          existRow.example = row.example
-        }
-        if (!existRow) {
+        if (!isExist) {
           responseParams.push(row)
         }
       }

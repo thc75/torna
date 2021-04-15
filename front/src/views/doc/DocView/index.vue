@@ -58,9 +58,9 @@
     <h4>请求参数</h4>
     <parameter-table :data="docInfo.requestParams" />
     <h4>响应参数</h4>
-    <parameter-table :data="docInfo.responseParams" :hidden-columns="['required', 'maxLength']" />
+    <parameter-table :data="docInfo.responseParams" />
     <h4>响应示例</h4>
-    <pre class="normal-text">{{ JSON.stringify(responseSuccessExample, null, 4) }}</pre>
+    <pre class="normal-text">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>错误码</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
@@ -93,7 +93,6 @@
     padding: 0 4px !important;
   }
   .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
-  .doc-modify-info { font-size: 12px;color: #909399 }
   .debug-url { font-size: 14px;color: #606266 }
 }
 .doc-title {
@@ -165,6 +164,9 @@ export default {
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
+        globalHeaders: [],
+        globalParams: [],
+        globalReturns: [],
         debugEnvs: [],
         folders: []
       },
@@ -190,7 +192,7 @@ export default {
       if (docId) {
         this.get(this.url, { id: docId }, function(resp) {
           const data = resp.data
-          this.initDocInfo(data)
+          this.initDocInfoView(data)
           this.setData(data)
         })
       }

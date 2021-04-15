@@ -12,7 +12,10 @@
 - 支持字典管理
 - 支持导出为markdown格式、html格式
 - 支持多环境接口调试
+- 支持Mock数据
 - 支持文档权限管理，访客、开发者、管理员对应不同权限
+- 支持OAuth认证登录
+- 支持设置全局请求头/请求参数/响应参数
 - 提供`管理模式`和`浏览模式`双模式，管理模式用来编辑文档内容，浏览模式纯粹查阅文档，界面无其它元素干扰
 - 部署简单，直接运行脚本启动程序
 - 支持docker运行
@@ -25,10 +28,12 @@
 
 ## 使用步骤
 
+### 方式1：下载zip本地运行
+
 - 准备工作
 
-    - Java环境，最低要求Java8
-    - MySQL，要求5.6.5及以后，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
+  - Java环境，最低要求Java8
+  - MySQL，要求5.6.5及以后，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
 
 前往 [发行版页面](https://gitee.com/durcframework/torna/releases) ，下载最新版本，解压zip
 
@@ -40,7 +45,7 @@
 
 访问：`http://ip:7700`
 
-### docker运行
+### 方式2：docker运行
 
 下载公共镜像
 
@@ -52,8 +57,9 @@
 
 执行`docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <镜像ID>`
 
-浏览器访问`http://ip:7700/`
+浏览器访问`http://ip:7700`
 
+---
 
 体验账号：
 
@@ -74,10 +80,19 @@
 研发二部-后台项目（私有）-访客：dev2back_guest@torna.cn
 研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
 ```
+
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-docker-compose)
+
 ### kubernetes部署torna
 [【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-on-kubernetes)
+
+## 推荐组合
+
+**smart-doc + Torna实现文档全流程自动化**
+
+[smart-doc](https://gitee.com/smart-doc-team/smart-doc) + Torna 组成行业领先的文档生成和管理解决方案，使用smart-doc无侵入完成Java源代码和注释提取生成API文档，自动将文档推送到Torna企业级接口文档管理平台。
+
 ## 开发部署
 
 参见：[开发文档](http://torna.cn/dev/)
@@ -85,6 +100,11 @@
 ## 更新日志
 
 [changelog](./changelog.md)
+
+## 参与贡献
+
+欢迎贡献代码，PR请提交到`develop`分支
+
 
 ## 界面预览
 

@@ -1,6 +1,6 @@
 package cn.torna.common.util;
 
-import com.gitee.fastmybatis.core.PageInfo;
+import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -163,6 +163,19 @@ public class CopyUtil extends BeanUtils {
                     return target;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 深层次拷贝，通过json转换的方式实现
+     *
+     * @param from 待转换的类
+     * @param toClass 目标类class
+     * @param <T> 目标类
+     * @return 返回目标类
+     */
+    public static <T> T deepCopy(Object from, Class<T> toClass) {
+        String json = JSON.toJSONString(from);
+        return JSON.parseObject(json, toClass);
     }
 
 }

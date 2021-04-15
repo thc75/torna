@@ -2,8 +2,7 @@
   <el-table
     :data="data"
     border
-    :header-cell-style="cellStyleSmall()"
-    :cell-style="cellStyleSmall()"
+    highlight-current-row
   >
     <el-table-column label="字典值" prop="name">
       <template slot-scope="scope">

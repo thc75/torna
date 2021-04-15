@@ -1,8 +1,5 @@
 package cn.torna.api.open.param;
 
-import cn.torna.common.support.IdCodec;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.gitee.easyopen.doc.DataType;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -42,17 +39,15 @@ public class DocPushItemParam {
     @Length(max = 128, message = "'contentType' 长度不能超过128")
     private String contentType;
 
-    @ApiDocField(description = "contentType", example = "1")
+    @ApiDocField(description = "是否是文件夹，1：是，0：否", example = "1")
     private Byte isFolder;
-
-    /** 父节点, 数据库字段：parent_id */
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    @ApiDocField(description = "父节点, 没有填空字符串", dataType = DataType.STRING)
-    private Long parentId;
 
     /** 是否显示, 数据库字段：is_show */
     @ApiDocField(description = "是否显示，1：显示，0：不显示", example = "1")
     private Byte isShow;
+
+    @ApiDocField(description = "path参数", elementClass = DocParamPushParam.class)
+    private List<DocParamPushParam> pathParams;
 
     @ApiDocField(description = "请求头", elementClass = HeaderParamPushParam.class)
     private List<HeaderParamPushParam> headerParams;

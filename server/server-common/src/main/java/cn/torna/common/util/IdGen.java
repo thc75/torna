@@ -4,14 +4,18 @@ import java.util.UUID;
 
 public class IdGen {
 	private static long workId = 0;
-	private static SnowflakeIdWorker worker = new SnowflakeIdWorker(workId++, 0);
+	private static final SnowflakeIdWorker worker = new SnowflakeIdWorker(workId++, 0);
+
+	public static long genId() {
+		return worker.nextId();
+	}
 
 	/**
 	 * 生成唯一id
 	 * @return
 	 */
 	public static String nextId() {
-		return String.valueOf(worker.nextId());
+		return String.valueOf(genId());
 	}
 
 	public static String uuid() {

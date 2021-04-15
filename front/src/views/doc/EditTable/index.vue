@@ -1,11 +1,10 @@
 <template>
   <el-table
     :data="getter(rows)"
-    border
     row-key="id"
+    border
     default-expand-all
-    :cell-style="cellStyleSmall()"
-    :header-cell-style="headCellStyleSmall()"
+    highlight-current-row
     :empty-text="emptyText"
     class="param-table"
   >
@@ -26,6 +25,7 @@
           :rules="paramRowRule"
           size="mini"
           style="display: inline-block;width: 220px;"
+          :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''"
         >
           <el-form-item
             prop="name"
@@ -155,7 +155,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: '无参数'
+      default: '无数据'
     },
     canAddNode: {
       type: Boolean,
@@ -196,7 +196,7 @@ export default {
       enumData: [],
       paramRowRule: {
         name: [
-          { required: true, message: '请填写名称', trigger: ['blur', 'change'] }
+          { required: true, message: '请填写', trigger: ['blur', 'change'] }
         ]
       }
     }
@@ -208,7 +208,9 @@ export default {
   },
   mounted() {
     if (this.moduleId) {
-      this.loadEnumData(this.moduleId)
+      this.loadEnumData(this.moduleId, data => {
+        this.enumData = data
+      })
     }
   },
   methods: {
@@ -218,15 +220,11 @@ export default {
     isTextColumn(name) {
       return this.textColumns.filter(val => val === name).length > 0
     },
-    loadEnumData(moduleId) {
-      this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
-        this.enumData = resp.data
-      })
-    },
     onParamNodeAdd(row) {
       const children = row.children || []
-      children.push(this.getParamNewRow())
-      children.hasChildren = true
+      const child = this.getParamNewRow()
+      child.parentId = row.id
+      children.push(child)
       row.children = children
     },
     onParamRemove(row) {
@@ -235,6 +233,11 @@ export default {
       } else {
         row.isDeleted = 1
       }
+    },
+    hasNoParentAndChildren(row) {
+      const children = row.children
+      const noChildren = !children || children.length === 0
+      return !row.parentId && noChildren
     },
     getData() {
       return this.rows
@@ -245,3 +248,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.param-table .el-table--row-no-parent-children {
+  padding-left: 23px !important;
+}
+</style>

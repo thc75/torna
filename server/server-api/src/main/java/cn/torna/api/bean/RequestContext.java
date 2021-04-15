@@ -13,6 +13,7 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
 
     private static final String MODULE_ID_KEY = "api-module-id";
     private static final String API_USER_KEY = "api-user-obj";
+    private static final String TOKEN_KEY = "api-token";
 
     /**
      * Get the current RequestContext
@@ -21,6 +22,14 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
      */
     public static RequestContext getCurrentContext() {
         return THREAD_LOCAL.get();
+    }
+
+    public void setToken(String token) {
+        put(TOKEN_KEY, token);
+    }
+
+    public String getToken() {
+        return (String) get(TOKEN_KEY);
     }
 
     public long getModuleId() {

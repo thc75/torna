@@ -31,9 +31,19 @@
       </el-form-item>
       <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">登 录</el-button>
       <div class="footer">
-        <el-link type="primary" :underline="false" @click="onReg">注册新账号</el-link>
-        <span class="split">|</span>
-        <el-link type="primary" :underline="false" @click="onForgetPwd">忘记密码？</el-link>
+        <div v-if="serverConfig.enableReg">
+          <el-link type="primary" :underline="false" @click="onReg">注册新账号</el-link>
+          <span class="split">|</span>
+          <el-link type="primary" :underline="false" @click="onForgetPwd">忘记密码？</el-link>
+        </div>
+        <el-link
+          v-if="serverConfig.enableThirdPartyOauth"
+          type="primary"
+          :underline="false"
+          :href="serverConfig.oauthLoginUrl"
+        >
+          {{ serverConfig.oauthButtonText }}
+        </el-link>
       </div>
     </el-form>
   </div>
@@ -63,6 +73,13 @@ export default {
       }
     }
     return {
+      serverConfig: {
+        enableReg: false,
+        enableThirdPartyForm: false,
+        enableThirdPartyOauth: false,
+        oauthLoginUrl: '',
+        oauthButtonText: ''
+      },
       loginForm: {
         username: '',
         password: ''
@@ -86,6 +103,9 @@ export default {
   },
   created() {
     removeToken()
+    this.getServerConfig(config => {
+      Object.assign(this.serverConfig, config)
+    })
   },
   methods: {
     onReg: function() {
@@ -119,13 +139,17 @@ export default {
     doSubmit: function(callback) {
       const data = this.loginForm
       let pwd = data.password
-      pwd = md5(pwd)
+      if (!this.serverConfig.enableThirdPartyForm) {
+        pwd = md5(pwd)
+      }
       const postData = {
         username: data.username,
         password: pwd
       }
       callback && callback.call(this, postData)
+      this.loading = true
       this.post('/system/login', postData, function(resp) {
+        this.loading = false
         const data = resp.data
         setToken(data.token)
         if (data.status === Enums.USER_STATUS.SET_PASSWORD) {
@@ -133,6 +157,8 @@ export default {
         } else {
           this.goRoute(this.redirect || '/dashboard')
         }
+      }, () => {
+        this.loading = false
       })
     },
     useVerify() {

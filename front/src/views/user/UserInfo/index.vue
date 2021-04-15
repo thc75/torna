@@ -1,47 +1,50 @@
 <template>
   <div class="app-container">
     <el-form
+      ref="userForm"
       :model="userInfo"
-      size="mini"
+      :rules="rules"
       label-width="120px"
       style="width: 500px;"
     >
       <el-form-item label="登录账号">
         {{ userInfo.username }}
       </el-form-item>
-      <el-form-item label="昵称">
-        {{ userInfo.nickname }}
-        <el-tooltip content="修改昵称" placement="top">
-          <popover-update
-            title="昵称"
-            :on-show="() => {return userInfo.nickname}"
-            :on-save="onSaveNickname"
-          />
-        </el-tooltip>
+      <el-form-item label="昵称" prop="nickname">
+        <el-input v-model="userInfo.nickname" show-word-limit maxlength="50" />
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="userInfo.email" show-word-limit maxlength="100" />
       </el-form-item>
       <el-form-item label="注册时间">
         {{ userInfo.gmtCreate }}
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSave">保 存</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
-import PopoverUpdate from '@/components/PopoverUpdate'
 export default {
   name: 'UserInfo',
-  components: { PopoverUpdate },
+  props: {
+    userInfo: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
-      userInfo: {
-        id: '',
-        username: '',
-        nickname: '',
-        gmtCreate: ''
+      rules: {
+        nickname: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
   created() {
-    this.loadUserInfo()
+    // this.loadUserInfo()
   },
   methods: {
     loadUserInfo() {
@@ -49,14 +52,13 @@ export default {
         this.userInfo = resp.data
       })
     },
-    onSaveNickname(value, done) {
-      const data = {
-        nickname: value
-      }
-      this.post('/user/nickname/update', data, () => {
-        this.tipSuccess('修改成功')
-        done()
-        this.loadUserInfo()
+    onSave() {
+      this.$refs.userForm.validate(valid => {
+        if (valid) {
+          this.post('/user/update', this.userInfo, () => {
+            this.tipSuccess('保存成功')
+          })
+        }
       })
     }
   }

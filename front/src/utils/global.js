@@ -4,7 +4,15 @@
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
 import { do_get, get, get_baseUrl, get_file, post } from './http'
-import { convert_tree, create_response_example, get_requestUrl, init_docInfo } from './common'
+import {
+  convert_tree,
+  create_response_example,
+  get_requestUrl,
+  init_docInfo,
+  init_docInfo_view,
+  init_docInfo_complete_view
+} from './common'
+import { format_json } from '@/utils/format'
 import { Enums } from './enums'
 import { add_init } from './init'
 
@@ -20,7 +28,8 @@ const typeConfig = [
   'boolean',
   'array',
   'object',
-  'file'
+  'file',
+  'enum'
 ]
 
 const baseTypeConfig = [
@@ -29,7 +38,7 @@ const baseTypeConfig = [
   'boolean'
 ]
 
-let paramIdGen = 0
+let next_id = 1
 
 Object.assign(Vue.prototype, {
   /**
@@ -143,6 +152,9 @@ Object.assign(Vue.prototype, {
       }
     })
   },
+  nextId() {
+    return next_id++
+  },
   getTypeConfig() {
     return typeConfig
   },
@@ -176,6 +188,11 @@ Object.assign(Vue.prototype, {
       }
     })
   },
+  loadEnumData(moduleId, callback) {
+    this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
+      callback.call(this, resp.data)
+    })
+  },
   goLogin(url) {
     removeToken()
     // this.$router.replace({ path: `/login` })
@@ -192,6 +209,12 @@ Object.assign(Vue.prototype, {
   },
   initDocInfo(data) {
     return init_docInfo(data)
+  },
+  initDocInfoView(data) {
+    return init_docInfo_view(data)
+  },
+  initDocInfoCompleteView(data) {
+    return init_docInfo_complete_view(data)
   },
   /**
    * array转tree，必须要有id,parentId属性
@@ -226,7 +249,7 @@ Object.assign(Vue.prototype, {
   },
   getParamNewRow: function(name, value) {
     return {
-      id: paramIdGen++,
+      id: this.nextId(),
       name: name || '',
       type: 'string',
       required: 1,
@@ -267,6 +290,32 @@ Object.assign(Vue.prototype, {
   },
   setCurrentProject(project) {
     this.$store.state.settings.currentProject = project
+  },
+  getCurrentProject() {
+    return this.$store.state.settings.currentProject
+  },
+  /**
+   * 返回项目首页地址
+   * @param projectId 项目id
+   * @param query url后面的参数，a=1&b=2
+   * @returns {string} 返回地址
+   */
+  getProjectHomeUrl(projectId, query) {
+    let url = `/project/doc/${projectId}`
+    if (query) {
+      if (!query.startsWith('?')) {
+        query = '?' + query
+      }
+      url = url + query
+    }
+    return url
+  },
+  /**
+   * 前往项目首页
+   * @param projectId 项目id
+   */
+  goProjectHome(projectId) {
+    this.goRoute(this.getProjectHomeUrl(projectId))
   },
   setCurrentSpace(space) {
     if (space) {
@@ -362,6 +411,9 @@ Object.assign(Vue.prototype, {
       })
     })
   },
+  formatJson(jsonObject) {
+    return format_json(jsonObject)
+  },
   formatHost(obj) {
     let url = obj.url
     if (url) {
@@ -383,6 +435,7 @@ Object.assign(Vue.prototype, {
     // 找到元素，删除
     if (index >= 0) {
       arr.splice(index, 1)
+      return index
     } else {
       // 如果没有找到，则查找子节点
       for (let i = 0; i < arr.length; i++) {

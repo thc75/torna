@@ -152,6 +152,9 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      * @return 返回影响行数
      */
     public int delete(E entity) {
+        if (entity == null) {
+            return 0;
+        }
         return mapper.delete(entity);
     }
 

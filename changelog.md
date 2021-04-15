@@ -1,5 +1,73 @@
 # 更新日志
 
+## 1.3.4
+
+- [fix]调试接口上传文件、下载文件问题
+
+## 1.3.3
+
+- [enhance]优化文档浏览页描述字段显示，支持HTML标签
+- [enhance]支持多级推送（嵌套文件夹）
+- [fix]修复接口更新返回值对象后推送不更新问题 [#I3IGWT](https://gitee.com/durcframework/torna/issues/I3IGWT)
+
+## 1.3.2
+
+- [fix]参数删除后推送文档，再还原后推送不显示问题
+
+## 1.3.1
+
+- [feat]推送支持path参数
+- [fix]多线程并发情况下推送文档丢失问题
+
+## 1.3.0
+
+- 支持第三方登录（OAuth） [doc](http://torna.cn/dev/third-party-login.html)
+
+## 1.2.4
+
+- [enhance]优化树形表格显示 [#I3EHAP](https://gitee.com/durcframework/torna/issues/I3EHAP)
+- [fix]同步swagger参数没有更新问题
+- [fix]保存文档基本信息无效问题
+
+## 1.2.3
+
+- [feat]调试接口可选择是否使用代理
+
+## 1.2.2
+
+- [fix]Java11无法打包问题
+
+## 1.2.1
+
+- [fix]推送获取错误token问题
+
+## 1.2.0
+
+- [feat]新增全局请求参数
+- [feat]新增全局返回参数
+- [refactor]优化字典管理交互
+- [refactor]优化模块设置交互
+- [refactor]优化加载文档性能问题
+
+
+## 1.1.3
+
+- 优化smart-doc推送url显示
+
+## 1.1.2
+
+- [fix]smart-doc推送无法删除旧文档问题 [#I3CPJL](https://gitee.com/durcframework/torna/issues/I3CPJL)
+
+## 1.1.1
+
+- [fix]smart-doc推送无法显示文档问题 [#I3CSJS](https://gitee.com/durcframework/torna/issues/I3CSJS)
+
+## 1.1.0
+
+- [feat]支持Mock
+- [fix]文档分类无法删除问题 [#I3CPJ5](https://gitee.com/durcframework/torna/issues/I3CPJ5)
+- [fix]smart-doc推送无法删除旧文档问题 [#I3CPJL](https://gitee.com/durcframework/torna/issues/I3CPJL)
+
 ## 1.0.2
 
 - [fix]同步swagger前端报错问题

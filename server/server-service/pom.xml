@@ -29,6 +29,10 @@
             <artifactId>server-manager</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>me.zhyd.oauth</groupId>
+            <artifactId>JustAuth</artifactId>
+        </dependency>
 
     </dependencies>
 

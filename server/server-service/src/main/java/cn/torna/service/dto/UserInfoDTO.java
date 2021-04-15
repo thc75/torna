@@ -21,6 +21,12 @@ public class UserInfoDTO {
     /** 昵称, 数据库字段：nickname */
     private String nickname;
 
+    /** 注册来源，数据库字段：source */
+    private String source;
+
+    /** 邮箱，数据库字段：email */
+    private String email;
+
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
 

@@ -1,0 +1,11 @@
+CREATE TABLE `system_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `config_key` varchar(64) NOT NULL DEFAULT '',
+  `config_value` varchar(256) NOT NULL DEFAULT '',
+  `remark` varchar(128) NOT NULL DEFAULT '',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_configkey` (`config_key`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表'

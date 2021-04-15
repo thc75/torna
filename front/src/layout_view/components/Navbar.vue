@@ -30,10 +30,7 @@ export default {
     ...mapGetters([
       'sidebarView',
       'avatar'
-    ]),
-    projectInfo() {
-      return this.$store.state.settings.currentProject
-    }
+    ])
   },
   methods: {
     toggleSideBar() {
@@ -46,11 +43,12 @@ export default {
           const module = resp.data
           const projectId = module.projectId
           this.setProjectConfig(projectId, { moduleId: module.id })
-          this.goRoute(`/project/doc/${projectId}`)
+          this.goProjectHome(projectId)
         })
       } else {
-        const projectId = this.projectInfo && this.projectInfo.id
-        const uri = projectId ? `/project/doc/${projectId}` : '/'
+        const projectInfo = this.getCurrentProject()
+        const projectId = projectInfo && projectInfo.id
+        const uri = projectId ? this.getProjectHomeUrl(projectId) : '/'
         this.goRoute(uri)
       }
     }

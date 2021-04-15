@@ -2,6 +2,7 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
@@ -13,7 +14,6 @@ import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.service.dto.DebugHostDTO;
-import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocParamDTO;
@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -114,18 +113,20 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
-        Module module = moduleService.getById(docInfo.getModuleId());
+        Long moduleId = docInfo.getModuleId();
+        Module module = moduleService.getById(moduleId);
         docInfoDTO.setProjectId(module.getProjectId());
         docInfoDTO.setModuleType(module.getType());
-        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(docInfo.getModuleId());
+        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
         docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
-        List<DocParam> globalHeaders = this.listGlobalHeaders(docInfo.getModuleId());
-        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), new ArrayList<>(globalHeaders.size()));
-        headerParams.addAll(globalHeaders);
+        List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
+        List<DocParam> globalParams = moduleConfigService.listGlobalParams(moduleId);
+        List<DocParam> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
+        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), Collections.emptyList());
@@ -135,24 +136,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+
+        docInfoDTO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
+        docInfoDTO.setGlobalParams(CopyUtil.copyList(globalParams, DocParamDTO::new));
+        docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
         return docInfoDTO;
     }
-
-    private List<DocParam> listGlobalHeaders(long moduleId) {
-        List<ModuleConfig> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
-        return globalHeaders.stream()
-                .map(moduleConfig -> {
-                    DocParam docParam = new DocParam();
-                    docParam.setName(moduleConfig.getConfigKey());
-                    docParam.setExample(moduleConfig.getConfigValue());
-                    docParam.setDescription(moduleConfig.getDescription());
-                    docParam.setStyle(ParamStyleEnum.HEADER.getStyle());
-                    docParam.setRequired(Booleans.TRUE);
-                    return docParam;
-                })
-                .collect(Collectors.toList());
-    }
-
 
     /**
      * 保存文档信息
@@ -160,7 +149,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 用户
      */
     @Transactional(rollbackFor = Exception.class)
-    public DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+    public synchronized DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
+        return doSaveDocInfo(docInfoDTO, user);
+    }
+
+    public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 保存上一次的快照
         this.saveOldSnapshot(docInfoDTO);
         // 修改基本信息
@@ -212,6 +205,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setIsFolder(isFolder);
         docInfo.setParentId(docInfoDTO.getParentId());
         docInfo.setModuleId(docInfoDTO.getModuleId());
+        docInfo.setIsUseGlobalHeaders(docInfoDTO.getIsUseGlobalHeaders());
+        docInfo.setIsUseGlobalParams(docInfoDTO.getIsUseGlobalParams());
+        docInfo.setIsUseGlobalReturns(docInfoDTO.getIsUseGlobalReturns());
         docInfo.setCreateMode(user.getOperationModel());
         docInfo.setModifyMode(user.getOperationModel());
         docInfo.setCreatorId(user.getUserId());
@@ -297,48 +293,25 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param user 操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        DocInfo folder = getByModuleIdAndParentIdAndName(moduleId, 0L, folderName);
-        if (folder != null) {
-            return folder;
-        }
-        return this.createDocFolderNoCheck(folderName, moduleId, user);
+        return createDocFolder(folderName,  moduleId, user, 0L);
     }
 
     /**
      * 创建文档分类，不检查名称是否存在
+     *
      * @param folderName 分类名称
-     * @param parentId 父节点id
-     * @param moduleId 模块id
-     * @param user 操作人
+     * @param moduleId   模块id
+     * @param user       操作人
+     * @param parentId   父节点id
      * @return 返回添加后的文档
      */
-    public DocInfo createDocFolderNoCheck(String folderName, Long parentId, long moduleId, User user) {
-        DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
-        docFolderCreateDTO.setName(folderName);
-        docFolderCreateDTO.setModuleId(moduleId);
-        docFolderCreateDTO.setParentId(parentId);
-        docFolderCreateDTO.setUser(user);
-        return this.createDocFolder(docFolderCreateDTO);
-    }
-
-    public DocInfo createDocFolderNoCheck(String folderName, long moduleId, User user) {
-        return createDocFolderNoCheck(folderName, 0L, moduleId, user);
-    }
-
-    /**
-     * 创建文档目录
-     * @param docFolderCreateDTO 分类信息
-     * @return DocInfo
-     */
-    public DocInfo createDocFolder(DocFolderCreateDTO docFolderCreateDTO) {
-        User user = docFolderCreateDTO.getUser();
-        DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
-        docItemCreateDTO.setModuleId(docFolderCreateDTO.getModuleId());
-        docItemCreateDTO.setName(docFolderCreateDTO.getName());
-        docItemCreateDTO.setParentId(docFolderCreateDTO.getParentId());
-        docItemCreateDTO.setUser(user);
-        docItemCreateDTO.setIsFolder(Booleans.TRUE);
-        return this.createDocItem(docItemCreateDTO);
+    public DocInfo createDocFolder(String folderName, long moduleId, User user, Long parentId) {
+        DocInfoDTO docInfoDTO = new DocInfoDTO();
+        docInfoDTO.setName(folderName);
+        docInfoDTO.setModuleId(moduleId);
+        docInfoDTO.setParentId(parentId);
+        docInfoDTO.setIsFolder(Booleans.TRUE);
+        return insertDocInfo(docInfoDTO, user);
     }
 
     public DocInfo createDocItem(DocItemCreateDTO docItemCreateDTO) {
@@ -348,40 +321,31 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return insertDocInfo(docInfoDTO, user);
     }
 
-    public DocInfo createDocItem0(DocItemCreateDTO docItemCreateDTO) {
-        User user = docItemCreateDTO.getUser();
-        Byte isFolder = docItemCreateDTO.getIsFolder();
-        String dataId = docItemCreateDTO.buildDataId();
-        DocInfo docInfo = getByDataId(dataId);
-        if (docInfo == null) {
-            docInfo = new DocInfo();
-            docInfo.setDataId(dataId);
-            docInfo.setUrl(docItemCreateDTO.getUrl());
-            docInfo.setHttpMethod(docItemCreateDTO.getHttpMethod());
-            docInfo.setContentType(docItemCreateDTO.getContentType());
-            docInfo.setName(docItemCreateDTO.getName());
-            docInfo.setModuleId(docItemCreateDTO.getModuleId());
-            docInfo.setParentId(docItemCreateDTO.getParentId());
-            docInfo.setIsFolder(isFolder);
-            docInfo.setCreatorId(user.getUserId());
-            docInfo.setCreatorName(user.getNickname());
-            docInfo.setCreateMode(user.getOperationModel());
-            docInfo.setModifierId(user.getUserId());
-            docInfo.setModifierName(user.getNickname());
-            docInfo.setModifyMode(user.getOperationModel());
-            docInfo.setModifierId(user.getUserId());
-            save(docInfo);
-        } else {
-            docInfo.setName(docItemCreateDTO.getName());
-            docInfo.setContentType(docItemCreateDTO.getContentType());
-            docInfo.setIsFolder(isFolder);
-            docInfo.setDataId(dataId);
-            docInfo.setModifyMode(user.getOperationModel());
-            docInfo.setModifierName(user.getNickname());
-            docInfo.setModifierId(user.getUserId());
-            docInfo.setIsDeleted(Booleans.FALSE);
-            update(docInfo);
+    /**
+     * 删除模块下所有文档
+     * @param moduleId 模块id
+     * @param userId 用户id，只能删除自己创建的
+     */
+    public void deleteOpenAPIModuleDocs(long moduleId, long userId) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("create_mode", OperationMode.OPEN.getType())
+                .eq("creator_id", userId);
+        // 查询出文档id
+        List<Long> idList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
+        if (CollectionUtils.isEmpty(idList)) {
+            return;
         }
-        return docInfo;
+        // 删除文档
+        Query delQuery = new Query()
+                .in("id", idList);
+        // DELETE FROM doc_info WHERE id in (..)
+        this.getMapper().deleteByQuery(delQuery);
+
+        // 删除文档对应的参数
+        Query paramDelQuery = new Query()
+                .in("doc_id", idList);
+        // DELETE FROM doc_param WHERE doc_id in (..)
+        docParamService.getMapper().deleteByQuery(paramDelQuery);
     }
 }

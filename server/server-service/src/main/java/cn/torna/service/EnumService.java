@@ -3,6 +3,7 @@ package cn.torna.service;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.entity.EnumItem;
+import cn.torna.service.dto.EnumInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,22 +30,11 @@ public class EnumService {
 
     public List<EnumInfoDTO> listBase(long moduleId) {
         Query query = new Query()
-                .eq("module_id", moduleId)
-                .orderby("id", Sort.DESC);
+                .eq("module_id", moduleId);
         List<EnumInfo> enumInfoList = enumInfoService.list(query);
         return CopyUtil.copyList(enumInfoList, EnumInfoDTO::new);
     }
 
-
-
-    public List<EnumInfoDTO> listEnumInfo(long moduleId) {
-        List<EnumInfoDTO> enumInfoDTOS = this.listBase(moduleId);
-        for (EnumInfoDTO enumInfoDTO : enumInfoDTOS) {
-            List<EnumItemDTO> enumItemDTOS = this.listItems(enumInfoDTO.getId());
-            enumInfoDTO.setItems(enumItemDTOS);
-        }
-        return enumInfoDTOS;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public EnumInfo saveEnumInfo(EnumInfoDTO enumInfoDTO) {

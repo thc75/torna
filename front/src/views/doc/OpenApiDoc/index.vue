@@ -49,9 +49,8 @@
           <h3>公共请求参数</h3>
           <el-table
             :data="commonParams"
-            :cell-style="cellStyleSmall()"
-            :header-cell-style="headCellStyleSmall()"
             border
+            highlight-current-row
           >
             <el-table-column
               prop="name"
@@ -96,8 +95,7 @@
           <el-table
             :data="resultData"
             border
-            :cell-style="cellStyleSmall()"
-            :header-cell-style="headCellStyleSmall()"
+            highlight-current-row
           >
             <el-table-column label="名称" prop="name" width="100" />
             <el-table-column label="类型" prop="type" width="100">

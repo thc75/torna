@@ -1,0 +1,38 @@
+.plTableBox {
+  margin-bottom: 10px;
+  .tree--btn-wrapper {
+    display: inline-block;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+
+  .tree--btn-wrapper {
+    position: absolute;
+    top: 50%;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    margin-top: -.5em;
+    transition: transform .2s ease-in-out;
+    z-index: 1;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color: #333!important;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .pl-tree-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    padding-left: 1.5em;
+  }
+
+  td, th {
+    padding: 5px 0 !important;
+  }
+}

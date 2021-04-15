@@ -18,6 +18,14 @@ public enum ModuleConfigTypeEnum {
      * 调试host
      */
     DEBUG_HOST((byte) 2),
+    /**
+     * 全局参数
+     */
+    GLOBAL_PARAMS((byte) 3),
+    /**
+     * 全局返回参数
+     */
+    GLOBAL_RETURNS((byte) 4),
     ;
 
     private final byte type;

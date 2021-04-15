@@ -72,6 +72,7 @@ export default {
       })
     },
     onSizeChange(size) {
+      this.searchFormData.pageIndex = 1
       this.searchFormData.pageSize = size
       this.loadTable()
     },
