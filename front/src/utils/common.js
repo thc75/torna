@@ -94,7 +94,7 @@ export function init_docInfo_view(data) {
   if (data.isUseGlobalParams) {
     data.requestParams = data.globalParams.concat(data.requestParams)
   }
-  // 如果使用全局返回参数
+  // 如果使用公共返回参数
   if (data.isUseGlobalReturns) {
     const dataNode = data.globalReturns
       .filter(row => row.example === DATA_PLACEHOLDER)

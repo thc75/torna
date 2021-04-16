@@ -13,13 +13,13 @@
       </div>
     </h3>
     <el-tabs v-model="activeName" type="border-card" @tab-click="onTabClick">
-      <el-tab-pane label="全局请求头" name="globalHeaders">
+      <el-tab-pane label="公共请求头" name="globalHeaders">
         <global-headers ref="globalHeaders" />
       </el-tab-pane>
-      <el-tab-pane label="全局请求参数" name="globalParams">
+      <el-tab-pane label="公共请求参数" name="globalParams">
         <global-params ref="globalParams" />
       </el-tab-pane>
-      <el-tab-pane label="全局返回参数" name="globalReturns">
+      <el-tab-pane label="公共返回参数" name="globalReturns">
         <global-returns ref="globalReturns" />
       </el-tab-pane>
       <el-tab-pane label="调试环境" name="debugEnv">

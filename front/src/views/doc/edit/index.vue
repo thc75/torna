@@ -71,7 +71,7 @@
         <span class="split">|</span>
         <el-switch
           v-model="docInfo.isUseGlobalHeaders"
-          active-text="使用全局请求头"
+          active-text="使用公共请求头"
           inactive-text=""
           :active-value="1"
           :inactive-value="0"
@@ -89,7 +89,7 @@
         <span class="split">|</span>
         <el-switch
           v-model="docInfo.isUseGlobalParams"
-          active-text="使用全局请求参数"
+          active-text="使用公共请求参数"
           inactive-text=""
           :active-value="1"
           :inactive-value="0"
@@ -102,7 +102,7 @@
         <span class="split">|</span>
         <el-switch
           v-model="docInfo.isUseGlobalReturns"
-          active-text="使用全局响应参数"
+          active-text="使用公共返回参数"
           inactive-text=""
           :active-value="1"
           :inactive-value="0"

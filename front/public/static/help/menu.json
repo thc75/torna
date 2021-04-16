@@ -25,7 +25,7 @@
       },
       {
         "id": "global",
-        "title": "全局参数",
+        "title": "公共参数",
         "path": "static/help/global.md"
       }
     ]
