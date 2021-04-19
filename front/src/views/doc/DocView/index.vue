@@ -120,6 +120,10 @@ export default {
     showOptBar: {
       type: Boolean,
       default: true
+    },
+    initSubscribe: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -185,14 +189,14 @@ export default {
       }
     },
     loadSubscribe(id) {
-      this.get('/user/subscribe/doc/isSubscribe', { sourceId: id }, resp => {
-        this.isSubscribe = resp.data
-      })
+      if (id && this.initSubscribe) {
+        this.get('/user/subscribe/doc/isSubscribe', { sourceId: id }, resp => {
+          this.isSubscribe = resp.data
+        })
+      }
     },
     setData: function(data) {
-      if (data.id) {
-        this.loadSubscribe(data.id)
-      }
+      this.loadSubscribe(data.id)
       Object.assign(this.docInfo, data)
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)

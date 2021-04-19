@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -46,10 +46,9 @@ public class UpgradeService {
 
     /**
      * 升级
+     * @param oldVersion 本地老版本
      */
-    public void upgrade() {
-        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
-        int oldVersion = getVersion();
+    private void doUpgrade(int oldVersion) {
         // 对之前的版本会进行一次升级
         // 下次更新不会再运行
         if (oldVersion < 3) {
@@ -58,9 +57,21 @@ public class UpgradeService {
             v1_2_0();
             v1_3_0();
         }
+        v1_4_0(oldVersion);
+    }
+
+    /**
+     * 升级
+     */
+    public void upgrade() {
+        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
+        int oldVersion = getVersion();
+        doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
         saveVersion();
     }
+
+
 
     private void saveVersion() {
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
@@ -68,6 +79,13 @@ public class UpgradeService {
         systemConfigDTO.setConfigValue(String.valueOf(VERSION));
         systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
         systemConfigService.setConfig(systemConfigDTO);
+    }
+
+    private void v1_4_0(int dbVersion) {
+        if (dbVersion < 4) {
+            this.createTable("share_config", "upgrade/1.4.0_ddl_1.txt", "upgrade/1.4.0_ddl_1_compatible.txt");
+            this.createTable("share_content", "upgrade/1.4.0_ddl_2.txt", "upgrade/1.4.0_ddl_2_compatible.txt");
+        }
     }
 
     private void v1_3_0() {

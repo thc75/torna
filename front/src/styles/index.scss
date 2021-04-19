@@ -373,3 +373,10 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   }
 }
 // el-table end~
+
+.doc-tree {
+  .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner::after { border-color: #FFFFFF !important;}
+  .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner { background-color: #409EFF !important;}
+  .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner::before { background-color: #FFFFFF !important;}
+  .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner { background-color: #409EFF !important;}
+}

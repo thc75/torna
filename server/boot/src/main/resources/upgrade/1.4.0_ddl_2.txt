@@ -1,0 +1,12 @@
+CREATE TABLE `share_content` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `share_config_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'share_config.id',
+  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文档id',
+  `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '父id',
+  `is_share_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否分享整个分类',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_shareconfigid_docid` (`share_config_id`,`doc_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享详情'

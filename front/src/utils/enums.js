@@ -1,4 +1,8 @@
 export const Enums = {
+  STATUS: {
+    ENABLE: 1,
+    DISABLE: 0
+  },
   /**
    * 0：path, 1：header， 2：请求参数，3：返回参数，4：错误码
    */
@@ -28,5 +32,14 @@ export const Enums = {
     BACKEND: 'backend',
     FORM: 'form',
     OAUTH: 'oauth'
+  },
+  /**
+   * 分享类型
+   */
+  SHARE_TYPE: {
+    /** 公开 */
+    PUBLIC: 1,
+    /** 加密 */
+    ENCRYPT: 2
   }
 }

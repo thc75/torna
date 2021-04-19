@@ -1,8 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
-Vue.use(Router)
-
 /* Layout */
 import Layout from '@/layout'
 import LayoutView from '@/layout_view'
@@ -10,6 +7,9 @@ import LayoutUserCenter from '@/layout/index_user'
 import LayoutSpace from '@/layout/index_space'
 import LayoutProject from '@/layout/index_project'
 import LayoutAdmin from '@/layout_admin'
+import LayoutShare from '@/layout_share'
+
+Vue.use(Router)
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -224,13 +224,32 @@ export const constantRoutes = [
     children: [
       {
         path: '/',
-        name: 'Home',
+        name: 'ViewHome',
         component: () => import('@/views/view/index')
       },
       {
         path: ':docId(\\w+)',
         name: 'ViewDoc',
         component: () => import('@/views/view/index')
+      }
+    ]
+  },
+  // 分享模式
+  {
+    path: '/share', // 必须/开头
+    component: LayoutShare,
+    name: 'Share',
+    meta: { title: '文档', icon: 'example' },
+    children: [
+      {
+        path: ':shareId(\\w+)',
+        name: 'ShareHome',
+        component: () => import('@/views/share/index')
+      },
+      {
+        path: ':shareId(\\w+)/:docId(\\w+)',
+        name: 'ShareHome',
+        component: () => import('@/views/share/index')
       }
     ]
   },

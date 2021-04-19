@@ -1,19 +1,19 @@
 package cn.torna.web.controller.doc;
 
+import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.service.EnumService;
 import cn.torna.service.dto.EnumInfoDTO;
+import cn.torna.service.dto.EnumItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.EnumInfoDTO;
-import cn.torna.service.dto.EnumItemDTO;
 
 import java.util.List;
 
@@ -54,6 +54,7 @@ public class EnumController {
     }
 
     @GetMapping("item/list")
+    @NoLogin
     public Result<List<EnumItemDTO>> listItem(@HashId Long enumId) {
         List<EnumItemDTO> enumItemDTOS = enumService.listItems(enumId);
         return Result.ok(enumItemDTOS);

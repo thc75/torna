@@ -16,6 +16,10 @@
       <span slot="label"><i class="el-icon-collection-tag"></i> OpenAPI</span>
       <module-open-api ref="moduleIdOpenApi" />
     </el-tab-pane>
+    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ShareConfig">
+      <span slot="label"><i class="el-icon-share"></i> 分享管理</span>
+      <share-config ref="moduleIdShareConfig" />
+    </el-tab-pane>
   </el-tabs>
 </template>
 
@@ -24,10 +28,11 @@ import DocTable from '../DocTable'
 import ModuleSetting from '../ModuleSetting'
 import ModuleOpenApi from '../ModuleOpenApi'
 import EnumInfo from '../EnumInfo'
+import ShareConfig from '../ShareConfig'
 
 export default {
   name: 'DocInfo',
-  components: { DocTable, ModuleSetting, ModuleOpenApi, EnumInfo },
+  components: { DocTable, ModuleSetting, ModuleOpenApi, EnumInfo, ShareConfig },
   props: {
     moduleId: {
       type: String,
