@@ -2,7 +2,8 @@
 
 ## 1.4.1
 
-- [enhance]公共请求参数支持定义子节点
+- [enhance]公共请求参数支持定义子节点 [#I3M33I](https://gitee.com/durcframework/torna/issues/I3M33I)
+- [enhance]docker启动指定时区 [#I3MDPH](https://gitee.com/durcframework/torna/issues/I3MDPH)
 
 ## 1.4.0
 
