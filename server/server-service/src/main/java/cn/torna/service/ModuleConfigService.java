@@ -70,9 +70,12 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public void saveDocParam(DocParamDTO docParamDTO, ModuleConfigTypeEnum moduleConfigTypeEnum, Consumer<DocParam> callback) {
+        if (docParamDTO.getParentId() == null) {
+            docParamDTO.setParentId(0L);
+        }
         ParamStyleEnum paramStyleEnum = buildStyle(moduleConfigTypeEnum);
         DocParam docParam = CopyUtil.copyBean(docParamDTO, DocParam::new);
-        String dataId = DataIdUtil.getDocParamDataId(IdGen.genId(), 0L, paramStyleEnum.getStyle(), docParam.getName());
+        String dataId = DataIdUtil.getDocParamDataId(IdGen.genId(), docParam.getParentId(), paramStyleEnum.getStyle(), docParam.getName());
         docParam.setDataId(dataId);
         docParam.setStyle(paramStyleEnum.getStyle());
         docParam.setRequired(Booleans.TRUE);

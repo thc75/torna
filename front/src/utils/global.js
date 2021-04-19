@@ -2,19 +2,19 @@
 注册全局方法
  */
 import Vue from 'vue'
-import { getToken, removeToken } from './auth'
-import { do_get, get, get_baseUrl, get_file, post } from './http'
+import {getToken, removeToken} from './auth'
+import {do_get, get, get_baseUrl, get_file, post} from './http'
 import {
   convert_tree,
   create_response_example,
   get_requestUrl,
   init_docInfo,
-  init_docInfo_view,
-  init_docInfo_complete_view
+  init_docInfo_complete_view,
+  init_docInfo_view
 } from './common'
-import { format_json } from '@/utils/format'
-import { Enums } from './enums'
-import { add_init } from './init'
+import {format_json} from '@/utils/format'
+import {Enums} from './enums'
+import {add_init} from './init'
 
 const SPACE_ID_KEY = 'torna.spaceid'
 const TORNA_FROM = 'torna.from'
@@ -517,6 +517,11 @@ Object.assign(Vue.prototype, {
   },
   addInit(fn) {
     add_init.call(this, fn)
+  },
+  hasNoParentAndChildren(row) {
+    const children = row.children
+    const noChildren = !children || children.length === 0
+    return !row.parentId && noChildren
   }
 })
 

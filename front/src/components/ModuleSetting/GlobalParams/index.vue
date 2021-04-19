@@ -13,16 +13,27 @@
       :data="globalParams"
       border
       highlight-current-row
+      row-key="id"
+      default-expand-all
+      :indent="20"
+      class="el-table-tree"
     >
-      <el-table-column label="参数名" prop="name" width="300px" />
+      <el-table-column label="参数名" prop="name" width="300px">
+        <template slot-scope="scope">
+          <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
+            {{ scope.row.name }}
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="类型" prop="type" width="120px" />
       <el-table-column label="示例值" prop="example" />
       <el-table-column label="描述" prop="description" />
       <el-table-column
         label="操作"
-        width="150"
+        width="175"
       >
         <template slot-scope="scope">
+          <el-link type="primary" size="mini" @click="onParamAddChild(scope.row)">添加子节点</el-link>
           <el-link type="primary" size="mini" @click="onParamUpdate(scope.row)">修改</el-link>
           <el-popconfirm
             :title="`确定要删除 ${scope.row.name} 吗？`"
@@ -96,6 +107,7 @@ export default {
         moduleId: '',
         name: '',
         type: 'string',
+        parentId: '',
         example: '',
         description: ''
       },
@@ -124,13 +136,14 @@ export default {
     },
     loadParams(moduleId) {
       this.get('/module/setting/globalParams/list', { moduleId: moduleId }, resp => {
-        this.globalParams = resp.data
+        const data = resp.data
+        this.globalParams = this.convertTree(data)
       })
     },
     onParamAdd() {
       this.dialogParamTitle = '新增参数'
       this.dialogParamVisible = true
-      this.dialogParamFormData.id = ''
+      this.dialogParamFormData = this.getNewData()
     },
     onParamUpdate(row) {
       this.dialogParamTitle = '修改参数'
@@ -138,6 +151,24 @@ export default {
       this.$nextTick(() => {
         Object.assign(this.dialogParamFormData, row)
       })
+    },
+    getNewData(parent) {
+      const parentId = parent ? parent.id : ''
+      return {
+        id: '',
+        moduleId: '',
+        name: '',
+        type: 'string',
+        parentId: parentId,
+        example: '',
+        description: ''
+      }
+    },
+    onParamAddChild(row) {
+      const child = this.getNewData(row)
+      this.dialogParamTitle = `新增参数 - ${row.name}子节点`
+      this.dialogParamVisible = true
+      this.dialogParamFormData = child
     },
     onParamDelete(row) {
       this.post('/module/setting/globalParams/delete', row, () => {

@@ -145,11 +145,6 @@ export default {
     onEnumPopoverShow(ref) {
       this.$refs[ref].reload()
     },
-    hasNoParentAndChildren(row) {
-      const children = row.children
-      const noChildren = !children || children.length === 0
-      return !row.parentId && noChildren
-    },
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0
     }

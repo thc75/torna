@@ -1,7 +1,7 @@
 package cn.torna.common.enums;
 
 /**
- * 模块类型，0：通用配置，1：全局header
+ * 模块类型
  *
  * @author tanghc
  */
@@ -11,7 +11,7 @@ public enum ModuleConfigTypeEnum {
      */
     COMMON((byte) 0),
     /**
-     * 全局header
+     * 公共请求头
      */
     GLOBAL_HEADERS((byte) 1),
     /**
@@ -19,11 +19,11 @@ public enum ModuleConfigTypeEnum {
      */
     DEBUG_HOST((byte) 2),
     /**
-     * 全局参数
+     * 公共请求参数
      */
     GLOBAL_PARAMS((byte) 3),
     /**
-     * 全局返回参数
+     * 公共返回参数
      */
     GLOBAL_RETURNS((byte) 4),
     ;
