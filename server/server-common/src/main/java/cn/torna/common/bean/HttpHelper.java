@@ -24,6 +24,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -40,10 +41,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,6 +82,8 @@ public class HttpHelper {
     private HttpContext context;
 
     private String url;
+
+    private Map<String, String> params;
 
     private HTTPMethod method;
 
@@ -142,6 +148,20 @@ public class HttpHelper {
      */
     public HttpHelper url(String url) {
         this.url = url;
+        return this;
+    }
+
+    /**
+     * 设置URL后面的参数，如：url?id=1&name=jim
+     * @param name 参数名
+     * @param value 参数值
+     * @return 返回HttpHelper
+     */
+    public HttpHelper parameter(String name, String value) {
+        if (this.params == null) {
+            this.params = new LinkedHashMap<>(8);
+        }
+        this.params.put(name, value);
         return this;
     }
 
@@ -318,24 +338,31 @@ public class HttpHelper {
         HttpRequestBase request;
         Objects.requireNonNull(url, "url can not null");
         Objects.requireNonNull(method, "method can not null");
+        URI uri;
+        try {
+            uri = getURI();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("url不合法, url:" + url);
+        }
         switch (this.method) {
             case GET:
-                request = new HttpGet(url);
+                request = new HttpGet(uri);
                 break;
             case POST:
-                request = new HttpPost(url);
+                request = new HttpPost(uri);
                 break;
             case PUT:
-                request = new HttpPut(url);
+                request = new HttpPut(uri);
                 break;
             case HEAD:
-                request = new HttpHead(url);
+                request = new HttpHead(uri);
                 break;
             case DELETE:
-                request = new HttpDelete(url);
+                request = new HttpDelete(uri);
                 break;
             case OPTIONS:
-                request = new HttpOptions(url);
+                request = new HttpOptions(uri);
                 break;
             default:
                 throw new IllegalArgumentException("method error: " + this.method);
@@ -354,6 +381,16 @@ public class HttpHelper {
             request.setHeader(entity.getContentType());
         }
         return request;
+    }
+
+    private URI getURI() throws URISyntaxException {
+        URIBuilder uriBuilder = new URIBuilder(url);
+        if (this.params != null) {
+            for (Map.Entry<String, String> entry : this.params.entrySet()) {
+                uriBuilder.addParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        return uriBuilder.build();
     }
 
     enum HTTPMethod {
