@@ -33,6 +33,7 @@ public class TornaApplication implements ApplicationRunner {
 
     private void initTimeZone() {
         if (StringUtils.hasText(timeZone)) {
+            System.out.println("时区设置:" + timeZone);
             TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
         }
     }
