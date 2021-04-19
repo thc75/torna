@@ -1,5 +1,7 @@
 const DATA_PLACEHOLDER = '$data$'
 
+const COLLECT_TYPE_LIST = ['array', 'list', 'set', 'collection']
+
 /**
  * 构建返回结果例子
  * @param params 返回结果定义
@@ -13,7 +15,7 @@ export function create_response_example(params) {
     if (row.children && row.children.length > 0) {
       const childrenValue = create_response_example(row.children)
       // 如果是数组
-      if (row.type.toLowerCase() === 'array') {
+      if (is_array_type(row.type)) {
         val = [childrenValue]
       } else {
         val = childrenValue
@@ -25,6 +27,19 @@ export function create_response_example(params) {
     responseJson[row.name] = val
   })
   return responseJson
+}
+
+function is_array_type(type) {
+  if (!type) {
+    return false
+  }
+  type = type.toLowerCase()
+  for (const t of COLLECT_TYPE_LIST) {
+    if (t === type) {
+      return true
+    }
+  }
+  return false
 }
 
 export function get_requestUrl(item) {
