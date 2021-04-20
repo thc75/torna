@@ -22,7 +22,20 @@ export function create_response_example(params) {
       }
     } else {
       // 单值
-      val = row.example
+      let example = row.example
+      if (!example) {
+        const type = row.type
+        switch (type) {
+          case 'object':
+            example = {}
+            break
+          case 'array':
+            example = []
+            break
+          default:
+        }
+      }
+      val = example
     }
     responseJson[row.name] = val
   })
