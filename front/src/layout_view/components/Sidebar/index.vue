@@ -34,7 +34,7 @@
           <span slot-scope="{ node, data }">
             <span>
               <i :class="getClassName(data)"></i>
-              {{ node.label }}
+              <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }}
             </span>
           </span>
         </el-tree>
@@ -54,16 +54,17 @@
 <script>
 import { mapGetters } from 'vuex'
 import Logo from '@/components/Logo'
+import HttpMethod from '@/components/HttpMethod'
 
 const file_typ_map = {
   '0': 'el-icon-s-management',
   '1': 'el-icon-box',
   '2': 'el-icon-folder',
-  '3': 'el-icon-document'
+  '3': ''
 }
 
 export default {
-  components: { Logo },
+  components: { Logo, HttpMethod },
   data() {
     return {
       filterText: '',

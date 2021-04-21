@@ -3,6 +3,9 @@
 ## 1.4.2
 
 - [enhance]优化文档返回示例显示
+- [enhance]文档页新增请求示例
+- [enhance]文档页菜单显示HttpMethod
+- [fix]修复删除参数问题 [#I3NCRT](https://gitee.com/durcframework/torna/issues/I3NCRT)
 
 ## 1.4.1
 

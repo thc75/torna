@@ -1,5 +1,6 @@
 package cn.torna.web.controller.doc;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
@@ -10,15 +11,14 @@ import cn.torna.dao.entity.Module;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
+import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.ProjectDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.DocInfoDTO;
-import cn.torna.service.dto.ProjectDTO;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -66,6 +66,7 @@ public class ViewController {
                     String parentId = buildParentId(base, docInfo.getParentId());
                     byte type = isFolder ? TYPE_FOLDER : TYPE_DOC;
                     TreeVO docInfoVO = new TreeVO(id, docInfo.getName(), parentId, type);
+                    docInfoVO.setHttpMethod(docInfo.getHttpMethod());
                     if (!isFolder) {
                         docInfoVO.setDocId(docInfo.getId());
                         docInfoVO.setUrl(docInfo.getUrl());

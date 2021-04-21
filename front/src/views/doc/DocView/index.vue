@@ -56,10 +56,14 @@
     />
     <h4>请求参数</h4>
     <parameter-table :data="docInfo.requestParams" />
+    <div v-show="isRequestJson">
+      <h4>请求示例</h4>
+      <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+    </div>
     <h4>响应参数</h4>
     <parameter-table :data="docInfo.responseParams" />
     <h4>响应示例</h4>
-    <pre class="normal-text">{{ formatJson(responseSuccessExample) }}</pre>
+    <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>错误码</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
@@ -163,8 +167,14 @@ export default {
         debugEnvs: [],
         folders: []
       },
+      requestExample: {},
       responseSuccessExample: {},
       isSubscribe: false
+    }
+  },
+  computed: {
+    isRequestJson() {
+      return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
     }
   },
   watch: {
@@ -199,6 +209,7 @@ export default {
       this.loadSubscribe(data.id)
       Object.assign(this.docInfo, data)
       this.$store.state.settings.moduleId = this.docInfo.moduleId
+      this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     },
     buildRequestUrl(hostConfig) {

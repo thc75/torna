@@ -126,7 +126,7 @@
       <template slot-scope="scope">
         <div>
           <div v-show="scope.row.isDeleted === 0">
-            <el-tooltip content="添加子节点" placement="top">
+            <el-tooltip content="添加子节点" placement="top" :open-delay="500">
               <el-link v-if="canAddNode" type="primary" icon="el-icon-circle-plus-outline" @click="onParamNodeAdd(scope.row)"></el-link>
             </el-tooltip>
             <el-link type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>

@@ -1,5 +1,6 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
@@ -77,6 +78,10 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         if (children != null) {
             Long pid = savedParam.getId();
             for (DocParamDTO child : children) {
+                // 如果父节点被删除，子节点也要删除
+                if (docParam.getIsDeleted() == Booleans.TRUE) {
+                    child.setIsDeleted(docParam.getIsDeleted());
+                }
                 this.doSave(child, pid, docInfo, paramStyleEnum, user);
             }
         }
