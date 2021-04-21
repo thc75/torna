@@ -1,6 +1,11 @@
 const DATA_PLACEHOLDER = '$data$'
 
 const COLLECT_TYPE_LIST = ['array', 'list', 'set', 'collection']
+const BOOLEAN_TYPES = ['boolean', 'bool']
+const NUMBER_TYPES = [
+  'byte', 'short', 'int', 'long', 'integer',
+  'int8', 'int16', 'int32', 'int64', 'float', 'double', 'number'
+]
 
 /**
  * 构建返回结果例子
@@ -23,8 +28,21 @@ export function create_response_example(params) {
     } else {
       // 单值
       let example = row.example
+      const type = row.type
+      // 如果没有示例，默认给一个
       if (!example) {
-        example = get_default_example(row.type)
+        example = get_default_example(type)
+      } else {
+        // 解析出数字，布尔，数组示例值
+        if (is_number_type(type)) {
+          example = parse_number(example)
+        } else if (is_boolean_type(type)) {
+          example = parse_boolean(example)
+        } else if (is_num_array(type, example)) {
+          example = parse_num_array(example)
+        } else if (is_str_array(type, example)) {
+          example = parse_str_array(example)
+        }
       }
       val = example
     }
@@ -38,14 +56,15 @@ function get_default_example(type) {
     return ''
   }
   const typeLower = type.toLowerCase()
+  if (is_number_type(type)) {
+    return 0
+  }
   let example = ''
   switch (typeLower) {
     case 'map':
     case 'hashmap':
     case 'dict':
     case 'dictionary':
-    case 'enum':
-    case 'enums':
     case 'json':
     case 'obj':
     case 'object':
@@ -61,6 +80,114 @@ function get_default_example(type) {
     default:
   }
   return example
+}
+
+function parse_number(val) {
+  const num = Number(val)
+  return isNaN(num) ? 0 : num
+}
+
+function parse_boolean(val) {
+  if (val === undefined) {
+    return false
+  }
+  return val.toString().toLowerCase() === 'true'
+}
+
+function is_boolean_type(type) {
+  if (!type) {
+    return false
+  }
+  const typeLower = type.toLowerCase()
+  for (const booleanType of BOOLEAN_TYPES) {
+    if (booleanType === typeLower) {
+      return true
+    }
+  }
+  return false
+}
+
+function is_number_type(type) {
+  if (!type) {
+    return false
+  }
+  const typeLower = type.toLowerCase()
+  for (const numberType of NUMBER_TYPES) {
+    if (numberType === typeLower) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * 是否数字数组，即数组里面全是数字
+ * @param type 类型
+ * @param example 值
+ * @returns {boolean}
+ */
+function is_num_array(type, example) {
+  if (is_array_string(example)) {
+    example = example.substring(1, example.length - 1)
+    const arr = example.split(',')
+    for (const num of arr) {
+      if (isNaN(Number(num))) {
+        return false
+      }
+    }
+    return true
+  }
+  return type === 'num_array'
+}
+
+function is_array_string(example) {
+  return typeof (example) === 'string' && example.startsWith('[') && example.endsWith(']')
+}
+
+function parse_num_array(val) {
+  if (!val || val === '[]') {
+    return []
+  }
+  let str = val.toString()
+  if (is_array_string(str)) {
+    str = str.substring(1, str.length - 1)
+  }
+  const arr = str.split(/\D+/)
+  return arr.map(el => parse_number(el))
+}
+
+function is_str_array(type, example) {
+  if (is_array_string(example)) {
+    example = example.substring(1, example.length - 1)
+    const arr = example.split(',')
+    for (const num of arr) {
+      if (isNaN(Number(num))) {
+        return true
+      }
+    }
+    return false
+  }
+  return type === 'str_array'
+}
+
+function parse_str_array(val) {
+  if (!val || val === '[]') {
+    return []
+  }
+  let str = val.toString()
+  if (is_array_string(str)) {
+    str = str.substring(1, str.length - 1)
+  }
+  const arr = str.split(',')
+  return arr.map(el => {
+    if (el.startsWith('\"') || el.startsWith('\'')) {
+      el = el.substring(1)
+    }
+    if (el.endsWith('\"') || el.endsWith('\'')) {
+      el = el.substring(0, el.length - 1)
+    }
+    return el
+  })
 }
 
 function is_array_type(type) {

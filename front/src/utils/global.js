@@ -27,6 +27,8 @@ const typeConfig = [
   'number',
   'boolean',
   'array',
+  'num_array',
+  'str_array',
   'object',
   'file',
   'enum'

@@ -40,7 +40,7 @@
       v-if="isColumnShow('type')"
       prop="type"
       label="类型"
-      width="120"
+      width="130"
     >
       <template slot-scope="scope">
         <el-select v-model="scope.row.type" size="mini">
