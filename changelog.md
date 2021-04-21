@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.4.2
+
+- [enhance]优化文档返回示例显示
+
 ## 1.4.1
 
 - [enhance]公共请求参数支持定义子节点 [#I3M33I](https://gitee.com/durcframework/torna/issues/I3M33I)
