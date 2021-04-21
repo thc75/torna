@@ -24,22 +24,43 @@ export function create_response_example(params) {
       // 单值
       let example = row.example
       if (!example) {
-        const type = row.type
-        switch (type) {
-          case 'object':
-            example = {}
-            break
-          case 'array':
-            example = []
-            break
-          default:
-        }
+        example = get_default_example(row.type)
       }
       val = example
     }
     responseJson[row.name] = val
   })
   return responseJson
+}
+
+function get_default_example(type) {
+  if (!type) {
+    return ''
+  }
+  const typeLower = type.toLowerCase()
+  let example = ''
+  switch (typeLower) {
+    case 'map':
+    case 'hashmap':
+    case 'dict':
+    case 'dictionary':
+    case 'enum':
+    case 'enums':
+    case 'json':
+    case 'obj':
+    case 'object':
+      example = {}
+      break
+    case 'collection':
+    case 'list':
+    case 'set':
+    case 'arr':
+    case 'array':
+      example = []
+      break
+    default:
+  }
+  return example
 }
 
 function is_array_type(type) {
