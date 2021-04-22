@@ -16,6 +16,8 @@ services:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
       --lower_case_table_names=1
+    volumes:
+      - ./my.cnf:/etc/my.cnf
     networks:
       - torna-net
     restart: always
