@@ -287,8 +287,8 @@ export function init_docInfo_view(data) {
           item.parentId = pid
         }
       })
-      data.responseParams = data.globalReturns.concat(data.responseParams)
     }
+    data.responseParams = data.globalReturns.concat(data.responseParams)
   }
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)

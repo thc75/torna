@@ -50,6 +50,25 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         return this.list(query);
     }
 
+    /**
+     * 删除参数，同时会删除子节点
+     * @param id id
+     */
+    public void deleteParamDeeply(long id) {
+        this.getMapper().deleteById(id);
+        this.deleteChildrenDeeply(id);
+    }
+
+    /**
+     * 递归删除下面所有子节点
+     * @param parentId 父id
+     */
+    private void deleteChildrenDeeply(long parentId) {
+        List<DocParam> children = this.list("parent_id", parentId);
+        for (DocParam child : children) {
+            this.deleteParamDeeply(child.getId());
+        }
+    }
 
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
         DocParam docParam = new DocParam();

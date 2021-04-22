@@ -38,18 +38,20 @@ export default {
   methods: {
     initCurrentInfo(projectId) {
       let fromData = this.getFrom()
-      if (!fromData && projectId) {
-        this.get('/project/space', { projectId: projectId }, resp => {
-          fromData = resp.data
-          this.setTitle(fromData.projectName)
-          this.setCurrentInfo({
-            id: fromData.spaceId,
-            name: fromData.spaceName
-          }, {
-            id: fromData.projectId,
-            name: fromData.projectName
+      if (!fromData) {
+        if (projectId) {
+          this.get('/project/space', { projectId: projectId }, resp => {
+            fromData = resp.data
+            this.setTitle(fromData.projectName)
+            this.setCurrentInfo({
+              id: fromData.spaceId,
+              name: fromData.spaceName
+            }, {
+              id: fromData.projectId,
+              name: fromData.projectName
+            })
           })
-        })
+        }
       } else {
         this.setTitle(fromData.projectName)
         this.setCurrentInfo({
