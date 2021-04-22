@@ -38,7 +38,7 @@
 
 前往 [发行版页面](https://gitee.com/durcframework/torna/releases) ，下载最新版本，解压zip
 
-导入数据库，执行[mysql.sql](./mysql.sql)
+导入数据库，执行[mysql.sql](torna-docker-compose/mysql.sql)
 
 打开`application.properties`配置文件，修改数据库连接配置
 
@@ -52,7 +52,7 @@
 
 `docker pull tanghc2020/torna:latest`
 
-导入数据库，执行[mysql.sql](./mysql.sql)
+导入数据库，执行[mysql.sql](torna-docker-compose/mysql.sql)
 
 复制`server/boot/src/main/resources/application.properties`文件到`/opt/torna/config`下，修改数据库连接配置
 
