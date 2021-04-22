@@ -524,6 +524,9 @@ Object.assign(Vue.prototype, {
     const children = row.children
     const noChildren = !children || children.length === 0
     return !row.parentId && noChildren
+  },
+  deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj))
   }
 })
 

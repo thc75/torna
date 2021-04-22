@@ -59,6 +59,9 @@ function get_default_example(type) {
   if (is_number_type(type)) {
     return 0
   }
+  if (is_boolean_type(type)) {
+    return false
+  }
   let example = ''
   switch (typeLower) {
     case 'map':
@@ -284,8 +287,8 @@ export function init_docInfo_view(data) {
           item.parentId = pid
         }
       })
-      data.responseParams = data.globalReturns.concat(data.responseParams)
     }
+    data.responseParams = data.globalReturns.concat(data.responseParams)
   }
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
@@ -297,6 +300,7 @@ export function init_docInfo_complete_view(data) {
     data.headerParams = data.globalHeaders.concat(data.headerParams)
   }
   if (data.isUseGlobalParams) {
+    data.globalParams = convert_tree(data.globalParams)
     data.requestParams = data.globalParams.concat(data.requestParams)
   }
   if (data.isUseGlobalReturns) {
@@ -305,6 +309,7 @@ export function init_docInfo_complete_view(data) {
       .shift()
     if (dataNode) {
       const pid = dataNode.id
+      dataNode.example = ''
       const responseParams = data.responseParams
       responseParams.forEach(item => {
         const parentId = item.parentId

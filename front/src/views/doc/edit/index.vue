@@ -358,12 +358,11 @@ export default {
     viewDoc: function() {
       this.viewDialogVisible = true
       this.$nextTick(() => {
-        const viewData = {}
-        Object.assign(viewData, this.docInfo)
-        viewData.headerParams = this.getHeaderParamsData()
-        viewData.requestParams = this.getRequestParamsData()
-        viewData.responseParams = this.getResponseParamsData()
-        viewData.errorCodeParams = this.getErrorCodeParamsData()
+        const viewData = this.deepCopy(this.docInfo)
+        viewData.headerParams = this.deepCopy(this.getHeaderParamsData())
+        viewData.requestParams = this.deepCopy(this.getRequestParamsData())
+        viewData.responseParams = this.deepCopy(this.getResponseParamsData())
+        viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
         this.initDocInfoCompleteView(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })

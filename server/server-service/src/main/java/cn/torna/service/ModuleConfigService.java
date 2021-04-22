@@ -89,9 +89,15 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         docParamService.update(docParam);
     }
 
+    /**
+     * 删除公共参数
+     * @param moduleId 模块id
+     * @param extendId 参数id，doc_param.id
+     */
     public void deleteGlobal(long moduleId, long extendId) {
         ModuleConfig moduleConfig = getByModuleIdAndExtendId(moduleId, extendId);
         this.delete(moduleConfig);
+        docParamService.deleteParamDeeply(extendId);
     }
 
     private ModuleConfig getByModuleIdAndExtendId(long moduleId, long extendId) {

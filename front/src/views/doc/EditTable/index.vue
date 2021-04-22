@@ -234,11 +234,6 @@ export default {
         row.isDeleted = 1
       }
     },
-    hasNoParentAndChildren(row) {
-      const children = row.children
-      const noChildren = !children || children.length === 0
-      return !row.parentId && noChildren
-    },
     getData() {
       return this.rows
     },
