@@ -10,8 +10,6 @@ services:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_ROOT_HOST: '%'
-#    volumes:
-#      - ./../mysql.sql:/docker-entrypoint-initdb.d/
     command:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
