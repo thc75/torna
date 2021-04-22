@@ -9,10 +9,10 @@ services:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_ROOT_HOST: '%'
     volumes:
-      - "/var/mysql5.7/conf:/etc/mysql/conf.d"
-      - "/var/mysql5.7/logs:/logs"
-      - "/var/mysql5.7/data:/var/lib/mysql"
-      - "../mysql.sql:/docker-entrypoint-initdb.d/"
+      - /var/mysql5.7/conf:/etc/mysql/conf.d
+      - /var/mysql5.7/logs:/logs
+      - /var/mysql5.7/data:/var/lib/mysql
+      - ../mysql.sql:/docker-entrypoint-initdb.d/
     command:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
