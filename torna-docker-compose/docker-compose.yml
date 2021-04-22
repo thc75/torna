@@ -21,6 +21,7 @@ services:
       --sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO"
     networks:
       - torna-net
+    restart: always
   torna:
     image: tanghc2020/torna:latest
     container_name: torna
@@ -38,5 +39,6 @@ services:
       - JAVA_OPTS=-server -Xmx512m -Xms512m -Djava.awt.headless=true
     networks:
       - torna-net
+    restart: always
 networks:
   torna-net:
