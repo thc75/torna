@@ -6,12 +6,14 @@ import cn.torna.api.open.param.CategoryUpdateParam;
 import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
+import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.param.IdParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.api.open.result.DocInfoDetailResult;
 import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
@@ -21,8 +23,10 @@ import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.UserMessageService;
+import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.MessageDTO;
+import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.annotation.Api;
@@ -35,7 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tanghc
@@ -107,11 +113,25 @@ public class DocApi {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
         if (Booleans.isTrue(param.getIsFolder())) {
-            DocInfo folder = docInfoService.createDocFolder(param.getName(), moduleId, user, parentId);
+            DocInfo folder;
+            Map<String, Object> props = null;
+            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.HTTP;
+            if (docTypeEnum == DocTypeEnum.DUBBO) {
+                props = buildProps(param);
+            }
+            DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
+            docFolderCreateDTO.setName(param.getName());
+            docFolderCreateDTO.setModuleId(moduleId);
+            docFolderCreateDTO.setUser(user);
+            docFolderCreateDTO.setParentId(parentId);
+            docFolderCreateDTO.setDocTypeEnum(docTypeEnum);
+            docFolderCreateDTO.setProps(props);
+            folder = docInfoService.createDocFolder(docFolderCreateDTO);
             List<DocPushItemParam> items = param.getItems();
             if (items != null) {
                 for (DocPushItemParam item : items) {
                     Long pid = folder.getId();
+                    item.setType(docTypeEnum.getProtocol());
                     this.pushDocItem(item, context, pid);
                 }
             }
@@ -124,7 +144,19 @@ public class DocApi {
         }
     }
 
+    private Map<String, Object> buildProps(DocPushItemParam param) {
+        DubboParam dubboInfo = param.getDubboInfo();
+        if (dubboInfo == null) {
+            return Collections.emptyMap();
+        }
+        String json = JSON.toJSONString(dubboInfo);
+        return JSON.parseObject(json);
+    }
+
     private static void formatUrl(DocInfoDTO docInfoDTO) {
+        if (docInfoDTO.getType() == DocTypeEnum.DUBBO.getProtocol()) {
+            return;
+        }
         String url = docInfoDTO.getUrl();
         url = removePrefix(url);
         docInfoDTO.setUrl(url);

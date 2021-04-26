@@ -2,8 +2,10 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
+import cn.torna.common.enums.PropTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -13,6 +15,7 @@ import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.service.dto.DebugHostDTO;
+import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocParamDTO;
@@ -48,6 +51,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private ModuleService moduleService;
+
+    @Autowired
+    private PropService propService;
 
     public List<DocInfo> listDocMenu(long moduleId) {
         return list("module_id", moduleId);
@@ -136,6 +142,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
         docInfoDTO.setGlobalParams(CopyUtil.copyList(globalParams, DocParamDTO::new));
         docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
+
         return docInfoDTO;
     }
 
@@ -161,6 +168,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
+    private Map<String, String> buildProps(DocInfo docInfo) {
+        return propService.getDocProps(docInfo.getId());
+    }
+
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
         DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
         // 发送站内信
@@ -175,6 +186,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setDataId(dataId);
         docInfo.setName(docInfoDTO.getName());
         docInfo.setDescription(docInfoDTO.getDescription());
+        docInfo.setType(docInfoDTO.getType());
         docInfo.setUrl(docInfoDTO.getUrl());
         docInfo.setHttpMethod(docInfoDTO.getHttpMethod());
         docInfo.setContentType(docInfoDTO.getContentType());
@@ -282,12 +294,28 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回添加后的文档
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user, Long parentId) {
+        DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
+        docFolderCreateDTO.setName(folderName);
+        docFolderCreateDTO.setModuleId(moduleId);
+        docFolderCreateDTO.setParentId(parentId);
+        docFolderCreateDTO.setUser(user);
+        docFolderCreateDTO.setDocTypeEnum(DocTypeEnum.HTTP);
+        return createDocFolder(docFolderCreateDTO);
+    }
+
+    public DocInfo createDocFolder(DocFolderCreateDTO docFolderCreateDTO) {
         DocInfoDTO docInfoDTO = new DocInfoDTO();
-        docInfoDTO.setName(folderName);
-        docInfoDTO.setModuleId(moduleId);
-        docInfoDTO.setParentId(parentId);
+        docInfoDTO.setName(docFolderCreateDTO.getName());
+        docInfoDTO.setModuleId(docFolderCreateDTO.getModuleId());
+        docInfoDTO.setParentId(docFolderCreateDTO.getParentId());
+        if (docFolderCreateDTO.getDocTypeEnum() != null) {
+            docInfoDTO.setType(docFolderCreateDTO.getDocTypeEnum().getProtocol());
+        }
         docInfoDTO.setIsFolder(Booleans.TRUE);
-        return insertDocInfo(docInfoDTO, user);
+        DocInfo docInfo = insertDocInfo(docInfoDTO, docFolderCreateDTO.getUser());
+        Map<String, ?> props = docFolderCreateDTO.getProps();
+        propService.saveProps(props, docInfo.getId(), PropTypeEnum.DOC_INFO_PROP);
+        return docInfo;
     }
 
     public DocInfo createDocItem(DocItemCreateDTO docItemCreateDTO) {

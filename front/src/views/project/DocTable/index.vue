@@ -74,7 +74,7 @@
         show-overflow-tooltip
       >
         <template slot-scope="scope">
-          <http-method v-if="scope.row.url" :method="scope.row.httpMethod" />
+          <http-method v-if="scope.row.httpMethod && scope.row.url" :method="scope.row.httpMethod" />
           <span style="margin-left: 5px;">{{ scope.row.url }}</span>
         </template>
       </u-table-column>

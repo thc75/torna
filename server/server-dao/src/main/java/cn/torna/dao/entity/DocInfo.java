@@ -1,13 +1,12 @@
 package cn.torna.dao.entity;
 
-import java.util.Date;
-
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * 表名：doc_info
@@ -32,6 +31,9 @@ public class DocInfo {
 
     /** 文档描述, 数据库字段：description */
     private String description;
+
+    /** 0:http,1:dubbo, 数据库字段：protocol */
+    private Byte type;
 
     /** 访问URL, 数据库字段：url */
     private String url;

@@ -25,6 +25,8 @@ public class TreeVO {
 
     private String httpMethod;
 
+    private Byte docType;
+
     public TreeVO(String id, String label, String parentId, byte type) {
         this.id = id;
         this.label = label;

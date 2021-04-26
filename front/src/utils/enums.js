@@ -41,5 +41,12 @@ export const Enums = {
     PUBLIC: 1,
     /** 加密 */
     ENCRYPT: 2
+  },
+  /**
+   * 协议
+   */
+  DOC_TYPE: {
+    HTTP: 0,
+    DUBBO: 1
   }
 }

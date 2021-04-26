@@ -67,8 +67,9 @@ public class ViewController {
                     byte type = isFolder ? TYPE_FOLDER : TYPE_DOC;
                     TreeVO docInfoVO = new TreeVO(id, docInfo.getName(), parentId, type);
                     docInfoVO.setHttpMethod(docInfo.getHttpMethod());
+                    docInfoVO.setDocType(docInfo.getType());
+                    docInfoVO.setDocId(docInfo.getId());
                     if (!isFolder) {
-                        docInfoVO.setDocId(docInfo.getId());
                         docInfoVO.setUrl(docInfo.getUrl());
                     }
                     list.add(docInfoVO);

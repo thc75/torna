@@ -54,4 +54,6 @@ public class DocItem {
     /** 错误码 */
     private List<DocParamCode> errorCodeParams;
 
+    private DubboInfo dubboInfo;
+
 }

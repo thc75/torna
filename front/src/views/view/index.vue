@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-tabs v-show="load" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-show="item.type === getEnums().DOC_TYPE.HTTP && load" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> 接口信息</span>
         <doc-view ref="docView" :item="infoItem" />
@@ -14,15 +14,22 @@
         <mock :item="mockItem" />
       </el-tab-pane>
     </el-tabs>
+    <el-tabs v-show="item.type === getEnums().DOC_TYPE.DUBBO && load" v-model="active" type="card" @tab-click="onTabSelect">
+      <el-tab-pane name="info">
+        <span slot="label"><i class="el-icon-document"></i> 接口信息</span>
+        <dubbo-view ref="docView" :item="infoItem" />
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 <script>
 import DocView from '../doc/DocView'
+import DubboView from '../doc/DubboView'
 import DocDebug from '@/components/DocDebug'
 import Mock from '@/components/Mock'
 
 export default {
-  components: { DocView, DocDebug, Mock },
+  components: { DocView, DocDebug, Mock, DubboView },
   data() {
     return {
       active: 'info',
@@ -42,7 +49,7 @@ export default {
           const data = resp.data
           this.initDocInfoView(data)
           this.item = data
-          this.infoItem = data
+          this.selectTab('info')
           this.setTitle(data.name)
         })
       }
@@ -50,7 +57,10 @@ export default {
   },
   methods: {
     onTabSelect(tab) {
-      this[`${tab.name}Item`] = this.item
+      this.selectTab(tab.name)
+    },
+    selectTab(name) {
+      this[`${name}Item`] = this.item
     }
   }
 }

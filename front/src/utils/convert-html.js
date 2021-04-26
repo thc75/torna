@@ -1,11 +1,11 @@
-import { Enums } from './enums'
+import {Enums} from './enums'
 import {
   convert_tree,
   create_response_example,
+  get_effective_url,
   init_docInfo,
   StringBuilder,
-  style_config,
-  get_effective_url
+  style_config
 } from './common'
 
 const thWrapper = (content) => {
@@ -86,6 +86,14 @@ function createTable(params, style) {
   return tableContent.join('')
 }
 
+function isHttp(docInfo) {
+  return docInfo.type === Enums.DOC_TYPE.HTTP
+}
+
+function isShowRequestExample(docInfo) {
+  return isHttp(docInfo) && docInfo.contentType && docInfo.contentType.toLowerCase().indexOf('json') > -1
+}
+
 const HtmlUtil = {
   convertModule(moduleDTO) {
     const docInfoList = moduleDTO.docInfoList
@@ -118,44 +126,62 @@ const HtmlUtil = {
       return `<a class="link" href="#${id}">&nbsp;${name}</a>`
     }
     const appendCode = (str) => {
-      sb.append(`\n<pre>\n${str}\n</pre>\n`)
+      sb.append(`\n<pre class="code-block">\n${str}\n</pre>\n`)
     }
     sb.append('<div class="doc-item">')
       .append(`<h3 id="${docInfo.id}">${link(docInfo.id, docInfo.name)}</h3>`)
-      .append(`<p><strong>URL</strong></p>`)
-    const debugEnvs = docInfo.debugEnvs || []
-    if (debugEnvs.length > 0) {
-      const ul = new StringBuilder('<ul>')
-      docInfo.debugEnvs.forEach(hostConfig => {
-        const baseUrl = hostConfig.configValue
-        const url = get_effective_url(baseUrl, docInfo.url)
-        ul.append(`<li>${hostConfig.configKey}: ${docInfo.httpMethod} ${url}</li>`)
-      })
-      ul.append('</ul>')
-      sb.append(ul.toString())
-    } else {
-      sb.append(`<span>${docInfo.httpMethod} ${docInfo.url}</span>`)
+    // URL
+    if (isHttp(docInfo)) {
+      sb.append(`<p><strong>URL</strong></p>`)
+      const debugEnvs = docInfo.debugEnvs || []
+      if (debugEnvs.length > 0) {
+        const ul = new StringBuilder('<ul>')
+        docInfo.debugEnvs.forEach(hostConfig => {
+          const baseUrl = hostConfig.configValue
+          const url = get_effective_url(baseUrl, docInfo.url)
+          ul.append(`<li>${hostConfig.configKey}: ${docInfo.httpMethod} ${url}</li>`)
+        })
+        ul.append('</ul>')
+        sb.append(ul.toString())
+      } else {
+        sb.append(`<span>${docInfo.httpMethod} ${docInfo.url}</span>`)
+      }
     }
+    // 描述
     sb.append(`<p><strong>描述：</strong>${docInfo.description}</p>`)
-      .append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
-    sb.append('<h4>Path参数</h4>')
-    const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
-    sb.append(pathParamsTable)
-    sb.append('<h4>请求Header</h4>')
-    const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
-    sb.append(headerParamsTable)
+
+    if (isHttp(docInfo)) {
+      sb.append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
+    }
+
+    if (isHttp(docInfo)) {
+      sb.append('<h4>Path参数</h4>')
+      const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
+      sb.append(pathParamsTable)
+      sb.append('<h4>请求Header</h4>')
+      const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
+      sb.append(headerParamsTable)
+    }
 
     sb.append('<h4>请求参数</h4>')
     const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
     sb.append(requestParamsTable)
 
+    if (isShowRequestExample(docInfo)) {
+      sb.append('<h4>请求示例</h4>')
+      const requestExample = create_response_example(docInfo.requestParams)
+      appendCode(JSON.stringify(requestExample, null, 4))
+    }
+
     sb.append('<h4>响应参数</h4>')
     const responseParamsTable = createTable(docInfo.responseParams, Enums.PARAM_STYLE.response)
     sb.append(responseParamsTable)
 
-    sb.append('<h4>响应示例</h4>')
-    const responseExample = create_response_example(docInfo.responseParams)
-    appendCode(JSON.stringify(responseExample, null, 4))
+    if (isHttp(docInfo)) {
+      sb.append('<h4>响应示例</h4>')
+      const responseExample = create_response_example(docInfo.responseParams)
+      appendCode(JSON.stringify(responseExample, null, 4))
+    }
 
     sb.append('<h4>错误码</h4>')
     const errorCodeParamsTable = createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code)

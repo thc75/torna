@@ -1,9 +1,9 @@
-import { get } from './http'
+import {get} from './http'
 import JSZip from 'jszip'
 import HtmlUtil from '@/utils/convert-html'
 import MarkdownUtil from '@/utils/convert-markdown'
-import { download_text, convert_tree, init_docInfo, format_string } from '@/utils/common'
-import { saveAs } from 'file-saver'
+import {convert_tree, download_text, format_string, init_docInfo} from '@/utils/common'
+import {saveAs} from 'file-saver'
 
 function export_all_in_one(moduleId, filenameHandler, contentHandler) {
   get('/module/detail', { moduleId: moduleId }, resp => {
@@ -117,6 +117,8 @@ td,th {
 .pure-table-bordered tbody>tr:last-child>td {
     border-bottom-width: 0;
 }
+
+.code-block { font-size: 14px;color: #606266;font-weight: normal; background-color: #fafafa; padding: 5px;}
 </style>
 </head>
 <body>

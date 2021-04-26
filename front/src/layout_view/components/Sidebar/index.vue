@@ -35,6 +35,7 @@
             <span>
               <i :class="getClassName(data)"></i>
               <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }}
+              <dubbo-service-tip v-if="data.type === types.TYPE_FOLDER && data.docType === getEnums().DOC_TYPE.DUBBO" :doc-id="data.docId" />
             </span>
           </span>
         </el-tree>
@@ -55,6 +56,7 @@
 import { mapGetters } from 'vuex'
 import Logo from '@/components/Logo'
 import HttpMethod from '@/components/HttpMethod'
+import DubboServiceTip from '@/components/DubboServiceTip'
 
 const file_typ_map = {
   '0': 'el-icon-s-management',
@@ -64,7 +66,7 @@ const file_typ_map = {
 }
 
 export default {
-  components: { Logo, HttpMethod },
+  components: { Logo, HttpMethod, DubboServiceTip },
   data() {
     return {
       filterText: '',
@@ -75,6 +77,12 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'label'
+      },
+      types: {
+        PROJECT: 0,
+        TYPE_MODULE: 1,
+        TYPE_FOLDER: 2,
+        TYPE_DOC: 3
       }
     }
   },
@@ -150,7 +158,7 @@ export default {
     },
     // 树点击事件
     onNodeClick(data, node, tree) {
-      if (data.docId) {
+      if (data.type === this.types.TYPE_DOC) {
         this.goRoute(`/view/${data.docId}`)
       }
     }

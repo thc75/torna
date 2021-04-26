@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 4;
+    private static final int VERSION = 5;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -46,6 +46,17 @@ public class UpgradeService {
 
     /**
      * 升级
+     */
+    public void upgrade() {
+        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
+        int oldVersion = getVersion();
+        doUpgrade(oldVersion);
+        // 最后更新当前版本到数据库
+        saveVersion();
+    }
+
+    /**
+     * 升级
      * @param oldVersion 本地老版本
      */
     private void doUpgrade(int oldVersion) {
@@ -58,19 +69,8 @@ public class UpgradeService {
             v1_3_0();
         }
         v1_4_0(oldVersion);
+        v1_5_0(oldVersion);
     }
-
-    /**
-     * 升级
-     */
-    public void upgrade() {
-        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
-        int oldVersion = getVersion();
-        doUpgrade(oldVersion);
-        // 最后更新当前版本到数据库
-        saveVersion();
-    }
-
 
 
     private void saveVersion() {
@@ -79,6 +79,16 @@ public class UpgradeService {
         systemConfigDTO.setConfigValue(String.valueOf(VERSION));
         systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
         systemConfigService.setConfig(systemConfigDTO);
+    }
+
+    private void v1_5_0(int dbVersion) {
+        if (dbVersion < 5) {
+            this.createTable("prop", "upgrade/1.5.0_ddl.txt", "upgrade/1.5.0_ddl_compatible.txt");
+            this.addColumn("doc_info",
+                    "type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `type` TINYINT NOT NULL DEFAULT 0 COMMENT '0:http,1:dubbo' AFTER `description`"
+            );
+        }
     }
 
     private void v1_4_0(int dbVersion) {

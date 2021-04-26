@@ -212,7 +212,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   margin-bottom: 20px;
 }
 
-.cell .el-tag {
+.cell .el-tag, .el-tag--small {
   height: auto !important;
   padding: 0 4px !important;
   line-height: 20px !important;
@@ -380,4 +380,18 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner { background-color: #409EFF !important;}
   .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner::before { background-color: #FFFFFF !important;}
   .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner { background-color: #409EFF !important;}
+}
+
+// doc view
+.doc-view {
+  .http-method {
+    height: auto !important;
+    line-height: 20px !important;
+    padding: 0 4px !important;
+  }
+  .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
+  .debug-url { font-size: 14px;color: #606266 }
+  .doc-title {
+    margin: 0
+  }
 }

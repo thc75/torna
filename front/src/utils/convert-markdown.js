@@ -1,11 +1,11 @@
-import { Enums } from './enums'
+import {Enums} from './enums'
 import {
-  create_response_example,
   convert_tree,
+  create_response_example,
+  get_effective_url,
   init_docInfo,
   StringBuilder,
-  style_config,
-  get_effective_url
+  style_config
 } from './common'
 
 const split_char = ' | '
@@ -72,6 +72,18 @@ function createTable(params, style) {
   return tableContent.join('')
 }
 
+function isHttp(docInfo) {
+  return docInfo.type === Enums.DOC_TYPE.HTTP
+}
+
+function isDubbo(docInfo) {
+  return docInfo.type === Enums.DOC_TYPE.DUBBO
+}
+
+function isShowRequestExample(docInfo) {
+  return isHttp(docInfo) && docInfo.contentType && docInfo.contentType.toLowerCase().indexOf('json') > -1
+}
+
 const MarkdownUtil = {
   convertModule(moduleDTO) {
     const docInfoList = moduleDTO.docInfoList
@@ -106,40 +118,56 @@ const MarkdownUtil = {
       builder.append(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`### ${docInfo.name}`)
-    append(`#### URL`)
-    const debugEnvs = docInfo.debugEnvs || []
-    if (debugEnvs.length > 0) {
-      const ul = new StringBuilder()
-      docInfo.debugEnvs.forEach(hostConfig => {
-        const baseUrl = hostConfig.configValue
-        const url = get_effective_url(baseUrl, docInfo.url)
-        ul.append(`- ${hostConfig.configKey}: \`${docInfo.httpMethod}\` ${url}\n`)
-      })
-      append(ul.toString())
-    } else {
-      append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
+    if (isHttp(docInfo)) {
+      append(`#### URL`)
+      const debugEnvs = docInfo.debugEnvs || []
+      if (debugEnvs.length > 0) {
+        const ul = new StringBuilder()
+        docInfo.debugEnvs.forEach(hostConfig => {
+          const baseUrl = hostConfig.configValue
+          const url = get_effective_url(baseUrl, docInfo.url)
+          ul.append(`- ${hostConfig.configKey}: \`${docInfo.httpMethod}\` ${url}\n`)
+        })
+        append(ul.toString())
+      } else {
+        append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
+      }
+    } else if (isDubbo(docInfo)) {
+      append(`#### 方法`)
+      append(docInfo.url)
     }
     append(`描述：${docInfo.description}`)
-    append(`ContentType：${docInfo.contentType}`)
-    append(`#### Path参数`)
-    const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
-    append(pathParamsTable)
 
-    append(`#### 请求Header`)
-    const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
-    append(headerParamsTable)
+    if (isHttp(docInfo)) {
+      append(`ContentType：${docInfo.contentType}`)
+      append(`#### Path参数`)
+      const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
+      append(pathParamsTable)
+
+      append(`#### 请求Header`)
+      const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
+      append(headerParamsTable)
+    }
 
     append(`#### 请求参数`)
     const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
     append(requestParamsTable)
 
+    if (isShowRequestExample(docInfo)) {
+      append(`#### 请求示例`)
+      const requestExample = create_response_example(docInfo.requestParams)
+      appendCode(JSON.stringify(requestExample, null, 4))
+    }
+
     append(`#### 响应参数`)
     const responseParamsTable = createTable(docInfo.responseParams, Enums.PARAM_STYLE.response)
     append(responseParamsTable)
 
-    append(`#### 响应示例`)
-    const responseExample = create_response_example(docInfo.responseParams)
-    appendCode(JSON.stringify(responseExample, null, 4))
+    if (isHttp(docInfo)) {
+      append(`#### 响应示例`)
+      const responseExample = create_response_example(docInfo.responseParams)
+      appendCode(JSON.stringify(responseExample, null, 4))
+    }
 
     append(`#### 错误码`)
     const errorCodeParamsTable = createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code)

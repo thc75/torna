@@ -22,6 +22,9 @@ public class DocInfoDTO implements DocInfoDataId {
     /** 文档概述, 数据库字段：description */
     private String description;
 
+    /** 0:http,1:dubbo, 数据库字段：protocol */
+    private Byte type;
+
     /** 访问URL, 数据库字段：url */
     private String url;
 
@@ -89,5 +92,4 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> globalHeaders;
     private List<DocParamDTO> globalParams;
     private List<DocParamDTO> globalReturns;
-
 }

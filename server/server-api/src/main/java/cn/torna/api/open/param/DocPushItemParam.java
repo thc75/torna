@@ -24,8 +24,10 @@ public class DocPushItemParam {
     @Length(max = 128, message = "'description' 长度不能超过128")
     private String description;
 
+    private Byte type;
+
     /** 访问URL, 数据库字段：url */
-    @ApiDocField(description = "url", example = "/goods/get")
+    @ApiDocField(description = "请求url或dubbo的接口方法定义", example = "/goods/get")
     @Length(max = 128, message = "'url' 长度不能超过128")
     private String url;
 
@@ -45,6 +47,10 @@ public class DocPushItemParam {
     /** 是否显示, 数据库字段：is_show */
     @ApiDocField(description = "是否显示，1：显示，0：不显示", example = "1")
     private Byte isShow;
+
+    // dubbo
+    @ApiDocField(description = "dubbo服务信息")
+    private DubboParam dubboInfo;
 
     @ApiDocField(description = "path参数", elementClass = DocParamPushParam.class)
     private List<DocParamPushParam> pathParams;

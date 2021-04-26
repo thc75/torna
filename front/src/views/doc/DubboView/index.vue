@@ -28,42 +28,12 @@
         {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4>URL</h4>
-    <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
-      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
-        {{ hostConfig.configKey }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
-      </li>
-    </ul>
-    <span v-else class="debug-url">
-      <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
-    </span>
+    <h4>方法：<span>{{ buildDefinition(docInfo) }}</span></h4>
     <h4 v-if="docInfo.description">描述：<span>{{ docInfo.description }}</span></h4>
-    <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
-    <div v-if="docInfo.pathParams.length > 0">
-      <h4>Path参数</h4>
-      <parameter-table
-        :data="docInfo.pathParams"
-        :can-add-node="false"
-        :hidden-columns="['maxLength']"
-      />
-    </div>
-    <h4>请求Header</h4>
-    <parameter-table
-      :data="docInfo.headerParams"
-      :can-add-node="false"
-      :hidden-columns="['type', 'maxLength']"
-      empty-text="无Header"
-    />
-    <h4>请求参数</h4>
+    <h4>调用参数</h4>
     <parameter-table :data="docInfo.requestParams" />
-    <div v-show="isRequestJson">
-      <h4>请求示例</h4>
-      <pre class="code-block">{{ formatJson(requestExample) }}</pre>
-    </div>
-    <h4>响应参数</h4>
+    <h4>返回结果</h4>
     <parameter-table :data="docInfo.responseParams" />
-    <h4>响应示例</h4>
-    <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>错误码</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
@@ -82,13 +52,11 @@
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
-import HttpMethod from '@/components/HttpMethod'
 import ExportUtil from '@/utils/export'
-import { get_effective_url } from '@/utils/common'
 
 export default {
-  name: 'DocView',
-  components: { ParameterTable, HttpMethod },
+  name: 'DubboView',
+  components: { ParameterTable },
   props: {
     docId: {
       type: String,
@@ -197,10 +165,12 @@ export default {
       this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     },
-    buildRequestUrl(hostConfig) {
-      const baseUrl = hostConfig.configValue
-      const url = this.docInfo.url
-      return get_effective_url(baseUrl, url)
+    buildDefinition(docInfo) {
+      let url = this.docInfo.url
+      if (url && url.startsWith('/')) {
+        url = url.substring(1)
+      }
+      return url
     },
     onExportMarkdown() {
       ExportUtil.exportMarkdownSinglePage(this.docInfo)
