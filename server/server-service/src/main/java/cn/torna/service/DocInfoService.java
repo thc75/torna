@@ -9,6 +9,7 @@ import cn.torna.common.enums.PropTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
@@ -156,6 +157,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return doSaveDocInfo(docInfoDTO, user);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public synchronized DocInfo updateDocInfo(DocInfoDTO docInfoDTO, User user) {
+        return doUpdateDocInfo(docInfoDTO, user);
+    }
+
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
@@ -168,8 +174,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
-    private Map<String, String> buildProps(DocInfo docInfo) {
-        return propService.getDocProps(docInfo.getId());
+    public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
+        // 修改基本信息
+        DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
+        // 修改参数
+        docParamService.saveParams(docInfo, docInfoDTO.getPathParams(), ParamStyleEnum.PATH, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getHeaderParams(), ParamStyleEnum.HEADER, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
+        return docInfo;
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
@@ -180,9 +194,22 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     private DocInfo insertDocInfo(DocInfoDTO docInfoDTO, User user) {
+        DocInfo docInfo = buildDocInfo(docInfoDTO, user);
+        this.getMapper().saveDocInfo(docInfo);
+        return docInfo;
+    }
+
+    private DocInfo modifyDocInfo(DocInfoDTO docInfoDTO, User user) {
+        DocInfo docInfo = buildDocInfo(docInfoDTO, user);
+        this.update(docInfo);
+        return docInfo;
+    }
+
+    private DocInfo buildDocInfo(DocInfoDTO docInfoDTO, User user) {
         Byte isFolder = docInfoDTO.getIsFolder();
         String dataId = docInfoDTO.buildDataId();
         DocInfo docInfo = new DocInfo();
+        docInfo.setId(docInfoDTO.getId());
         docInfo.setDataId(dataId);
         docInfo.setName(docInfoDTO.getName());
         docInfo.setDescription(docInfoDTO.getDescription());
@@ -205,7 +232,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setRemark(docInfoDTO.getRemark());
         docInfo.setIsShow(docInfoDTO.getIsShow());
         docInfo.setIsDeleted(docInfoDTO.getIsDeleted());
-        this.getMapper().saveDocInfo(docInfo);
         return docInfo;
     }
 
@@ -271,6 +297,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setIsDeleted(Booleans.TRUE);
         this.userMessageService.sendMessageByDeleteDoc(docInfo);
+        // 设置一个dataId，不与其它文档冲突
+        docInfo.setDataId(IdGen.nextId());
         this.update(docInfo);
     }
 

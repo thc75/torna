@@ -3,6 +3,7 @@
 ## 1.5.0
 
 - [feat]支持Dubbo文档展示
+- [fix]修改文档出现新增文档问题 [#I3O0E6](https://gitee.com/durcframework/torna/issues/I3O0E6)
 
 ## 1.4.3
 

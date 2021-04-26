@@ -1,11 +1,14 @@
 package cn.torna.web.controller.doc;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
@@ -17,8 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.DocInfoDTO;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -53,7 +54,21 @@ public class DocController {
     @PostMapping("save")
     public Result<IdVO> save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
         User user = UserContext.getUser();
-        DocInfo docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
+        Long id = docInfoDTO.getId();
+        DocInfo docInfo;
+        if (id == null) {
+            // 检查是否存在
+            String dataId = docInfoDTO.buildDataId();
+            DocInfo exist = docInfoService.getByDataId(dataId);
+            if (exist != null) {
+                String tpl = "【%s】%s";
+                throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
+            }
+            // 不存在则保存文档
+            docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
+        } else {
+            docInfo = docInfoService.updateDocInfo(docInfoDTO, user);
+        }
         return Result.ok(new IdVO(docInfo.getId()));
     }
 
