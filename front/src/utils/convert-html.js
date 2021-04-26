@@ -8,6 +8,8 @@ import {
   style_config
 } from './common'
 
+import {isDubbo, isHttp, isShowRequestExample} from './convert-common'
+
 const thWrapper = (content) => {
   return `<th>${content}</th>`
 }
@@ -86,14 +88,6 @@ function createTable(params, style) {
   return tableContent.join('')
 }
 
-function isHttp(docInfo) {
-  return docInfo.type === Enums.DOC_TYPE.HTTP
-}
-
-function isShowRequestExample(docInfo) {
-  return isHttp(docInfo) && docInfo.contentType && docInfo.contentType.toLowerCase().indexOf('json') > -1
-}
-
 const HtmlUtil = {
   convertModule(moduleDTO) {
     const docInfoList = moduleDTO.docInfoList
@@ -146,6 +140,8 @@ const HtmlUtil = {
       } else {
         sb.append(`<span>${docInfo.httpMethod} ${docInfo.url}</span>`)
       }
+    } else if (isDubbo(docInfo)) {
+      sb.append(`<p><strong>方法：</strong>${docInfo.url}</p>`)
     }
     // 描述
     sb.append(`<p><strong>描述：</strong>${docInfo.description}</p>`)

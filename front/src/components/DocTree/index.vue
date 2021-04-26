@@ -18,7 +18,7 @@
       @check="onCheckClick"
     >
       <span slot-scope="{ node, data }" class="custom-tree-node">
-        <span>{{ node.label }}<span v-show="!data.isFolder" class="el-tree-label-tip">【{{ data.httpMethod }}】{{ data.url }}</span></span>
+        <span>{{ node.label }}<span v-show="!data.isFolder && data.httpMethod" class="el-tree-label-tip">【{{ data.httpMethod }}】{{ data.url }}</span></span>
         <span v-if="data.isFolder && isChecked(data)" @click.stop>
           <el-checkbox v-model="data.isShareFolder" :disabled="viewMode">追加分享</el-checkbox>
           <el-tooltip placement="top" content="勾选：此分类后续添加新文档也可以访问">

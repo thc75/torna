@@ -8,6 +8,8 @@ import {
   style_config
 } from './common'
 
+import {isDubbo, isHttp, isShowRequestExample} from './convert-common'
+
 const split_char = ' | '
 
 function joinHeader(arr) {
@@ -72,18 +74,6 @@ function createTable(params, style) {
   return tableContent.join('')
 }
 
-function isHttp(docInfo) {
-  return docInfo.type === Enums.DOC_TYPE.HTTP
-}
-
-function isDubbo(docInfo) {
-  return docInfo.type === Enums.DOC_TYPE.DUBBO
-}
-
-function isShowRequestExample(docInfo) {
-  return isHttp(docInfo) && docInfo.contentType && docInfo.contentType.toLowerCase().indexOf('json') > -1
-}
-
 const MarkdownUtil = {
   convertModule(moduleDTO) {
     const docInfoList = moduleDTO.docInfoList
@@ -133,8 +123,7 @@ const MarkdownUtil = {
         append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
       }
     } else if (isDubbo(docInfo)) {
-      append(`#### 方法`)
-      append(docInfo.url)
+      append(`方法：${docInfo.url}`)
     }
     append(`描述：${docInfo.description}`)
 
