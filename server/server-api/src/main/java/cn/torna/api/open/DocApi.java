@@ -3,6 +3,7 @@ package cn.torna.api.open;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.CategoryAddParam;
 import cn.torna.api.open.param.CategoryUpdateParam;
+import cn.torna.api.open.param.CodeParamPushParam;
 import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
@@ -25,6 +26,7 @@ import cn.torna.service.ModuleConfigService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.MessageDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
@@ -36,6 +38,7 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -146,6 +149,11 @@ public class DocApi {
 
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+        List<CodeParamPushParam> errorCodeParams = param.getErrorCodeParams();
+        if (CollectionUtils.isNotEmpty(errorCodeParams)) {
+            List<DocParamDTO> errorParams = CopyUtil.copyList(errorCodeParams, DocParamDTO::new);
+            docInfoDTO.setErrorCodeParams(errorParams);
+        }
         if (StringUtils.hasText(param.getDefinition())) {
             docInfoDTO.setUrl(param.getDefinition());
         }
