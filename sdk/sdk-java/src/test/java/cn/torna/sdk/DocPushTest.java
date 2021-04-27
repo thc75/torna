@@ -58,7 +58,7 @@ public class DocPushTest extends BaseTest {
     private static DocItem buildDocItem(int i) {
         DocItem item = new DocItem();
         /* 设置基本信息 */
-        item.setName("获取商品名称" + i);
+        item.setName("a获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
         item.setUrl("/goods/{id}/get" + i);
         item.setHttpMethod("GET");

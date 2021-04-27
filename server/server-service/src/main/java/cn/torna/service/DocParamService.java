@@ -5,6 +5,7 @@ import cn.torna.common.bean.User;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.DataIdUtil;
+import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
@@ -73,6 +74,10 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
         DocParam docParam = new DocParam();
         String dataId = DataIdUtil.getDocParamDataId(docInfo.getId(), parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
+        // 如果删除
+        if (docParamDTO.getIsDeleted() == Booleans.TRUE) {
+            dataId = IdGen.nextId();
+        }
         docParam.setId(docParamDTO.getId());
         docParam.setDataId(dataId);
         docParam.setName(docParamDTO.getName());
@@ -92,7 +97,13 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setModifyMode(user.getOperationModel());
         docParam.setModifierName(user.getNickname());
         docParam.setIsDeleted(docParamDTO.getIsDeleted());
-        DocParam savedParam = this.saveParam(docParam);
+        DocParam savedParam;
+        if (docParam.getId() == null) {
+            savedParam = this.saveParam(docParam);
+        } else {
+            this.update(docParam);
+            savedParam = docParam;
+        }
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
             Long pid = savedParam.getId();
