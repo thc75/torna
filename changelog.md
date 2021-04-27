@@ -4,6 +4,7 @@
 
 - [feat]支持Dubbo文档展示
 - [fix]修改文档出现新增文档问题 [#I3O0E6](https://gitee.com/durcframework/torna/issues/I3O0E6)
+- [fix]推送不显示错误码问题
 
 ## 1.4.3
 
