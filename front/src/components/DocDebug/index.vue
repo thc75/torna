@@ -117,7 +117,7 @@
               </el-radio-group>
               <el-form>
                 <el-form-item label-width="0">
-                  <el-input v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" />
+                  <el-input v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" @blur="onBodyBlur" />
                 </el-form-item>
               </el-form>
             </div>
@@ -590,6 +590,14 @@ export default {
     },
     getHeaderValue(headers, key) {
       return headers[key] || headers[key.toLowerCase()]
+    },
+    onBodyBlur() {
+      if (this.bodyText && this.contentType === 'application/json') {
+        try {
+          this.bodyText = this.formatJson(JSON.parse(this.bodyText))
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+      }
     },
     formatResponse(contentType, stringBody) {
       if (this.isObject(stringBody) || this.isArray(stringBody)) {
