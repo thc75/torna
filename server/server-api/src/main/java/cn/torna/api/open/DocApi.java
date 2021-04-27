@@ -136,12 +136,20 @@ public class DocApi {
                 }
             }
         } else {
-            DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+            DocInfoDTO docInfoDTO = buildDocInfoDTO(param);
             docInfoDTO.setModuleId(moduleId);
             docInfoDTO.setParentId(parentId);
             formatUrl(docInfoDTO);
             docInfoService.doSaveDocInfo(docInfoDTO, user);
         }
+    }
+
+    private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
+        DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+        if (StringUtils.hasText(param.getDefinition())) {
+            docInfoDTO.setUrl(param.getDefinition());
+        }
+        return docInfoDTO;
     }
 
     private Map<String, Object> buildProps(DocPushItemParam param) {

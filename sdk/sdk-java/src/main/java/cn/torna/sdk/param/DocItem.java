@@ -21,6 +21,9 @@ public class DocItem {
     /** 访问URL */
     private String url;
 
+    /** 方法定义 */
+    private String definition;
+
     /** http方法 */
     private String httpMethod;
 

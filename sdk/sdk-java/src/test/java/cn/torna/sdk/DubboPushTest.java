@@ -74,7 +74,7 @@ public class DubboPushTest extends BaseTest {
         /* 设置基本信息 */
         item.setName("获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
-        item.setUrl("CommonResult<Order> testConstantsRequestParams" + i + "(ResultUtil<Order>[] orderList)");
+        item.setDefinition("Result<Order> getOrder" + i + "(String orderNo)");
         item.setContentType("application/json");
         item.setParentId("");
         item.setIsShow(Booleans.TRUE);

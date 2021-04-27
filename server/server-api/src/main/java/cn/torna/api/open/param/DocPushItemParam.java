@@ -27,9 +27,13 @@ public class DocPushItemParam {
     private Byte type;
 
     /** 访问URL, 数据库字段：url */
-    @ApiDocField(description = "请求url或dubbo的接口方法定义", example = "/goods/get")
+    @ApiDocField(description = "请求url", example = "/goods/get")
     @Length(max = 128, message = "'url' 长度不能超过128")
     private String url;
+
+    @ApiDocField(description = "dubbo的接口方法定义", example = "Result<Order> getOrder(String orderNo)")
+    @Length(max = 128, message = "'definition' 长度不能超过128")
+    private String definition;
 
     /** http方法, 数据库字段：http_method */
     @ApiDocField(description = "http方法", example = "GET")
