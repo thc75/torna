@@ -8,13 +8,13 @@ public enum DocTypeEnum {
     DUBBO((byte) 1),
     ;
 
-    DocTypeEnum(byte protocol) {
-        this.protocol = protocol;
+    DocTypeEnum(byte type) {
+        this.type = type;
     }
 
-    private final byte protocol;
+    private final byte type;
 
-    public byte getProtocol() {
-        return protocol;
+    public byte getType() {
+        return type;
     }
 }

@@ -337,7 +337,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setModuleId(docFolderCreateDTO.getModuleId());
         docInfoDTO.setParentId(docFolderCreateDTO.getParentId());
         if (docFolderCreateDTO.getDocTypeEnum() != null) {
-            docInfoDTO.setType(docFolderCreateDTO.getDocTypeEnum().getProtocol());
+            docInfoDTO.setType(docFolderCreateDTO.getDocTypeEnum().getType());
         }
         docInfoDTO.setIsFolder(Booleans.TRUE);
         DocInfo docInfo = insertDocInfo(docInfoDTO, docFolderCreateDTO.getUser());

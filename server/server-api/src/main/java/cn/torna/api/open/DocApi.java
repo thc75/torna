@@ -134,7 +134,7 @@ public class DocApi {
             if (items != null) {
                 for (DocPushItemParam item : items) {
                     Long pid = folder.getId();
-                    item.setType(docTypeEnum.getProtocol());
+                    item.setType(docTypeEnum.getType());
                     this.pushDocItem(item, context, pid);
                 }
             }
@@ -170,7 +170,7 @@ public class DocApi {
     }
 
     private static void formatUrl(DocInfoDTO docInfoDTO) {
-        if (docInfoDTO.getType() == DocTypeEnum.DUBBO.getProtocol()) {
+        if (docInfoDTO.getType() == DocTypeEnum.DUBBO.getType()) {
             return;
         }
         String url = docInfoDTO.getUrl();
