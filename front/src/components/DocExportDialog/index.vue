@@ -3,10 +3,6 @@
     <el-dialog
       title="导出文档"
       :visible.sync="dialogVisible"
-      :close-on-click-modal="false"
-      @close="() => {
-        resetForm('dialogForm')
-      }"
     >
       <el-form
         ref="dialogForm"
