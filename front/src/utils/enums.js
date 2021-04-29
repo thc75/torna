@@ -14,12 +14,12 @@ export const Enums = {
     code: 4
   },
   CONTENT_TYPE: [
-    '*/*',
+    'application/json',
     'application/x-www-form-urlencoded',
     'multipart/form-data',
-    'application/json',
     'application/xml',
-    'text/plain'
+    'text/plain',
+    '*/*'
   ],
   USER_STATUS: {
     SET_PASSWORD: 2

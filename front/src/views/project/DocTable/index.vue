@@ -99,22 +99,33 @@
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
-        width="120"
+        width="160"
       >
         <template slot-scope="scope">
           <div>
-            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-circle-plus-outline" title="添加文档" @click="onDocAdd(scope.row)"></el-link>
+            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加文档</el-link>
             <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success" icon="el-icon-view" title="预览"></el-link>
+              <el-link type="success">预览</el-link>
             </router-link>
-            <el-link type="primary" icon="el-icon-edit" title="修改" @click="onDocUpdate(scope.row)"></el-link>
-            <el-link v-if="!isFolder(scope.row)" type="primary" icon="el-icon-document-copy" title="复制文档" @click="onDocCopy(scope.row)"></el-link>
-            <el-popconfirm
-              :title="`确定要删除 ${scope.row.name} 吗？`"
-              @onConfirm="onDocRemove(scope.row)"
-            >
-              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger" icon="el-icon-delete" title="删除文档"></el-link>
-            </el-popconfirm>
+            <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
+            <el-dropdown v-if="!isFolder(scope.row)" @command="handleCommand">
+              <span class="el-dropdown-link">
+                更多 <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item icon="el-icon-document-copy" :command="() => { onDocCopy(scope.row) }">
+                  复制
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-show="scope.row.children.length === 0"
+                  icon="el-icon-delete"
+                  class="danger"
+                  :command="() => { onDocRemove(scope.row) }"
+                >
+                  删除
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </template>
       </u-table-column>
@@ -142,6 +153,13 @@
   .table-right-item {
     display: inline-block;
   }
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
 }
 </style>
 <script>
@@ -281,12 +299,14 @@ export default {
         (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onDocRemove(row) {
-      const data = {
-        id: row.id
-      }
-      this.post('/doc/delete', data, () => {
-        this.tipSuccess('删除成功')
-        this.loadTable()
+      this.confirm(`确定要删除 ${row.name} 吗？`, () => {
+        const data = {
+          id: row.id
+        }
+        this.post('/doc/delete', data, () => {
+          this.tipSuccess('删除成功')
+          this.loadTable()
+        })
       })
     },
     onDocAdd(row) {

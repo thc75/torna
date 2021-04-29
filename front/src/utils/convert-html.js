@@ -10,6 +10,8 @@ import {
 
 import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
 
+const BLANK = '&nbsp;'
+
 const thWrapper = (content) => {
   return `<th>${content}</th>`
 }
@@ -28,9 +30,11 @@ function createHeader(tds) {
 
 function createBodyTr(tds, prefix, level) {
   if (level > 1) {
-    for (let i = 1; i < level; i++) {
-      prefix = '&nbsp;&nbsp;' + prefix
+    const padding = []
+    for (let i = 1; i < Math.pow(level, 2); i++) {
+      padding.push(BLANK)
     }
+    prefix = padding.join('') + prefix
   }
   const tdHtml = []
   tds.forEach((content, index) => {
