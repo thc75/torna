@@ -26,7 +26,13 @@
         </template>
       </el-table-column>
       <el-table-column label="类型" prop="type" width="120px" />
-      <el-table-column label="示例值" prop="example" />
+      <el-table-column label="示例值" prop="example" >
+        <template slot-scope="scope">
+          <span v-show="!isNodeData(scope.row)">
+            {{ scope.row.example }}
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="描述" prop="description" />
       <el-table-column
         label="操作"
@@ -73,10 +79,14 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          prop="example"
           label="示例值"
         >
-          <el-input v-model="dialogParamFormData.example" placeholder="示例值" show-word-limit maxlength="200" />
+          <el-switch
+            v-model="isDataNode"
+            active-text="是否数据节点"
+            inactive-text=""
+          />
+          <el-input v-show="!isDataNode" v-model="dialogParamFormData.example" placeholder="示例值" show-word-limit maxlength="200" />
         </el-form-item>
         <el-form-item
           prop="description"
@@ -94,6 +104,8 @@
 </template>
 <script>
 import HelpLink from '@/components/HelpLink'
+const DATA_PLACEHOLDER = '$data$'
+
 export default {
   components: { HelpLink },
   data() {
@@ -121,9 +133,23 @@ export default {
               callback()
             }
           }, trigger: 'blur' }
-        ], example: [
-          { required: true, message: '不能为空', trigger: 'blur' }
         ]
+      }
+    }
+  },
+  computed: {
+    isDataNode: {
+      set(b) {
+        if (b) {
+          this.dialogParamFormData.type = 'object'
+          this.dialogParamFormData.example = DATA_PLACEHOLDER
+        } else {
+          this.dialogParamFormData.type = 'string'
+          this.dialogParamFormData.example = ''
+        }
+      },
+      get() {
+        return this.isNodeData(this.dialogParamFormData)
       }
     }
   },
@@ -175,6 +201,9 @@ export default {
         this.tip('删除成功')
         this.reload()
       })
+    },
+    isNodeData(row) {
+      return row.example === DATA_PLACEHOLDER
     },
     onDialogParamSave() {
       this.$refs.dialogParamForm.validate((valid) => {

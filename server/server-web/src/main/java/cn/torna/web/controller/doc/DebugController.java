@@ -1,6 +1,7 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.bean.HttpHelper;
+import cn.torna.common.util.RequestUtil;
 import cn.torna.common.util.UploadUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,15 +51,15 @@ public class DebugController {
         }
 
         HttpHelper httpHelper;
-        if (contentType != null) {
+        if (StringUtils.hasText(contentType)) {
             String contentTypeLower = contentType.toLowerCase();
             // 如果是文件上传
             if (contentTypeLower.contains("multipart")) {
-                Map<String, String> form = getForm(request);
+                Map<String, String> form = RequestUtil.getMultipartFields(request);
                 List<HttpHelper.UploadFile> multipartFiles = getMultipartFiles(request);
                 httpHelper = HttpHelper.postForm(url, form, multipartFiles.toArray(new HttpHelper.UploadFile[0]));
             } else if (contentTypeLower.contains("x-www-form-urlencoded")) {
-                Map<String, String> form = getForm(request);
+                Map<String, String> form = RequestUtil.getFormFields(request);
                 httpHelper = HttpHelper.postForm(url, form);
             } else if (contentTypeLower.contains("json")) {
                 String text = getText(request);
@@ -107,18 +107,6 @@ public class DebugController {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    private Map<String, String> getForm(HttpServletRequest request) {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        if (parameterMap == null) {
-            return Collections.emptyMap();
-        }
-        Map<String, String> form = new HashMap<>();
-        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-            form.put(entry.getKey(), entry.getValue()[0]);
-        }
-        return form;
     }
 
     private String getText(HttpServletRequest request) {

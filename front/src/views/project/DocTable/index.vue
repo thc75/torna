@@ -27,17 +27,7 @@
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-dropdown v-show="tableData.length > 0" trigger="click" @command="handleCommand">
-            <el-button type="primary" size="mini">
-              导出 <i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdownSinglePage">导出markdown(单页)</el-dropdown-item>
-              <el-dropdown-item :command="onExportMarkdownMultiPages">导出markdown(多页)</el-dropdown-item>
-              <el-dropdown-item divided :command="onExportHtmlSinglePage">导出html(单页)</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtmlMultiPages">导出html(多页)</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">导出</el-button>
         </div>
       </div>
     </div>
@@ -109,20 +99,21 @@
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
-        width="140"
+        width="120"
       >
         <template slot-scope="scope">
           <div>
-            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加文档</el-link>
+            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-circle-plus-outline" title="添加文档" @click="onDocAdd(scope.row)"></el-link>
             <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success">预览</el-link>
+              <el-link type="success" icon="el-icon-view" title="预览"></el-link>
             </router-link>
-            <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
+            <el-link type="primary" icon="el-icon-edit" title="修改" @click="onDocUpdate(scope.row)"></el-link>
+            <el-link v-if="!isFolder(scope.row)" type="primary" icon="el-icon-document-copy" title="复制文档" @click="onDocCopy(scope.row)"></el-link>
             <el-popconfirm
               :title="`确定要删除 ${scope.row.name} 吗？`"
               @onConfirm="onDocRemove(scope.row)"
             >
-              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
+              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger" icon="el-icon-delete" title="删除文档"></el-link>
             </el-popconfirm>
           </div>
         </template>
@@ -141,6 +132,7 @@
         </template>
       </u-table-column>
     </u-table>
+    <doc-export-dialog ref="exportDialog" />
   </div>
 </template>
 <style lang="scss">
@@ -153,14 +145,14 @@
 }
 </style>
 <script>
-import ExportUtil from '@/utils/export'
 import HttpMethod from '@/components/HttpMethod'
 import SvgIcon from '@/components/SvgIcon'
 import TimeTooltip from '@/components/TimeTooltip'
+import DocExportDialog from '@/components/DocExportDialog'
 
 export default {
   name: 'DocTable',
-  components: { HttpMethod, SvgIcon, TimeTooltip },
+  components: { HttpMethod, SvgIcon, TimeTooltip, DocExportDialog },
   props: {
     projectId: {
       type: String,
@@ -307,17 +299,11 @@ export default {
         this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
       }
     },
-    onExportMarkdownSinglePage() {
-      ExportUtil.exportMarkdownAllInOne(this.moduleId)
+    onDocCopy(row) {
+      this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
     },
-    onExportMarkdownMultiPages() {
-      ExportUtil.exportMarkdownMultiPages(this.moduleId)
-    },
-    onExportHtmlSinglePage() {
-      ExportUtil.exportHtmlAllInOne(this.moduleId)
-    },
-    onExportHtmlMultiPages() {
-      ExportUtil.exportHtmlMultiPages(this.moduleId)
+    onExport() {
+      this.$refs.exportDialog.show(this.tableData)
     }
   }
 }

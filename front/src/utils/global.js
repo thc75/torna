@@ -26,10 +26,10 @@ const typeConfig = [
   'string',
   'number',
   'boolean',
+  'object',
   'array',
   'num_array',
   'str_array',
-  'object',
   'file',
   'enum'
 ]

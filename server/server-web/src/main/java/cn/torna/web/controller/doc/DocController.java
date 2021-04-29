@@ -6,15 +6,18 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
+import cn.torna.web.controller.doc.param.DocInfoSearch;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.system.param.IdParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -134,6 +141,15 @@ public class DocController {
         return Result.ok();
     }
 
+    @PostMapping("detail/search")
+    public Result<List<DocInfoDTO>> listDocInfoDetail(@RequestBody DocInfoSearch docInfoSearch) {
+        List<Long> docIdList = docInfoSearch.getDocIdList();
+        if (CollectionUtils.isEmpty(docIdList)) {
+            return Result.ok(Collections.emptyList());
+        }
+        List<DocInfoDTO> docInfoDTOList = docInfoService.listDocDetail(docIdList);
+        return Result.ok(docInfoDTOList);
+    }
 
 
 }

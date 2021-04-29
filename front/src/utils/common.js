@@ -14,7 +14,10 @@ const NUMBER_TYPES = [
  */
 export function create_response_example(params) {
   const responseJson = {}
-  params.forEach(row => {
+  for (const row of params) {
+    if (row.isDeleted === 1) {
+      continue
+    }
     let val
     // 如果有子节点
     if (row.children && row.children.length > 0) {
@@ -47,7 +50,7 @@ export function create_response_example(params) {
       val = example
     }
     responseJson[row.name] = val
-  })
+  }
   return responseJson
 }
 
@@ -271,11 +274,24 @@ export function init_docInfo_view(data) {
     data.headerParams = data.globalHeaders.concat(data.headerParams)
   }
   if (data.isUseGlobalParams) {
+    const dataNode = (data.globalParams || [])
+      .filter(row => row.example === DATA_PLACEHOLDER)
+      .shift()
+    if (dataNode) {
+      const pid = dataNode.id
+      dataNode.example = ''
+      data.requestParams.forEach(item => {
+        const parentId = item.parentId
+        if (!parentId) {
+          item.parentId = pid
+        }
+      })
+    }
     data.requestParams = data.globalParams.concat(data.requestParams)
   }
   // 如果使用公共返回参数
   if (data.isUseGlobalReturns) {
-    const dataNode = data.globalReturns
+    const dataNode = (data.globalReturns || [])
       .filter(row => row.example === DATA_PLACEHOLDER)
       .shift()
     if (dataNode) {
@@ -297,14 +313,35 @@ export function init_docInfo_view(data) {
 
 export function init_docInfo_complete_view(data) {
   if (data.isUseGlobalHeaders) {
-    data.headerParams = data.globalHeaders.concat(data.headerParams)
+    const globalHeaders = data.globalHeaders || []
+    data.headerParams = globalHeaders.concat(data.headerParams)
   }
   if (data.isUseGlobalParams) {
+    const dataNode = (data.globalParams || [])
+      .filter(row => row.example === DATA_PLACEHOLDER)
+      .shift()
+    // 将公共参数转成tree
     data.globalParams = convert_tree(data.globalParams)
-    data.requestParams = data.globalParams.concat(data.requestParams)
+    if (dataNode) {
+      const pid = dataNode.id
+      dataNode.example = ''
+      const requestParams = data.requestParams
+      requestParams.forEach(item => {
+        const parentId = item.parentId
+        if (!parentId) {
+          item.parentId = pid
+        }
+      })
+      // 将业务返回放到数据节点中
+      dataNode.children = requestParams
+      data.requestParams = data.globalParams
+    } else {
+      data.globalParams = convert_tree(data.globalParams)
+      data.requestParams = data.globalParams.concat(data.requestParams)
+    }
   }
   if (data.isUseGlobalReturns) {
-    const dataNode = data.globalReturns
+    const dataNode = (data.globalReturns || [])
       .filter(row => row.example === DATA_PLACEHOLDER)
       .shift()
     if (dataNode) {

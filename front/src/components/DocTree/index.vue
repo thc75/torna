@@ -19,7 +19,7 @@
     >
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}<span v-show="!data.isFolder && data.httpMethod" class="el-tree-label-tip">【{{ data.httpMethod }}】{{ data.url }}</span></span>
-        <span v-if="data.isFolder && isChecked(data)" @click.stop>
+        <span v-if="!readonly && data.isFolder && isChecked(data)" @click.stop>
           <el-checkbox v-model="data.isShareFolder" :disabled="viewMode">追加分享</el-checkbox>
           <el-tooltip placement="top" content="勾选：此分类后续添加新文档也可以访问">
             <i class="el-icon-question"></i>
@@ -33,6 +33,10 @@
 export default {
   props: {
     viewMode: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
       type: Boolean,
       default: false
     }
@@ -76,6 +80,7 @@ export default {
     onCheckClick(data, status) {
       const node = this.$refs.tree.getNode(data)
       if (!node.checked) {
+        data.isShareFolder = false
         status.halfCheckedNodes.forEach(data => {
           data.isShareFolder = false
         })
@@ -90,11 +95,39 @@ export default {
       }
       return false
     },
+    // 包含半选节点
     getCheckedNodes() {
       return this.$refs.tree.getCheckedNodes(false, true)
     },
+    getCheckedAllKeys() {
+      const nodes = this.getCheckedNodes()
+      return nodes.map(row => row.id)
+    },
+    getAllKeys() {
+      return this.filterKeys(this.treeData)
+    },
+    filterKeys(treeData) {
+      const keys = []
+      const add = (data) => {
+        data.forEach(row => {
+          keys.push(row.id)
+          const children = row.children
+          if (children && children.length > 0) {
+            add(children)
+          }
+        })
+      }
+      add(treeData)
+      return keys
+    },
     setCheckedKeys(keys) {
       this.$refs.tree.setCheckedKeys(keys)
+    },
+    setData(data) {
+      this.treeData = data
+    },
+    getData() {
+      return this.treeData
     },
     clear() {
       this.treeData = []

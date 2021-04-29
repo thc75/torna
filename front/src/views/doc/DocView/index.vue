@@ -55,7 +55,15 @@
       empty-text="无Header"
     />
     <h4>请求参数</h4>
-    <parameter-table :data="docInfo.requestParams" />
+    <span v-show="docInfo.queryParams.length === 0 && docInfo.requestParams.length === 0" class="normal-text">无</span>
+    <div v-show="docInfo.queryParams.length > 0">
+      <h5>Query参数</h5>
+      <parameter-table :data="docInfo.queryParams" />
+    </div>
+    <div v-show="docInfo.requestParams.length > 0">
+      <h5>Body参数</h5>
+      <parameter-table :data="docInfo.requestParams" />
+    </div>
     <div v-show="isRequestJson">
       <h4>请求示例</h4>
       <pre class="code-block">{{ formatJson(requestExample) }}</pre>
@@ -143,6 +151,7 @@ export default {
         gmtModified: '',
         pathParams: [],
         headerParams: [],
+        queryParams: [],
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
