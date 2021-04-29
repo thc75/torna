@@ -48,7 +48,10 @@ public class DocItem {
     /** 请求头 */
     private List<DocParamHeader> headerParams;
 
-    /** 请求参数 */
+    /** Query参数 */
+    private List<DocParamReq> queryParams;
+
+    /** Body参数 */
     private List<DocParamReq> requestParams;
 
     /** 返回参数 */

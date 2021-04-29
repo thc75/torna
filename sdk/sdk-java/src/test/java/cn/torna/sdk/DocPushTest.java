@@ -84,6 +84,17 @@ public class DocPushTest extends BaseTest {
         header.setExample("xxxx");
         item.setHeaderParams(Arrays.asList(header));
 
+        /* 设置Query参数 */
+        DocParamReq queryCreateParamReq = new DocParamReq();
+        queryCreateParamReq.setName("uid");
+        queryCreateParamReq.setType("number");
+        queryCreateParamReq.setDescription("uid");
+        queryCreateParamReq.setExample("1111");
+        queryCreateParamReq.setMaxLength("64");
+        queryCreateParamReq.setRequired(Booleans.TRUE);
+        queryCreateParamReq.setParentId("");
+        item.setQueryParams(Arrays.asList(queryCreateParamReq));
+
         /* 设置请求参数 */
         DocParamReq paramCreateParamReq = new DocParamReq();
         paramCreateParamReq.setName("goodsName");
