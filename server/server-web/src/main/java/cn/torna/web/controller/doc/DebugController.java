@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.entity.ByteArrayEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,28 +52,22 @@ public class DebugController {
         }
 
         HttpHelper httpHelper;
-        if (StringUtils.hasText(contentType)) {
-            String contentTypeLower = contentType.toLowerCase();
-            // 如果是文件上传
-            if (contentTypeLower.contains("multipart")) {
+        // 针对上传文件需要特殊处理
+        if (StringUtils.hasText(contentType) && contentType.toLowerCase().contains("multipart")) {
                 Map<String, String> form = RequestUtil.getMultipartFields(request);
                 List<HttpHelper.UploadFile> multipartFiles = getMultipartFiles(request);
                 httpHelper = HttpHelper.postForm(url, form, multipartFiles.toArray(new HttpHelper.UploadFile[0]));
-            } else if (contentTypeLower.contains("x-www-form-urlencoded")) {
-                Map<String, String> form = RequestUtil.getFormFields(request);
-                httpHelper = HttpHelper.postForm(url, form);
-            } else if (contentTypeLower.contains("json")) {
-                String text = getText(request);
-                httpHelper = HttpHelper.postJson(url, text);
-            } else {
-                String text = getText(request);
-                httpHelper = HttpHelper.postText(url, text, contentType);
-            }
         } else {
-            httpHelper = HttpHelper
-                    .create()
+            httpHelper = HttpHelper.create()
                     .url(url)
                     .method(method);
+            try {
+                ServletInputStream inputStream = request.getInputStream();
+                byte[] bytes = IOUtils.toByteArray(inputStream);
+                httpHelper.entity(new ByteArrayEntity(bytes));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         httpHelper.headers(headers);
 

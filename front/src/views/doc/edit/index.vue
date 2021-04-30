@@ -280,8 +280,7 @@ export default {
           Object.assign(this.docInfo, data)
           this.$store.state.settings.projectId = data.projectId
           if (copyId) {
-            this.docInfo.id = ''
-            this.docInfo.name = `${this.docInfo.name} Copy`
+            this.emptyCopyData(this.docInfo)
           }
         }, (resp) => {
           if (resp.code === '1000') {
@@ -294,6 +293,27 @@ export default {
         })
       }
     },
+    emptyCopyData(docInfo) {
+      docInfo.id = ''
+      docInfo.name = `${this.docInfo.name} Copy`
+      const emptyParams = (params) => {
+        if (params) {
+          params.forEach(row => {
+            row.id = this.nextId() + ''
+            const children = row.children
+            if (children && children.length > 0) {
+              emptyParams(children)
+            }
+          })
+        }
+      }
+      emptyParams(docInfo.headerParams)
+      emptyParams(docInfo.queryParams)
+      emptyParams(docInfo.requestParams)
+      emptyParams(docInfo.responseParams)
+      emptyParams(docInfo.errorCodeParams)
+    },
+
     onUrlInput(url) {
       // 获取{}之间的字符
       const params = url.match(/[^{]+(?=})/g)
