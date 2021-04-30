@@ -108,16 +108,15 @@
               <el-link type="success" :underline="false">预览</el-link>
             </router-link>
             <el-link type="primary" :underline="false" @click="onDocUpdate(scope.row)">修改</el-link>
-            <el-dropdown v-if="!isFolder(scope.row)" @command="handleCommand">
+            <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
               <span class="el-dropdown-link">
                 更多 <i class="el-icon-arrow-down el-icon--right"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-document-copy" :command="() => { onDocCopy(scope.row) }">
+                <el-dropdown-item v-if="!isFolder(scope.row)" icon="el-icon-document-copy" :command="() => { onDocCopy(scope.row) }">
                   复制
                 </el-dropdown-item>
                 <el-dropdown-item
-                  v-show="scope.row.children.length === 0"
                   icon="el-icon-delete"
                   class="danger"
                   :command="() => { onDocRemove(scope.row) }"

@@ -1,5 +1,6 @@
 package cn.torna.api.open;
 
+import cn.torna.api.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.CategoryAddParam;
 import cn.torna.api.open.param.CategoryUpdateParam;
@@ -37,14 +38,19 @@ import com.gitee.easyopen.doc.NoResultWrapper;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
+import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author tanghc
@@ -74,9 +80,72 @@ public class DocApi {
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
+        if (param.getAllowSameFolder() == Booleans.TRUE) {
+            this.mergeSameFolder(param);
+        } else {
+            this.checkSameFolder(param);
+        }
         ApiParam apiParam = ApiContext.getApiParam();
         RequestContext context = RequestContext.getCurrentContext();
+        String author = param.getAuthor();
+        if (StringUtils.hasText(author)) {
+            ApiUser user = (ApiUser) context.getApiUser();
+            user.setNickname(author);
+        }
         ThreadPoolUtil.execute(() -> doPush(param, apiParam, context));
+    }
+
+    private void checkSameFolder(DocPushParam param) {
+        List<DocPushItemParam> apis = param.getApis();
+        if (CollectionUtils.isEmpty(apis)) {
+            return;
+        }
+        // key:分类名称，value:相同文档数量
+        Map<String, AtomicInteger> folderCount = new HashMap<>(8);
+        for (DocPushItemParam api : apis) {
+            if (api.getIsFolder() == Booleans.TRUE) {
+                AtomicInteger count = folderCount.computeIfAbsent(api.getName(), (k) -> new AtomicInteger(0));
+                count.incrementAndGet();
+            }
+        }
+        folderCount.forEach((name, count) -> {
+            if (count.get() > 1) {
+                String msg = "文档名称重复【" + name + "】";
+                this.sendMessage(msg);
+                throw new ApiException(msg);
+            }
+        });
+    }
+
+    /**
+     * 将相同的目录进行合并
+     * @param param
+     */
+    private void mergeSameFolder(DocPushParam param) {
+        List<DocPushItemParam> apis = param.getApis();
+        if (CollectionUtils.isEmpty(apis)) {
+            return;
+        }
+        List<DocPushItemParam> apisNew = new ArrayList<>(apis.size());
+        // key:分类名称， value:分类下的文档
+        Map<String, List<DocPushItemParam>> folderItems = new LinkedHashMap<>(8);
+        for (DocPushItemParam api : apis) {
+            if (api.getIsFolder() == Booleans.TRUE) {
+                List<DocPushItemParam> docItemList = folderItems.computeIfAbsent(api.getName(), (k) -> new ArrayList<>());
+                docItemList.addAll(api.getItems());
+            }
+        }
+        if (folderItems.isEmpty()) {
+            return;
+        }
+        folderItems.forEach((key, value) -> {
+            DocPushItemParam folder = new DocPushItemParam();
+            folder.setName(key);
+            folder.setIsFolder(Booleans.TRUE);
+            folder.setItems(value);
+            apisNew.add(folder);
+        });
+        param.setApis(apisNew);
     }
 
     private void doPush(DocPushParam param, ApiParam apiParam, RequestContext context) {
@@ -103,13 +172,17 @@ public class DocApi {
             return null;
         }, e -> {
             log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
-            MessageDTO messageDTO = new MessageDTO();
-            messageDTO.setMessageEnum(MessageEnum.SYSTEM_ERROR);
-            messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
-            messageDTO.setLocale(ApiContext.getLocal());
-            messageDTO.setSourceId(0L);
-            userMessageService.sendMessageToAdmin(messageDTO, e.getMessage());
+            this.sendMessage(e.getMessage());
         });
+    }
+
+    private void sendMessage(String msg) {
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessageEnum(MessageEnum.SYSTEM_ERROR);
+        messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
+        messageDTO.setLocale(ApiContext.getLocal());
+        messageDTO.setSourceId(0L);
+        userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
     public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId) {

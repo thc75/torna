@@ -207,7 +207,7 @@ export default {
         return []
       }
     },
-    buildTableData(definitions) {
+    buildTableData(definitions, pid) {
       const data = []
       definitions.forEach(row => {
         const item = {
@@ -217,12 +217,13 @@ export default {
           required: row.required === 'true',
           maxLength: row.maxLength,
           description: row.description,
-          example: row.example
+          example: row.example,
+          parentId: pid
         }
         data.push(item)
         const children = row.elements
         if (children && children.length > 0) {
-          item.children = this.buildTableData(children)
+          item.children = this.buildTableData(children, item.id)
         }
       })
       return data

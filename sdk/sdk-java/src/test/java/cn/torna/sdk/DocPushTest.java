@@ -44,6 +44,7 @@ public class DocPushTest extends BaseTest {
         // 设置请求参数
         request.setApis(Arrays.asList(folder));
         request.setDebugEnvs(Arrays.asList(debugEnv));
+        request.setAuthor("张三");
 
         // 发送请求
         DocPushResponse response = client.execute(request);

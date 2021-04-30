@@ -490,14 +490,33 @@ export default {
       return get_full_url(uri)
     },
     setProps() {
+      const formatData = (arr) => {
+        const data = {}
+        arr.forEach(row => {
+          data[row.name] = row.example
+        })
+        return data
+      }
       const props = {
         isProxy: this.isProxy,
+        headerData: formatData(this.headerData),
+        pathData: formatData(this.pathData),
+        queryData: formatData(this.queryData),
+        multipartData: formatData(this.multipartData.filter(row => row.type !== 'file')),
+        formData: formatData(this.formData),
         bodyText: this.bodyText
+      }
+      for (const key in props) {
+        if (props[key] === '' || JSON.stringify(props[key]) === '{}') {
+          delete props[key]
+        }
       }
       const data = {
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
-        props: props
+        props: {
+          debugData: JSON.stringify(props)
+        }
       }
       this.post('/prop/set', data, resp => {})
     },
@@ -507,10 +526,29 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG
       }
       this.get('/prop/get', data, resp => {
-        const props = resp.data
-        if (props.isProxy !== undefined) {
-          this.isProxy = props.isProxy === 'true'
+        const debugData = resp.data.debugData
+        if (!debugData) {
+          return
         }
+        const props = JSON.parse(debugData)
+        const setProp = (params, data) => {
+          if (data && Object.keys(data).length > 0 && params) {
+            params.forEach(row => {
+              const val = data[row.name]
+              if (val !== undefined) {
+                row.example = val
+              }
+            })
+          }
+        }
+        if (props.isProxy !== undefined) {
+          this.isProxy = props.isProxy
+        }
+        setProp(this.headerData, props.headerData)
+        setProp(this.pathData, props.pathData)
+        setProp(this.queryData, props.queryData)
+        setProp(this.multipartData, props.multipartData)
+        setProp(this.formData, props.formData)
         if (props.bodyText !== undefined) {
           this.bodyText = props.bodyText
         }
