@@ -33,9 +33,9 @@ public class DubboPushTest extends BaseTest {
         // 创建分类
         DocItem folder = new DocItem();
         folder.setIsFolder(Booleans.TRUE);
-        folder.setName("订单服务2");
+        folder.setName("订单服务");
         DubboInfo dubboInfo = new DubboInfo();
-        dubboInfo.setInterfaceName("com.xx.api.DubboSerivce2");
+        dubboInfo.setInterfaceName("com.xx.api.OrderSerivce");
         dubboInfo.setAuthor("tanghc");
         dubboInfo.setVersion("1.0");
         dubboInfo.setProtocol("dubbo");
@@ -72,7 +72,7 @@ public class DubboPushTest extends BaseTest {
         DocItem item = new DocItem();
 
         /* 设置基本信息 */
-        item.setName("获取商品名称" + i);
+        item.setName("获取订单信息" + i);
         item.setDescription("这里是描述信息..." + i);
         item.setDefinition("Result<Order> getOrder" + i + "(String orderNo)");
         item.setContentType("application/json");
