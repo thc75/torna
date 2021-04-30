@@ -372,6 +372,11 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   th,td {
     padding: 5px 0;
   }
+  .tree--btn-wrapper {
+    .el-icon-arrow-down {
+      font-size: initial;
+    }
+  }
 }
 // el-table end~
 

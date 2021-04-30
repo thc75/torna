@@ -491,7 +491,7 @@ Object.assign(Vue.prototype, {
     }
   },
   handleCommand: function(command) {
-    command()
+    command && command()
   },
   isObject: function(obj) {
     return Object.prototype.toString.call(obj) === '[object Object]'
