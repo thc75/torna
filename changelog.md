@@ -6,7 +6,7 @@
 - [feat]支持文档复制
 - [feat]推送接口可指定推送人
 - [enhance]优化接口调试，可记住调试参数
-- [enhance]优化文档导出，可勾选部分文档
+- [enhance]优化文档导出，可勾选部分文档 [#I3O0CB](https://gitee.com/durcframework/torna/issues/I3O0CB)
 - [enhance]公共请求参数支持数据节点
 - [enhance]公共返回参数支持添加子节点
 - [fix]修复文档分享勾选文档问题
