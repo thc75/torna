@@ -6,10 +6,10 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.param.DocInfoSearch;
@@ -25,11 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -71,6 +68,7 @@ public class DocController {
                 String tpl = "【%s】%s";
                 throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
             }
+            this.nullParamsId(docInfoDTO);
             // 不存在则保存文档
             docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
         } else {
@@ -78,6 +76,31 @@ public class DocController {
         }
         return Result.ok(new IdVO(docInfo.getId()));
     }
+
+    /**
+     * 将参数的id设置成null
+     * @param docInfoDTO docInfoDTO
+     */
+    private void nullParamsId(DocInfoDTO docInfoDTO) {
+        nullId(docInfoDTO.getHeaderParams());
+        nullId(docInfoDTO.getPathParams());
+        nullId(docInfoDTO.getQueryParams());
+        nullId(docInfoDTO.getRequestParams());
+        nullId(docInfoDTO.getResponseParams());
+        nullId(docInfoDTO.getErrorCodeParams());
+    }
+
+    private void nullId(List<DocParamDTO> docParamDTOList) {
+        if (CollectionUtils.isEmpty(docParamDTOList)) {
+            return;
+        }
+        for (DocParamDTO docParamDTO : docParamDTOList) {
+            docParamDTO.setId(null);
+            List<DocParamDTO> children = docParamDTO.getChildren();
+            nullId(children);
+        }
+    }
+
 
     /**
      * 删除
