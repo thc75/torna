@@ -16,6 +16,9 @@ public class SystemUtil {
     public static String getBinPath() {
         ApplicationHome applicationHome = new ApplicationHome(SystemUtil.class);
         File file = applicationHome.getSource();
+        if (file == null) {
+            return System.getProperty("user.dir");
+        }
         return file.getParentFile().toString();
     }
 }
