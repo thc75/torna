@@ -94,8 +94,10 @@ public class DocController {
         if (CollectionUtils.isEmpty(docParamDTOList)) {
             return;
         }
+        long docId = 0;
         for (DocParamDTO docParamDTO : docParamDTOList) {
             docParamDTO.setId(null);
+            docParamDTO.setDocId(docId);
             List<DocParamDTO> children = docParamDTO.getChildren();
             nullId(children);
         }

@@ -73,7 +73,8 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
         DocParam docParam = new DocParam();
-        String dataId = DataIdUtil.getDocParamDataId(docInfo.getId(), parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
+        Long docId = docInfo.getId();
+        String dataId = DataIdUtil.getDocParamDataId(docId, parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
         // 如果删除
         if (docParamDTO.getIsDeleted() == Booleans.TRUE) {
             dataId = IdGen.nextId();
@@ -87,7 +88,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setExample(docParamDTO.getExample());
         docParam.setDescription(docParamDTO.getDescription());
         docParam.setEnumId(buildEnumId(docInfo.getModuleId(), docParamDTO));
-        docParam.setDocId(docInfo.getId());
+        docParam.setDocId(docId);
         docParam.setParentId(parentId);
         docParam.setStyle(paramStyleEnum.getStyle());
         docParam.setCreatorId(user.getUserId());
