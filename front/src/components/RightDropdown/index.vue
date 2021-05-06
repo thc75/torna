@@ -8,10 +8,10 @@
     />
     <el-dropdown-menu slot="dropdown" class="user-drop-menu">
       <el-dropdown-item :command="onUserInfo">
-        <span>个人中心</span>
+        <span>{{ $ts('userCenter') }}</span>
       </el-dropdown-item>
       <el-dropdown-item :command="doLogout" divided>
-        <span>注销</span>
+        <span>{{ $ts('logout') }}</span>
       </el-dropdown-item>
     </el-dropdown-menu>
   </el-dropdown>

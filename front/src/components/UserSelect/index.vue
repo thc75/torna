@@ -7,7 +7,7 @@
         remote
         :multiple="multiple"
         :remote-method="remoteMethod"
-        placeholder="可根据登录账号筛选"
+        :placeholder="$ts('filterWithUsername')"
         style="width: 100%"
         :loading="loading"
       >
@@ -48,7 +48,7 @@ export default {
       default() {
         return {
           value: [
-            { required: true, message: '请选择用户', trigger: ['blur', 'change'] }
+            { required: true, message: this.$ts('selectUser'), trigger: ['blur', 'change'] }
           ]
         }
       }

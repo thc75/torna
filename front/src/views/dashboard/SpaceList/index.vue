@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h3>空间列表</h3>
+    <h3>{{ $ts('spaceList') }}</h3>
     <p>
-      <el-button type="primary" @click="onSpaceAdd">创建空间</el-button>
+      <el-button type="primary" @click="onSpaceAdd">{{ $ts('createSpace') }}</el-button>
     </p>
     <div v-for="(space) in data" :key="space.id" class="torna-card" @click="enterSpace(space)">
       <el-card shadow="hover" class="box-card">
@@ -10,10 +10,10 @@
           <span>{{ space.name }}</span>
         </div>
         <el-form ref="form" :model="space" class="text-form" label-width="100px">
-          <el-form-item label="创建人">
+          <el-form-item :label="$ts('creator')">
             {{ space.creatorName }}
           </el-form-item>
-          <el-form-item label="创建时间">
+          <el-form-item :label="$ts('createTime')">
             {{ space.gmtCreate }}
           </el-form-item>
         </el-form>
