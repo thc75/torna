@@ -77,8 +77,6 @@
               <el-table
                 :data="headerData"
                 border
-                :header-cell-style="cellStyle"
-                :cell-style="cellStyle"
                 empty-text="无header"
               >
                 <el-table-column label="Name" prop="name" width="300px" />
@@ -96,10 +94,41 @@
           </el-collapse-item>
         </el-collapse>
         <el-tabs v-model="requestActive" type="card" style="margin-top: 10px">
-          <el-tab-pane label="Body" name="body">
+          <el-tab-pane name="query">
+            <span slot="label" class="result-header-label">
+              <span>Query参数 <span class="param-count">({{ queryData.length }})</span></span>
+            </span>
+            <el-table
+              :data="queryData"
+              border
+            >
+              <el-table-column
+                prop="name"
+                label="参数名"
+                width="300"
+              />
+              <el-table-column label="参数值">
+                <template slot-scope="scope">
+                  <el-form :model="scope.row" size="mini">
+                    <el-form-item label-width="0">
+                      <div v-if="scope.row.type === 'enum'">
+                        <el-select v-model="scope.row.example">
+                          <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
+                        </el-select>
+                      </div>
+                      <div v-else>
+                        <el-input v-model="scope.row.example" />
+                      </div>
+                    </el-form-item>
+                  </el-form>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane name="body">
             <span slot="label" class="result-header-label">
               <el-badge :is-dot="hasBody" type="danger">
-                <span>Body</span>
+                <span>Body参数</span>
               </el-badge>
             </span>
             <el-radio-group v-model="postActive" size="small" style="margin-bottom: 20px;">
@@ -108,7 +137,7 @@
               <el-radio-button label="multipart">multipart <span class="param-count">({{ multipartData.length }})</span></el-radio-button>
             </el-radio-group>
             <div v-show="showBody('text')">
-              <el-radio-group v-model="contentType" style="margin-bottom: 10px;">
+              <el-radio-group v-model="textRadio" style="margin-bottom: 10px;">
                 <el-radio label="application/json">JSON</el-radio>
                 <el-radio label="text/plain">Text</el-radio>
                 <el-radio label="application/xml">XML</el-radio>
@@ -125,8 +154,6 @@
               <el-table
                 :data="formData"
                 border
-                :header-cell-style="cellStyle"
-                :cell-style="cellStyle"
               >
                 <el-table-column
                   prop="name"
@@ -166,8 +193,6 @@
                 v-show="showBody('multipart')"
                 :data="multipartData"
                 border
-                :header-cell-style="cellStyle"
-                :cell-style="cellStyle"
               >
                 <el-table-column
                   prop="name"
@@ -203,39 +228,6 @@
               </el-table>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="Query" name="query">
-            <span slot="label" class="result-header-label">
-              <span>Query <span class="param-count">({{ queryData.length }})</span></span>
-            </span>
-            <el-table
-              :data="queryData"
-              border
-              :header-cell-style="cellStyle"
-              :cell-style="cellStyle"
-            >
-              <el-table-column
-                prop="name"
-                label="参数名"
-                width="300"
-              />
-              <el-table-column label="参数值">
-                <template slot-scope="scope">
-                  <el-form :model="scope.row" size="mini">
-                    <el-form-item label-width="0">
-                      <div v-if="scope.row.type === 'enum'">
-                        <el-select v-model="scope.row.example">
-                          <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                        </el-select>
-                      </div>
-                      <div v-else>
-                        <el-input v-model="scope.row.example" />
-                      </div>
-                    </el-form-item>
-                  </el-form>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
         </el-tabs>
       </el-col>
       <el-col :span="rightSpanSize" style="border-left: 1px #E4E7ED solid;">
@@ -252,8 +244,6 @@
             </span>
             <el-table
               :data="result.headerData"
-              :header-cell-style="cellStyle"
-              :cell-style="cellStyle"
             >
               <el-table-column label="Name" prop="name" />
               <el-table-column label="Value" prop="value" />
@@ -306,12 +296,13 @@ export default {
         debugEnvs: []
       },
       itemMap: null,
+      textRadio: 'application/json',
       currentMethod: 'GET',
       cellStyle: { paddingTop: '5px', paddingBottom: '5px' },
       requestUrl: '',
       bodyText: '',
       hasBody: false,
-      isTextBody: false,
+      isPostJson: false,
       contentType: '',
       requestActive: 'body',
       postActive: '',
@@ -359,15 +350,13 @@ export default {
     loadItem(item) {
       this.currentItem = item
       this.currentMethod = item.httpMethod
-      this.hasBody = this.isRequestBody(this.currentMethod)
-      this.contentType = item.contentType
-      if (!this.contentType) {
-        this.contentType = this.hasBody ? 'application/json' : ''
-      }
-      this.isTextBody = this.contentType.toLowerCase().indexOf('application') > -1
+      this.hasBody = item.requestParams.length > 0
+      this.contentType = item.contentType || ''
+      this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
       this.initDebugHost()
       this.bindRequestParam(item)
       this.initActive()
+      this.loadProps()
     },
     initDebugHost() {
       const debugEnv = this.getAttr(HOST_KEY) || ''
@@ -389,62 +378,51 @@ export default {
       this.debugEnv = debugEnv
     },
     bindRequestParam(item) {
-      const queryData = []
       const formData = []
       const multipartData = []
       const requestParameters = item.requestParams
       // 是否是上传文件请求
       const uploadRequest = this.isUploadRequest(this.contentType, requestParameters)
-      requestParameters.forEach(row => {
-        if (this.hasBody) {
+      if (this.isPostJson) {
+        this.bodyText = this.buildJsonText(requestParameters)
+      } else {
+        requestParameters.forEach(row => {
           if (uploadRequest) {
             multipartData.push(row)
           } else {
             formData.push(row)
           }
-        } else {
-          queryData.push(row)
-        }
-      })
+        })
+      }
       this.pathData = item.pathParams
       this.headerData = item.headerParams
-      this.queryData = queryData
+      this.queryData = item.queryParams
       this.formData = formData
       this.multipartData = multipartData
-      if (this.isJsonBody()) {
-        const arrayBody = false
-        let jsonObj = this.doCreateResponseExample(requestParameters)
-        if (arrayBody) {
-          jsonObj = [jsonObj]
-        }
-        this.bodyText = JSON.stringify(jsonObj, null, 4)
+    },
+    buildJsonText(requestParameters) {
+      const arrayBody = false
+      let jsonObj = this.doCreateResponseExample(requestParameters)
+      if (arrayBody) {
+        jsonObj = [jsonObj]
       }
+      return this.formatJson(jsonObj)
     },
     initActive() {
       if (this.hasBody) {
         this.requestActive = 'body'
-        const contentType = this.contentType || ''
-        if (contentType.toLowerCase().indexOf('multipart') > -1 || this.multipartData.length > 0) {
+        const contentType = (this.contentType || '').toLowerCase()
+        if (contentType.indexOf('multipart') > -1 || this.multipartData.length > 0) {
           this.postActive = 'multipart'
+        } else if (contentType.indexOf('json') > -1) {
+          this.postActive = 'text'
         } else {
-          this.postActive = this.isTextBody ? 'text' : 'form'
+          this.postActive = 'form'
         }
       } else {
         this.requestActive = 'query'
         this.postActive = ''
       }
-    },
-    isJsonBody() {
-      return this.isTextBody && this.contentType.toLowerCase().indexOf('json') > -1
-    },
-    isRequestBody(httpMethod) {
-      const methods = ['get', 'head']
-      for (const method of methods) {
-        if (method === httpMethod.toLowerCase()) {
-          return false
-        }
-      }
-      return true
     },
     isUploadRequest(contentType, requestParameters) {
       if (contentType.toLowerCase().indexOf('multipart') > -1) {
@@ -474,34 +452,23 @@ export default {
     send() {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
-      let data = this.getParamObj(this.queryData)
-      let isJson = false
-      let isForm = false
+      const params = this.getParamObj(this.queryData)
+      let data = {}
       let isMultipart = false
       // 如果请求body
-      switch (this.postActive) {
-        case 'text':
-          headers['Content-Type'] = this.contentType
+      if (this.hasBody) {
+        headers['Content-Type'] = this.contentType
+        const contentType = (this.contentType || '').toLowerCase()
+        if (contentType.indexOf('json') > -1) {
           data = this.bodyText
-          if (this.contentType.indexOf('json') > -1) {
-            isJson = true
-          }
-          break
-        case 'form':
-          isForm = true
-          data = this.getParamObj(this.formData)
-          break
-        case 'multipart':
+        } else if (contentType.indexOf('multipart') > -1 || this.multipartData.length > 0) {
           isMultipart = true
           data = this.getParamObj(this.multipartData)
-          break
-        default:
-      }
-      if (isForm) {
-        headers['Content-Type'] = 'application/x-www-form-urlencoded'
-      }
-      if (isJson) {
-        headers['Content-Type'] = 'application/json'
+        } else if (contentType.indexOf('x-www-form-urlencoded') > -1) {
+          data = this.getParamObj(this.formData)
+        } else {
+          data = this.bodyText
+        }
       }
       this.sendLoading = true
       const targetHeaders = JSON.stringify(headers)
@@ -512,14 +479,80 @@ export default {
         url = this.getProxyUrl('/doc/debug/v1')
         realHeaders['target-url'] = this.url
       }
-      request.call(this, item.httpMethod, url, data, realHeaders, isMultipart, this.doProxyResponse, () => {
+      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, () => {
         this.sendLoading = false
         this.result.content = '发送失败，请按F12查看Console'
         this.openRightPanel()
       })
+      this.setProps()
     },
     getProxyUrl(uri) {
       return get_full_url(uri)
+    },
+    setProps() {
+      const formatData = (arr) => {
+        const data = {}
+        arr.forEach(row => {
+          data[row.name] = row.example
+        })
+        return data
+      }
+      const props = {
+        isProxy: this.isProxy,
+        headerData: formatData(this.headerData),
+        pathData: formatData(this.pathData),
+        queryData: formatData(this.queryData),
+        multipartData: formatData(this.multipartData.filter(row => row.type !== 'file')),
+        formData: formatData(this.formData),
+        bodyText: this.bodyText
+      }
+      for (const key in props) {
+        if (props[key] === '' || JSON.stringify(props[key]) === '{}') {
+          delete props[key]
+        }
+      }
+      const data = {
+        refId: this.item.id,
+        type: this.getEnums().PROP_TYPE.DEBUG,
+        props: {
+          debugData: JSON.stringify(props)
+        }
+      }
+      this.post('/prop/set', data, resp => {})
+    },
+    loadProps() {
+      const data = {
+        refId: this.item.id,
+        type: this.getEnums().PROP_TYPE.DEBUG
+      }
+      this.get('/prop/get', data, resp => {
+        const debugData = resp.data.debugData
+        if (!debugData) {
+          return
+        }
+        const props = JSON.parse(debugData)
+        const setProp = (params, data) => {
+          if (data && Object.keys(data).length > 0 && params) {
+            params.forEach(row => {
+              const val = data[row.name]
+              if (val !== undefined) {
+                row.example = val
+              }
+            })
+          }
+        }
+        if (props.isProxy !== undefined) {
+          this.isProxy = props.isProxy
+        }
+        setProp(this.headerData, props.headerData)
+        setProp(this.pathData, props.pathData)
+        setProp(this.queryData, props.queryData)
+        setProp(this.multipartData, props.multipartData)
+        setProp(this.formData, props.formData)
+        if (props.bodyText !== undefined) {
+          this.bodyText = props.bodyText
+        }
+      })
     },
     buildRequestHeaders() {
       const headers = {}

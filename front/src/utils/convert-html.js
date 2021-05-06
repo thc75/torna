@@ -1,4 +1,4 @@
-import {Enums} from './enums'
+import { Enums } from './enums'
 import {
   convert_tree,
   create_response_example,
@@ -8,7 +8,9 @@ import {
   style_config
 } from './common'
 
-import {isDubbo, isHttp, isShowRequestExample} from './convert-common'
+import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
+
+const BLANK = '&nbsp;'
 
 const thWrapper = (content) => {
   return `<th>${content}</th>`
@@ -28,9 +30,11 @@ function createHeader(tds) {
 
 function createBodyTr(tds, prefix, level) {
   if (level > 1) {
-    for (let i = 1; i < level; i++) {
-      prefix = '&nbsp;&nbsp;' + prefix
+    const padding = []
+    for (let i = 1; i < Math.pow(level, 2); i++) {
+      padding.push(BLANK)
     }
+    prefix = padding.join('') + prefix
   }
   const tdHtml = []
   tds.forEach((content, index) => {
@@ -89,12 +93,12 @@ function createTable(params, style) {
 }
 
 const HtmlUtil = {
-  convertModule(moduleDTO) {
-    const docInfoList = moduleDTO.docInfoList
+  toHtmlByData(docInfoList, title) {
+    title = title || '文档'
     const treeData = convert_tree(docInfoList)
     // 一级标题
-    const content = new StringBuilder(`<h1>${moduleDTO.name}</h1>`)
-    const appendMarkdown = (doc_info) => {
+    const content = new StringBuilder(`<h1>${title}</h1>`)
+    const appendHtml = (doc_info) => {
       init_docInfo(doc_info)
       const html = HtmlUtil.toHtml(doc_info)
       content.append(html)
@@ -106,10 +110,10 @@ const HtmlUtil = {
         // 二级标题
         content.append(`<h2>${docInfo.name}</h2>`)
         children.forEach(child => {
-          appendMarkdown(child)
+          appendHtml(child)
         })
       } else {
-        appendMarkdown(docInfo)
+        appendHtml(docInfo)
       }
     })
     return content.toString()

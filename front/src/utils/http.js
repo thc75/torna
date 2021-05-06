@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {getToken} from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 
 const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
 
@@ -107,23 +107,31 @@ function get_token() {
   return `Bearer ${token}`
 }
 
-export function request(method, url, data, headers, isMultipart, callback, errorCall) {
+export function request(method, url, params, data, headers, isMultipart, callback, errorCall) {
   if (isMultipart) {
-    doMultipart.call(this, url, data, headers, callback, errorCall)
+    doMultipart.call(this, url, params, data, headers, callback, errorCall)
     return
   }
   const that = this
-  const methodUpper = method.toUpperCase()
-  const hasQuery = methodUpper === 'GET' || methodUpper === 'HEAD'
-  const params = hasQuery ? data : null
-  const postData = !hasQuery ? data : null
-  axios.request({
+  const config = {
     url: url,
     method: method,
     headers: headers,
     params: params,
-    data: postData
-  })
+    data: data
+  }
+  const contentType = headers['Content-Type'] || headers['content-type']
+  // 如果是模拟表单提交
+  if (contentType && contentType.toLowerCase().indexOf('x-www-form-urlencoded') > -1) {
+    config.transformRequest = [function(data) {
+      const query = []
+      for (const key in data) {
+        query.push(`${key}=${encodeURIComponent(data[key])}`)
+      }
+      return query.join('&')
+    }]
+  }
+  axios.request(config)
     .then(response => {
       callback.call(that, response)
     })
@@ -132,7 +140,7 @@ export function request(method, url, data, headers, isMultipart, callback, error
     })
 }
 
-export function doMultipart(url, data, headers, callback, errorCall) {
+export function doMultipart(url, params, data, headers, callback, errorCall) {
   const that = this
   const formData = new FormData()
   for (const name in data) {
@@ -147,11 +155,9 @@ export function doMultipart(url, data, headers, callback, errorCall) {
       formData.append(name, data[name])
     }
   }
-  for (const name in data) {
-    formData.append(name, data[name])
-  }
   axios.post(url, formData, {
-    headers: headers
+    headers: headers,
+    params: params
   })
     .then(response => {
       callback.call(that, response)

@@ -14,12 +14,12 @@ export const Enums = {
     code: 4
   },
   CONTENT_TYPE: [
-    '*/*',
+    'application/json',
     'application/x-www-form-urlencoded',
     'multipart/form-data',
-    'application/json',
     'application/xml',
-    'text/plain'
+    'text/plain',
+    '*/*'
   ],
   USER_STATUS: {
     SET_PASSWORD: 2
@@ -48,5 +48,11 @@ export const Enums = {
   DOC_TYPE: {
     HTTP: 0,
     DUBBO: 1
+  },
+  /**
+   * 扩展属性
+   */
+  PROP_TYPE: {
+    DEBUG: 10
   }
 }

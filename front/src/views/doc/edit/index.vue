@@ -84,17 +84,26 @@
         />
       </el-tab-pane>
       <el-tab-pane label="请求参数" name="requestParam">
-        <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加请求参数</el-button>
-        <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入请求参数</el-button>
-        <span class="split">|</span>
-        <el-switch
-          v-model="docInfo.isUseGlobalParams"
-          active-text="使用公共请求参数"
-          inactive-text=""
-          :active-value="1"
-          :inactive-value="0"
-        />
-        <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
+        <el-tabs v-model="paramsActive" type="card">
+          <el-tab-pane label="Query Parameter" name="tabQueryParams">
+            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">添加Query参数</el-button>
+            <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">导入Query参数</el-button>
+            <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" :hidden-columns="['enum']" />
+          </el-tab-pane>
+          <el-tab-pane label="Body Parameter" name="tabBodyParams">
+            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加Body参数</el-button>
+            <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入Body参数</el-button>
+            <span class="split">|</span>
+            <el-switch
+              v-model="docInfo.isUseGlobalParams"
+              active-text="使用公共请求参数"
+              inactive-text=""
+              :active-value="1"
+              :inactive-value="0"
+            />
+            <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
+          </el-tab-pane>
+        </el-tabs>
       </el-tab-pane>
       <el-tab-pane label="响应参数" name="responseParam">
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
@@ -143,6 +152,7 @@
       :visible.sync="importParamTemplateDlgShow"
     >
       <el-radio-group v-model="importParamTemplateModel" style="margin-bottom: 20px;">
+        <el-radio v-show="paramsActive === 'tabBodyParams'" :label="2">导入json</el-radio>
         <el-radio :label="0">Query参数导入</el-radio>
         <el-radio :label="1">Bulk模式导入（Postman Bulk Edit）</el-radio>
       </el-radio-group>
@@ -203,10 +213,12 @@ export default {
         isShow: 1,
         pathParams: [],
         headerParams: [],
+        queryParams: [],
         requestParams: [],
         responseParams: [],
         errorCodeParams: []
       },
+      paramsActive: 'tabQueryParams',
       remark: '',
       folders: [],
       rules: {
@@ -254,17 +266,22 @@ export default {
       const docId = id || (this.$route.params.docId || '')
       const parentId = this.$route.params.parentId || ''
       const moduleId = this.$route.params.moduleId || ''
+      const copyId = this.$route.params.copyId || ''
       this.moduleId = moduleId
       this.docInfo.docId = docId
       this.docInfo.parentId = parentId
       this.docInfo.moduleId = moduleId
       this.initFolders(moduleId)
-      if (docId) {
-        this.get('/doc/detail', { id: docId }, function(resp) {
+      const finalId = docId || copyId
+      if (finalId) {
+        this.get('/doc/detail', { id: finalId }, function(resp) {
           const data = resp.data
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
           this.$store.state.settings.projectId = data.projectId
+          if (copyId) {
+            this.initCopyData(this.docInfo)
+          }
         }, (resp) => {
           if (resp.code === '1000') {
             this.alert('文档不存在', '提示', function() {
@@ -275,6 +292,10 @@ export default {
           }
         })
       }
+    },
+    initCopyData(docInfo) {
+      docInfo.id = ''
+      docInfo.name = `${this.docInfo.name} Copy`
     },
     onUrlInput(url) {
       // 获取{}之间的字符
@@ -319,20 +340,23 @@ export default {
       this.$refs.docForm.validate((valid) => {
         if (valid) {
           const promiseHeaderArr = this.$refs.headerParamTable.validate()
+          const promiseQueryArr = this.$refs.queryParamTable.validate()
           const promiseRequestArr = this.$refs.requestParamTable.validate()
           const promiseResponseArr = this.$refs.responseParamTable.validate()
           const promiseErrorCodeArr = this.$refs.errorCodeParamTable.validate()
-          const promiseArr = promiseHeaderArr.concat(promiseRequestArr, promiseResponseArr, promiseErrorCodeArr)
+          const promiseArr = promiseHeaderArr.concat(promiseQueryArr, promiseRequestArr, promiseResponseArr, promiseErrorCodeArr)
           Promise.all(promiseArr).then(validArr => {
             const data = {}
             Object.assign(data, this.docInfo)
             // 到这里来表示全部内容校验通过
             const headerParams = this.getHeaderParamsData()
+            const queryParams = this.getQueryParamsData()
             const requestParams = this.getRequestParamsData()
             const responseParams = this.getResponseParamsData()
             const errorCodeParams = this.getErrorCodeParamsData()
             Object.assign(data, {
               headerParams: this.formatData(headerParams),
+              queryParams: this.formatData(queryParams),
               requestParams: this.formatData(requestParams),
               responseParams: this.formatData(responseParams),
               errorCodeParams: this.formatData(errorCodeParams),
@@ -360,6 +384,7 @@ export default {
       this.$nextTick(() => {
         const viewData = this.deepCopy(this.docInfo)
         viewData.headerParams = this.deepCopy(this.getHeaderParamsData())
+        viewData.queryParams = this.deepCopy(this.getQueryParamsData())
         viewData.requestParams = this.deepCopy(this.getRequestParamsData())
         viewData.responseParams = this.deepCopy(this.getResponseParamsData())
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
@@ -369,6 +394,9 @@ export default {
     },
     getHeaderParamsData() {
       return this.$refs.headerParamTable.getData()
+    },
+    getQueryParamsData() {
+      return this.$refs.queryParamTable.getData()
     },
     getRequestParamsData() {
       return this.$refs.requestParamTable.getData()
@@ -407,7 +435,18 @@ export default {
         that.onImportParamSave(that.docInfo.headerParams)
       }
     },
+    onImportQueryParamAdd: function() {
+      this.importParamTemplateModel = 0
+      this.importParamTemplateDlgShow = true
+      this.importParamTemplateValue = ''
+      this.importParamTemplateTitle = '导入参数'
+      const that = this
+      this.importParamHandler = function() {
+        that.onImportParamSave(that.docInfo.queryParams)
+      }
+    },
     onImportRequestParamAdd: function() {
+      this.importParamTemplateModel = 2
       this.importParamTemplateDlgShow = true
       this.importParamTemplateValue = ''
       this.importParamTemplateTitle = '导入参数'
@@ -428,6 +467,13 @@ export default {
       let bigSplitChar = '&'
       let smallSplitChar = '='
       try {
+        if (this.importParamTemplateModel === 2) {
+          this.parseJSON(value, (json) => {
+            this.doImportParam(params, json)
+            this.importParamTemplateDlgShow = false
+          }, () => this.tipError('JSON格式错误'))
+          return
+        }
         if (this.importParamTemplateModel === 1) {
           bigSplitChar = '\n'
           smallSplitChar = ':'
@@ -454,22 +500,21 @@ export default {
           const value = this.paramResponseTemplateFormData.value
           const responseParams = this.docInfo.responseParams
           this.parseJSON(value, (json) => {
-            json.id = this.nextId()
-            this.doImportResponseParam(responseParams, json)
+            this.doImportParam(responseParams, json)
             this.paramResponseTemplateDlgShow = false
           }, () => this.tipError('JSON格式错误'))
         }
       })
     },
     /**
-     * 导入返回参数
-     * @param responseParams 响应参数数组
+     * 导入参数
+     * @param params 响应参数数组
      * @param json 当前json
      */
-    doImportResponseParam: function(responseParams, json) {
+    doImportParam: function(params, json) {
       for (const name in json) {
         const value = json[name]
-        let row = this.findRow(responseParams, name)
+        let row = this.findRow(params, name)
         const isExist = row !== null
         if (!isExist) {
           row = this.getParamNewRow(name, value)
@@ -480,24 +525,24 @@ export default {
           row.type = 'object'
           row.example = ''
           const children = row.children
-          this.doImportResponseParam(children, value)
+          this.doImportParam(children, value)
           children.forEach(child => { child.parentId = row.id })
         } else if (this.isArray(value)) {
           row.type = 'array'
           row.example = ''
           const oneJson = value.length === 0 ? {} : value[0]
           const children = row.children
-          this.doImportResponseParam(children, oneJson)
+          this.doImportParam(children, oneJson)
           children.forEach(child => { child.parentId = row.id })
         }
         if (!isExist) {
-          responseParams.push(row)
+          params.push(row)
         }
       }
     },
-    findRow: function(responseParams, name) {
-      for (let i = 0; i < responseParams.length; i++) {
-        const r = responseParams[i]
+    findRow: function(params, name) {
+      for (let i = 0; i < params.length; i++) {
+        const r = params[i]
         if (r.name === name) {
           return r
         }
@@ -522,7 +567,8 @@ export default {
         '0': 'name1=value1&name2=value2',
         '1': `name1:value1
 name2:value2
-name3:value3`
+name3:value3`,
+        '2': 'json'
       }
       return map[this.importParamTemplateModel + ''] || ''
     }

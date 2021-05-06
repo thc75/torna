@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .collect(Collectors.toList());
     }
 
+    public List<DocInfoDTO> listDocDetail(Collection<Long> docIdList) {
+        if (CollectionUtils.isEmpty(docIdList)) {
+            return Collections.emptyList();
+        }
+        Query query = new Query()
+                .in("id", docIdList);
+        List<DocInfo> docInfos = this.list(query);
+        return docInfos.stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+    }
+
 
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
@@ -130,12 +143,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocParam> globalParams = moduleConfigService.listGlobalParams(moduleId);
         List<DocParam> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
         List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
+        List<DocParam> queryParams = paramsMap.getOrDefault(ParamStyleEnum.QUERY.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), Collections.emptyList());
 
         docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
         docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
+        docInfoDTO.setQueryParams(CopyUtil.copyList(queryParams, DocParamDTO::new));
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
@@ -166,11 +181,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
-        docParamService.saveParams(docInfo, docInfoDTO.getPathParams(), ParamStyleEnum.PATH, user);
-        docParamService.saveParams(docInfo, docInfoDTO.getHeaderParams(), ParamStyleEnum.HEADER, user);
-        docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
-        docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
-        docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
+        this.doUpdateParams(docInfo, docInfoDTO, user);
         return docInfo;
     }
 
@@ -178,12 +189,17 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
         // 修改参数
+        this.doUpdateParams(docInfo, docInfoDTO, user);
+        return docInfo;
+    }
+
+    private void doUpdateParams(DocInfo docInfo, DocInfoDTO docInfoDTO, User user) {
         docParamService.saveParams(docInfo, docInfoDTO.getPathParams(), ParamStyleEnum.PATH, user);
         docParamService.saveParams(docInfo, docInfoDTO.getHeaderParams(), ParamStyleEnum.HEADER, user);
+        docParamService.saveParams(docInfo, docInfoDTO.getQueryParams(), ParamStyleEnum.QUERY, user);
         docParamService.saveParams(docInfo, docInfoDTO.getRequestParams(), ParamStyleEnum.REQUEST, user);
         docParamService.saveParams(docInfo, docInfoDTO.getResponseParams(), ParamStyleEnum.RESPONSE, user);
         docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
-        return docInfo;
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {

@@ -1,4 +1,4 @@
-import {Enums} from './enums'
+import { Enums } from './enums'
 import {
   convert_tree,
   create_response_example,
@@ -8,7 +8,7 @@ import {
   style_config
 } from './common'
 
-import {isDubbo, isHttp, isShowRequestExample} from './convert-common'
+import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
 
 const split_char = ' | '
 
@@ -75,10 +75,10 @@ function createTable(params, style) {
 }
 
 const MarkdownUtil = {
-  convertModule(moduleDTO) {
-    const docInfoList = moduleDTO.docInfoList
+  toMarkdownByData(docInfoList, title) {
+    title = title || '文档'
     const treeData = convert_tree(docInfoList)
-    const markdown_content = new StringBuilder(`# ${moduleDTO.name}\n\n`)
+    const markdown_content = new StringBuilder(`# ${title}\n\n`)
     const appendMarkdown = (doc_info) => {
       init_docInfo(doc_info)
       const markdown = MarkdownUtil.toMarkdown(doc_info)

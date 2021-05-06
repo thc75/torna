@@ -27,17 +27,7 @@
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-dropdown v-show="tableData.length > 0" trigger="click" @command="handleCommand">
-            <el-button type="primary" size="mini">
-              导出 <i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdownSinglePage">导出markdown(单页)</el-dropdown-item>
-              <el-dropdown-item :command="onExportMarkdownMultiPages">导出markdown(多页)</el-dropdown-item>
-              <el-dropdown-item divided :command="onExportHtmlSinglePage">导出html(单页)</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtmlMultiPages">导出html(多页)</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">导出</el-button>
         </div>
       </div>
     </div>
@@ -109,21 +99,32 @@
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         label="操作"
-        width="140"
+        width="160"
       >
         <template slot-scope="scope">
           <div>
-            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">添加文档</el-link>
+            <el-link v-if="isFolder(scope.row)" type="primary" :underline="false" @click="onDocAdd(scope.row)">添加文档</el-link>
             <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success">预览</el-link>
+              <el-link type="success" :underline="false">预览</el-link>
             </router-link>
-            <el-link type="primary" @click="onDocUpdate(scope.row)">修改</el-link>
-            <el-popconfirm
-              :title="`确定要删除 ${scope.row.name} 吗？`"
-              @onConfirm="onDocRemove(scope.row)"
-            >
-              <el-link v-show="scope.row.children.length === 0" slot="reference" type="danger">删除</el-link>
-            </el-popconfirm>
+            <el-link type="primary" :underline="false" @click="onDocUpdate(scope.row)">修改</el-link>
+            <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
+              <span class="el-dropdown-link">
+                更多 <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-if="!isFolder(scope.row)" icon="el-icon-document-copy" :command="() => { onDocCopy(scope.row) }">
+                  复制
+                </el-dropdown-item>
+                <el-dropdown-item
+                  icon="el-icon-delete"
+                  class="danger"
+                  :command="() => { onDocRemove(scope.row) }"
+                >
+                  删除
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </template>
       </u-table-column>
@@ -141,6 +142,7 @@
         </template>
       </u-table-column>
     </u-table>
+    <doc-export-dialog ref="exportDialog" />
   </div>
 </template>
 <style lang="scss">
@@ -151,16 +153,25 @@
     display: inline-block;
   }
 }
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+  font-size: 13px;
+  font-weight: 500;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
 </style>
 <script>
-import ExportUtil from '@/utils/export'
 import HttpMethod from '@/components/HttpMethod'
 import SvgIcon from '@/components/SvgIcon'
 import TimeTooltip from '@/components/TimeTooltip'
+import DocExportDialog from '@/components/DocExportDialog'
 
 export default {
   name: 'DocTable',
-  components: { HttpMethod, SvgIcon, TimeTooltip },
+  components: { HttpMethod, SvgIcon, TimeTooltip, DocExportDialog },
   props: {
     projectId: {
       type: String,
@@ -289,12 +300,14 @@ export default {
         (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onDocRemove(row) {
-      const data = {
-        id: row.id
-      }
-      this.post('/doc/delete', data, () => {
-        this.tipSuccess('删除成功')
-        this.loadTable()
+      this.confirm(`确定要删除 ${row.name} 吗？`, () => {
+        const data = {
+          id: row.id
+        }
+        this.post('/doc/delete', data, () => {
+          this.tipSuccess('删除成功')
+          this.loadTable()
+        })
       })
     },
     onDocAdd(row) {
@@ -307,17 +320,11 @@ export default {
         this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
       }
     },
-    onExportMarkdownSinglePage() {
-      ExportUtil.exportMarkdownAllInOne(this.moduleId)
+    onDocCopy(row) {
+      this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
     },
-    onExportMarkdownMultiPages() {
-      ExportUtil.exportMarkdownMultiPages(this.moduleId)
-    },
-    onExportHtmlSinglePage() {
-      ExportUtil.exportHtmlAllInOne(this.moduleId)
-    },
-    onExportHtmlMultiPages() {
-      ExportUtil.exportHtmlMultiPages(this.moduleId)
+    onExport() {
+      this.$refs.exportDialog.show(this.tableData)
     }
   }
 }

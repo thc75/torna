@@ -163,6 +163,13 @@ export const constantRoutes = [
         meta: { title: '新建文档' }
       },
       {
+        path: 'copy/:moduleId(\\w+)/:copyId(\\w+)',
+        name: 'NewCopy',
+        hidden: true,
+        component: () => import('@/views/doc/edit/index'),
+        meta: { title: '复制文档' }
+      },
+      {
         path: 'new/:moduleId(\\w+)',
         name: 'New2',
         hidden: true,

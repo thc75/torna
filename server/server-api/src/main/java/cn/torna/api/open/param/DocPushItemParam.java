@@ -62,7 +62,10 @@ public class DocPushItemParam {
     @ApiDocField(description = "请求头", elementClass = HeaderParamPushParam.class)
     private List<HeaderParamPushParam> headerParams;
 
-    @ApiDocField(description = "请求参数", elementClass = DocParamPushParam.class)
+    @ApiDocField(description = "Query参数", elementClass = DocParamPushParam.class)
+    private List<DocParamPushParam> queryParams;
+
+    @ApiDocField(description = "Body参数", elementClass = DocParamPushParam.class)
     private List<DocParamPushParam> requestParams;
 
     @ApiDocField(description = "返回参数", elementClass = DocParamPushParam.class)

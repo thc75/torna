@@ -9,12 +9,15 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
+import cn.torna.web.controller.doc.param.DocInfoSearch;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.system.param.IdParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -64,6 +68,7 @@ public class DocController {
                 String tpl = "【%s】%s";
                 throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
             }
+            this.nullParamsId(docInfoDTO);
             // 不存在则保存文档
             docInfo = docInfoService.saveDocInfo(docInfoDTO, user);
         } else {
@@ -71,6 +76,33 @@ public class DocController {
         }
         return Result.ok(new IdVO(docInfo.getId()));
     }
+
+    /**
+     * 将参数的id设置成null
+     * @param docInfoDTO docInfoDTO
+     */
+    private void nullParamsId(DocInfoDTO docInfoDTO) {
+        nullId(docInfoDTO.getHeaderParams());
+        nullId(docInfoDTO.getPathParams());
+        nullId(docInfoDTO.getQueryParams());
+        nullId(docInfoDTO.getRequestParams());
+        nullId(docInfoDTO.getResponseParams());
+        nullId(docInfoDTO.getErrorCodeParams());
+    }
+
+    private void nullId(List<DocParamDTO> docParamDTOList) {
+        if (CollectionUtils.isEmpty(docParamDTOList)) {
+            return;
+        }
+        long docId = 0;
+        for (DocParamDTO docParamDTO : docParamDTOList) {
+            docParamDTO.setId(null);
+            docParamDTO.setDocId(docId);
+            List<DocParamDTO> children = docParamDTO.getChildren();
+            nullId(children);
+        }
+    }
+
 
     /**
      * 删除
@@ -134,6 +166,15 @@ public class DocController {
         return Result.ok();
     }
 
+    @PostMapping("detail/search")
+    public Result<List<DocInfoDTO>> listDocInfoDetail(@RequestBody DocInfoSearch docInfoSearch) {
+        List<Long> docIdList = docInfoSearch.getDocIdList();
+        if (CollectionUtils.isEmpty(docIdList)) {
+            return Result.ok(Collections.emptyList());
+        }
+        List<DocInfoDTO> docInfoDTOList = docInfoService.listDocDetail(docIdList);
+        return Result.ok(docInfoDTOList);
+    }
 
 
 }

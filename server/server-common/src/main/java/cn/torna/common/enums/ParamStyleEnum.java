@@ -7,6 +7,7 @@ package cn.torna.common.enums;
 public enum ParamStyleEnum {
     PATH((byte)0),
     HEADER((byte)1),
+    QUERY((byte)5),
     REQUEST((byte)2),
     RESPONSE((byte)3),
     ERROR_CODE((byte)4),

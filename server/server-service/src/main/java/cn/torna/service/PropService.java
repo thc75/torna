@@ -20,6 +20,10 @@ import java.util.stream.Collectors;
 public class PropService extends BaseService<Prop, PropMapper> {
 
     public void saveProps(Map<String, ?> props, Long refId, PropTypeEnum type) {
+        saveProps(props, refId, type.getType());
+    }
+
+    public void saveProps(Map<String, ?> props, Long refId, byte type) {
         if (props == null || props.isEmpty()) {
             return;
         }
@@ -28,7 +32,7 @@ public class PropService extends BaseService<Prop, PropMapper> {
                 .map(entry -> {
                     Prop prop = new Prop();
                     prop.setRefId(refId);
-                    prop.setType(type.getType());
+                    prop.setType(type);
                     prop.setName(entry.getKey());
                     prop.setVal(String.valueOf(entry.getValue()));
                     return prop;
@@ -43,9 +47,16 @@ public class PropService extends BaseService<Prop, PropMapper> {
         if (docId == null) {
             return Collections.emptyMap();
         }
+        return getProps(docId, PropTypeEnum.DOC_INFO_PROP.getType());
+    }
+
+    public Map<String, String> getProps(Long refId, byte type) {
+        if (refId == null) {
+            return Collections.emptyMap();
+        }
         Query query = new Query()
-                .eq("ref_id", docId)
-                .eq("type", PropTypeEnum.DOC_INFO_PROP.getType());
+                .eq("ref_id", refId)
+                .eq("type", type);
         return this.list(query)
                 .stream()
                 .collect(Collectors.toMap(Prop::getName, Prop::getVal));
