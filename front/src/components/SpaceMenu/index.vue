@@ -8,19 +8,19 @@
     >
       <el-menu-item :index="`/space/project/${spaceId}`">
         <i class="el-icon-s-grid"></i>
-        <span class="title">项目列表</span>
+        <span class="title">{{ $ts('projectList') }}</span>
       </el-menu-item>
       <el-menu-item :index="`/space/info/${spaceId}`">
         <i class="el-icon-info"></i>
-        <span class="title">空间信息</span>
+        <span class="title">{{ $ts('spaceInfo') }}</span>
       </el-menu-item>
       <el-menu-item :index="`/space/member/${spaceId}`">
         <i class="el-icon-user"></i>
-        <span class="title">空间成员</span>
+        <span class="title">{{ $ts('spaceMember') }}</span>
       </el-menu-item>
       <el-menu-item v-if="spaceId && hasRole(`space:${spaceId}`, Role.admin)" :index="`/space/openuser/${spaceId}`">
         <i class="el-icon-collection-tag"></i>
-        <span class="title">开放用户</span>
+        <span class="title">{{ $ts('openUser') }}</span>
       </el-menu-item>
     </el-menu>
   </div>

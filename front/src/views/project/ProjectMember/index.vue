@@ -81,7 +81,7 @@
           <el-popconfirm
             v-if="!isSelf(scope.row.id)"
             :title="`确定要移除 ${scope.row.nickname} 吗？`"
-            @onConfirm="onMemberRemove(scope.row)"
+            @confirm="onMemberRemove(scope.row)"
           >
             <el-link slot="reference" :disabled="isSelf(scope.row.id)" type="danger">移除</el-link>
           </el-popconfirm>

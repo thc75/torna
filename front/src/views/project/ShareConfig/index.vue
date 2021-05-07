@@ -52,7 +52,7 @@
           <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">启用</el-link>
           <el-popconfirm
             :title="`确定要删除此记录吗？`"
-            @onConfirm="onTableDelete(scope.row)"
+            @confirm="onTableDelete(scope.row)"
           >
             <el-link slot="reference" type="danger">删除</el-link>
           </el-popconfirm>

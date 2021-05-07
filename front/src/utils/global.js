@@ -124,9 +124,9 @@ Object.assign(Vue.prototype, {
    */
   confirm: function(msg, okHandler, cancelHandler) {
     const that = this
-    this.$confirm(msg, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    this.$confirm(msg, this.$ts('tip'), {
+      confirmButtonText: this.$ts('ok'),
+      cancelButtonText: this.$ts('cancel'),
       type: 'warning'
     }).then(() => {
       okHandler.call(that)
@@ -147,8 +147,8 @@ Object.assign(Vue.prototype, {
    */
   alert: function(msg, title, callback) {
     const that = this
-    this.$alert(msg, title || '提示', {
-      confirmButtonText: '确定',
+    this.$alert(msg, title || this.$ts('tip'), {
+      confirmButtonText: this.$ts('ok'),
       callback: action => {
         callback && callback.call(that, action)
       }

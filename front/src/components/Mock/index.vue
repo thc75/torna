@@ -39,7 +39,7 @@
           </el-tooltip>
           <el-popconfirm
             :title="`确定要当前配置删除吗？`"
-            @onConfirm="onMockDelete(formData)"
+            @confirm="onMockDelete(formData)"
           >
             <el-link slot="reference" type="danger" icon="el-icon-delete" title="删除" />
           </el-popconfirm>

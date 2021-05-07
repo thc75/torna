@@ -18,7 +18,7 @@
         <template slot-scope="scope">
           <el-popconfirm
             :title="`确定要取消关注 ${scope.row.name} 吗？`"
-            @onConfirm="onCancel(scope.row)"
+            @confirm="onCancel(scope.row)"
           >
             <el-link slot="reference" type="primary" size="mini">取消关注</el-link>
           </el-popconfirm>

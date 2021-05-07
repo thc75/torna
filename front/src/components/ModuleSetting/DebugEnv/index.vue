@@ -23,7 +23,7 @@
           <el-link type="primary" size="mini" @click="onDebugEnvUpdate(scope.row)">修改</el-link>
           <el-popconfirm
             :title="`确定要删除 ${scope.row.configKey} 吗？`"
-            @onConfirm="onDebugEnvDelete(scope.row)"
+            @confirm="onDebugEnvDelete(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">删除</el-link>
           </el-popconfirm>

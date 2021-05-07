@@ -60,7 +60,7 @@
               <el-link type="primary" @click="onEnumItemUpdate(scope.row)">修改</el-link>
               <el-popconfirm
                 :title="`确定要删除 ${scope.row.name} 吗？`"
-                @onConfirm="onEnumItemDelete(scope.row)"
+                @confirm="onEnumItemDelete(scope.row)"
               >
                 <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">删除</el-link>
               </el-popconfirm>

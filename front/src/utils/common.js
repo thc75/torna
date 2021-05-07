@@ -377,11 +377,28 @@ StringBuilder.prototype = {
   }
 }
 
+export function is_array(obj) {
+  return Object.prototype.toString.call(obj) === '[object Array]'
+}
+
+/**
+ * pattern: 'my name is {name}, age is {age}' args: {name: 'Tom', age: 12} => my name is Tom, age is 12 <br>
+ * pattern: 'my name is {0}, age is {1}' args: ['Tom', 12] => my name is Tom, age is 12 <br>
+ * @param pattern
+ * @param args
+ * @returns {*}
+ */
 export function format_string(pattern, args) {
   let result = pattern
-  for (const key in args) {
-    const reg = new RegExp('({' + key + '})', 'g')
-    result = result.replace(reg, args[key])
+  if (is_array(args)) {
+    for (let i = 0; i < args.length; i++) {
+      result = result.replace(`{${i}}`, args[i])
+    }
+  } else {
+    for (const key in args) {
+      const reg = new RegExp('({' + key + '})', 'g')
+      result = result.replace(reg, args[key])
+    }
   }
   return result
 }

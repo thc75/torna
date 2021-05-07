@@ -16,7 +16,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "diff-match-patch": "^1.0.5",
-    "element-ui": "2.13.0",
+    "element-ui": "2.15.1",
     "fast-text-encoding": "^1.0.3",
     "file-saver": "^2.0.2",
     "js-cookie": "2.2.0",

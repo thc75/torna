@@ -24,7 +24,7 @@
           <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">修改</el-link>
           <el-popconfirm
             :title="`确定要删除 ${scope.row.name} 吗？`"
-            @onConfirm="onHeaderDelete(scope.row)"
+            @confirm="onHeaderDelete(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">删除</el-link>
           </el-popconfirm>

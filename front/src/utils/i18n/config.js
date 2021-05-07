@@ -3,6 +3,7 @@ import { Translator as TranslatorEnUs } from '@/utils/i18n/languages/en-us'
 import { Translator as TranslatorZhCN } from '@/utils/i18n/languages/zh-cn'
 import { BaseTranslator } from '@/utils/i18n/base'
 import { get_lang } from '@/utils/i18n/common'
+import { format_string } from '@/utils/common'
 
 class Delegate extends BaseTranslator {
   constructor() {
@@ -32,6 +33,14 @@ const delegate = new Delegate()
 
 Object.assign(Vue.prototype, {
   $ts(key) {
-    return delegate.translate(key)
+    let value = delegate.translate(key)
+    if (arguments.length > 1) {
+      const args = []
+      for (let i = 1; i < arguments.length; i++) {
+        args.push(arguments[i])
+      }
+      value = format_string(value, args)
+    }
+    return value
   }
 })

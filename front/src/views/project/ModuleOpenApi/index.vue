@@ -22,7 +22,7 @@
       <el-form-item>
         <el-popconfirm
           title="确定要刷新token吗？老token将不可用"
-          @onConfirm="refreshToken"
+          @confirm="refreshToken"
         >
           <el-button slot="reference" type="text">刷新token</el-button>
         </el-popconfirm>

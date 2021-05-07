@@ -1,29 +1,29 @@
 <template>
   <div class="app-container">
     <p>
-      <el-button v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" type="primary" @click="onProjectAdd">创建项目</el-button>
+      <el-button v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" type="primary" @click="onProjectAdd">{{ $ts('createProject') }}</el-button>
     </p>
     <div v-if="data.length === 0" class="info-tip">
-      暂无项目
+      {{ $ts('noProject') }}
     </div>
     <div v-for="(project) in data" :key="project.id" class="torna-card" @click="enterProject(project)">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
           <span>
-            <el-tooltip placement="top" content="私有项目">
+            <el-tooltip placement="top" :content="$ts('privateProject')">
               <i v-if="project.isPrivate" class="el-icon-lock"></i>
             </el-tooltip>
             {{ project.name }}
           </span>
         </div>
         <el-form ref="form" :model="project" class="text-form" label-width="100px">
-          <el-form-item label="项目描述">
+          <el-form-item :label="$ts('projectDesc')">
             {{ project.description }}
           </el-form-item>
-          <el-form-item label="创建人">
+          <el-form-item :label="$ts('creator')">
             {{ project.creatorName }}
           </el-form-item>
-          <el-form-item label="创建时间">
+          <el-form-item :label="$ts('createTime')">
             {{ project.gmtCreate }}
           </el-form-item>
         </el-form>
