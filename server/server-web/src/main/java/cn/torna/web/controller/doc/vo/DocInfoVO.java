@@ -20,6 +20,8 @@ public class DocInfoVO {
     /** 文档概述, 数据库字段：description */
     private String description;
 
+    private String author;
+
     /** 访问URL, 数据库字段：url */
     private String url;
 

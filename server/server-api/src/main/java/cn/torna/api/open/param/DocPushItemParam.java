@@ -24,6 +24,9 @@ public class DocPushItemParam {
     @Length(max = 128, message = "'description' 长度不能超过128")
     private String description;
 
+    @ApiDocField(description = "接口维护人", example = "李四")
+    private String author;
+
     private Byte type;
 
     /** 访问URL, 数据库字段：url */

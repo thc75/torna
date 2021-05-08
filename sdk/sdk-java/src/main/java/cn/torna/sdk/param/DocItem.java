@@ -18,6 +18,9 @@ public class DocItem {
     /** 文档概述 */
     private String description;
 
+    /** 维护人 */
+    private String author;
+
     /** 访问URL */
     private String url;
 

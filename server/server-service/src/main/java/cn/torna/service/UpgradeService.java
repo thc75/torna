@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 5;
+    private static final int VERSION = 6;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -70,6 +70,15 @@ public class UpgradeService {
         }
         v1_4_0(oldVersion);
         v1_5_0(oldVersion);
+        v1_6_2(oldVersion);
+    }
+
+    private void v1_6_2(int oldVersion) {
+        if (oldVersion < 6) {
+            addColumn("doc_info",
+                    "author",
+                    "ALTER TABLE `doc_info` ADD COLUMN `author` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '维护人' AFTER `description`");
+        }
     }
 
 
@@ -214,6 +223,9 @@ public class UpgradeService {
     private boolean addColumn(String tableName, String columnName, String sql) {
         if (isColumnExist(tableName, columnName)) {
             return false;
+        }
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
         }
         upgradeMapper.runSql(sql);
         return true;

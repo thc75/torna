@@ -69,19 +69,10 @@
         </template>
       </u-table-column>
       <u-table-column
-        prop="creatorName"
-        label="创建人"
+        prop="author"
+        label="维护人"
         width="100"
       />
-      <u-table-column
-        prop="gmtCreate"
-        label="创建时间"
-        width="100"
-      >
-        <template slot-scope="scope">
-          <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
-        </template>
-      </u-table-column>
       <u-table-column
         prop="modifierName"
         label="最后修改人"

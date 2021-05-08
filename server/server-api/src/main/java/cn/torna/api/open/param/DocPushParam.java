@@ -25,7 +25,4 @@ public class DocPushParam {
     @ApiDocField(description = "推送人", example = "张三")
     private String author;
 
-    @ApiDocField(description = "是否允许有相同的文件夹，1：允许，0：不允许，默认0", example = "0")
-    private Byte allowSameFolder = Booleans.FALSE;
-
 }

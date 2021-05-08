@@ -7,6 +7,7 @@
             <if test="dataId != null">data_id,</if>
             <if test="name != null">name,</if>
             <if test="description != null">description,</if>
+            <if test="author != null">author,</if>
             <if test="type != null">type,</if>
             <if test="url != null">url,</if>
             <if test="httpMethod != null">http_method,</if>
@@ -33,6 +34,7 @@
             <if test="dataId != null">#{dataId},</if>
             <if test="name != null">#{name},</if>
             <if test="description != null">#{description},</if>
+            <if test="author != null">#{author},</if>
             <if test="type != null">#{type},</if>
             <if test="url != null">#{url},</if>
             <if test="httpMethod != null">#{httpMethod},</if>
@@ -58,6 +60,7 @@
         ON DUPLICATE KEY UPDATE
         <if test="name != null">name = VALUES(name),</if>
         <if test="description != null">description = VALUES(description),</if>
+        <if test="author != null">author = VALUES(author),</if>
         <if test="type != null">type = VALUES(type),</if>
         <if test="url != null">url = VALUES(url),</if>
         <if test="httpMethod != null">http_method = VALUES(http_method),</if>
