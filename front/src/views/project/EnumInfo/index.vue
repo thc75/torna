@@ -7,7 +7,7 @@
         size="mini"
         @click="onItemInfoAdd"
       >
-        添加字典分类
+        {{ $ts('newDictCategory') }}
       </el-button>
     </h3>
     <el-tabs v-show="baseData.length > 0" v-model="activeName" type="border-card" @tab-click="onTabClick">
@@ -27,8 +27,8 @@
               </el-tooltip>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-edit" :command="onEnumInfoUpdate">修改</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-delete" :command="onEnumInfoDelete">删除</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-edit" :command="onEnumInfoUpdate">{{ $ts('update')}}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-delete" :command="onEnumInfoDelete">{{ $ts('delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </span>
@@ -40,29 +40,31 @@
           type="text"
           @click="onEnumItemAdd"
         >
-          添加字典
+          {{ $ts('newDict') }}
         </el-button>
         <el-table
           :data="enumData"
           border
           highlight-current-row
         >
-          <el-table-column label="名称" prop="name" />
-          <el-table-column label="类型" prop="type" />
-          <el-table-column label="值" prop="value" />
-          <el-table-column label="描述" prop="description" />
+          <el-table-column :label="$ts('name')" prop="name" />
+          <el-table-column :label="$ts('type')" prop="type" />
+          <el-table-column :label="$ts('value')" prop="value" />
+          <el-table-column :label="$ts('description')" prop="description" />
           <el-table-column
             v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-            label="操作"
+            :label="$ts('operation')"
             width="150"
           >
             <template slot-scope="scope">
-              <el-link type="primary" @click="onEnumItemUpdate(scope.row)">修改</el-link>
+              <el-link type="primary" @click="onEnumItemUpdate(scope.row)">{{ $ts('update') }}</el-link>
               <el-popconfirm
-                :title="`确定要删除 ${scope.row.name} 吗？`"
+                :title="$ts('deleteConfirm', scope.row.name)"
                 @confirm="onEnumItemDelete(scope.row)"
               >
-                <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">删除</el-link>
+                <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">
+                  {{ $ts('delete') }}
+                </el-link>
               </el-popconfirm>
             </template>
           </el-table-column>
@@ -80,25 +82,25 @@
         ref="dialogEnumInfoForm"
         :rules="dialogEnumInfoFormRules"
         :model="dialogEnumInfoFormData"
-        label-width="120px"
+        label-width="130px"
         size="mini"
       >
         <el-form-item
           prop="name"
-          label="分类名称"
+          :label="$ts('categoryName')"
         >
           <el-input v-model="dialogEnumInfoFormData.name" show-word-limit maxlength="100" />
         </el-form-item>
         <el-form-item
           prop="description"
-          label="描述"
+          :label="$ts('description')"
         >
           <el-input v-model="dialogEnumInfoFormData.description" type="textarea" show-word-limit maxlength="100" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogEnumInfoVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onEnumInfoDialogSave">保 存</el-button>
+        <el-button @click="dialogEnumInfoVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onEnumInfoDialogSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
     <!--dialog-->
@@ -117,13 +119,13 @@
       >
         <el-form-item
           prop="name"
-          label="名称"
+          :label="$ts('name')"
         >
           <el-input v-model="dialogEnumItemFormData.name" show-word-limit maxlength="100" />
         </el-form-item>
         <el-form-item
           prop="type"
-          label="类型"
+          :label="$ts('type')"
         >
           <el-select v-model="dialogEnumItemFormData.type" size="mini">
             <el-option v-for="type in getBaseTypeConfig()" :key="type" :label="type" :value="type"></el-option>
@@ -131,20 +133,20 @@
         </el-form-item>
         <el-form-item
           prop="value"
-          label="值"
+          :label="$ts('value')"
         >
           <el-input v-model="dialogEnumItemFormData.value" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="description"
-          label="描述"
+          :label="$ts('description')"
         >
           <el-input v-model="dialogEnumItemFormData.description" show-word-limit maxlength="100" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogEnumItemVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onEnumItemDialogSave">保 存</el-button>
+        <el-button @click="dialogEnumItemVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onEnumItemDialogSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -183,10 +185,10 @@ export default {
       },
       dialogEnumInfoFormRules: {
         name: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
         description: [
-          { maxLength: 100, message: '长度不能超过100', trigger: 'blur' }
+          { maxLength: 100, message: this.$ts('lengthLimit'), trigger: 'blur' }
         ]
       },
       // item
@@ -202,13 +204,13 @@ export default {
       },
       dialogEnumItemFormRules: {
         name: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
         value: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
         description: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -246,14 +248,14 @@ export default {
       })
     },
     onItemInfoAdd() {
-      this.dialogEnumInfoTitle = '新增字典分类'
+      this.dialogEnumInfoTitle = this.$ts('newDictCategory')
       this.dialogEnumInfoVisible = true
       this.dialogEnumInfoFormData.id = 0
       this.dialogEnumInfoFormData.moduleId = this.moduleId
     },
     onEnumInfoUpdate() {
       const row = this.enumInfo
-      this.dialogEnumInfoTitle = '修改字典分类'
+      this.dialogEnumInfoTitle = this.$ts('updateDictCategory')
       this.dialogEnumInfoVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogEnumInfoFormData, row)
@@ -261,7 +263,7 @@ export default {
     },
     onEnumInfoDelete() {
       const row = this.enumInfo
-      this.confirm(`确认要删除 ${row.name} 吗？`, () => {
+      this.confirm(this.$ts('deleteConfirm', row.name), () => {
         this.get('/doc/enum/info/delete', { id: row.id }, () => {
           this.enumInfo.id = ''
           this.reload()
@@ -271,13 +273,13 @@ export default {
     // item
     onEnumItemAdd() {
       const enumInfo = this.enumInfo
-      this.dialogEnumItemTitle = '新增字典'
+      this.dialogEnumItemTitle = this.$ts('newDict')
       this.dialogEnumItemVisible = true
       this.dialogEnumItemFormData.id = 0
       this.dialogEnumItemFormData.enumId = enumInfo.id
     },
     onEnumItemUpdate(row) {
-      this.dialogEnumItemTitle = '修改字典'
+      this.dialogEnumItemTitle = this.$ts('updateDict')
       this.dialogEnumItemVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogEnumItemFormData, row)

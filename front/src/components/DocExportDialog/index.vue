@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog
-      title="导出文档"
+      :title="$ts('exportDoc')"
       :visible.sync="dialogVisible"
     >
       <el-form
@@ -10,15 +10,15 @@
         label-width="120px"
         size="mini"
       >
-        <el-form-item label="导出形式">
+        <el-form-item :label="$ts('exportAs')">
           <template>
             <el-radio-group v-model="dialogFormData.style">
-              <el-radio :label="1">单页</el-radio>
-              <el-radio :label="2">多页</el-radio>
+              <el-radio :label="1">{{ $ts('singlePage') }}</el-radio>
+              <el-radio :label="2">{{ $ts('multiPage') }}</el-radio>
             </el-radio-group>
           </template>
         </el-form-item>
-        <el-form-item label="格式">
+        <el-form-item :label="$ts('fileType')">
           <template>
             <el-radio-group v-model="dialogFormData.type">
               <el-radio label="html">html</el-radio>
@@ -26,10 +26,10 @@
             </el-radio-group>
           </template>
         </el-form-item>
-        <el-form-item label="选择文档">
+        <el-form-item :label="$ts('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">
-            <el-radio :label="1">全部文档</el-radio>
-            <el-radio :label="0">部分文档</el-radio>
+            <el-radio :label="1">{{ $ts('allDocs') }}</el-radio>
+            <el-radio :label="0">{{ $ts('partDocs') }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-show="dialogFormData.isAll === 0">
@@ -37,8 +37,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" :loading="loading" @click="onDialogSave">导 出</el-button>
+        <el-button @click="dialogVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" :loading="loading" @click="onDialogSave">{{ $ts('dlgExport') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -81,7 +81,7 @@ export default {
       } else {
         keys = this.$refs.docTreeRef.getCheckedAllKeys()
         if (!keys || keys.length === 0) {
-          this.tipError('请勾选文档')
+          this.tipError(this.$ts('pleaseCheckDoc'))
           return
         }
       }

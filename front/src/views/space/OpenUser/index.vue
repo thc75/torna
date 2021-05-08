@@ -151,7 +151,7 @@ export default {
         confirmButtonText: this.$ts('ok'),
         cancelButtonText: this.$ts('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('lengthLimit', 64)
+        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           spaceId: this.spaceId,

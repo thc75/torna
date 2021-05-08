@@ -64,10 +64,10 @@ export default {
       },
       projectRule: {
         name: [
-          { required: true, message: this.$ts('canNotEmpty'), trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
         spaceId: [
-          { required: true, message: this.$ts('canNotEmpty'), trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       },
       spaceData: []

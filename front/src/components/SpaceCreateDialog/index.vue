@@ -50,7 +50,7 @@ export default {
       },
       spaceRule: {
         name: [
-          { required: true, message: this.$ts('canNotEmpty'), trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }

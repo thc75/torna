@@ -1,35 +1,35 @@
 <template>
   <div>
     <div class="openapi-tip">
-      <h3>OpenAPI的作用</h3>
+      <h3>{{ $ts('whatsOpenApi') }}</h3>
       <div>
-        可通过接口调用方式操作文档，第三方App以此来更新文档内容。
+        {{ $ts('whatsOpenApiText') }}
       </div>
-      <h3>使用步骤</h3>
-      <p>1、找到空间管理员索要AppKey和Secret</p>
-      <p>2、项目依赖SDK，使用SDK中的API调用接口</p>
+      <h3>{{ $ts('useStep') }}</h3>
+      <p>{{ $ts('useStep1') }}</p>
+      <p>{{ $ts('useStep2') }}</p>
     </div>
     <el-form class="text-form token-form" label-width="120px">
-      <el-form-item label="请求路径">
+      <el-form-item :label="$ts('requestUrl')">
         {{ `${getBaseUrl()}/api` }}
       </el-form-item>
       <el-form-item label="AppKey/Secret">
-        空间管理员提供
+        {{ $ts('spaceAdminSupply') }}
       </el-form-item>
       <el-form-item label="token">
         {{ token }}
       </el-form-item>
       <el-form-item>
         <el-popconfirm
-          title="确定要刷新token吗？老token将不可用"
+          :title="$ts('refreshTokenConfirm')"
           @confirm="refreshToken"
         >
-          <el-button slot="reference" type="text">刷新token</el-button>
+          <el-button slot="reference" type="text">{{ $ts('refreshToken') }}</el-button>
         </el-popconfirm>
       </el-form-item>
     </el-form>
     <router-link to="/openapi" target="_blank">
-      <el-button type="text">OpenAPI接口文档</el-button>
+      <el-button type="text">{{ $ts('openApiLink') }}</el-button>
     </router-link>
   </div>
 </template>
@@ -63,7 +63,7 @@ export default {
     },
     refreshToken() {
       this.get('/module/token/refresh', { moduleId: this.moduleId }, function(resp) {
-        this.tipSuccess('刷新成功')
+        this.tipSuccess(this.$ts('refreshSuccess'))
         this.token = resp.data
       })
     },
