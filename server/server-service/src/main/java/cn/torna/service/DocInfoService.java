@@ -229,6 +229,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setDataId(dataId);
         docInfo.setName(docInfoDTO.getName());
         docInfo.setDescription(docInfoDTO.getDescription());
+        docInfo.setAuthor(docInfoDTO.getAuthor());
         docInfo.setType(docInfoDTO.getType());
         docInfo.setUrl(docInfoDTO.getUrl());
         docInfo.setHttpMethod(docInfoDTO.getHttpMethod());
@@ -356,6 +357,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             docInfoDTO.setType(docFolderCreateDTO.getDocTypeEnum().getType());
         }
         docInfoDTO.setIsFolder(Booleans.TRUE);
+        docInfoDTO.setAuthor(docFolderCreateDTO.getAuthor());
         DocInfo docInfo = insertDocInfo(docInfoDTO, docFolderCreateDTO.getUser());
         Map<String, ?> props = docFolderCreateDTO.getProps();
         propService.saveProps(props, docInfo.getId(), PropTypeEnum.DOC_INFO_PROP);

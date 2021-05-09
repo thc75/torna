@@ -108,6 +108,7 @@ const MarkdownUtil = {
       builder.append(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`### ${docInfo.name}`)
+    append(`维护人：${docInfo.author}`)
     if (isHttp(docInfo)) {
       append(`#### URL`)
       const debugEnvs = docInfo.debugEnvs || []

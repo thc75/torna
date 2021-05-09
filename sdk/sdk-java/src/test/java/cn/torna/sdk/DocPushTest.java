@@ -28,6 +28,7 @@ public class DocPushTest extends BaseTest {
         DocItem folder = new DocItem();
         folder.setIsFolder(Booleans.TRUE);
         folder.setName("手机分类");
+        folder.setAuthor("李四");
 
         List<DocItem> items = new ArrayList<>(8);
         // 分类下面有文档
@@ -58,6 +59,11 @@ public class DocPushTest extends BaseTest {
 
     private static DocItem buildDocItem(int i) {
         DocItem item = new DocItem();
+        if (i % 2 == 0) {
+            item.setAuthor("张三");
+        } else {
+            item.setAuthor("王五");
+        }
         /* 设置基本信息 */
         item.setName("a获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
