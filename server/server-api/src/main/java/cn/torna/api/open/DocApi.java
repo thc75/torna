@@ -141,6 +141,7 @@ public class DocApi {
         if (folderItems.isEmpty()) {
             return;
         }
+        folderItems.forEach(DocPushItemParam::setItems);
         param.setApis(new ArrayList<>(folderItems.keySet()));
     }
 
