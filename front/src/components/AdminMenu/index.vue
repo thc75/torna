@@ -8,7 +8,7 @@
     >
       <el-menu-item index="/admin/users">
         <i class="el-icon-user"></i>
-        <span class="title">用户管理</span>
+        <span class="title">{{ $ts('userManagement') }}</span>
       </el-menu-item>
     </el-menu>
   </div>

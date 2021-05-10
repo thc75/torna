@@ -4,24 +4,24 @@
       {{ docInfo.name || initTitle }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
     </h3>
     <el-tabs v-model="activeName" tab-position="left">
-      <el-tab-pane label="基本信息" name="info">
+      <el-tab-pane :label="$ts('baseInfo')" name="info">
         <el-form
           ref="docForm"
           :model="docInfo"
           :rules="rules"
-          label-width="88px"
+          label-width="110px"
           size="mini"
           style="width: 800px"
         >
-          <el-form-item prop="name" label="文档标题">
-            <el-input v-model="docInfo.name" maxlength="100" show-word-limit placeholder="文档名称" />
+          <el-form-item prop="name" :label="$ts('docTitle')">
+            <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
-          <el-form-item prop="description" label="接口描述">
-            <el-input v-model="docInfo.description" type="textarea" :rows="4" maxlength="200" show-word-limit placeholder="文档概述" />
+          <el-form-item prop="description" :label="$ts('docDesc')">
+            <el-input v-model="docInfo.description" type="textarea" :rows="4" maxlength="200" show-word-limit />
           </el-form-item>
-          <el-form-item prop="url" label="请求地址">
-            <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit placeholder="请求地址" @input="onUrlInput">
-              <el-select slot="prepend" v-model="docInfo.httpMethod" placeholder="请选择" style="width: 100px;">
+          <el-form-item prop="url" :label="$ts('requestUrl')">
+            <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
+              <el-select slot="prepend" v-model="docInfo.httpMethod" :placeholder="$ts('pleaseSelect')" style="width: 100px;">
                 <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
                   {{ method }}
                 </el-option>
@@ -33,28 +33,28 @@
               :data="docInfo.pathParams"
               :getter="(rows) => { return rows.filter(row => row.isDeleted === 0) }"
               :module-id="moduleId"
-              name-label="Path参数"
+              :name-label="$ts('pathVariable')"
               :name-width="200"
               :text-columns="['name']"
               :hidden-columns="['required', 'maxLength', 'enum', 'opt']"
             />
           </el-form-item>
           <el-form-item prop="contentType" label="ContentType">
-            <el-select v-model="docInfo.contentType" :clearable="true" placeholder="请选择" style="width: 300px;">
+            <el-select v-model="docInfo.contentType" :clearable="true" :placeholder="$ts('pleaseSelect')" style="width: 300px;">
               <el-option v-for="contentType in getEnums().CONTENT_TYPE" :key="contentType" :label="contentType" :value="contentType">
                 {{ contentType }}
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item prop="parentId" label="所属分类">
-            <el-select v-model="docInfo.parentId" placeholder="请选择" style="width: 300px;">
-              <el-option label="无" :value="0">无</el-option>
+          <el-form-item prop="parentId" :label="$ts('sourceFolder')">
+            <el-select v-model="docInfo.parentId" :placeholder="$ts('pleaseSelect')" style="width: 300px;">
+              <el-option label="无" :value="0">{{ $ts('empty') }}</el-option>
               <el-option v-for="item in folders" :key="item.id" :label="item.name" :value="item.id">
                 {{ item.name }}
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="是否显示">
+          <el-form-item :label="$ts('isShow')">
             <el-switch
               v-model="docInfo.isShow"
               active-color="#13ce66"
@@ -65,13 +65,13 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="请求头" name="headerParam">
-        <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">添加Header</el-button>
-        <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">导入Header</el-button>
+      <el-tab-pane :label="$ts('requestHeader')" name="headerParam">
+        <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">{{ $ts('newHeader') }}</el-button>
+        <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">{{ $ts('importHeader') }}</el-button>
         <span class="split">|</span>
         <el-switch
           v-model="docInfo.isUseGlobalHeaders"
-          active-text="使用公共请求头"
+          :active-text="$ts('useCommonHeader')"
           inactive-text=""
           :active-value="1"
           :inactive-value="0"
@@ -83,20 +83,20 @@
           :hidden-columns="['type', 'maxLength', 'enum']"
         />
       </el-tab-pane>
-      <el-tab-pane label="请求参数" name="requestParam">
+      <el-tab-pane :label="$ts('requestParams')" name="requestParam">
         <el-tabs v-model="paramsActive" type="card">
           <el-tab-pane label="Query Parameter" name="tabQueryParams">
-            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">添加Query参数</el-button>
-            <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">导入Query参数</el-button>
+            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">{{ $ts('newQueryParam') }}</el-button>
+            <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">{{ $ts('importQueryParam') }}</el-button>
             <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" :hidden-columns="['enum']" />
           </el-tab-pane>
           <el-tab-pane label="Body Parameter" name="tabBodyParams">
-            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">添加Body参数</el-button>
-            <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">导入Body参数</el-button>
+            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">{{ $ts('newBodyParam') }}</el-button>
+            <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importBodyParam') }}</el-button>
             <span class="split">|</span>
             <el-switch
               v-model="docInfo.isUseGlobalParams"
-              active-text="使用公共请求参数"
+              :active-text="$ts('useCommonParam')"
               inactive-text=""
               :active-value="1"
               :inactive-value="0"
@@ -105,43 +105,43 @@
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
-      <el-tab-pane label="响应参数" name="responseParam">
-        <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">添加响应参数</el-button>
-        <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">导入响应参数</el-button>
+      <el-tab-pane :label="$ts('responseParam')" name="responseParam">
+        <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">{{ $ts('newResponseParam') }}</el-button>
+        <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">{{ $ts('importResponseParam') }}</el-button>
         <span class="split">|</span>
         <el-switch
           v-model="docInfo.isUseGlobalReturns"
-          active-text="使用公共返回参数"
+          :active-text="$ts('useCommonResponse')"
           inactive-text=""
           :active-value="1"
           :inactive-value="0"
         />
         <edit-table ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
       </el-tab-pane>
-      <el-tab-pane label="错误码" name="errorCode">
-        <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">添加错误码</el-button>
+      <el-tab-pane :label="$ts('errorCode')" name="errorCode">
+        <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">{{ $ts('newErrorCode') }}</el-button>
         <edit-table
           ref="errorCodeParamTable"
           :data="docInfo.errorCodeParams"
           :hidden-columns="['required', 'maxLength', 'type', 'enum']"
           :can-add-node="false"
-          name-label="错误码"
-          description-label="错误描述"
-          example-label="解决方案"
+          :name-label="$ts('errorCode')"
+          :description-label="$ts('errorDesc')"
+          :example-label="$ts('solution')"
         />
       </el-tab-pane>
     </el-tabs>
     <div style="margin: 20px;">
-      <el-input v-model="remark" size="mini" placeholder="本次修改备注" show-word-limit maxlength="100" />
+      <el-input v-model="remark" size="mini" :placeholder="$ts('currentUpdateRemark')" show-word-limit maxlength="100" />
     </div>
     <div style="margin-top: 10px;">
-      <el-button type="text" icon="el-icon-back" @click="goBack">返回</el-button>
-      <el-button type="primary" icon="el-icon-finished" @click="submitForm">保存</el-button>
-      <el-button type="success" icon="el-icon-view" @click="viewDoc">预览</el-button>
+      <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>
+      <el-button type="primary" icon="el-icon-finished" @click="submitForm">{{ $ts('save') }}</el-button>
+      <el-button type="success" icon="el-icon-view" @click="viewDoc">{{ $ts('preview') }}</el-button>
     </div>
     <!-- dialog -->
     <el-dialog
-      title="预览"
+      :title="$ts('preview')"
       :visible.sync="viewDialogVisible"
       width="70%"
     >
@@ -152,29 +152,29 @@
       :visible.sync="importParamTemplateDlgShow"
     >
       <el-radio-group v-model="importParamTemplateModel" style="margin-bottom: 20px;">
-        <el-radio v-show="paramsActive === 'tabBodyParams'" :label="2">导入json</el-radio>
-        <el-radio :label="0">Query参数导入</el-radio>
-        <el-radio :label="1">Bulk模式导入（Postman Bulk Edit）</el-radio>
+        <el-radio v-show="paramsActive === 'tabBodyParams'" :label="2">{{ $ts('importJson') }}</el-radio>
+        <el-radio :label="0">{{ $ts('importByQueryParam') }}</el-radio>
+        <el-radio :label="1">{{ $ts('importByBulk') }}</el-radio>
       </el-radio-group>
       <el-input v-model="importParamTemplateValue" type="textarea" :rows="4" :placeholder="getParamTemplatePlaceholder()" />
       <div slot="footer" class="dialog-footer">
-        <el-button @click="importParamTemplateDlgShow = false">取 消</el-button>
-        <el-button type="primary" @click="callImportParamHandler">保 存</el-button>
+        <el-button @click="importParamTemplateDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="callImportParamHandler">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
     <el-dialog
-      title="导入响应参数"
+      :title="$ts('importResponseParam')"
       :visible.sync="paramResponseTemplateDlgShow"
     >
-      <el-alert title="输入完整的响应结果，可填测试数据。【注意敏感信息，请勿导入线上数据】" :closable="false" class="el-alert-tip"/>
+      <el-alert :title="$ts('importResponseParamTip')" :closable="false" class="el-alert-tip"/>
       <el-form ref="paramResponseTemplateForm" :model="paramResponseTemplateFormData">
-        <el-form-item prop="value" :rules="[{ required: true, message: '请输入JSON', trigger: 'blur' }]">
-          <el-input v-model="paramResponseTemplateFormData.value" type="textarea" :rows="14" placeholder="json格式" />
+        <el-form-item prop="value" :rules="[{ required: true, message: $ts('pleaseInputJson'), trigger: 'blur' }]">
+          <el-input v-model="paramResponseTemplateFormData.value" type="textarea" :rows="14" :placeholder="$ts('jsonType')" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="paramResponseTemplateDlgShow = false">取 消</el-button>
-        <el-button type="primary" @click="onImportResponseParamSave">保 存</el-button>
+        <el-button @click="paramResponseTemplateDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onImportResponseParamSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
