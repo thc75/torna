@@ -1,31 +1,31 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" :model="form" class="text-form" label-width="100px">
-      <el-form-item label="项目名称">
+    <el-form ref="form" :model="form" class="text-form" label-width="150px">
+      <el-form-item :label="$ts('projectName')">
         {{ form.name }}
       </el-form-item>
-      <el-form-item label="项目描述">
+      <el-form-item :label="$ts('projectDesc')">
         {{ form.description }}
       </el-form-item>
-      <el-form-item label="项目管理员">
+      <el-form-item :label="$ts('projectAdmin')">
         {{ form.admin }}
       </el-form-item>
-      <el-form-item label="访问权限">
-        {{ form.isPrivate === 1 ? '私有' : '公开' }}
+      <el-form-item :label="$ts('visitPermission')">
+        {{ form.isPrivate === 1 ? $ts('private') : $ts('public') }}
       </el-form-item>
-      <el-form-item label="创建人">
+      <el-form-item :label="$ts('creator')">
         {{ form.creatorName }}
       </el-form-item>
-      <el-form-item label="创建时间">
+      <el-form-item :label="$ts('createTime')">
         {{ form.gmtCreate }}
       </el-form-item>
       <el-form-item v-if="hasRole(`project:${projectId}`, [Role.admin])">
-        <el-button type="primary" size="mini" @click="onProjectUpdate">修改项目</el-button>
-        <el-button type="danger" size="mini" @click="onProjectDel">删除项目</el-button>
+        <el-button type="primary" size="mini" @click="onProjectUpdate">{{ $ts('updateProject') }}</el-button>
+        <el-button type="danger" size="mini" @click="onProjectDel">{{ $ts('deleteProject') }}</el-button>
       </el-form-item>
     </el-form>
     <el-dialog
-      title="修改项目"
+      :title="$ts('updateProject')"
       :close-on-click-modal="false"
       :visible.sync="projectDlgShow"
     >
@@ -37,14 +37,14 @@
         label-width="150px"
         style="width: 600px;"
       >
-        <el-form-item label="项目名称" prop="name">
+        <el-form-item :label="$ts('projectName')" prop="name">
           <el-input
             v-model="projectFormData.name"
             show-word-limit
             maxlength="50"
           />
         </el-form-item>
-        <el-form-item label="项目描述" prop="description">
+        <el-form-item :label="$ts('projectDesc')" prop="description">
           <el-input
             v-model="projectFormData.description"
             type="textarea"
@@ -52,20 +52,20 @@
             maxlength="100"
           />
         </el-form-item>
-        <el-form-item label="项目管理员" required>
+        <el-form-item :label="$ts('projectAdmin')" required>
           <user-select ref="userSelect" :loader="loadSpaceMember" multiple :value="projectFormData.adminIds" />
         </el-form-item>
-        <el-form-item label="访问权限">
+        <el-form-item :label="$ts('visitPermission')">
           <el-radio-group v-model="projectFormData.isPrivate">
-            <el-radio class="el-icon-lock" :label="1">私有</el-radio>
-            <el-radio :label="0">公开</el-radio>
+            <el-radio class="el-icon-lock" :label="1">{{ $ts('private') }}</el-radio>
+            <el-radio :label="0">{{ $ts('public') }}</el-radio>
           </el-radio-group>
           <question-private />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="projectDlgShow = false">取 消</el-button>
-        <el-button type="primary" @click="onProjectUpdateSave">保 存</el-button>
+        <el-button @click="projectDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onProjectUpdateSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -105,10 +105,10 @@ export default {
       },
       projectRule: {
         name: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
         spaceId: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       },
       spaceData: []
@@ -121,9 +121,9 @@ export default {
   },
   methods: {
     onProjectDel() {
-      this.confirm('确认要删除该项目吗？', () => {
+      this.confirm(this.$ts('deleteProjectConfirm'), () => {
         this.post('/project/delete', { id: this.projectId }, () => {
-          this.tipSuccess('删除成功')
+          this.tipSuccess(this.$ts('deleteSuccess'))
           this.goRoute(`/space/project/${this.form.spaceId}`)
         })
       })
@@ -144,7 +144,7 @@ export default {
           if (this.projectFormData.spaceId !== this.form.spaceId) {
             location.reload()
           } else {
-            this.tipSuccess('修改成功')
+            this.tipSuccess(this.$ts('updateSuccess'))
             this.loadInfo(this.projectId)
           }
         })

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h3>我关注的接口</h3>
+    <h3>{{ $ts('mySubscribeApi') }}</h3>
     <el-table
       :data="pageInfo.rows"
       border
@@ -9,18 +9,18 @@
     >
       <el-table-column
         prop="name"
-        label="接口名称"
+        :label="$ts('apiName')"
       />
       <el-table-column
-        label="操作"
-        width="120px"
+        :label="$ts('operation')"
+        width="130px"
       >
         <template slot-scope="scope">
           <el-popconfirm
-            :title="`确定要取消关注 ${scope.row.name} 吗？`"
+            :title="$ts('cancelSubscribeConfirm', scope.row.name)"
             @confirm="onCancel(scope.row)"
           >
-            <el-link slot="reference" type="primary" size="mini">取消关注</el-link>
+            <el-link slot="reference" type="primary" size="mini">{{ $ts('cancelSubscribe') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -67,7 +67,7 @@ export default {
         sourceId: row.id
       }
       this.post('/user/subscribe/doc/cancelSubscribe', data, () => {
-        this.tipSuccess('操作成功')
+        this.tipSuccess($ts('operateSuccess'))
         this.loadTable()
       })
     },

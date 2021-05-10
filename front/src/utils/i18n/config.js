@@ -44,3 +44,7 @@ Object.assign(Vue.prototype, {
     return value
   }
 })
+
+window.$ts = function(key, value) {
+  return delegate.translate(key, value)
+}
