@@ -45,6 +45,7 @@
         :tree-node="true"
         prop="name"
         label="文档名称"
+        width="300"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
@@ -71,12 +72,14 @@
       <u-table-column
         prop="author"
         label="维护人"
-        width="100"
+        width="120"
+        show-overflow-tooltip
       />
       <u-table-column
         prop="modifierName"
         label="最后修改人"
-        width="100"
+        width="120"
+        show-overflow-tooltip
       />
       <u-table-column
         prop="gmtModified"
