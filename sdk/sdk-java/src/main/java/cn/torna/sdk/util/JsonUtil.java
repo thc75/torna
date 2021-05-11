@@ -27,7 +27,7 @@ public class JsonUtil {
         try {
             return JSON.parseObject(json, clazz);
         } catch (Exception e) {
-            throw new RuntimeException("json内容错误, msg:" + e.getMessage() + ", json:" + json);
+            throw new RuntimeException("json内容错误, class:" + clazz.getName() + ", msg:" + e.getMessage() + ", json:" + json);
         }
     }
 
