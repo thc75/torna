@@ -18,11 +18,11 @@
     >
       <el-table-column
         prop="appKey"
-        label="appKey"
+        label="AppKey"
       />
       <el-table-column
         prop="secret"
-        label="secret"
+        label="Secret"
       />
       <el-table-column
         prop="applicant"

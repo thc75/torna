@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-link type="primary" :underline="false" @click="onAddRow">添加</el-link>
+    <el-link type="primary" :underline="false" @click="onAddRow">{{ $ts('add') }}</el-link>
     <el-table
       :data="data"
       border
@@ -19,12 +19,12 @@
               prop="name"
               label-width="0"
             >
-              <el-input v-show="nameSuggestData.length === 0" v-model="scope.row.name" placeholder="名称" maxlength="64" show-word-limit />
+              <el-input v-show="nameSuggestData.length === 0" v-model="scope.row.name" :placeholder="$ts('name')" maxlength="64" show-word-limit />
               <el-autocomplete
                 v-show="nameSuggestData.length > 0"
                 v-model="scope.row.name"
                 :fetch-suggestions="nameSearch"
-                placeholder="名称"
+                :placeholder="$ts('name')"
                 style="width: 100%"
               />
             </el-form-item>
@@ -44,25 +44,25 @@
               prop="value"
               label-width="0"
             >
-              <el-input v-show="valueSuggestData.length === 0" v-model="scope.row.value" placeholder="值" maxlength="100" show-word-limit />
+              <el-input v-show="valueSuggestData.length === 0" v-model="scope.row.value" :placeholder="$ts('value')" maxlength="100" show-word-limit />
               <el-autocomplete
                 v-show="valueSuggestData.length > 0"
                 v-model="scope.row.value"
                 :fetch-suggestions="valueSearch"
-                placeholder="值"
+                :placeholder="$ts('value')"
                 style="width: 100%"
               />
             </el-form-item>
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="80">
+      <el-table-column :label="$ts('operation')" width="80">
         <template slot-scope="scope">
           <div v-show="scope.row.isDeleted === 0">
             <el-link type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>
           </div>
           <div v-show="scope.row.isDeleted === 1">
-            <el-tooltip content="点击恢复" placement="top" :open-delay="500">
+            <el-tooltip :content="$ts('clickRestore')" placement="top" :open-delay="500">
               <el-link type="danger" icon="el-icon-remove" @click="scope.row.isDeleted = 0"></el-link>
             </el-tooltip>
           </div>
@@ -94,10 +94,10 @@ export default {
     return {
       paramRowRule: {
         name: [
-          { required: true, message: '请填写名称', trigger: ['change'] }
+          { required: true, message: $ts('notEmpty'), trigger: ['change'] }
         ],
         value: [
-          { required: true, message: '请填写值', trigger: ['change'] }
+          { required: true, message: $ts('notEmpty'), trigger: ['change'] }
         ]
       }
     }

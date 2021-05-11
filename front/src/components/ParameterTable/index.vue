@@ -20,7 +20,7 @@
       <template slot-scope="scope">
         <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
           {{ scope.row.name }}
-          <el-tooltip content="查看字典" placement="top">
+          <el-tooltip :content="$ts('checkDict')" placement="top">
             <el-popover
               placement="right"
               width="500"
@@ -37,13 +37,13 @@
     <el-table-column
       v-if="isColumnShow('type')"
       prop="type"
-      label="类型"
+      :label="$ts('type')"
       width="100"
     >
       <template slot-scope="scope">
         <span>{{ scope.row.type }}</span>
         <span v-show="scope.row.type === 'array' && scope.row.elementType">
-          <el-tooltip effect="dark" :content="`元素类型：${scope.row.elementType}`" placement="top">
+          <el-tooltip effect="dark" :content="$ts('elType', scope.row.elementType)" placement="top">
             <i class="el-icon-info"></i>
           </el-tooltip>
         </span>
@@ -52,17 +52,17 @@
     <el-table-column
       v-if="isColumnShow('required')"
       prop="required"
-      label="必须"
+      :label="$ts('require')"
       width="60"
     >
       <template slot-scope="scope">
-        <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? '是' : '否' }}</span>
+        <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
       </template>
     </el-table-column>
     <el-table-column
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
-      label="最大长度"
+      :label="$ts('maxLength')"
       width="80"
     />
     <el-table-column
@@ -78,7 +78,7 @@
             trigger="click"
           >
             <div v-html="scope.row.description"></div>
-            <el-button slot="reference" type="text">点击查看</el-button>
+            <el-button slot="reference" type="text">{{ $ts('clickSee') }}</el-button>
           </el-popover>
         </div>
       </template>
@@ -107,19 +107,19 @@ export default {
     },
     emptyText: {
       type: String,
-      default: '无参数'
+      default: $ts('emptyParam')
     },
     nameLabel: {
       type: String,
-      default: '名称'
+      default: $ts('name')
     },
     descriptionLabel: {
       type: String,
-      default: '描述'
+      default: $ts('description')
     },
     exampleLabel: {
       type: String,
-      default: '示例值'
+      default: $ts('example')
     },
     hiddenColumns: {
       type: Array,
