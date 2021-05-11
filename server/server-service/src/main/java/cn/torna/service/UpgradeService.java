@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 6;
+    private static final int VERSION = 7;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -71,6 +71,21 @@ public class UpgradeService {
         v1_4_0(oldVersion);
         v1_5_0(oldVersion);
         v1_6_2(oldVersion);
+        v1_6_3(oldVersion);
+    }
+
+    private void v1_6_3(int oldVersion) {
+        if (oldVersion < 7) {
+            addColumn("mock_config", "path",
+                    "ALTER TABLE `mock_config` ADD COLUMN `path` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' AFTER `name`");
+            addColumn("mock_config", "data_id",
+                    "ALTER TABLE `mock_config` ADD COLUMN `data_id` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'md5(path+query+body)' AFTER `name`");
+            try {
+                runSql("CREATE INDEX `idx_dataid` USING BTREE ON `mock_config` (`data_id`)");
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 
     private void v1_6_2(int oldVersion) {
