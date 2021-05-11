@@ -45,6 +45,7 @@
         :tree-node="true"
         prop="name"
         :label="$ts('docName')"
+        width="300"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
@@ -82,10 +83,18 @@
           <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
         </template>
       </u-table-column>
+        prop="author"
+        label="维护人"
+        width="120"
+        show-overflow-tooltip
+      />
       <u-table-column
         prop="modifierName"
         :label="$ts('modifierName')"
         width="100"
+        label="最后修改人"
+        width="120"
+        show-overflow-tooltip
       />
       <u-table-column
         prop="gmtModified"

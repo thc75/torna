@@ -17,6 +17,9 @@ public class MockConfigVO extends MockBaseVO {
     private List<NameValueVO> dataKv;
     private String dataJson;
 
+    /**  数据库字段：path */
+    private String path;
+
     /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
     private Byte requestDataType;
 

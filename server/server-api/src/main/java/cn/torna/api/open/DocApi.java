@@ -42,6 +42,7 @@ import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -77,10 +78,13 @@ public class DocApi {
     @Autowired
     private UserMessageService userMessageService;
 
+    @Value("${torna.push-allow-same-folder}")
+    private boolean allowSameFolder;
+
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
-        if (param.getAllowSameFolder() == Booleans.TRUE) {
+        if (allowSameFolder) {
             this.mergeSameFolder(param);
         } else {
             this.checkSameFolder(param);
@@ -126,26 +130,19 @@ public class DocApi {
         if (CollectionUtils.isEmpty(apis)) {
             return;
         }
-        List<DocPushItemParam> apisNew = new ArrayList<>(apis.size());
         // key:分类名称， value:分类下的文档
-        Map<String, List<DocPushItemParam>> folderItems = new LinkedHashMap<>(8);
+        Map<DocPushItemParam, List<DocPushItemParam>> folderItems = new LinkedHashMap<>(8);
         for (DocPushItemParam api : apis) {
             if (api.getIsFolder() == Booleans.TRUE) {
-                List<DocPushItemParam> docItemList = folderItems.computeIfAbsent(api.getName(), (k) -> new ArrayList<>());
+                List<DocPushItemParam> docItemList = folderItems.computeIfAbsent(api, (k) -> new ArrayList<>());
                 docItemList.addAll(api.getItems());
             }
         }
         if (folderItems.isEmpty()) {
             return;
         }
-        folderItems.forEach((key, value) -> {
-            DocPushItemParam folder = new DocPushItemParam();
-            folder.setName(key);
-            folder.setIsFolder(Booleans.TRUE);
-            folder.setItems(value);
-            apisNew.add(folder);
-        });
-        param.setApis(apisNew);
+        folderItems.forEach(DocPushItemParam::setItems);
+        param.setApis(new ArrayList<>(folderItems.keySet()));
     }
 
     private void doPush(DocPushParam param, ApiParam apiParam, RequestContext context) {
@@ -202,12 +199,17 @@ public class DocApi {
             docFolderCreateDTO.setParentId(parentId);
             docFolderCreateDTO.setDocTypeEnum(docTypeEnum);
             docFolderCreateDTO.setProps(props);
+            docFolderCreateDTO.setAuthor(param.getAuthor());
             folder = docInfoService.createDocFolder(docFolderCreateDTO);
             List<DocPushItemParam> items = param.getItems();
             if (items != null) {
                 for (DocPushItemParam item : items) {
                     Long pid = folder.getId();
                     item.setType(docTypeEnum.getType());
+                    // 如果接口作者为空，则使用文件夹作者
+                    if (StringUtils.isEmpty(item.getAuthor())) {
+                        item.setAuthor(folder.getAuthor());
+                    }
                     this.pushDocItem(item, context, pid);
                 }
             }

@@ -2,15 +2,19 @@ package cn.torna.api.open.param;
 
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author tanghc
  */
-@Data
+@Getter
+@Setter
 public class DocPushItemParam {
 
     /** 文档名称, 数据库字段：name */
@@ -24,6 +28,10 @@ public class DocPushItemParam {
     @Length(max = 128, message = "'description' 长度不能超过128")
     private String description;
 
+    @ApiDocField(description = "接口维护人", example = "李四")
+    private String author;
+
+    /** 0:http,1:dubbo */
     private Byte type;
 
     /** 访问URL, 数据库字段：url */
@@ -76,4 +84,21 @@ public class DocPushItemParam {
 
     @ApiDocField(description = "文档项")
     private List<DocPushItemParam> items;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DocPushItemParam that = (DocPushItemParam) o;
+        return name.equals(that.name) &&
+                Objects.equals(url, that.url) &&
+                Objects.equals(httpMethod, that.httpMethod) &&
+                Objects.equals(isFolder, that.isFolder);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, url, httpMethod, isFolder);
+    }
+
 }

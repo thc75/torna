@@ -24,7 +24,11 @@ public class JsonUtil {
      * @return
      */
     public static <T> T parseObject(String json, Class<T> clazz) {
-        return JSON.parseObject(json, clazz);
+        try {
+            return JSON.parseObject(json, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException("json内容错误, class:" + clazz.getName() + ", msg:" + e.getMessage() + ", json:" + json);
+        }
     }
 
     public static JSONObject parseJSONObject(String json) {

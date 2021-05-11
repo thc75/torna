@@ -128,6 +128,8 @@ const HtmlUtil = {
     }
     sb.append('<div class="doc-item">')
       .append(`<h3 id="${docInfo.id}">${link(docInfo.id, docInfo.name)}</h3>`)
+    // 维护人
+    sb.append(`<p><strong>维护人：</strong>${docInfo.author}</p>`)
     // URL
     if (isHttp(docInfo)) {
       sb.append(`<p><strong>URL</strong></p>`)

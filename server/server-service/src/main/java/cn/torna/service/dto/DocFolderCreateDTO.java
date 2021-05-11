@@ -23,6 +23,9 @@ public class DocFolderCreateDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
 
+    /** 维护人, 数据库字段：author */
+    private String author;
+
     private DocTypeEnum docTypeEnum;
 
     private Map<String, ?> props;

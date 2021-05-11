@@ -241,7 +241,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
      * @return 返回重置后的密码
      */
     public String resetPassword(Long id) {
-        Assert.isTrue(EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean(), "已开启第三方登录，不支持重置密码");
+        if (EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean()) {
+            throw new BizException("已开启第三方登录，不支持重置密码");
+        }
         UserInfo userInfo = getById(id);
         String newPwd = PasswordUtil.getRandomSimplePassword(6);
         String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));

@@ -54,9 +54,10 @@
         label-width="120px"
         class="mock-form"
       >
-        <el-form-item :label="$ts('mockUrl')">
-          <span v-if="!formData.isNew" class="normal-text">{{ mockUrl }}</span>
-          <span v-else class="doc-id">{{ $ts('showAfterSave') }}</span>
+        <el-form-item label="Mock地址">
+          <el-input v-model="formData.path" placeholder="path">
+            <template slot="prepend">{{ mockBaseUrl }}</template>
+          </el-input>
         </el-form-item>
         <el-form-item :label="$ts('name')" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
@@ -163,6 +164,7 @@ const FORM_DATA = {
   dataKv: [],
   dataJson: '',
   name: '',
+  path: '',
   requestDataType: 0,
   httpStatus: 200,
   delayMills: 0,
@@ -195,6 +197,9 @@ export default {
       formRules: {
         name: [
           { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
+        ],
+        path: [
+          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
         ]
       },
       aceEditorConfig: {
@@ -220,6 +225,9 @@ export default {
     },
     isShow() {
       return this.mockConfigs.length > 0
+    },
+    mockBaseUrl() {
+      return `${this.getBaseUrl()}/mock/`
     }
   },
   watch: {
@@ -267,6 +275,9 @@ export default {
       this.selectTab(node)
     },
     selectTab(node) {
+      if (!node.path) {
+        node.path = node.id
+      }
       this.formData = node
       this.activeMock = node.id
       this.mockUrl = `${this.getBaseUrl()}/mock/${node.id}`
@@ -320,9 +331,14 @@ export default {
     onMockAdd() {
       const respBody = this.doCreateResponseExample(this.item.responseParams)
       const node = Object.assign({}, FORM_DATA)
+      let path = this.item.url
+      if (path.startsWith('/')) {
+        path = path.substring(1)
+      }
       Object.assign(node, {
         id: '' + this.nextId(),
         name: $ts('newConfig'),
+        path: path,
         responseBody: this.formatJson(respBody),
         isNew: true
       })

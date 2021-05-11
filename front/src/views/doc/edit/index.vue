@@ -54,6 +54,9 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="维护人">
+            <el-input v-model="docInfo.author" maxlength="64" show-word-limit />
+          </el-form-item>
           <el-form-item :label="$ts('isShow')">
             <el-switch
               v-model="docInfo.isShow"
@@ -203,6 +206,7 @@ export default {
         url: '',
         contentType: '',
         description: '',
+        author: '',
         httpMethod: 'GET',
         parentId: '',
         moduleId: '',
