@@ -54,7 +54,7 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="维护人">
+          <el-form-item :label="$ts('maintainer')">
             <el-input v-model="docInfo.author" maxlength="64" show-word-limit />
           </el-form-item>
           <el-form-item :label="$ts('isShow')">

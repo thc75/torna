@@ -70,36 +70,21 @@
         </template>
       </u-table-column>
       <u-table-column
-        prop="creatorName"
-        :label="$ts('creator')"
-        width="100"
-      />
-      <u-table-column
-        prop="gmtCreate"
-        :label="$ts('createTime')"
-        width="100"
-      >
-        <template slot-scope="scope">
-          <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
-        </template>
-      </u-table-column>
         prop="author"
-        label="维护人"
+        :label="$ts('maintainer')"
         width="120"
         show-overflow-tooltip
       />
       <u-table-column
         prop="modifierName"
         :label="$ts('modifierName')"
-        width="100"
-        label="最后修改人"
         width="120"
         show-overflow-tooltip
       />
       <u-table-column
         prop="gmtModified"
         :label="$ts('updateTime')"
-        width="100"
+        width="110"
       >
         <template slot-scope="scope">
           <time-tooltip :time="scope.row.gmtModified" />

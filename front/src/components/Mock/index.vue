@@ -54,7 +54,7 @@
         label-width="120px"
         class="mock-form"
       >
-        <el-form-item label="Mock地址">
+        <el-form-item :label="$ts('mockUrl')">
           <el-input v-model="formData.path" placeholder="path">
             <template slot="prepend">{{ mockBaseUrl }}</template>
           </el-input>

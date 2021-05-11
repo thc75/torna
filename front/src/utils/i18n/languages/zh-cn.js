@@ -335,6 +335,7 @@ const MAPPING = {
   'noResultTip': '无数据返回，是否缺少return？',
   'mockScriptError': 'Mock脚本错误',
   'pleaseFinishForm': '请完善表单',
+  'maintainer': '维护人',
 
 }
 

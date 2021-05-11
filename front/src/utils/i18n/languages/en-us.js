@@ -89,7 +89,7 @@ const MAPPING = {
   'docName': 'Name',
   'hidden': 'Hidden',
   'modifierName': 'Modifier',
-  'updateTime': 'Update Time',
+  'updateTime': 'Modify Time',
   'createDoc': 'New Doc',
   'preview': 'Preview',
   'update': 'Update',
@@ -334,6 +334,7 @@ const MAPPING = {
   'noResultTip': 'No data return，miss return',
   'mockScriptError': 'Mock script error',
   'pleaseFinishForm': 'Please finish form',
+  'maintainer': 'Maintainer',
 
 }
 

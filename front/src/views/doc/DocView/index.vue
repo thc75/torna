@@ -28,7 +28,7 @@
         {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4 v-if="docInfo.author">维护人：<span>{{ docInfo.author }}</span></h4>
+    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}：<span>{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
