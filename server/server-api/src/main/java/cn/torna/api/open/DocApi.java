@@ -157,6 +157,9 @@ public class DocApi {
             synchronized (lock) {
                 // 设置调试环境
                 for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+                    if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
+                        continue;
+                    }
                     moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 先删除之前的文档
