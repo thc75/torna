@@ -1,5 +1,10 @@
 # 更新日志
 
+# 1.6.3
+
+- [enhance]优化mock，可指定path
+- [enhance]优化推送
+
 ## 1.6.2
 
 - [enhance]文档新增`维护人`字段
