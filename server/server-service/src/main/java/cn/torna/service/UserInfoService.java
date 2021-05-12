@@ -17,6 +17,7 @@ import cn.torna.common.util.JwtUtil;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserInfoMapper;
+import cn.torna.service.dto.DingTalkLoginDTO;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.service.login.form.LoginForm;
@@ -64,6 +65,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     @Autowired
     private ThirdPartyLoginManager thirdPartyLoginManager;
+
+    @Autowired
+    private UserDingtalkInfoService userDingtalkInfoService;
 
     /**
      * 是否是第三方用户
@@ -183,6 +187,31 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
             userInfo.setEmail(user.getEmail());
             this.save(userInfo);
         }
+        return buildLoginUser(userInfo);
+    }
+
+    /**
+     * 钉钉登录
+     * @param dingTalkLoginDTO
+     * @return
+     */
+    public LoginUser dingtalkLogin(DingTalkLoginDTO dingTalkLoginDTO) {
+        String username = dingTalkLoginDTO.getUnionid();
+        UserInfo userInfo = getByUsername(username);
+        if (userInfo == null) {
+            userInfo = new UserInfo();
+            userInfo.setUsername(username);
+            userInfo.setPassword(GenerateUtil.getUUID());
+            userInfo.setNickname(dingTalkLoginDTO.getName());
+            // 给老板设置为超管
+            userInfo.setIsSuperAdmin(Booleans.toValue(dingTalkLoginDTO.getIsBoss()));
+            userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
+            userInfo.setIsDeleted(Booleans.FALSE);
+            userInfo.setSource(UserInfoSourceEnum.OAUTH.getSource());
+            userInfo.setEmail(dingTalkLoginDTO.getEmail());
+            this.save(userInfo);
+        }
+        userDingtalkInfoService.addUser(dingTalkLoginDTO, userInfo);
         return buildLoginUser(userInfo);
     }
 

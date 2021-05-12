@@ -16,6 +16,13 @@ import java.util.Optional;
 @Service
 public class SystemConfigService extends BaseService<SystemConfig, SystemConfigMapper> {
 
+    public void setConfig(String key, String value) {
+        SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
+        systemConfigDTO.setConfigKey(key);
+        systemConfigDTO.setConfigValue(value);
+        setConfig(systemConfigDTO);
+    }
+
     public void setConfig(SystemConfigDTO systemConfigDTO) {
         Objects.requireNonNull(systemConfigDTO.getConfigKey(), "need key");
         Objects.requireNonNull(systemConfigDTO.getConfigValue(), "need value");

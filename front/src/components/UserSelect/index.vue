@@ -7,7 +7,7 @@
         remote
         :multiple="multiple"
         :remote-method="remoteMethod"
-        placeholder="可根据登录账号筛选"
+        placeholder="搜索：昵称/邮箱"
         style="width: 100%"
         :loading="loading"
       >
@@ -17,7 +17,7 @@
           :label="item.nickname"
           :value="item.id"
         >
-          {{ item.nickname }}({{ item.username }})
+          {{ item.nickname }}<span v-show="item.email">({{ item.email }})</span>
         </el-option>
       </el-select>
     </el-form-item>

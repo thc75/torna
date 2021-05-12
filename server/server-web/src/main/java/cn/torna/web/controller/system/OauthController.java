@@ -1,6 +1,7 @@
 package cn.torna.web.controller.system;
 
 import cn.torna.common.bean.LoginUser;
+import cn.torna.common.util.JwtUtil;
 import cn.torna.common.util.ResponseUtil;
 import cn.torna.service.UserInfoService;
 import com.xkcoding.justauth.AuthRequestFactory;
@@ -34,13 +35,6 @@ public class OauthController {
     @Autowired
     private UserInfoService userInfoService;
 
-    private static final String SUCCESS_HTML = String.join("\n", Arrays.asList(
-            "<html><head><script>",
-            "localStorage.setItem('torna.token', '%s');",
-            "location.href = '/';",
-            "</script></head><body></body></html>"
-    ));
-
     /**
      * 认证登录，跳转到登录页
      * @param type 类型，如：custom
@@ -69,7 +63,7 @@ public class OauthController {
             try {
                 LoginUser loginUser = userInfoService.oauthLogin(user);
                 // 做页面跳转，主要是保存token
-                ResponseUtil.writeHtml(response, String.format(SUCCESS_HTML, loginUser.getToken()));
+                ResponseUtil.writeHtml(response, JwtUtil.getJumpPageHtml(loginUser.getToken()));
             } catch (Exception e) {
                 ResponseUtil.writeHtml(response, e.getMessage());
             }

@@ -7,6 +7,8 @@ const NUMBER_TYPES = [
   'int8', 'int16', 'int32', 'int64', 'float', 'double', 'number'
 ]
 
+let isDingTalk = undefined
+
 /**
  * 构建返回结果例子
  * @param params 返回结果定义
@@ -402,6 +404,19 @@ export function download_text(filename, text) {
   element.click()
 
   document.body.removeChild(element)
+}
+
+export function is_ding_talk() {
+  if (isDingTalk !== undefined) {
+    return isDingTalk
+  }
+  let ret = false
+  if (navigator.userAgent) {
+    const userAgent = navigator.userAgent.toLowerCase()
+    ret = userAgent.indexOf('ret') > -1
+  }
+  isDingTalk = ret
+  return ret
 }
 
 export const style_config = {

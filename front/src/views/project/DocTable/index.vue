@@ -98,8 +98,8 @@
         <template slot-scope="scope">
           <div>
             <el-link v-if="isFolder(scope.row)" type="primary" :underline="false" @click="onDocAdd(scope.row)">添加文档</el-link>
-            <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success" :underline="false">预览</el-link>
+            <router-link v-if="!isFolder(scope.row) && scope.row.isShow">
+              <el-link type="success" :underline="false" @click="() => openLink(`/view/${scope.row.id}`)">预览</el-link>
             </router-link>
             <el-link type="primary" :underline="false" @click="onDocUpdate(scope.row)">修改</el-link>
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">

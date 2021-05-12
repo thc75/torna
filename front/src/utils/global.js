@@ -10,11 +10,13 @@ import {
   get_requestUrl,
   init_docInfo,
   init_docInfo_complete_view,
-  init_docInfo_view
+  init_docInfo_view,
+  is_ding_talk
 } from './common'
 import {format_json} from '@/utils/format'
 import {Enums} from './enums'
 import {add_init} from './init'
+import * as dd from 'dingtalk-jsapi'
 
 const SPACE_ID_KEY = 'torna.spaceid'
 const TORNA_FROM = 'torna.from'
@@ -153,6 +155,18 @@ Object.assign(Vue.prototype, {
         callback && callback.call(that, action)
       }
     })
+  },
+  openLink(url) {
+    if (is_ding_talk()) {
+      dd.biz.util.openLink({
+        url: url,
+        onFail: function(err) {
+          alert(`跳转失败, ${err}`)
+        }
+      })
+    } else {
+      window.open(url)
+    }
   },
   nextId() {
     return next_id++
