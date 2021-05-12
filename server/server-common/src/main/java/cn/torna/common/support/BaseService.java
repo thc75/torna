@@ -122,6 +122,9 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      * @return 返回记录，没有返回null
      */
     public E getById(Long id) {
+        if (id == null) {
+            return null;
+        }
         return mapper.getById(id);
     }
 

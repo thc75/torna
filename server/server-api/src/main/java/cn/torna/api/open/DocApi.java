@@ -78,12 +78,18 @@ public class DocApi {
     @Autowired
     private UserMessageService userMessageService;
 
-    @Value("${torna.push-allow-same-folder}")
+    @Value("${torna.push.allow-same-folder}")
     private boolean allowSameFolder;
+
+    @Value("${torna.push.print-content}")
+    private boolean watchPushContent;
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
+        if (watchPushContent) {
+            log.info("推送内容：\n{}", JSON.toJSONString(param));
+        }
         if (allowSameFolder) {
             this.mergeSameFolder(param);
         } else {
@@ -157,6 +163,9 @@ public class DocApi {
             synchronized (lock) {
                 // 设置调试环境
                 for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+                    if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
+                        continue;
+                    }
                     moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 先删除之前的文档
