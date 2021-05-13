@@ -276,6 +276,7 @@ const MAPPING = {
   'pleaseInputJson': 'Enter json',
   'jsonType': 'Json Type',
   'require': 'Require',
+  'required': 'Require',
   'maxLength': 'Max Length',
   'clickRestore': 'Restore',
   'emptyData': 'Empty data',
@@ -335,6 +336,8 @@ const MAPPING = {
   'mockScriptError': 'Mock script error',
   'pleaseFinishForm': 'Please finish form',
   'maintainer': 'Maintainer',
+  'managementModel': 'Management Model',
+  'document': 'Document',
 
 }
 

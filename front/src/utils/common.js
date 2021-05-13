@@ -436,38 +436,40 @@ export function is_ding_talk() {
   return ret
 }
 
-export const style_config = {
-  '0': [
-    { prop: 'name', label: '名称' },
-    { prop: 'required', label: '必须' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '1': [
-    { prop: 'name', label: '名称' },
-    { prop: 'required', label: '必须' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '2': [
-    { prop: 'name', label: '名称' },
-    { prop: 'type', label: '类型' },
-    { prop: 'required', label: '必须' },
-    { prop: 'maxLength', label: '最大长度' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '3': [
-    { prop: 'name', label: '名称' },
-    { prop: 'type', label: '类型' },
-    { prop: 'required', label: '必须' },
-    { prop: 'maxLength', label: '最大长度' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '4': [
-    { prop: 'name', label: '错误码' },
-    { prop: 'description', label: '错误描述' },
-    { prop: 'example', label: '解决方案' }
-  ]
+export function get_style_config() {
+  return {
+    '0': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '1': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '2': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'type', label: $ts('type') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'maxLength', label: $ts('maxLength') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '3': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'type', label: $ts('type') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'maxLength', label: $ts('maxLength') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '4': [
+      { prop: 'name', label: $ts('errorCode') },
+      { prop: 'description', label: $ts('errorDesc') },
+      { prop: 'example', label: $ts('solution') }
+    ]
+  }
 }

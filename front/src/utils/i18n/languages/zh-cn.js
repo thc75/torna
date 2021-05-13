@@ -277,6 +277,7 @@ const MAPPING = {
   'pleaseInputJson': '请输入JSON',
   'jsonType': 'json格式',
   'require': '必填',
+  'required': '必填',
   'maxLength': '最大长度',
   'clickRestore': '点击恢复',
   'emptyData': '无数据',
@@ -336,6 +337,8 @@ const MAPPING = {
   'mockScriptError': 'Mock脚本错误',
   'pleaseFinishForm': '请完善表单',
   'maintainer': '维护人',
+  'managementModel': '管理模式',
+  'document': '文档',
 
 }
 

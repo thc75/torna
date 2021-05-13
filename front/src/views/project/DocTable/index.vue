@@ -97,7 +97,7 @@
         <template slot-scope="scope">
           <div>
             <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">{{ $ts('createDoc') }}</el-link>
-            <el-link type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">$ts('preview')</el-link>
+            <el-link v-if="!isFolder(scope.row)" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">{{ $ts('preview') }}</el-link>
             <el-link type="primary" @click="onDocUpdate(scope.row)">{{ $ts('update') }}</el-link>
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
               <span class="el-dropdown-link">

@@ -4,7 +4,7 @@
 
     <div class="right-menu">
       <div class="right-menu-item">
-        <el-button type="primary" size="mini" icon="el-icon-monitor" @click="goAdminPage">管理模式</el-button>
+        <el-button type="primary" size="mini" icon="el-icon-monitor" @click="goAdminPage">{{ $ts('managementModel') }}</el-button>
       </div>
       <div class="right-menu-item">
         <user-message />

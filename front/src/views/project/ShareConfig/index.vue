@@ -41,7 +41,7 @@
       <el-table-column
         prop="gmtCreate"
         :label="$ts('createTime')"
-        width="100"
+        width="110"
       >
         <template slot-scope="scope">
           <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
