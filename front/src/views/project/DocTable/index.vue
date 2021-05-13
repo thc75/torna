@@ -45,7 +45,6 @@
         :tree-node="true"
         prop="name"
         label="文档名称"
-        width="300"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
