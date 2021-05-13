@@ -5,11 +5,9 @@
         <el-button type="primary" size="mini" @click="goRoute('/')">{{ $ts('docManagement') }}</el-button>
       </div>
       <div class="right-menu-item">
-        <router-link to="/help" target="_blank">
-          <el-tooltip placement="bottom" :content="$ts('helpCenter')">
-            <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" />
-          </el-tooltip>
-        </router-link>
+        <el-tooltip placement="bottom" :content="$ts('helpCenter')">
+          <el-button type="text" class="el-icon-question navbar-btn" style="color: #5a5e66" @click="openLink('/help')" />
+        </el-tooltip>
       </div>
       <div class="right-menu-item">
         <user-message />

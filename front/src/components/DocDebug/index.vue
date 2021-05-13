@@ -35,7 +35,7 @@
             {{ $ts('noDebugEvnTip1') }}
             【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">{{ $ts('moduleSetting') }}</router-link>】
             {{ $ts('noDebugEvnTip2') }}
-            <router-link class="el-link el-link--primary" target="_blank" to="/help?id=debug">{{ $ts('referenceDoc') }}</router-link>
+            <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('referenceDoc') }}</el-link>
           </span>
         </el-alert>
         <div v-show="pathData.length > 0" class="path-param">

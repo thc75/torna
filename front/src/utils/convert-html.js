@@ -166,6 +166,11 @@ const HtmlUtil = {
     }
 
     sb.append('<h4>请求参数</h4>')
+
+    sb.append('<h5>Query参数</h5>')
+    const queryParamsTable = createTable(docInfo.queryParams, Enums.PARAM_STYLE.request)
+    sb.append(queryParamsTable)
+    sb.append('<h5>Body参数</h5>')
     const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
     sb.append(requestParamsTable)
 

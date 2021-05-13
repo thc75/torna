@@ -142,12 +142,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         List<DocParam> globalParams = moduleConfigService.listGlobalParams(moduleId);
         List<DocParam> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
+        List<DocParam> globalErrorCodes = listCommonErrorCodes(moduleId);
         List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
         List<DocParam> queryParams = paramsMap.getOrDefault(ParamStyleEnum.QUERY.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), Collections.emptyList());
-
+        errorCodeParams.addAll(globalErrorCodes);
         docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
         docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
         docInfoDTO.setQueryParams(CopyUtil.copyList(queryParams, DocParamDTO::new));
@@ -160,6 +161,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
 
         return docInfoDTO;
+    }
+
+    private List<DocParam> listCommonErrorCodes(long moduleId) {
+        return moduleConfigService.listCommonErrorCodes(moduleId);
     }
 
     /**

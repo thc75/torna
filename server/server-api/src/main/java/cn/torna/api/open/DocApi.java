@@ -21,8 +21,11 @@ import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
+import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.EnumItem;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.EnumService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
@@ -78,12 +81,24 @@ public class DocApi {
     @Autowired
     private UserMessageService userMessageService;
 
-    @Value("${torna.push-allow-same-folder}")
+    @Autowired
+    private EnumService enumService;
+
+    @Value("${torna.push.allow-same-folder}")
     private boolean allowSameFolder;
+
+    @Value("${torna.push.print-content}")
+    private boolean watchPushContent;
+
+    @Value("${torna.common-error-code-name:公共错误码}")
+    private String commonErrorCodeName;
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
+        if (watchPushContent) {
+            log.info("推送内容：\n{}", JSON.toJSONString(param));
+        }
         if (allowSameFolder) {
             this.mergeSameFolder(param);
         } else {
@@ -157,6 +172,9 @@ public class DocApi {
             synchronized (lock) {
                 // 设置调试环境
                 for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+                    if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
+                        continue;
+                    }
                     moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 先删除之前的文档
@@ -165,6 +183,8 @@ public class DocApi {
                 for (DocPushItemParam detailPushParam : param.getApis()) {
                     this.pushDocItem(detailPushParam, context, 0L);
                 }
+                // 设置公共错误码
+                this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
             }
             return null;
         }, e -> {
@@ -220,6 +240,14 @@ public class DocApi {
             formatUrl(docInfoDTO);
             docInfoService.doSaveDocInfo(docInfoDTO, user);
         }
+    }
+
+    private void setCommonErrorCodes(long moduleId, List<CodeParamPushParam> commonErrorCodes) {
+        if (CollectionUtils.isEmpty(commonErrorCodes)) {
+            return;
+        }
+        List<DocParam> errorCodeParams = CopyUtil.copyList(commonErrorCodes, DocParam::new);
+        moduleConfigService.setCommonErrorCodes(errorCodeParams, moduleId);
     }
 
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {

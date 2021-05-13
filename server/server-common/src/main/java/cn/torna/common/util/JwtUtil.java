@@ -14,6 +14,7 @@ import cn.torna.common.exception.JwtExpiredException;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,16 @@ import java.util.Set;
 public class JwtUtil {
 
     private static final Map<String, Object> headerClaims = new HashMap<>();
+
+    /**
+     * 登录成功后跳转页面
+     */
+    private static final String SUCCESS_HTML = String.join("\n", Arrays.asList(
+            "<html><head><script>",
+            "localStorage.setItem('torna.token', '%s');",
+            "location.href = '%s';",
+            "</script></head><body></body></html>"
+    ));
 
     static {
         headerClaims.put("typ", "JWT");
@@ -74,5 +85,13 @@ public class JwtUtil {
         }
 
         return jwt.getClaims();
+    }
+
+    public static String getJumpPageHtml(String token) {
+        return getJumpPageHtml(token, "/");
+    }
+
+    public static String getJumpPageHtml(String token, String redirectUrl) {
+        return String.format(SUCCESS_HTML, token, redirectUrl);
     }
 }

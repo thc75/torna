@@ -28,9 +28,7 @@
         </el-popconfirm>
       </el-form-item>
     </el-form>
-    <router-link to="/openapi" target="_blank">
-      <el-button type="text">{{ $ts('openApiLink') }}</el-button>
-    </router-link>
+    <el-button type="text" @click="openLink('/openapi')">{{ $ts('openApiLink') }}</el-button>
   </div>
 </template>
 <style>

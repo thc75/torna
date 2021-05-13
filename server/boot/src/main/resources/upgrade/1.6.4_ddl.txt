@@ -1,0 +1,16 @@
+CREATE TABLE `user_dingtalk_info` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nick` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在钉钉上面的昵称',
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '员工名称。',
+  `email` varchar(128) NOT NULL DEFAULT '' COMMENT '员工邮箱。',
+  `userid` varchar(128) NOT NULL DEFAULT '' COMMENT '员工的userid。',
+  `unionid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用所属企业的唯一标识。',
+  `openid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用内的唯一标识。',
+  `user_info_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'user_info.id',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_unionid` (`unionid`) USING BTREE,
+  KEY `idx_openid` (`openid`) USING BTREE,
+  KEY `idx_userid` (`user_info_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='钉钉开放平台用户'

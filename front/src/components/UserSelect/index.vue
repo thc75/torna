@@ -17,7 +17,7 @@
           :label="item.nickname"
           :value="item.id"
         >
-          {{ item.nickname }}({{ item.username }})
+          {{ item.nickname }}<span v-show="item.email">({{ item.email }})</span>
         </el-option>
       </el-select>
     </el-form-item>

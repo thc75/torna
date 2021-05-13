@@ -25,4 +25,7 @@ public class DocPushParam {
     @ApiDocField(description = "推送人", example = "张三")
     private String author;
 
+    @ApiDocField(description = "公共错误码", elementClass = CodeParamPushParam.class)
+    private List<CodeParamPushParam> commonErrorCodes;
+
 }

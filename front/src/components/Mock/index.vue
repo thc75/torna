@@ -10,9 +10,7 @@
         {{ $ts('newConfig') }}
       </el-button>
       <el-tooltip placement="top" :content="$ts('helpDoc')">
-        <router-link class="el-link" target="_blank" to="/help?id=mock">
-          <i class="el-icon-question"></i>
-        </router-link>
+        <i class="el-icon-question cursor-pointer" @click="openLink('/help?id=mock')"></i>
       </el-tooltip>
     </div>
     <el-tabs
@@ -120,7 +118,7 @@
           <div v-else>
             <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">{{ $ts('run') }}</el-button>
             <span class="info-tip">
-              {{ $ts('baseOnMockjs') }}，<router-link class="el-link el-link--primary" target="_blank" to="/help?id=mock">{{ $ts('helpDoc') }}</router-link>
+              {{ $ts('baseOnMockjs') }}，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">{{ $ts('helpDoc') }}</el-link>
             </span>
             <editor
               v-model="formData.mockScript"

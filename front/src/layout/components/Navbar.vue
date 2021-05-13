@@ -13,11 +13,9 @@
         <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">{{ $ts('previewModel') }}</el-button>
       </div>
       <div class="right-menu-item">
-        <router-link to="/help" target="_blank">
-          <el-tooltip placement="bottom" :content="$ts('helpCenter')">
-            <el-button type="text" class="el-icon-question navbar-btn" />
-          </el-tooltip>
-        </router-link>
+        <el-tooltip placement="bottom" :content="$ts('helpCenter')">
+          <el-button type="text" class="el-icon-question navbar-btn" @click="openLink('/help')" />
+        </el-tooltip>
       </div>
       <div class="right-menu-item">
         <user-message />
