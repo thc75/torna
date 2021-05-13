@@ -36,7 +36,7 @@
       <el-table-column :label="$ts('description')" prop="description" />
       <el-table-column
         :label="$ts('operation')"
-        width="200"
+        :width="$width(200, { 'en': 240 })"
       >
         <template slot-scope="scope">
           <el-link type="primary" size="mini" @click="onParamAddChild(scope.row)">{{ $ts('addChildNode') }}</el-link>

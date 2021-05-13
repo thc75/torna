@@ -25,7 +25,7 @@ const MAPPING = {
   'dlgSave': 'Save',
   'notEmpty': 'Can not empty',
   'createSuccess': 'Create Success',
-  'filterWithUsername': 'Filter with username',
+  'filterWithUsername': 'Filter with nick/email',
   'selectUser': 'Please select user',
   'projectList': 'Projects',
   'spaceInfo': 'Space Info',
@@ -338,6 +338,8 @@ const MAPPING = {
   'maintainer': 'Maintainer',
   'managementModel': 'Management Model',
   'document': 'Document',
+  'systemSetting': 'System Setting',
+  'language': 'Language',
 
 }
 

@@ -25,7 +25,7 @@ const MAPPING = {
   'dlgSave': '保 存',
   'notEmpty': '不能为空',
   'createSuccess': '创建成功',
-  'filterWithUsername': '可根据登录账号筛选',
+  'filterWithUsername': '可根据昵称/邮箱筛选',
   'selectUser': '请选择用户',
   'projectList': '项目列表',
   'spaceInfo': '空间信息',
@@ -339,6 +339,8 @@ const MAPPING = {
   'maintainer': '维护人',
   'managementModel': '管理模式',
   'document': '文档',
+  'systemSetting': '系统设置',
+  'language': '语言',
 
 }
 

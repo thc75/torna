@@ -121,7 +121,7 @@
     <el-table-column
       v-if="isColumnShow('opt')"
       :label="$ts('operation')"
-      width="80"
+      width="90"
     >
       <template slot-scope="scope">
         <div>

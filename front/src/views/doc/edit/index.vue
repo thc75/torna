@@ -254,7 +254,7 @@ export default {
   },
   created() {
     if (this.$route.path.indexOf('new') > -1) {
-      this.initTitle = '新建文档'
+      this.initTitle = $ts('createDoc')
     }
     this.initData()
   },

@@ -42,6 +42,18 @@ Object.assign(Vue.prototype, {
       value = format_string(value, args)
     }
     return value
+  },
+  /**
+   * 设置长度
+   * @param width 中文状态下宽度
+   * @param config 其它语言状态对应的width <code>{ 'en': 200 }</code>
+   */
+  $width(width, config) {
+    if (!config) {
+      return width
+    }
+    const lang = get_lang()
+    return config[lang] || width
   }
 })
 

@@ -27,6 +27,10 @@
         </template>
         <el-menu-item index="/user/message">{{ $ts('myMessage') }}</el-menu-item>
       </el-submenu>
+      <el-menu-item index="/user/systemSetting">
+        <i class="el-icon-setting"></i>
+        <span slot="title">{{ $ts('systemSetting') }}</span>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>

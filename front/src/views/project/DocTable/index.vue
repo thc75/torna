@@ -92,7 +92,7 @@
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         :label="$ts('operation')"
-        width="160"
+        :width="$width(160, { 'en': 190 })"
       >
         <template slot-scope="scope">
           <div>

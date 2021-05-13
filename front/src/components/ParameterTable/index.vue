@@ -53,7 +53,7 @@
       v-if="isColumnShow('required')"
       prop="required"
       :label="$ts('require')"
-      width="60"
+      :width="$width(60, { 'en': 75 })"
     >
       <template slot-scope="scope">
         <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
@@ -63,7 +63,7 @@
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
       :label="$ts('maxLength')"
-      width="80"
+      :width="$width(80, { 'en': 100 })"
     />
     <el-table-column
       v-if="isColumnShow('description')"
