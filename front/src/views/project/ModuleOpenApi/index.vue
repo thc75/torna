@@ -28,9 +28,7 @@
         </el-popconfirm>
       </el-form-item>
     </el-form>
-    <router-link to="/openapi" target="_blank">
-      <el-button type="text">OpenAPI接口文档</el-button>
-    </router-link>
+    <el-button type="text" @click="openLink('/openapi')">OpenAPI接口文档</el-button>
   </div>
 </template>
 <style>

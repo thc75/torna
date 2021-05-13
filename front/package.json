@@ -16,7 +16,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "diff-match-patch": "^1.0.5",
-    "dingtalk-jsapi": "^2.13.40",
     "element-ui": "2.13.0",
     "fast-text-encoding": "^1.0.3",
     "file-saver": "^2.0.2",

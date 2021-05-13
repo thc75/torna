@@ -122,8 +122,6 @@ public class DingTalkController implements InitializingBean {
         DingTalkLoginDTO dingTalkLoginDTO = new DingTalkLoginDTO();
         CopyUtil.copyPropertiesIgnoreNull(openInfoResult, dingTalkLoginDTO);
         CopyUtil.copyPropertiesIgnoreNull(userDetail, dingTalkLoginDTO);
-        String email = StringUtils.hasText(userDetail.getEmail()) ? userDetail.getEmail() : userDetail.getOrgEmail();
-        dingTalkLoginDTO.setEmail(email);
         return dingTalkLoginDTO;
     }
 
@@ -204,7 +202,8 @@ public class DingTalkController implements InitializingBean {
                 .execute()
                 .asString();
         JSONObject jsonObject = parseResult(result);
-        return jsonObject.toJavaObject(UserDetailResult.class);
+        JSONObject dataNode = jsonObject.getJSONObject("result");
+        return dataNode.toJavaObject(UserDetailResult.class);
     }
 
     private static JSONObject parseResult(String result) {
@@ -272,8 +271,7 @@ public class DingTalkController implements InitializingBean {
         private String unionid;
         private String name;
         private String email;
-        private String orgEmail;
-        private Boolean isBoss;
+        private Boolean boss;
     }
 
 }

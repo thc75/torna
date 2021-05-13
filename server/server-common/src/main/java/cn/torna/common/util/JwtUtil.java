@@ -88,7 +88,7 @@ public class JwtUtil {
     }
 
     public static String getJumpPageHtml(String token) {
-        return String.format(SUCCESS_HTML, token, "/");
+        return getJumpPageHtml(token, "/");
     }
 
     public static String getJumpPageHtml(String token, String redirectUrl) {

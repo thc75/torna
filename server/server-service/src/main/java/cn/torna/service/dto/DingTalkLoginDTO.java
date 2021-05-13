@@ -13,5 +13,5 @@ public class DingTalkLoginDTO {
     private String userid;
     private String name;
     private String email;
-    private Boolean isBoss;
+    private Boolean boss;
 }

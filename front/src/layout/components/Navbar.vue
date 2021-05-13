@@ -13,11 +13,9 @@
         <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">浏览模式</el-button>
       </div>
       <div class="right-menu-item">
-        <router-link to="/help" target="_blank">
-          <el-tooltip placement="bottom" content="帮助中心">
-            <el-button type="text" class="el-icon-question navbar-btn" />
-          </el-tooltip>
-        </router-link>
+        <el-tooltip placement="bottom" content="帮助中心">
+          <el-button type="text" class="el-icon-question navbar-btn" @click="openLink('/help')" />
+        </el-tooltip>
       </div>
       <div class="right-menu-item">
         <user-message />

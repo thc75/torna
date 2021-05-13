@@ -413,7 +413,7 @@ export function is_ding_talk() {
   let ret = false
   if (navigator.userAgent) {
     const userAgent = navigator.userAgent.toLowerCase()
-    ret = userAgent.indexOf('ret') > -1
+    ret = userAgent.indexOf('dingtalk') > -1
   }
   isDingTalk = ret
   return ret

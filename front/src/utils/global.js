@@ -16,7 +16,6 @@ import {
 import {format_json} from '@/utils/format'
 import {Enums} from './enums'
 import {add_init} from './init'
-import * as dd from 'dingtalk-jsapi'
 
 const SPACE_ID_KEY = 'torna.spaceid'
 const TORNA_FROM = 'torna.from'
@@ -156,16 +155,18 @@ Object.assign(Vue.prototype, {
       }
     })
   },
-  openLink(url) {
+  /**
+   * 新窗口打开
+   * @param path 路由path
+   */
+  openLink(path) {
+    // 如果是钉钉应用，不支持新窗口打开
     if (is_ding_talk()) {
-      dd.biz.util.openLink({
-        url: url,
-        onFail: function(err) {
-          alert(`跳转失败, ${err}`)
-        }
-      })
+      this.$router.push({ path: path })
     } else {
-      window.open(url)
+      // 新窗口打开
+      const routeData = this.$router.resolve({ path: path })
+      window.open(routeData.href, '_blank')
     }
   },
   nextId() {

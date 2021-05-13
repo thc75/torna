@@ -2,6 +2,8 @@ package cn.torna.sdk.request;
 
 import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
+import cn.torna.sdk.param.DocParamCode;
+import cn.torna.sdk.param.EnumItemParam;
 import cn.torna.sdk.response.DocPushResponse;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +27,9 @@ public class DocPushRequest extends BaseRequest<DocPushResponse> {
 
     /** 推送人 */
     private String author;
+
+    /** 公共错误码 */
+    private List<DocParamCode> commonErrorCodes;
 
     /**
      * @param token OpenAPI对应的token

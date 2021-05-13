@@ -204,7 +204,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
             userInfo.setPassword(GenerateUtil.getUUID());
             userInfo.setNickname(dingTalkLoginDTO.getName());
             // 给老板设置为超管
-            userInfo.setIsSuperAdmin(Booleans.toValue(dingTalkLoginDTO.getIsBoss()));
+            userInfo.setIsSuperAdmin(Booleans.toValue(dingTalkLoginDTO.getBoss()));
             userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
             userInfo.setIsDeleted(Booleans.FALSE);
             userInfo.setSource(UserInfoSourceEnum.OAUTH.getSource());

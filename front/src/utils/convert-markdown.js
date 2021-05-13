@@ -140,6 +140,10 @@ const MarkdownUtil = {
     }
 
     append(`#### 请求参数`)
+    append(`##### Query参数`)
+    const queryParamsTable = createTable(docInfo.queryParams, Enums.PARAM_STYLE.request)
+    append(queryParamsTable)
+    append(`##### Body参数`)
     const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
     append(requestParamsTable)
 

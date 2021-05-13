@@ -10,9 +10,7 @@
         添加配置
       </el-button>
       <el-tooltip placement="top" content="帮助文档">
-        <router-link class="el-link" target="_blank" to="/help?id=mock">
-          <i class="el-icon-question"></i>
-        </router-link>
+        <i class="el-icon-question cursor-pointer" @click="openLink('/help?id=mock')"></i>
       </el-tooltip>
     </div>
     <el-tabs
@@ -119,7 +117,7 @@
           <div v-else>
             <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">运行</el-button>
             <span class="info-tip">
-              基于mockjs，<router-link class="el-link el-link--primary" target="_blank" to="/help?id=mock">帮助文档</router-link>
+              基于mockjs，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">帮助文档</el-link>
             </span>
             <editor
               v-model="formData.mockScript"
