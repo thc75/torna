@@ -77,7 +77,7 @@
               <el-table
                 :data="headerData"
                 border
-                :empty-text="$ts('emptyHeader')"
+                :empty-text="$ts('noHeader')"
               >
                 <el-table-column label="Name" prop="name" width="300px" />
                 <el-table-column label="Value">

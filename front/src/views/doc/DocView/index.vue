@@ -48,13 +48,15 @@
         :hidden-columns="['maxLength']"
       />
     </div>
-    <h4>{{ $ts('requestHeader') }}</h4>
-    <parameter-table
-      :data="docInfo.headerParams"
-      :can-add-node="false"
-      :hidden-columns="['type', 'maxLength']"
-      :empty-text="$ts('emptyHeader')"
-    />
+    <div v-if="docInfo.headerParams.length > 0">
+      <h4>{{ $ts('requestHeader') }}</h4>
+      <parameter-table
+        :data="docInfo.headerParams"
+        :can-add-node="false"
+        :hidden-columns="['type', 'maxLength']"
+        :empty-text="$ts('noHeader')"
+      />
+    </div>
     <h4>{{ $ts('requestParams') }}</h4>
     <span v-show="docInfo.queryParams.length === 0 && docInfo.requestParams.length === 0" class="normal-text">{{ $ts('empty') }}</span>
     <div v-show="docInfo.queryParams.length > 0">

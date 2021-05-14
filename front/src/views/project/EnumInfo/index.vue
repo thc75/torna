@@ -7,7 +7,7 @@
         size="mini"
         @click="onItemInfoAdd"
       >
-        {{ $ts('newDictCategory') }}
+        {{ $ts('newDict') }}
       </el-button>
     </h3>
     <el-tabs v-show="baseData.length > 0" v-model="activeName" type="border-card" @tab-click="onTabClick">
@@ -40,7 +40,7 @@
           type="text"
           @click="onEnumItemAdd"
         >
-          {{ $ts('newDict') }}
+          {{ $ts('newItem') }}
         </el-button>
         <el-table
           :data="enumData"
@@ -248,7 +248,7 @@ export default {
       })
     },
     onItemInfoAdd() {
-      this.dialogEnumInfoTitle = this.$ts('newDictCategory')
+      this.dialogEnumInfoTitle = this.$ts('newDict')
       this.dialogEnumInfoVisible = true
       this.dialogEnumInfoFormData.id = 0
       this.dialogEnumInfoFormData.moduleId = this.moduleId
@@ -273,7 +273,7 @@ export default {
     // item
     onEnumItemAdd() {
       const enumInfo = this.enumInfo
-      this.dialogEnumItemTitle = this.$ts('newDict')
+      this.dialogEnumItemTitle = this.$ts('newItem')
       this.dialogEnumItemVisible = true
       this.dialogEnumItemFormData.id = 0
       this.dialogEnumItemFormData.enumId = enumInfo.id

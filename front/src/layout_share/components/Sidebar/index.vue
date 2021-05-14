@@ -19,7 +19,7 @@
           :highlight-current="true"
           :expand-on-click-node="true"
           :default-expanded-keys="expandKeys"
-          empty-text="无数据"
+          :empty-text="$ts('noData')"
           node-key="id"
           class="filter-tree"
           @node-click="onNodeClick"
