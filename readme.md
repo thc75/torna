@@ -98,7 +98,15 @@
 
 **smart-doc + Torna实现文档全流程自动化**
 
+如果您使用Java语言，推荐使用`smart-doc + Torna`
+
 [smart-doc](https://gitee.com/smart-doc-team/smart-doc) + Torna 组成行业领先的文档生成和管理解决方案，使用smart-doc无侵入完成Java源代码和注释提取生成API文档，自动将文档推送到Torna企业级接口文档管理平台。
+
+通过这套组合您可以实现：只需要写完Java注释就能把接口信息推送到Torna平台，从而实现接口预览、接口调试。
+
+推送的内容有：`接口名称/author/Path参数/Header/请求参数/返回参数/字典列表/公共错误码`
+
+如果您是非Java语言，可以使用表单页面编辑以上内容，完成后同样可以进行接口预览、调试。
 
 ## 开发部署
 
