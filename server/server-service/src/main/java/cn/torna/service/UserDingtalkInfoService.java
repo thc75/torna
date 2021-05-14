@@ -5,10 +5,7 @@ import cn.torna.dao.entity.UserDingtalkInfo;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
 import cn.torna.service.dto.DingTalkLoginDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author tanghc
