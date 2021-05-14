@@ -22,6 +22,8 @@ DROP TABLE IF EXISTS `enum_info`;
 DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
 DROP TABLE IF EXISTS `mock_config`;
+DROP TABLE IF EXISTS `system_config`;
+
 
 
 CREATE TABLE `doc_info` (
@@ -292,6 +294,17 @@ CREATE TABLE `mock_config` (
   KEY `idx_docid` (`doc_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='mock配置';
 
+CREATE TABLE `system_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `config_key` varchar(64) NOT NULL DEFAULT '',
+  `config_value` varchar(256) NOT NULL DEFAULT '',
+  `remark` varchar(128) NOT NULL DEFAULT '',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_configkey` (`config_key`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
 
 INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
