@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS `enum_info`;
 DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
 DROP TABLE IF EXISTS `mock_config`;
+DROP TABLE IF EXISTS `system_config`;
 
 
 CREATE TABLE `doc_info` (
