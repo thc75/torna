@@ -12,7 +12,7 @@
           v-show="treeData.length > 0"
           v-model="filterText"
           prefix-icon="el-icon-search"
-          placeholder="过滤：支持文档标题、url"
+          :placeholder="$ts('apiFilter')"
           style="margin-bottom: 10px;"
           size="mini"
           clearable
@@ -25,7 +25,7 @@
           :highlight-current="true"
           :expand-on-click-node="true"
           :default-expanded-keys="expandKeys"
-          empty-text="无数据"
+          :empty-text="无数据"
           node-key="id"
           class="filter-tree"
           :indent="10"

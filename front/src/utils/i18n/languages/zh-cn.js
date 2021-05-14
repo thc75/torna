@@ -280,7 +280,7 @@ const MAPPING = {
   'required': '必填',
   'maxLength': '最大长度',
   'clickRestore': '点击恢复',
-  'emptyData': '无数据',
+  'noData': '无数据',
   'clickSubscribe': '点击关注',
   'exportMarkdown': '导出markdown',
   'exportHtml': '导出html',

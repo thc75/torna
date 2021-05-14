@@ -155,7 +155,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: $ts('emptyData')
+      default: $ts('noData')
     },
     canAddNode: {
       type: Boolean,

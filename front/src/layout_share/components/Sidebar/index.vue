@@ -6,7 +6,7 @@
           v-show="treeData.length > 0"
           v-model="filterText"
           prefix-icon="el-icon-search"
-          placeholder="过滤：支持文档标题、url"
+          :placeholder="$ts('apiFilter')"
           style="margin-bottom: 10px;"
           size="mini"
           clearable
