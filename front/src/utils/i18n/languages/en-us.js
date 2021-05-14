@@ -293,7 +293,7 @@ const MAPPING = {
   'subscribeSuccess': 'Subscribe success',
   'unsubscribeSuccess': 'Unsubscribe success',
   'apiInfo': 'API Info',
-  'debugApi': 'Debug API',
+  'debugApi': 'Debug',
   'method': 'Method',
   'invokeParam': 'Invoke Parameter',
   'returnResult': 'Result',
