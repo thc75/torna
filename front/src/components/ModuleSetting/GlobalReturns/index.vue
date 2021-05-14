@@ -189,6 +189,7 @@ export default {
       this.dialogParamTitle = this.$ts('addParam')
       this.dialogParamVisible = true
       this.dialogParamFormData.id = ''
+      this.dialogParamFormData.enumId = ''
       this.dialogParamFormData.type = 'string'
     },
     onParamAddChild(row) {

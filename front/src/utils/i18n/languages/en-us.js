@@ -288,7 +288,7 @@ const MAPPING = {
   'noHeader': 'No header',
   'requestExample': 'Request Example',
   'responseExample': 'Response Example',
-  'emptyErrorCode': 'Empty error code',
+  'emptyErrorCode': 'No error code',
   'updateRemark': 'Update Remark',
   'subscribeSuccess': 'Subscribe success',
   'unsubscribeSuccess': 'Unsubscribe success',
