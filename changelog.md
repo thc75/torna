@@ -1,5 +1,12 @@
 # 更新日志
 
+## 1.7.0
+
+- [feat]支持钉钉免密登录 [doc](http://torna.cn/dev/third-party-login.html)
+- [feat]界面支持中英文切换（个人中心-系统设置）
+- [enhance]优化导出功能
+- [upgrade]ElementUI升级到2.15.1
+
 # 1.6.3
 
 - [enhance]优化mock，可指定path

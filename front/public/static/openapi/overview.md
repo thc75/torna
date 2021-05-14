@@ -16,7 +16,7 @@ Torna提供了一组开放接口，第三方服务可以通过开放接口来创
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>torna-sdk</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
