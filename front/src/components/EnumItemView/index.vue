@@ -4,9 +4,9 @@
     border
     highlight-current-row
   >
-    <el-table-column label="字典值" prop="value" />
-    <el-table-column label="类型" prop="type" />
-    <el-table-column label="描述" prop="description" />
+    <el-table-column :label="$ts('value')" prop="value" />
+    <el-table-column :label="$ts('type')" prop="type" />
+    <el-table-column :label="$ts('description')" prop="description" />
   </el-table>
 </template>
 <script>

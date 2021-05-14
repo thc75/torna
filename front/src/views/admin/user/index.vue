@@ -2,16 +2,16 @@
   <div class="app-container">
     <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
       <el-form-item
-        label="登录账号"
+        :label="$ts('loginAccount')"
       >
-        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录账号" style="width: 250px;" />
+        <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="onSearch">查询</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="onSearch">{{ $ts('search') }}</el-button>
       </el-form-item>
     </el-form>
     <div class="table-opt-btn">
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">创建新用户</el-button>
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">{{ $ts('addNewUser') }}</el-button>
     </div>
     <el-table
       :data="pageInfo.rows"
@@ -20,26 +20,27 @@
     >
       <el-table-column
         prop="username"
-        label="登录账号"
+        :label="$ts('loginAccount')"
       />
       <el-table-column
         prop="nickname"
-        label="昵称"
+        :label="$ts('nickname')"
+        width="180"
       >
         <template slot-scope="scope">
           {{ scope.row.nickname }}
-          <el-tooltip v-show="scope.row.isSuperAdmin" content="超级管理员" placement="top">
+          <el-tooltip v-show="scope.row.isSuperAdmin" :content="$ts('superAdmin')" placement="top">
             <i class="el-icon-s-custom"></i>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
         prop="email"
-        label="邮箱"
+        :label="$ts('email')"
       />
       <el-table-column
         prop="source"
-        label="来源"
+        :label="$ts('origin')"
         width="120"
       >
         <template slot-scope="scope">
@@ -48,18 +49,18 @@
       </el-table-column>
       <el-table-column
         prop="status"
-        label="状态"
+        :label="$ts('status')"
         width="100"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.status === 0" class="danger">禁用</span>
-          <span v-if="scope.row.status === 1" class="success">正常</span>
-          <span v-if="scope.row.status === 2" class="warning">未激活</span>
+          <span v-if="scope.row.status === 0" class="danger">{{ $ts('disable') }}</span>
+          <span v-if="scope.row.status === 1" class="success">{{ $ts('normal') }}</span>
+          <span v-if="scope.row.status === 2" class="warning">{{ $ts('inactive') }}</span>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        label="注册时间"
+        :label="$ts('regTime')"
         width="120"
       >
         <template slot-scope="scope">
@@ -67,31 +68,31 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="操作"
-        width="150"
+        :label="$ts('operation')"
+        width="200"
       >
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
             <el-popconfirm
               v-if="scope.row.source === 'register'"
-              :title="`确定要重置 ${scope.row.nickname} 密码？`"
-              @onConfirm="onRestPwd(scope.row)"
+              :title="$ts('resetPasswordConfirm', scope.row.nickname)"
+              @confirm="onRestPwd(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="primary">重置密码</el-link>
+              <el-link slot="reference" :underline="false" type="primary">{{ $ts('resetPassword') }}</el-link>
             </el-popconfirm>
             <el-popconfirm
               v-if="scope.row.status === 1"
-              :title="`确定要禁用 ${scope.row.nickname} ？`"
-              @onConfirm="onUserDisable(scope.row)"
+              :title="$ts('disableConfirm', scope.row.nickname)"
+              @confirm="onUserDisable(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="danger">禁用</el-link>
+              <el-link slot="reference" :underline="false" type="danger">{{ $ts('disable') }}</el-link>
             </el-popconfirm>
             <el-popconfirm
               v-if="scope.row.status === 0"
-              :title="`确定要启用 ${scope.row.nickname} ？`"
-              @onConfirm="onUserEnable(scope.row)"
+              :title="$ts('enableConfirm', scope.row.nickname)"
+              @confirm="onUserEnable(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="primary">启用</el-link>
+              <el-link slot="reference" :underline="false" type="primary">{{ $ts('enable') }}</el-link>
             </el-popconfirm>
           </div>
         </template>
@@ -109,7 +110,7 @@
       @current-change="onPageIndexChange"
     />
     <el-dialog
-      :title="dialogTitle"
+      :title="$ts('addNewUser')"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       @close="resetForm('dialogForm')"
@@ -123,19 +124,19 @@
       >
         <el-form-item
           prop="username"
-          label="登录账号"
+          :label="$ts('loginAccount')"
         >
-          <el-input v-model="dialogFormData.username" placeholder="建议使用邮箱" />
+          <el-input v-model="dialogFormData.username" :placeholder="$ts('suggestUseEmail')" />
         </el-form-item>
         <el-form-item
           prop="nickname"
-          label="昵称"
+          :label="$ts('nickname')"
         >
-          <el-input v-model="dialogFormData.nickname" placeholder="建议使用姓名或花名" />
+          <el-input v-model="dialogFormData.nickname" :placeholder="$ts('suggestUseRealName')" />
         </el-form-item>
         <el-form-item
           prop="isSuperAdmin"
-          label="是否超级管理员"
+          :label="$ts('isSuperAdmin')"
         >
           <el-switch
             v-model="dialogFormData.isSuperAdmin"
@@ -147,8 +148,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onDialogSave">保 存</el-button>
+        <el-button @click="dialogVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -157,12 +158,6 @@
 <script>
 import TimeTooltip from '@/components/TimeTooltip'
 
-const SOURCE_MAP = {
-  'register': '自主注册',
-  'oauth': '第三方登录',
-  'form': '第三方登录',
-  'backend': '后台创建'
-}
 export default {
   components: { TimeTooltip },
   data() {
@@ -177,7 +172,6 @@ export default {
         total: 0
       },
       dialogVisible: false,
-      dialogTitle: '新建用户',
       dialogFormData: {
         username: '',
         nickname: '',
@@ -185,10 +179,10 @@ export default {
       },
       dialogFormRules: {
         username: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
         ],
         nickname: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -208,18 +202,18 @@ export default {
     },
     onRestPwd(row) {
       this.post('/admin/user/password/reset', { id: row.id }, resp => {
-        this.alert(`新密码：${resp.data}`, '重置成功')
+        this.alert($ts('resetPasswordSuccess', resp.data), $ts('resetSuccess'))
       })
     },
     onUserDisable(row) {
       this.post('/admin/user/disable', row, () => {
-        this.tipSuccess('操作成功')
+        this.tipSuccess($ts('operateSuccess'))
         this.loadTable()
       })
     },
     onUserEnable(row) {
       this.post('/admin/user/enable', row, () => {
-        this.tipSuccess('操作成功')
+        this.tipSuccess($ts('operateSuccess'))
         this.loadTable()
       })
     },
@@ -229,7 +223,7 @@ export default {
           const uri = '/admin/user/create'
           this.post(uri, this.dialogFormData, (resp) => {
             const data = resp.data
-            this.alert(`登录账号：${data.username}\n密码：${data.password}`, '创建成功')
+            this.alert($ts('addUserSuccess', data.username, data.password), $ts('createSuccess'))
             this.dialogVisible = false
             this.loadTable()
           })
@@ -249,7 +243,18 @@ export default {
       this.loadTable()
     },
     getSource(row) {
-      return SOURCE_MAP[row.source] || '未知'
+      if (!this.sourceMap) {
+        this.sourceMap = this.getSourceMap()
+      }
+      return this.sourceMap[row.source] || $ts('unknown')
+    },
+    getSourceMap() {
+      return {
+        'register': $ts('selfReg'),
+        'oauth': $ts('thirdPartyLogin'),
+        'form': $ts('thirdPartyLogin'),
+        'backend': $ts('backendAdd')
+      }
     }
   }
 }

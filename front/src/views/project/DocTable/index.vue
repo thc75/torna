@@ -3,11 +3,11 @@
     <div>
       <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <el-button type="primary" size="mini">
-          新建接口 <i class="el-icon-arrow-down el-icon--right"></i>
+          {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-document" :command="onDocNew">新建接口</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">新建分类</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-document" :command="onDocNew">{{ $ts('createDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">{{ $ts('createFolder') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
@@ -17,17 +17,17 @@
             prefix-icon="el-icon-search"
             clearable
             size="mini"
-            placeholder="过滤: 支持ID、名称、路径"
+            :placeholder="$ts('apiFilter')"
             style="width: 300px;"
           />
         </div>
         <div class="table-right-item">
-          <el-tooltip placement="top" content="刷新表格">
+          <el-tooltip placement="top" :content="$ts('refreshTable')">
             <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">导出</el-button>
+          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">{{ $ts('export') }}</el-button>
         </div>
       </div>
     </div>
@@ -44,15 +44,14 @@
       <u-table-column
         :tree-node="true"
         prop="name"
-        label="文档名称"
-        width="300"
+        :label="$ts('docName')"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
           <div v-if="isDoc(scope.row)" style="display: inline-block;">
             <div v-if="!scope.row.isShow">
-              <el-tooltip placement="bottom" content="隐藏">
+              <el-tooltip placement="bottom" :content="$ts('hidden')">
                 <svg-icon icon-class="eye" svg-style="color: #e6a23c" />
               </el-tooltip>
             </div>
@@ -61,7 +60,7 @@
       </u-table-column>
       <u-table-column
         prop="url"
-        label="请求路径"
+        label="URL"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
@@ -71,20 +70,20 @@
       </u-table-column>
       <u-table-column
         prop="author"
-        label="维护人"
+        :label="$ts('maintainer')"
         width="120"
         show-overflow-tooltip
       />
       <u-table-column
         prop="modifierName"
-        label="最后修改人"
+        :label="$ts('modifierName')"
         width="120"
         show-overflow-tooltip
       />
       <u-table-column
         prop="gmtModified"
-        label="修改时间"
-        width="100"
+        :label="$ts('updateTime')"
+        width="110"
       >
         <template slot-scope="scope">
           <time-tooltip :time="scope.row.gmtModified" />
@@ -92,30 +91,28 @@
       </u-table-column>
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-        label="操作"
-        width="160"
+        :label="$ts('operation')"
+        :width="$width(160, { 'en': 190 })"
       >
         <template slot-scope="scope">
           <div>
-            <el-link v-if="isFolder(scope.row)" type="primary" :underline="false" @click="onDocAdd(scope.row)">添加文档</el-link>
-            <router-link v-if="!isFolder(scope.row) && scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success" :underline="false">预览</el-link>
-            </router-link>
-            <el-link type="primary" :underline="false" @click="onDocUpdate(scope.row)">修改</el-link>
+            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">{{ $ts('createDoc') }}</el-link>
+            <el-link v-if="!isFolder(scope.row)" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">{{ $ts('preview') }}</el-link>
+            <el-link type="primary" @click="onDocUpdate(scope.row)">{{ $ts('update') }}</el-link>
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
               <span class="el-dropdown-link">
-                更多 <i class="el-icon-arrow-down el-icon--right"></i>
+                {{ $ts('more') }} <i class="el-icon-arrow-down el-icon--right"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-if="!isFolder(scope.row)" icon="el-icon-document-copy" :command="() => { onDocCopy(scope.row) }">
-                  复制
+                  {{ $ts('copy') }}
                 </el-dropdown-item>
                 <el-dropdown-item
                   icon="el-icon-delete"
                   class="danger"
                   :command="() => { onDocRemove(scope.row) }"
                 >
-                  删除
+                  {{ $ts('delete') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -124,14 +121,12 @@
       </u-table-column>
       <u-table-column
         v-else
-        label="操作"
+        :label="$ts('operation')"
         width="80"
       >
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
-            <router-link v-if="scope.row.isShow" :to="`/view/${scope.row.id}`" target="_blank">
-              <el-link type="success">预览</el-link>
-            </router-link>
+            <el-link v-if="scope.row.isShow" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">$ts('preview')</el-link>
           </div>
         </template>
       </u-table-column>
@@ -222,7 +217,7 @@ export default {
   methods: {
     refreshTable() {
       this.loadTable(function() {
-        this.tipSuccess('刷新成功')
+        this.tipSuccess(this.$ts('refreshSuccess'))
       })
     },
     loadTable(callback) {
@@ -243,19 +238,19 @@ export default {
       this.tableHeight = window.innerHeight - 165
     },
     onFolderUpdate(row) {
-      this.$prompt('请输入分类名称', '修改分类', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$prompt(this.$ts('inputFolderMsg'), this.$ts('updateFolderTitle'), {
+        confirmButtonText: this.$ts('ok'),
+        cancelButtonText: this.$ts('cancel'),
         inputValue: row.name,
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: '不能为空且长度在64以内'
+        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           id: row.id,
           name: value
         }
         this.post('/doc/folder/update', data, () => {
-          this.tipSuccess('修改成功')
+          this.tipSuccess(this.$ts('updateSuccess'))
           this.reload()
         })
       }).catch(() => {
@@ -265,18 +260,18 @@ export default {
       this.goRoute(`/doc/new/${this.moduleId}`)
     },
     onFolderAdd() {
-      this.$prompt('请输入分类名称', '新建分类', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$prompt(this.$ts('inputFolderMsg'), this.$ts('newFolderTitle'), {
+        confirmButtonText: this.$ts('ok'),
+        cancelButtonText: this.$ts('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: '不能为空且长度在64以内'
+        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           name: value,
           moduleId: this.moduleId
         }
         this.post('/doc/folder/add', data, () => {
-          this.tipSuccess('创建成功')
+          this.tipSuccess(this.$ts('createSuccess'))
           this.reload()
         })
       }).catch(() => {
@@ -294,12 +289,12 @@ export default {
         (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onDocRemove(row) {
-      this.confirm(`确定要删除 ${row.name} 吗？`, () => {
+      this.confirm(this.$ts('deleteConfirm', row.name), () => {
         const data = {
           id: row.id
         }
         this.post('/doc/delete', data, () => {
-          this.tipSuccess('删除成功')
+          this.tipSuccess(this.$ts('deleteSuccess'))
           this.loadTable()
         })
       })

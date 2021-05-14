@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <h3>Swagger多个Method重复，只显示</h3>
+      <h3>{{ $ts('swaggerMultiMethod') }}</h3>
       <el-form ref="allowMethodsRef" :model="setting" size="mini">
         <el-form-item prop="allowMethods">
           <el-select v-model="setting.allowMethod" @change="onSaveAllowMethods">
@@ -43,7 +43,7 @@ export default {
         method: this.setting.allowMethod
       }
       this.post('/module/setting/swaggerSetting/allowMethod/set', data, () => {
-        this.tipSuccess('修改成功')
+        this.tipSuccess(this.$ts('updateSuccess'))
       })
     }
   }

@@ -46,6 +46,7 @@ public class DocPushTest extends BaseTest {
         request.setApis(Arrays.asList(folder));
         request.setDebugEnvs(Arrays.asList(debugEnv));
         request.setAuthor("张三");
+        request.setCommonErrorCodes(buildEnumItemParamList());
 
         // 发送请求
         DocPushResponse response = client.execute(request);
@@ -55,6 +56,18 @@ public class DocPushTest extends BaseTest {
         } else {
             System.out.println("errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
         }
+    }
+
+    private List<DocParamCode> buildEnumItemParamList() {
+        List<DocParamCode> errorCodes = new ArrayList<>(3);
+        for (int i = 0; i < 4; i++) {
+            DocParamCode enumItemParam = new DocParamCode();
+            enumItemParam.setCode("name" + i);
+            enumItemParam.setMsg("描述" + i);
+            enumItemParam.setSolution("解决方案" + i);
+            errorCodes.add(enumItemParam);
+        }
+        return errorCodes;
     }
 
     private static DocItem buildDocItem(int i) {

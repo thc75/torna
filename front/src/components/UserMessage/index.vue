@@ -5,9 +5,9 @@
     </el-badge>
     <el-dropdown-menu slot="dropdown" class="user-message-menu user-drop-menu">
       <el-dropdown-item style="padding: 0 20px">
-        <el-link v-show="hasMessage()" type="primary" icon="el-icon-circle-check" style="margin-right: 10px" @click="setReadAll">全部标记已读</el-link>
+        <el-link v-show="hasMessage()" type="primary" icon="el-icon-circle-check" style="margin-right: 10px" @click="setReadAll">{{ $ts('userMsgReadAll') }}</el-link>
         <router-link to="/user/message">
-          <el-link type="primary" icon="el-icon-message-solid">消息中心</el-link>
+          <el-link type="primary" icon="el-icon-message-solid">{{ $ts('userMsgCenter') }}</el-link>
         </router-link>
       </el-dropdown-item>
       <el-dropdown-item v-for="item in messages" :key="item.id" class="user-message-item" divided>
@@ -16,13 +16,13 @@
         </div>
         <div class="user-message-link">
           <router-link v-if="item.type === 1" :to="`/view/${item.sourceId}`">
-            <el-link type="primary" @click="setRead(item)">查看文档</el-link>
+            <el-link type="primary" @click="setRead(item)">{{ $ts('viewDoc') }}</el-link>
           </router-link>
-          <el-link type="primary" @click.stop="setRead(item)">标记已读</el-link>
+          <el-link type="primary" @click.stop="setRead(item)">{{ $ts('setRead') }}</el-link>
         </div>
       </el-dropdown-item>
       <el-dropdown-item v-show="!hasMessage()">
-        <span>暂没有新消息</span>
+        <span>{{ $ts('userMsgNoMsg') }}</span>
       </el-dropdown-item>
     </el-dropdown-menu>
   </el-dropdown>

@@ -1,60 +1,67 @@
 <template>
   <div>
     <div class="table-opt-btn">
-      <el-button type="primary" size="mini" @click="onAdd">创建分享</el-button>
+      <el-button type="primary" size="mini" @click="onAdd">{{ $ts('newShare') }}</el-button>
     </div>
     <el-table
       :data="pageInfo.rows"
       border
       highlight-current-row
     >
-      <el-table-column label="分享链接" show-overflow-tooltip>
+      <el-table-column :label="$ts('shareUrl')" show-overflow-tooltip>
         <template slot-scope="scope">
           <el-link type="primary" :href="buildUrl(scope.row)" target="_blank">{{ buildUrl(scope.row) }}</el-link>
-          <span v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT">&nbsp;&nbsp;{{ `密码：${scope.row.password}` }}</span><span v-if="scope.row.remark.length > 0" class="info-tip">【备注】：{{ scope.row.remark }}</span>
+          <span v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT">
+            &nbsp;&nbsp;{{ $ts('pwdShow') + scope.row.password }}
+          </span>
+          <span v-if="scope.row.remark.length > 0" class="info-tip">
+            {{ $ts('remarkShow') }} {{ scope.row.remark }}
+          </span>
         </template>
       </el-table-column>
-      <el-table-column label="分享文档" width="100">
+      <el-table-column :label="$ts('shareDoc')" width="100">
         <template slot-scope="scope">
-          <span v-if="scope.row.isAll">全部文档</span>
-          <el-button v-else type="text" @click="viewDoc(scope.row)">查看</el-button>
+          <span v-if="scope.row.isAll">{{ $ts('allDocs') }}</span>
+          <el-button v-else type="text" @click="viewDoc(scope.row)">{{ $ts('look') }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="分享形式" width="100">
+      <el-table-column :label="$ts('shareStyle')" width="100">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.PUBLIC">公开</el-tag>
-          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT" type="warning">加密</el-tag>
+          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.PUBLIC">{{ $ts('public') }}}</el-tag>
+          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT" type="warning">{{ $ts('encryption') }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建人" prop="creatorName" width="120" />
-      <el-table-column label="状态" width="80">
+      <el-table-column :label="$ts('creator')" prop="creatorName" width="120" />
+      <el-table-column :label="$ts('status')" width="80">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === getEnums().STATUS.ENABLE" type="success">启用</el-tag>
-          <el-tag v-if="scope.row.status === getEnums().STATUS.DISABLE" type="danger">禁用</el-tag>
+          <el-tag v-if="scope.row.status === getEnums().STATUS.ENABLE" type="success">{{ $ts('enable') }}</el-tag>
+          <el-tag v-if="scope.row.status === getEnums().STATUS.DISABLE" type="danger">{{ $ts('disable') }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        label="创建时间"
-        width="100"
+        :label="$ts('createTime')"
+        width="110"
       >
         <template slot-scope="scope">
           <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        label="操作"
+        :label="$ts('operation')"
         width="200"
       >
         <template slot-scope="scope">
-          <el-link type="primary" :underline="false" @click="onTableUpdate(scope.row)">修改</el-link>
-          <el-link v-if="scope.row.status === getEnums().STATUS.ENABLE" type="warning" :underline="false" @click="onTableDisable(scope.row)">禁用</el-link>
-          <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">启用</el-link>
+          <el-link type="primary" :underline="false" @click="onTableUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <el-link v-if="scope.row.status === getEnums().STATUS.ENABLE" type="warning" :underline="false" @click="onTableDisable(scope.row)">
+            {{ $ts('disable') }}
+          </el-link>
+          <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">{{ $ts('enable') }}</el-link>
           <el-popconfirm
-            :title="`确定要删除此记录吗？`"
-            @onConfirm="onTableDelete(scope.row)"
+            :title="$ts('deleteRowConfirm')"
+            @confirm="onTableDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger">删除</el-link>
+            <el-link slot="reference" type="danger">{{ $ts('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -87,21 +94,21 @@
         label-width="120px"
         size="mini"
       >
-        <el-form-item label="备注">
-          <el-input v-model="dialogFormData.remark" placeholder="选填" show-word-limit maxlength="50" />
+        <el-form-item :label="$ts('remark')">
+          <el-input v-model="dialogFormData.remark" :placeholder="$ts('optional')" show-word-limit maxlength="50" />
         </el-form-item>
-        <el-form-item label="分享形式">
+        <el-form-item :label="$ts('shareStyle')">
           <template>
             <el-radio-group v-model="dialogFormData.type">
-              <el-radio :label="1">公开</el-radio>
-              <el-radio :label="2">加密</el-radio>
+              <el-radio :label="1">{{ $ts('public') }}</el-radio>
+              <el-radio :label="2">{{ $ts('encryption') }}</el-radio>
             </el-radio-group>
           </template>
         </el-form-item>
-        <el-form-item label="选择文档">
+        <el-form-item :label="$ts('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">
-            <el-radio :label="0">部分文档</el-radio>
-            <el-radio :label="1">全部文档<span class="normal-text">（整个模块）</span></el-radio>
+            <el-radio :label="0">{{ $ts('partDocs') }}</el-radio>
+            <el-radio :label="1">{{ $ts('allDocs') }}<span class="normal-text">{{ $ts('wholeModule') }}</span></el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-show="dialogFormData.isAll === 0">
@@ -109,12 +116,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onDialogSave">保 存</el-button>
+        <el-button @click="dialogVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
     <el-dialog
-      title="分享文档"
+      :title="$ts('shareDoc')"
       :visible.sync="dialogViewVisible"
       @close="() => { $refs.docTreeViewRef.clear() }"
     >
@@ -173,7 +180,7 @@ export default {
       }
     },
     onAdd() {
-      this.dialogTitle = '新增分享'
+      this.dialogTitle = this.$ts('newShare')
       this.dialogVisible = true
       this.dialogFormData = {
         id: '',
@@ -187,7 +194,7 @@ export default {
       })
     },
     onTableUpdate(row) {
-      this.dialogTitle = '修改分享'
+      this.dialogTitle = this.$ts('updateShare')
       this.dialogVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogFormData, row)
@@ -213,13 +220,13 @@ export default {
     },
     onTableEnable(row) {
       this.post('/doc/share/enable', row, resp => {
-        this.tipSuccess('操作成功')
+        this.tipSuccess(this.$ts('operateSuccess'))
         this.reload()
       })
     },
     onTableDisable(row) {
       this.post('/doc/share/disable', row, resp => {
-        this.tipSuccess('操作成功')
+        this.tipSuccess(this.$ts('operateSuccess'))
         this.reload()
       })
     },
@@ -228,7 +235,7 @@ export default {
         id: row.id
       }
       this.post('/doc/share/del', data, () => {
-        this.tipSuccess('操作成功')
+        this.tipSuccess(this.$ts('operateSuccess'))
         this.reload()
       })
     },
@@ -237,7 +244,7 @@ export default {
       data.moduleId = this.moduleId
       const checkedNodes = this.$refs.docTreeRef.getCheckedNodes()
       if (!data.isAll && checkedNodes.length === 0) {
-        this.tipError('请勾选文档')
+        this.tipError(this.$ts('pleaseCheckDoc'))
         return
       }
       const content = []

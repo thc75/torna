@@ -69,6 +69,43 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         });
     }
 
+    public void setCommonErrorCodes(List<DocParam> docParamList, long moduleId) {
+        ModuleConfigTypeEnum typeEnum = ModuleConfigTypeEnum.GLOBAL_ERROR_CODES;
+        deleteByModuleAndType(moduleId, typeEnum);
+        for (DocParam docParam : docParamList) {
+            ModuleConfig config = getModuleConfig(moduleId, docParam.getName(), typeEnum, true);
+            boolean save = false;
+            if (config == null) {
+                config = new ModuleConfig();
+                save = true;
+            }
+            config.setModuleId(moduleId);
+            config.setConfigKey(docParam.getName());
+            config.setConfigValue(docParam.getExample());
+            config.setDescription(docParam.getDescription());
+            config.setType(typeEnum.getType());
+            config.setIsDeleted(Booleans.FALSE);
+            if (save) {
+                this.save(config);
+            } else {
+                this.update(config);
+            }
+        }
+    }
+
+    public List<DocParam> listCommonErrorCodes(long moduleId) {
+        return listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_ERROR_CODES)
+                .stream()
+                .map(moduleConfig -> {
+                    DocParam docParam = new DocParam();
+                    docParam.setName(moduleConfig.getConfigKey());
+                    docParam.setExample(moduleConfig.getConfigValue());
+                    docParam.setDescription(moduleConfig.getDescription());
+                    return docParam;
+                })
+                .collect(Collectors.toList());
+    }
+
     public void saveDocParam(DocParamDTO docParamDTO, ModuleConfigTypeEnum moduleConfigTypeEnum, Consumer<DocParam> callback) {
         if (docParamDTO.getParentId() == null) {
             docParamDTO.setParentId(0L);
@@ -119,6 +156,9 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             case GLOBAL_RETURNS:
                 paramStyleEnum = ParamStyleEnum.RESPONSE;
                 break;
+            case GLOBAL_ERROR_CODES:
+                paramStyleEnum = ParamStyleEnum.ERROR_CODE;
+                break;
             default:
         }
         return paramStyleEnum;
@@ -168,6 +208,13 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         }
     }
 
+    public void deleteByModuleAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type", typeEnum.getType());
+        this.getMapper().deleteByQuery(query);
+    }
+
     public List<ModuleConfig> listDebugHost(long moduleId) {
         return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.DEBUG_HOST);
     }
@@ -193,11 +240,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public ModuleConfig getCommonConfig(long moduleId, String key) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", ModuleConfigTypeEnum.COMMON.getType())
-                .eq("config_key", key);
-        return get(query);
+        return getModuleConfig(moduleId, key, ModuleConfigTypeEnum.COMMON, false);
     }
 
     public String getCommonConfigValue(long moduleId, String key, String defaultValue) {
@@ -205,6 +248,17 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return Optional.ofNullable(commonConfig)
                 .map(ModuleConfig::getConfigValue)
                 .orElse(defaultValue);
+    }
+
+    public ModuleConfig getModuleConfig(long moduleId, String key, ModuleConfigTypeEnum type, boolean forceQuery) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type", type.getType())
+                .eq("config_key", key);
+        if (forceQuery) {
+            query.enableForceQuery();
+        }
+        return get(query);
     }
 
     public void setBaseUrl(long moduleId, String baseUrl) {

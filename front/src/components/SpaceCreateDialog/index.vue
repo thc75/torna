@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="创建空间"
+    :title="$ts('createSpace')"
     :close-on-click-modal="false"
     :visible.sync="visible"
     width="40%"
@@ -11,22 +11,22 @@
       :model="spaceFormData"
       :rules="spaceRule"
       size="mini"
-      label-width="100px"
+      label-position="top"
     >
-      <el-form-item label="空间名称" prop="name">
+      <el-form-item :label="$ts('spaceName')" prop="name">
         <el-input
           v-model="spaceFormData.name"
           show-word-limit
           maxlength="50"
         />
       </el-form-item>
-      <el-form-item v-if="isSuperAdmin()" label="空间管理员" required>
+      <el-form-item v-if="isSuperAdmin()" :label="$ts('spaceAdmin')" required>
         <user-select ref="userSelect" multiple />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="visible = false">取 消</el-button>
-      <el-button type="primary" @click="onSpaceCreateSave">保 存</el-button>
+      <el-button @click="visible = false">{{ $ts('dlgCancel') }}</el-button>
+      <el-button type="primary" @click="onSpaceCreateSave">{{ $ts('dlgSave') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -50,7 +50,7 @@ export default {
       },
       spaceRule: {
         name: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -65,7 +65,7 @@ export default {
         this.spaceFormData.adminIds = this.fireUserSelect('getValue') || []
         this.post('/space/add', this.spaceFormData, resp => {
           this.visible = false
-          this.tipSuccess('创建成功')
+          this.tipSuccess(this.$ts('createSuccess'))
           this.initPerm()
           this.success(resp.data)
         })

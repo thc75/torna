@@ -6,7 +6,7 @@
       style="margin-bottom: 10px"
       @click="onHeaderAdd"
     >
-      添加
+      {{ $ts('add') }}
     </el-button>
     <el-table
       :data="globalHeaders"
@@ -15,18 +15,18 @@
     >
       <el-table-column label="Name" prop="name" width="300px" />
       <el-table-column label="Value" prop="example" />
-      <el-table-column label="描述" prop="description" />
+      <el-table-column :label="$ts('description')" prop="description" />
       <el-table-column
-        label="操作"
+        :label="$ts('operation')"
         width="150"
       >
         <template slot-scope="scope">
-          <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">修改</el-link>
+          <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">{{ $ts('update') }}</el-link>
           <el-popconfirm
-            :title="`确定要删除 ${scope.row.name} 吗？`"
-            @onConfirm="onHeaderDelete(scope.row)"
+            :title="$ts('deleteConfirm', scope.row.name)"
+            @confirm="onHeaderDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">删除</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -59,14 +59,14 @@
         </el-form-item>
         <el-form-item
           prop="description"
-          label="描述"
+          :label="$ts('description')"
         >
-          <el-input v-model="dialogHeaderFormData.description" type="textarea" placeholder="描述" show-word-limit maxlength="200" />
+          <el-input v-model="dialogHeaderFormData.description" type="textarea" :placeholder="$ts('description')" show-word-limit maxlength="200" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogHeaderVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onDialogHeaderSave">保 存</el-button>
+        <el-button @click="dialogHeaderVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogHeaderSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -88,16 +88,16 @@ export default {
       },
       dialogHeaderFormRules: {
         name: [
-          { required: true, message: '不能为空', trigger: 'blur' },
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^[a-zA-Z0-9\-_]+$/.test(value)) {
-              callback(new Error('格式错误，支持大小写英文、数字、-、下划线'))
+              callback(new Error(this.$ts('errorParam')))
             } else {
               callback()
             }
           }, trigger: 'blur' }
         ], example: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -115,12 +115,12 @@ export default {
       })
     },
     onHeaderAdd() {
-      this.dialogHeaderTitle = '新增Header'
+      this.dialogHeaderTitle = this.$ts('newHeader')
       this.dialogHeaderVisible = true
       this.dialogHeaderFormData.id = ''
     },
     onHeaderUpdate(row) {
-      this.dialogHeaderTitle = '修改Header'
+      this.dialogHeaderTitle = this.$ts('updateHeader')
       this.dialogHeaderVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogHeaderFormData, row)
@@ -128,7 +128,7 @@ export default {
     },
     onHeaderDelete(row) {
       this.post('/module/setting/globalHeaders/delete', row, () => {
-        this.tip('删除成功')
+        this.tipSuccess(this.$ts('deleteSuccess'))
         this.reload()
       })
     },

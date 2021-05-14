@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 7;
+    private static final int VERSION = 8;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -72,6 +72,13 @@ public class UpgradeService {
         v1_5_0(oldVersion);
         v1_6_2(oldVersion);
         v1_6_3(oldVersion);
+        v1_6_4(oldVersion);
+    }
+
+    private void v1_6_4(int oldVersion) {
+        if (oldVersion < 8) {
+            createTable("user_dingtalk_info", "upgrade/1.6.4_ddl.txt");
+        }
     }
 
     private void v1_6_3(int oldVersion) {
@@ -253,10 +260,25 @@ public class UpgradeService {
      * @param ddlFileCompatible 低版本DDL文件
      * @return 创建成功返回true
      */
+    @Deprecated
     private boolean createTable(String tableName, String ddlFile, String ddlFileCompatible) {
-        String file = isLowerVersion() ? ddlFileCompatible : ddlFile;
+        return createTable(tableName, ddlFile);
+    }
+
+    /**
+     * 创建表
+     * @param tableName 表名
+     * @param ddlFile DDL文件
+     * @return 创建成功返回true
+     */
+    private boolean createTable(String tableName, String ddlFile) {
         if (!isTableExist(tableName)) {
-            String sql = this.loadDDL(file);
+            String sql = this.loadDDL(ddlFile);
+            if (isLowerVersion()) {
+                sql = sql.replace("DEFAULT CURRENT_TIMESTAMP", "DEFAULT NULL");
+                sql = sql.replace("DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "DEFAULT NULL");
+                sql = sql.replace("utf8mb4", "utf8");
+            }
             upgradeMapper.runSql(sql);
             return true;
         }

@@ -204,6 +204,13 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/user/message'),
         meta: { title: '我的消息' }
+      },
+      {
+        path: 'systemSetting',
+        name: 'SystemSetting',
+        hidden: true,
+        component: () => import('@/views/common/systemSetting'),
+        meta: { title: '系统设置' }
       }
     ]
   },

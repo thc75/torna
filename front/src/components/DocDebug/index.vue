@@ -11,31 +11,31 @@
             />
           </el-radio-group>
           <span class="split">|</span>
-          <el-checkbox v-model="isProxy" label="代理转发" />
+          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" />
           <el-popover
             placement="right"
-            title="代理转发"
+            :title="$ts('proxyForward')"
             width="400"
             :open-delay="500"
             trigger="hover"
           >
-            <p>勾选：服务端代理转发请求</p>
-            <p>取消勾选：页面使用axios请求，需要处理跨域</p>
+            <p>{{ $ts('proxyForwardOn') }}</p>
+            <p>{{ $ts('proxyForwardOff') }}</p>
             <i slot="reference" class="el-icon-question"></i>
           </el-popover>
           <el-input v-model="requestUrl" :readonly="pathData.length > 0" class="request-url">
             <span slot="prepend">
               {{ currentMethod }}
             </span>
-            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send"> 发 送 </el-button>
+            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send">{{ $ts('debugSend') }}</el-button>
           </el-input>
         </div>
         <el-alert v-else :closable="false">
           <span slot="title">
-            尚未指定调试环境，请前往
-            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">模块配置</router-link>】
-            进行添加。
-            <router-link class="el-link el-link--primary" target="_blank" to="/help?id=debug">参考文档</router-link>
+            {{ $ts('noDebugEvnTip1') }}
+            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">{{ $ts('moduleSetting') }}</router-link>】
+            {{ $ts('noDebugEvnTip2') }}
+            <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('referenceDoc') }}</el-link>
           </span>
         </el-alert>
         <div v-show="pathData.length > 0" class="path-param">
@@ -47,10 +47,10 @@
           >
             <el-table-column
               prop="name"
-              label="Path参数"
+              :label="$ts('pathVariable')"
               width="300"
             />
-            <el-table-column label="参数值">
+            <el-table-column :label="$ts('value')">
               <template slot-scope="scope">
                 <el-form :model="scope.row" size="mini">
                   <el-form-item label-width="0">
@@ -77,7 +77,7 @@
               <el-table
                 :data="headerData"
                 border
-                empty-text="无header"
+                :empty-text="$ts('noHeader')"
               >
                 <el-table-column label="Name" prop="name" width="300px" />
                 <el-table-column label="Value">
@@ -96,7 +96,7 @@
         <el-tabs v-model="requestActive" type="card" style="margin-top: 10px">
           <el-tab-pane name="query">
             <span slot="label" class="result-header-label">
-              <span>Query参数 <span class="param-count">({{ queryData.length }})</span></span>
+              <span>Query Parameter <span class="param-count">({{ queryData.length }})</span></span>
             </span>
             <el-table
               :data="queryData"
@@ -104,10 +104,10 @@
             >
               <el-table-column
                 prop="name"
-                label="参数名"
+                :label="$ts('paramName')"
                 width="300"
               />
-              <el-table-column label="参数值">
+              <el-table-column :label="$ts('value')">
                 <template slot-scope="scope">
                   <el-form :model="scope.row" size="mini">
                     <el-form-item label-width="0">
@@ -128,7 +128,7 @@
           <el-tab-pane name="body">
             <span slot="label" class="result-header-label">
               <el-badge :is-dot="hasBody" type="danger">
-                <span>Body参数</span>
+                <span>Body Parameter</span>
               </el-badge>
             </span>
             <el-radio-group v-model="postActive" size="small" style="margin-bottom: 20px;">
@@ -157,10 +157,10 @@
               >
                 <el-table-column
                   prop="name"
-                  label="参数名"
+                  :label="$ts('paramName')"
                   width="300"
                 />
-                <el-table-column label="参数值">
+                <el-table-column :label="$ts('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0">
@@ -187,7 +187,7 @@
                 :on-remove="(file, fileList) => onSelectMultiFile(file, fileList)"
                 :on-change="(file, fileList) => onSelectMultiFile(file, fileList)"
               >
-                <el-button slot="trigger" type="primary" size="mini">上传多个文件</el-button>
+                <el-button slot="trigger" type="primary" size="mini">{{ $ts('uploadMultiFiles') }}</el-button>
               </el-upload>
               <el-table
                 v-show="showBody('multipart')"
@@ -196,10 +196,10 @@
               >
                 <el-table-column
                   prop="name"
-                  label="参数名"
+                  :label="$ts('paramName')"
                   width="300"
                 />
-                <el-table-column label="参数值">
+                <el-table-column :label="$ts('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0" style="margin-bottom: 0">
@@ -211,7 +211,7 @@
                           :on-change="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                           :on-remove="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                         >
-                          <el-button slot="trigger" class="choose-file" type="primary">选择文件</el-button>
+                          <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
                         </el-upload>
                         <div v-else-if="scope.row.type === 'enum'">
                           <el-select v-model="scope.row.example">
@@ -235,7 +235,7 @@
           Status: <el-tag :type="result.status === 200 ? 'success' : 'danger'">{{ result.status }}</el-tag>
         </div>
         <el-tabs v-model="resultActive" type="card">
-          <el-tab-pane label="返回结果" name="body">
+          <el-tab-pane :label="$ts('returnResult')" name="body">
             <el-input v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
@@ -312,8 +312,8 @@ export default {
       queryData: [],
       uploadFiles: [],
       fieldTypes: [
-        { type: 'text', label: '文本' },
-        { type: 'file', label: '文件' }
+        { type: 'text', label: $ts('text') },
+        { type: 'file', label: $ts('file') }
       ],
       headerData: [],
       pathData: [],
@@ -481,7 +481,7 @@ export default {
       }
       request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, () => {
         this.sendLoading = false
-        this.result.content = '发送失败，请按F12查看Console'
+        this.result.content = $ts('sendErrorTip')
         this.openRightPanel()
       })
       this.setProps()
@@ -614,7 +614,7 @@ export default {
         try {
           content = this.formatResponse(contentType, data)
         } catch (e) {
-          console.error('格式转换错误', e)
+          console.error($ts('parseError'), e)
           content = response.data
         }
         this.result.content = content

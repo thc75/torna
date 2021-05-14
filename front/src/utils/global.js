@@ -10,7 +10,8 @@ import {
   get_requestUrl,
   init_docInfo,
   init_docInfo_complete_view,
-  init_docInfo_view
+  init_docInfo_view,
+  is_ding_talk
 } from './common'
 import {format_json} from '@/utils/format'
 import {Enums} from './enums'
@@ -124,9 +125,9 @@ Object.assign(Vue.prototype, {
    */
   confirm: function(msg, okHandler, cancelHandler) {
     const that = this
-    this.$confirm(msg, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    this.$confirm(msg, this.$ts('tip'), {
+      confirmButtonText: this.$ts('ok'),
+      cancelButtonText: this.$ts('cancel'),
       type: 'warning'
     }).then(() => {
       okHandler.call(that)
@@ -147,12 +148,26 @@ Object.assign(Vue.prototype, {
    */
   alert: function(msg, title, callback) {
     const that = this
-    this.$alert(msg, title || '提示', {
-      confirmButtonText: '确定',
+    this.$alert(msg, title || this.$ts('tip'), {
+      confirmButtonText: this.$ts('ok'),
       callback: action => {
         callback && callback.call(that, action)
       }
     })
+  },
+  /**
+   * 新窗口打开
+   * @param path 路由path
+   */
+  openLink(path) {
+    // 如果是钉钉应用，不支持新窗口打开
+    if (is_ding_talk()) {
+      this.$router.push({ path: path })
+    } else {
+      // 新窗口打开
+      const routeData = this.$router.resolve({ path: path })
+      window.open(routeData.href, '_blank')
+    }
   },
   nextId() {
     return next_id++

@@ -125,6 +125,7 @@ $light_gray:#eee;
     }
   }
 }
+.cursor-pointer { cursor: pointer; }
 // 修复el-link在表格中会下沉1px
 .el-alert__content .el-link,
 .cell .el-link {

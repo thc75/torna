@@ -5,7 +5,7 @@ import {
   get_effective_url,
   init_docInfo,
   StringBuilder,
-  style_config
+  get_style_config
 } from './common'
 
 import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
@@ -46,7 +46,7 @@ function createTrContent(params, rowConfig, prefix, level) {
     for (const config of rowConfig) {
       let value = param[config.prop]
       if (config.prop === 'required') {
-        value = value ? '是' : '否'
+        value = value ? $ts('yes') : $ts('no')
       }
       row.push(value)
     }
@@ -61,9 +61,9 @@ function createTrContent(params, rowConfig, prefix, level) {
 
 function createTable(params, style) {
   if (!params || params.length === 0) {
-    return '无'
+    return $ts('empty')
   }
-  const rowConfig = style_config[style + '']
+  const rowConfig = get_style_config()[style + '']
   if (!rowConfig) {
     return ''
   }
@@ -76,7 +76,7 @@ function createTable(params, style) {
 
 const MarkdownUtil = {
   toMarkdownByData(docInfoList, title) {
-    title = title || '文档'
+    title = title || $ts('document')
     const treeData = convert_tree(docInfoList)
     const markdown_content = new StringBuilder(`# ${title}\n\n`)
     const appendMarkdown = (doc_info) => {
@@ -108,7 +108,9 @@ const MarkdownUtil = {
       builder.append(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`### ${docInfo.name}`)
-    append(`维护人：${docInfo.author}`)
+    if (docInfo.author) {
+      append(`${$ts('maintainer')}：${docInfo.author}`)
+    }
     if (isHttp(docInfo)) {
       append(`#### URL`)
       const debugEnvs = docInfo.debugEnvs || []
@@ -124,42 +126,53 @@ const MarkdownUtil = {
         append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
       }
     } else if (isDubbo(docInfo)) {
-      append(`方法：${docInfo.url}`)
+      append(`${$ts('method')}：${docInfo.url}`)
     }
-    append(`描述：${docInfo.description}`)
+    append(`${$ts('description')}：${docInfo.description}`)
 
     if (isHttp(docInfo)) {
-      append(`ContentType：${docInfo.contentType}`)
-      append(`#### Path参数`)
-      const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
-      append(pathParamsTable)
-
-      append(`#### 请求Header`)
-      const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
-      append(headerParamsTable)
+      append(`ContentType：\`${docInfo.contentType}\``)
+      if (docInfo.pathParams && docInfo.pathParams.length > 0) {
+        append(`#### ${$ts('pathVariable')}`)
+        const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
+        append(pathParamsTable)
+      }
+      if (docInfo.headerParams && docInfo.headerParams.length > 0) {
+        append(`#### ${$ts('requestHeader')}`)
+        const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
+        append(headerParamsTable)
+      }
     }
 
-    append(`#### 请求参数`)
-    const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
-    append(requestParamsTable)
+    append(`#### ${$ts('requestParams')}`)
+    if (docInfo.queryParams && docInfo.queryParams.length > 0) {
+      append(`##### Query Parameter`)
+      const queryParamsTable = createTable(docInfo.queryParams, Enums.PARAM_STYLE.request)
+      append(queryParamsTable)
+    }
+    if (docInfo.requestParams && docInfo.requestParams.length > 0) {
+      append(`##### Body Parameter`)
+      const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
+      append(requestParamsTable)
+    }
 
     if (isShowRequestExample(docInfo)) {
-      append(`#### 请求示例`)
+      append(`#### ${$ts('requestExample')}`)
       const requestExample = create_response_example(docInfo.requestParams)
       appendCode(JSON.stringify(requestExample, null, 4))
     }
 
-    append(`#### 响应参数`)
+    append(`#### ${$ts('responseParam')}`)
     const responseParamsTable = createTable(docInfo.responseParams, Enums.PARAM_STYLE.response)
     append(responseParamsTable)
 
     if (isHttp(docInfo)) {
-      append(`#### 响应示例`)
+      append(`#### ${$ts('responseExample')}`)
       const responseExample = create_response_example(docInfo.responseParams)
       appendCode(JSON.stringify(responseExample, null, 4))
     }
 
-    append(`#### 错误码`)
+    append(`#### ${$ts('errorCode')}`)
     const errorCodeParamsTable = createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code)
     append(errorCodeParamsTable)
     return builder.toString()

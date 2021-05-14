@@ -16,6 +16,7 @@ public class EnumItemService extends BaseService<EnumItem, EnumItemMapper> {
         Query query = new Query()
                 .eq("enum_id", enumId)
                 .eq("name", name)
+                .enableForceQuery()
                 ;
         return get(query);
     }

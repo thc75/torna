@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="searchFormData" size="mini">
-      <el-form-item label="登录账号">
-        <el-input v-model="searchFormData.username" :clearable="true" placeholder="登录账号" style="width: 250px;" />
+      <el-form-item :label="$ts('loginAccount')">
+        <el-input v-model="searchFormData.username" :clearable="true" :placeholder="$ts('loginAccount')" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="loadTable">查询</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="loadTable">{{ $ts('search') }}</el-button>
       </el-form-item>
     </el-form>
     <el-button
@@ -16,7 +16,7 @@
       style="margin-bottom: 10px;"
       @click="onMemberAdd"
     >
-      添加成员
+      {{ $ts('addMember') }}
     </el-button>
     <el-table
       :data="pageInfo.rows"
@@ -25,17 +25,17 @@
     >
       <el-table-column
         prop="username"
-        label="成员"
+        :label="$ts('member')"
         width="400"
       >
         <template slot-scope="scope">
           {{ `${scope.row.nickname}(${scope.row.username})` }}
-          <el-tag v-if="isSelf(scope.row.id)">我</el-tag>
+          <el-tag v-if="isSelf(scope.row.id)">{{ $ts('me') }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="roleCode"
-        label="角色"
+        :label="$ts('role')"
         width="250"
       >
         <template slot-scope="scope">
@@ -57,21 +57,21 @@
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        label="加入时间"
+        :label="$ts('joinTime')"
         width="200"
       />
       <el-table-column
         v-if="hasRole(`space:${spaceId}`, [Role.admin])"
-        label="操作"
+        :label="$ts('operation')"
         width="150"
       >
         <template slot-scope="scope">
           <el-popconfirm
             v-if="!isSelf(scope.row.id)"
-            :title="`确定要移除 ${scope.row.nickname} 吗？`"
-            @onConfirm="onMemberRemove(scope.row)"
+            :title="$ts('removeConfirm', scope.row.nickname)"
+            @confirm="onMemberRemove(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">移除</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $ts('remove') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -89,7 +89,7 @@
     />
     <!--    -->
     <el-dialog
-      title="添加用户"
+      :title="$ts('addUser')"
       :close-on-click-modal="false"
       :visible.sync="memberAddDlgShow"
       @close="onHide"
@@ -102,11 +102,11 @@
         style="width: 600px;"
         label-width="150px"
       >
-        <el-form-item label="用户" required>
+        <el-form-item :label="$ts('user')" required>
           <!-- role_pos -->
           <user-select ref="userSelect" multiple />
         </el-form-item>
-        <el-form-item label="角色" prop="roleCode">
+        <el-form-item :label="$ts('role')" prop="roleCode">
           <el-select v-model="memberAddFormData.roleCode">
             <el-option v-for="item in getSpaceRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
@@ -115,8 +115,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="memberAddDlgShow = false">取 消</el-button>
-        <el-button type="primary" @click="onMemberAddSave">保 存</el-button>
+        <el-button @click="memberAddDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onMemberAddSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -153,7 +153,7 @@ export default {
       },
       memberAddRules: {
         roleCode: [
-          { required: true, message: '请选择', trigger: ['blur', 'change'] }
+          { required: true, message: this.$ts('pleaseSelect'), trigger: ['blur', 'change'] }
         ]
       }
     }
@@ -178,7 +178,7 @@ export default {
         userId: row.id
       }
       this.post('/space/member/remove', data, resp => {
-        this.tipSuccess('移除成功')
+        this.tipSuccess(this.$ts('removeSuccess'))
         this.loadTable()
       })
     },
@@ -192,7 +192,7 @@ export default {
         roleCode: row.roleCode
       }
       this.post('/space/member/update', data, () => {
-        this.tipSuccess('修改成功')
+        this.tipSuccess(this.$ts('updateSuccess'))
       })
     },
     onMemberAddSave() {
@@ -205,7 +205,7 @@ export default {
           userIds: userIds
         })
         this.post('/space/member/add', data, resp => {
-          this.tipSuccess('添加成功')
+          this.tipSuccess(this.$ts('addSuccess'))
           this.memberAddDlgShow = false
           this.loadTable()
         })

@@ -1,7 +1,5 @@
 <template>
-  <router-link :to="to" target="_blank">
-    <el-link type="primary" :underline="false" icon="el-icon-question">{{ buttonText }}</el-link>
-  </router-link>
+  <el-link type="primary" :underline="false" icon="el-icon-question" @click="openLink(to)">{{ btnText }}</el-link>
 </template>
 <script>
 export default {
@@ -12,7 +10,12 @@ export default {
     },
     buttonText: {
       type: String,
-      default: '帮助手册'
+      default: ''
+    }
+  },
+  computed: {
+    btnText() {
+      return this.buttonText || this.$ts('helpBook')
     }
   }
 }

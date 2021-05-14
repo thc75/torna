@@ -7,6 +7,8 @@ const NUMBER_TYPES = [
   'int8', 'int16', 'int32', 'int64', 'float', 'double', 'number'
 ]
 
+let isDingTalk = undefined
+
 /**
  * 构建返回结果例子
  * @param params 返回结果定义
@@ -377,11 +379,28 @@ StringBuilder.prototype = {
   }
 }
 
+export function is_array(obj) {
+  return Object.prototype.toString.call(obj) === '[object Array]'
+}
+
+/**
+ * pattern: 'my name is {name}, age is {age}' args: {name: 'Tom', age: 12} => my name is Tom, age is 12 <br>
+ * pattern: 'my name is {0}, age is {1}' args: ['Tom', 12] => my name is Tom, age is 12 <br>
+ * @param pattern
+ * @param args
+ * @returns {*}
+ */
 export function format_string(pattern, args) {
   let result = pattern
-  for (const key in args) {
-    const reg = new RegExp('({' + key + '})', 'g')
-    result = result.replace(reg, args[key])
+  if (is_array(args)) {
+    for (let i = 0; i < args.length; i++) {
+      result = result.replace(`{${i}}`, args[i])
+    }
+  } else {
+    for (const key in args) {
+      const reg = new RegExp('({' + key + '})', 'g')
+      result = result.replace(reg, args[key])
+    }
   }
   return result
 }
@@ -404,38 +423,53 @@ export function download_text(filename, text) {
   document.body.removeChild(element)
 }
 
-export const style_config = {
-  '0': [
-    { prop: 'name', label: '名称' },
-    { prop: 'required', label: '必须' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '1': [
-    { prop: 'name', label: '名称' },
-    { prop: 'required', label: '必须' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '2': [
-    { prop: 'name', label: '名称' },
-    { prop: 'type', label: '类型' },
-    { prop: 'required', label: '必须' },
-    { prop: 'maxLength', label: '最大长度' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '3': [
-    { prop: 'name', label: '名称' },
-    { prop: 'type', label: '类型' },
-    { prop: 'required', label: '必须' },
-    { prop: 'maxLength', label: '最大长度' },
-    { prop: 'description', label: '描述' },
-    { prop: 'example', label: '示例值' }
-  ],
-  '4': [
-    { prop: 'name', label: '错误码' },
-    { prop: 'description', label: '错误描述' },
-    { prop: 'example', label: '解决方案' }
-  ]
+export function is_ding_talk() {
+  if (isDingTalk !== undefined) {
+    return isDingTalk
+  }
+  let ret = false
+  if (navigator.userAgent) {
+    const userAgent = navigator.userAgent.toLowerCase()
+    ret = userAgent.indexOf('dingtalk') > -1
+  }
+  isDingTalk = ret
+  return ret
+}
+
+export function get_style_config() {
+  return {
+    '0': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '1': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '2': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'type', label: $ts('type') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'maxLength', label: $ts('maxLength') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '3': [
+      { prop: 'name', label: $ts('name') },
+      { prop: 'type', label: $ts('type') },
+      { prop: 'required', label: $ts('required') },
+      { prop: 'maxLength', label: $ts('maxLength') },
+      { prop: 'description', label: $ts('description') },
+      { prop: 'example', label: $ts('example') }
+    ],
+    '4': [
+      { prop: 'name', label: $ts('errorCode') },
+      { prop: 'description', label: $ts('errorDesc') },
+      { prop: 'example', label: $ts('solution') }
+    ]
+  }
 }

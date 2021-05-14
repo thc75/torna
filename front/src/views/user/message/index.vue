@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h3>我的消息</h3>
+    <h3>{{ $ts('myMessage') }}</h3>
     <div class="table-opt-btn">
       <el-button
         v-show="hasUnreadMessage()"
@@ -9,7 +9,7 @@
         icon="el-icon-circle-check"
         @click="setReadAll"
       >
-        全部标记已读
+        {{ $ts('userMsgReadAll') }}
       </el-button>
     </div>
     <el-table
@@ -19,34 +19,34 @@
     >
       <el-table-column
         prop="message"
-        label="内容"
+        :label="$ts('content')"
         show-overflow-tooltip
       />
       <el-table-column
         prop="isRead"
-        label="状态"
+        :label="$ts('status')"
         width="80px"
       >
         <template slot-scope="scope">
           <el-tag :type="scope.row.isRead === 0 ? 'info' : 'success'">
-            {{ scope.row.isRead === 0 ? '未读' : '已读' }}
+            {{ scope.row.isRead === 0 ? $ts('unread') : $ts('read') }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        label="推送时间"
+        :label="$ts('pushTime')"
         width="200px"
       />
       <el-table-column
-        label="操作"
+        :label="$ts('operation')"
         width="200px"
       >
         <template slot-scope="scope">
           <router-link v-if="scope.row.type === 1" :to="`/view/${scope.row.sourceId}`">
-            <el-button type="text" size="mini" @click="setRead(scope.row)">查看文档</el-button>
+            <el-button type="text" size="mini" @click="setRead(scope.row)">{{ $ts('viewDoc') }}</el-button>
           </router-link>
-          <el-button v-show="scope.row.isRead === 0" type="text" size="mini" @click="setRead(scope.row)">标记已读</el-button>
+          <el-button v-show="scope.row.isRead === 0" type="text" size="mini" @click="setRead(scope.row)">{{ $ts('setRead') }}</el-button>
         </template>
       </el-table-column>
     </el-table>

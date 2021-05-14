@@ -4,7 +4,9 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/zh-CN' // lang i18n
+// locale
+import i18n from '@/utils/i18n/index'
+import '@/utils/i18n/config'
 
 import '@/styles/index.scss' // global css
 
@@ -32,13 +34,13 @@ Vue.use(UmyUi)
  * mockXHR()
  */
 
-// set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
+Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
 new Vue({
   el: '#app',
+  i18n,
   router,
   store,
   render: h => h(App)

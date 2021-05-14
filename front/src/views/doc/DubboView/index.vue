@@ -4,7 +4,7 @@
       <h2 class="doc-title">
         {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <div v-show="showOptBar" style="float: right">
-          <el-tooltip placement="top" :content="isSubscribe ? '点击取消关注' : '点击关注'">
+          <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
             <el-button
               type="text"
               :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
@@ -14,37 +14,37 @@
           </el-tooltip>
           <el-dropdown trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
-              导出 <i class="el-icon-arrow-down el-icon--right"></i>
+              {{ $ts('export') }} <i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdown">导出markdown</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtml">导出html</el-dropdown-item>
+              <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
       </h2>
       <span v-show="showOptBar" class="doc-modify-info">
-        {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
-        {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
+        {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
+        {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4>方法：<span>{{ buildDefinition(docInfo) }}</span></h4>
-    <h4 v-if="docInfo.description">描述：<span>{{ docInfo.description }}</span></h4>
-    <h4>调用参数</h4>
+    <h4>{{ $ts('method') }}：<span>{{ buildDefinition(docInfo) }}</span></h4>
+    <h4 v-if="docInfo.description">{{ $ts('description') }}：<span>{{ docInfo.description }}</span></h4>
+    <h4>{{ $ts('invokeParam') }}</h4>
     <parameter-table :data="docInfo.requestParams" />
-    <h4>返回结果</h4>
+    <h4>{{ $ts('returnResult') }}</h4>
     <parameter-table :data="docInfo.responseParams" />
-    <h4>错误码</h4>
+    <h4>{{ $ts('errorCode') }}</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
-      empty-text="无错误码"
+      :empty-text="$ts('emptyErrorCode')"
       :hidden-columns="['required', 'maxLength', 'type']"
-      name-label="错误码"
-      description-label="错误描述"
-      example-label="解决方案"
+      :name-label="$ts('errorCode')"
+      :description-label="$ts('errorDesc')"
+      :example-label="$ts('solution')"
     />
     <div v-if="docInfo.remark" class="doc-info-remark">
-      <el-divider content-position="left">修改备注</el-divider>
+      <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <span>{{ docInfo.remark }}</span>
     </div>
   </div>
@@ -181,12 +181,12 @@ export default {
     onSubscribe() {
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess('关注成功')
+          this.tipSuccess($ts('subscribeSuccess'))
           this.isSubscribe = true
         })
       } else {
         this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess('取消关注成功')
+          this.tipSuccess($ts('unsubscribeSuccess'))
           this.isSubscribe = false
         })
       }

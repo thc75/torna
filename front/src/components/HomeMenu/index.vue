@@ -8,7 +8,7 @@
     >
       <el-menu-item index="/dashboard">
         <i class="el-icon-house"></i>
-        <span class="title">空间列表</span>
+        <span class="title">{{ $ts('spaceList') }}</span>
       </el-menu-item>
     </el-menu>
   </div>

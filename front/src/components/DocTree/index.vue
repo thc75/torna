@@ -3,7 +3,7 @@
     <el-input
       v-if="!viewMode"
       v-model="filterText"
-      placeholder="输入名称或URL进行过滤"
+      :placeholder="$ts('filterNameUrl')"
       size="mini"
       clearable
     >
@@ -20,8 +20,8 @@
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}<span v-show="!data.isFolder && data.httpMethod" class="el-tree-label-tip">【{{ data.httpMethod }}】{{ data.url }}</span></span>
         <span v-if="!readonly && data.isFolder && isChecked(data)" @click.stop>
-          <el-checkbox v-model="data.isShareFolder" :disabled="viewMode">追加分享</el-checkbox>
-          <el-tooltip placement="top" content="勾选：此分类后续添加新文档也可以访问">
+          <el-checkbox v-model="data.isShareFolder" :disabled="viewMode">{{ $ts('appendShare') }}</el-checkbox>
+          <el-tooltip placement="top" :content="$ts('appendShareTip')">
             <i class="el-icon-question"></i>
           </el-tooltip>
         </span>

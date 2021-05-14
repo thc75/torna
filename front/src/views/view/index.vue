@@ -2,11 +2,11 @@
   <div class="app-container">
     <el-tabs v-show="item.type === getEnums().DOC_TYPE.HTTP && load" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> 接口信息</span>
+        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :item="infoItem" />
       </el-tab-pane>
       <el-tab-pane name="debug">
-        <span slot="label"><i class="el-icon-s-promotion"></i> 调试接口</span>
+        <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
         <doc-debug :item="debugItem" />
       </el-tab-pane>
       <el-tab-pane name="mock">
@@ -16,7 +16,7 @@
     </el-tabs>
     <el-tabs v-show="item.type === getEnums().DOC_TYPE.DUBBO && load" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> 接口信息</span>
+        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <dubbo-view ref="docView" :item="infoItem" />
       </el-tab-pane>
     </el-tabs>

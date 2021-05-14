@@ -26,6 +26,10 @@ public enum ModuleConfigTypeEnum {
      * 公共返回参数
      */
     GLOBAL_RETURNS((byte) 4),
+    /**
+     * 公共错误码
+     */
+    GLOBAL_ERROR_CODES((byte) 5),
     ;
 
     private final byte type;
