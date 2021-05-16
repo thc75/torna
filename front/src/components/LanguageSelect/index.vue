@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     onLanguageChange(language) {
-      this.formData.language = language
       set_lang(language)
       location.reload()
     }
