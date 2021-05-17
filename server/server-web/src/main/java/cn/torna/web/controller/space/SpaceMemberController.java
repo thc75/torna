@@ -1,15 +1,16 @@
 package cn.torna.web.controller.space;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.RoleEnum;
 import cn.torna.service.SpaceService;
+import cn.torna.service.dto.SpaceUserInfoDTO;
+import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.web.controller.space.param.SpaceMemberAddParam;
 import cn.torna.web.controller.space.param.SpaceMemberPageParam;
 import cn.torna.web.controller.space.param.SpaceMemberRemoveParam;
 import cn.torna.web.controller.space.param.SpaceMemberUpdateParam;
-import com.gitee.fastmybatis.core.query.Joint;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.expression.ValueExpression;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -19,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.SpaceUserInfoDTO;
-import cn.torna.service.dto.UserInfoDTO;
 
 import javax.validation.Valid;
 import java.util.List;
