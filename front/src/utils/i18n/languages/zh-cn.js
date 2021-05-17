@@ -341,6 +341,7 @@ const MAPPING = {
   'document': '文档',
   'systemSetting': '系统设置',
   'language': '语言',
+  'nickEmail': '昵称/邮箱',
 
 }
 

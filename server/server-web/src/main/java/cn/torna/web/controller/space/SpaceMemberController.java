@@ -7,9 +7,12 @@ import cn.torna.web.controller.space.param.SpaceMemberAddParam;
 import cn.torna.web.controller.space.param.SpaceMemberPageParam;
 import cn.torna.web.controller.space.param.SpaceMemberRemoveParam;
 import cn.torna.web.controller.space.param.SpaceMemberUpdateParam;
+import com.gitee.fastmybatis.core.query.Joint;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.expression.ValueExpression;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,7 +53,11 @@ public class SpaceMemberController {
      */
     @PostMapping("/page")
     public Result<PageEasyui<SpaceUserInfoDTO>> page(@Valid @RequestBody SpaceMemberPageParam param) {
-        Query query = param.toQuery();
+        Query query = new Query();
+        String username = param.getUsername();
+        if (StringUtils.hasText(username)) {
+            query.sql("email LIKE '%" + username + "%' OR nickname LIKE '%" + username + "%'");
+        }
         PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), query);
         return Result.ok(pageSpaceUser);
     }

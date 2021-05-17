@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="searchFormData" size="mini">
-      <el-form-item :label="$ts('loginAccount')">
+      <el-form-item :label="$ts('nickEmail')">
         <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
       </el-form-item>
       <el-form-item :label="$ts('role')">
@@ -36,7 +36,7 @@
         width="400"
       >
         <template slot-scope="scope">
-          {{ `${scope.row.nickname}(${scope.row.username})` }}
+          {{ scope.row.nickname }}<span v-show="scope.row.email">{{ `(${scope.row.email})` }}</span>
           <el-tag v-if="isSelf(scope.row.id)">{{ $ts('me') }}</el-tag>
         </template>
       </el-table-column>
