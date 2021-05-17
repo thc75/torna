@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.7.1
+
+- [enhance]分享页可切换语言
+
 ## 1.7.0
 
 - [feat]支持钉钉免密登录 [doc](http://torna.cn/dev/third-party-login.html)
