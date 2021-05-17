@@ -146,7 +146,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
         Query query = new Query();
         query.in("id", userIdMap.keySet());
-        query.sql("email LIKE '%" + username + "%' OR nickname LIKE '%" + username + "%'");
+        query.sql("nickname LIKE '%" + username + "%' OR email LIKE '%" + username + "%'");
 
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);

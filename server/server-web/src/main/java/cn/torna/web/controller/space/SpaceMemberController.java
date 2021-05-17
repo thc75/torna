@@ -56,7 +56,7 @@ public class SpaceMemberController {
         Query query = new Query();
         String username = param.getUsername();
         if (StringUtils.hasText(username)) {
-            query.sql("email LIKE '%" + username + "%' OR nickname LIKE '%" + username + "%'");
+            query.sql("nickname LIKE '%" + username + "%' OR email LIKE '%" + username + "%'");
         }
         PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), query);
         return Result.ok(pageSpaceUser);

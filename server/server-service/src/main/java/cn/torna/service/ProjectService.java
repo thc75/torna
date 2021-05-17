@@ -173,7 +173,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
                 .in("id", userIdMap.keySet())
                 .orderby("id", Sort.DESC);
         if (StringUtils.hasLength(username)) {
-            query.sql("email LIKE '%" + username + "%' OR nickname LIKE '%" + username + "%'");
+            query.sql("nickname LIKE '%" + username + "%' OR email LIKE '%" + username + "%'");
         }
         List<UserInfo> userInfos = userInfoService.listAll(query);
         List<ProjectUserDTO> projectUserDTOList = CopyUtil.copyList(userInfos, ProjectUserDTO::new);
