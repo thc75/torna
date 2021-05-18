@@ -111,7 +111,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     public User getLoginUser(long id) {
         UserInfo userInfo = getById(id);
-        if (userInfo == null) {
+        if (userInfo == null || userInfo.getStatus() == UserStatusEnum.DISABLED.getStatus()) {
             return null;
         }
         return CopyUtil.copyBean(userInfo, LoginUser::new);
