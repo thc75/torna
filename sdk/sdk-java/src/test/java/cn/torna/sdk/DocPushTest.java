@@ -64,7 +64,7 @@ public class DocPushTest extends BaseTest {
             DocParamCode enumItemParam = new DocParamCode();
             enumItemParam.setCode("name" + i);
             enumItemParam.setMsg("描述" + i);
-            enumItemParam.setSolution("解决方案" + i);
+//            enumItemParam.setSolution("解决方案" + i);
             errorCodes.add(enumItemParam);
         }
         return errorCodes;
