@@ -84,8 +84,8 @@ public class SpaceController {
     public Result del(@RequestBody SpaceParam param) {
         User user = UserContext.getUser();
         Space space = spaceService.getById(param.getId());
-        List<Long> spaceAdminId = spaceService.listSpaceAdminId(space.getId());
-        if (!user.isSuperAdmin() && !spaceAdminId.contains(user.getUserId())) {
+        List<Long> spaceAdminIds = spaceService.listSpaceAdminId(space.getId());
+        if (!user.isSuperAdmin() && !spaceAdminIds.contains(user.getUserId())) {
             throw new BizException("无操作权限");
         }
         space.setModifierId(user.getUserId());
