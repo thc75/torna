@@ -453,7 +453,6 @@ export default {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
       const params = this.getQueryParams(this.queryData)
-      console.log(params)
       let data = {}
       let isMultipart = false
       // 如果请求body
@@ -496,7 +495,7 @@ export default {
         let value = row.example || ''
         const type = row.type || 'string'
         // 如果是数组
-        if (type.indexOf('array') > -1 || is_array_string(value)) {
+        if (type.toLowerCase().indexOf('array') > -1) {
           // 空数组不传递
           if (value === '[]' || value === '') {
             continue

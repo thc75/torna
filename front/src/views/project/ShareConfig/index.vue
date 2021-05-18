@@ -27,7 +27,7 @@
       </el-table-column>
       <el-table-column :label="$ts('shareStyle')" width="100">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.PUBLIC">{{ $ts('public') }}}</el-tag>
+          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.PUBLIC">{{ $ts('public') }}</el-tag>
           <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT" type="warning">{{ $ts('encryption') }}</el-tag>
         </template>
       </el-table-column>
