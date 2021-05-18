@@ -1,8 +1,10 @@
 package cn.torna.web.controller.space;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.SpaceService;
@@ -80,8 +82,16 @@ public class SpaceController {
 
     @PostMapping("delete")
     public Result del(@RequestBody SpaceParam param) {
+        User user = UserContext.getUser();
         Space space = spaceService.getById(param.getId());
-        spaceService.delete(space);
+        List<Long> spaceAdminIds = spaceService.listSpaceAdminId(space.getId());
+        if (!user.isSuperAdmin() && !spaceAdminIds.contains(user.getUserId())) {
+            throw new BizException("无操作权限");
+        }
+        space.setModifierId(user.getUserId());
+        space.setModifierName(user.getNickname());
+        space.setIsDeleted(Booleans.TRUE);
+        spaceService.update(space);
         return Result.ok();
     }
 

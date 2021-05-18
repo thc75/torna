@@ -32,7 +32,6 @@ public class CodeParamPushParam {
     /** 解决方案 */
     @ApiDocField(name = "solution", description = "解决方案", required = true, example = "请填写token")
     @JSONField(name = "solution")
-    @NotBlank(message = "解决方案不能为空")
     @Length(max = 100, message = "描述长度不能超过100")
     private String example;
 
