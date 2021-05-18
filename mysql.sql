@@ -209,7 +209,7 @@ CREATE TABLE `space` (
   `modifier_name` varchar(64) NOT NULL DEFAULT '',
   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='分组表';
 
