@@ -126,7 +126,7 @@
       >
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
-            <el-link v-if="scope.row.isShow" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">$ts('preview')</el-link>
+            <el-link v-if="scope.row.isShow" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">{{ $ts('preview') }}</el-link>
           </div>
         </template>
       </u-table-column>
