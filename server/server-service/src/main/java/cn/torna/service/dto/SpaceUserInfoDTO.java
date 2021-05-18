@@ -21,6 +21,8 @@ public class SpaceUserInfoDTO {
     /** 昵称, 数据库字段：nickname */
     private String nickname;
 
+    private String email;
+
     private String roleCode;
 
     /**  数据库字段：gmt_create */

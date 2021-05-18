@@ -10,6 +10,11 @@ import cn.torna.dao.entity.SpaceUser;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.SpaceMapper;
 import cn.torna.dao.mapper.SpaceUserMapper;
+import cn.torna.service.dto.SpaceAddDTO;
+import cn.torna.service.dto.SpaceDTO;
+import cn.torna.service.dto.SpaceInfoDTO;
+import cn.torna.service.dto.SpaceUserInfoDTO;
+import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.support.PageEasyui;
@@ -20,11 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import cn.torna.service.dto.SpaceAddDTO;
-import cn.torna.service.dto.SpaceDTO;
-import cn.torna.service.dto.SpaceInfoDTO;
-import cn.torna.service.dto.SpaceUserInfoDTO;
-import cn.torna.service.dto.UserInfoDTO;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -142,10 +142,10 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         List<SpaceUser> spaceUsers = listSpaceUser(spaceId);
         Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
-        Query query = new Query()
-                .in("id", userIdMap.keySet())
-                .like("username", username)
-                .orderby("id", Sort.DESC);
+        Query query = new Query();
+        query.in("id", userIdMap.keySet());
+        query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
+
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);
     }

@@ -10,6 +10,12 @@ import cn.torna.dao.entity.ProjectUser;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.ProjectMapper;
 import cn.torna.dao.mapper.ProjectUserMapper;
+import cn.torna.service.dto.ProjectAddDTO;
+import cn.torna.service.dto.ProjectDTO;
+import cn.torna.service.dto.ProjectInfoDTO;
+import cn.torna.service.dto.ProjectUpdateDTO;
+import cn.torna.service.dto.ProjectUserDTO;
+import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import cn.torna.service.dto.ProjectAddDTO;
-import cn.torna.service.dto.ProjectDTO;
-import cn.torna.service.dto.ProjectInfoDTO;
-import cn.torna.service.dto.ProjectUpdateDTO;
-import cn.torna.service.dto.ProjectUserDTO;
-import cn.torna.service.dto.UserInfoDTO;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -173,7 +173,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
                 .in("id", userIdMap.keySet())
                 .orderby("id", Sort.DESC);
         if (StringUtils.hasLength(username)) {
-            query.like("username", username);
+            query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
         }
         List<UserInfo> userInfos = userInfoService.listAll(query);
         List<ProjectUserDTO> projectUserDTOList = CopyUtil.copyList(userInfos, ProjectUserDTO::new);

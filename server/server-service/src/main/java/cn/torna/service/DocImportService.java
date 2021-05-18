@@ -255,7 +255,10 @@ public class DocImportService {
             for (DocItem item : items) {
                 DocItemCreateDTO docItemCreateDTO = this.buildDocItemCreateDTO(item, moduleDocInfo, user);
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
-                // 创建参数
+                // query参数
+                List<DocParameter> queryParameters = item.getQueryParameters();
+                this.saveParams(queryParameters, docItem, docParameter -> ParamStyleEnum.QUERY, user);
+                // body参数
                 List<DocParameter> requestParameters = item.getRequestParameters();
                 this.saveParams(requestParameters, docItem, docParameter -> {
                     String in = ((DocParameter) docParameter).getIn();

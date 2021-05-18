@@ -24,6 +24,7 @@ public class DocItem {
     private Collection<String> consumes;
     private Collection<String> produces;
 
+    List<DocParameter> queryParameters;
     List<DocParameter> requestParameters;
     List<DocParameter> responseParameters;
 
@@ -144,10 +145,19 @@ public class DocItem {
         this.multiple = multiple;
     }
 
+    public List<DocParameter> getQueryParameters() {
+        return queryParameters;
+    }
+
+    public void setQueryParameters(List<DocParameter> queryParameters) {
+        this.queryParameters = queryParameters;
+    }
+
     @Override
     public String toString() {
         return "DocItem{" +
-                "id='" + id + '\'' +
+                "projectId=" + projectId +
+                ", id='" + id + '\'' +
                 ", module='" + module + '\'' +
                 ", path='" + path + '\'' +
                 ", summary='" + summary + '\'' +
@@ -156,6 +166,7 @@ public class DocItem {
                 ", requestUrl='" + requestUrl + '\'' +
                 ", consumes=" + consumes +
                 ", produces=" + produces +
+                ", queryParameters=" + queryParameters +
                 ", requestParameters=" + requestParameters +
                 ", responseParameters=" + responseParameters +
                 ", uploadRequest=" + uploadRequest +

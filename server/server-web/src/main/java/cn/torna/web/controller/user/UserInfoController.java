@@ -71,8 +71,7 @@ public class UserInfoController {
             return Result.ok(Collections.emptyList());
         }
         Query query = new Query();
-        query.like("email", username);
-        query.addExpression(new ValueExpression(Joint.OR.getJoint(), "nickname", "like", "%" + username + "%"));
+        query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
         List<UserInfo> list = userInfoService.list(query);
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
         return Result.ok(userInfoDTOS);

@@ -133,9 +133,11 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
         String moduleName = this.buildModuleName(docBean, docRoot);
         docItem.setModule(moduleName);
         List<DocParameter> requestParameterList = this.buildRequestParameterList(apiInfo, docBean, docRoot);
+        List<DocParameter> queryParameterList = this.buildQueryParameterList(apiInfo, docBean, docRoot);
         boolean hasUploadParam = hasUploadParam(requestParameterList);
         docItem.setUploadRequest(hasUploadParam);
         docItem.setRequestParameters(requestParameterList);
+        docItem.setQueryParameters(queryParameterList);
 
         // 清除缓存，可以再次使用
         cycleCache.clear();
@@ -198,6 +200,38 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
             }
         }
         return formatDocParameters(docParameterList);
+    }
+
+    private List<DocParameter> buildQueryParameterList(ApiInfo apiInfo, JSONObject docBean, JSONObject docRoot) {
+        Optional<JSONArray> parametersOptional = Optional.ofNullable(docBean.getJSONArray("parameters"));
+        JSONArray parameters = parametersOptional.orElseGet(JSONArray::new);
+        List<DocParameter> docParameterList = new ArrayList<>();
+        for (int i = 0; i < parameters.size(); i++) {
+            /*
+            {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+             */
+            JSONObject fieldJson = parameters.getJSONObject(i);
+            fieldJson = formatFieldJson(docRoot, fieldJson);
+            DocParameter docParameter = fieldJson.toJavaObject(DocParameter.class);
+            // @RequestBody String reqEntity
+            // 这种情况下name为null
+            if (docParameter.getName() == null) {
+                continue;
+            }
+            this.setType(fieldJson, docParameter);
+            docParameterList.add(docParameter);
+        }
+        return docParameterList;
     }
 
     private List<DocParameter> formatDocParameters(List<DocParameter> docParameterList) {
@@ -520,20 +554,17 @@ public class SwaggerDocParserV3 implements DocParser<DocBean> {
      */
     
     private JSONArray getParameterObject(JSONObject docBean) {
-        Optional<JSONArray> parametersOptional = Optional.ofNullable(docBean.getJSONArray("parameters"));
-        JSONArray jsonArray = parametersOptional.orElseGet(JSONArray::new);
-        if (jsonArray.isEmpty()) {
-            JSONObject requestBody = docBean.getJSONObject("requestBody");
-            Optional.ofNullable(requestBody)
-                    .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
-                    .flatMap(jsonObject -> {
-                        String mediaType = jsonObject.keySet().iterator().next();
-                        JSONObject schema = jsonObject
-                                .getJSONObject(mediaType);
-                        return Optional.ofNullable(schema);
-                    })
-                    .ifPresent(jsonArray::add);
-        }
+        JSONArray jsonArray = new JSONArray();
+        JSONObject requestBody = docBean.getJSONObject("requestBody");
+        Optional.ofNullable(requestBody)
+                .flatMap(jsonObject -> Optional.ofNullable(jsonObject.getJSONObject("content")))
+                .flatMap(jsonObject -> {
+                    String mediaType = jsonObject.keySet().iterator().next();
+                    JSONObject schema = jsonObject
+                            .getJSONObject(mediaType);
+                    return Optional.ofNullable(schema);
+                })
+                .ifPresent(jsonArray::add);
         return jsonArray;
     }
 
