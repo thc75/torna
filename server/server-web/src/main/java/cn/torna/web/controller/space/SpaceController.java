@@ -1,5 +1,6 @@
 package cn.torna.web.controller.space;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -89,7 +90,8 @@ public class SpaceController {
         }
         space.setModifierId(user.getUserId());
         space.setModifierName(user.getNickname());
-        spaceService.delete(space);
+        space.setIsDeleted(Booleans.TRUE);
+        spaceService.update(space);
         return Result.ok();
     }
 
