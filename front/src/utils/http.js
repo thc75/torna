@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getToken } from '@/utils/auth'
+import qs from 'qs'
 
 const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
 
@@ -118,17 +119,16 @@ export function request(method, url, params, data, headers, isMultipart, callbac
     method: method,
     headers: headers,
     params: params,
-    data: data
+    data: data,
+    paramsSerializer: args => {
+      return qs.stringify(args, { indices: false })
+    }
   }
   const contentType = headers['Content-Type'] || headers['content-type']
   // 如果是模拟表单提交
   if (contentType && contentType.toLowerCase().indexOf('x-www-form-urlencoded') > -1) {
     config.transformRequest = [function(data) {
-      const query = []
-      for (const key in data) {
-        query.push(`${key}=${encodeURIComponent(data[key])}`)
-      }
-      return query.join('&')
+      return qs.stringify(data, { indices: false })
     }]
   }
   axios.request(config)

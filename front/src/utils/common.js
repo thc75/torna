@@ -148,7 +148,7 @@ function is_num_array(type, example) {
   return type === 'num_array'
 }
 
-function is_array_string(example) {
+export function is_array_string(example) {
   return typeof (example) === 'string' && example.startsWith('[') && example.endsWith(']')
 }
 

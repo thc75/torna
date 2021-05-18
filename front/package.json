@@ -26,6 +26,7 @@
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",
+    "qs": "^6.10.1",
     "umy-ui": "^1.1.6",
     "vue": "2.6.10",
     "vue-codemirror": "^4.0.6",

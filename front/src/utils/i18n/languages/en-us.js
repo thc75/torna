@@ -340,7 +340,7 @@ const MAPPING = {
   'document': 'Document',
   'systemSetting': 'System Setting',
   'language': 'Language',
-  'nickEmail': 'Nickname/Email',
+  'nickEmail': 'Nickname/Email'
 
 }
 

@@ -275,8 +275,8 @@
 <script>
 require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
-import { request, get_full_url } from '@/utils/http'
-import { get_effective_url } from '@/utils/common'
+import { get_full_url, request } from '@/utils/http'
+import { get_effective_url, is_array_string } from '@/utils/common'
 
 const HOST_KEY = 'torna.debug-host'
 
@@ -452,7 +452,8 @@ export default {
     send() {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
-      const params = this.getParamObj(this.queryData)
+      const params = this.getQueryParams(this.queryData)
+      console.log(params)
       let data = {}
       let isMultipart = false
       // 如果请求body
@@ -465,7 +466,7 @@ export default {
           isMultipart = true
           data = this.getParamObj(this.multipartData)
         } else if (contentType.indexOf('x-www-form-urlencoded') > -1) {
-          data = this.getParamObj(this.formData)
+          data = this.getQueryParams(this.formData)
         } else {
           data = this.bodyText
         }
@@ -488,6 +489,46 @@ export default {
     },
     getProxyUrl(uri) {
       return get_full_url(uri)
+    },
+    getQueryParams(paramsArr) {
+      const data = {}
+      for (const row of paramsArr) {
+        let value = row.example || ''
+        const type = row.type || 'string'
+        // 如果是数组
+        if (type.indexOf('array') > -1 || is_array_string(value)) {
+          // 空数组不传递
+          if (value === '[]' || value === '') {
+            continue
+          }
+          if (is_array_string(value)) {
+            value = value.substring(1, value.length - 1)
+          }
+          const arr = value.split(',')
+          const finalArr = []
+          for (let i = 0; i < arr.length; i++) {
+            let val = arr[i]
+            if (val === '' || val === undefined) {
+              continue
+            }
+            val = val.trim()
+            // 去除首尾'，"
+            if ((val.startsWith('\'') && val.endsWith('\'')) || (val.startsWith('"') && val.endsWith('"'))) {
+              // 只有'',""的情况
+              if (val.length === 2) {
+                val = ''
+              } else {
+                val = val.substring(1, val.length - 1)
+              }
+            }
+            finalArr.push(val)
+          }
+          data[row.name] = finalArr
+        } else {
+          data[row.name] = value
+        }
+      }
+      return data
     },
     setProps() {
       const formatData = (arr) => {
