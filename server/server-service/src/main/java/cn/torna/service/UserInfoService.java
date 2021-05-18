@@ -111,6 +111,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     public User getLoginUser(long id) {
         UserInfo userInfo = getById(id);
+        if (userInfo == null) {
+            return null;
+        }
         return CopyUtil.copyBean(userInfo, LoginUser::new);
     }
 
