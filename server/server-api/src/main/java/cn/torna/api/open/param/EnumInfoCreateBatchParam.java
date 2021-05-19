@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class EnumInfoCreateBatchParam {
 
-    @ApiDocField(description = "枚举列表", elementClass = EnumInfoCreateParam.class)
+    @ApiDocField(description = "枚举列表", required = true, elementClass = EnumInfoCreateParam.class)
     @NotEmpty(message = "enums不能为空")
     private List<EnumInfoCreateParam> enums;
 
