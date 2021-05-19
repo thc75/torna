@@ -40,7 +40,10 @@ export function get_baseUrl() {
 }
 
 export function get_full_url(uri) {
-  return baseURL + formatUri(uri)
+  if (!uri.startsWith('/')) {
+    uri = '/' + uri
+  }
+  return baseURL + uri
 }
 
 /**
@@ -79,7 +82,7 @@ export function post(uri, data, callback, errorCallback) {
  */
 export function do_get(uri, data, callback) {
   const that = this
-  client.get(formatUri(uri), {
+  client.get(uri, {
     params: data
   })
     .then(response => {
@@ -99,7 +102,7 @@ export function do_get(uri, data, callback) {
  */
 export function do_post(uri, data, callback) {
   const that = this
-  client.post(formatUri(uri), data)
+  client.post(uri, data)
     .then(response => {
       callback.call(that, response)
     })
@@ -107,10 +110,6 @@ export function do_post(uri, data, callback) {
       console.error('error', error)
       that.$message.error('请求异常，请查看日志')
     })
-}
-
-function formatUri(uri) {
-  return uri.startsWith('/') ? uri.substring(1) : uri
 }
 
 export function get_headers() {
