@@ -22,6 +22,8 @@ public class SpaceInfoDTO {
     /**  数据库字段：creator_name */
     private String creatorName;
 
+    private Byte isCompose;
+
     /** 空间管理员 */
     private List<UserInfoDTO> leaders;
 

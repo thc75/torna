@@ -10,41 +10,41 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * 表名：space
- * 备注：分组表
+ * 表名：compose_doc
+ * 备注：文档引用
  *
  * @author tanghc
  */
-@Table(name = "space")
+@Table(name = "compose_doc")
 @Data
-public class Space {
+public class ComposeDoc {
 
     /**  数据库字段：id */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 空间名称, 数据库字段：name */
-    private String name;
+    /** doc_info.id, 数据库字段：doc_id */
+    private Long docId;
 
-    /** 创建者userid, 数据库字段：creator_id */
-    private Long creatorId;
+    /** compose_project.id, 数据库字段：project_id */
+    private Long projectId;
 
-    /**  数据库字段：creator_name */
-    private String creatorName;
+    /** 是否文件夹, 数据库字段：is_folder */
+    private Byte isFolder;
 
-    /** 创建者userid, 数据库字段：modifier_id */
-    private Long modifierId;
+    /** 文件夹名称, 数据库字段：folder_name */
+    private String folderName;
 
-    /**  数据库字段：modifier_name */
-    private String modifierName;
-
-    /** 是否组合空间, 数据库字段：is_compose */
-    private Byte isCompose;
+    /**  数据库字段：parent_id */
+    private Long parentId;
 
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
+
+    /** 创建人, 数据库字段：creator */
+    private String creator;
 
     /**  数据库字段：gmt_create */
     private Date gmtCreate;

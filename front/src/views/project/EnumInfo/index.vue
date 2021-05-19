@@ -28,7 +28,7 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item icon="el-icon-edit" :command="onEnumInfoUpdate">{{ $ts('update')}}</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-delete" :command="onEnumInfoDelete">{{ $ts('delete') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-delete" class="danger" :command="onEnumInfoDelete">{{ $ts('delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </span>

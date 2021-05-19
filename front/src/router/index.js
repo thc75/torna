@@ -102,6 +102,12 @@ export const constantRoutes = [
         meta: { title: '项目列表' }
       },
       {
+        path: 'compose/:spaceId(\\w+)',
+        name: 'SpaceComposeProject',
+        component: () => import('@/views/space/index_compose_project'),
+        meta: { title: '项目列表' }
+      },
+      {
         path: 'info/:spaceId(\\w+)',
         name: 'SpaceInfo',
         component: () => import('@/views/space/index_info'),

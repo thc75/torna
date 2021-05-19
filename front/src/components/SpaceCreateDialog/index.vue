@@ -23,6 +23,16 @@
       <el-form-item v-if="isSuperAdmin()" :label="$ts('spaceAdmin')" required>
         <user-select ref="userSelect" multiple />
       </el-form-item>
+      <el-form-item :label="$ts('isComposeSpace')">
+        <el-switch
+          v-model="spaceFormData.isCompose"
+          active-text=""
+          inactive-text=""
+          :active-value="1"
+          :inactive-value="0"
+        />
+        <span class="info-tip">{{ $ts('composeSpaceTip') }}</span>
+      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="visible = false">{{ $ts('dlgCancel') }}</el-button>
@@ -46,7 +56,8 @@ export default {
       visible: false,
       spaceFormData: {
         name: '',
-        adminId: ''
+        adminId: '',
+        isCompose: 0
       },
       spaceRule: {
         name: [

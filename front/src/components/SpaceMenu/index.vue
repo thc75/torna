@@ -6,7 +6,7 @@
       router
       :default-active="currentActive"
     >
-      <el-menu-item :index="`/space/project/${spaceId}`">
+      <el-menu-item :index="projectIndex">
         <i class="el-icon-s-grid"></i>
         <span class="title">{{ $ts('projectList') }}</span>
       </el-menu-item>
@@ -31,16 +31,30 @@ export default {
   components: { Logo },
   data() {
     return {
-      spaceId: ''
+      spaceData: {
+        id: ''
+      }
     }
   },
   computed: {
     currentActive() {
       return this.$route.path
+    },
+    projectIndex() {
+      if (this.spaceData.isCompose) {
+        return `/space/compose/${this.spaceId}`
+      } else {
+        return `/space/project/${this.spaceId}`
+      }
+    },
+    spaceId() {
+      return this.spaceData.id || this.$route.params.spaceId
     }
   },
-  created() {
-    this.spaceId = this.$route.params.spaceId
+  methods: {
+    setSpaceData(data) {
+      this.spaceData = data
+    }
   }
 }
 </script>

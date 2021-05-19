@@ -98,12 +98,10 @@
           <el-input v-model="dialogFormData.remark" :placeholder="$ts('optional')" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item :label="$ts('shareStyle')">
-          <template>
-            <el-radio-group v-model="dialogFormData.type">
-              <el-radio :label="1">{{ $ts('public') }}</el-radio>
-              <el-radio :label="2">{{ $ts('encryption') }}</el-radio>
-            </el-radio-group>
-          </template>
+          <el-radio-group v-model="dialogFormData.type">
+            <el-radio :label="1">{{ $ts('public') }}</el-radio>
+            <el-radio :label="2">{{ $ts('encryption') }}</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item :label="$ts('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">

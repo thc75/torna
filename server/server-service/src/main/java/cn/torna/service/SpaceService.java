@@ -58,6 +58,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         space.setCreatorName(spaceAddDTO.getCreatorName());
         space.setModifierId(spaceAddDTO.getCreatorId());
         space.setModifierName(spaceAddDTO.getCreatorName());
+        space.setIsCompose(spaceAddDTO.getIsCompose());
         this.save(space);
 
         // 添加管理员
@@ -169,6 +170,12 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Query query = new Query().eq("space_id", spaceId)
                 .eq("user_id", userId);
         spaceUserMapper.updateByMap(set, query);
+    }
+
+    public SpaceUser getSpaceUser(long spaceId, long userId) {
+        Query query = new Query().eq("space_id", spaceId)
+                .eq("user_id", userId);
+        return spaceUserMapper.getByQuery(query);
     }
 
 

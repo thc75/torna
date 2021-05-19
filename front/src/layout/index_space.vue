@@ -1,6 +1,6 @@
 <template>
   <div class="app-wrapper">
-    <space-menu />
+    <space-menu ref="spaceMenu" />
     <div class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
@@ -42,6 +42,7 @@ export default {
       if (!this.space) {
         this.get('/space/info', { spaceId: spaceId }, resp => {
           this.space = resp.data
+          this.$refs.spaceMenu.setSpaceData(this.space)
           this.setCurrentInfo(this.space, '')
         })
       }

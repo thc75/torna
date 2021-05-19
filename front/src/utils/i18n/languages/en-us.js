@@ -17,6 +17,8 @@ const MAPPING = {
   'logout': 'Logout',
   'spaceList': 'Spaces',
   'createSpace': 'New Space',
+  'isComposeSpace': 'Is Composed Space',
+  'composeSpaceTip': 'Compose documents from other spaces',
   'creator': 'Creator',
   'createTime': 'Create Time',
   'spaceName': 'Space Name',
@@ -340,7 +342,8 @@ const MAPPING = {
   'document': 'Document',
   'systemSetting': 'System Setting',
   'language': 'Language',
-  'nickEmail': 'Nickname/Email'
+  'nickEmail': 'Nickname/Email',
+  'visitStyle': 'Visit Style'
 
 }
 
