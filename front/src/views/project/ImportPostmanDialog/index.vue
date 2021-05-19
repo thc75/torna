@@ -27,7 +27,7 @@
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button @click="importPostmanDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-      <el-button :disabled="fileList.length === 0" type="primary"  @click="submitUpload">{{ $ts('dlgImport') }}</el-button>
+      <el-button :disabled="fileList.length === 0" type="primary" @click="submitUpload">{{ $ts('dlgImport') }}</el-button>
     </div>
   </el-dialog>
 </template>
