@@ -2,7 +2,22 @@ import axios from 'axios'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
 
-const baseURL = process.env.VUE_APP_BASE_API
+let base_url
+
+function getBaseUrl() {
+  if (base_url) {
+    return base_url
+  }
+  const url = location.href.toString()
+  let baseUrl = url.split('#')[0]
+  if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.substring(0, baseUrl.length - 1)
+  }
+  base_url = baseUrl
+  return base_url
+}
+
+const baseURL = process.env.VUE_APP_BASE_API || getBaseUrl()
 
 // 创建axios实例
 const client = axios.create({
