@@ -25,10 +25,7 @@ export function get_baseUrl() {
 }
 
 export function get_full_url(uri) {
-  if (!uri.startsWith('/')) {
-    uri = '/' + uri
-  }
-  return baseURL + uri
+  return baseURL + formatUri(uri)
 }
 
 /**
