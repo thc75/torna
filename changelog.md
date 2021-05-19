@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.7.3
+
+- [enhance]支持Nginx配置contextPath
+- [enhance]支持批量推送枚举
+
 ## 1.7.2
 
 - [fix]swagger导入问题
