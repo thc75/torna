@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
 
-const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
+const baseURL = process.env.VUE_APP_BASE_API
 
 // 创建axios实例
 const client = axios.create({
