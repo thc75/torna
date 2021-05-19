@@ -1,14 +1,14 @@
 package cn.torna.web.interceptor;
 
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.UserStatusEnum;
+import cn.torna.common.exception.LoginFailureException;
 import cn.torna.common.exception.SetPasswordException;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import cn.torna.common.annotation.NoLogin;
-import cn.torna.common.exception.LoginFailureException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
