@@ -4,16 +4,21 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
+
 /**
  * @author tanghc
  */
 @Data
-public class ComposeDocFolderAddParam {
+public class ComposeDocAddParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long projectId;
 
-    private String name;
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private List<Long> docIdList;
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
+
 }

@@ -8,12 +8,10 @@ import lombok.Data;
  * @author tanghc
  */
 @Data
-public class ComposeDocFolderAddParam {
+public class ComposeDocFolderUpdateParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private Long projectId;
+    private Long id;
 
     private String name;
 
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private Long parentId;
 }

@@ -126,6 +126,15 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .collect(Collectors.toList());
     }
 
+    public List<DocInfo> listDocByIds(Collection<Long> docIdList) {
+        if (CollectionUtils.isEmpty(docIdList)) {
+            return Collections.emptyList();
+        }
+        Query query = new Query()
+                .in("id", docIdList);
+        return this.list(query);
+    }
+
 
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");

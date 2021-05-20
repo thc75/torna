@@ -379,7 +379,21 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
     }
   }
 }
+.icon-operation {
+  .el-link {
+    margin-right: 12px !important;
+    font-size: 16px !important;
+  }
+}
 // el-table end~
+
+.table-right {
+  float: right;
+  margin-bottom: 10px;
+  .table-right-item {
+    display: inline-block;
+  }
+}
 
 .doc-tree {
   .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner::after { border-color: #FFFFFF !important;}
