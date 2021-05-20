@@ -31,18 +31,19 @@ class Delegate extends BaseTranslator {
 
 const delegate = new Delegate()
 
-Object.assign(Vue.prototype, {
-  $ts(key) {
-    let value = delegate.translate(key)
-    if (arguments.length > 1) {
-      const args = []
-      for (let i = 1; i < arguments.length; i++) {
-        args.push(arguments[i])
-      }
-      value = format_string(value, args)
+const _ts = function(key) {
+  let value = delegate.translate(key)
+  if (arguments.length > 1) {
+    const args = []
+    for (let i = 1; i < arguments.length; i++) {
+      args.push(arguments[i])
     }
-    return value
-  },
+    value = format_string(value, args)
+  }
+  return value
+}
+
+Object.assign(Vue.prototype, {
   /**
    * 设置长度
    * @param width 中文状态下宽度
@@ -57,6 +58,6 @@ Object.assign(Vue.prototype, {
   }
 })
 
-window.$ts = function(key, value) {
-  return delegate.translate(key, value)
-}
+Vue.prototype.$ts = _ts
+
+window.$ts = _ts
