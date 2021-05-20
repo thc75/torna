@@ -72,24 +72,33 @@ export default {
   },
   methods: {
     onProjectCreateSave() {
-      const promiseMain = this.$refs.projectForm.validate()
-      Promise.all([promiseMain]).then(validArr => {
-        // 到这里来表示全部内容校验通过
-        this.post('/project/compose/add', this.projectFormData, resp => {
-          this.visible = false
-          this.tipSuccess(this.$ts('addSuccess'))
-          this.initPerm()
-          this.success(resp.data)
-        })
-      }).catch((e) => {
-      }) // 加上这个控制台不会报Uncaught (in promise)
+      this.$refs.projectForm.validate(valid => {
+        if (valid) {
+          const uri = this.projectFormData.id ? '/compose/project/update' : '/compose/project/add'
+          this.post(uri, this.projectFormData, resp => {
+            this.visible = false
+            this.tipSuccess(this.$ts('addSuccess'))
+            this.initPerm()
+            this.success(resp.data)
+          })
+        }
+      })
     },
     show(spaceId) {
       if (!spaceId) {
         this.tipError('show()必须传spaceId参数')
         return false
       }
-      this.projectFormData.spaceId = spaceId
+      this.projectFormData = {
+        name: '',
+        description: '',
+        spaceId: spaceId,
+        isEncrypt: 0
+      }
+      this.visible = true
+    },
+    updateShow(data) {
+      Object.assign(this.projectFormData, data)
       this.visible = true
     },
     onHide() {

@@ -240,7 +240,8 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .map(SpaceUser::getSpaceId)
                 .collect(Collectors.toList());
 
-        Query query = new Query().in("id", spaceIds);
+        Query query = new Query()
+                .in("id", spaceIds);
         List<Space> spaces = this.listAll(query);
         return CopyUtil.copyList(spaces, SpaceDTO::new);
     }

@@ -11,6 +11,7 @@ import cn.torna.dao.entity.SpaceUser;
 import cn.torna.dao.mapper.ComposeProjectMapper;
 import cn.torna.service.dto.ComposeProjectAddDTO;
 import cn.torna.service.dto.ComposeProjectDTO;
+import cn.torna.service.dto.ComposeProjectUpdateDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,18 @@ public class ComposeProjectService extends BaseService<ComposeProject, ComposePr
         project.setModifierId(projectAddDTO.getCreatorId());
         project.setModifierName(projectAddDTO.getCreatorName());
         this.save(project);
+    }
+
+    public void updateProject(ComposeProjectUpdateDTO composeProjectUpdateDTO) {
+        ComposeProject composeProject = getById(composeProjectUpdateDTO.getId());
+        CopyUtil.copyPropertiesIgnoreNull(composeProjectUpdateDTO, composeProject);
+        if (Booleans.isTrue(composeProjectUpdateDTO.getIsEncrypt())) {
+            String pwd = PasswordUtil.getRandomSimplePassword(4);
+            composeProject.setPassword(pwd);
+        } else {
+            composeProject.setPassword("");
+        }
+        update(composeProject);
     }
 
     /**

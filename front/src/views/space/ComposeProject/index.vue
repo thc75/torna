@@ -1,6 +1,13 @@
 <template>
   <div class="app-container">
-    <el-button size="mini" type="primary" @click="onProjectAdd">{{ $ts('createProject') }}</el-button>
+    <el-button
+      v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
+      size="small"
+      type="primary"
+      @click="onProjectAdd"
+    >
+      {{ $ts('createProject') }}
+    </el-button>
     <el-tabs
       v-model="active"
       type="card"
@@ -16,6 +23,7 @@
         <span slot="label">
           {{ project.name }}
           <el-dropdown
+            v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
             v-show="project.id === projectInfo.id"
             trigger="click"
             style="margin-left: 5px;"
@@ -34,13 +42,41 @@
         </span>
       </el-tab-pane>
     </el-tabs>
+    <div class="compose-content">
+      <div class="compose-url"></div>
+      <el-dropdown v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
+        <el-button type="primary" size="mini">
+          {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item icon="el-icon-document" :command="onDocAdd">{{ $ts('createDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-folder">{{ $ts('createFolder') }}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
     <compose-project-create-dialog ref="projectCreateDlg" :success="onProjectAddSuccess" />
+    <el-dialog
+      :title="$ts('selectDoc')"
+      :visible.sync="selectDocShow"
+    >
+      <doc-select
+        ref="docSelect"
+        show-checkbox
+        :load-init="false"
+        :indent="16"
+      />
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="selectDocShow = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onProjectAddSave">{{ $ts('dlgSave') }}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
 import ComposeProjectCreateDialog from '@/components/ComposeProjectCreateDialog'
+import DocSelect from '@/components/DocSelect'
 export default {
-  components: { ComposeProjectCreateDialog },
+  components: { ComposeProjectCreateDialog, DocSelect },
   props: {
     spaceId: {
       type: String,
@@ -52,8 +88,10 @@ export default {
       active: null,
       projectList: [],
       projectInfo: {
-        id: ''
-      }
+        id: '',
+        name: ''
+      },
+      selectDocShow: false
     }
   },
   watch: {
@@ -65,12 +103,22 @@ export default {
     this.loadData(this.spaceId)
   },
   methods: {
+    reload() {
+      this.loadData(this.spaceId)
+    },
     loadData(spaceId) {
       if (spaceId) {
-        this.get('/space/project/compose/list', { spaceId: spaceId }, resp => {
+        this.get('/space/compose/project/list', { spaceId: spaceId }, resp => {
           this.projectList = resp.data
           if (this.projectList.length > 0) {
-            const project = this.projectList[0]
+            let projectList
+            if (this.projectInfo.id) {
+              projectList = this.projectList.filter(row => row.id === this.projectInfo.id)
+            }
+            if (!projectList || projectList.length === 0) {
+              projectList = this.projectList
+            }
+            const project = projectList[0]
             this.active = project.name
             this.projectInfo = project
           }
@@ -92,11 +140,32 @@ export default {
         }
       }
     },
+    onDocAdd() {
+      this.selectDocShow = true
+      this.$nextTick(() => {
+        this.getSelect().init()
+      })
+    },
+    getSelect() {
+      return this.$refs.docSelect
+    },
+    onProjectAddSave() {
+      const checkedKeys = this.getSelect().getCheckedDocIds()
+      console.log(checkedKeys)
+    },
     onUpdate() {
-
+      this.$refs.projectCreateDlg.updateShow(this.projectInfo)
     },
     onDelete() {
-
+      this.confirm(this.$ts('deleteConfirm', this.projectInfo.name), () => {
+        const data = {
+          id: this.projectInfo.id
+        }
+        this.post('/compose/project/delete', data, () => {
+          this.tipSuccess(this.$ts('deleteSuccess'))
+          this.reload()
+        })
+      })
     }
   }
 }

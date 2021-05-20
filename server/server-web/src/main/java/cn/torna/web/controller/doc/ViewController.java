@@ -6,6 +6,7 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.util.GenerateUtil;
+import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.DocInfoService;
@@ -62,7 +63,7 @@ public class ViewController {
                 String base = moduleVO.getId();
                 for (DocInfo docInfo : docInfos) {
                     boolean isFolder = Booleans.isTrue(docInfo.getIsFolder());
-                    String id = buildId(base, docInfo.getId());
+                    String id = isFolder ? buildId(base, docInfo.getId()) : IdUtil.encode(docInfo.getId());
                     String parentId = buildParentId(base, docInfo.getParentId());
                     byte type = isFolder ? TYPE_FOLDER : TYPE_DOC;
                     TreeVO docInfoVO = new TreeVO(id, docInfo.getName(), parentId, type);

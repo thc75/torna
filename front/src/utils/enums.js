@@ -54,5 +54,14 @@ export const Enums = {
    */
   PROP_TYPE: {
     DEBUG: 10
+  },
+  /**
+   * 文件夹类型
+   */
+  FOLDER_TYPE: {
+    PROJECT: 0,
+    TYPE_MODULE: 1,
+    TYPE_FOLDER: 2,
+    TYPE_DOC: 3
   }
 }
