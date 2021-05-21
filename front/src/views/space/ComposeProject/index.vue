@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-button
-      v-if="projectList.length === 0"
+      v-if="projectList.length === 0 && hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
       type="primary"
       @click="onProjectAdd"
     >
@@ -135,6 +135,7 @@
           </template>
         </u-table-column>
         <u-table-column
+          v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
           :label="$ts('operation')"
           width="150"
         >
