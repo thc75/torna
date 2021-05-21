@@ -1,17 +1,17 @@
 <template>
   <div class="app-container">
     <el-button
-      v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
-      size="small"
+      v-if="projectList.length === 0"
       type="primary"
       @click="onProjectAdd"
     >
       {{ $ts('createProject') }}
     </el-button>
     <el-tabs
+      v-show="projectList.length > 0"
       v-model="active"
       type="card"
-      style="margin-top: 10px;"
+      :before-leave="beforeLeave"
       @tab-click="onTabClick"
     >
       <el-tab-pane
@@ -41,9 +41,26 @@
           </el-dropdown>
         </span>
       </el-tab-pane>
+      <el-tab-pane v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" name="_new_">
+        <span slot="label" @click="onProjectAdd">
+          <el-tooltip placement="top" :content="$ts('createProject')">
+            <i class="el-icon-circle-plus"></i>
+          </el-tooltip>
+        </span>
+      </el-tab-pane>
     </el-tabs>
-    <div class="compose-content">
-      <div class="compose-url"></div>
+    <div v-show="projectList.length > 0" class="compose-content">
+      <div class="compose-url">
+        <span style="margin-right: 20px">
+          状态：
+          <el-tag v-if="projectInfo.status" type="success">{{ $ts('enable') }}</el-tag>
+          <el-tag v-else type="danger">{{ $ts('disable') }}</el-tag>
+        </span>
+        <span v-show="visitUrl" style="margin-right: 20px">
+          {{ $ts('visitUrl') }}：<el-link :href="visitUrl" type="primary" :underline="false" target="_blank">{{ visitUrl }}</el-link>
+        </span>
+        <span v-show="visitPassword">{{ $ts('pwdShow') }}：{{ visitPassword }}</span>
+      </div>
       <el-dropdown v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <el-button type="primary" size="mini">
           {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
@@ -66,7 +83,7 @@
         </div>
         <div class="table-right-item">
           <el-tooltip placement="top" :content="$ts('refreshTable')">
-            <el-button type="primary" size="mini" icon="el-icon-refresh" @click="reloadTable" />
+            <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
           </el-tooltip>
         </div>
       </div>
@@ -97,6 +114,12 @@
           </template>
         </u-table-column>
         <u-table-column
+          prop="origin"
+          :label="$ts('origin')"
+          width="250"
+          show-overflow-tooltip
+        />
+        <u-table-column
           prop="creator"
           :label="$ts('creator')"
           width="120"
@@ -117,9 +140,17 @@
         >
           <template slot-scope="scope">
             <div class="icon-operation">
-              <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-document-add" :title="$ts('createDoc')" @click="onDocAdd(scope.row)" />
-              <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-folder-add" :title="$ts('createFolder')" @click="onDocFolderAdd(scope.row)" />
-              <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-edit" :title="$ts('update')" @click="onDocUpdate(scope.row)" />
+              <div v-if="isFolder(scope.row)" style="display: inline-block">
+                <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createDoc')" :open-delay="500">
+                  <el-link type="primary" icon="el-icon-document-add" @click="onDocAdd(scope.row)" />
+                </el-tooltip>
+                <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createFolder')" :open-delay="500">
+                  <el-link type="primary" icon="el-icon-folder-add" @click="onDocFolderAdd(scope.row)" />
+                </el-tooltip>
+                <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('updateName')" :open-delay="500">
+                  <el-link type="primary" icon="el-icon-edit" @click="onDocUpdate(scope.row)" />
+                </el-tooltip>
+              </div>
               <el-popconfirm
                 :title="$ts('deleteConfirm', scope.row.name)"
                 @confirm="onDocRemove(scope.row)"
@@ -135,11 +166,13 @@
     <el-dialog
       :title="$ts('selectDoc')"
       :visible.sync="selectDocShow"
+      @close="() => getSelect().clearChecked()"
     >
       <doc-select
         ref="docSelect"
         show-checkbox
         :load-init="false"
+        :show-url="true"
         :indent="16"
       />
       <div slot="footer" class="dialog-footer">
@@ -166,10 +199,14 @@ export default {
   data() {
     return {
       active: null,
+      beforeLeave: function(activeName, oldActiveName) {
+        return activeName !== '_new_'
+      },
       projectList: [],
       projectInfo: {
         id: '',
-        name: ''
+        name: '',
+        status: 1
       },
       parentDoc: null,
       selectDocShow: false,
@@ -207,6 +244,18 @@ export default {
         }
       }
       return data
+    },
+    visitUrl() {
+      if (!this.projectInfo) {
+        return ''
+      }
+      return `${this.getBaseUrl()}/#/show/${this.projectInfo.id}`
+    },
+    visitPassword() {
+      if (!this.projectInfo) {
+        return ''
+      }
+      return this.projectInfo.password
     }
   },
   watch: {
@@ -228,13 +277,19 @@ export default {
     reload() {
       this.loadProject(this.spaceId)
     },
-    reloadTable() {
-      this.loadTable(this.projectInfo.id)
+    reloadTable(callback) {
+      this.loadTable(this.projectInfo.id, callback)
     },
-    loadTable(projectId) {
+    refreshTable() {
+      this.reloadTable(() => {
+        this.tipSuccess('刷新成功')
+      })
+    },
+    loadTable(projectId, callback) {
       if (projectId) {
         this.get('/compose/doc/list', { projectId: projectId }, function(resp) {
           this.tableData = this.convertTree(resp.data)
+          callback && callback()
         })
       }
     },
@@ -258,6 +313,11 @@ export default {
         })
       }
     },
+    searchContent(searchText, row) {
+      return (row.url && row.url.toLowerCase().indexOf(searchText) > -1) ||
+        (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
+        (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
+    },
     onProjectAdd() {
       this.$refs.projectCreateDlg.show(this.spaceId)
     },
@@ -269,6 +329,7 @@ export default {
       for (const project of this.projectList) {
         if (label === project.name) {
           this.projectInfo = project
+          this.reloadTable()
           break
         }
       }
@@ -305,14 +366,14 @@ export default {
       return this.$refs.docSelect
     },
     onDocAddSave() {
-      const checkedKeys = this.getSelect().getCheckedDocIds()
-      if (checkedKeys.length === 0) {
+      const checkedNodes = this.getSelect().getCheckedNodes(true)
+      if (checkedNodes.length === 0) {
         this.tipError($ts('pleaseCheckDoc'))
         return
       }
       const data = {
         projectId: this.projectInfo.id,
-        docIdList: checkedKeys
+        docList: checkedNodes.map(row => { return { docId: row.docId, origin: row.origin } })
       }
       if (this.parentDoc) {
         data.parentId = this.parentDoc.id
@@ -338,7 +399,7 @@ export default {
       })
     },
     initHeight() {
-      this.tableHeight = window.innerHeight - 165
+      this.tableHeight = window.innerHeight - 225
     },
     isFolder(row) {
       return row.isFolder === 1
@@ -376,3 +437,12 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.compose-content {
+  .compose-url {
+    margin-bottom: 20px;
+    color: #606266;
+    font-size: 14px;
+  }
+}
+</style>

@@ -21,6 +21,9 @@ public class ComposeProjectDTO {
     /** 项目描述, 数据库字段：description */
     private String description;
 
+    /** 访问密码, 数据库字段：password */
+    private String password;
+
     /**  数据库字段：creator_name */
     private String creatorName;
 
@@ -35,7 +38,10 @@ public class ComposeProjectDTO {
 
     private Date gmtCreate;
 
-    /** 是否加密，1：是，0：否, 数据库字段：is_encrypt */
-    private Byte isEncrypt;
+    /** 访问形式，1：公开，2：加密, 数据库字段：type */
+    private Byte type;
+
+    /** 1：有效，0：无效, 数据库字段：status */
+    private Byte status;
 
 }

@@ -193,8 +193,8 @@ const MAPPING = {
   'wholeModule': '（整个模块）',
   'updateShare': '修改分享',
   'look': '查看',
-  'pwdShow': '密码：',
-  'remarkShow': '【备注】：',
+  'pwdShow': '密码',
+  'remarkShow': '【备注】',
   'projectAdmin': '项目管理员',
   'updateProject': '修改项目',
   'deleteProject': '删除项目',
@@ -344,7 +344,12 @@ const MAPPING = {
   'systemSetting': '系统设置',
   'language': '语言',
   'nickEmail': '昵称/邮箱',
-  'visitStyle': '访问方式'
+  'visitStyle': '访问方式',
+  'updateName': '修改名称',
+  'visitUrl': '访问链接',
+  'composeSpace': '聚合空间',
+  'btnOk': ' 确 定 ',
+  'visitPassword': '访问密码'
 
 }
 

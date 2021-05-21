@@ -20,6 +20,9 @@ public class ComposeDocVO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long docId;
 
+    /** 文档来源, 数据库字段：origin */
+    private String origin;
+
     /** compose_project.id, 数据库字段：project_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long projectId;

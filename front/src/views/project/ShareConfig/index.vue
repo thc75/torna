@@ -12,10 +12,10 @@
         <template slot-scope="scope">
           <el-link type="primary" :href="buildUrl(scope.row)" target="_blank">{{ buildUrl(scope.row) }}</el-link>
           <span v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT">
-            &nbsp;&nbsp;{{ $ts('pwdShow') + scope.row.password }}
+            &nbsp;&nbsp;{{ $ts('pwdShow') }}：{{ scope.row.password }}
           </span>
           <span v-if="scope.row.remark.length > 0" class="info-tip">
-            {{ $ts('remarkShow') }} {{ scope.row.remark }}
+            {{ $ts('remarkShow') }}：{{ scope.row.remark }}
           </span>
         </template>
       </el-table-column>

@@ -27,6 +27,8 @@ public class TreeVO {
 
     private Byte docType;
 
+    private String origin;
+
     public TreeVO(String id, String label, String parentId, byte type) {
         this.id = id;
         this.label = label;

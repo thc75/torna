@@ -29,9 +29,15 @@
         />
       </el-form-item>
       <el-form-item :label="$ts('visitStyle')">
-        <el-radio-group v-model="projectFormData.isEncrypt">
-          <el-radio :label="0">{{ $ts('public') }}</el-radio>
-          <el-radio :label="1">{{ $ts('encryption') }}</el-radio>
+        <el-radio-group v-model="projectFormData.type">
+          <el-radio :label="getEnums().COMPOSE_PROJECT_TYPE.PUBLIC">{{ $ts('public') }}</el-radio>
+          <el-radio :label="getEnums().COMPOSE_PROJECT_TYPE.ENCRYPT">{{ $ts('encryption') }}</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item :label="$ts('status')">
+        <el-radio-group v-model="projectFormData.status">
+          <el-radio :label="getEnums().STATUS.ENABLE">{{ $ts('enable') }}</el-radio>
+          <el-radio :label="getEnums().STATUS.DISABLE">{{ $ts('disable') }}</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -57,7 +63,8 @@ export default {
         name: '',
         description: '',
         spaceId: '',
-        isEncrypt: 0
+        type: 1,
+        status: 1
       },
       projectRule: {
         name: [
@@ -93,7 +100,7 @@ export default {
         name: '',
         description: '',
         spaceId: spaceId,
-        isEncrypt: 0
+        type: 1
       }
       this.visible = true
     },

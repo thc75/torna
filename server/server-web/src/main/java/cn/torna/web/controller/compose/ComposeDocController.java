@@ -1,21 +1,24 @@
 package cn.torna.web.controller.compose;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ComposeDoc;
+import cn.torna.dao.entity.ComposeProject;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.ComposeDocService;
+import cn.torna.service.ComposeProjectService;
 import cn.torna.service.DocInfoService;
 import cn.torna.web.controller.compose.param.ComposeDocAddParam;
 import cn.torna.web.controller.compose.param.ComposeDocFolderAddParam;
 import cn.torna.web.controller.compose.param.ComposeDocFolderUpdateParam;
 import cn.torna.web.controller.compose.vo.ComposeDocVO;
-import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.system.param.IdParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,20 +46,38 @@ public class ComposeDocController {
     private ComposeDocService composeDocService;
 
     @Autowired
+    private ComposeProjectService composeProjectService;
+
+    @Autowired
     private DocInfoService docInfoService;
 
     @PostMapping("add")
     public Result addDoc(@RequestBody ComposeDocAddParam param) {
         User user = UserContext.getUser();
-        List<Long> docIdList = param.getDocIdList();
-        if (CollectionUtils.isEmpty(docIdList)) {
+        List<ComposeDocAddParam.Doc> docList = param.getDocList();
+        if (CollectionUtils.isEmpty(docList)) {
             throw new BizException("请选择文档");
         }
-        List<ComposeDoc> tobeSave = docIdList.stream()
+        List<ComposeDoc> composeDocs = composeDocService.listByProjectIdAndParentId(param.getProjectId(), param.getParentId());
+        // 过滤已经添加的docId
+        docList = filterDocId(docList, composeDocs);
+        if (CollectionUtils.isEmpty(docList)) {
+            return Result.ok();
+        }
+        List<ComposeDoc> tobeSave = docList.stream()
                 .map(docId -> buildComposeDoc(docId, param, user))
                 .collect(Collectors.toList());
         composeDocService.saveBatch(tobeSave);
         return Result.ok();
+    }
+
+    private static List<ComposeDocAddParam.Doc> filterDocId(List<ComposeDocAddParam.Doc> docList, List<ComposeDoc> composeDocsExist) {
+        List<Long> existDocIds = composeDocsExist.stream()
+                .map(ComposeDoc::getDocId)
+                .collect(Collectors.toList());
+        return docList
+                .stream().filter(doc -> !existDocIds.contains(doc.getDocId()))
+                .collect(Collectors.toList());
     }
 
     @PostMapping("remove")
@@ -64,16 +86,22 @@ public class ComposeDocController {
         return Result.ok();
     }
 
-    private static ComposeDoc buildComposeDoc(long docId, ComposeDocAddParam param, User user) {
+    private static ComposeDoc buildComposeDoc(ComposeDocAddParam.Doc doc, ComposeDocAddParam param, User user) {
         ComposeDoc composeDoc = new ComposeDoc();
         Date date = new Date();
+        Long parentId = param.getParentId();
+        if (parentId == null) {
+            parentId = 0L;
+        }
         composeDoc.setProjectId(param.getProjectId());
-        composeDoc.setDocId(docId);
-        composeDoc.setParentId(param.getParentId());
+        composeDoc.setDocId(doc.getDocId());
+        composeDoc.setParentId(parentId);
         composeDoc.setCreator(user.getNickname());
         composeDoc.setIsFolder(Booleans.FALSE);
         composeDoc.setFolderName("");
+        composeDoc.setOrigin(doc.getOrigin());
         composeDoc.setIsDeleted(Booleans.FALSE);
+        composeDoc.setOrderIndex(0);
         composeDoc.setGmtCreate(date);
         composeDoc.setGmtModified(date);
         return composeDoc;
@@ -128,6 +156,16 @@ public class ComposeDocController {
                 .collect(Collectors.toList());
 
         return Result.ok(composeDocVOList);
+    }
+
+    @GetMapping("menu")
+    @NoLogin
+    public Result<List<ComposeDocVO>> menu(@HashId Long projectId) {
+        ComposeProject composeProject = composeProjectService.getById(projectId);
+        if (composeProject == null || composeProject.getStatus() == StatusEnum.DISABLED.getStatus()) {
+            return Result.ok(Collections.emptyList());
+        }
+        return this.list(projectId);
     }
 
 }

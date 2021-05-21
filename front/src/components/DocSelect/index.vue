@@ -36,6 +36,9 @@
             <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }}
             <dubbo-service-tip v-if="data.type === types.TYPE_FOLDER && data.docType === getEnums().DOC_TYPE.DUBBO" :doc-id="data.docId" />
           </span>
+          <span v-if="showUrl && data.url" class="doc-select-url">
+            {{ data.url }}
+          </span>
         </span>
       </el-tree>
     </div>
@@ -70,6 +73,10 @@ export default {
     indent: {
       type: Number,
       default: 10
+    },
+    showUrl: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -99,14 +106,16 @@ export default {
   },
   methods: {
     init() {
-      this.get('/space/listNormal', {}, resp => {
-        const data = resp.data
-        if (data.length > 0) {
-          this.spaceData = data
-          this.currentSpaceId = data[0].id
-          this.loadMenu(this.currentSpaceId)
-        }
-      })
+      if (this.spaceData.length === 0) {
+        this.get('/space/listNormal', {}, resp => {
+          const data = resp.data
+          if (data.length > 0) {
+            this.spaceData = data
+            this.currentSpaceId = data[0].id
+            this.loadMenu(this.currentSpaceId)
+          }
+        })
+      }
     },
     loadMenu(spaceId) {
       if (spaceId) {
@@ -168,11 +177,32 @@ export default {
     getTree() {
       return this.$refs.tree
     },
+    /**
+     * @param leafOnly 是否只是叶子节点，默认值为 false
+     * @param includeHalfChecked 是否包含半选节点，默认值为 false
+     */
+    getCheckedNodes(leafOnly, includeHalfChecked) {
+      if (leafOnly === undefined) {
+        leafOnly = false
+      }
+      if (includeHalfChecked === undefined) {
+        includeHalfChecked = false
+      }
+      return this.getTree().getCheckedNodes(leafOnly, includeHalfChecked)
+    },
     getCheckedDocIds() {
       return this.getTree().getCheckedKeys(true)
     },
     setCheckedKeys(keys) {
       this.getTree().setCheckedKeys(keys)
+    },
+    /**
+     * 取消勾选
+     */
+    clearChecked() {
+      this.treeData.forEach(row => {
+        this.getTree().setChecked(row.id, false, true)
+      })
     }
   }
 }
@@ -184,5 +214,9 @@ export default {
 }
 .space-select {
   padding: 10px 10px 0 10px;
+}
+.doc-select-url {
+  margin-left: 10px;
+  color: #909399;
 }
 </style>

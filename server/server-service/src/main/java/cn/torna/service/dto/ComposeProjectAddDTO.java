@@ -21,8 +21,11 @@ public class ComposeProjectAddDTO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
-    /** 是否加密，1：是，0：否, 数据库字段：is_encrypt */
-    private Byte isEncrypt;
+    /** 访问形式，1：公开，2：加密, 数据库字段：type */
+    private Byte type;
+
+    /** 1：有效，0：无效, 数据库字段：status */
+    private Byte status;
 
     private Long creatorId;
 

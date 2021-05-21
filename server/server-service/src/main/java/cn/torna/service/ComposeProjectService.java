@@ -1,8 +1,8 @@
 package cn.torna.service;
 
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.RoleEnum;
+import cn.torna.common.enums.ComposeProjectTypeEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.PasswordUtil;
@@ -16,6 +16,7 @@ import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class ComposeProjectService extends BaseService<ComposeProject, ComposePr
         ComposeProject exist = get(query);
         Assert.isNull(exist, () -> projectAddDTO.getName() + "已存在");
         ComposeProject project = CopyUtil.copyBean(projectAddDTO, ComposeProject::new);
-        if (Booleans.isTrue(projectAddDTO.getIsEncrypt())) {
+        if (projectAddDTO.getType() == ComposeProjectTypeEnum.ENCRYPT.getType()) {
             String pwd = PasswordUtil.getRandomSimplePassword(4);
             project.setPassword(pwd);
         }
@@ -52,9 +53,11 @@ public class ComposeProjectService extends BaseService<ComposeProject, ComposePr
     public void updateProject(ComposeProjectUpdateDTO composeProjectUpdateDTO) {
         ComposeProject composeProject = getById(composeProjectUpdateDTO.getId());
         CopyUtil.copyPropertiesIgnoreNull(composeProjectUpdateDTO, composeProject);
-        if (Booleans.isTrue(composeProjectUpdateDTO.getIsEncrypt())) {
-            String pwd = PasswordUtil.getRandomSimplePassword(4);
-            composeProject.setPassword(pwd);
+        if (composeProjectUpdateDTO.getType() == ComposeProjectTypeEnum.ENCRYPT.getType()) {
+            if (StringUtils.isEmpty(composeProject.getPassword())) {
+                String pwd = PasswordUtil.getRandomSimplePassword(4);
+                composeProject.setPassword(pwd);
+            }
         } else {
             composeProject.setPassword("");
         }
@@ -82,7 +85,7 @@ public class ComposeProjectService extends BaseService<ComposeProject, ComposePr
                 .filter(project -> spaceIdList.contains(project.getSpaceId()))
                 .map(project -> {
                     ComposeProjectDTO projectDTO = CopyUtil.copyBean(project, ComposeProjectDTO::new);
-                    projectDTO.setRoleCode(RoleEnum.DEV.getCode());
+                    projectDTO.setRoleCode(RoleEnum.ADMIN.getCode());
                     return projectDTO;
                 })
                 .collect(Collectors.toList());

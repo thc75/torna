@@ -33,8 +33,8 @@ public class ComposeProject {
     /** 所属空间，space.id, 数据库字段：space_id */
     private Long spaceId;
 
-    /** 是否加密，1：是，0：否, 数据库字段：is_encrypt */
-    private Byte isEncrypt;
+    /** 访问形式，1：公开，2：加密, 数据库字段：type */
+    private Byte type;
 
     /** 访问密码, 数据库字段：password */
     private String password;
@@ -53,6 +53,9 @@ public class ComposeProject {
 
     /** 排序索引, 数据库字段：order_index */
     private Integer orderIndex;
+
+    /** 1：有效，0：无效, 数据库字段：status */
+    private Byte status;
 
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete

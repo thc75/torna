@@ -192,8 +192,8 @@ const MAPPING = {
   'wholeModule': '(whole module)',
   'updateShare': 'Update Share',
   'look': 'See',
-  'pwdShow': 'Password: ',
-  'remarkShow': '[Remark]: ',
+  'pwdShow': 'Password',
+  'remarkShow': '[Remark]',
   'projectAdmin': 'Project Admin',
   'updateProject': 'Update Project',
   'deleteProject': 'Delete Project',
@@ -343,7 +343,12 @@ const MAPPING = {
   'systemSetting': 'System Setting',
   'language': 'Language',
   'nickEmail': 'Nickname/Email',
-  'visitStyle': 'Visit Style'
+  'visitStyle': 'Visit Style',
+  'updateName': 'Update Name',
+  'visitUrl': 'Visit Url',
+  'composeSpace': 'Compose Space',
+  'btnOk': ' OK ',
+  'visitPassword': 'Password'
 
 }
 

@@ -31,6 +31,9 @@
         </el-form-item>
       </el-form>
     </div>
+    <h3 v-if="composeProject.status === getEnums().STATUS.DISABLE">
+      Document not found
+    </h3>
   </div>
 </template>
 
@@ -40,7 +43,7 @@ import ResizeMixin from './mixin/ResizeHandler'
 import md5 from 'js-md5'
 
 export default {
-  name: 'LayoutShare',
+  name: 'LayoutComposeProject',
   components: {
     Navbar,
     Sidebar,
@@ -49,9 +52,9 @@ export default {
   mixins: [ResizeMixin],
   data() {
     return {
-      shareConfig: {
+      composeProject: {
         id: '',
-        type: 0
+        isEncrypt: 0
       },
       encryptFormData: {
         password: ''
@@ -82,39 +85,40 @@ export default {
       }
     },
     canVisit() {
-      const config = this.shareConfig
-      return config.type === this.getEnums().SHARE_TYPE.PUBLIC || this.rightEncrypt
+      const config = this.composeProject
+      return (config.type === this.getEnums().SHARE_TYPE.PUBLIC || this.rightEncrypt) && config.status === this.getEnums().STATUS.ENABLE
     },
     rightEncrypt() {
-      return this.getAttr(this.getStoreKey(this.shareConfig)) === 'true'
+      return this.getAttr(this.getStoreKey(this.composeProject)) === 'true'
     },
     showPassword() {
-      return this.shareConfig.type === this.getEnums().SHARE_TYPE.ENCRYPT && !this.rightEncrypt
+      const config = this.composeProject
+      return (config.type === this.getEnums().SHARE_TYPE.ENCRYPT && !this.rightEncrypt) && config.status === this.getEnums().STATUS.ENABLE
     }
   },
   created() {
-    this.initShare()
+    this.initComposeProject()
   },
   methods: {
-    initShare() {
-      const shareId = this.$route.params.shareId
-      if (shareId) {
-        this.get('/share/get', { id: shareId }, resp => {
-          this.shareConfig = resp.data
+    initComposeProject() {
+      const showId = this.$route.params.showId
+      if (showId) {
+        this.get('/compose/project/get', { id: showId }, resp => {
+          this.composeProject = resp.data
         })
       }
     },
-    getStoreKey(shareConfig) {
-      return `torna.share.${shareConfig.id}`
+    getStoreKey(composeProject) {
+      return `torna.show.${composeProject.id}`
     },
     onCheckPassword() {
       this.$refs.encryptForm.validate(valid => {
         if (valid) {
-          this.post('/share/checkPassword', {
-            id: this.shareConfig.id,
+          this.post('/compose/project/checkPassword', {
+            id: this.composeProject.id,
             password: md5(this.encryptFormData.password)
           }, resp => {
-            this.setAttr(this.getStoreKey(this.shareConfig), 'true')
+            this.setAttr(this.getStoreKey(this.composeProject), 'true')
             location.reload()
           })
         }

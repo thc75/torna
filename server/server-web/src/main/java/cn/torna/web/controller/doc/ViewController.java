@@ -9,9 +9,11 @@ import cn.torna.common.util.GenerateUtil;
 import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.Space;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
+import cn.torna.service.SpaceService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ProjectDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,6 +41,9 @@ public class ViewController {
     private static final byte TYPE_DOC = 3;
 
     @Autowired
+    private SpaceService spaceService;
+
+    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -50,6 +56,7 @@ public class ViewController {
     public Result<List<TreeVO>> data(@HashId Long spaceId) {
         // 获取空间下的项目
         User user = UserContext.getUser();
+        Space space = spaceService.getById(spaceId);
         List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceId, user);
         List<TreeVO> list = new ArrayList<>();
         for (ProjectDTO projectDTO : projectDTOS) {
@@ -70,8 +77,15 @@ public class ViewController {
                     docInfoVO.setHttpMethod(docInfo.getHttpMethod());
                     docInfoVO.setDocType(docInfo.getType());
                     docInfoVO.setDocId(docInfo.getId());
+                    // 如果是文档
                     if (!isFolder) {
                         docInfoVO.setUrl(docInfo.getUrl());
+                        List<String> originInfo = Arrays.asList(
+                                space.getName(),
+                                projectDTO.getName(),
+                                module.getName()
+                                );
+                        docInfoVO.setOrigin(String.join("/", originInfo));
                     }
                     list.add(docInfoVO);
                 }

@@ -8,6 +8,7 @@ import LayoutSpace from '@/layout/index_space'
 import LayoutProject from '@/layout/index_project'
 import LayoutAdmin from '@/layout_admin'
 import LayoutShare from '@/layout_share'
+import LayoutShow from '@/layout_show'
 
 Vue.use(Router)
 
@@ -268,8 +269,27 @@ export const constantRoutes = [
       },
       {
         path: ':shareId(\\w+)/:docId(\\w+)',
-        name: 'ShareHome',
+        name: 'ShareHome2',
         component: () => import('@/views/share/index')
+      }
+    ]
+  },
+  // 聚合模式
+  {
+    path: '/show', // 必须/开头
+    component: LayoutShow,
+    name: 'Show',
+    meta: { title: '文档', icon: 'example' },
+    children: [
+      {
+        path: ':showId(\\w+)',
+        name: 'ShowHome',
+        component: () => import('@/views/show/index')
+      },
+      {
+        path: ':showId(\\w+)/:docId(\\w+)',
+        name: 'ShowHome2',
+        component: () => import('@/views/show/index')
       }
     ]
   },

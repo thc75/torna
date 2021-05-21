@@ -32,14 +32,13 @@ export default {
   data() {
     return {
       spaceData: {
-        id: ''
-      }
+        id: '',
+        isCompose: 0
+      },
+      currentActive: ''
     }
   },
   computed: {
-    currentActive() {
-      return this.$route.path
-    },
     projectIndex() {
       if (this.spaceData.isCompose) {
         return `/space/compose/${this.spaceId}`
@@ -50,6 +49,9 @@ export default {
     spaceId() {
       return this.spaceData.id || this.$route.params.spaceId
     }
+  },
+  mounted() {
+    this.currentActive = this.$route.path
   },
   methods: {
     setSpaceData(data) {

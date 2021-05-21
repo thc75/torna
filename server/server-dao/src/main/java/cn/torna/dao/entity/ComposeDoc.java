@@ -39,12 +39,18 @@ public class ComposeDoc {
     /**  数据库字段：parent_id */
     private Long parentId;
 
+    /** 文档来源, 数据库字段：origin */
+    private String origin;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
 
     /** 创建人, 数据库字段：creator */
     private String creator;
+
+    /**  数据库字段：order_index */
+    private Integer orderIndex;
 
     /**  数据库字段：gmt_create */
     private Date gmtCreate;

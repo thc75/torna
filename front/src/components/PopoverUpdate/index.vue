@@ -36,7 +36,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: '修改名称'
+      default: $ts('updateName')
     },
     label: {
       type: String,
