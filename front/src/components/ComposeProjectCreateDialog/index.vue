@@ -100,7 +100,8 @@ export default {
         name: '',
         description: '',
         spaceId: spaceId,
-        type: 1
+        type: 1,
+        status: 1
       }
       this.visible = true
     },
