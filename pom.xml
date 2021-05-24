@@ -23,6 +23,7 @@
     <modules>
         <module>server</module>
         <module>sdk/sdk-java</module>
+        <module>plugin/swagger-plugin</module>
     </modules>
 
     <build>

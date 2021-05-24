@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class DocParamReq {
+public class DocParamReq implements IParam {
 
     /** 字段名称 */
     private String name;

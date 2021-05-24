@@ -42,6 +42,9 @@ public class DocItem {
     /** 是否分类 */
     private Byte isFolder;
 
+    /** 排序 */
+    private Integer orderIndex;
+
     /** 接口项 */
     private List<DocItem> items;
 
