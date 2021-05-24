@@ -74,6 +74,8 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private String remark;
 
+    private Integer orderIndex;
+
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
 

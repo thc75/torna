@@ -253,6 +253,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setRemark(docInfoDTO.getRemark());
+        docInfo.setOrderIndex(docInfoDTO.getOrderIndex());
         docInfo.setIsShow(docInfoDTO.getIsShow());
         docInfo.setIsDeleted(docInfoDTO.getIsDeleted());
         return docInfo;
@@ -364,6 +365,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         docInfoDTO.setIsFolder(Booleans.TRUE);
         docInfoDTO.setAuthor(docFolderCreateDTO.getAuthor());
+        docInfoDTO.setOrderIndex(docFolderCreateDTO.getOrderIndex());
         DocInfo docInfo = insertDocInfo(docInfoDTO, docFolderCreateDTO.getUser());
         Map<String, ?> props = docFolderCreateDTO.getProps();
         propService.saveProps(props, docInfo.getId(), PropTypeEnum.DOC_INFO_PROP);
