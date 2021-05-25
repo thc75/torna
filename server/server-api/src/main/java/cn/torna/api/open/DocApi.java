@@ -81,9 +81,6 @@ public class DocApi {
     @Autowired
     private UserMessageService userMessageService;
 
-    @Autowired
-    private EnumService enumService;
-
     @Value("${torna.push.allow-same-folder}")
     private boolean allowSameFolder;
 
@@ -220,6 +217,7 @@ public class DocApi {
             docFolderCreateDTO.setDocTypeEnum(docTypeEnum);
             docFolderCreateDTO.setProps(props);
             docFolderCreateDTO.setAuthor(param.getAuthor());
+            docFolderCreateDTO.setOrderIndex(param.getOrderIndex());
             folder = docInfoService.createDocFolder(docFolderCreateDTO);
             List<DocPushItemParam> items = param.getItems();
             if (items != null) {

@@ -4,18 +4,15 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ModuleTypeEnum;
 import cn.torna.common.support.BaseService;
-import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.GenerateUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.mapper.ModuleMapper;
+import cn.torna.service.dto.ImportPostmanDTO;
+import cn.torna.service.dto.ImportSwaggerDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import cn.torna.service.dto.DocInfoDTO;
-import cn.torna.service.dto.ImportPostmanDTO;
-import cn.torna.service.dto.ImportSwaggerDTO;
-import cn.torna.service.dto.ModuleDTO;
 
 import java.util.List;
 
@@ -27,14 +24,6 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
 
     @Autowired
     private DocInfoService docInfoService;
-
-    public ModuleDTO getModuleDTO(long moduleId) {
-        Module module = getById(moduleId);
-        ModuleDTO moduleDTO = CopyUtil.copyBean(module, ModuleDTO::new);
-        List<DocInfoDTO> docInfoDTOS = docInfoService.listDocDetail(moduleId);
-        moduleDTO.setDocInfoList(docInfoDTOS);
-        return moduleDTO;
-    }
 
     public List<Module> listProjectModules(long projectId) {
         return list("project_id", projectId);

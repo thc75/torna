@@ -1,9 +1,11 @@
 package cn.torna.web.controller.module;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.ModuleTypeEnum;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.DocInfo;
@@ -11,6 +13,8 @@ import cn.torna.dao.entity.Module;
 import cn.torna.service.DocImportService;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
+import cn.torna.service.dto.ImportPostmanDTO;
+import cn.torna.service.dto.ImportSwaggerDTO;
 import cn.torna.web.controller.module.param.ImportSwaggerParam;
 import cn.torna.web.controller.module.param.ModuleAddParam;
 import cn.torna.web.controller.module.param.ModuleDeleteParam;
@@ -25,11 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import cn.torna.common.annotation.HashId;
-import cn.torna.common.exception.BizException;
-import cn.torna.service.dto.ImportPostmanDTO;
-import cn.torna.service.dto.ImportSwaggerDTO;
-import cn.torna.service.dto.ModuleDTO;
 
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
@@ -67,17 +66,6 @@ public class ModuleController {
         return Result.ok(moduleVO);
     }
 
-    /**
-     * 返回模块下面的所有文档详情
-     *
-     * @param moduleId 主键
-     * @return 返回记录，没有返回null
-     */
-    @GetMapping("detail")
-    public Result<ModuleDTO> detail(@HashId Long moduleId) {
-        ModuleDTO moduleDTO = moduleService.getModuleDTO(moduleId);
-        return Result.ok(moduleDTO);
-    }
 
     /**
      * 获取项目模块

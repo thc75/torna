@@ -68,5 +68,6 @@ public class DocParamPushParam {
 
     private Byte isDeleted = Booleans.FALSE;
 
-
+    /** 排序 */
+    private Integer orderIndex;
 }

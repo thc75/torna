@@ -1,16 +1,17 @@
-package cn.torna.sdk.param;
+package cn.torna.swaggerplugin.builder;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
 /**
+ * 文档参数字段信息
+ * 
  * @author tanghc
+ *
  */
-@Getter
-@Setter
-public class DocParamReq implements IParam {
+@Data
+public class FieldDocInfo {
 
     /** 字段名称 */
     private String name;
@@ -30,9 +31,6 @@ public class DocParamReq implements IParam {
     /** 描述 */
     private String description;
 
-    /** 字典信息，如果有的话 */
-    private EnumInfoParam enumInfo;
-
     /** 父节点, 没有填空字符串 */
     private String parentId;
 
@@ -40,6 +38,5 @@ public class DocParamReq implements IParam {
     private Integer orderIndex;
 
     /** 子节点 */
-    private List<DocParamReq> children;
-
+    private List<FieldDocInfo> children;
 }

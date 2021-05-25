@@ -60,6 +60,10 @@ public class DocPushItemParam {
     @ApiDocField(description = "是否显示，1：显示，0：不显示", example = "1")
     private Byte isShow;
 
+    /** 排序 */
+    @ApiDocField(description = "排序, 值小靠前", example = "0")
+    private Integer orderIndex;
+
     // dubbo
     @ApiDocField(description = "dubbo服务信息")
     private DubboParam dubboInfo;
