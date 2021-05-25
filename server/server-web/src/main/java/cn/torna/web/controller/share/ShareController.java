@@ -12,7 +12,6 @@ import cn.torna.dao.entity.ShareConfig;
 import cn.torna.dao.entity.ShareContent;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ShareConfigService;
-import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.web.controller.doc.param.ShareCheckPasswordParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.ShareConfigVO;
@@ -89,7 +88,7 @@ public class ShareController {
         }
         List<DocInfo> docInfos;
         if (shareConfig.getIsAll() == Booleans.TRUE) {
-            docInfos = docInfoService.listDocMenu(shareConfig.getModuleId());
+            docInfos = docInfoService.listModuleDoc(shareConfig.getModuleId());
         } else {
             List<ShareContent> shareContents = shareConfigService.listContent(id);
             List<Long> docIdList = listDocId(shareContents);
@@ -99,21 +98,6 @@ public class ShareController {
         }
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         return Result.ok(docInfoVOS);
-    }
-
-    /**
-     * 根据主键查询
-     *
-     * @param id 主键
-     * @return 返回记录，没有返回null
-     */
-    @GetMapping("detail")
-    public Result<DocInfoDTO> detail(@HashId Long id) {
-        if (id == null) {
-            throw new BizException("文档不存在");
-        }
-        DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
-        return Result.ok(docInfoDTO);
     }
 
     private List<Long> listDocId(List<ShareContent> shareContents) {

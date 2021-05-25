@@ -255,12 +255,6 @@
   </div>
 </template>
 <style>
-.btn-send {
-  color: #FFFFFF !important;
-  width: 100px;
-  background-color: #409EFF !important;
-  border-radius: 0 !important;
-}
 .cell .choose-file {padding: 5px;}
 .doc-debug .cell .el-form-item {margin-bottom: 0;}
 .result-header-label {font-size: 14px;}

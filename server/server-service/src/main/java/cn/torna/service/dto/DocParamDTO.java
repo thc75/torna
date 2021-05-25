@@ -61,6 +61,9 @@ public class DocParamDTO {
     /** 修改人 */
     private String modifierName;
 
+    /** 排序 */
+    private Integer orderIndex;
+
     private Byte isDeleted;
 
     /**  数据库字段：gmt_create */

@@ -24,6 +24,7 @@ import cn.torna.service.dto.SpaceDTO;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -60,6 +61,20 @@ public class SpaceController {
     public Result<List<SpaceDTO>> listUserSpace() {
         User user = UserContext.getUser();
         return Result.ok(spaceService.listSpace(user));
+    }
+
+    /**
+     * 返回用户所在的非聚合空间
+     * @return
+     */
+    @GetMapping("listNormal")
+    public Result<List<SpaceDTO>> listNormal() {
+        User user = UserContext.getUser();
+        List<SpaceDTO> spaceDTOS = spaceService.listSpace(user);
+        List<SpaceDTO> list = spaceDTOS.stream()
+                .filter(spaceDTO -> spaceDTO.getIsCompose() == Booleans.FALSE)
+                .collect(Collectors.toList());
+        return Result.ok(list);
     }
 
     /**

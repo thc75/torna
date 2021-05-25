@@ -1,6 +1,7 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -45,7 +46,7 @@ public class DocController {
      */
     @GetMapping("list")
     public Result<List<DocInfoVO>> listProjectDoc(@HashId Long moduleId) {
-        List<DocInfo> docInfos = docInfoService.listDocMenu(moduleId);
+        List<DocInfo> docInfos = docInfoService.listModuleDoc(moduleId);
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         return Result.ok(docInfoVOS);
     }
@@ -117,7 +118,7 @@ public class DocController {
     }
 
     /**
-     * 根据主键查询
+     * 查询文档详细信息
      *
      * @param id 主键
      * @return 返回记录，没有返回null
@@ -125,6 +126,22 @@ public class DocController {
     @GetMapping("detail")
     public Result<DocInfoDTO> detail(@HashId Long id) {
         DocInfoDTO docInfoDTO = docInfoService.getDocDetail(id);
+        return Result.ok(docInfoDTO);
+    }
+
+    /**
+     * 查询文档详细信息，不需要登录
+     *
+     * @param id 主键
+     * @return 返回记录，没有返回null
+     */
+    @GetMapping("view")
+    @NoLogin
+    public Result<DocInfoDTO> view(@HashId Long id) {
+        if (id == null) {
+            throw new BizException("文档不存在");
+        }
+        DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
         return Result.ok(docInfoDTO);
     }
 

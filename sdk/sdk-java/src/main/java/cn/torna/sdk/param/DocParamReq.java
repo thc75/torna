@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class DocParamReq {
+public class DocParamReq implements IParam {
 
     /** 字段名称 */
     private String name;
@@ -35,6 +35,9 @@ public class DocParamReq {
 
     /** 父节点, 没有填空字符串 */
     private String parentId;
+
+    /** 排序 */
+    private Integer orderIndex;
 
     /** 子节点 */
     private List<DocParamReq> children;

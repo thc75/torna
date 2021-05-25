@@ -15,7 +15,8 @@ const whiteList = [
 ]
 
 const whitePattern = [
-  '/share'
+  '/share',
+  '/show'
 ]
 
 router.beforeEach(async(to, from, next) => {

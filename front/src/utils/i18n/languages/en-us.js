@@ -17,6 +17,8 @@ const MAPPING = {
   'logout': 'Logout',
   'spaceList': 'Spaces',
   'createSpace': 'New Space',
+  'isComposeSpace': 'Is Composed Space',
+  'composeSpaceTip': 'Compose documents from other spaces',
   'creator': 'Creator',
   'createTime': 'Create Time',
   'spaceName': 'Space Name',
@@ -190,8 +192,8 @@ const MAPPING = {
   'wholeModule': '(whole module)',
   'updateShare': 'Update Share',
   'look': 'See',
-  'pwdShow': 'Password: ',
-  'remarkShow': '[Remark]: ',
+  'pwdShow': 'Password',
+  'remarkShow': '[Remark]',
   'projectAdmin': 'Project Admin',
   'updateProject': 'Update Project',
   'deleteProject': 'Delete Project',
@@ -340,7 +342,13 @@ const MAPPING = {
   'document': 'Document',
   'systemSetting': 'System Setting',
   'language': 'Language',
-  'nickEmail': 'Nickname/Email'
+  'nickEmail': 'Nickname/Email',
+  'visitStyle': 'Visit Style',
+  'updateName': 'Update Name',
+  'visitUrl': 'Visit Url',
+  'composeSpace': 'Compose Space',
+  'btnOk': ' OK ',
+  'visitPassword': 'Password'
 
 }
 

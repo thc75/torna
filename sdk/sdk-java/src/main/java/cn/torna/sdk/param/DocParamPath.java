@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class DocParamPath {
+public class DocParamPath implements IParam {
 
     /** 字段名称 */
     private String name;

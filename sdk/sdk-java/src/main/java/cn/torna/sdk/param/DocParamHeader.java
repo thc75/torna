@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class DocParamHeader {
+public class DocParamHeader implements IParam {
 
     /** header名称 */
     private String name;

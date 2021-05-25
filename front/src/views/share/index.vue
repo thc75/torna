@@ -32,7 +32,7 @@ export default {
     const docId = this.$route.params.docId
     this.$nextTick(() => {
       if (docId) {
-        this.get('/share/detail', { id: docId }, function(resp) {
+        this.get('/doc/view', { id: docId }, function(resp) {
           this.load = true
           const data = resp.data
           this.initDocInfoView(data)

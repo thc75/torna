@@ -38,7 +38,7 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-if="docInfo.description">{{ $ts('description') }}：<span>{{ docInfo.description }}</span></h4>
+    <h4 v-if="docInfo.description">{{ $ts('description') }}：<span v-html="docInfo.description"></span></h4>
     <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
@@ -72,7 +72,7 @@
       <pre class="code-block">{{ formatJson(requestExample) }}</pre>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
-    <parameter-table :data="docInfo.responseParams" />
+    <parameter-table :data="docInfo.responseParams" :hidden-columns="['required']" />
     <h4>{{ $ts('responseExample') }}</h4>
     <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>{{ $ts('errorCode') }}</h4>

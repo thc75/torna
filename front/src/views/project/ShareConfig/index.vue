@@ -12,10 +12,10 @@
         <template slot-scope="scope">
           <el-link type="primary" :href="buildUrl(scope.row)" target="_blank">{{ buildUrl(scope.row) }}</el-link>
           <span v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT">
-            &nbsp;&nbsp;{{ $ts('pwdShow') + scope.row.password }}
+            &nbsp;&nbsp;{{ $ts('pwdShow') }}：{{ scope.row.password }}
           </span>
           <span v-if="scope.row.remark.length > 0" class="info-tip">
-            {{ $ts('remarkShow') }} {{ scope.row.remark }}
+            {{ $ts('remarkShow') }}：{{ scope.row.remark }}
           </span>
         </template>
       </el-table-column>
@@ -98,12 +98,10 @@
           <el-input v-model="dialogFormData.remark" :placeholder="$ts('optional')" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item :label="$ts('shareStyle')">
-          <template>
-            <el-radio-group v-model="dialogFormData.type">
-              <el-radio :label="1">{{ $ts('public') }}</el-radio>
-              <el-radio :label="2">{{ $ts('encryption') }}</el-radio>
-            </el-radio-group>
-          </template>
+          <el-radio-group v-model="dialogFormData.type">
+            <el-radio :label="1">{{ $ts('public') }}</el-radio>
+            <el-radio :label="2">{{ $ts('encryption') }}</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item :label="$ts('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">

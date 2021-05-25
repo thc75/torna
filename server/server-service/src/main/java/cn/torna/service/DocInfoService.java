@@ -21,6 +21,7 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
@@ -33,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,15 +60,22 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private PropService propService;
 
-    public List<DocInfo> listDocMenu(long moduleId) {
-        return list("module_id", moduleId);
+    /**
+     * 查询模块下的所有文档
+     * @param moduleId 模块id
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleDoc(long moduleId) {
+        List<DocInfo> docInfoList = list("module_id", moduleId);
+        docInfoList.sort(Comparator.comparing(DocInfo::getOrderIndex));
+        return docInfoList;
     }
 
     public List<DocInfo> listDocMenuView(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("is_show", Booleans.TRUE);
-        return listAll(query);
+        return this.listModuleDoc(moduleId)
+                .stream()
+                .filter(docInfo -> docInfo.getIsShow() == Booleans.TRUE)
+                .collect(Collectors.toList());
     }
 
     public PageEasyui<DocInfo> pageDocByIds(List<Long> docIds, SchPageableParam pageParam) {
@@ -75,7 +84,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         Query query = new Query()
                 .in("id", docIds)
-                .limit(pageParam.getStart(), pageParam.getLimit());
+                .limit(pageParam.getStart(), pageParam.getLimit())
+                .orderby("order_index", Sort.ASC);
         return MapperUtil.queryForEasyuiDatagrid(this.getMapper(), query);
     }
 
@@ -102,17 +112,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return getDocDetail(docInfo);
     }
 
-    /**
-     * 返回模块下所有文档详情
-     * @param moduleId 模块id
-     * @return 返回文档详情
-     */
-    public List<DocInfoDTO> listDocDetail(long moduleId) {
-        List<DocInfo> docInfos = this.list("module_id", moduleId);
-        return docInfos.stream()
-                .map(this::getDocDetail)
-                .collect(Collectors.toList());
-    }
 
     public List<DocInfoDTO> listDocDetail(Collection<Long> docIdList) {
         if (CollectionUtils.isEmpty(docIdList)) {
@@ -122,8 +121,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .in("id", docIdList);
         List<DocInfo> docInfos = this.list(query);
         return docInfos.stream()
+                .sorted(Comparator.comparing(DocInfo::getOrderIndex))
                 .map(this::getDocDetail)
                 .collect(Collectors.toList());
+    }
+
+    public List<DocInfo> listDocByIds(Collection<Long> docIdList) {
+        if (CollectionUtils.isEmpty(docIdList)) {
+            return Collections.emptyList();
+        }
+        Query query = new Query()
+                .in("id", docIdList);
+        return this.list(query);
     }
 
 
@@ -137,6 +146,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
         docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
+        params.sort(Comparator.comparing(DocParam::getOrderIndex));
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
         List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
@@ -253,6 +263,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setRemark(docInfoDTO.getRemark());
+        docInfo.setOrderIndex(docInfoDTO.getOrderIndex());
         docInfo.setIsShow(docInfoDTO.getIsShow());
         docInfo.setIsDeleted(docInfoDTO.getIsDeleted());
         return docInfo;
@@ -268,10 +279,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回分类
      */
     public List<DocInfo> listFolders(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("is_folder", Booleans.TRUE);
-        return this.listAll(query);
+        return this.listModuleDoc(moduleId)
+                .stream()
+                .filter(docInfo -> docInfo.getIsFolder() == Booleans.TRUE)
+                .collect(Collectors.toList());
     }
 
 
@@ -364,6 +375,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         docInfoDTO.setIsFolder(Booleans.TRUE);
         docInfoDTO.setAuthor(docFolderCreateDTO.getAuthor());
+        docInfoDTO.setOrderIndex(docFolderCreateDTO.getOrderIndex());
         DocInfo docInfo = insertDocInfo(docInfoDTO, docFolderCreateDTO.getUser());
         Map<String, ?> props = docFolderCreateDTO.getProps();
         propService.saveProps(props, docInfo.getId(), PropTypeEnum.DOC_INFO_PROP);

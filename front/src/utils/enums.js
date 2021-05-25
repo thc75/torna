@@ -43,6 +43,15 @@ export const Enums = {
     ENCRYPT: 2
   },
   /**
+   * 聚合项目类型
+   */
+  COMPOSE_PROJECT_TYPE: {
+    /** 公开 */
+    PUBLIC: 1,
+    /** 加密 */
+    ENCRYPT: 2
+  },
+  /**
    * 协议
    */
   DOC_TYPE: {
@@ -54,5 +63,14 @@ export const Enums = {
    */
   PROP_TYPE: {
     DEBUG: 10
+  },
+  /**
+   * 文件夹类型
+   */
+  FOLDER_TYPE: {
+    PROJECT: 0,
+    TYPE_MODULE: 1,
+    TYPE_FOLDER: 2,
+    TYPE_DOC: 3
   }
 }

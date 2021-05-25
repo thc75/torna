@@ -26,6 +26,8 @@ public class DocFolderCreateDTO implements DocInfoDataId {
     /** 维护人, 数据库字段：author */
     private String author;
 
+    private Integer orderIndex;
+
     private DocTypeEnum docTypeEnum;
 
     private Map<String, ?> props;
