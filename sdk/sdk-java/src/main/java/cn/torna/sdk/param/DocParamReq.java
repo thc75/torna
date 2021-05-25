@@ -36,6 +36,9 @@ public class DocParamReq implements IParam {
     /** 父节点, 没有填空字符串 */
     private String parentId;
 
+    /** 排序 */
+    private Integer orderIndex;
+
     /** 子节点 */
     private List<DocParamReq> children;
 
