@@ -30,19 +30,19 @@ public class TornaProperties {
     /** 推送人 */
     private String author;
     /** 打开调试:true/false */
-    private String debug;
+    private String debug = "false";
     /** 接口多个method只显示 */
-    private String methodWhenMulti;
+    private String methodWhenMulti = "GET";
 
     /** path参数名称 */
-    private String pathName;
+    private String pathName = "path";
     /** header参数名称 */
-    private String headerName;
+    private String headerName = "header";
     /** query参数名称 */
-    private String queryName;
+    private String queryName = "query";
     /** form参数名称 */
-    private String formName;
+    private String formName = "form";
     /** body参数名称 */
-    private String bodyName;
+    private String bodyName = "body";
 
 }
