@@ -87,9 +87,6 @@ public class DocApi {
     @Value("${torna.push.print-content}")
     private boolean watchPushContent;
 
-    @Value("${torna.common-error-code-name:公共错误码}")
-    private String commonErrorCodeName;
-
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {

@@ -39,6 +39,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>cn.torna</groupId>
+            <artifactId>torna-sdk</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8</version>
@@ -83,12 +88,6 @@
             <version>2.4.0</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>cn.torna</groupId>
-            <artifactId>torna-sdk</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-
     </dependencies>
 
     <distributionManagement>
