@@ -7,6 +7,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,30 +15,35 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
+ * 解析文档信息
  * @author tanghc
  */
 public class ApiDocBuilder {
 
     private Class<?> lastClass;
     private int loopCount;
-    
-    public List<ApiDocFieldDefinition> buildApiDocFieldDefinition(Class<?> paramClass) {
-        return buildApiDocFieldDefinitionsByType(paramClass, true);
+
+    /**
+     * 生成文档信息
+     * @param paramClass 参数类型
+     * @return 返回文档内容
+     */
+    public List<FieldDocInfo> buildFieldDocInfo(Class<?> paramClass) {
+        return buildFieldDocInfosByType(paramClass, true);
     }
 
-    /** 从api参数中构建 */
-    protected List<ApiDocFieldDefinition> buildApiDocFieldDefinitionsByType(Class<?> clazz, boolean root) {
+    /**
+     * 从api参数中构建
+     */
+    protected List<FieldDocInfo> buildFieldDocInfosByType(Class<?> clazz, boolean root) {
         if (clazz.isInterface()) {
             return Collections.emptyList();
         }
         // 解决循环注解导致死循环问题
         this.addCycle(clazz);
-
-        final List<ApiDocFieldDefinition> docDefinition = new ArrayList<ApiDocFieldDefinition>();
-
+        final List<FieldDocInfo> fieldDocInfos = new ArrayList<>();
         // 遍历参数对象中的属性
         ReflectionUtils.doWithFields(clazz, field -> {
             ApiModelProperty apiModelProperty = AnnotationUtils.findAnnotation(field, ApiModelProperty.class);
@@ -46,22 +52,21 @@ public class ApiDocBuilder {
                 if (root) {
                     resetCycle();
                 }
-                ApiDocFieldDefinition fieldDefinition;
+                FieldDocInfo fieldDocInfo;
                 Class<?> fieldType = field.getType();
                 if (PluginUtil.isPojo(fieldType)) {
                     // 如果是自定义类
-                    fieldDefinition = buildApiDocFieldDefinitionByClass(apiModelProperty, fieldType, field);
+                    fieldDocInfo = buildFieldDocInfoByClass(apiModelProperty, fieldType, field);
                 } else {
-                    fieldDefinition = buildApiDocFieldDefinition(apiModelProperty, field);
+                    fieldDocInfo = buildFieldDocInfo(apiModelProperty, field);
                 }
-                docDefinition.add(fieldDefinition);
+                fieldDocInfos.add(fieldDocInfo);
             }
         });
-
-        return docDefinition;
+        return fieldDocInfos;
     }
 
-    protected ApiDocFieldDefinition buildApiDocFieldDefinition(ApiModelProperty apiModelProperty, Field field) {
+    protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field) {
         String type = getFieldType(field, apiModelProperty);
         // 优先使用注解中的字段名
         String fieldName = getFieldName(field, apiModelProperty);
@@ -69,26 +74,34 @@ public class ApiDocBuilder {
         boolean required = apiModelProperty.required();
         String example = apiModelProperty.example();
 
-        ApiDocFieldDefinition fieldDefinition = new ApiDocFieldDefinition();
-        fieldDefinition.setName(fieldName);
-        fieldDefinition.setType(type);
-        fieldDefinition.setRequired(getRequiredValue(required));
-        fieldDefinition.setExample(example);
-        fieldDefinition.setDescription(description);
-        //fieldDefinition.setMaxLength(buildMaxLength(apiModelProperty, field));
+        FieldDocInfo fieldDocInfo = new FieldDocInfo();
+        fieldDocInfo.setName(fieldName);
+        fieldDocInfo.setType(type);
+        fieldDocInfo.setRequired(getRequiredValue(required));
+        fieldDocInfo.setExample(example);
+        fieldDocInfo.setDescription(description);
+        fieldDocInfo.setOrderIndex(apiModelProperty.position());
 
-//        List<ApiDocFieldDefinition> elementsDefinition = loopCount < 1 ? buildElementListDefinition(apiModelProperty) : Collections.emptyList();
-//        fieldDefinition.setElements(elementsDefinition);
-//        fieldDefinition.setElementClass(apiModelProperty.elementClass());
-//
-//        if (elementsDefinition.size() > 0) {
-//            fieldDefinition.setDataType(DataType.ARRAY.getValue());
-//        }
-
-        return fieldDefinition;
+        Class<?> fieldType = field.getType();
+        Class<?> elementClass = null;
+        if (Collection.class.isAssignableFrom(fieldType)) {
+            Type genericType = field.getGenericType();
+            elementClass = PluginUtil.getGenericType(genericType);
+        } else if (fieldType.isArray()) {
+            elementClass = fieldType.getComponentType();
+        }
+        if (elementClass != null && elementClass != Object.class && elementClass != Void.class) {
+            if (PluginUtil.isPojo(elementClass)) {
+                List<FieldDocInfo> fieldDocInfos = loopCount < 1
+                        ? buildFieldDocInfosByType(elementClass, false)
+                        : Collections.emptyList();
+                fieldDocInfo.setChildren(fieldDocInfos);
+            }
+        }
+        return fieldDocInfo;
     }
 
-    protected ApiDocFieldDefinition buildApiDocFieldDefinitionByClass(ApiModelProperty apiModelProperty, Class<?> clazz, Field field) {
+    protected FieldDocInfo buildFieldDocInfoByClass(ApiModelProperty apiModelProperty, Class<?> clazz, Field field) {
         Objects.requireNonNull(apiModelProperty);
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(field);
@@ -98,22 +111,22 @@ public class ApiDocBuilder {
         boolean required = apiModelProperty.required();
         String example = apiModelProperty.example();
 
-        ApiDocFieldDefinition fieldDefinition = new ApiDocFieldDefinition();
-        fieldDefinition.setName(name);
-        fieldDefinition.setType(type);
-        fieldDefinition.setRequired(getRequiredValue(required));
-        fieldDefinition.setExample(example);
-        fieldDefinition.setDescription(description);
-        //fieldDefinition.setMaxLength(buildMaxLength(apiModelProperty, field));
+        FieldDocInfo fieldDocInfo = new FieldDocInfo();
+        fieldDocInfo.setName(name);
+        fieldDocInfo.setType(type);
+        fieldDocInfo.setRequired(getRequiredValue(required));
+        fieldDocInfo.setExample(example);
+        fieldDocInfo.setDescription(description);
+        fieldDocInfo.setOrderIndex(apiModelProperty.position());
 
-        List<ApiDocFieldDefinition> children = buildApiDocFieldDefinitionsByType(clazz, false);
-        fieldDefinition.setChildren(children);
+        List<FieldDocInfo> children = buildFieldDocInfosByType(clazz, false);
+        fieldDocInfo.setChildren(children);
 
-        return fieldDefinition;
+        return fieldDocInfo;
     }
 
     private static byte getRequiredValue(boolean b) {
-        return (byte)(b ? 1 : 0);
+        return (byte) (b ? 1 : 0);
     }
 
     private static String getFieldType(Field field, ApiModelProperty apiModelProperty) {
@@ -121,21 +134,18 @@ public class ApiDocBuilder {
         if (StringUtils.hasText(dataType)) {
             return dataType;
         }
-        if (field == null) {
-            return DataType.STRING.getValue();
-        }
         Class<?> type = field.getType();
-        if (type == List.class || type == Collection.class || type == Set.class || type.isArray()) {
+        if (Collection.class.isAssignableFrom(type) || type.isArray()) {
             return DataType.ARRAY.getValue();
         }
-        if(type == Date.class) {
+        if (type == Date.class) {
             return DataType.DATE.getValue();
         }
-        if(type == Timestamp.class) {
+        if (type == Timestamp.class) {
             return DataType.DATETIME.getValue();
         }
         if (field.getName().contains("MultipartFile")) {
-           return DataType.FILE.getValue();
+            return DataType.FILE.getValue();
         }
         return field.getType().getSimpleName().toLowerCase();
     }

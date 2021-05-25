@@ -17,13 +17,26 @@ public class SwaggerPluginConfiguration implements InitializingBean {
     @Autowired
     private Environment environment;
 
+    private TornaConfig tornaConfig;
+
+    public SwaggerPluginConfiguration(TornaConfig tornaConfig) {
+        this.tornaConfig = tornaConfig;
+    }
+
+    public SwaggerPluginConfiguration() {
+    }
+
     public void init(RequestMappingHandlerMapping requestMappingHandlerMapping) {
-        TornaConfig tornaConfig = buildTornaConfig();
+        if (this.tornaConfig == null) {
+            this.tornaConfig = buildTornaConfig();
+        }
         new SwaggerPluginService(requestMappingHandlerMapping, tornaConfig).init();
     }
 
     protected TornaConfig buildTornaConfig() {
         TornaConfig tornaConfig = new TornaConfig();
+        tornaConfig.setEnable(environment.getProperty("torna.swagger-plugin.enable"));
+        tornaConfig.setBasePackage(environment.getProperty("torna.swagger-plugin.basePackage", ""));
         tornaConfig.setUrl(environment.getProperty("torna.swagger-plugin.url"));
         tornaConfig.setAppKey(environment.getProperty("torna.swagger-plugin.app-key"));
         tornaConfig.setSecret(environment.getProperty("torna.swagger-plugin.secret"));

@@ -11,7 +11,7 @@ import java.util.List;
  *
  */
 @Data
-public class ApiDocFieldDefinition {
+public class FieldDocInfo {
 
     /** 字段名称 */
     private String name;
@@ -34,6 +34,9 @@ public class ApiDocFieldDefinition {
     /** 父节点, 没有填空字符串 */
     private String parentId;
 
+    /** 排序 */
+    private Integer orderIndex;
+
     /** 子节点 */
-    private List<ApiDocFieldDefinition> children;
+    private List<FieldDocInfo> children;
 }

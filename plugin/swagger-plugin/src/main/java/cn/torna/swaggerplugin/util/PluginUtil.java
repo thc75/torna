@@ -4,6 +4,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,8 +20,11 @@ public class PluginUtil {
     public static String getParameterType(Parameter parameter) {
         Class<?> type = parameter.getType();
         String simpleName = type.getSimpleName();
-        if ("MultipartFile".equals(simpleName)) {
+        if ("MultipartFile".equalsIgnoreCase(simpleName)) {
             return "file";
+        }
+        if ("MultipartFile[]".equalsIgnoreCase(simpleName)) {
+            return "file[]";
         }
         return simpleName;
     }
@@ -31,6 +35,9 @@ public class PluginUtil {
      * @return true是
      */
     public static boolean isPojo(Class<?> clazz) {
+        if (clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
+            return false;
+        }
         String name = clazz.getName();
         for (String prefix : SYSTEM_PACKAGE_LIST) {
             if (name.startsWith(prefix)) {

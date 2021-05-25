@@ -3,6 +3,7 @@ package cn.torna.swaggerplugin;
 import cn.torna.sdk.client.OpenClient;
 import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
+import cn.torna.sdk.param.DocParamCode;
 import cn.torna.sdk.param.DocParamHeader;
 import cn.torna.sdk.param.DocParamPath;
 import cn.torna.sdk.param.DocParamReq;
@@ -16,8 +17,7 @@ import cn.torna.swaggerplugin.bean.DocParamInfo;
 import cn.torna.swaggerplugin.bean.PluginConstants;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.builder.ApiDocBuilder;
-import cn.torna.swaggerplugin.builder.ApiDocFieldDefinition;
-import cn.torna.swaggerplugin.builder.DataType;
+import cn.torna.swaggerplugin.builder.FieldDocInfo;
 import cn.torna.swaggerplugin.exception.HiddenException;
 import cn.torna.swaggerplugin.exception.IgnoreException;
 import cn.torna.swaggerplugin.util.PluginUtil;
@@ -28,9 +28,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Extension;
+import io.swagger.annotations.ExtensionProperty;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
@@ -56,6 +59,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -83,6 +87,9 @@ public class SwaggerPluginService {
     }
 
     public void init() {
+        if (!"true".equals(tornaConfig.getEnable())) {
+            return;
+        }
         Objects.requireNonNull(requestMappingHandlerMapping, "requestMappingHandlerMapping can not null");
         Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
         Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
@@ -155,10 +162,6 @@ public class SwaggerPluginService {
 
     protected void push(List<DocItem> docItems) {
         String token = tornaConfig.getToken();
-        if (StringUtils.isEmpty(token)) {
-            System.err.println("token不能为空");
-            return;
-        }
         DocPushRequest request = new DocPushRequest(token);
         // 设置请求参数
         request.setApis(docItems);
@@ -173,9 +176,9 @@ public class SwaggerPluginService {
         // 发送请求
         DocPushResponse response = client.execute(request);
         if (response.isSuccess()) {
-            System.out.println("推送成功");
+            System.out.println("推送Torna文档成功");
         } else {
-            System.out.println("推送失败，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+            System.out.println("推送Torna文档失败，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
         }
     }
 
@@ -197,19 +200,20 @@ public class SwaggerPluginService {
         ApiOperation apiOperation = handlerMethod.getMethodAnnotation(ApiOperation.class);
         ApiIgnore apiIgnore = handlerMethod.getMethodAnnotation(ApiIgnore.class);
         if (apiOperation.hidden()) {
-            throw new HiddenException("swagger接口隐藏（@ApiOperation.hidden=true）：" + apiOperation.value());
+            throw new HiddenException("隐藏接口（@ApiOperation.hidden=true）：" + apiOperation.value());
         }
         if (apiIgnore != null) {
-            throw new IgnoreException("swagger接口忽略（@ApiIgnore）：" + apiOperation.value());
+            throw new IgnoreException("忽略接口（@ApiIgnore）：" + apiOperation.value());
         }
         return buildDocItem(apiOperation, requestMappingInfo, handlerMethod);
     }
 
     protected DocItem buildDocItem(ApiOperation apiOperation, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod) {
         DocItem docItem = new DocItem();
+        docItem.setAuthor(buildAuthor(apiOperation));
         docItem.setName(apiOperation.value());
         docItem.setDescription(apiOperation.notes());
-        docItem.setOrderIndex(apiOperation.position());
+        docItem.setOrderIndex(buildOrder(apiOperation, handlerMethod));
         docItem.setUrl(buildUrl(requestMappingInfo));
         String httpMethod = buildHttpMethod(apiOperation, handlerMethod);
         String contentType = buildContentType(httpMethod, apiOperation, handlerMethod);
@@ -221,7 +225,24 @@ public class SwaggerPluginService {
         docItem.setQueryParams(buildQueryParams(handlerMethod, httpMethod));
         docItem.setRequestParams(buildRequestParams(handlerMethod, httpMethod));
         docItem.setResponseParams(buildResponseParams(handlerMethod));
+        docItem.setErrorCodeParams(buildErrorCodes(apiOperation));
         return docItem;
+    }
+
+    protected int buildOrder(ApiOperation apiOperation, HandlerMethod handlerMethod) {
+        Order order = handlerMethod.getMethodAnnotation(Order.class);
+        if (order != null) {
+            return order.value();
+        } else {
+            return apiOperation.position();
+        }
+    }
+
+    protected String buildAuthor(ApiOperation apiOperation) {
+        return filterExtension(apiOperation, "author")
+                .stream()
+                .map(ExtensionProperty::name)
+                .collect(Collectors.joining(","));
     }
 
     protected List<DocParamPath> buildPathParams(HandlerMethod handlerMethod) {
@@ -404,7 +425,10 @@ public class SwaggerPluginService {
 
     protected List<DocParamReq> buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
         List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param ->
-                tornaConfig.getFormName().equalsIgnoreCase(param.paramType()) || tornaConfig.getBodyName().equalsIgnoreCase(param.paramType()));
+                tornaConfig.getFormName().equalsIgnoreCase(param.paramType())
+                        || tornaConfig.getBodyName().equalsIgnoreCase(param.paramType())
+                        || param.dataType().toLowerCase().contains("file")
+        );
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -421,9 +445,19 @@ public class SwaggerPluginService {
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
+            ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
             if (requestBody != null) {
                 List<DocParamReq> docParamReqList = buildClassParams(parameter.getType());
                 docParamReqs.addAll(docParamReqList);
+            } else if (apiParam != null) {
+                DocParamInfo docParamInfo = buildDocParamInfo(parameter);
+                DocParamReq docParamReq = new DocParamReq();
+                docParamReq.setName(parameter.getName());
+                docParamReq.setType(docParamInfo.getType());
+                docParamReq.setRequired(Booleans.toValue(docParamInfo.getRequired()));
+                docParamReq.setDescription(docParamInfo.getDescription());
+                docParamReq.setExample(docParamInfo.getExample());
+                docParamReqs.add(docParamReq);
             } else if (parameter.getAnnotations().length == 0) {
                 Class<?> parameterType = parameter.getType();
                 boolean isPojo = PluginUtil.isPojo(parameterType);
@@ -449,10 +483,36 @@ public class SwaggerPluginService {
         return buildClassParams(type, DocParamResp::new);
     }
 
+    protected List<DocParamCode> buildErrorCodes(ApiOperation apiOperation) {
+        return filterExtension(apiOperation, "code")
+                .stream()
+                .map(extensionProperty -> {
+                    DocParamCode docParamCode = new DocParamCode();
+                    docParamCode.setCode(extensionProperty.name());
+                    docParamCode.setMsg(extensionProperty.value());
+                    return docParamCode;
+                })
+                .collect(Collectors.toList());
+    }
+
+    protected List<ExtensionProperty> filterExtension(ApiOperation apiOperation, String name) {
+        Extension[] extensions = apiOperation.extensions();
+        if (extensions.length == 0) {
+            return Collections.emptyList();
+        }
+        for (Extension extension : extensions) {
+            if (name.equals(extension.name())) {
+                ExtensionProperty[] properties = extension.properties();
+                return Arrays.asList(properties);
+            }
+        }
+        return Collections.emptyList();
+    }
+
     protected <T extends DocParamReq> List<T> buildClassParams(Class<?> clazz, Supplier<T> supplier) {
-        List<ApiDocFieldDefinition> apiDocFieldDefinitions = apiDocBuilder.buildApiDocFieldDefinition(clazz);
-        return apiDocFieldDefinitions.stream()
-                .map(apiDocFieldDefinition -> this.convert(apiDocFieldDefinition, supplier))
+        List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
+        return fieldDocInfoList.stream()
+                .map(fieldDocInfo -> this.convert(fieldDocInfo, supplier))
                 .collect(Collectors.toList());
     }
 
@@ -460,13 +520,13 @@ public class SwaggerPluginService {
         return buildClassParams(clazz, DocParamReq::new);
     }
 
-    private <T extends DocParamReq> T convert(ApiDocFieldDefinition apiDocFieldDefinition, Supplier<T> supplier) {
+    private <T extends DocParamReq> T convert(FieldDocInfo fieldDocInfo, Supplier<T> supplier) {
         T docParamReq = supplier.get();
-        BeanUtils.copyProperties(apiDocFieldDefinition, docParamReq);
-        List<ApiDocFieldDefinition> childrenDefinition = apiDocFieldDefinition.getChildren();
-        if (!CollectionUtils.isEmpty(childrenDefinition)) {
-            List<DocParamReq> children = new ArrayList<>(childrenDefinition.size());
-            for (ApiDocFieldDefinition child : childrenDefinition) {
+        BeanUtils.copyProperties(fieldDocInfo, docParamReq);
+        List<FieldDocInfo> fieldDocInfoChildren = fieldDocInfo.getChildren();
+        if (!CollectionUtils.isEmpty(fieldDocInfoChildren)) {
+            List<DocParamReq> children = new ArrayList<>(fieldDocInfoChildren.size());
+            for (FieldDocInfo child : fieldDocInfoChildren) {
                 children.add(convert(child, supplier));
             }
             docParamReq.setChildren(children);
@@ -554,10 +614,10 @@ public class SwaggerPluginService {
         Api api = AnnotationUtils.findAnnotation(controllerClass, Api.class);
         ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
         if (api != null && api.hidden()) {
-            throw new HiddenException("swagger文档隐藏（@Api.hidden=true）：" + api.value());
+            throw new HiddenException("隐藏文档（@Api.hidden=true）：" + api.value());
         }
         if (apiIgnore != null) {
-            throw new IgnoreException("swagger文档忽略（@ApiIgnore）：" + controllerClass.getName());
+            throw new IgnoreException("忽略文档（@ApiIgnore）：" + controllerClass.getName());
         }
         String name, description;
         int position = 0;
@@ -580,7 +640,19 @@ public class SwaggerPluginService {
     }
 
     public boolean match(HandlerMethod handlerMethod) {
-        return handlerMethod.hasMethodAnnotation(ApiOperation.class);
+        String name = handlerMethod.getBeanType().getName();
+        boolean rightPackage = true;
+        String basePackage = tornaConfig.getBasePackage();
+        if (StringUtils.hasText(basePackage)) {
+            String[] packages = basePackage.split(";");
+            for (String aPackage : packages) {
+                if (!name.contains(aPackage)) {
+                    rightPackage = false;
+                    break;
+                }
+            }
+        }
+        return rightPackage && handlerMethod.hasMethodAnnotation(ApiOperation.class);
     }
 
     private interface ParamFilter {

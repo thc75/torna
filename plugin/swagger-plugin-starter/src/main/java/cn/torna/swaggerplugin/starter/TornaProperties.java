@@ -1,12 +1,16 @@
-package cn.torna.swaggerplugin.bean;
+package cn.torna.swaggerplugin.starter;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author tanghc
  */
 @Data
-public class TornaConfig {
+@ConfigurationProperties(prefix = TornaProperties.PREFIX)
+public class TornaProperties {
+
+    public static final String PREFIX = "torna.swagger-plugin";
 
     /** 开启推送 */
     private String enable;
