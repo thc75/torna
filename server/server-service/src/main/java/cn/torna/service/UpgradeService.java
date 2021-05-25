@@ -52,7 +52,7 @@ public class UpgradeService {
         int oldVersion = getVersion();
         doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
-        saveVersion();
+        saveVersion(oldVersion);
     }
 
     /**
@@ -121,12 +121,14 @@ public class UpgradeService {
     }
 
 
-    private void saveVersion() {
-        SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
-        systemConfigDTO.setConfigKey(TORNA_VERSION_KEY);
-        systemConfigDTO.setConfigValue(String.valueOf(VERSION));
-        systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
-        systemConfigService.setConfig(systemConfigDTO);
+    private void saveVersion(int oldVersion) {
+        if (oldVersion != VERSION) {
+            SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
+            systemConfigDTO.setConfigKey(TORNA_VERSION_KEY);
+            systemConfigDTO.setConfigValue(String.valueOf(VERSION));
+            systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
+            systemConfigService.setConfig(systemConfigDTO);
+        }
     }
 
     private void v1_5_0(int dbVersion) {
