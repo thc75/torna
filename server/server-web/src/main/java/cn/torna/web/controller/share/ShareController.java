@@ -89,7 +89,7 @@ public class ShareController {
         }
         List<DocInfo> docInfos;
         if (shareConfig.getIsAll() == Booleans.TRUE) {
-            docInfos = docInfoService.listDocMenu(shareConfig.getModuleId());
+            docInfos = docInfoService.listModuleDoc(shareConfig.getModuleId());
         } else {
             List<ShareContent> shareContents = shareConfigService.listContent(id);
             List<Long> docIdList = listDocId(shareContents);
