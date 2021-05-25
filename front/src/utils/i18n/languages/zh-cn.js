@@ -17,6 +17,8 @@ const MAPPING = {
   'logout': '注销',
   'spaceList': '空间列表',
   'createSpace': '创建空间',
+  'isComposeSpace': '是否聚合空间',
+  'composeSpaceTip': '将其它空间中的接口聚合进来，统一展示',
   'creator': '创建人',
   'createTime': '创建时间',
   'spaceName': '空间名称',
@@ -191,8 +193,8 @@ const MAPPING = {
   'wholeModule': '（整个模块）',
   'updateShare': '修改分享',
   'look': '查看',
-  'pwdShow': '密码：',
-  'remarkShow': '【备注】：',
+  'pwdShow': '密码',
+  'remarkShow': '【备注】',
   'projectAdmin': '项目管理员',
   'updateProject': '修改项目',
   'deleteProject': '删除项目',
@@ -341,7 +343,13 @@ const MAPPING = {
   'document': '文档',
   'systemSetting': '系统设置',
   'language': '语言',
-  'nickEmail': '昵称/邮箱'
+  'nickEmail': '昵称/邮箱',
+  'visitStyle': '访问方式',
+  'updateName': '修改名称',
+  'visitUrl': '访问链接',
+  'composeSpace': '聚合空间',
+  'btnOk': ' 确 定 ',
+  'visitPassword': '访问密码'
 
 }
 

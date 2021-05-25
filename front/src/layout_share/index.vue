@@ -23,10 +23,10 @@
           <el-input
             v-model="encryptFormData.password"
             type="password"
-            placeholder="访问密码"
+            :placeholder="$ts('visitPassword')"
             prefix-icon="el-icon-lock"
           >
-            <el-button slot="append" class="btn-send" native-type="submit" @click="onCheckPassword">确定</el-button>
+            <el-button slot="append" class="btn-send" native-type="submit" @click="onCheckPassword">{{ $ts('btnOk') }}</el-button>
           </el-input>
         </el-form-item>
       </el-form>
@@ -58,7 +58,7 @@ export default {
       },
       encryptFormRules: {
         password: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }

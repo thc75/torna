@@ -20,4 +20,6 @@ public class SpaceAddDTO {
 
     private String creatorName;
 
+    private Byte isCompose;
+
 }

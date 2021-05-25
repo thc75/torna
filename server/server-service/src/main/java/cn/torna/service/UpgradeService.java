@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 8;
+    private static final int VERSION = 9;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -73,6 +73,23 @@ public class UpgradeService {
         v1_6_2(oldVersion);
         v1_6_3(oldVersion);
         v1_6_4(oldVersion);
+        v1_8_0(oldVersion);
+    }
+
+    private void v1_8_0(int oldVersion) {
+        if (oldVersion < 9) {
+            try {
+                // 添加索引
+                runSql("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
+                runSql("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
+                runSql("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
+            } catch (Exception e) {
+                // ignore
+            }
+            addColumn("space", "is_compose", "ALTER TABLE `space` ADD COLUMN `is_compose` TINYINT(4) NOT NULL DEFAULT 0  COMMENT '是否组合空间' AFTER `modifier_name`");
+            createTable("compose_doc", "upgrade/1.8.0_1_ddl.txt");
+            createTable("compose_project", "upgrade/1.8.0_2_ddl.txt");
+        }
     }
 
     private void v1_6_4(int oldVersion) {

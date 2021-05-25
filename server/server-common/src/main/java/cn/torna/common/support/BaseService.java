@@ -172,6 +172,19 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
     }
 
     /**
+     * 删除记录
+     *
+     * @param id id
+     * @return 返回影响行数
+     */
+    public int deleteById(Long id) {
+        if (id == null) {
+            return 0;
+        }
+        return mapper.deleteById(id);
+    }
+
+    /**
      * 根据条件修改
      * @param set set部分
      * @param query 条件

@@ -39,6 +39,9 @@ public class Space {
     /**  数据库字段：modifier_name */
     private String modifierName;
 
+    /** 是否组合空间, 数据库字段：is_compose */
+    private Byte isCompose;
+
     /**  数据库字段：is_deleted */
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;

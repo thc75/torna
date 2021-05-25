@@ -19,5 +19,7 @@ public class SpaceDTO {
 
     private String creatorName;
 
+    private Byte isCompose;
+
     private Date gmtCreate;
 }

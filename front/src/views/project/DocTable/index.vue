@@ -135,13 +135,6 @@
   </div>
 </template>
 <style lang="scss">
-.table-right {
-  float: right;
-  margin-bottom: 10px;
-  .table-right-item {
-    display: inline-block;
-  }
-}
 .el-dropdown-link {
   cursor: pointer;
   color: #409EFF;
