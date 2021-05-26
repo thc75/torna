@@ -229,7 +229,13 @@ public class HttpHelper {
      * 关闭response
      */
     public void closeResponse() {
-        responseResult.closeResponse();
+        if (responseResult != null) {
+            try {
+                responseResult.closeResponse();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
