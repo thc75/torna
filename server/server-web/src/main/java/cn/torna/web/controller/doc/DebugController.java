@@ -78,11 +78,19 @@ public class DebugController {
             response.addHeader("target-response-headers", JSON.toJSONString(targetHeaders));
             InputStream inputStream = responseResult.asStream();
             IOUtils.copy(inputStream, response.getOutputStream());
-            response.flushBuffer();
         } catch (IOException e) {
             log.error("请求异常, url:{}", url, e);
-            throw new RuntimeException(e.getMessage(), e);
+            try {
+                IOUtils.copy(IOUtils.toInputStream(e.getMessage(), StandardCharsets.UTF_8), response.getOutputStream());
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         } finally {
+            try {
+                response.flushBuffer();
+            } catch (IOException e) {
+                // ignore
+            }
             httpHelper.closeResponse();
         }
     }
