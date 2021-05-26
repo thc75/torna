@@ -6,12 +6,17 @@ USE `torna`;
 
 
 
+
 DROP TABLE IF EXISTS `user_subscribe`;
 DROP TABLE IF EXISTS `user_message`;
 DROP TABLE IF EXISTS `user_info`;
+DROP TABLE IF EXISTS `user_dingtalk_info`;
 DROP TABLE IF EXISTS `system_config`;
 DROP TABLE IF EXISTS `space_user`;
 DROP TABLE IF EXISTS `space`;
+DROP TABLE IF EXISTS `share_content`;
+DROP TABLE IF EXISTS `share_config`;
+DROP TABLE IF EXISTS `prop`;
 DROP TABLE IF EXISTS `project_user`;
 DROP TABLE IF EXISTS `project`;
 DROP TABLE IF EXISTS `open_user`;
@@ -22,6 +27,47 @@ DROP TABLE IF EXISTS `enum_item`;
 DROP TABLE IF EXISTS `enum_info`;
 DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
+DROP TABLE IF EXISTS `compose_project`;
+DROP TABLE IF EXISTS `compose_doc`;
+
+
+CREATE TABLE `compose_doc` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+  `project_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'compose_project.id',
+  `is_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否文件夹',
+  `folder_name` varchar(64) NOT NULL DEFAULT '' COMMENT '文件夹名称',
+  `parent_id` bigint(20) NOT NULL DEFAULT '0',
+  `origin` varchar(128) NOT NULL DEFAULT '' COMMENT '文档来源',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+  `order_index` int(10) unsigned NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_projectid` (`project_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='文档引用';
+
+
+CREATE TABLE `compose_project` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '项目名称',
+  `description` varchar(128) NOT NULL DEFAULT '' COMMENT '项目描述',
+  `space_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '所属空间，space.id',
+  `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '访问形式，1：公开，2：加密',
+  `password` varchar(64) NOT NULL DEFAULT '' COMMENT '访问密码',
+  `creator_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者userid',
+  `creator_name` varchar(64) NOT NULL DEFAULT '',
+  `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `modifier_name` varchar(64) NOT NULL DEFAULT '',
+  `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1：有效，0：无效',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_spaceid` (`space_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='组合项目表';
 
 
 CREATE TABLE `doc_info` (
@@ -236,6 +282,50 @@ CREATE TABLE `project_user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='项目用户关系表';
 
 
+CREATE TABLE `prop` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ref_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '关联id',
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，0：doc_info属性',
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `val` text NOT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_docid_name` (`ref_id`,`type`,`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='属性表';
+
+
+CREATE TABLE `share_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '分享形式，1：公开，2：加密',
+  `password` varchar(128) NOT NULL DEFAULT '' COMMENT '密码',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态，1：有效，0：无效',
+  `module_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'module.id',
+  `is_all` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为全部文档',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
+  `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_moduleid` (`module_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分享配置表';
+
+
+CREATE TABLE `share_content` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `share_config_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'share_config.id',
+  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文档id',
+  `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '父id',
+  `is_share_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否分享整个分类',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_shareconfigid_docid` (`share_config_id`,`doc_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分享详情';
+
+
 CREATE TABLE `space` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL DEFAULT '' COMMENT '空间名称',
@@ -276,6 +366,24 @@ CREATE TABLE `system_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_configkey` (`config_key`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
+
+
+CREATE TABLE `user_dingtalk_info` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nick` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在钉钉上面的昵称',
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '员工名称。',
+  `email` varchar(128) NOT NULL DEFAULT '' COMMENT '员工邮箱。',
+  `userid` varchar(128) NOT NULL DEFAULT '' COMMENT '员工的userid。',
+  `unionid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用所属企业的唯一标识。',
+  `openid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用内的唯一标识。',
+  `user_info_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'user_info.id',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_unionid` (`unionid`) USING BTREE,
+  KEY `idx_openid` (`openid`) USING BTREE,
+  KEY `idx_userid` (`user_info_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='钉钉开放平台用户';
 
 
 CREATE TABLE `user_info` (
@@ -322,6 +430,19 @@ CREATE TABLE `user_subscribe` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='用户订阅表';
 
 
+
+
+INSERT INTO `compose_doc` (`id`, `doc_id`, `project_id`, `is_folder`, `folder_name`, `parent_id`, `origin`, `is_deleted`, `creator`, `order_index`, `gmt_create`, `gmt_modified`) VALUES 
+	(1,0,1,1,'订单模块',0,'',0,'超级管理员',0,'2021-05-25 18:05:23','2021-05-25 18:05:23'),
+	(2,0,1,1,'产品模块',0,'',0,'超级管理员',0,'2021-05-25 18:05:30','2021-05-25 18:05:30'),
+	(3,2,1,0,'',1,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:46','2021-05-25 18:05:46'),
+	(4,3,1,0,'',1,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:46','2021-05-25 18:05:46'),
+	(5,10,1,0,'',2,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:53','2021-05-25 18:05:53'),
+	(6,11,1,0,'',2,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:53','2021-05-25 18:05:53');
+
+
+INSERT INTO `compose_project` (`id`, `name`, `description`, `space_id`, `type`, `password`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+	(1,'聚合接口','提供给第三方的接口',18,1,'',1,'超级管理员',1,'超级管理员',0,1,0,'2021-05-25 18:05:14','2021-05-25 18:05:14');
 
 
 INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `author`, `type`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `is_use_global_headers`, `is_use_global_params`, `is_use_global_returns`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
@@ -470,6 +591,12 @@ INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_dele
 	(9,3,14,'admin',0,'2021-01-25 09:10:47','2021-01-25 09:10:47');
 
 
+
+
+
+
+
+
 INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_compose`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
 	(9,'研发一部',2,'研发一部经理',2,'研发一部经理',0,0,'2020-12-15 09:48:13','2020-12-15 09:48:13'),
 	(11,'研发二部',5,'研发二部经理',5,'研发二部经理',0,0,'2020-12-15 10:08:39','2020-12-15 10:08:39'),
@@ -507,7 +634,9 @@ INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`
 
 
 INSERT INTO `system_config` (`id`, `config_key`, `config_value`, `remark`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
-	(1,'torna.version','9','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:03:08');
+	(1,'torna.version','9','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:12:22');
+
+
 
 
 INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `source`, `email`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
@@ -544,7 +673,6 @@ INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`
 	(6,1,1,2,0,'2021-01-18 17:18:07','2021-01-18 17:18:07'),
 	(7,1,1,3,0,'2021-01-18 17:18:10','2021-01-18 17:18:10'),
 	(8,2,1,2,0,'2021-01-19 10:24:11','2021-01-19 10:24:11');
-
-
+	
 
 
