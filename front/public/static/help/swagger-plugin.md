@@ -13,6 +13,7 @@ pom.xml添加依赖：
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin-starter</artifactId>
     <version>1.0.0</version>
+    <scope>provided</scope>
 </dependency>
 ```
 
