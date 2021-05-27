@@ -67,7 +67,7 @@ CREATE TABLE `doc_param` (
   `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必须，1：是，0：否',
   `max_length` varchar(64) NOT NULL DEFAULT '-' COMMENT '最大长度',
   `example` varchar(128) NOT NULL DEFAULT '' COMMENT '示例值',
-  `description` varchar(256) NOT NULL DEFAULT '' COMMENT '描述',
+  `description` varchar(512) NOT NULL DEFAULT '' COMMENT '描述',
   `enum_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'enum_info.id',
   `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
   `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0',
@@ -525,7 +525,7 @@ INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_adm
 	(14,'test@torna.cn','c19b85cecd8787ba8712ff764bf70f81','测试A',0,'register','test@torna.cn',1,0,'2021-01-25 09:08:21','2021-05-25 18:03:07');
 
 
-INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `source_id`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `source_id`, `gmt_create`, `gmt_modified`) VALUES
 	(3,2,'超级管理员 修改了文档 获取分类信息',1,1,2,'2021-01-19 13:38:20','2021-01-19 16:28:54'),
 	(4,2,'超级管理员 更新了【获取分类信息】，备注: 111',1,1,2,'2021-01-19 13:43:42','2021-01-19 16:30:36'),
 	(5,2,'超级管理员 更新了【获取分类信息】，备注: 3333',1,1,2,'2021-01-19 13:43:45','2021-01-19 15:27:41'),
@@ -536,7 +536,7 @@ INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `sour
 	(10,2,'超级管理员 删除了【获取分类信息】',1,1,2,'2021-01-19 16:44:37','2021-01-19 16:46:06');
 
 
-INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,1,1,16,0,'2021-01-18 16:33:51','2021-01-18 16:38:58'),
 	(2,1,1,4,0,'2021-01-18 16:41:09','2021-01-18 17:18:12'),
 	(3,1,1,6,0,'2021-01-18 17:17:57','2021-01-18 17:17:57'),
