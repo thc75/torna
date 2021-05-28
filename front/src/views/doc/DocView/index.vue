@@ -38,7 +38,10 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-if="docInfo.description">{{ $ts('description') }}：<span v-html="docInfo.description"></span></h4>
+    <h4 v-if="docInfo.description" class='doc-descr'>
+      <div>{{ $ts('description') }}：</div>
+      <span v-html="docInfo.description.replace(/\n/g,'<br />')"></span>
+    </h4>
     <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
