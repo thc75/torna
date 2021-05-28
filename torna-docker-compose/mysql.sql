@@ -29,7 +29,7 @@ CREATE TABLE `doc_info` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT '唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name)',
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '文档名称',
-  `description` varchar(256) NOT NULL DEFAULT '' COMMENT '文档描述',
+  `description` varchar(512) NOT NULL DEFAULT '' COMMENT '文档描述',
   `author` varchar(64) NOT NULL DEFAULT '' COMMENT '维护人',
   `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0:http,1:dubbo',
   `url` varchar(128) NOT NULL DEFAULT '' COMMENT '访问URL',

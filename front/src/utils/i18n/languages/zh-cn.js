@@ -261,6 +261,7 @@ const MAPPING = {
   'newBodyParam': '添加Body参数',
   'importBodyParam': '导入Body参数',
   'useCommonParam': '使用公共请求参数',
+  'isRootArray': '根数组',
   'responseParam': '响应参数',
   'newResponseParam': '添加响应参数',
   'importResponseParam': '导入响应参数',
@@ -349,7 +350,12 @@ const MAPPING = {
   'visitUrl': '访问链接',
   'composeSpace': '聚合空间',
   'btnOk': ' 确 定 ',
-  'visitPassword': '访问密码'
+  'visitPassword': '访问密码',
+  'elementType': '元素类型',
+  'rootArrayTip': 'Body是一个数组对象，如',
+  'mustArray': '必须是数组',
+  'arrayMustHasElement': '数组必须有元素',
+  'objectArrayTip': '接收数组对象，元素内容见表格定义'
 
 }
 

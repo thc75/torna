@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 9;
+    private static final int VERSION = 10;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -74,6 +74,14 @@ public class UpgradeService {
         v1_6_3(oldVersion);
         v1_6_4(oldVersion);
         v1_8_0(oldVersion);
+        v1_8_1(oldVersion);
+    }
+
+    private void v1_8_1(int oldVersion) {
+        if (oldVersion < 10) {
+            // doc_info.description字段长度从256改成512
+            runSql("ALTER TABLE `doc_info` CHANGE COLUMN `description` `description` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT ''  COMMENT '文档描述' AFTER `name`");
+        }
     }
 
     private void v1_8_0(int oldVersion) {

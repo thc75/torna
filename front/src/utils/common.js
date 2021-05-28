@@ -266,9 +266,22 @@ export function convert_tree(arr, parentId) {
 }
 
 export function init_docInfo(data) {
+  data.isRequestParamsRootArray = 0
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
+  // 判断有没有root_array
+  init_request_root_array(data)
   return data
+}
+
+function init_request_root_array(data) {
+  const requestParams = data.requestParams
+  if (requestParams && requestParams.length === 1) {
+    const row = requestParams[0]
+    if (row.name === '') {
+      data.isRequestParamsRootArray = 1
+    }
+  }
 }
 
 export function init_docInfo_view(data) {
@@ -310,6 +323,7 @@ export function init_docInfo_view(data) {
   }
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
+  init_request_root_array(data)
   return data
 }
 

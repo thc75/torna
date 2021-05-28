@@ -260,6 +260,7 @@ const MAPPING = {
   'newBodyParam': 'New Body Parameter',
   'importBodyParam': 'Import Body Parameter',
   'useCommonParam': 'Use Common Parameter',
+  'isRootArray': 'Root Array',
   'responseParam': 'Response',
   'newResponseParam': 'New Response Parameter',
   'importResponseParam': 'Import Response Parameter',
@@ -348,7 +349,12 @@ const MAPPING = {
   'visitUrl': 'Visit Url',
   'composeSpace': 'Compose Space',
   'btnOk': ' OK ',
-  'visitPassword': 'Password'
+  'visitPassword': 'Password',
+  'elementType': 'Element Type',
+  'rootArrayTip': 'Body is an array, such as',
+  'mustArray': 'Must array',
+  'arrayMustHasElement': 'Array need element',
+  'objectArrayTip': 'Array object, the element in below table'
 
 }
 

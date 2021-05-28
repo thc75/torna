@@ -28,7 +28,7 @@
         {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}：<span>{{ docInfo.author }}</span></h4>
+    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
@@ -38,11 +38,11 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-if="docInfo.description" class='doc-descr'>
-      <div>{{ $ts('description') }}：</div>
-      <span v-html="docInfo.description.replace(/\n/g,'<br />')"></span>
+    <h4 v-if="docInfo.description" class="doc-descr">
+      <div>{{ $ts('description') }}</div>
+      <span class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></span>
     </h4>
-    <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
+    <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
       <parameter-table
@@ -68,6 +68,7 @@
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
+      <el-alert v-if="docInfo.isRequestParamsRootArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayTip')" />
       <parameter-table :data="docInfo.requestParams" />
     </div>
     <div v-show="isRequestJson">
@@ -93,7 +94,11 @@
     </div>
   </div>
 </template>
-
+<style scoped>
+h4 .content {
+  margin: 0 10px;
+}
+</style>
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
@@ -212,6 +217,9 @@ export default {
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
+      if (this.docInfo.isRequestParamsRootArray) {
+        this.requestExample = [this.requestExample]
+      }
     },
     buildRequestUrl(hostConfig) {
       const baseUrl = hostConfig.configValue

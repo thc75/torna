@@ -17,7 +17,7 @@
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
           <el-form-item prop="description" :label="$ts('docDesc')">
-            <el-input v-model="docInfo.description" type="textarea" :rows="4" maxlength="200" show-word-limit />
+            <el-input v-model="docInfo.description" type="textarea" :rows="4" maxlength="400" show-word-limit />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
@@ -86,25 +86,42 @@
           :hidden-columns="['type', 'maxLength', 'enum']"
         />
       </el-tab-pane>
+      <!-- 请求参数 -->
       <el-tab-pane :label="$ts('requestParams')" name="requestParam">
         <el-tabs v-model="paramsActive" type="card">
           <el-tab-pane label="Query Parameter" name="tabQueryParams">
-            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">{{ $ts('newQueryParam') }}</el-button>
-            <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">{{ $ts('importQueryParam') }}</el-button>
+            <div class="table-opt-btn">
+              <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">{{ $ts('newQueryParam') }}</el-button>
+              <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">{{ $ts('importQueryParam') }}</el-button>
+            </div>
             <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" :hidden-columns="['enum']" />
           </el-tab-pane>
           <el-tab-pane label="Body Parameter" name="tabBodyParams">
-            <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">{{ $ts('newBodyParam') }}</el-button>
-            <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importBodyParam') }}</el-button>
-            <span class="split">|</span>
-            <el-switch
-              v-model="docInfo.isUseGlobalParams"
-              :active-text="$ts('useCommonParam')"
-              inactive-text=""
-              :active-value="1"
-              :inactive-value="0"
-            />
-            <edit-table ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
+            <div class="table-opt-btn">
+              <el-switch
+                v-model="docInfo.isRequestParamsRootArray"
+                :active-text="$ts('isRootArray')"
+                inactive-text=""
+                :active-value="1"
+                :inactive-value="0"
+                @change="onRequestParamsRootArraySwitch"
+              />
+              <div v-show="!isEnableRequestParamsRootArray" style="display: inline-block">
+                <span class="split">|</span>
+                <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">{{ $ts('newBodyParam') }}</el-button>
+                <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importBodyParam') }}</el-button>
+                <span class="split">|</span>
+                <el-switch
+                  v-model="docInfo.isUseGlobalParams"
+                  :active-text="$ts('useCommonParam')"
+                  inactive-text=""
+                  :active-value="1"
+                  :inactive-value="0"
+                />
+              </div>
+            </div>
+            <root-array-table v-show="isEnableRequestParamsRootArray" ref="rootArrayTable" :data="docInfo.requestParams" />
+            <edit-table v-show="!isEnableRequestParamsRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
@@ -182,17 +199,21 @@
     </el-dialog>
   </div>
 </template>
-<style>
+<style scoped>
 .input-with-select .el-input-group__prepend {
   background-color: #fff;
+}
+.table-opt-btn .el-button {
+  padding: 0;
 }
 </style>
 <script>
 import DocView from '../DocView'
 import EditTable from '../EditTable'
+import RootArrayTable from '../RootArrayTable'
 
 export default {
-  components: { DocView, EditTable },
+  components: { DocView, EditTable, RootArrayTable },
   data() {
     return {
       params: {},
@@ -220,7 +241,9 @@ export default {
         queryParams: [],
         requestParams: [],
         responseParams: [],
-        errorCodeParams: []
+        errorCodeParams: [],
+        isRequestParamsRootArray: 0,
+        isResponseParamsRootArray: 0
       },
       paramsActive: 'tabQueryParams',
       remark: '',
@@ -250,6 +273,11 @@ export default {
       },
       paramResponseTemplateDlgShow: false,
       importParamHandler: null
+    }
+  },
+  computed: {
+    isEnableRequestParamsRootArray() {
+      return this.docInfo.isRequestParamsRootArray === 1
     }
   },
   created() {
@@ -342,20 +370,27 @@ export default {
     // 修改文档内容
     submitForm() {
       this.$refs.docForm.validate((valid) => {
-        if (valid) {
+        let rootArrayValid = true
+        if (this.isEnableRequestParamsRootArray) {
+          rootArrayValid = this.$refs.rootArrayTable.validate()
+        }
+        if (valid && rootArrayValid) {
           const promiseHeaderArr = this.$refs.headerParamTable.validate()
           const promiseQueryArr = this.$refs.queryParamTable.validate()
-          const promiseRequestArr = this.$refs.requestParamTable.validate()
+          const promiseRequestArr = this.isEnableRequestParamsRootArray ? [] : this.$refs.requestParamTable.validate()
           const promiseResponseArr = this.$refs.responseParamTable.validate()
           const promiseErrorCodeArr = this.$refs.errorCodeParamTable.validate()
-          const promiseArr = promiseHeaderArr.concat(promiseQueryArr, promiseRequestArr, promiseResponseArr, promiseErrorCodeArr)
+          let promiseArr = promiseHeaderArr.concat(promiseQueryArr, promiseResponseArr, promiseErrorCodeArr)
+          if (promiseRequestArr.length > 0) {
+            promiseArr = promiseArr.concat(promiseRequestArr)
+          }
           Promise.all(promiseArr).then(validArr => {
             const data = {}
             Object.assign(data, this.docInfo)
             // 到这里来表示全部内容校验通过
             const headerParams = this.getHeaderParamsData()
             const queryParams = this.getQueryParamsData()
-            const requestParams = this.getRequestParamsData()
+            const requestParams = this.isEnableRequestParamsRootArray ? this.getRootRequestBodyData() : this.getRequestParamsData()
             const responseParams = this.getResponseParamsData()
             const errorCodeParams = this.getErrorCodeParamsData()
             Object.assign(data, {
@@ -376,12 +411,15 @@ export default {
               }
             })
           }).catch((e) => {
-            this.tipError('请完善表单内容')
+            this.tipError($ts('pleaseFinishForm'))
           }) // 加上这个控制台不会报Uncaught (in promise)
         } else {
-          this.tipError('请完善表单内容')
+          this.tipError($ts('pleaseFinishForm'))
         }
       })
+    },
+    getRootRequestBodyData() {
+      return this.$refs.rootArrayTable.getData()
     },
     viewDoc: function() {
       this.viewDialogVisible = true
@@ -395,6 +433,24 @@ export default {
         this.initDocInfoCompleteView(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })
+    },
+    onRequestParamsRootArraySwitch(val) {
+      if (val === 1) {
+        if (this.docInfo.requestParams.length === 0) {
+          const root = this.getParamNewRow()
+          root.type = 'object'
+          this.docInfo.requestParams = [root]
+        } else if (this.docInfo.requestParams.length === 1) {
+          this.docInfo.requestParams[0].isDeleted = 0
+        }
+      } else {
+        this.docInfo.requestParams.forEach(row => {
+          if (!row.name) {
+            row.hidden = true
+            row.isDeleted = 1
+          }
+        })
+      }
     },
     getHeaderParamsData() {
       return this.$refs.headerParamTable.getData()
@@ -509,49 +565,6 @@ export default {
           }, () => this.tipError('JSON格式错误'))
         }
       })
-    },
-    /**
-     * 导入参数
-     * @param params 响应参数数组
-     * @param json 当前json
-     */
-    doImportParam: function(params, json) {
-      for (const name in json) {
-        const value = json[name]
-        let row = this.findRow(params, name)
-        const isExist = row !== null
-        if (!isExist) {
-          row = this.getParamNewRow(name, value)
-        }
-        row.example = value
-        // 如果有子节点
-        if (this.isObject(value)) {
-          row.type = 'object'
-          row.example = ''
-          const children = row.children
-          this.doImportParam(children, value)
-          children.forEach(child => { child.parentId = row.id })
-        } else if (this.isArray(value)) {
-          row.type = 'array'
-          row.example = ''
-          const oneJson = value.length === 0 ? {} : value[0]
-          const children = row.children
-          this.doImportParam(children, oneJson)
-          children.forEach(child => { child.parentId = row.id })
-        }
-        if (!isExist) {
-          params.push(row)
-        }
-      }
-    },
-    findRow: function(params, name) {
-      for (let i = 0; i < params.length; i++) {
-        const r = params[i]
-        if (r.name === name) {
-          return r
-        }
-      }
-      return null
     },
     addParamFormPair: function(params, name, value) {
       let isNew = true

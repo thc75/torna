@@ -264,6 +264,49 @@ Object.assign(Vue.prototype, {
   getRequestUrl(item) {
     return get_requestUrl(item)
   },
+  /**
+   * 导入参数
+   * @param params 响应参数数组
+   * @param json 当前json
+   */
+  doImportParam: function(params, json) {
+    for (const name in json) {
+      const value = json[name]
+      let row = this.findRow(params, name)
+      const isExist = row !== null
+      if (!isExist) {
+        row = this.getParamNewRow(name, value)
+      }
+      row.example = value
+      // 如果有子节点
+      if (this.isObject(value)) {
+        row.type = 'object'
+        row.example = ''
+        const children = row.children
+        this.doImportParam(children, value)
+        children.forEach(child => { child.parentId = row.id })
+      } else if (this.isArray(value)) {
+        row.type = 'array'
+        row.example = ''
+        const oneJson = value.length === 0 ? {} : value[0]
+        const children = row.children
+        this.doImportParam(children, oneJson)
+        children.forEach(child => { child.parentId = row.id })
+      }
+      if (!isExist) {
+        params.push(row)
+      }
+    }
+  },
+  findRow: function(params, name) {
+    for (let i = 0; i < params.length; i++) {
+      const r = params[i]
+      if (r.name === name) {
+        return r
+      }
+    }
+    return null
+  },
   getParamNewRow: function(name, value) {
     return {
       id: this.nextId(),
