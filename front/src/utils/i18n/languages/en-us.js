@@ -354,7 +354,10 @@ const MAPPING = {
   'rootArrayTip': 'Body is an array, such as',
   'mustArray': 'Must array',
   'arrayMustHasElement': 'Array need element',
-  'objectArrayTip': 'Array object, the element in below table'
+  'objectArrayTip': 'Array object, the element in below table',
+  'supportHtml': 'html supported',
+  'newParam': 'New Param',
+  'importParam': 'Import Param'
 
 }
 

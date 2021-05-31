@@ -7,7 +7,7 @@ const NUMBER_TYPES = [
   'int8', 'int16', 'int32', 'int64', 'float', 'double', 'number'
 ]
 
-let isDingTalk = undefined
+let isDingTalk
 
 /**
  * 构建返回结果例子
@@ -152,6 +152,11 @@ export function is_array_string(example) {
   return typeof (example) === 'string' && example.startsWith('[') && example.endsWith(']')
 }
 
+/**
+ * 解析数字数组
+ * @param val 数字数组字符串，"[1,2,3]"
+ * @returns {*[]|number[]} 返回数字数组对象，[1,2,3]
+ */
 function parse_num_array(val) {
   if (!val || val === '[]') {
     return []
@@ -198,6 +203,20 @@ function parse_str_array(val) {
   })
 }
 
+function parse_boolean_array(val) {
+  if (!val || val === '[]') {
+    return []
+  }
+  let str = val.toString()
+  if (is_array_string(str)) {
+    str = str.substring(1, str.length - 1)
+  }
+  const arr = str.split(',')
+  return arr.map(el => {
+    return el === 'true'
+  })
+}
+
 function is_array_type(type) {
   if (!type) {
     return false
@@ -209,6 +228,19 @@ function is_array_type(type) {
     }
   }
   return false
+}
+
+export function parse_root_array(type, example) {
+  switch (type) {
+    case 'number':
+      return parse_num_array(example)
+    case 'bool':
+    case 'boolean':
+      return parse_boolean_array(example)
+    case 'string':
+    default:
+      return parse_str_array(example)
+  }
 }
 
 export function get_requestUrl(item) {
@@ -266,22 +298,9 @@ export function convert_tree(arr, parentId) {
 }
 
 export function init_docInfo(data) {
-  data.isRequestParamsRootArray = 0
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
-  // 判断有没有root_array
-  init_request_root_array(data)
   return data
-}
-
-function init_request_root_array(data) {
-  const requestParams = data.requestParams
-  if (requestParams && requestParams.length === 1) {
-    const row = requestParams[0]
-    if (row.name === '') {
-      data.isRequestParamsRootArray = 1
-    }
-  }
 }
 
 export function init_docInfo_view(data) {
@@ -323,7 +342,6 @@ export function init_docInfo_view(data) {
   }
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
-  init_request_root_array(data)
   return data
 }
 

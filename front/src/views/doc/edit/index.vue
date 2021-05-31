@@ -17,7 +17,7 @@
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
           <el-form-item prop="description" :label="$ts('docDesc')">
-            <el-input v-model="docInfo.description" type="textarea" :rows="4" maxlength="400" show-word-limit />
+            <el-input v-model="docInfo.description" type="textarea" :rows="4" :placeholder="$ts('supportHtml')" show-word-limit />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
@@ -99,14 +99,14 @@
           <el-tab-pane label="Body Parameter" name="tabBodyParams">
             <div class="table-opt-btn">
               <el-switch
-                v-model="docInfo.isRequestParamsRootArray"
+                v-model="docInfo.isRequestArray"
                 :active-text="$ts('isRootArray')"
                 inactive-text=""
                 :active-value="1"
                 :inactive-value="0"
                 @change="onRequestParamsRootArraySwitch"
               />
-              <div v-show="!isEnableRequestParamsRootArray" style="display: inline-block">
+              <div v-show="!isEnableRequestRootArray" style="display: inline-block">
                 <span class="split">|</span>
                 <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">{{ $ts('newBodyParam') }}</el-button>
                 <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importBodyParam') }}</el-button>
@@ -120,12 +120,15 @@
                 />
               </div>
             </div>
-            <root-array-table v-show="isEnableRequestParamsRootArray" ref="rootArrayTable" :data="docInfo.requestParams" />
-            <edit-table v-show="!isEnableRequestParamsRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
+            <root-array-table v-show="isEnableRequestRootArray" ref="rootArrayTable" :data="docInfo.requestParams" :el-type="docInfo.requestArrayType" />
+            <edit-table v-show="!isEnableRequestRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
       <el-tab-pane :label="$ts('responseParam')" name="responseParam">
+        <div class="table-opt-btn">
+
+        </div>
         <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">{{ $ts('newResponseParam') }}</el-button>
         <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">{{ $ts('importResponseParam') }}</el-button>
         <span class="split">|</span>
@@ -235,15 +238,17 @@ export default {
         isUseGlobalHeaders: 1,
         isUseGlobalParams: 1,
         isUseGlobalReturns: 1,
+        isRequestArray: 0,
+        isResponseArray: 0,
+        requestArrayType: 'object',
+        responseArrayType: 'object',
         isShow: 1,
         pathParams: [],
         headerParams: [],
         queryParams: [],
         requestParams: [],
         responseParams: [],
-        errorCodeParams: [],
-        isRequestParamsRootArray: 0,
-        isResponseParamsRootArray: 0
+        errorCodeParams: []
       },
       paramsActive: 'tabQueryParams',
       remark: '',
@@ -276,8 +281,11 @@ export default {
     }
   },
   computed: {
-    isEnableRequestParamsRootArray() {
-      return this.docInfo.isRequestParamsRootArray === 1
+    isEnableRequestRootArray() {
+      return this.docInfo.isRequestArray === 1
+    },
+    isEnableResponseRootArray() {
+      return this.docInfo.isResponseArray === 1
     }
   },
   created() {
@@ -371,13 +379,13 @@ export default {
     submitForm() {
       this.$refs.docForm.validate((valid) => {
         let rootArrayValid = true
-        if (this.isEnableRequestParamsRootArray) {
+        if (this.isEnableRequestRootArray) {
           rootArrayValid = this.$refs.rootArrayTable.validate()
         }
         if (valid && rootArrayValid) {
           const promiseHeaderArr = this.$refs.headerParamTable.validate()
           const promiseQueryArr = this.$refs.queryParamTable.validate()
-          const promiseRequestArr = this.isEnableRequestParamsRootArray ? [] : this.$refs.requestParamTable.validate()
+          const promiseRequestArr = this.isEnableRequestRootArray ? [] : this.$refs.requestParamTable.validate()
           const promiseResponseArr = this.$refs.responseParamTable.validate()
           const promiseErrorCodeArr = this.$refs.errorCodeParamTable.validate()
           let promiseArr = promiseHeaderArr.concat(promiseQueryArr, promiseResponseArr, promiseErrorCodeArr)
@@ -390,7 +398,14 @@ export default {
             // 到这里来表示全部内容校验通过
             const headerParams = this.getHeaderParamsData()
             const queryParams = this.getQueryParamsData()
-            const requestParams = this.isEnableRequestParamsRootArray ? this.getRootRequestBodyData() : this.getRequestParamsData()
+            let requestParams
+            if (this.isEnableRequestRootArray) {
+              const arrayData = this.getRootRequestBodyData()
+              requestParams = arrayData.data
+              data.requestArrayType = arrayData.type
+            } else {
+              requestParams = this.getRequestParamsData()
+            }
             const responseParams = this.getResponseParamsData()
             const errorCodeParams = this.getErrorCodeParamsData()
             Object.assign(data, {
@@ -425,9 +440,17 @@ export default {
       this.viewDialogVisible = true
       this.$nextTick(() => {
         const viewData = this.deepCopy(this.docInfo)
+        let requestParams
+        if (this.isEnableRequestRootArray) {
+          const arrayData = this.getRootRequestBodyData()
+          requestParams = arrayData.data
+          viewData.requestArrayType = arrayData.type
+        } else {
+          requestParams = this.getRequestParamsData()
+        }
         viewData.headerParams = this.deepCopy(this.getHeaderParamsData())
         viewData.queryParams = this.deepCopy(this.getQueryParamsData())
-        viewData.requestParams = this.deepCopy(this.getRequestParamsData())
+        viewData.requestParams = this.deepCopy(requestParams)
         viewData.responseParams = this.deepCopy(this.getResponseParamsData())
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
         this.initDocInfoCompleteView(viewData)

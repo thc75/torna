@@ -288,10 +288,22 @@ Object.assign(Vue.prototype, {
       } else if (this.isArray(value)) {
         row.type = 'array'
         row.example = ''
-        const oneJson = value.length === 0 ? {} : value[0]
-        const children = row.children
-        this.doImportParam(children, oneJson)
-        children.forEach(child => { child.parentId = row.id })
+        const oneVal = value.length === 0 ? {} : value[0]
+        if (this.isObject(oneVal)) {
+          const children = row.children
+          this.doImportParam(children, oneVal)
+          children.forEach(child => { child.parentId = row.id })
+        } else {
+          row.example = JSON.stringify(value)
+        }
+      } else {
+        if (!isNaN(value)) {
+          row.type = 'number'
+        }
+        if (value === true || value === false) {
+          row.type = 'boolean'
+        }
+        row.example = String(value)
       }
       if (!isExist) {
         params.push(row)
@@ -308,6 +320,9 @@ Object.assign(Vue.prototype, {
     return null
   },
   getParamNewRow: function(name, value) {
+    if (value === undefined) {
+      value = ''
+    }
     return {
       id: this.nextId(),
       name: name || '',
@@ -316,7 +331,7 @@ Object.assign(Vue.prototype, {
       description: '',
       enumContent: '',
       maxLength: 64,
-      example: value || '',
+      example: value,
       isDeleted: 0,
       isNew: true,
       children: []

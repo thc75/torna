@@ -68,8 +68,8 @@
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
-      <el-alert v-if="docInfo.isRequestParamsRootArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayTip')" />
-      <parameter-table :data="docInfo.requestParams" />
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayTip')" />
+      <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isRequestJson">
       <h4>{{ $ts('requestExample') }}</h4>
@@ -103,7 +103,7 @@ h4 .content {
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import ExportUtil from '@/utils/export'
-import { get_effective_url } from '@/utils/common'
+import { get_effective_url, parse_root_array } from '@/utils/common'
 
 export default {
   name: 'DocView',
@@ -171,7 +171,11 @@ export default {
         globalParams: [],
         globalReturns: [],
         debugEnvs: [],
-        folders: []
+        folders: [],
+        isRequestArray: 0,
+        isResponseArray: 0,
+        requestArrayType: 'object',
+        responseArrayType: 'object'
       },
       requestExample: {},
       responseSuccessExample: {},
@@ -181,6 +185,10 @@ export default {
   computed: {
     isRequestJson() {
       return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
+    },
+    requestParamHiddenColumns() {
+      const isRawRequestArray = this.docInfo.isRequestArray && this.docInfo.requestArrayType !== 'object'
+      return isRawRequestArray ? ['name', 'required', 'maxLength'] : []
     }
   },
   watch: {
@@ -217,8 +225,13 @@ export default {
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
-      if (this.docInfo.isRequestParamsRootArray) {
+      if (this.docInfo.isRequestArray) {
         this.requestExample = [this.requestExample]
+        const arrayType = this.docInfo.requestArrayType
+        if (arrayType !== 'object') {
+          const filterRow = data.requestParams.filter(el => el.isDeleted === 0)
+          this.requestExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
       }
     },
     buildRequestUrl(hostConfig) {

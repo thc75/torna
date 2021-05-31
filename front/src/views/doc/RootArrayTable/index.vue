@@ -3,16 +3,16 @@
     <div class="info-tip">{{ $ts('rootArrayTip') }}：[{...}, {...}]、[1, 2, 3]、['hello', 'world']</div>
     <div class="table-opt-btn">
       <span class="normal-text">{{ $ts('elementType') }}</span>：
-      <el-select v-model="elType" size="mini" @change="onTypeChange">
+      <el-select v-model="elementType" size="mini" @change="onTypeChange">
         <el-option v-for="type in elTypes" :key="type" :value="type" :label="type">{{ type }}</el-option>
       </el-select>
     </div>
     <div v-if="isTypeObject">
-      <el-button type="text" icon="el-icon-plus" @click="onParamAdd">{{ $ts('newBodyParam') }}</el-button>
-      <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importBodyParam') }}</el-button>
+      <el-button type="text" icon="el-icon-plus" @click="onParamAdd">{{ $ts('newParam') }}</el-button>
+      <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importParam') }}</el-button>
     </div>
     <el-table
-      :data="rows"
+      :data="tableData"
       row-key="id"
       border
       default-expand-all
@@ -141,7 +141,7 @@
               <el-tooltip :content="$ts('addChildNode')" placement="top" :open-delay="500">
                 <el-link v-if="isTypeObject && canAddNode" type="primary" icon="el-icon-circle-plus-outline" @click="onParamNodeAdd(scope.row)"></el-link>
               </el-tooltip>
-              <el-link type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>
+              <el-link v-if="isTypeObject" type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>
             </div>
             <div v-show="scope.row.isDeleted === 1">
               <el-tooltip :content="$ts('clickRestore')" placement="top">
@@ -171,6 +171,10 @@ export default {
     data: {
       type: Array,
       default: () => []
+    },
+    elType: {
+      type: String,
+      default: ''
     },
     moduleId: {
       type: String,
@@ -211,11 +215,10 @@ export default {
   },
   data() {
     return {
-      elType: 'object',
       elTypes: [
         'object', 'number', 'string', 'boolean'
       ],
-      rows: [],
+      elementType: 'object',
       enumData: [],
       paramRowRule: {
       },
@@ -226,19 +229,24 @@ export default {
   },
   computed: {
     isTypeObject() {
-      return this.elType === 'object'
+      return this.elementType === 'object'
+    },
+    tableData() {
+      if (this.data.length > 0) {
+        return this.data.filter(row => !row.hidden)
+      } else {
+        return []
+      }
     }
   },
   watch: {
-    data(arr) {
-      if (arr.length === 1) {
-        this.rows = arr[0].children
-      }
+    elType(elType) {
+      this.elementType = elType || 'object'
     }
   },
   methods: {
     onParamAdd: function() {
-      this.rows.push(this.getParamNewRow())
+      this.data.children.push(this.getParamNewRow())
     },
     onImportRequestParamAdd: function() {
       this.importParamTemplateValue = ''
@@ -251,9 +259,12 @@ export default {
       return this.textColumns.filter(val => val === name).length > 0
     },
     onTypeChange(val) {
+      this.deleteAndHideData()
+      const row = this.getParamNewRow()
       if (val !== 'object') {
-        this.rows = [this.getParamNewRow()]
+        row.type = val
       }
+      this.data.push(row)
     },
     onParamNodeAdd(row) {
       const children = row.children || []
@@ -264,7 +275,7 @@ export default {
     },
     onParamRemove(row) {
       if (row.isNew) {
-        this.removeRow(this.rows, row.id)
+        this.removeRow(this.tableData, row.id)
       } else {
         row.isDeleted = 1
       }
@@ -280,14 +291,23 @@ export default {
           this.tipError($ts('arrayMustHasElement'))
         } else {
           const json = arr[0]
-          this.rows = []
-          this.doImportParam(this.rows, json)
+          this.deleteAndHideData()
+          this.doImportParam(this.data, json)
           this.importParamTemplateDlgShow = false
         }
       }, () => this.tipError('JSON格式错误'))
     },
+    deleteAndHideData() {
+      this.data.forEach(row => {
+        row.isDeleted = 1
+        row.hidden = true
+      })
+    },
     getData() {
-      return this.data
+      return {
+        type: this.elementType,
+        data: this.data
+      }
     },
     validate() {
       const fn = rows => {
@@ -303,9 +323,9 @@ export default {
         return valid
       }
       if (this.isTypeObject) {
-        return fn(this.rows)
+        return fn(this.tableData)
       } else {
-        const row = this.rows[0]
+        const row = this.tableData[0]
         if (!row.description) {
           return false
         }

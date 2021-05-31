@@ -355,7 +355,10 @@ const MAPPING = {
   'rootArrayTip': 'Body是一个数组对象，如',
   'mustArray': '必须是数组',
   'arrayMustHasElement': '数组必须有元素',
-  'objectArrayTip': '接收数组对象，元素内容见表格定义'
+  'objectArrayTip': '接收数组对象，元素内容见表格定义',
+  'supportHtml': '支持html',
+  'newParam': '添加参数',
+  'importParam': '导入参数'
 
 }
 

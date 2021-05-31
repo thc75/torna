@@ -18,6 +18,10 @@
             <if test="isUseGlobalHeaders != null">is_use_global_headers,</if>
             <if test="isUseGlobalParams != null">is_use_global_params,</if>
             <if test="isUseGlobalReturns != null">is_use_global_returns,</if>
+            <if test="isRequestArray != null">is_request_array,</if>
+            <if test="isResponseArray != null">is_response_array,</if>
+            <if test="requestArrayType != null">request_array_type,</if>
+            <if test="responseArrayType != null">response_array_type,</if>
             <if test="createMode != null">create_mode,</if>
             <if test="modifyMode != null">modify_mode,</if>
             <if test="creatorId != null">creator_id,</if>
@@ -45,6 +49,10 @@
             <if test="isUseGlobalHeaders != null">#{isUseGlobalHeaders},</if>
             <if test="isUseGlobalParams != null">#{isUseGlobalParams},</if>
             <if test="isUseGlobalReturns != null">#{isUseGlobalReturns},</if>
+            <if test="isRequestArray != null">#{isRequestArray},</if>
+            <if test="isResponseArray != null">#{isResponseArray},</if>
+            <if test="requestArrayType != null">#{requestArrayType},</if>
+            <if test="responseArrayType != null">#{responseArrayType},</if>
             <if test="createMode != null">#{createMode},</if>
             <if test="modifyMode != null">#{modifyMode},</if>
             <if test="creatorId != null">#{creatorId},</if>
@@ -71,6 +79,10 @@
         <if test="isUseGlobalHeaders != null">is_use_global_headers = VALUES(is_use_global_headers),</if>
         <if test="isUseGlobalParams != null">is_use_global_params = VALUES(is_use_global_params),</if>
         <if test="isUseGlobalReturns != null">is_use_global_returns = VALUES(is_use_global_returns),</if>
+        <if test="isRequestArray != null">is_request_array = VALUES(is_request_array),</if>
+        <if test="isResponseArray != null">is_response_array = VALUES(is_response_array),</if>
+        <if test="requestArrayType != null">request_array_type = VALUES(request_array_type),</if>
+        <if test="responseArrayType != null">response_array_type = VALUES(response_array_type),</if>
         <if test="createMode != null">create_mode = VALUES(create_mode),</if>
         <if test="modifyMode != null">modify_mode = VALUES(modify_mode),</if>
         <if test="creatorId != null">creator_id = VALUES(creator_id),</if>
