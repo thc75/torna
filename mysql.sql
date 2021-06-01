@@ -70,7 +70,7 @@ CREATE TABLE `doc_param` (
   `type` varchar(64) NOT NULL DEFAULT 'String' COMMENT '字段类型',
   `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必须，1：是，0：否',
   `max_length` varchar(64) NOT NULL DEFAULT '-' COMMENT '最大长度',
-  `example` varchar(128) NOT NULL DEFAULT '' COMMENT '示例值',
+  `example` varchar(1024) NOT NULL DEFAULT '' COMMENT '示例值',
   `description` text NOT NULL COMMENT '描述',
   `enum_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'enum_info.id',
   `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
@@ -512,7 +512,7 @@ INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`
 
 
 INSERT INTO `system_config` (`id`, `config_key`, `config_value`, `remark`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
-	(1,'torna.version','9','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:03:08');
+	(1,'torna.version','11','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:03:08');
 
 
 INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `source`, `email`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES

@@ -104,7 +104,7 @@
                 inactive-text=""
                 :active-value="1"
                 :inactive-value="0"
-                @change="onRequestParamsRootArraySwitch"
+                @change="(val) => onRootArraySwitch(val, 'requestParams')"
               />
               <div v-show="!isEnableRequestRootArray" style="display: inline-block">
                 <span class="split">|</span>
@@ -120,26 +120,37 @@
                 />
               </div>
             </div>
-            <root-array-table v-show="isEnableRequestRootArray" ref="rootArrayTable" :data="docInfo.requestParams" :el-type="docInfo.requestArrayType" />
+            <root-array-table v-show="isEnableRequestRootArray" ref="requestArrayTable" :data="docInfo.requestParams" :el-type="docInfo.requestArrayType" />
             <edit-table v-show="!isEnableRequestRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
       <el-tab-pane :label="$ts('responseParam')" name="responseParam">
         <div class="table-opt-btn">
-
+          <el-switch
+            v-model="docInfo.isResponseArray"
+            :active-text="$ts('isRootArray')"
+            inactive-text=""
+            :active-value="1"
+            :inactive-value="0"
+            @change="(val) => onRootArraySwitch(val, 'responseParams')"
+          />
+          <div v-show="!isEnableResponseRootArray" style="display: inline-block">
+            <span class="split">|</span>
+            <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">{{ $ts('newResponseParam') }}</el-button>
+            <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">{{ $ts('importResponseParam') }}</el-button>
+            <span class="split">|</span>
+            <el-switch
+              v-model="docInfo.isUseGlobalReturns"
+              :active-text="$ts('useCommonResponse')"
+              inactive-text=""
+              :active-value="1"
+              :inactive-value="0"
+            />
+          </div>
         </div>
-        <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">{{ $ts('newResponseParam') }}</el-button>
-        <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">{{ $ts('importResponseParam') }}</el-button>
-        <span class="split">|</span>
-        <el-switch
-          v-model="docInfo.isUseGlobalReturns"
-          :active-text="$ts('useCommonResponse')"
-          inactive-text=""
-          :active-value="1"
-          :inactive-value="0"
-        />
-        <edit-table ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
+        <root-array-table v-show="isEnableResponseRootArray" ref="responseArrayTable" :data="docInfo.responseParams" :el-type="docInfo.responseArrayType" />
+        <edit-table v-show="!isEnableResponseRootArray" ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
       </el-tab-pane>
       <el-tab-pane :label="$ts('errorCode')" name="errorCode">
         <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">{{ $ts('newErrorCode') }}</el-button>
@@ -380,17 +391,23 @@ export default {
       this.$refs.docForm.validate((valid) => {
         let rootArrayValid = true
         if (this.isEnableRequestRootArray) {
-          rootArrayValid = this.$refs.rootArrayTable.validate()
+          rootArrayValid = this.$refs.requestArrayTable.validate()
+        }
+        if (this.isEnableResponseRootArray) {
+          rootArrayValid = this.$refs.responseArrayTable.validate()
         }
         if (valid && rootArrayValid) {
           const promiseHeaderArr = this.$refs.headerParamTable.validate()
           const promiseQueryArr = this.$refs.queryParamTable.validate()
           const promiseRequestArr = this.isEnableRequestRootArray ? [] : this.$refs.requestParamTable.validate()
-          const promiseResponseArr = this.$refs.responseParamTable.validate()
+          const promiseResponseArr = this.isEnableResponseRootArray ? [] : this.$refs.responseParamTable.validate()
           const promiseErrorCodeArr = this.$refs.errorCodeParamTable.validate()
-          let promiseArr = promiseHeaderArr.concat(promiseQueryArr, promiseResponseArr, promiseErrorCodeArr)
+          let promiseArr = promiseHeaderArr.concat(promiseQueryArr, promiseErrorCodeArr)
           if (promiseRequestArr.length > 0) {
             promiseArr = promiseArr.concat(promiseRequestArr)
+          }
+          if (promiseResponseArr.length > 0) {
+            promiseArr = promiseArr.concat(promiseResponseArr)
           }
           Promise.all(promiseArr).then(validArr => {
             const data = {}
@@ -398,15 +415,8 @@ export default {
             // 到这里来表示全部内容校验通过
             const headerParams = this.getHeaderParamsData()
             const queryParams = this.getQueryParamsData()
-            let requestParams
-            if (this.isEnableRequestRootArray) {
-              const arrayData = this.getRootRequestBodyData()
-              requestParams = arrayData.data
-              data.requestArrayType = arrayData.type
-            } else {
-              requestParams = this.getRequestParamsData()
-            }
-            const responseParams = this.getResponseParamsData()
+            const requestParams = this.getRequestParamsArray(data)
+            const responseParams = this.getResponseParamsArray(data)
             const errorCodeParams = this.getErrorCodeParamsData()
             Object.assign(data, {
               headerParams: this.formatData(headerParams),
@@ -433,46 +443,65 @@ export default {
         }
       })
     },
+    getRequestParamsArray(data) {
+      let requestParams
+      if (this.isEnableRequestRootArray) {
+        const arrayData = this.getRootRequestBodyData()
+        requestParams = arrayData.data
+        data.requestArrayType = arrayData.type
+      } else {
+        requestParams = this.getRequestParamsData()
+      }
+      return requestParams
+    },
+    getResponseParamsArray(data) {
+      let responseParams
+      if (this.isEnableResponseRootArray) {
+        const arrayData = this.getRootResponseBodyData()
+        responseParams = arrayData.data
+        data.requestArrayType = arrayData.type
+      } else {
+        responseParams = this.getResponseParamsData()
+      }
+      return responseParams
+    },
     getRootRequestBodyData() {
-      return this.$refs.rootArrayTable.getData()
+      return this.$refs.requestArrayTable.getData()
+    },
+    getRootResponseBodyData() {
+      return this.$refs.responseArrayTable.getData()
     },
     viewDoc: function() {
       this.viewDialogVisible = true
       this.$nextTick(() => {
         const viewData = this.deepCopy(this.docInfo)
-        let requestParams
-        if (this.isEnableRequestRootArray) {
-          const arrayData = this.getRootRequestBodyData()
-          requestParams = arrayData.data
-          viewData.requestArrayType = arrayData.type
-        } else {
-          requestParams = this.getRequestParamsData()
-        }
+        const requestParams = this.getRequestParamsArray(viewData)
+        const responseParams = this.getResponseParamsArray(viewData)
         viewData.headerParams = this.deepCopy(this.getHeaderParamsData())
         viewData.queryParams = this.deepCopy(this.getQueryParamsData())
         viewData.requestParams = this.deepCopy(requestParams)
-        viewData.responseParams = this.deepCopy(this.getResponseParamsData())
+        viewData.responseParams = this.deepCopy(responseParams)
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
         this.initDocInfoCompleteView(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })
     },
-    onRequestParamsRootArraySwitch(val) {
-      if (val === 1) {
-        if (this.docInfo.requestParams.length === 0) {
-          const root = this.getParamNewRow()
-          root.type = 'object'
-          this.docInfo.requestParams = [root]
-        } else if (this.docInfo.requestParams.length === 1) {
-          this.docInfo.requestParams[0].isDeleted = 0
-        }
-      } else {
-        this.docInfo.requestParams.forEach(row => {
-          if (!row.name) {
-            row.hidden = true
-            row.isDeleted = 1
+    onRootArraySwitch(val, key) {
+      const delAndHide = (rows) => {
+        rows.forEach(row => {
+          row.isDeleted = 1
+          row.hidden = true
+          const children = row.children
+          if (children && children.length > 0) {
+            delAndHide(children)
           }
         })
+      }
+      delAndHide(this.docInfo[key])
+      if (val === 1) {
+        const root = this.getParamNewRow()
+        root.type = key === 'requestParams' ? this.docInfo.requestArrayType : this.docInfo.responseArrayType
+        this.docInfo[key].push(root)
       }
     },
     getHeaderParamsData() {

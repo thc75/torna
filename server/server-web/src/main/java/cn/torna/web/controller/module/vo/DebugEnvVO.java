@@ -1,35 +1,34 @@
-package cn.torna.web.controller.module.param;
+package cn.torna.web.controller.module.vo;
 
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author tanghc
  */
 @Data
-public class DebugEnvParam {
+public class DebugEnvVO {
+
+    /**  数据库字段：id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    @NotNull
     private Long id;
 
+    /**  数据库字段：module_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
+    /** 配置类型，1：全局header, 数据库字段：type */
+    private Byte type;
+
     /** 配置key, 数据库字段：config_key */
-    @NotBlank
-    @Length(max = 50)
     private String configKey;
 
     /** 配置值, 数据库字段：config_value */
-    @NotBlank
-    @Length(max = 100)
     private String configValue;
 
     private Long extendId;
+
+    private String description;
 
 }

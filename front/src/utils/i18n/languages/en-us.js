@@ -306,6 +306,7 @@ const MAPPING = {
   'debugSend': 'Send',
   'noDebugEvnTip1': 'No debug environment, please go',
   'noDebugEvnTip2': 'to add.',
+  'noDebugEvnTip3': 'No debug environment support',
   'referenceDoc': 'Reference Doc',
   'uploadMultiFiles': 'Upload Multi Files',
   'text': 'Text',
@@ -357,7 +358,9 @@ const MAPPING = {
   'objectArrayTip': 'Array object, the element in below table',
   'supportHtml': 'html supported',
   'newParam': 'New Param',
-  'importParam': 'Import Param'
+  'importParam': 'Import Param',
+  'isPublic': 'Is Public',
+  'debugEnvPublicTip': 'Public: debug url show in compose page'
 
 }
 

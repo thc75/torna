@@ -31,7 +31,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         }
         User user = UserContext.getUser();
         if (user == null || UserStatusEnum.of(user.getStatus()) == UserStatusEnum.DISABLED) {
-            throw new LoginFailureException();
+            throw new LoginFailureException("登录失败，uri:" + request.getRequestURI());
         }
         if (UserStatusEnum.of(user.getStatus()) == UserStatusEnum.SET_PASSWORD) {
             throw new SetPasswordException();

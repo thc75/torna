@@ -76,7 +76,8 @@
       <pre class="code-block">{{ formatJson(requestExample) }}</pre>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
-    <parameter-table :data="docInfo.responseParams" :hidden-columns="['required']" />
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayTip')" />
+    <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <h4>{{ $ts('responseExample') }}</h4>
     <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>{{ $ts('errorCode') }}</h4>
@@ -187,8 +188,12 @@ export default {
       return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
     },
     requestParamHiddenColumns() {
-      const isRawRequestArray = this.docInfo.isRequestArray && this.docInfo.requestArrayType !== 'object'
-      return isRawRequestArray ? ['name', 'required', 'maxLength'] : []
+      const isRawArray = this.docInfo.isRequestArray && this.docInfo.requestArrayType !== 'object'
+      return isRawArray ? ['name', 'required', 'maxLength'] : []
+    },
+    responseParamHiddenColumns() {
+      const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
+      return isRawArray ? ['name', 'required', 'maxLength'] : []
     }
   },
   watch: {
@@ -225,12 +230,22 @@ export default {
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
+      // 如果是数组对象
       if (this.docInfo.isRequestArray) {
         this.requestExample = [this.requestExample]
         const arrayType = this.docInfo.requestArrayType
         if (arrayType !== 'object') {
           const filterRow = data.requestParams.filter(el => el.isDeleted === 0)
           this.requestExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
+      }
+      // 如果返回纯数组对象
+      if (this.docInfo.isResponseArray) {
+        this.responseSuccessExample = [this.responseSuccessExample]
+        const arrayType = this.docInfo.responseArrayType
+        if (arrayType !== 'object') {
+          const filterRow = data.responseParams.filter(el => el.isDeleted === 0)
+          this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
         }
       }
     },

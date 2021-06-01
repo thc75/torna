@@ -64,6 +64,19 @@ public class DocPushItemParam {
     @ApiDocField(description = "排序, 值小靠前", example = "0")
     private Integer orderIndex;
 
+    // 1.8.1
+    @ApiDocField(description = "是否请求数组", example = "0")
+    private Byte isRequestArray;
+
+    @ApiDocField(description = "是否返回数组", example = "0")
+    private Byte isResponseArray;
+
+    @ApiDocField(description = "请求数组时元素类型, object/number/string/boolean", example = "object")
+    private String requestArrayType;
+
+    @ApiDocField(description = "返回数组时元素类型, object/number/string/boolean", example = "object")
+    private String responseArrayType;
+
     // dubbo
     @ApiDocField(description = "dubbo服务信息")
     private DubboParam dubboInfo;

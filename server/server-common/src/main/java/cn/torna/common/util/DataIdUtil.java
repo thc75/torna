@@ -21,6 +21,9 @@ public class DataIdUtil {
      * @return
      */
     public static String getDocParamDataId(long docId, long parentId, byte style, String name) {
+        if (name == null) {
+            name = "";
+        }
         String content = String.format(TPL_PARAM, docId, parentId, style, name);
         return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
     }

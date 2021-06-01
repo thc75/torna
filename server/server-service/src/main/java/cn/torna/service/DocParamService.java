@@ -99,6 +99,9 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setModifierName(user.getNickname());
         docParam.setOrderIndex(docParamDTO.getOrderIndex());
         docParam.setIsDeleted(docParamDTO.getIsDeleted());
+        if (docParam.getDescription() == null) {
+            docParam.setDescription("");
+        }
         DocParam savedParam;
         if (docParam.getId() == null) {
             savedParam = this.saveParam(docParam);

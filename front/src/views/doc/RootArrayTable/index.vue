@@ -246,7 +246,7 @@ export default {
   },
   methods: {
     onParamAdd: function() {
-      this.data.children.push(this.getParamNewRow())
+      this.data.push(this.getParamNewRow())
     },
     onImportRequestParamAdd: function() {
       this.importParamTemplateValue = ''
@@ -275,7 +275,7 @@ export default {
     },
     onParamRemove(row) {
       if (row.isNew) {
-        this.removeRow(this.tableData, row.id)
+        this.removeRow(this.data, row.id)
       } else {
         row.isDeleted = 1
       }

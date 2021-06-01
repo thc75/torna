@@ -1,6 +1,7 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.context.ModuleConfigKeys;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
@@ -12,6 +13,7 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
+import cn.torna.web.controller.module.vo.DebugEnvVO;
 import cn.torna.web.controller.module.vo.ModuleConfigVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalVO;
 import cn.torna.web.controller.module.vo.SwaggerSettingVO;
@@ -39,15 +41,16 @@ public class ModuleSettingController {
         moduleConfigService.setDebugEnv(
                 param.getModuleId(),
                 param.getConfigKey(),
-                param.getConfigValue()
+                param.getConfigValue(),
+                Booleans.isTrue(param.getExtendId())
         );
         return Result.ok();
     }
 
     @GetMapping("/debugEnv/list")
-    public Result<List<ModuleConfigVO>> listDebugHost(@HashId Long moduleId) {
+    public Result<List<DebugEnvVO>> listDebugHost(@HashId Long moduleId) {
         List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
-        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(debugEnvs, ModuleConfigVO::new);
+        List<DebugEnvVO> moduleConfigVOS = CopyUtil.copyList(debugEnvs, DebugEnvVO::new);
         return Result.ok(moduleConfigVOS);
     }
 

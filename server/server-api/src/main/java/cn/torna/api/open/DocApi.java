@@ -22,10 +22,8 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
-import cn.torna.dao.entity.EnumItem;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
-import cn.torna.service.EnumService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
@@ -86,9 +84,6 @@ public class DocApi {
 
     @Value("${torna.push.print-content}")
     private boolean watchPushContent;
-
-    @Value("${torna.common-error-code-name:公共错误码}")
-    private String commonErrorCodeName;
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")

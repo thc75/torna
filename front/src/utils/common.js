@@ -231,9 +231,10 @@ function is_array_type(type) {
 }
 
 export function parse_root_array(type, example) {
+  if (is_number_type(type)) {
+    return parse_num_array(example)
+  }
   switch (type) {
-    case 'number':
-      return parse_num_array(example)
     case 'bool':
     case 'boolean':
       return parse_boolean_array(example)
@@ -300,6 +301,8 @@ export function convert_tree(arr, parentId) {
 export function init_docInfo(data) {
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
+  data.requestArrayType = data.requestArrayType || 'object'
+  data.responseArrayType = data.responseArrayType || 'object'
   return data
 }
 

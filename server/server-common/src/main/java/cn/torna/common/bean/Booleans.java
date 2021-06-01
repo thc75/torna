@@ -11,6 +11,10 @@ public interface Booleans {
         return b != null && b == TRUE;
     }
 
+    static boolean isTrue(Long b) {
+        return b != null && b == TRUE;
+    }
+
     static byte toValue(Boolean b) {
         if (b == null) {
             return FALSE;

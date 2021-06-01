@@ -307,6 +307,7 @@ const MAPPING = {
   'debugSend': ' 发 送 ',
   'noDebugEvnTip1': '尚未指定调试环境，请前往',
   'noDebugEvnTip2': '进行添加。',
+  'noDebugEvnTip3': '尚未提供调试环境',
   'referenceDoc': '参考文档',
   'uploadMultiFiles': '上传多个文件',
   'text': '文本',
@@ -358,7 +359,9 @@ const MAPPING = {
   'objectArrayTip': '接收数组对象，元素内容见表格定义',
   'supportHtml': '支持html',
   'newParam': '添加参数',
-  'importParam': '导入参数'
+  'importParam': '导入参数',
+  'isPublic': '是否公开',
+  'debugEnvPublicTip': '公开：聚合页面显示公开的调试路径'
 
 }
 

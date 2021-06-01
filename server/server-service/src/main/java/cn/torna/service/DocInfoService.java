@@ -247,6 +247,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        if (docInfo.getDescription() == null) {
+            docInfo.setDescription("");
+        }
         return docInfo;
     }
 

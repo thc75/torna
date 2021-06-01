@@ -78,9 +78,10 @@ public class UpgradeService {
     }
 
     private void v1_8_1(int oldVersion) {
-        if (oldVersion < 10) {
+        if (oldVersion < 11) {
             runSql("ALTER TABLE `doc_info` CHANGE COLUMN `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL  COMMENT '文档描述' AFTER `name`");
             runSql("ALTER TABLE `doc_param` CHANGE COLUMN `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL  COMMENT '描述' AFTER `example`");
+            runSql("ALTER TABLE `doc_param` CHANGE COLUMN `example` `example` VARCHAR(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT ''  COMMENT '示例值' AFTER `max_length`");
             addColumn("doc_info",
                     "is_request_array",
                     "ALTER TABLE `doc_info` ADD COLUMN `is_request_array` TINYINT NOT NULL DEFAULT 0 COMMENT '是否请求数组' AFTER `is_use_global_returns`");

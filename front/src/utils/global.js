@@ -444,6 +444,25 @@ Object.assign(Vue.prototype, {
     this.setCurrentSpace(space)
     this.setCurrentProject(project)
   },
+  loadSpaceData(callback) {
+    this.get('/space/listNormal', {}, resp => {
+      const data = resp.data
+      let spaceId = ''
+      const cacheId = this.getSpaceId()
+      if (data.length > 0) {
+        for (const space of data) {
+          if (cacheId === space.id) {
+            spaceId = cacheId
+            break
+          }
+        }
+        if (!spaceId) {
+          spaceId = data[0].id
+        }
+      }
+      callback && callback.call(this, data, spaceId)
+    })
+  },
   loadEnumItem(enumId) {
     return new Promise((resolve, reject) => {
       this.get('/doc/enum/item/list', { enumId: enumId }, resp => {
