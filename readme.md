@@ -9,8 +9,8 @@
 | 模块 | 版本 |
 | :----: | :----: |
 | Torna | 1.8.1 |
-| sdk-java | 1.0.8 |
-| swagger-plugin | 1.0.1 |
+| sdk-java | 1.0.9 |
+| swagger-plugin | 1.0.2 |
 
 ## 特性介绍
 
