@@ -83,7 +83,7 @@ public class ApiDocBuilder {
         fieldDocInfo.setOrderIndex(apiModelProperty.position());
 
         Class<?> fieldType = field.getType();
-        Class<?> elementClass = null;
+        Type elementClass = null;
         if (Collection.class.isAssignableFrom(fieldType)) {
             Type genericType = field.getGenericType();
             elementClass = PluginUtil.getGenericType(genericType);
@@ -91,9 +91,10 @@ public class ApiDocBuilder {
             elementClass = fieldType.getComponentType();
         }
         if (elementClass != null && elementClass != Object.class && elementClass != Void.class) {
-            if (PluginUtil.isPojo(elementClass)) {
+            Class<?> clazz = (Class<?>) elementClass;
+            if (PluginUtil.isPojo(clazz)) {
                 List<FieldDocInfo> fieldDocInfos = loopCount < 1
-                        ? buildFieldDocInfosByType(elementClass, false)
+                        ? buildFieldDocInfosByType(clazz, false)
                         : Collections.emptyList();
                 fieldDocInfo.setChildren(fieldDocInfos);
             }

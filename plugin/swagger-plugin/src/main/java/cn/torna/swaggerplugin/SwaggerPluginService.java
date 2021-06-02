@@ -57,12 +57,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import springfox.documentation.annotations.ApiIgnore;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -226,8 +229,8 @@ public class SwaggerPluginService {
         docItem.setPathParams(buildPathParams(handlerMethod));
         docItem.setHeaderParams(buildHeaderParams(handlerMethod));
         docItem.setQueryParams(buildQueryParams(handlerMethod, httpMethod));
-        DocParamReqWrapper<DocParamReq> reqWrapper = buildRequestParams(handlerMethod, httpMethod);
-        DocParamReqWrapper<DocParamResp> respWrapper = buildResponseParams(handlerMethod);
+        DocParamReqWrapper reqWrapper = buildRequestParams(handlerMethod, httpMethod);
+        DocParamRespWrapper respWrapper = buildResponseParams(handlerMethod);
         docItem.setRequestParams(reqWrapper.getData());
         docItem.setResponseParams(respWrapper.getData());
         docItem.setIsRequestArray(reqWrapper.getIsArray());
@@ -391,6 +394,7 @@ public class SwaggerPluginService {
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+            ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
             if (requestParam != null) {
                 String name = requestParam.value();
                 if (StringUtils.isEmpty(name)) {
@@ -408,13 +412,27 @@ public class SwaggerPluginService {
                 docParamReq.setType(PluginUtil.getParameterType(parameter));
                 docParamReq.setRequired(Booleans.toValue(requestParam.required()));
                 docParamReqs.add(docParamReq);
-            } else if (parameter.getAnnotations().length == 0) {
+            } else if (apiParam != null && isEmptySpringAnnotation(parameter)) {
+                String name = parameter.getName();
+                // 如果已经有了不添加
+                if (containsName(docParamReqs, name)) {
+                    continue;
+                }
+                DocParamInfo docParamInfo = buildDocParamInfo(parameter);
+                DocParamReq docParamReq = new DocParamReq();
+                docParamReq.setName(name);
+                docParamReq.setType(docParamInfo.getType());
+                docParamReq.setRequired(Booleans.toValue(docParamInfo.getRequired()));
+                docParamReq.setDescription(docParamInfo.getDescription());
+                docParamReq.setExample(docParamInfo.getExample());
+                docParamReqs.add(docParamReq);
+            } else if (isEmptySpringAnnotation(parameter)) {
                 if (HttpMethod.GET.name().equalsIgnoreCase(httpMethod)) {
                     Class<?> parameterType = parameter.getType();
                     boolean isPojo = PluginUtil.isPojo(parameterType);
                     // 当get请求时，遇到普通类则认为类中的属性都是query参数
                     if (isPojo) {
-                        List<DocParamReq> docParamReqList = buildClassParams(parameterType);
+                        List<DocParamReq> docParamReqList = buildReqClassParams(parameterType);
                         docParamReqs.addAll(docParamReqList);
                     } else {
                         DocParamInfo docParamInfo = buildDocParamInfo(parameter);
@@ -432,7 +450,26 @@ public class SwaggerPluginService {
         return docParamReqs;
     }
 
-    protected DocParamReqWrapper<DocParamReq> buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
+    /**
+     * 参数上面没有spring注解
+     * @param parameter 参数
+     * @return 如果没有spring相关注解，返回true
+     */
+    protected boolean isEmptySpringAnnotation(Parameter parameter) {
+        Annotation[] annotations = parameter.getAnnotations();
+        if (annotations == null || annotations.length == 0) {
+            return true;
+        }
+        for (Annotation annotation : annotations) {
+            String name = annotation.annotationType().getName();
+            if (name.startsWith("org.springframework.")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected DocParamReqWrapper buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
         List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param ->
                 tornaConfig.getFormName().equalsIgnoreCase(param.paramType())
                         || tornaConfig.getBodyName().equalsIgnoreCase(param.paramType())
@@ -455,13 +492,17 @@ public class SwaggerPluginService {
         byte isArray = Booleans.FALSE;
         String arrayType = DataType.OBJECT.getValue();
         for (Parameter parameter : parameters) {
+            RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+            if (requestParam != null) {
+                continue;
+            }
             RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
             ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
+            Class<?> type = parameter.getType();
             if (requestBody != null) {
-                Class<?> type = parameter.getType();
                 boolean array = type.isArray();
                 isArray = Booleans.toValue(array);
-                List<DocParamReq> docParamReqList = buildClassParams(type);
+                List<DocParamReq> docParamReqList = buildReqClassParams(type);
                 if (array && docParamReqList.isEmpty() && apiParam != null) {
                     String dataType = apiParam.type();
                     if (StringUtils.isEmpty(dataType)) {
@@ -479,23 +520,13 @@ public class SwaggerPluginService {
                     arrayType = docParamReqList.get(0).getType();
                 }
                 docParamReqs.addAll(docParamReqList);
-            } else if (apiParam != null) {
-                DocParamInfo docParamInfo = buildDocParamInfo(parameter);
-                DocParamReq docParamReq = new DocParamReq();
-                docParamReq.setName(parameter.getName());
-                docParamReq.setType(docParamInfo.getType());
-                docParamReq.setRequired(Booleans.toValue(docParamInfo.getRequired()));
-                docParamReq.setDescription(docParamInfo.getDescription());
-                docParamReq.setExample(docParamInfo.getExample());
-                docParamReqs.add(docParamReq);
             } else if (parameter.getAnnotations().length == 0) {
-                Class<?> parameterType = parameter.getType();
-                boolean isPojo = PluginUtil.isPojo(parameterType);
+                boolean isPojo = PluginUtil.isPojo(type);
                 // 当POST请求时，遇到普通类则认为类中的属性都是body参数
                 boolean hasBodyMethod = HttpMethod.POST.name().equalsIgnoreCase(httpMethod)
                         || HttpMethod.PUT.name().equalsIgnoreCase(httpMethod);
                 if (hasBodyMethod && isPojo) {
-                    List<DocParamReq> docParamReqList = buildClassParams(parameterType);
+                    List<DocParamReq> docParamReqList = buildReqClassParams(type);
                     docParamReqs.addAll(docParamReqList);
                 }
             }
@@ -503,17 +534,31 @@ public class SwaggerPluginService {
         return new DocParamReqWrapper(isArray, arrayType, docParamReqs);
     }
 
-    protected DocParamReqWrapper<DocParamResp> buildResponseParams(HandlerMethod handlerMethod) {
+    protected DocParamRespWrapper buildResponseParams(HandlerMethod handlerMethod) {
         MethodParameter returnType = handlerMethod.getReturnType();
         Class<?> type = returnType.getParameterType();
         Type genericParameterType = returnType.getGenericParameterType();
+        boolean isCollection = false;
+        List<DocParamResp> rootParams = null;
+        // 如果被泛型包装，如：Result<Order>
         if (!type.toString().equals(genericParameterType.toString())) {
-            type = PluginUtil.getGenericType(genericParameterType);
+            rootParams = buildRespClassParams(returnType.getParameterType());
+            Type genericType = PluginUtil.getGenericType(genericParameterType);
+            // 双层泛型，如：Result<List<Order>>
+            if (genericType instanceof ParameterizedTypeImpl) {
+                // 有可能是List<Order>
+                ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
+                // 取出Order.class
+                type = (Class<?>) PluginUtil.getGenericType(parameterizedType);
+                Class<?> rawType = parameterizedType.getRawType();
+                isCollection = Collection.class.isAssignableFrom(rawType);
+            }
         }
         boolean array = type.isArray();
         byte isArray = Booleans.toValue(array);
+        // 数组元素
         String arrayType = DataType.OBJECT.getValue();
-        List<DocParamResp> docParamRespList = buildClassParams(type, DocParamResp::new);
+        List<DocParamResp> docParamRespList = buildRespClassParams(type);
         ApiParam apiParam = handlerMethod.getMethodAnnotation(ApiParam.class);
         if (array && docParamRespList.isEmpty() && apiParam != null) {
             String dataType = apiParam.type();
@@ -531,7 +576,21 @@ public class SwaggerPluginService {
         if (docParamRespList.size() == 1 && StringUtils.isEmpty(docParamRespList.get(0).getName())) {
             arrayType = docParamRespList.get(0).getType();
         }
-        return new DocParamReqWrapper(isArray, arrayType, docParamRespList);
+        List<DocParamResp> finalParams = docParamRespList;
+        if (!CollectionUtils.isEmpty(rootParams)) {
+            isArray = Booleans.FALSE;
+            for (DocParamResp rootParam : rootParams) {
+                // 找到数据节点
+                if (Objects.equals(rootParam.getType(), DataType.OBJECT.getValue())) {
+                    if (isCollection) {
+                        rootParam.setType(DataType.ARRAY.getValue());
+                    }
+                    rootParam.setChildren(docParamRespList);
+                }
+            }
+            finalParams = rootParams;
+        }
+        return new DocParamRespWrapper(isArray, arrayType, finalParams);
     }
 
     protected List<DocParamCode> buildErrorCodes(ApiOperation apiOperation) {
@@ -560,32 +619,52 @@ public class SwaggerPluginService {
         return Collections.emptyList();
     }
 
-    protected <T extends DocParamReq> List<T> buildClassParams(Class<?> clazz, Supplier<T> supplier) {
+    protected List<DocParamReq> buildReqClassParams(Class<?> clazz) {
         if (clazz.isArray()) {
             clazz = clazz.getComponentType();
         }
         List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
-                .map(fieldDocInfo -> this.convert(fieldDocInfo, supplier))
+                .map(this::convertReqParam)
                 .collect(Collectors.toList());
     }
 
-    protected List<DocParamReq> buildClassParams(Class<?> clazz) {
-        return buildClassParams(clazz, DocParamReq::new);
+    protected List<DocParamResp> buildRespClassParams(Class<?> clazz) {
+        if (clazz.isArray()) {
+            clazz = clazz.getComponentType();
+        }
+        List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
+        return fieldDocInfoList.stream()
+                .map(this::convertRespParam)
+                .collect(Collectors.toList());
     }
 
-    private <T extends DocParamReq> T convert(FieldDocInfo fieldDocInfo, Supplier<T> supplier) {
-        T docParamReq = supplier.get();
+    private DocParamReq convertReqParam(FieldDocInfo fieldDocInfo) {
+        DocParamReq docParamReq = new DocParamReq();
         BeanUtils.copyProperties(fieldDocInfo, docParamReq);
         List<FieldDocInfo> fieldDocInfoChildren = fieldDocInfo.getChildren();
         if (!CollectionUtils.isEmpty(fieldDocInfoChildren)) {
             List<DocParamReq> children = new ArrayList<>(fieldDocInfoChildren.size());
             for (FieldDocInfo child : fieldDocInfoChildren) {
-                children.add(convert(child, supplier));
+                children.add(convertReqParam(child));
             }
             docParamReq.setChildren(children);
         }
         return docParamReq;
+    }
+
+    private DocParamResp convertRespParam(FieldDocInfo fieldDocInfo) {
+        DocParamResp docParamResp = new DocParamResp();
+        BeanUtils.copyProperties(fieldDocInfo, docParamResp);
+        List<FieldDocInfo> fieldDocInfoChildren = fieldDocInfo.getChildren();
+        if (!CollectionUtils.isEmpty(fieldDocInfoChildren)) {
+            List<DocParamResp> children = new ArrayList<>(fieldDocInfoChildren.size());
+            for (FieldDocInfo child : fieldDocInfoChildren) {
+                children.add(convertRespParam(child));
+            }
+            docParamResp.setChildren(children);
+        }
+        return docParamResp;
     }
 
     protected String getDataType(ApiImplicitParam apiImplicitParam) {
@@ -713,9 +792,21 @@ public class SwaggerPluginService {
         boolean filter(ApiImplicitParam param);
     }
 
+    private static class DocParamRespWrapper extends DocParamWrapper<DocParamResp> {
+        public DocParamRespWrapper(Byte isArray, String arrayType, List<DocParamResp> data) {
+            super(isArray, arrayType, data);
+        }
+    }
+
+    private static class DocParamReqWrapper extends DocParamWrapper<DocParamReq> {
+        public DocParamReqWrapper(Byte isArray, String arrayType, List<DocParamReq> data) {
+            super(isArray, arrayType, data);
+        }
+    }
+
     @Data
     @AllArgsConstructor
-    private static class DocParamReqWrapper<T extends DocParamReq> {
+    private static class DocParamWrapper<T> {
         /** 是否数组 */
         private Byte isArray;
 

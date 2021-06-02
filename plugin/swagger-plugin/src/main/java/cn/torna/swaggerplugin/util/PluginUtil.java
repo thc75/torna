@@ -47,12 +47,12 @@ public class PluginUtil {
         return true;
     }
 
-    public static Class<?> getGenericType(Type type) {
+    public static Type getGenericType(Type type) {
         Type[] params = ((ParameterizedType) type).getActualTypeArguments();
         if (params.length == 0) {
             return Object.class;
         }
-        return (Class<?>) params[0];
+        return params[0];
     }
 
 }
