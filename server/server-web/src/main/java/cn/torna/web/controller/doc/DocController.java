@@ -9,6 +9,7 @@ import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.dto.DebugHostDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -142,6 +144,31 @@ public class DocController {
             throw new BizException("文档不存在");
         }
         DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
+        return Result.ok(docInfoDTO);
+    }
+
+    /**
+     * 查询文档详细信息，不需要登录
+     *
+     * @param id 主键
+     * @return 返回记录，没有返回null
+     */
+    @GetMapping("viewShow")
+    @NoLogin
+    public Result<DocInfoDTO> viewShow(@HashId Long id) {
+        if (id == null) {
+            throw new BizException("文档不存在");
+        }
+        DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
+        List<DebugHostDTO> debugEnvs = docInfoDTO.getDebugEnvs();
+        if (debugEnvs != null) {
+            // 只返回公开的调试环境
+            long isPublic = 1;
+            List<DebugHostDTO> finalDebugEnv = debugEnvs.stream()
+                    .filter(debugHostDTO -> debugHostDTO.getExtendId() == isPublic)
+                    .collect(Collectors.toList());
+            docInfoDTO.setDebugEnvs(finalDebugEnv);
+        }
         return Result.ok(docInfoDTO);
     }
 

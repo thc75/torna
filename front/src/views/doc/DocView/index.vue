@@ -28,7 +28,7 @@
         {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}：<span>{{ docInfo.author }}</span></h4>
+    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
@@ -38,8 +38,11 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-if="docInfo.description">{{ $ts('description') }}：<span v-html="docInfo.description"></span></h4>
-    <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
+    <h4 v-if="docInfo.description" class="doc-descr">
+      <div>{{ $ts('description') }}</div>
+      <span class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></span>
+    </h4>
+    <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
       <parameter-table
@@ -65,14 +68,16 @@
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
-      <parameter-table :data="docInfo.requestParams" />
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayReqTip')" />
+      <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isRequestJson">
       <h4>{{ $ts('requestExample') }}</h4>
       <pre class="code-block">{{ formatJson(requestExample) }}</pre>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
-    <parameter-table :data="docInfo.responseParams" :hidden-columns="['required']" />
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
+    <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <h4>{{ $ts('responseExample') }}</h4>
     <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
     <h4>{{ $ts('errorCode') }}</h4>
@@ -90,12 +95,16 @@
     </div>
   </div>
 </template>
-
+<style scoped>
+h4 .content {
+  margin: 0 10px;
+}
+</style>
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import ExportUtil from '@/utils/export'
-import { get_effective_url } from '@/utils/common'
+import { get_effective_url, parse_root_array } from '@/utils/common'
 
 export default {
   name: 'DocView',
@@ -163,7 +172,11 @@ export default {
         globalParams: [],
         globalReturns: [],
         debugEnvs: [],
-        folders: []
+        folders: [],
+        isRequestArray: 0,
+        isResponseArray: 0,
+        requestArrayType: 'object',
+        responseArrayType: 'object'
       },
       requestExample: {},
       responseSuccessExample: {},
@@ -173,6 +186,14 @@ export default {
   computed: {
     isRequestJson() {
       return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
+    },
+    requestParamHiddenColumns() {
+      const isRawArray = this.docInfo.isRequestArray && this.docInfo.requestArrayType !== 'object'
+      return isRawArray ? ['name', 'required', 'maxLength'] : []
+    },
+    responseParamHiddenColumns() {
+      const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
+      return isRawArray ? ['name', 'required', 'maxLength'] : []
     }
   },
   watch: {
@@ -209,6 +230,24 @@ export default {
       this.$store.state.settings.moduleId = this.docInfo.moduleId
       this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
+      // 如果是数组对象
+      if (this.docInfo.isRequestArray) {
+        this.requestExample = [this.requestExample]
+        const arrayType = this.docInfo.requestArrayType
+        if (arrayType !== 'object') {
+          const filterRow = data.requestParams.filter(el => el.isDeleted === 0)
+          this.requestExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
+      }
+      // 如果返回纯数组对象
+      if (this.docInfo.isResponseArray) {
+        this.responseSuccessExample = [this.responseSuccessExample]
+        const arrayType = this.docInfo.responseArrayType
+        if (arrayType !== 'object') {
+          const filterRow = data.responseParams.filter(el => el.isDeleted === 0)
+          this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
+      }
     },
     buildRequestUrl(hostConfig) {
       const baseUrl = hostConfig.configValue

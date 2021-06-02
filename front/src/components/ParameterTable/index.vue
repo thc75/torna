@@ -87,7 +87,11 @@
       v-if="isColumnShow('example')"
       prop="example"
       :label="exampleLabel"
-    />
+    >
+      <template slot-scope="scope">
+        {{ scope.row.example }}
+      </template>
+    </el-table-column>
   </el-table>
 </template>
 <style>

@@ -15,6 +15,11 @@
     >
       <el-table-column :label="$ts('envName')" prop="configKey" width="300px" />
       <el-table-column :label="$ts('baseUrl')" prop="configValue" />
+      <el-table-column :label="$ts('isPublic')" prop="extendId" width="100px">
+        <template slot-scope="scope">
+          {{ scope.row.extendId === 1 ? $ts('yes') : $ts('no') }}
+        </template>
+      </el-table-column>
       <el-table-column
         :label="$ts('operation')"
         width="150"
@@ -56,6 +61,16 @@
         >
           <el-input v-model="dialogDebugEnvFormData.configValue" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
         </el-form-item>
+        <el-form-item
+          prop="extendId"
+          :label="$ts('isPublic')"
+        >
+          <el-radio-group v-model="dialogDebugEnvFormData.extendId">
+            <el-radio :label="1">{{ $ts('yes') }}</el-radio>
+            <el-radio :label="0">{{ $ts('no') }}</el-radio>
+            <span class="info-tip">{{ $ts('debugEnvPublicTip') }}</span>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogDebugEnvVisible = false">{{ $ts('dlgCancel') }}</el-button>
@@ -77,7 +92,8 @@ export default {
         moduleId: '',
         configKey: '',
         configValue: '',
-        description: ''
+        description: '',
+        extendId: 0
       },
       dialogDebugEnvFormRules: {
         configKey: [

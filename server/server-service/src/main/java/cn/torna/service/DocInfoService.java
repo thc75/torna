@@ -238,34 +238,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     private DocInfo buildDocInfo(DocInfoDTO docInfoDTO, User user) {
-        Byte isFolder = docInfoDTO.getIsFolder();
-        String dataId = docInfoDTO.buildDataId();
-        DocInfo docInfo = new DocInfo();
-        docInfo.setId(docInfoDTO.getId());
-        docInfo.setDataId(dataId);
-        docInfo.setName(docInfoDTO.getName());
-        docInfo.setDescription(docInfoDTO.getDescription());
-        docInfo.setAuthor(docInfoDTO.getAuthor());
-        docInfo.setType(docInfoDTO.getType());
-        docInfo.setUrl(docInfoDTO.getUrl());
-        docInfo.setHttpMethod(docInfoDTO.getHttpMethod());
-        docInfo.setContentType(docInfoDTO.getContentType());
-        docInfo.setIsFolder(isFolder);
-        docInfo.setParentId(docInfoDTO.getParentId());
-        docInfo.setModuleId(docInfoDTO.getModuleId());
-        docInfo.setIsUseGlobalHeaders(docInfoDTO.getIsUseGlobalHeaders());
-        docInfo.setIsUseGlobalParams(docInfoDTO.getIsUseGlobalParams());
-        docInfo.setIsUseGlobalReturns(docInfoDTO.getIsUseGlobalReturns());
+        DocInfo docInfo = CopyUtil.copyBean(docInfoDTO, DocInfo::new);
+        // 手动赋值
         docInfo.setCreateMode(user.getOperationModel());
         docInfo.setModifyMode(user.getOperationModel());
         docInfo.setCreatorId(user.getUserId());
         docInfo.setCreatorName(user.getNickname());
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
-        docInfo.setRemark(docInfoDTO.getRemark());
-        docInfo.setOrderIndex(docInfoDTO.getOrderIndex());
-        docInfo.setIsShow(docInfoDTO.getIsShow());
-        docInfo.setIsDeleted(docInfoDTO.getIsDeleted());
+        docInfo.setDataId(docInfoDTO.buildDataId());
+        if (docInfo.getDescription() == null) {
+            docInfo.setDescription("");
+        }
         return docInfo;
     }
 

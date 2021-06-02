@@ -164,15 +164,14 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return paramStyleEnum;
     }
 
-
     /**
-     * 设置模块调试环境
-     *
+     * 设置调试环境
      * @param moduleId 模块id
-     * @param name     环境名称
-     * @param url      调试路径
+     * @param name 名称
+     * @param url url
+     * @param isPublic 是否公开
      */
-    public void setDebugEnv(long moduleId, String name, String url) {
+    public void setDebugEnv(long moduleId, String name, String url, boolean isPublic) {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
@@ -184,11 +183,24 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             commonConfig.setType(ModuleConfigTypeEnum.DEBUG_HOST.getType());
             commonConfig.setConfigKey(name);
             commonConfig.setConfigValue(url);
+            commonConfig.setExtendId(isPublic ? 1L : 0L);
             save(commonConfig);
         } else {
             commonConfig.setConfigValue(url);
+            commonConfig.setExtendId(isPublic ? 1L : 0L);
             update(commonConfig);
         }
+    }
+
+    /**
+     * 设置模块调试环境
+     *
+     * @param moduleId 模块id
+     * @param name     环境名称
+     * @param url      调试路径
+     */
+    public void setDebugEnv(long moduleId, String name, String url) {
+        this.setDebugEnv(moduleId, name, url, false);
     }
 
     /**

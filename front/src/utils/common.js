@@ -7,7 +7,7 @@ const NUMBER_TYPES = [
   'int8', 'int16', 'int32', 'int64', 'float', 'double', 'number'
 ]
 
-let isDingTalk = undefined
+let isDingTalk
 
 /**
  * 构建返回结果例子
@@ -152,6 +152,11 @@ export function is_array_string(example) {
   return typeof (example) === 'string' && example.startsWith('[') && example.endsWith(']')
 }
 
+/**
+ * 解析数字数组
+ * @param val 数字数组字符串，"[1,2,3]"
+ * @returns {*[]|number[]} 返回数字数组对象，[1,2,3]
+ */
 function parse_num_array(val) {
   if (!val || val === '[]') {
     return []
@@ -198,6 +203,20 @@ function parse_str_array(val) {
   })
 }
 
+function parse_boolean_array(val) {
+  if (!val || val === '[]') {
+    return []
+  }
+  let str = val.toString()
+  if (is_array_string(str)) {
+    str = str.substring(1, str.length - 1)
+  }
+  const arr = str.split(',')
+  return arr.map(el => {
+    return el === 'true'
+  })
+}
+
 function is_array_type(type) {
   if (!type) {
     return false
@@ -209,6 +228,20 @@ function is_array_type(type) {
     }
   }
   return false
+}
+
+export function parse_root_array(type, example) {
+  if (is_number_type(type)) {
+    return parse_num_array(example)
+  }
+  switch (type) {
+    case 'bool':
+    case 'boolean':
+      return parse_boolean_array(example)
+    case 'string':
+    default:
+      return parse_str_array(example)
+  }
 }
 
 export function get_requestUrl(item) {
@@ -268,6 +301,8 @@ export function convert_tree(arr, parentId) {
 export function init_docInfo(data) {
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
+  data.requestArrayType = data.requestArrayType || 'object'
+  data.responseArrayType = data.responseArrayType || 'object'
   return data
 }
 

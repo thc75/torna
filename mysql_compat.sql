@@ -74,7 +74,7 @@ CREATE TABLE `doc_info` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT '唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name)',
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '文档名称',
-  `description` varchar(256) NOT NULL DEFAULT '' COMMENT '文档描述',
+  `description` text NOT NULL COMMENT '文档描述',
   `author` varchar(64) NOT NULL DEFAULT '' COMMENT '维护人',
   `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0:http,1:dubbo',
   `url` varchar(128) NOT NULL DEFAULT '' COMMENT '访问URL',
@@ -86,6 +86,10 @@ CREATE TABLE `doc_info` (
   `is_use_global_headers` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否使用全局请求参数',
   `is_use_global_params` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否使用全局请求参数',
   `is_use_global_returns` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否使用全局返回参数',
+  `is_request_array` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否请求数组',
+  `is_response_array` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否返回数组',
+  `request_array_type` varchar(16) NOT NULL DEFAULT 'object' COMMENT '请求数组时元素类型',
+  `response_array_type` varchar(16) NOT NULL DEFAULT 'object' COMMENT '返回数组时元素类型',
   `create_mode` tinyint(4) NOT NULL DEFAULT '0' COMMENT '新增操作方式，0：人工操作，1：开放平台推送',
   `modify_mode` tinyint(4) NOT NULL DEFAULT '0' COMMENT '修改操作方式，0：人工操作，1：开放平台推送',
   `creator_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建人',
@@ -111,8 +115,8 @@ CREATE TABLE `doc_param` (
   `type` varchar(64) NOT NULL DEFAULT 'String' COMMENT '字段类型',
   `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必须，1：是，0：否',
   `max_length` varchar(64) NOT NULL DEFAULT '-' COMMENT '最大长度',
-  `example` varchar(128) NOT NULL DEFAULT '' COMMENT '示例值',
-  `description` varchar(512) NOT NULL DEFAULT '' COMMENT '描述',
+  `example` varchar(1024) NOT NULL DEFAULT '' COMMENT '示例值',
+  `description` text NOT NULL COMMENT '描述',
   `enum_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'enum_info.id',
   `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
   `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0',
@@ -432,7 +436,7 @@ CREATE TABLE `user_subscribe` (
 
 
 
-INSERT INTO `compose_doc` (`id`, `doc_id`, `project_id`, `is_folder`, `folder_name`, `parent_id`, `origin`, `is_deleted`, `creator`, `order_index`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `compose_doc` (`id`, `doc_id`, `project_id`, `is_folder`, `folder_name`, `parent_id`, `origin`, `is_deleted`, `creator`, `order_index`, `gmt_create`, `gmt_modified`) VALUES
 	(1,0,1,1,'订单模块',0,'',0,'超级管理员',0,'2021-05-25 18:05:23','2021-05-25 18:05:23'),
 	(2,0,1,1,'产品模块',0,'',0,'超级管理员',0,'2021-05-25 18:05:30','2021-05-25 18:05:30'),
 	(3,2,1,0,'',1,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:46','2021-05-25 18:05:46'),
@@ -441,11 +445,11 @@ INSERT INTO `compose_doc` (`id`, `doc_id`, `project_id`, `is_folder`, `folder_na
 	(6,11,1,0,'',2,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:53','2021-05-25 18:05:53');
 
 
-INSERT INTO `compose_project` (`id`, `name`, `description`, `space_id`, `type`, `password`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `compose_project` (`id`, `name`, `description`, `space_id`, `type`, `password`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'聚合接口','提供给第三方的接口',18,1,'',1,'超级管理员',1,'超级管理员',0,1,0,'2021-05-25 18:05:14','2021-05-25 18:05:14');
 
 
-INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `author`, `type`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `is_use_global_headers`, `is_use_global_params`, `is_use_global_returns`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `author`, `type`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `is_use_global_headers`, `is_use_global_params`, `is_use_global_returns`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'5fa7cd78bc872cd8fdc09ee3d6afedd2','故事接口','','',0,'','','',1,0,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
 	(2,'3292c28718c1e74d6e14e0160eecf379','获取分类信息','','',0,'/story/category/get/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',1,'超级管理员',0,'',1,0,'2020-12-15 10:01:48','2021-01-19 17:03:29'),
 	(3,'48ae195650ab5cd4d521b62704d15b57','忽略签名验证','','',0,'/story/get/ignore/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
@@ -597,7 +601,7 @@ INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_dele
 
 
 
-INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_compose`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_compose`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(9,'研发一部',2,'研发一部经理',2,'研发一部经理',0,0,'2020-12-15 09:48:13','2020-12-15 09:48:13'),
 	(11,'研发二部',5,'研发二部经理',5,'研发二部经理',0,0,'2020-12-15 10:08:39','2020-12-15 10:08:39'),
 	(14,'研发三部',11,'后台项目负责人',11,'后台项目负责人',0,1,'2020-12-16 10:04:13','2020-12-16 10:04:13'),
@@ -634,9 +638,7 @@ INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`
 
 
 INSERT INTO `system_config` (`id`, `config_key`, `config_value`, `remark`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
-	(1,'torna.version','9','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:12:22');
-
-
+	(1,'torna.version','11','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:03:08');
 
 
 INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `source`, `email`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
@@ -673,6 +675,6 @@ INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`
 	(6,1,1,2,0,'2021-01-18 17:18:07','2021-01-18 17:18:07'),
 	(7,1,1,3,0,'2021-01-18 17:18:10','2021-01-18 17:18:10'),
 	(8,2,1,2,0,'2021-01-19 10:24:11','2021-01-19 10:24:11');
-	
+
 
 

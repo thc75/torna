@@ -264,7 +264,65 @@ Object.assign(Vue.prototype, {
   getRequestUrl(item) {
     return get_requestUrl(item)
   },
+  /**
+   * 导入参数
+   * @param params 响应参数数组
+   * @param json 当前json
+   */
+  doImportParam: function(params, json) {
+    for (const name in json) {
+      const value = json[name]
+      let row = this.findRow(params, name)
+      const isExist = row !== null
+      if (!isExist) {
+        row = this.getParamNewRow(name, value)
+      }
+      row.example = value
+      // 如果有子节点
+      if (this.isObject(value)) {
+        row.type = 'object'
+        row.example = ''
+        const children = row.children
+        this.doImportParam(children, value)
+        children.forEach(child => { child.parentId = row.id })
+      } else if (this.isArray(value)) {
+        row.type = 'array'
+        row.example = ''
+        const oneVal = value.length === 0 ? {} : value[0]
+        if (this.isObject(oneVal)) {
+          const children = row.children
+          this.doImportParam(children, oneVal)
+          children.forEach(child => { child.parentId = row.id })
+        } else {
+          row.example = JSON.stringify(value)
+        }
+      } else {
+        if (!isNaN(value)) {
+          row.type = 'number'
+        }
+        if (value === true || value === false) {
+          row.type = 'boolean'
+        }
+        row.example = String(value)
+      }
+      if (!isExist) {
+        params.push(row)
+      }
+    }
+  },
+  findRow: function(params, name) {
+    for (let i = 0; i < params.length; i++) {
+      const r = params[i]
+      if (r.name === name) {
+        return r
+      }
+    }
+    return null
+  },
   getParamNewRow: function(name, value) {
+    if (value === undefined) {
+      value = ''
+    }
     return {
       id: this.nextId(),
       name: name || '',
@@ -273,7 +331,7 @@ Object.assign(Vue.prototype, {
       description: '',
       enumContent: '',
       maxLength: 64,
-      example: value || '',
+      example: value,
       isDeleted: 0,
       isNew: true,
       children: []
@@ -385,6 +443,25 @@ Object.assign(Vue.prototype, {
   setCurrentInfo(space, project) {
     this.setCurrentSpace(space)
     this.setCurrentProject(project)
+  },
+  loadSpaceData(callback) {
+    this.get('/space/listNormal', {}, resp => {
+      const data = resp.data
+      let spaceId = ''
+      const cacheId = this.getSpaceId()
+      if (data.length > 0) {
+        for (const space of data) {
+          if (cacheId === space.id) {
+            spaceId = cacheId
+            break
+          }
+        }
+        if (!spaceId) {
+          spaceId = data[0].id
+        }
+      }
+      callback && callback.call(this, data, spaceId)
+    })
   },
   loadEnumItem(enumId) {
     return new Promise((resolve, reject) => {

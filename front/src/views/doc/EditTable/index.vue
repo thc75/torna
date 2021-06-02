@@ -98,7 +98,7 @@
             prop="description"
             label-width="0"
           >
-            <el-input v-model="scope.row.description" :placeholder="descriptionLabel" maxlength="128" show-word-limit />
+            <el-input v-model="scope.row.description" :placeholder="descriptionLabel" maxlength="512" show-word-limit />
           </el-form-item>
         </el-form>
       </template>
@@ -187,7 +187,7 @@ export default {
     },
     getter: {
       type: Function,
-      default: (rows) => { return rows }
+      default: (rows) => { return rows.filter(row => !row.hidden) }
     }
   },
   data() {

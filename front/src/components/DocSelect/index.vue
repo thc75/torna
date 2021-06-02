@@ -107,12 +107,11 @@ export default {
   methods: {
     init() {
       if (this.spaceData.length === 0) {
-        this.get('/space/listNormal', {}, resp => {
-          const data = resp.data
+        this.loadSpaceData((data, spaceId) => {
           if (data.length > 0) {
             this.spaceData = data
-            this.currentSpaceId = data[0].id
-            this.loadMenu(this.currentSpaceId)
+            this.currentSpaceId = spaceId
+            this.loadMenu(spaceId)
           }
         })
       }

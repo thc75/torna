@@ -261,6 +261,7 @@ const MAPPING = {
   'newBodyParam': '添加Body参数',
   'importBodyParam': '导入Body参数',
   'useCommonParam': '使用公共请求参数',
+  'isRootArray': '根数组',
   'responseParam': '响应参数',
   'newResponseParam': '添加响应参数',
   'importResponseParam': '导入响应参数',
@@ -306,6 +307,7 @@ const MAPPING = {
   'debugSend': ' 发 送 ',
   'noDebugEvnTip1': '尚未指定调试环境，请前往',
   'noDebugEvnTip2': '进行添加。',
+  'noDebugEvnTip3': '尚未提供调试环境',
   'referenceDoc': '参考文档',
   'uploadMultiFiles': '上传多个文件',
   'text': '文本',
@@ -349,7 +351,18 @@ const MAPPING = {
   'visitUrl': '访问链接',
   'composeSpace': '聚合空间',
   'btnOk': ' 确 定 ',
-  'visitPassword': '访问密码'
+  'visitPassword': '访问密码',
+  'elementType': '元素类型',
+  'rootArrayTip': 'Body是一个数组对象，如',
+  'mustArray': '必须是数组',
+  'arrayMustHasElement': '数组必须有元素',
+  'objectArrayReqTip': '接收数组对象，元素内容见表格定义',
+  'objectArrayRespTip': '返回数组对象，元素内容见表格定义',
+  'supportHtml': '支持html',
+  'newParam': '添加参数',
+  'importParam': '导入参数',
+  'isPublic': '是否公开',
+  'debugEnvPublicTip': '公开：聚合页面显示公开的调试路径'
 
 }
 

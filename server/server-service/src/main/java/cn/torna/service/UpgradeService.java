@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 9;
+    private static final int VERSION = 11;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -74,6 +74,27 @@ public class UpgradeService {
         v1_6_3(oldVersion);
         v1_6_4(oldVersion);
         v1_8_0(oldVersion);
+        v1_8_1(oldVersion);
+    }
+
+    private void v1_8_1(int oldVersion) {
+        if (oldVersion < 11) {
+            runSql("ALTER TABLE `doc_info` CHANGE COLUMN `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL  COMMENT '文档描述' AFTER `name`");
+            runSql("ALTER TABLE `doc_param` CHANGE COLUMN `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL  COMMENT '描述' AFTER `example`");
+            runSql("ALTER TABLE `doc_param` CHANGE COLUMN `example` `example` VARCHAR(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT ''  COMMENT '示例值' AFTER `max_length`");
+            addColumn("doc_info",
+                    "is_request_array",
+                    "ALTER TABLE `doc_info` ADD COLUMN `is_request_array` TINYINT NOT NULL DEFAULT 0 COMMENT '是否请求数组' AFTER `is_use_global_returns`");
+            addColumn("doc_info",
+                    "is_response_array",
+                    "ALTER TABLE `doc_info` ADD COLUMN `is_response_array` TINYINT NOT NULL DEFAULT 0 COMMENT '是否返回数组' AFTER `is_request_array`");
+            addColumn("doc_info",
+                    "request_array_type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `request_array_type` VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'object' COMMENT '请求数组时元素类型' AFTER `is_response_array`");
+            addColumn("doc_info",
+                    "response_array_type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `response_array_type` VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'object' COMMENT '返回数组时元素类型' AFTER `request_array_type`");
+        }
     }
 
     private void v1_8_0(int oldVersion) {

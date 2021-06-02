@@ -66,6 +66,18 @@ public class DocInfo {
     /** 是否使用全局返回参数, 数据库字段：is_use_global_returns */
     private Byte isUseGlobalReturns;
 
+    /** 是否请求数组, 数据库字段：is_request_array */
+    private Byte isRequestArray;
+
+    /** 是否返回数组, 数据库字段：is_response_array */
+    private Byte isResponseArray;
+
+    /** 请求数组时元素类型, 数据库字段：request_array_type */
+    private String requestArrayType;
+
+    /** 返回数组时元素类型, 数据库字段：response_array_type */
+    private String responseArrayType;
+
     /** 新增操作方式，0：人工操作，1：开放平台推送, 数据库字段：create_mode */
     private Byte createMode;
 

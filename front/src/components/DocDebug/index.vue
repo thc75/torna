@@ -31,11 +31,14 @@
           </el-input>
         </div>
         <el-alert v-else :closable="false">
-          <span slot="title">
+          <span v-if="internal" slot="title">
             {{ $ts('noDebugEvnTip1') }}
             【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">{{ $ts('moduleSetting') }}</router-link>】
             {{ $ts('noDebugEvnTip2') }}
             <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('referenceDoc') }}</el-link>
+          </span>
+          <span v-else>
+            {{ $ts('noDebugEvnTip3') }}
           </span>
         </el-alert>
         <div v-show="pathData.length > 0" class="path-param">
@@ -75,10 +78,13 @@
             </span>
             <div>
               <el-table
+                ref="headerDataRef"
                 :data="headerData"
                 border
                 :empty-text="$ts('noHeader')"
+                @selection-change="handleHeaderSelectionChange"
               >
+                <el-table-column type="selection" width="50" />
                 <el-table-column label="Name" prop="name" width="300px" />
                 <el-table-column label="Value">
                   <template slot-scope="scope">
@@ -99,9 +105,12 @@
               <span>Query Parameter <span class="param-count">({{ queryData.length }})</span></span>
             </span>
             <el-table
+              ref="queryDataRef"
               :data="queryData"
               border
+              @selection-change="handleQuerySelectionChange"
             >
+              <el-table-column type="selection" width="50" />
               <el-table-column
                 prop="name"
                 :label="$ts('paramName')"
@@ -152,9 +161,12 @@
             </div>
             <div v-show="showBody('form')">
               <el-table
+                ref="formDataRef"
                 :data="formData"
                 border
+                @selection-change="handleFormSelectionChange"
               >
+                <el-table-column type="selection" width="50" />
                 <el-table-column
                   prop="name"
                   :label="$ts('paramName')"
@@ -191,9 +203,12 @@
               </el-upload>
               <el-table
                 v-show="showBody('multipart')"
+                ref="multipartDataRef"
                 :data="multipartData"
                 border
+                @selection-change="handleMultipartSelectionChange"
               >
+                <el-table-column type="selection" width="50" />
                 <el-table-column
                   prop="name"
                   :label="$ts('paramName')"
@@ -280,6 +295,10 @@ export default {
     item: {
       type: Object,
       default: () => {}
+    },
+    internal: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -301,16 +320,21 @@ export default {
       requestActive: 'body',
       postActive: '',
       collapseActive: '',
+      pathData: [],
+      headerData: [],
+      queryData: [],
       formData: [],
       multipartData: [],
-      queryData: [],
+      // check
+      headerDataChecked: [],
+      queryDataChecked: [],
+      formDataChecked: [],
+      multipartDataChecked: [],
       uploadFiles: [],
       fieldTypes: [
         { type: 'text', label: $ts('text') },
         { type: 'file', label: $ts('file') }
       ],
-      headerData: [],
-      pathData: [],
       debugEnv: '',
       resultActive: 'result',
       sendLoading: false,
@@ -351,6 +375,7 @@ export default {
       this.bindRequestParam(item)
       this.initActive()
       this.loadProps()
+      this.setTableCheck()
     },
     initDebugHost() {
       const debugEnv = this.getAttr(HOST_KEY) || ''
@@ -446,7 +471,7 @@ export default {
     send() {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
-      const params = this.getQueryParams(this.queryData)
+      const params = this.getQueryParams(this.queryDataChecked)
       let data = {}
       let isMultipart = false
       // 如果请求body
@@ -455,11 +480,11 @@ export default {
         const contentType = (this.contentType || '').toLowerCase()
         if (contentType.indexOf('json') > -1) {
           data = this.bodyText
-        } else if (contentType.indexOf('multipart') > -1 || this.multipartData.length > 0) {
+        } else if (contentType.indexOf('multipart') > -1 || this.multipartDataChecked.length > 0) {
           isMultipart = true
-          data = this.getParamObj(this.multipartData)
+          data = this.getParamObj(this.multipartDataChecked)
         } else if (contentType.indexOf('x-www-form-urlencoded') > -1) {
-          data = this.getQueryParams(this.formData)
+          data = this.getQueryParams(this.formDataChecked)
         } else {
           data = this.bodyText
         }
@@ -588,9 +613,27 @@ export default {
         }
       })
     },
+    setTableCheck() {
+      this.$refs.headerDataRef.toggleAllSelection()
+      this.$refs.queryDataRef.toggleAllSelection()
+      this.$refs.formDataRef.toggleAllSelection()
+      this.$refs.multipartDataRef.toggleAllSelection()
+    },
+    handleHeaderSelectionChange(val) {
+      this.headerDataChecked = val
+    },
+    handleQuerySelectionChange(val) {
+      this.queryDataChecked = val
+    },
+    handleFormSelectionChange(val) {
+      this.formDataChecked = val
+    },
+    handleMultipartSelectionChange(val) {
+      this.multipartDataChecked = val
+    },
     buildRequestHeaders() {
       const headers = {}
-      this.headerData.forEach(row => {
+      this.headerDataChecked.forEach(row => {
         headers[row.name] = row.example || ''
       })
       return headers

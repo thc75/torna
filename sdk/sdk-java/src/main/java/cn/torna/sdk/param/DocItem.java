@@ -45,6 +45,19 @@ public class DocItem {
     /** 排序 */
     private Integer orderIndex;
 
+    // 1.8.1
+    /** 是否请求数组 */
+    private Byte isRequestArray;
+
+    /** 是否返回数组 */
+    private Byte isResponseArray;
+
+    /** 请求数组时元素类型, object/number/string/boolean */
+    private String requestArrayType;
+
+    /** 返回数组时元素类型, object/number/string/boolean */
+    private String responseArrayType;
+
     /** 接口项 */
     private List<DocItem> items;
 

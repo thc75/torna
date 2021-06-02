@@ -55,7 +55,7 @@
           prop="example"
           label="Value"
         >
-          <el-input v-model="dialogHeaderFormData.example" placeholder="value" show-word-limit maxlength="200" />
+          <el-input v-model="dialogHeaderFormData.example" placeholder="value" clearable />
         </el-form-item>
         <el-form-item
           prop="description"
