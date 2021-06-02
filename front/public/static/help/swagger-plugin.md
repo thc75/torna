@@ -12,7 +12,7 @@ pom.xml添加依赖：
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -52,7 +52,7 @@ pom.xml添加依赖：
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 

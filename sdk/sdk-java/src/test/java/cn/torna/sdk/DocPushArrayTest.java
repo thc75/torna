@@ -1,5 +1,6 @@
 package cn.torna.sdk;
 
+import cn.torna.sdk.client.OpenClient;
 import cn.torna.sdk.common.Booleans;
 import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
@@ -23,12 +24,17 @@ import java.util.List;
  */
 public class DocPushArrayTest extends BaseTest {
 
+    static String appKey = "20210602849575001714589696";
+    static String secret = "hDJz2~rwztH$o,3lFOfv0VGp,FF$a*wZ";
+
+    static OpenClient client = new OpenClient(url, appKey, secret);
+
     public void testDocPush() {
         DocPushRequest request = new DocPushRequest(token);
         // 创建分类
         DocItem folder = new DocItem();
         folder.setIsFolder(Booleans.TRUE);
-        folder.setName("手机分类");
+        folder.setName("产品分类");
         folder.setAuthor("李四");
 
         List<DocItem> items = new ArrayList<>(8);
@@ -79,7 +85,7 @@ public class DocPushArrayTest extends BaseTest {
             item.setAuthor("王五");
         }
         /* 设置基本信息 */
-        item.setName("a获取商品名称" + i);
+        item.setName("array获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
         item.setUrl("/goods/{id}/get" + i);
         item.setHttpMethod("GET");

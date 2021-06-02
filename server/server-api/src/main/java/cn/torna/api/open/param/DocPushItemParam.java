@@ -66,16 +66,16 @@ public class DocPushItemParam {
 
     // 1.8.1
     @ApiDocField(description = "是否请求数组", example = "0")
-    private Byte isRequestArray;
+    private Byte isRequestArray = 0;
 
     @ApiDocField(description = "是否返回数组", example = "0")
-    private Byte isResponseArray;
+    private Byte isResponseArray = 0;
 
     @ApiDocField(description = "请求数组时元素类型, object/number/string/boolean", example = "object")
-    private String requestArrayType;
+    private String requestArrayType = "object";
 
     @ApiDocField(description = "返回数组时元素类型, object/number/string/boolean", example = "object")
-    private String responseArrayType;
+    private String responseArrayType = "object";
 
     // dubbo
     @ApiDocField(description = "dubbo服务信息")

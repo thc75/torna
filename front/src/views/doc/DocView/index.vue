@@ -68,7 +68,7 @@
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
-      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayTip')" />
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayReqTip')" />
       <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isRequestJson">
@@ -76,7 +76,7 @@
       <pre class="code-block">{{ formatJson(requestExample) }}</pre>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
-    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayTip')" />
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
     <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <h4>{{ $ts('responseExample') }}</h4>
     <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>

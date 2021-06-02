@@ -459,7 +459,7 @@ export default {
       if (this.isEnableResponseRootArray) {
         const arrayData = this.getRootResponseBodyData()
         responseParams = arrayData.data
-        data.requestArrayType = arrayData.type
+        data.responseArrayType = arrayData.type
       } else {
         responseParams = this.getResponseParamsData()
       }
