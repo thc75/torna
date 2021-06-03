@@ -298,12 +298,8 @@ Object.assign(Vue.prototype, {
           row.example = JSON.stringify(value)
         }
       } else {
-        if (!isNaN(value)) {
-          row.type = 'number'
-        }
-        if (value === true || value === false) {
-          row.type = 'boolean'
-        }
+        // 单值
+        row.type = typeof value
         row.example = String(value)
       }
       if (!isExist) {

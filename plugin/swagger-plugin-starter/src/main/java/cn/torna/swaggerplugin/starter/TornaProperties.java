@@ -30,7 +30,7 @@ public class TornaProperties {
     /** 推送人 */
     private String author;
     /** 打开调试:true/false */
-    private String debug;
+    private String debug = "false";
     /** 接口多个method只显示 */
     private String methodWhenMulti = "GET";
 
