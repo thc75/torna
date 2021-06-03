@@ -62,6 +62,10 @@ export default {
       type: Function,
       default: () => {}
     },
+    onSpaceChange: {
+      type: Function,
+      default: () => {}
+    },
     showCheckbox: {
       type: Boolean,
       default: false
@@ -149,8 +153,9 @@ export default {
       }
       return currentNode
     },
-    onSpaceSelect() {
-      this.loadMenu(this.currentSpaceId)
+    onSpaceSelect(spaceId) {
+      this.onSpaceChange(spaceId)
+      this.loadMenu(spaceId)
     },
     setCurrentNode(currentNode) {
       if (currentNode) {

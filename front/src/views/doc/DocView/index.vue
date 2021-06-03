@@ -193,7 +193,7 @@ export default {
     },
     responseParamHiddenColumns() {
       const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
-      return isRawArray ? ['name', 'required', 'maxLength'] : []
+      return isRawArray ? ['name', 'required', 'maxLength'] : ['required']
     }
   },
   watch: {

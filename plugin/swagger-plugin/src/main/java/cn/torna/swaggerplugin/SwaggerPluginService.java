@@ -40,6 +40,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +54,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import springfox.documentation.annotations.ApiIgnore;
@@ -73,7 +73,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -222,7 +222,7 @@ public class SwaggerPluginService {
         docItem.setOrderIndex(buildOrder(apiOperation, handlerMethod));
         docItem.setUrl(buildUrl(requestMappingInfo));
         String httpMethod = buildHttpMethod(apiOperation, handlerMethod);
-        String contentType = buildContentType(httpMethod, apiOperation, handlerMethod);
+        String contentType = buildContentType(httpMethod, apiOperation, handlerMethod, requestMappingInfo);
         docItem.setHttpMethod(httpMethod);
         docItem.setContentType(contentType);
         docItem.setIsFolder(PluginConstants.FALSE);
@@ -353,13 +353,7 @@ public class SwaggerPluginService {
         for (Parameter parameter : parameters) {
             RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
             if (requestHeader != null) {
-                String name = requestHeader.value();
-                if (StringUtils.isEmpty(name)) {
-                    name = requestHeader.name();
-                }
-                if (StringUtils.isEmpty(name)) {
-                    name = parameter.getName();
-                }
+                String name = getParameterName(parameter);
                 // 如果已经有了不添加
                 if (containsName(docParamHeaders, name)) {
                     continue;
@@ -393,80 +387,83 @@ public class SwaggerPluginService {
         Method method = handlerMethod.getMethod();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
+            Class<?> parameterType = parameter.getType();
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
-            ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
-            if (requestParam != null) {
-                String name = requestParam.value();
-                if (StringUtils.isEmpty(name)) {
-                    name = requestParam.name();
+            String name = getParameterName(parameter);
+            // 如果已经有了不添加
+            if (containsName(docParamReqs, name)) {
+                continue;
+            }
+            // 如果是Get请求
+            if (httpMethod.equalsIgnoreCase(HttpMethod.GET.name())) {
+                boolean isPojo = PluginUtil.isPojo(parameterType);
+                // 当get请求时，遇到普通类则认为类中的属性都是query参数
+                if (isPojo) {
+                    List<DocParamReq> docParamReqList = buildReqClassParams(parameterType);
+                    docParamReqs.addAll(docParamReqList);
+                } else {
+                    DocParamReq docParamReq = buildDocParamReq(parameter);
+                    docParamReqs.add(docParamReq);
                 }
-                if (StringUtils.isEmpty(name)) {
-                    name = parameter.getName();
-                }
-                // 如果已经有了不添加
-                if (containsName(docParamReqs, name)) {
-                    continue;
-                }
-                DocParamReq docParamReq = new DocParamReq();
-                docParamReq.setName(name);
-                docParamReq.setType(PluginUtil.getParameterType(parameter));
-                docParamReq.setRequired(Booleans.toValue(requestParam.required()));
+            } else if (requestParam != null) {
+                // 如果非GET请求，只找有@RequestParam注解的
+                DocParamReq docParamReq = buildDocParamReq(parameter);
                 docParamReqs.add(docParamReq);
-            } else if (apiParam != null && isEmptySpringAnnotation(parameter)) {
-                String name = parameter.getName();
-                // 如果已经有了不添加
-                if (containsName(docParamReqs, name)) {
-                    continue;
-                }
-                DocParamInfo docParamInfo = buildDocParamInfo(parameter);
-                DocParamReq docParamReq = new DocParamReq();
-                docParamReq.setName(name);
-                docParamReq.setType(docParamInfo.getType());
-                docParamReq.setRequired(Booleans.toValue(docParamInfo.getRequired()));
-                docParamReq.setDescription(docParamInfo.getDescription());
-                docParamReq.setExample(docParamInfo.getExample());
-                docParamReqs.add(docParamReq);
-            } else if (isEmptySpringAnnotation(parameter)) {
-                if (HttpMethod.GET.name().equalsIgnoreCase(httpMethod)) {
-                    Class<?> parameterType = parameter.getType();
-                    boolean isPojo = PluginUtil.isPojo(parameterType);
-                    // 当get请求时，遇到普通类则认为类中的属性都是query参数
-                    if (isPojo) {
-                        List<DocParamReq> docParamReqList = buildReqClassParams(parameterType);
-                        docParamReqs.addAll(docParamReqList);
-                    } else {
-                        DocParamInfo docParamInfo = buildDocParamInfo(parameter);
-                        DocParamReq docParamReq = new DocParamReq();
-                        docParamReq.setName(parameter.getName());
-                        docParamReq.setType(docParamInfo.getType());
-                        docParamReq.setRequired(Booleans.toValue(docParamInfo.getRequired()));
-                        docParamReq.setDescription(docParamInfo.getDescription());
-                        docParamReq.setExample(docParamInfo.getExample());
-                        docParamReqs.add(docParamReq);
-                    }
-                }
             }
         }
         return docParamReqs;
     }
 
+    protected DocParamReq buildDocParamReq(Parameter parameter) {
+        DocParamInfo docParamInfo = buildDocParamInfo(parameter);
+        DocParamReq docParamReq = new DocParamReq();
+        docParamReq.setName(getParameterName(parameter));
+        docParamReq.setType(docParamInfo.getType());
+        docParamReq.setRequired(Booleans.toValue(docParamInfo.getRequired()));
+        docParamReq.setDescription(docParamInfo.getDescription());
+        docParamReq.setExample(docParamInfo.getExample());
+        return docParamReq;
+    }
+
     /**
-     * 参数上面没有spring注解
+     * 获取参数名称
+     *
      * @param parameter 参数
-     * @return 如果没有spring相关注解，返回true
+     * @return 返回参数名称
      */
-    protected boolean isEmptySpringAnnotation(Parameter parameter) {
-        Annotation[] annotations = parameter.getAnnotations();
-        if (annotations == null || annotations.length == 0) {
-            return true;
-        }
-        for (Annotation annotation : annotations) {
-            String name = annotation.annotationType().getName();
-            if (name.startsWith("org.springframework.")) {
-                return false;
+    protected String getParameterName(Parameter parameter) {
+        RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+        PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
+        RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
+        String name = parameter.getName();
+        if (requestParam != null) {
+            String val = requestParam.value();
+            if (StringUtils.isEmpty(val)) {
+                val = requestParam.name();
+            }
+            if (StringUtils.hasText(val)) {
+                name = val;
             }
         }
-        return true;
+        if (pathVariable != null) {
+            String val = pathVariable.value();
+            if (StringUtils.isEmpty(val)) {
+                val = pathVariable.name();
+            }
+            if (StringUtils.hasText(val)) {
+                name = val;
+            }
+        }
+        if (requestHeader != null) {
+            String val = requestHeader.value();
+            if (StringUtils.isEmpty(val)) {
+                val = requestHeader.name();
+            }
+            if (StringUtils.hasText(val)) {
+                name = val;
+            }
+        }
+        return name;
     }
 
     protected DocParamReqWrapper buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
@@ -478,13 +475,19 @@ public class SwaggerPluginService {
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
-                DocParamReq paramReq = new DocParamReq();
-                paramReq.setName(apiImplicitParam.name());
-                paramReq.setRequired(Booleans.toValue(apiImplicitParam.required()));
-                paramReq.setDescription(apiImplicitParam.value());
-                paramReq.setExample(apiImplicitParam.example());
-                paramReq.setType(getDataType(apiImplicitParam));
-                docParamReqs.add(paramReq);
+                Class<?> dataTypeClass = apiImplicitParam.dataTypeClass();
+                if (dataTypeClass != Void.class) {
+                    List<DocParamReq> docParamReqList = buildReqClassParams(dataTypeClass);
+                    docParamReqs.addAll(docParamReqList);
+                } else {
+                    DocParamReq paramReq = new DocParamReq();
+                    paramReq.setName(apiImplicitParam.name());
+                    paramReq.setRequired(Booleans.toValue(apiImplicitParam.required()));
+                    paramReq.setDescription(apiImplicitParam.value());
+                    paramReq.setExample(apiImplicitParam.example());
+                    paramReq.setType(getDataType(apiImplicitParam));
+                    docParamReqs.add(paramReq);
+                }
             }
         }
         Method method = handlerMethod.getMethod();
@@ -492,8 +495,8 @@ public class SwaggerPluginService {
         byte isArray = Booleans.FALSE;
         String arrayType = DataType.OBJECT.getValue();
         for (Parameter parameter : parameters) {
-            RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
-            if (requestParam != null) {
+            String name = getParameterName(parameter);
+            if (containsName(docParamReqs, name) || !isBodyParameter(parameter, httpMethod)) {
                 continue;
             }
             RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
@@ -520,18 +523,45 @@ public class SwaggerPluginService {
                     arrayType = docParamReqList.get(0).getType();
                 }
                 docParamReqs.addAll(docParamReqList);
-            } else if (parameter.getAnnotations().length == 0) {
+            } else {
                 boolean isPojo = PluginUtil.isPojo(type);
-                // 当POST请求时，遇到普通类则认为类中的属性都是body参数
-                boolean hasBodyMethod = HttpMethod.POST.name().equalsIgnoreCase(httpMethod)
-                        || HttpMethod.PUT.name().equalsIgnoreCase(httpMethod);
-                if (hasBodyMethod && isPojo) {
+                // 遇到普通类则认为类中的属性都是body参数
+                if (isPojo) {
                     List<DocParamReq> docParamReqList = buildReqClassParams(type);
                     docParamReqs.addAll(docParamReqList);
+                } else {
+                    DocParamReq docParamReq = buildDocParamReq(parameter);
+                    docParamReqs.add(docParamReq);
                 }
             }
         }
         return new DocParamReqWrapper(isArray, arrayType, docParamReqs);
+    }
+
+    /**
+     * 是否body体参数
+     *
+     * @param parameter  参数
+     * @param httpMethod 请求方法
+     * @return true：是body参数
+     */
+    protected boolean isBodyParameter(Parameter parameter, String httpMethod) {
+        String parameterType = PluginUtil.getParameterType(parameter);
+        if (isFileParameter(parameter)) {
+            return true;
+        }
+        Annotation[] annotations = parameter.getAnnotations();
+        for (Annotation annotation : annotations) {
+            Class<? extends Annotation> aClass = annotation.annotationType();
+            if (aClass == RequestBody.class) {
+                return true;
+            }
+            if (aClass == RequestParam.class || aClass == PathVariable.class || aClass == RequestHeader.class) {
+                return false;
+            }
+        }
+        String hasBodyMethods = tornaConfig.getHasBodyMethods().toLowerCase();
+        return hasBodyMethods.contains(httpMethod.toLowerCase());
     }
 
     protected DocParamRespWrapper buildResponseParams(HandlerMethod handlerMethod) {
@@ -552,6 +582,8 @@ public class SwaggerPluginService {
                 type = (Class<?>) PluginUtil.getGenericType(parameterizedType);
                 Class<?> rawType = parameterizedType.getRawType();
                 isCollection = Collection.class.isAssignableFrom(rawType);
+            } else {
+                type = (Class<?>) genericType;
             }
         }
         boolean array = type.isArray();
@@ -695,25 +727,47 @@ public class SwaggerPluginService {
         return patterns.iterator().next();
     }
 
-    private String buildContentType(String httpMethod, ApiOperation apiOperation, HandlerMethod handlerMethod) {
+    private String buildContentType(String httpMethod, ApiOperation apiOperation, HandlerMethod handlerMethod, RequestMappingInfo requestMappingInfo) {
         String consumes = apiOperation.consumes();
         if (StringUtils.hasText(consumes)) {
             return consumes;
         }
         MethodParameter[] methodParameters = handlerMethod.getMethodParameters();
+        Set<MediaType> mediaTypes = requestMappingInfo.getConsumesCondition().getConsumableMediaTypes();
         for (MethodParameter methodParameter : methodParameters) {
             RequestBody requestBody = methodParameter.getParameterAnnotation(RequestBody.class);
             if (requestBody != null) {
                 return MediaType.APPLICATION_JSON_VALUE;
             }
-            if (MultipartFile.class.isAssignableFrom(methodParameter.getParameterType())) {
+            if (isFileParameter(methodParameter.getParameter())) {
                 return MediaType.MULTIPART_FORM_DATA_VALUE;
             }
         }
-        if (httpMethod.equalsIgnoreCase(HttpMethod.POST.name())) {
+        if (mediaTypes.contains(MediaType.MULTIPART_FORM_DATA)) {
+            return MediaType.MULTIPART_FORM_DATA_VALUE;
+        }
+        if (mediaTypes.contains(MediaType.APPLICATION_FORM_URLENCODED) || httpMethod.equalsIgnoreCase(HttpMethod.POST.name())) {
             return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
         }
         return "";
+    }
+
+    protected boolean isFileParameter(Parameter parameter) {
+        Class<?> type = parameter.getType();
+        boolean pojo = PluginUtil.isPojo(type);
+        if (pojo) {
+            AtomicInteger fileCount = new AtomicInteger();
+            ReflectionUtils.doWithFields(type, field -> {
+                String fieldType = field.getType().getSimpleName();
+                if (fieldType.contains("MultipartFile")) {
+                    fileCount.incrementAndGet();
+                }
+            });
+            return fileCount.get() > 0;
+        } else {
+            String parameterType = PluginUtil.getParameterType(parameter);
+            return parameterType.equals("file") || parameterType.equals("file[]");
+        }
     }
 
     protected String buildHttpMethod(ApiOperation apiOperation, HandlerMethod handlerMethod) {
@@ -807,10 +861,14 @@ public class SwaggerPluginService {
     @Data
     @AllArgsConstructor
     private static class DocParamWrapper<T> {
-        /** 是否数组 */
+        /**
+         * 是否数组
+         */
         private Byte isArray;
 
-        /** 数组元素类型 */
+        /**
+         * 数组元素类型
+         */
         private String arrayType;
 
         private List<T> data;

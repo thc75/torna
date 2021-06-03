@@ -40,5 +40,7 @@ public class TornaConfig {
     private String formName;
     /** body参数名称 */
     private String bodyName;
+    /** 具有body体的方法 */
+    private String hasBodyMethods = "POST,PUT,DELETE";
 
 }

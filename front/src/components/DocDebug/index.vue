@@ -219,9 +219,9 @@
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0" style="margin-bottom: 0">
                         <el-upload
-                          v-if="scope.row.type === 'file' || scope.row.elementType === 'file'"
+                          v-if="isFileParam(scope.row)"
                           action=""
-                          :multiple="true"
+                          :multiple="scope.row.type === 'file[]'"
                           :auto-upload="false"
                           :on-change="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                           :on-remove="(file, fileList) => onSelectFile(file, fileList, scope.row)"
@@ -288,6 +288,7 @@ import { get_full_url, request } from '@/utils/http'
 import { get_effective_url, is_array_string } from '@/utils/common'
 
 const HOST_KEY = 'torna.debug-host'
+const FILE_TYPES = ['file', 'file[]']
 
 export default {
   name: 'DocDebug',
@@ -767,6 +768,15 @@ export default {
     openRightPanel() {
       this.resultActive = 'body'
       this.rightSpanSize = 10
+    },
+    isFileParam(row) {
+      const type = row.type
+      for (const fileType of FILE_TYPES) {
+        if (type === fileType) {
+          return true
+        }
+      }
+      return false
     }
   }
 }

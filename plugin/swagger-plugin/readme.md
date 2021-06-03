@@ -14,7 +14,8 @@ pom.xml添加依赖：
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin-starter</artifactId>
-    <version>1.0.0</version>
+    <version>最新版本</version>
+    <scope>provided</scope>
 </dependency>
 ```
 
@@ -54,7 +55,7 @@ pom.xml添加依赖：
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>最新版本</version>
 </dependency>
 ```
 

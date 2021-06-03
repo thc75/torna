@@ -2,7 +2,7 @@
   <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="false" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
-      <doc-select ref="tree" :node-click="onNodeClick" />
+      <doc-select ref="tree" :node-click="onNodeClick" :on-space-change="onSpaceChange" />
     </el-scrollbar>
   </div>
 </template>
@@ -32,6 +32,9 @@ export default {
       if (data.type === this.types.TYPE_DOC) {
         this.goRoute(`/view/${data.docId}`)
       }
+    },
+    onSpaceChange(spaceId) {
+      this.setSpaceId(spaceId)
     }
   }
 }
