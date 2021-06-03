@@ -136,7 +136,18 @@ public class ApiDocBuilder {
             return dataType;
         }
         Class<?> type = field.getType();
-        if (Collection.class.isAssignableFrom(type) || type.isArray()) {
+        String rawTypeName = type.getSimpleName();
+        String multipartFile = "MultipartFile";
+        if (rawTypeName.contains(multipartFile)) {
+            return type.isArray() ? DataType.FILES.getValue() : DataType.FILE.getValue();
+        }
+        if (Collection.class.isAssignableFrom(type)) {
+            Type genericType = field.getGenericType();
+            return genericType.getTypeName().contains(multipartFile) ?
+                    DataType.FILES.getValue() : 
+                    DataType.ARRAY.getValue();
+        }
+        if (type.isArray()) {
             return DataType.ARRAY.getValue();
         }
         if (type == Date.class) {
@@ -144,9 +155,6 @@ public class ApiDocBuilder {
         }
         if (type == Timestamp.class) {
             return DataType.DATETIME.getValue();
-        }
-        if (field.getName().contains("MultipartFile")) {
-            return DataType.FILE.getValue();
         }
         return field.getType().getSimpleName().toLowerCase();
     }

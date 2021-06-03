@@ -32,6 +32,7 @@ const typeConfig = [
   'num_array',
   'str_array',
   'file',
+  'file[]',
   'enum'
 ]
 

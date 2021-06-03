@@ -6,7 +6,8 @@ package cn.torna.swaggerplugin.builder;
  */
 public enum DataType {
     BYTE("byte"), SHORT("short"), INT("integer"), LONG("long"), FLOAT("float"), DOUBLE("double")
-    , CHAR("char"), BOOLEAN("boolean"), ARRAY("array"), OBJECT("object"),STRING("string"),FILE("file"),DATE("date"),DATETIME("datetime"),UNKNOW("");
+    , CHAR("char"), BOOLEAN("boolean"), ARRAY("array"), OBJECT("object"),STRING("string")
+    , FILE("file"), FILES("file[]"), DATE("date"),DATETIME("datetime");
 
     DataType(String v) {
         val = v;
