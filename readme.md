@@ -10,7 +10,7 @@
 | :----: | :----: |
 | Torna | 1.8.1 |
 | sdk-java | 1.0.9 |
-| swagger-plugin | 1.0.2 |
+| swagger-plugin | 1.0.3 |
 
 ## 特性介绍
 
@@ -121,6 +121,10 @@
 ## 开发部署
 
 参见：[开发文档](http://torna.cn/dev/)
+
+## 其它资源
+
+- [Torna对应的示例工程](https://gitee.com/durcframework/torna-example) ，演示swagger插件的用法
 
 ## 更新日志
 
