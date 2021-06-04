@@ -180,7 +180,8 @@ export default {
       },
       requestExample: {},
       responseSuccessExample: {},
-      isSubscribe: false
+      isSubscribe: false,
+      responseHiddenColumns: []
     }
   },
   computed: {
@@ -193,7 +194,7 @@ export default {
     },
     responseParamHiddenColumns() {
       const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
-      return isRawArray ? ['name', 'required', 'maxLength'] : ['required']
+      return isRawArray ? ['name', 'required', 'maxLength'] : this.responseHiddenColumns
     }
   },
   watch: {
@@ -205,7 +206,8 @@ export default {
       this.setData(data)
     }
   },
-  created() {
+  mounted() {
+    this.initResponseHiddenColumns()
   },
   methods: {
     loadData: function(docId) {
@@ -248,6 +250,19 @@ export default {
           this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
         }
       }
+    },
+    initResponseHiddenColumns() {
+      this.getViewConfig(config => {
+        const responseHiddenColumnsConfig = config.responseHiddenColumns
+        const responseHiddenColumns = []
+        if (responseHiddenColumnsConfig) {
+          const columnNames = responseHiddenColumnsConfig.split(',')
+          for (const columnName of columnNames) {
+            responseHiddenColumns.push(columnName.trim())
+          }
+        }
+        this.responseHiddenColumns = responseHiddenColumns
+      })
     },
     buildRequestUrl(hostConfig) {
       const baseUrl = hostConfig.configValue
