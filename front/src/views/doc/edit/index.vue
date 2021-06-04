@@ -150,7 +150,7 @@
           </div>
         </div>
         <root-array-table v-show="isEnableResponseRootArray" ref="responseArrayTable" :data="docInfo.responseParams" :el-type="docInfo.responseArrayType" />
-        <edit-table v-show="!isEnableResponseRootArray" ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="['required', 'maxLength']" />
+        <edit-table v-show="!isEnableResponseRootArray" ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="responseHiddenColumns" />
       </el-tab-pane>
       <el-tab-pane :label="$ts('errorCode')" name="errorCode">
         <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">{{ $ts('newErrorCode') }}</el-button>
@@ -288,7 +288,8 @@ export default {
         value: ''
       },
       paramResponseTemplateDlgShow: false,
-      importParamHandler: null
+      importParamHandler: null,
+      responseHiddenColumns: []
     }
   },
   computed: {
@@ -300,6 +301,7 @@ export default {
     }
   },
   created() {
+    this.initResponseHiddenColumns()
     if (this.$route.path.indexOf('new') > -1) {
       this.initTitle = $ts('createDoc')
     }
@@ -347,6 +349,19 @@ export default {
     initCopyData(docInfo) {
       docInfo.id = ''
       docInfo.name = `${this.docInfo.name} Copy`
+    },
+    initResponseHiddenColumns() {
+      this.getViewConfig(config => {
+        const responseHiddenColumnsConfig = config.responseHiddenColumns
+        const responseHiddenColumns = []
+        if (responseHiddenColumnsConfig) {
+          const columnNames = responseHiddenColumnsConfig.split(',')
+          for (const columnName of columnNames) {
+            responseHiddenColumns.push(columnName.trim())
+          }
+        }
+        this.responseHiddenColumns = responseHiddenColumns
+      })
     },
     onUrlInput(url) {
       // 获取{}之间的字符

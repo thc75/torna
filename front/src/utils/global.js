@@ -44,6 +44,9 @@ const baseTypeConfig = [
 
 let next_id = 1
 
+let server_config
+let view_config
+
 Object.assign(Vue.prototype, {
   /**
    * GET请求接口
@@ -200,11 +203,34 @@ Object.assign(Vue.prototype, {
     this.$router.go(-1)
   },
   getServerConfig(callback) {
-    this.get('/system/config', {}, resp => {
-      if (callback) {
-        callback.call(this, resp.data)
-      }
-    })
+    if (!callback) {
+      return
+    }
+    if (server_config) {
+      callback.call(this, server_config)
+    } else {
+      this.get('/system/config', {}, resp => {
+        server_config = resp.data
+        callback.call(this, server_config)
+      })
+    }
+  },
+  /**
+   * 获取页面配置
+   * @param callback 回调函数，参数为配置内容
+   */
+  getViewConfig(callback) {
+    if (!callback) {
+      return
+    }
+    if (view_config) {
+      callback.call(this, view_config)
+    } else {
+      this.get('/system/viewConfig', {}, resp => {
+        view_config = resp.data
+        callback.call(this, view_config)
+      })
+    }
   },
   loadEnumData(moduleId, callback) {
     this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
