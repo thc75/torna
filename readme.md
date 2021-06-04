@@ -10,7 +10,7 @@
 | :----: | :----: |
 | Torna | 1.8.1 |
 | sdk-java | 1.0.9 |
-| swagger-plugin | 1.0.3 |
+| swagger-plugin | 1.0.4 |
 
 ## 特性介绍
 
