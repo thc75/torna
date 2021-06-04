@@ -502,14 +502,19 @@ public class SwaggerPluginService {
             RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
             ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
             Class<?> type = parameter.getType();
+            final boolean array = PluginUtil.isCollectionOrArray(type);
+            Type parameterizedType = parameter.getParameterizedType();
+            // 如果有泛型如：List<Order>，取出Order.class
+            if (parameterizedType != null && type != parameterizedType) {
+                type = (Class<?>) PluginUtil.getGenericType(parameterizedType);
+            }
             if (requestBody != null) {
-                boolean array = type.isArray();
                 isArray = Booleans.toValue(array);
                 List<DocParamReq> docParamReqList = buildReqClassParams(type);
                 if (array && docParamReqList.isEmpty() && apiParam != null) {
                     String dataType = apiParam.type();
                     if (StringUtils.isEmpty(dataType)) {
-                        dataType = type.getComponentType().getSimpleName().toLowerCase();
+                        dataType = PluginUtil.getDataType(type);
                     }
                     DocParamReq docParamReq = new DocParamReq();
                     docParamReq.setName("");
@@ -546,7 +551,6 @@ public class SwaggerPluginService {
      * @return true：是body参数
      */
     protected boolean isBodyParameter(Parameter parameter, String httpMethod) {
-        String parameterType = PluginUtil.getParameterType(parameter);
         if (isFileParameter(parameter)) {
             return true;
         }
@@ -568,7 +572,7 @@ public class SwaggerPluginService {
         MethodParameter returnType = handlerMethod.getReturnType();
         Class<?> type = returnType.getParameterType();
         Type genericParameterType = returnType.getGenericParameterType();
-        boolean isCollection = false;
+        boolean isCollection = PluginUtil.isCollectionOrArray(type);
         List<DocParamResp> rootParams = null;
         // 如果被泛型包装，如：Result<Order>
         if (!type.toString().equals(genericParameterType.toString())) {
@@ -581,12 +585,12 @@ public class SwaggerPluginService {
                 // 取出Order.class
                 type = (Class<?>) PluginUtil.getGenericType(parameterizedType);
                 Class<?> rawType = parameterizedType.getRawType();
-                isCollection = Collection.class.isAssignableFrom(rawType);
+                isCollection = PluginUtil.isCollectionOrArray(rawType);
             } else {
                 type = (Class<?>) genericType;
             }
         }
-        boolean array = type.isArray();
+        boolean array = PluginUtil.isCollectionOrArray(type) || isCollection;
         byte isArray = Booleans.toValue(array);
         // 数组元素
         String arrayType = DataType.OBJECT.getValue();
@@ -595,7 +599,7 @@ public class SwaggerPluginService {
         if (array && docParamRespList.isEmpty() && apiParam != null) {
             String dataType = apiParam.type();
             if (StringUtils.isEmpty(dataType)) {
-                dataType = type.getComponentType().getSimpleName().toLowerCase();
+                dataType = PluginUtil.getDataType(type);
             }
             DocParamResp docParamReq = new DocParamResp();
             docParamReq.setName("");
@@ -652,9 +656,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamReq> buildReqClassParams(Class<?> clazz) {
-        if (clazz.isArray()) {
-            clazz = clazz.getComponentType();
-        }
+        clazz = getClassFromArrayType(clazz);
         List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
                 .map(this::convertReqParam)
@@ -662,13 +664,18 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamResp> buildRespClassParams(Class<?> clazz) {
-        if (clazz.isArray()) {
-            clazz = clazz.getComponentType();
-        }
+        clazz = getClassFromArrayType(clazz);
         List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
                 .map(this::convertRespParam)
                 .collect(Collectors.toList());
+    }
+
+    protected Class<?> getClassFromArrayType(Class<?> clazz) {
+        if (clazz.isArray()) {
+            clazz = clazz.getComponentType();
+        }
+        return clazz;
     }
 
     private DocParamReq convertReqParam(FieldDocInfo fieldDocInfo) {

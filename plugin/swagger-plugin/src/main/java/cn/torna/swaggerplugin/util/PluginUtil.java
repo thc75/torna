@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author tanghc
@@ -14,7 +13,7 @@ import java.util.Objects;
 public class PluginUtil {
 
     private static final List<String> SYSTEM_PACKAGE_LIST = Arrays.asList(
-            "java.", "sun." ,"org.springframework.", "javax."
+            "java.", "sun.", "org.springframework.", "javax."
     );
 
     public static String getParameterType(Parameter parameter) {
@@ -31,6 +30,7 @@ public class PluginUtil {
 
     /**
      * 是否普通的java类
+     *
      * @param clazz 类class
      * @return true是
      */
@@ -53,6 +53,15 @@ public class PluginUtil {
             return Object.class;
         }
         return params[0];
+    }
+
+    public static boolean isCollectionOrArray(Class<?> type) {
+        return type.isArray() || Collection.class.isAssignableFrom(type);
+    }
+
+    public static String getDataType(Class<?> type) {
+        return type.isArray() ? type.getComponentType().getSimpleName().toLowerCase()
+                : type.getSimpleName().toLowerCase();
     }
 
 }
