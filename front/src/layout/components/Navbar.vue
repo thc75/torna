@@ -2,7 +2,7 @@
   <div class="navbar">
     <el-breadcrumb v-if="showBreadcrumb" class="app-breadcrumb" separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: `/` }">{{ $ts('home') }}</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="currentSpace" :to="{ path: `/space/project/${currentSpace.id}` }">{{ currentSpace.name }}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="currentSpace" :to="{ path: spaceRoute }">{{ currentSpace.name }}</el-breadcrumb-item>
       <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="right-menu">
@@ -58,6 +58,10 @@ export default {
     },
     currentSpace() {
       return this.getSpace()
+    },
+    spaceRoute() {
+      const path = this.$route.path
+      return path.indexOf('compose') > -1 ? `/space/compose/${this.currentSpace.id}` : `/space/project/${this.currentSpace.id}`
     }
   },
   created() {
