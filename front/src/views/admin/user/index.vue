@@ -74,7 +74,7 @@
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
             <el-popconfirm
-              v-if="scope.row.source === 'register'"
+              v-if="scope.row.source === getEnums().SOURCE.REGISTER || scope.row.source === getEnums().SOURCE.BACKEND"
               :title="$ts('resetPasswordConfirm', scope.row.nickname)"
               @confirm="onRestPwd(scope.row)"
             >

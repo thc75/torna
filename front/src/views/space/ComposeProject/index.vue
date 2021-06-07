@@ -368,13 +368,16 @@ export default {
     },
     onDocAddSave() {
       const checkedNodes = this.getSelect().getCheckedNodes(true)
-      if (checkedNodes.length === 0) {
+      const docList = checkedNodes
+        .filter(row => row.docId && row.docId.length > 0)
+        .map(row => { return { docId: row.docId, origin: row.origin } })
+      if (docList.length === 0) {
         this.tipError($ts('pleaseCheckDoc'))
         return
       }
       const data = {
         projectId: this.projectInfo.id,
-        docList: checkedNodes.map(row => { return { docId: row.docId, origin: row.origin } })
+        docList: docList
       }
       if (this.parentDoc) {
         data.parentId = this.parentDoc.id
