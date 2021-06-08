@@ -362,7 +362,10 @@ const MAPPING = {
   'newParam': '添加参数',
   'importParam': '导入参数',
   'isPublic': '是否公开',
-  'debugEnvPublicTip': '公开：聚合页面显示公开的调试路径'
+  'debugEnvPublicTip': '公开：聚合页面显示公开的调试路径',
+  'script': '脚本',
+  'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
+  'afterScriptTip': '请求后处理结果，可动态修改返回内容'
 
 }
 

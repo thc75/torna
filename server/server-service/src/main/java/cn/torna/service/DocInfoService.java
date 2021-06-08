@@ -198,8 +198,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
-        // 保存上一次的快照
-        this.saveOldSnapshot(docInfoDTO);
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
@@ -208,6 +206,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
+        // 保存上一次的快照
+        this.saveOldSnapshot(docInfoDTO);
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
         // 修改参数

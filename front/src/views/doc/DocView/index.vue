@@ -193,7 +193,6 @@ export default {
       responseSuccessExample: {},
       historyShow: false,
       historyDocId: '',
-      isSubscribe: false
       isSubscribe: false,
       responseHiddenColumns: []
     }

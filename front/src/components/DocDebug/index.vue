@@ -243,6 +243,9 @@
               </el-table>
             </div>
           </el-tab-pane>
+          <el-tab-pane name="script" :label="$ts('script')">
+            <pre-request-script ref="preRequestScriptRef" />
+          </el-tab-pane>
         </el-tabs>
       </el-col>
       <el-col :span="rightSpanSize" style="border-left: 1px #E4E7ED solid;">
@@ -286,12 +289,14 @@ require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
 import { get_full_url, request } from '@/utils/http'
 import { get_effective_url, is_array_string } from '@/utils/common'
+import PreRequestScript from '../PreRequestScript'
 
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
 
 export default {
   name: 'DocDebug',
+  components: { PreRequestScript },
   props: {
     item: {
       type: Object,
@@ -499,11 +504,35 @@ export default {
         url = this.getProxyUrl('/doc/debug/v1')
         realHeaders['target-url'] = this.url
       }
-      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, () => {
+      let ctx = {
+        url: url,
+        method: item.httpMethod,
+        params: params,
+        data: data,
+        headers: realHeaders
+      }
+      try {
+        ctx = this.$refs.preRequestScriptRef.runPre(ctx)
+      } catch (e) {
+        this.tipError('Run pre-request script error, ' + e)
         this.sendLoading = false
-        this.result.content = $ts('sendErrorTip')
-        this.openRightPanel()
-      })
+        return
+      }
+      request.call(
+        this,
+        ctx.method,
+        ctx.url,
+        ctx.params,
+        ctx.data,
+        ctx.headers,
+        isMultipart,
+        this.doProxyResponse,
+        () => {
+          this.sendLoading = false
+          this.result.content = $ts('sendErrorTip')
+          this.openRightPanel()
+        }
+      )
       this.setProps()
     },
     getProxyUrl(uri) {
@@ -668,6 +697,11 @@ export default {
     },
     doProxyResponse(response) {
       this.sendLoading = false
+      try {
+        response = this.$refs.preRequestScriptRef.runAfter(response)
+      } catch (e) {
+        this.tipError('Run after response script error, ' + e)
+      }
       this.buildResultHeaders(response)
       this.buildResultStatus(response)
       this.buildResultContent(response)

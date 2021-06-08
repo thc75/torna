@@ -361,7 +361,10 @@ const MAPPING = {
   'newParam': 'New Param',
   'importParam': 'Import Param',
   'isPublic': 'Is Public',
-  'debugEnvPublicTip': 'Public: debug url show in compose page'
+  'debugEnvPublicTip': 'Public: debug url show in compose page',
+  'script': 'Script',
+  'preScriptTip': 'Modify request info before send request',
+  'afterScriptTip': 'Modify response info after response'
 
 }
 
