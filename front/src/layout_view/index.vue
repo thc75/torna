@@ -1,9 +1,10 @@
 <template>
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebarView.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar class="sidebar-container-view" />
-    <div class="main-container-view">
-      <div :class="{'fixed-header':fixedHeader}">
+    <sidebar id="leftPanelView" class="sidebar-container-view" />
+    <div id="rightPanelView" class="main-container-view">
+      <div id="resizeBarView" class="resize-bar"></div>
+      <div id="navBarView" :class="{'fixed-header':fixedHeader}">
         <navbar />
       </div>
       <view-main />
@@ -14,6 +15,7 @@
 <script>
 import { Navbar, Sidebar, ViewMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import { ResizeBar } from '@/utils/resizebar'
 
 export default {
   name: 'LayoutView',
@@ -41,6 +43,17 @@ export default {
         mobile: this.device === 'mobile'
       }
     }
+  },
+  mounted() {
+    new ResizeBar(this, {
+      leftPanel: 'leftPanelView',
+      rightPanel: 'rightPanelView',
+      resizeBar: 'resizeBarView',
+      navBar: 'navBarView'
+    })
+  },
+  destroyed() {
+    document.body.style.overflowY = 'auto'
   },
   methods: {
     handleClickOutside() {
