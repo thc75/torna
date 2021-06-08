@@ -22,6 +22,12 @@ public class DocInfoDTO implements DocInfoDataId {
     /** 文档概述, 数据库字段：description */
     private String description;
 
+    /** 维护人, 数据库字段：author */
+    private String author;
+
+    /** 0:http,1:dubbo, 数据库字段：protocol */
+    private Byte type;
+
     /** 访问URL, 数据库字段：url */
     private String url;
 
@@ -55,6 +61,18 @@ public class DocInfoDTO implements DocInfoDataId {
     /** 是否使用全局返回参数, 数据库字段：is_use_global_returns */
     private Byte isUseGlobalReturns;
 
+    /** 是否请求数组, 数据库字段：is_request_array */
+    private Byte isRequestArray;
+
+    /** 是否返回数组, 数据库字段：is_response_array */
+    private Byte isResponseArray;
+
+    /** 请求数组时元素类型, 数据库字段：request_array_type */
+    private String requestArrayType;
+
+    /** 返回数组时元素类型, 数据库字段：response_array_type */
+    private String responseArrayType;
+
     /** 创建人 */
     private String creatorName;
 
@@ -67,6 +85,8 @@ public class DocInfoDTO implements DocInfoDataId {
     private Byte isDeleted;
 
     private String remark;
+
+    private Integer orderIndex;
 
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
@@ -82,6 +102,7 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
+    private List<DocParamDTO> queryParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams;
@@ -89,5 +110,4 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> globalHeaders;
     private List<DocParamDTO> globalParams;
     private List<DocParamDTO> globalReturns;
-
 }

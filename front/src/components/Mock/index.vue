@@ -7,12 +7,10 @@
         style="margin-bottom: 10px;margin-right: 10px;"
         @click="onMockAdd"
       >
-        添加配置
+        {{ $ts('newConfig') }}
       </el-button>
-      <el-tooltip placement="top" content="帮助文档">
-        <router-link class="el-link" target="_blank" to="/help?id=mock">
-          <i class="el-icon-question"></i>
-        </router-link>
+      <el-tooltip placement="top" :content="$ts('helpDoc')">
+        <i class="el-icon-question cursor-pointer" @click="openLink('/help?id=mock')"></i>
       </el-tooltip>
     </div>
     <el-tabs
@@ -31,17 +29,18 @@
     <div v-show="isShow" class="mock-content">
       <div class="doc-modify-info">
         <div v-show="isAdded()" class="left-div">
-          {{ formData.creatorName }} 创建于 {{ formData.gmtCreate }}，{{ formData.modifierName }} 最后修改于 {{ formData.gmtModified }}
+          {{ formData.creatorName }} {{ $ts('createdOn') }} {{ formData.gmtCreate }}，
+          {{ formData.modifierName }} {{ $ts('lastModifiedBy') }} {{ formData.gmtModified }}
         </div>
         <div class="right-div">
-          <el-tooltip v-show="isAdded()" content="复制当前配置" placement="top">
+          <el-tooltip v-show="isAdded()" :content="$ts('copyCurrentConfig')" placement="top">
             <el-link type="primary" icon="el-icon-document-copy" @click="onCopy" />
           </el-tooltip>
           <el-popconfirm
-            :title="`确定要当前配置删除吗？`"
-            @onConfirm="onMockDelete(formData)"
+            :title="$ts('deleteConfigConfirm')"
+            @confirm="onMockDelete(formData)"
           >
-            <el-link slot="reference" type="danger" icon="el-icon-delete" title="删除" />
+            <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$ts('delete')" />
           </el-popconfirm>
         </div>
       </div>
@@ -53,17 +52,18 @@
         label-width="120px"
         class="mock-form"
       >
-        <el-form-item label="Mock地址">
-          <span v-if="!formData.isNew" class="normal-text">{{ mockUrl }}</span>
-          <span v-else class="doc-id">保存后生成</span>
+        <el-form-item :label="$ts('mockUrl')">
+          <el-input v-model="formData.path" placeholder="path">
+            <template slot="prepend">{{ mockBaseUrl }}</template>
+          </el-input>
         </el-form-item>
-        <el-form-item label="名称" prop="name">
+        <el-form-item :label="$ts('name')" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
-        <el-form-item label="参数">
+        <el-form-item :label="$ts('param')">
           <el-switch
             v-model="formData.requestDataType"
-            active-text="json格式"
+            :active-text="$ts('jsonType')"
             inactive-text=""
             :active-value="1"
             :inactive-value="0"
@@ -80,14 +80,14 @@
             @init="editorInit"
           />
         </el-form-item>
-        <el-divider content-position="left">响应</el-divider>
+        <el-divider content-position="left">{{ $ts('response') }}</el-divider>
         <el-form-item label="Http Status">
           <el-input-number v-model="formData.httpStatus" controls-position="right" />
         </el-form-item>
-        <el-form-item label="延迟响应">
+        <el-form-item :label="$ts('responseDelay')">
           <el-input-number v-model="formData.delayMills" :min="0" :max="60000" controls-position="right" /> ms
         </el-form-item>
-        <el-form-item label="响应Header">
+        <el-form-item :label="$ts('responseHeader')">
           <name-value-table
             ref="responseHeadersRef"
             :data="formData.responseHeaders"
@@ -95,10 +95,10 @@
             :value-suggest-data="valueSuggestData"
           />
         </el-form-item>
-        <el-form-item label="响应内容">
+        <el-form-item :label="$ts('responseContent')">
           <el-switch
             v-model="formData.resultType"
-            active-text="Mock脚本"
+            :active-text="$ts('mockScript')"
             inactive-text=""
             :active-value="1"
             :inactive-value="0"
@@ -116,9 +116,9 @@
             />
           </div>
           <div v-else>
-            <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">运行</el-button>
+            <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">{{ $ts('run') }}</el-button>
             <span class="info-tip">
-              基于mockjs，<router-link class="el-link el-link--primary" target="_blank" to="/help?id=mock">帮助文档</router-link>
+              {{ $ts('baseOnMockjs') }}，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">{{ $ts('helpDoc') }}</el-link>
             </span>
             <editor
               v-model="formData.mockScript"
@@ -132,16 +132,16 @@
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="medium" @click="onSave">保存</el-button>
+          <el-button type="primary" size="medium" @click="onSave">{{ $ts('save') }}</el-button>
         </el-form-item>
       </el-form>
     </div>
     <el-dialog
-      title="运行结果"
+      :title="$ts('runResult')"
       :visible.sync="mockResultDlgShow"
     >
-      <el-alert v-if="mockResultRunResult" title="运行成功" type="success" :closable="false" />
-      <el-alert v-else title="运行错误" type="error" :closable="false" />
+      <el-alert v-if="mockResultRunResult" :title="$ts('runSuccess')" type="success" :closable="false" />
+      <el-alert v-else :title="$ts('runError')" type="error" :closable="false" />
       <el-input
         v-model="mockResultDlgView"
         type="textarea"
@@ -162,6 +162,7 @@ const FORM_DATA = {
   dataKv: [],
   dataJson: '',
   name: '',
+  path: '',
   requestDataType: 0,
   httpStatus: 200,
   delayMills: 0,
@@ -193,14 +194,17 @@ export default {
       formData: Object.assign({}, FORM_DATA),
       formRules: {
         name: [
-          { required: true, message: '请填写名称', trigger: ['blur', 'change'] }
+          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
+        ],
+        path: [
+          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
         ]
       },
       aceEditorConfig: {
         // 去除编辑器里的竖线
         showPrintMargin: false
       },
-      mockResultDlgTitle: '运行结果',
+      mockResultDlgTitle: $ts('runResult'),
       mockResultDlgView: '',
       mockResultDlgShow: false,
       mockResultRunResult: false
@@ -219,6 +223,9 @@ export default {
     },
     isShow() {
       return this.mockConfigs.length > 0
+    },
+    mockBaseUrl() {
+      return `${this.getBaseUrl()}/mock/`
     }
   },
   watch: {
@@ -266,6 +273,9 @@ export default {
       this.selectTab(node)
     },
     selectTab(node) {
+      if (!node.path) {
+        node.path = node.id
+      }
       this.formData = node
       this.activeMock = node.id
       this.mockUrl = `${this.getBaseUrl()}/mock/${node.id}`
@@ -282,7 +292,7 @@ export default {
         const fn = new Function('$params', '$body', 'Mock', 'Random', `return ${code}`)
         const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random)
         if (data === undefined) {
-          throw new Error('无数据返回，是否缺少return？')
+          throw new Error($ts('noResultTip'))
         }
         successCall.call(this, data)
         return true
@@ -306,12 +316,12 @@ export default {
     onRunMockScript() {
       this.runScript(data => {
         this.formData.mockResult = this.formatJson(data)
-        this.mockResultDlgTitle = '运行结果'
+        this.mockResultDlgTitle = $ts('runResult')
         this.mockResultDlgView = this.formData.mockResult
         this.mockResultRunResult = true
       }, e => {
         this.mockResultRunResult = false
-        this.mockResultDlgTitle = '运行错误'
+        this.mockResultDlgTitle = $ts('runError')
         this.mockResultDlgView = e
       })
       this.mockResultDlgShow = true
@@ -319,9 +329,14 @@ export default {
     onMockAdd() {
       const respBody = this.doCreateResponseExample(this.item.responseParams)
       const node = Object.assign({}, FORM_DATA)
+      let path = this.item.url
+      if (path.startsWith('/')) {
+        path = path.substring(1)
+      }
       Object.assign(node, {
         id: '' + this.nextId(),
-        name: '新建配置',
+        name: $ts('newConfig'),
+        path: path,
         responseBody: this.formatJson(respBody),
         isNew: true
       })
@@ -345,7 +360,7 @@ export default {
         this.removeLocal(data)
       } else {
         this.post('/doc/mock/delete', data, resp => {
-          this.tipSuccess('删除成功')
+          this.tipSuccess($ts('deleteSuccess'))
           this.reload()
         })
       }
@@ -363,7 +378,7 @@ export default {
           const success = this.runScript(data => {
             this.formData.mockResult = this.formatJson(data)
           }, e => {
-            this.tipError('Mock脚本错误')
+            this.tipError($ts('mockScriptError'))
           })
           if (!success) {
             return
@@ -372,7 +387,7 @@ export default {
         this.formatData()
         this.formData.docId = this.item.id
         this.post('/doc/mock/save', this.formData, resp => {
-          this.tipSuccess('保存成功')
+          this.tipSuccess($ts('saveSuccess'))
           this.activeMock = resp.data.id
           this.reload()
         })
@@ -390,7 +405,7 @@ export default {
         // 到这里来表示全部内容校验通过
         callback.call(this)
       }).catch((e) => {
-        this.tipError('请完善表单')
+        this.tipError($ts('pleaseFinishForm'))
       })
     },
     isAdded() {

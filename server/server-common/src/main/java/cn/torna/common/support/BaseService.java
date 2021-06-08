@@ -7,6 +7,7 @@ import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -93,6 +94,15 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
     }
 
     /**
+     * 只返回id列
+     * @param query 查询条件
+     * @return id列表
+     */
+    public List<Long> listId(Query query) {
+        return mapper.listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
+    }
+
+    /**
      * 根据条件查询单条记录
      * @param query 查询条件
      * @return 返回单条记录，没有返回null
@@ -112,6 +122,9 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      * @return 返回记录，没有返回null
      */
     public E getById(Long id) {
+        if (id == null) {
+            return null;
+        }
         return mapper.getById(id);
     }
 
@@ -156,6 +169,19 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
             return 0;
         }
         return mapper.delete(entity);
+    }
+
+    /**
+     * 删除记录
+     *
+     * @param id id
+     * @return 返回影响行数
+     */
+    public int deleteById(Long id) {
+        if (id == null) {
+            return 0;
+        }
+        return mapper.deleteById(id);
     }
 
     /**

@@ -10,6 +10,5 @@ import lombok.Data;
 @Data
 public class UserInfoSearchParam {
 
-    @Condition(ignoreEmptyString = true, operator = Operator.like)
     private String username;
 }

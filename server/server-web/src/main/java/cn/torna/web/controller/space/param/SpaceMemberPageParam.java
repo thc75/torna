@@ -23,7 +23,6 @@ public class SpaceMemberPageParam extends PageParam  {
     @Condition(ignore = true)
     private Long spaceId;
 
-    @Condition(ignoreEmptyString = true, operator = Operator.like)
     private String username;
 
 }

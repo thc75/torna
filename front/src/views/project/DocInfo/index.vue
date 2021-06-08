@@ -1,20 +1,24 @@
 <template>
   <el-tabs v-model="activeName" @tab-click="handleClick">
     <el-tab-pane name="DocList">
-      <span slot="label"><i class="el-icon-s-grid"></i> 接口列表</span>
+      <span slot="label"><i class="el-icon-s-grid"></i> {{ $ts('apiList') }}</span>
       <doc-table ref="moduleIdDocList" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane name="EnumInfo">
-      <span slot="label"><i class="el-icon-tickets"></i> 字典管理</span>
+      <span slot="label"><i class="el-icon-tickets"></i> {{ $ts('dictionaryManagement') }}</span>
       <enum-info ref="moduleIdEnumInfo" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ModuleSetting">
-      <span slot="label"><i class="el-icon-setting"></i> 模块配置</span>
+      <span slot="label"><i class="el-icon-setting"></i> {{ $ts('moduleSetting') }}</span>
       <module-setting ref="moduleIdModuleSetting" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="OpenApi">
       <span slot="label"><i class="el-icon-collection-tag"></i> OpenAPI</span>
       <module-open-api ref="moduleIdOpenApi" />
+    </el-tab-pane>
+    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ShareConfig">
+      <span slot="label"><i class="el-icon-share"></i> {{ $ts('shareManagement') }}</span>
+      <share-config ref="moduleIdShareConfig" />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -24,10 +28,11 @@ import DocTable from '../DocTable'
 import ModuleSetting from '../ModuleSetting'
 import ModuleOpenApi from '../ModuleOpenApi'
 import EnumInfo from '../EnumInfo'
+import ShareConfig from '../ShareConfig'
 
 export default {
   name: 'DocInfo',
-  components: { DocTable, ModuleSetting, ModuleOpenApi, EnumInfo },
+  components: { DocTable, ModuleSetting, ModuleOpenApi, EnumInfo, ShareConfig },
   props: {
     moduleId: {
       type: String,

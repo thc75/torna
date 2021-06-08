@@ -18,6 +18,8 @@
 - 响应Header：响应头，如果过返回json数据，建议添加`Content-Type=application/json;charset=UTF-8`
 - 响应内容：期望返回的结果
 
+> 注：未设置Content-Type可能会返回乱码
+
 设置后使用postman请求结果如下：
 
 <img src="/static/help/images/mock3.png" style="height: 500px" />
@@ -286,7 +288,7 @@ return {
 
 运行结果如下：
 
-<img src="/static/help/images/mock7.png" style="height: 300px" />
+<img src="/static/help/images/mock7.png" style="height: 400px" />
 
 同理，如果参数填的是json格式，可以使用`var name = $body.name`获取变量。
 

@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.torna</groupId>
 	<artifactId>torna-sdk</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.9</version>
 	<packaging>jar</packaging>
 
 	<name>torna-sdk</name>
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.74</version>
+			<version>1.2.76</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

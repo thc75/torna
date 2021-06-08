@@ -69,10 +69,50 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         });
     }
 
+    public void setCommonErrorCodes(List<DocParam> docParamList, long moduleId) {
+        ModuleConfigTypeEnum typeEnum = ModuleConfigTypeEnum.GLOBAL_ERROR_CODES;
+        deleteByModuleAndType(moduleId, typeEnum);
+        for (DocParam docParam : docParamList) {
+            ModuleConfig config = getModuleConfig(moduleId, docParam.getName(), typeEnum, true);
+            boolean save = false;
+            if (config == null) {
+                config = new ModuleConfig();
+                save = true;
+            }
+            config.setModuleId(moduleId);
+            config.setConfigKey(docParam.getName());
+            config.setConfigValue(docParam.getExample());
+            config.setDescription(docParam.getDescription());
+            config.setType(typeEnum.getType());
+            config.setIsDeleted(Booleans.FALSE);
+            if (save) {
+                this.save(config);
+            } else {
+                this.update(config);
+            }
+        }
+    }
+
+    public List<DocParam> listCommonErrorCodes(long moduleId) {
+        return listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.GLOBAL_ERROR_CODES)
+                .stream()
+                .map(moduleConfig -> {
+                    DocParam docParam = new DocParam();
+                    docParam.setName(moduleConfig.getConfigKey());
+                    docParam.setExample(moduleConfig.getConfigValue());
+                    docParam.setDescription(moduleConfig.getDescription());
+                    return docParam;
+                })
+                .collect(Collectors.toList());
+    }
+
     public void saveDocParam(DocParamDTO docParamDTO, ModuleConfigTypeEnum moduleConfigTypeEnum, Consumer<DocParam> callback) {
+        if (docParamDTO.getParentId() == null) {
+            docParamDTO.setParentId(0L);
+        }
         ParamStyleEnum paramStyleEnum = buildStyle(moduleConfigTypeEnum);
         DocParam docParam = CopyUtil.copyBean(docParamDTO, DocParam::new);
-        String dataId = DataIdUtil.getDocParamDataId(IdGen.genId(), 0L, paramStyleEnum.getStyle(), docParam.getName());
+        String dataId = DataIdUtil.getDocParamDataId(IdGen.genId(), docParam.getParentId(), paramStyleEnum.getStyle(), docParam.getName());
         docParam.setDataId(dataId);
         docParam.setStyle(paramStyleEnum.getStyle());
         docParam.setRequired(Booleans.TRUE);
@@ -86,9 +126,15 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         docParamService.update(docParam);
     }
 
+    /**
+     * 删除公共参数
+     * @param moduleId 模块id
+     * @param extendId 参数id，doc_param.id
+     */
     public void deleteGlobal(long moduleId, long extendId) {
         ModuleConfig moduleConfig = getByModuleIdAndExtendId(moduleId, extendId);
         this.delete(moduleConfig);
+        docParamService.deleteParamDeeply(extendId);
     }
 
     private ModuleConfig getByModuleIdAndExtendId(long moduleId, long extendId) {
@@ -110,20 +156,22 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             case GLOBAL_RETURNS:
                 paramStyleEnum = ParamStyleEnum.RESPONSE;
                 break;
+            case GLOBAL_ERROR_CODES:
+                paramStyleEnum = ParamStyleEnum.ERROR_CODE;
+                break;
             default:
         }
         return paramStyleEnum;
     }
 
-
     /**
-     * 设置模块调试环境
-     *
+     * 设置调试环境
      * @param moduleId 模块id
-     * @param name     环境名称
-     * @param url      调试路径
+     * @param name 名称
+     * @param url url
+     * @param isPublic 是否公开
      */
-    public void setDebugEnv(long moduleId, String name, String url) {
+    public void setDebugEnv(long moduleId, String name, String url, boolean isPublic) {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
@@ -135,11 +183,24 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             commonConfig.setType(ModuleConfigTypeEnum.DEBUG_HOST.getType());
             commonConfig.setConfigKey(name);
             commonConfig.setConfigValue(url);
+            commonConfig.setExtendId(isPublic ? 1L : 0L);
             save(commonConfig);
         } else {
             commonConfig.setConfigValue(url);
+            commonConfig.setExtendId(isPublic ? 1L : 0L);
             update(commonConfig);
         }
+    }
+
+    /**
+     * 设置模块调试环境
+     *
+     * @param moduleId 模块id
+     * @param name     环境名称
+     * @param url      调试路径
+     */
+    public void setDebugEnv(long moduleId, String name, String url) {
+        this.setDebugEnv(moduleId, name, url, false);
     }
 
     /**
@@ -157,6 +218,13 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         if (commonConfig != null) {
             this.delete(commonConfig);
         }
+    }
+
+    public void deleteByModuleAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type", typeEnum.getType());
+        this.getMapper().deleteByQuery(query);
     }
 
     public List<ModuleConfig> listDebugHost(long moduleId) {
@@ -184,11 +252,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public ModuleConfig getCommonConfig(long moduleId, String key) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", ModuleConfigTypeEnum.COMMON.getType())
-                .eq("config_key", key);
-        return get(query);
+        return getModuleConfig(moduleId, key, ModuleConfigTypeEnum.COMMON, false);
     }
 
     public String getCommonConfigValue(long moduleId, String key, String defaultValue) {
@@ -196,6 +260,17 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return Optional.ofNullable(commonConfig)
                 .map(ModuleConfig::getConfigValue)
                 .orElse(defaultValue);
+    }
+
+    public ModuleConfig getModuleConfig(long moduleId, String key, ModuleConfigTypeEnum type, boolean forceQuery) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type", type.getType())
+                .eq("config_key", key);
+        if (forceQuery) {
+            query.enableForceQuery();
+        }
+        return get(query);
     }
 
     public void setBaseUrl(long moduleId, String baseUrl) {

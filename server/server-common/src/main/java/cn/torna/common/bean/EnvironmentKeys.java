@@ -37,8 +37,6 @@ public enum EnvironmentKeys {
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_NICKNAME("torna.login.third-party.oauth.key.result-nickname"),
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_EMAIL("torna.login.third-party.oauth.key.result-email"),
     LOGIN_THIRD_PARTY_OAUTH_PARSER_CLASS_NAME("torna.login.third-party.oauth.parser-class-name", "cn.torna.service.login.oauth.DefaultAuthCustomResultParser"),
-    //
-
     ;
 
     private final String key;

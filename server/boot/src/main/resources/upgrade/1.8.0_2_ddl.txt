@@ -1,0 +1,19 @@
+CREATE TABLE `compose_project` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '项目名称',
+  `description` varchar(128) NOT NULL DEFAULT '' COMMENT '项目描述',
+  `space_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '所属空间，space.id',
+  `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '访问形式，1：公开，2：加密',
+  `password` varchar(64) NOT NULL DEFAULT '' COMMENT '访问密码',
+  `creator_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者userid',
+  `creator_name` varchar(64) NOT NULL DEFAULT '',
+  `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `modifier_name` varchar(64) NOT NULL DEFAULT '',
+  `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1：有效，0：无效',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_spaceid` (`space_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='组合项目表'

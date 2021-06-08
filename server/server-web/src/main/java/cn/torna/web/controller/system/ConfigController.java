@@ -3,8 +3,10 @@ package cn.torna.web.controller.system;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
+import cn.torna.web.config.TornaViewProperties;
 import cn.torna.web.controller.system.vo.ConfigVO;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +28,17 @@ public class ConfigController implements InitializingBean {
     @Value("${torna.login.third-party.oauth.login-button-text:第三方登录}")
     private String oauthButtonText;
 
+    @Autowired
+    private TornaViewProperties tornaViewProperties;
+
     @GetMapping("/config")
-    public Result<ConfigVO> get() {
+    public Result<ConfigVO> config() {
         return Result.ok(configVO);
+    }
+
+    @GetMapping("/viewConfig")
+    public Result<TornaViewProperties> viewConfig() {
+        return Result.ok(tornaViewProperties);
     }
 
     @Override

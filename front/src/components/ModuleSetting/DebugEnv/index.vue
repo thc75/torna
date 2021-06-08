@@ -6,26 +6,31 @@
       style="margin-bottom: 10px"
       @click="onDebugEnvAdd"
     >
-      新增环境
+      {{ $ts('addEnv') }}
     </el-button>
     <el-table
       :data="debugEnv"
       border
       highlight-current-row
     >
-      <el-table-column label="环境名称" prop="configKey" width="300px" />
-      <el-table-column label="基本路径" prop="configValue" />
+      <el-table-column :label="$ts('envName')" prop="configKey" width="300px" />
+      <el-table-column :label="$ts('baseUrl')" prop="configValue" />
+      <el-table-column :label="$ts('isPublic')" prop="extendId" width="100px">
+        <template slot-scope="scope">
+          {{ scope.row.extendId === 1 ? $ts('yes') : $ts('no') }}
+        </template>
+      </el-table-column>
       <el-table-column
-        label="操作"
+        :label="$ts('operation')"
         width="150"
       >
         <template slot-scope="scope">
-          <el-link type="primary" size="mini" @click="onDebugEnvUpdate(scope.row)">修改</el-link>
+          <el-link type="primary" size="mini" @click="onDebugEnvUpdate(scope.row)">{{ $ts('update') }}</el-link>
           <el-popconfirm
-            :title="`确定要删除 ${scope.row.configKey} 吗？`"
-            @onConfirm="onDebugEnvDelete(scope.row)"
+            :title="$ts('deleteConfirm', scope.row.configKey)"
+            @confirm="onDebugEnvDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">删除</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -41,25 +46,35 @@
         ref="dialogDebugEnvForm"
         :rules="dialogDebugEnvFormRules"
         :model="dialogDebugEnvFormData"
-        label-width="120px"
+        label-position="top"
         size="mini"
       >
         <el-form-item
           prop="configKey"
-          label="环境名称"
+          :label="$ts('envName')"
         >
-          <el-input v-model="dialogDebugEnvFormData.configKey" placeholder="如：测试环境" show-word-limit maxlength="50" />
+          <el-input v-model="dialogDebugEnvFormData.configKey" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="configValue"
-          label="基本路径"
+          :label="$ts('baseUrl')"
         >
-          <el-input v-model="dialogDebugEnvFormData.configValue" placeholder="如：http://10.0.1.31:8080" show-word-limit maxlength="100" />
+          <el-input v-model="dialogDebugEnvFormData.configValue" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
+        </el-form-item>
+        <el-form-item
+          prop="extendId"
+          :label="$ts('isPublic')"
+        >
+          <el-radio-group v-model="dialogDebugEnvFormData.extendId">
+            <el-radio :label="1">{{ $ts('yes') }}</el-radio>
+            <el-radio :label="0">{{ $ts('no') }}</el-radio>
+            <span class="info-tip">{{ $ts('debugEnvPublicTip') }}</span>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDebugEnvVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onDialogDebugEnvSave">保 存</el-button>
+        <el-button @click="dialogDebugEnvVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogDebugEnvSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -77,14 +92,15 @@ export default {
         moduleId: '',
         configKey: '',
         configValue: '',
-        description: ''
+        description: '',
+        extendId: 0
       },
       dialogDebugEnvFormRules: {
         configKey: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
         configValue: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -102,12 +118,12 @@ export default {
       })
     },
     onDebugEnvAdd() {
-      this.dialogDebugEnvTitle = '新增环境'
+      this.dialogDebugEnvTitle = this.$ts('addEnv')
       this.dialogDebugEnvVisible = true
       this.dialogDebugEnvFormData.id = ''
     },
     onDebugEnvUpdate(row) {
-      this.dialogDebugEnvTitle = '修改环境'
+      this.dialogDebugEnvTitle = this.$ts('updateEnv')
       this.dialogDebugEnvVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogDebugEnvFormData, row)
@@ -115,7 +131,7 @@ export default {
     },
     onDebugEnvDelete(row) {
       this.post('/module/setting/debugEnv/delete', row, () => {
-        this.tip('删除成功')
+        this.tip(this.$ts('deleteSuccess'))
         this.reload()
       })
     },

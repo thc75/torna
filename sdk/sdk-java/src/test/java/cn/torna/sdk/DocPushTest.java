@@ -28,6 +28,7 @@ public class DocPushTest extends BaseTest {
         DocItem folder = new DocItem();
         folder.setIsFolder(Booleans.TRUE);
         folder.setName("手机分类");
+        folder.setAuthor("李四");
 
         List<DocItem> items = new ArrayList<>(8);
         // 分类下面有文档
@@ -44,6 +45,8 @@ public class DocPushTest extends BaseTest {
         // 设置请求参数
         request.setApis(Arrays.asList(folder));
         request.setDebugEnvs(Arrays.asList(debugEnv));
+        request.setAuthor("张三");
+        request.setCommonErrorCodes(buildEnumItemParamList());
 
         // 发送请求
         DocPushResponse response = client.execute(request);
@@ -55,10 +58,27 @@ public class DocPushTest extends BaseTest {
         }
     }
 
+    private List<DocParamCode> buildEnumItemParamList() {
+        List<DocParamCode> errorCodes = new ArrayList<>(3);
+        for (int i = 0; i < 4; i++) {
+            DocParamCode enumItemParam = new DocParamCode();
+            enumItemParam.setCode("name" + i);
+            enumItemParam.setMsg("描述" + i);
+//            enumItemParam.setSolution("解决方案" + i);
+            errorCodes.add(enumItemParam);
+        }
+        return errorCodes;
+    }
+
     private static DocItem buildDocItem(int i) {
         DocItem item = new DocItem();
+        if (i % 2 == 0) {
+            item.setAuthor("张三");
+        } else {
+            item.setAuthor("王五");
+        }
         /* 设置基本信息 */
-        item.setName("获取商品名称" + i);
+        item.setName("a获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
         item.setUrl("/goods/{id}/get" + i);
         item.setHttpMethod("GET");
@@ -83,6 +103,17 @@ public class DocPushTest extends BaseTest {
         header.setDescription("请求token");
         header.setExample("xxxx");
         item.setHeaderParams(Arrays.asList(header));
+
+        /* 设置Query参数 */
+        DocParamReq queryCreateParamReq = new DocParamReq();
+        queryCreateParamReq.setName("uid");
+        queryCreateParamReq.setType("number");
+        queryCreateParamReq.setDescription("uid");
+        queryCreateParamReq.setExample("1111");
+        queryCreateParamReq.setMaxLength("64");
+        queryCreateParamReq.setRequired(Booleans.TRUE);
+        queryCreateParamReq.setParentId("");
+        item.setQueryParams(Arrays.asList(queryCreateParamReq));
 
         /* 设置请求参数 */
         DocParamReq paramCreateParamReq = new DocParamReq();

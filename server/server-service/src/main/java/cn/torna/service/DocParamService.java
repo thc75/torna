@@ -1,9 +1,11 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.DataIdUtil;
+import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
@@ -49,10 +51,34 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         return this.list(query);
     }
 
+    /**
+     * 删除参数，同时会删除子节点
+     * @param id id
+     */
+    public void deleteParamDeeply(long id) {
+        this.getMapper().deleteById(id);
+        this.deleteChildrenDeeply(id);
+    }
+
+    /**
+     * 递归删除下面所有子节点
+     * @param parentId 父id
+     */
+    private void deleteChildrenDeeply(long parentId) {
+        List<DocParam> children = this.list("parent_id", parentId);
+        for (DocParam child : children) {
+            this.deleteParamDeeply(child.getId());
+        }
+    }
 
     private void doSave(DocParamDTO docParamDTO, long parentId, DocInfo docInfo, ParamStyleEnum paramStyleEnum, User user) {
         DocParam docParam = new DocParam();
-        String dataId = DataIdUtil.getDocParamDataId(docInfo.getId(), parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
+        Long docId = docInfo.getId();
+        String dataId = DataIdUtil.getDocParamDataId(docId, parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
+        // 如果删除
+        if (docParamDTO.getIsDeleted() == Booleans.TRUE) {
+            dataId = IdGen.nextId();
+        }
         docParam.setId(docParamDTO.getId());
         docParam.setDataId(dataId);
         docParam.setName(docParamDTO.getName());
@@ -62,7 +88,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setExample(docParamDTO.getExample());
         docParam.setDescription(docParamDTO.getDescription());
         docParam.setEnumId(buildEnumId(docInfo.getModuleId(), docParamDTO));
-        docParam.setDocId(docInfo.getId());
+        docParam.setDocId(docId);
         docParam.setParentId(parentId);
         docParam.setStyle(paramStyleEnum.getStyle());
         docParam.setCreatorId(user.getUserId());
@@ -71,12 +97,26 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         docParam.setModifierId(user.getUserId());
         docParam.setModifyMode(user.getOperationModel());
         docParam.setModifierName(user.getNickname());
+        docParam.setOrderIndex(docParamDTO.getOrderIndex());
         docParam.setIsDeleted(docParamDTO.getIsDeleted());
-        DocParam savedParam = this.saveParam(docParam);
+        if (docParam.getDescription() == null) {
+            docParam.setDescription("");
+        }
+        DocParam savedParam;
+        if (docParam.getId() == null) {
+            savedParam = this.saveParam(docParam);
+        } else {
+            this.update(docParam);
+            savedParam = docParam;
+        }
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
             Long pid = savedParam.getId();
             for (DocParamDTO child : children) {
+                // 如果父节点被删除，子节点也要删除
+                if (docParam.getIsDeleted() == Booleans.TRUE) {
+                    child.setIsDeleted(docParam.getIsDeleted());
+                }
                 this.doSave(child, pid, docInfo, paramStyleEnum, user);
             }
         }

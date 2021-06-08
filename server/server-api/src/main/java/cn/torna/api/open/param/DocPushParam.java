@@ -1,5 +1,6 @@
 package cn.torna.api.open.param;
 
+import cn.torna.common.bean.Booleans;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,5 +21,11 @@ public class DocPushParam {
     @ApiDocField(description = "api列表", required = true, elementClass = DocPushItemParam.class)
     @NotEmpty(message = "文档内容不能为空")
     private List<DocPushItemParam> apis;
+
+    @ApiDocField(description = "推送人", example = "张三")
+    private String author;
+
+    @ApiDocField(description = "公共错误码", elementClass = CodeParamPushParam.class)
+    private List<CodeParamPushParam> commonErrorCodes;
 
 }

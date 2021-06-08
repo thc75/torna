@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +65,7 @@ public class IdCodec implements ObjectSerializer, ObjectDeserializer {
             List list = COLLECTION_CODEC.deserialze(parser, List.class, fieldName);
             return (T) list.stream()
                     .map(hashId -> IdUtil.decode(String.valueOf(hashId)))
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } else {
             String val = lexer.stringVal();

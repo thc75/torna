@@ -1,8 +1,11 @@
 package cn.torna.web.controller.space;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.RoleEnum;
 import cn.torna.service.SpaceService;
+import cn.torna.service.dto.SpaceUserInfoDTO;
+import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.web.controller.space.param.SpaceMemberAddParam;
 import cn.torna.web.controller.space.param.SpaceMemberPageParam;
 import cn.torna.web.controller.space.param.SpaceMemberRemoveParam;
@@ -10,15 +13,13 @@ import cn.torna.web.controller.space.param.SpaceMemberUpdateParam;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.SpaceUserInfoDTO;
-import cn.torna.service.dto.UserInfoDTO;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -50,7 +51,11 @@ public class SpaceMemberController {
      */
     @PostMapping("/page")
     public Result<PageEasyui<SpaceUserInfoDTO>> page(@Valid @RequestBody SpaceMemberPageParam param) {
-        Query query = param.toQuery();
+        Query query = new Query();
+        String username = param.getUsername();
+        if (StringUtils.hasText(username)) {
+            query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
+        }
         PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), query);
         return Result.ok(pageSpaceUser);
     }

@@ -2,4 +2,4 @@
 
 set app_name=torna
 
-java -jar -Xms256m -Xmx256m %app_name%.jar
+java -Duser.timezone=Asia/Shanghai -jar -Xms256m -Xmx256m %app_name%.jar

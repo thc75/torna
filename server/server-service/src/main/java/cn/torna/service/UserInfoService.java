@@ -17,6 +17,7 @@ import cn.torna.common.util.JwtUtil;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserInfoMapper;
+import cn.torna.service.dto.DingTalkLoginDTO;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.service.login.form.LoginForm;
@@ -65,6 +66,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     @Autowired
     private ThirdPartyLoginManager thirdPartyLoginManager;
 
+    @Autowired
+    private UserDingtalkInfoService userDingtalkInfoService;
+
     /**
      * 是否是第三方用户
      * @param userInfo user
@@ -107,6 +111,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     public User getLoginUser(long id) {
         UserInfo userInfo = getById(id);
+        if (userInfo == null || userInfo.getStatus() == UserStatusEnum.DISABLED.getStatus()) {
+            return null;
+        }
         return CopyUtil.copyBean(userInfo, LoginUser::new);
     }
 
@@ -186,6 +193,31 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         return buildLoginUser(userInfo);
     }
 
+    /**
+     * 钉钉登录
+     * @param dingTalkLoginDTO
+     * @return
+     */
+    public LoginUser dingtalkLogin(DingTalkLoginDTO dingTalkLoginDTO) {
+        String username = dingTalkLoginDTO.getUnionid();
+        UserInfo userInfo = getByUsername(username);
+        if (userInfo == null) {
+            userInfo = new UserInfo();
+            userInfo.setUsername(username);
+            userInfo.setPassword(GenerateUtil.getUUID());
+            userInfo.setNickname(dingTalkLoginDTO.getName());
+            // 给老板设置为超管
+            userInfo.setIsSuperAdmin(Booleans.toValue(dingTalkLoginDTO.getBoss()));
+            userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
+            userInfo.setIsDeleted(Booleans.FALSE);
+            userInfo.setSource(UserInfoSourceEnum.OAUTH.getSource());
+            userInfo.setEmail(dingTalkLoginDTO.getEmail());
+            this.save(userInfo);
+        }
+        userDingtalkInfoService.addUser(dingTalkLoginDTO, userInfo);
+        return buildLoginUser(userInfo);
+    }
+
     private UserInfo doThirdPartyLogin(String username, String password) {
         LoginForm loginForm = new LoginForm();
         loginForm.setUsername(username);
@@ -241,7 +273,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
      * @return 返回重置后的密码
      */
     public String resetPassword(Long id) {
-        Assert.isTrue(EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean(), "已开启第三方登录，不支持重置密码");
+        if (EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean()) {
+            throw new BizException("已开启第三方登录，不支持重置密码");
+        }
         UserInfo userInfo = getById(id);
         String newPwd = PasswordUtil.getRandomSimplePassword(6);
         String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));

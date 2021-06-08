@@ -1,0 +1,15 @@
+CREATE TABLE `share_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '分享形式，1：公开，2：加密',
+  `password` varchar(128) NOT NULL DEFAULT '' COMMENT '密码',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态，1：有效，0：无效',
+  `module_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'module.id',
+  `is_all` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为全部文档',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
+  `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_moduleid` (`module_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享配置表'

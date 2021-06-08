@@ -1,12 +1,14 @@
 import { Enums } from './enums'
 import {
-  create_response_example,
   convert_tree,
+  create_response_example,
+  get_effective_url,
   init_docInfo,
   StringBuilder,
-  style_config,
-  get_effective_url
+  get_style_config
 } from './common'
+
+import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
 
 const split_char = ' | '
 
@@ -44,7 +46,7 @@ function createTrContent(params, rowConfig, prefix, level) {
     for (const config of rowConfig) {
       let value = param[config.prop]
       if (config.prop === 'required') {
-        value = value ? '是' : '否'
+        value = value ? $ts('yes') : $ts('no')
       }
       row.push(value)
     }
@@ -59,9 +61,9 @@ function createTrContent(params, rowConfig, prefix, level) {
 
 function createTable(params, style) {
   if (!params || params.length === 0) {
-    return '无'
+    return $ts('empty')
   }
-  const rowConfig = style_config[style + '']
+  const rowConfig = get_style_config()[style + '']
   if (!rowConfig) {
     return ''
   }
@@ -73,10 +75,10 @@ function createTable(params, style) {
 }
 
 const MarkdownUtil = {
-  convertModule(moduleDTO) {
-    const docInfoList = moduleDTO.docInfoList
+  toMarkdownByData(docInfoList, title) {
+    title = title || $ts('document')
     const treeData = convert_tree(docInfoList)
-    const markdown_content = new StringBuilder(`# ${moduleDTO.name}\n\n`)
+    const markdown_content = new StringBuilder(`# ${title}\n\n`)
     const appendMarkdown = (doc_info) => {
       init_docInfo(doc_info)
       const markdown = MarkdownUtil.toMarkdown(doc_info)
@@ -106,42 +108,71 @@ const MarkdownUtil = {
       builder.append(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`### ${docInfo.name}`)
-    append(`#### URL`)
-    const debugEnvs = docInfo.debugEnvs || []
-    if (debugEnvs.length > 0) {
-      const ul = new StringBuilder()
-      docInfo.debugEnvs.forEach(hostConfig => {
-        const baseUrl = hostConfig.configValue
-        const url = get_effective_url(baseUrl, docInfo.url)
-        ul.append(`- ${hostConfig.configKey}: \`${docInfo.httpMethod}\` ${url}\n`)
-      })
-      append(ul.toString())
-    } else {
-      append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
+    if (docInfo.author) {
+      append(`${$ts('maintainer')}：${docInfo.author}`)
     }
-    append(`描述：${docInfo.description}`)
-    append(`ContentType：${docInfo.contentType}`)
-    append(`#### Path参数`)
-    const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
-    append(pathParamsTable)
+    if (isHttp(docInfo)) {
+      append(`#### URL`)
+      const debugEnvs = docInfo.debugEnvs || []
+      if (debugEnvs.length > 0) {
+        const ul = new StringBuilder()
+        docInfo.debugEnvs.forEach(hostConfig => {
+          const baseUrl = hostConfig.configValue
+          const url = get_effective_url(baseUrl, docInfo.url)
+          ul.append(`- ${hostConfig.configKey}: \`${docInfo.httpMethod}\` ${url}\n`)
+        })
+        append(ul.toString())
+      } else {
+        append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
+      }
+    } else if (isDubbo(docInfo)) {
+      append(`${$ts('method')}：${docInfo.url}`)
+    }
+    append(`${$ts('description')}：${docInfo.description}`)
 
-    append(`#### 请求Header`)
-    const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
-    append(headerParamsTable)
+    if (isHttp(docInfo)) {
+      append(`ContentType：\`${docInfo.contentType}\``)
+      if (docInfo.pathParams && docInfo.pathParams.length > 0) {
+        append(`#### ${$ts('pathVariable')}`)
+        const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
+        append(pathParamsTable)
+      }
+      if (docInfo.headerParams && docInfo.headerParams.length > 0) {
+        append(`#### ${$ts('requestHeader')}`)
+        const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
+        append(headerParamsTable)
+      }
+    }
 
-    append(`#### 请求参数`)
-    const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
-    append(requestParamsTable)
+    append(`#### ${$ts('requestParams')}`)
+    if (docInfo.queryParams && docInfo.queryParams.length > 0) {
+      append(`##### Query Parameter`)
+      const queryParamsTable = createTable(docInfo.queryParams, Enums.PARAM_STYLE.request)
+      append(queryParamsTable)
+    }
+    if (docInfo.requestParams && docInfo.requestParams.length > 0) {
+      append(`##### Body Parameter`)
+      const requestParamsTable = createTable(docInfo.requestParams, Enums.PARAM_STYLE.request)
+      append(requestParamsTable)
+    }
 
-    append(`#### 响应参数`)
+    if (isShowRequestExample(docInfo)) {
+      append(`#### ${$ts('requestExample')}`)
+      const requestExample = create_response_example(docInfo.requestParams)
+      appendCode(JSON.stringify(requestExample, null, 4))
+    }
+
+    append(`#### ${$ts('responseParam')}`)
     const responseParamsTable = createTable(docInfo.responseParams, Enums.PARAM_STYLE.response)
     append(responseParamsTable)
 
-    append(`#### 响应示例`)
-    const responseExample = create_response_example(docInfo.responseParams)
-    appendCode(JSON.stringify(responseExample, null, 4))
+    if (isHttp(docInfo)) {
+      append(`#### ${$ts('responseExample')}`)
+      const responseExample = create_response_example(docInfo.responseParams)
+      appendCode(JSON.stringify(responseExample, null, 4))
+    }
 
-    append(`#### 错误码`)
+    append(`#### ${$ts('errorCode')}`)
     const errorCodeParamsTable = createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code)
     append(errorCodeParamsTable)
     return builder.toString()

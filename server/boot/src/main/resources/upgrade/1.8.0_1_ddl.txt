@@ -1,0 +1,16 @@
+CREATE TABLE `compose_doc` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+  `project_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'compose_project.id',
+  `is_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否文件夹',
+  `folder_name` varchar(64) NOT NULL DEFAULT '' COMMENT '文件夹名称',
+  `parent_id` bigint(20) NOT NULL DEFAULT '0',
+  `origin` varchar(128) NOT NULL DEFAULT '' COMMENT '文档来源',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+  `order_index` int(10) unsigned NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_projectid` (`project_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档引用'

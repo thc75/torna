@@ -4,32 +4,29 @@
       ref="updatePwdForm"
       :model="updatePwdData"
       :rules="updatePwdRules"
-      label-width="120px"
+      label-width="150px"
       style="width: 500px;"
     >
-      <el-form-item label="旧密码" prop="oldPassword">
+      <el-form-item :label="$ts('oldPassword')" prop="oldPassword">
         <el-input
           v-model="updatePwdData.oldPassword"
           type="password"
-          placeholder="旧密码"
         />
       </el-form-item>
-      <el-form-item label="新密码" prop="password">
+      <el-form-item :label="$ts('newPassword')" prop="password">
         <el-input
           v-model="updatePwdData.password"
           type="password"
-          placeholder="新密码"
         />
       </el-form-item>
-      <el-form-item label="确认新密码" prop="password2">
+      <el-form-item :label="$ts('newPasswordConfirm')" prop="password2">
         <el-input
           v-model="updatePwdData.password2"
           type="password"
-          placeholder="确认新密码"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click.native.prevent="handleUpdate">修 改</el-button>
+        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $ts('dlgUpdate') }}</el-button>
       </el-form-item>
     </el-form>
     </div>
@@ -43,7 +40,7 @@ export default {
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.updatePwdData.password) {
-        callback(new Error('两次密码不一致'))
+        callback(new Error($ts('notSamePassword')))
       } else {
         callback()
       }
@@ -56,10 +53,10 @@ export default {
       },
       updatePwdRules: {
         oldPassword: [
-          { required: true, message: '请输入旧密码', trigger: 'blur' }
+          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入新密码', trigger: 'blur' }
+          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
         ],
         password2: [{ required: true, trigger: 'blur', validator: validatePassword2 }]
       }
@@ -74,7 +71,7 @@ export default {
           data.oldPassword = md5(data.oldPassword)
           data.password = md5(data.password)
           this.post('/user/password/update', data, function(resp) {
-            alert('修改成功，请重新登录')
+            alert($ts('updatePasswordSuccess'))
             this.logout('/')
           })
         }

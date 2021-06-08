@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 3;
+    private static final int VERSION = 11;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -50,6 +50,16 @@ public class UpgradeService {
     public void upgrade() {
         this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
         int oldVersion = getVersion();
+        doUpgrade(oldVersion);
+        // 最后更新当前版本到数据库
+        saveVersion(oldVersion);
+    }
+
+    /**
+     * 升级
+     * @param oldVersion 本地老版本
+     */
+    private void doUpgrade(int oldVersion) {
         // 对之前的版本会进行一次升级
         // 下次更新不会再运行
         if (oldVersion < 3) {
@@ -58,16 +68,105 @@ public class UpgradeService {
             v1_2_0();
             v1_3_0();
         }
-        // 最后更新当前版本到数据库
-        saveVersion();
+        v1_4_0(oldVersion);
+        v1_5_0(oldVersion);
+        v1_6_2(oldVersion);
+        v1_6_3(oldVersion);
+        v1_6_4(oldVersion);
+        v1_8_0(oldVersion);
+        v1_8_1(oldVersion);
     }
 
-    private void saveVersion() {
-        SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
-        systemConfigDTO.setConfigKey(TORNA_VERSION_KEY);
-        systemConfigDTO.setConfigValue(String.valueOf(VERSION));
-        systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
-        systemConfigService.setConfig(systemConfigDTO);
+    private void v1_8_1(int oldVersion) {
+        if (oldVersion < 11) {
+            runSql("ALTER TABLE `doc_info` CHANGE COLUMN `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL  COMMENT '文档描述' AFTER `name`");
+            runSql("ALTER TABLE `doc_param` CHANGE COLUMN `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL  COMMENT '描述' AFTER `example`");
+            runSql("ALTER TABLE `doc_param` CHANGE COLUMN `example` `example` VARCHAR(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT ''  COMMENT '示例值' AFTER `max_length`");
+            addColumn("doc_info",
+                    "is_request_array",
+                    "ALTER TABLE `doc_info` ADD COLUMN `is_request_array` TINYINT NOT NULL DEFAULT 0 COMMENT '是否请求数组' AFTER `is_use_global_returns`");
+            addColumn("doc_info",
+                    "is_response_array",
+                    "ALTER TABLE `doc_info` ADD COLUMN `is_response_array` TINYINT NOT NULL DEFAULT 0 COMMENT '是否返回数组' AFTER `is_request_array`");
+            addColumn("doc_info",
+                    "request_array_type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `request_array_type` VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'object' COMMENT '请求数组时元素类型' AFTER `is_response_array`");
+            addColumn("doc_info",
+                    "response_array_type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `response_array_type` VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'object' COMMENT '返回数组时元素类型' AFTER `request_array_type`");
+        }
+    }
+
+    private void v1_8_0(int oldVersion) {
+        if (oldVersion < 9) {
+            try {
+                // 添加索引
+                runSql("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
+                runSql("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
+                runSql("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
+            } catch (Exception e) {
+                // ignore
+            }
+            addColumn("space", "is_compose", "ALTER TABLE `space` ADD COLUMN `is_compose` TINYINT(4) NOT NULL DEFAULT 0  COMMENT '是否组合空间' AFTER `modifier_name`");
+            createTable("compose_doc", "upgrade/1.8.0_1_ddl.txt");
+            createTable("compose_project", "upgrade/1.8.0_2_ddl.txt");
+        }
+    }
+
+    private void v1_6_4(int oldVersion) {
+        if (oldVersion < 8) {
+            createTable("user_dingtalk_info", "upgrade/1.6.4_ddl.txt");
+        }
+    }
+
+    private void v1_6_3(int oldVersion) {
+        if (oldVersion < 7) {
+            addColumn("mock_config", "path",
+                    "ALTER TABLE `mock_config` ADD COLUMN `path` VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' AFTER `name`");
+            addColumn("mock_config", "data_id",
+                    "ALTER TABLE `mock_config` ADD COLUMN `data_id` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'md5(path+query+body)' AFTER `name`");
+            try {
+                runSql("CREATE INDEX `idx_dataid` USING BTREE ON `mock_config` (`data_id`)");
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    private void v1_6_2(int oldVersion) {
+        if (oldVersion < 6) {
+            addColumn("doc_info",
+                    "author",
+                    "ALTER TABLE `doc_info` ADD COLUMN `author` VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '维护人' AFTER `description`");
+        }
+    }
+
+
+    private void saveVersion(int oldVersion) {
+        if (oldVersion != VERSION) {
+            SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
+            systemConfigDTO.setConfigKey(TORNA_VERSION_KEY);
+            systemConfigDTO.setConfigValue(String.valueOf(VERSION));
+            systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
+            systemConfigService.setConfig(systemConfigDTO);
+        }
+    }
+
+    private void v1_5_0(int dbVersion) {
+        if (dbVersion < 5) {
+            this.createTable("prop", "upgrade/1.5.0_ddl.txt", "upgrade/1.5.0_ddl_compatible.txt");
+            this.addColumn("doc_info",
+                    "type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `type` TINYINT NOT NULL DEFAULT 0 COMMENT '0:http,1:dubbo' AFTER `description`"
+            );
+        }
+    }
+
+    private void v1_4_0(int dbVersion) {
+        if (dbVersion < 4) {
+            this.createTable("share_config", "upgrade/1.4.0_ddl_1.txt", "upgrade/1.4.0_ddl_1_compatible.txt");
+            this.createTable("share_content", "upgrade/1.4.0_ddl_2.txt", "upgrade/1.4.0_ddl_2_compatible.txt");
+        }
     }
 
     private void v1_3_0() {
@@ -187,6 +286,9 @@ public class UpgradeService {
         if (isColumnExist(tableName, columnName)) {
             return false;
         }
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
+        }
         upgradeMapper.runSql(sql);
         return true;
     }
@@ -198,10 +300,25 @@ public class UpgradeService {
      * @param ddlFileCompatible 低版本DDL文件
      * @return 创建成功返回true
      */
+    @Deprecated
     private boolean createTable(String tableName, String ddlFile, String ddlFileCompatible) {
-        String file = isLowerVersion() ? ddlFileCompatible : ddlFile;
+        return createTable(tableName, ddlFile);
+    }
+
+    /**
+     * 创建表
+     * @param tableName 表名
+     * @param ddlFile DDL文件
+     * @return 创建成功返回true
+     */
+    private boolean createTable(String tableName, String ddlFile) {
         if (!isTableExist(tableName)) {
-            String sql = this.loadDDL(file);
+            String sql = this.loadDDL(ddlFile);
+            if (isLowerVersion()) {
+                sql = sql.replace("DEFAULT CURRENT_TIMESTAMP", "DEFAULT NULL");
+                sql = sql.replace("DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", "DEFAULT NULL");
+                sql = sql.replace("utf8mb4", "utf8");
+            }
             upgradeMapper.runSql(sql);
             return true;
         }

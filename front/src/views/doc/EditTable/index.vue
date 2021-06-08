@@ -31,7 +31,7 @@
             prop="name"
             label-width="0"
           >
-            <el-input v-model="scope.row.name" placeholder="参数名称" maxlength="64" show-word-limit />
+            <el-input v-model="scope.row.name" :placeholder="$ts('paramName')" maxlength="64" show-word-limit />
           </el-form-item>
         </el-form>
       </template>
@@ -39,8 +39,8 @@
     <el-table-column
       v-if="isColumnShow('type')"
       prop="type"
-      label="类型"
-      width="120"
+      :label="$ts('type')"
+      width="130"
     >
       <template slot-scope="scope">
         <el-select v-model="scope.row.type" size="mini">
@@ -51,7 +51,7 @@
     <el-table-column
       v-if="isColumnShow('enum')"
       prop="enum"
-      label="关联字典"
+      :label="$ts('linkDict')"
       width="120"
     >
       <template slot-scope="scope">
@@ -65,7 +65,7 @@
     <el-table-column
       v-if="isColumnShow('required')"
       prop="required"
-      label="必填"
+      :label="$ts('require')"
       width="80"
     >
       <template slot-scope="scope">
@@ -80,11 +80,11 @@
     <el-table-column
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
-      label="最大长度"
+      :label="$ts('maxLength')"
       width="130"
     >
       <template slot-scope="scope">
-        <el-input v-model="scope.row.maxLength" placeholder="最大长度" size="mini" maxlength="10" show-word-limit />
+        <el-input v-model="scope.row.maxLength" :placeholder="$ts('maxLength')" size="mini" maxlength="10" show-word-limit />
       </template>
     </el-table-column>
     <el-table-column
@@ -98,7 +98,7 @@
             prop="description"
             label-width="0"
           >
-            <el-input v-model="scope.row.description" placeholder="描述" maxlength="128" show-word-limit />
+            <el-input v-model="scope.row.description" :placeholder="descriptionLabel" maxlength="512" show-word-limit />
           </el-form-item>
         </el-form>
       </template>
@@ -111,7 +111,7 @@
       <template slot-scope="scope">
         <el-input
           v-model="scope.row.example"
-          placeholder="示例值"
+          :placeholder="exampleLabel"
           maxlength="128"
           size="mini"
           show-word-limit
@@ -120,19 +120,19 @@
     </el-table-column>
     <el-table-column
       v-if="isColumnShow('opt')"
-      label="操作"
-      width="80"
+      :label="$ts('operation')"
+      width="90"
     >
       <template slot-scope="scope">
         <div>
           <div v-show="scope.row.isDeleted === 0">
-            <el-tooltip content="添加子节点" placement="top">
+            <el-tooltip :content="$ts('addChildNode')" placement="top" :open-delay="500">
               <el-link v-if="canAddNode" type="primary" icon="el-icon-circle-plus-outline" @click="onParamNodeAdd(scope.row)"></el-link>
             </el-tooltip>
             <el-link type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>
           </div>
           <div v-show="scope.row.isDeleted === 1">
-            <el-tooltip content="点击恢复" placement="top">
+            <el-tooltip :content="$ts('clickRestore')" placement="top">
               <el-link type="danger" icon="el-icon-remove" @click="scope.row.isDeleted = 0"></el-link>
             </el-tooltip>
           </div>
@@ -155,7 +155,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: '无数据'
+      default: $ts('noData')
     },
     canAddNode: {
       type: Boolean,
@@ -163,7 +163,7 @@ export default {
     },
     nameLabel: {
       type: String,
-      default: '名称'
+      default: $ts('name')
     },
     nameWidth: {
       type: Number,
@@ -175,11 +175,11 @@ export default {
     },
     descriptionLabel: {
       type: String,
-      default: '描述'
+      default: $ts('description')
     },
     exampleLabel: {
       type: String,
-      default: '示例值'
+      default: $ts('example')
     },
     hiddenColumns: {
       type: Array,
@@ -187,7 +187,7 @@ export default {
     },
     getter: {
       type: Function,
-      default: (rows) => { return rows }
+      default: (rows) => { return rows.filter(row => !row.hidden) }
     }
   },
   data() {
@@ -196,7 +196,7 @@ export default {
       enumData: [],
       paramRowRule: {
         name: [
-          { required: true, message: '请填写', trigger: ['blur', 'change'] }
+          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
         ]
       }
     }
@@ -233,11 +233,6 @@ export default {
       } else {
         row.isDeleted = 1
       }
-    },
-    hasNoParentAndChildren(row) {
-      const children = row.children
-      const noChildren = !children || children.length === 0
-      return !row.parentId && noChildren
     },
     getData() {
       return this.rows

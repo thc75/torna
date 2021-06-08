@@ -31,12 +31,12 @@ public class PasswordUtil {
     }
 
     /**
-     * 随机密码生成，仅字母数组
+     * 随机密码生成，仅字母数字
      * @param len 密码长度，必须大于等于6
      */
     public static String getRandomSimplePassword(int len) {
-        if (len < 6) {
-            throw new IllegalArgumentException("'len' must >= 6");
+        if (len < 4) {
+            throw new IllegalArgumentException("'len' must >= 4");
         }
         StringBuilder sb = new StringBuilder();
         Random r = new Random();

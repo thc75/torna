@@ -4,7 +4,7 @@
       <h2 class="doc-title">
         {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <div v-show="showOptBar" style="float: right">
-          <el-tooltip placement="top" :content="isSubscribe ? '点击取消关注' : '点击关注'">
+          <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
             <el-button
               type="text"
               :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
@@ -15,20 +15,21 @@
           <el-button type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
           <el-dropdown trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
-              导出 <i class="el-icon-arrow-down el-icon--right"></i>
+              {{ $ts('export') }} <i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdown">导出markdown</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtml">导出html</el-dropdown-item>
+              <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
       </h2>
       <span v-show="showOptBar" class="doc-modify-info">
-        {{ docInfo.creatorName }} 创建于 {{ docInfo.gmtCreate }}，
-        {{ docInfo.modifierName }} 最后修改于 {{ docInfo.gmtModified }}
+        {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
+        {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
+    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
@@ -38,40 +39,59 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-if="docInfo.description">描述：<span>{{ docInfo.description }}</span></h4>
-    <h4 v-if="docInfo.contentType">ContentType：<span>{{ docInfo.contentType }}</span></h4>
+    <h4 v-if="docInfo.description" class="doc-descr">
+      <div>{{ $ts('description') }}</div>
+      <span class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></span>
+    </h4>
+    <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
-      <h4>Path参数</h4>
+      <h4>{{ $ts('pathVariable') }}</h4>
       <parameter-table
         :data="docInfo.pathParams"
         :can-add-node="false"
         :hidden-columns="['maxLength']"
       />
     </div>
-    <h4>请求Header</h4>
-    <parameter-table
-      :data="docInfo.headerParams"
-      :can-add-node="false"
-      :hidden-columns="['type', 'maxLength']"
-      empty-text="无Header"
-    />
-    <h4>请求参数</h4>
-    <parameter-table :data="docInfo.requestParams" />
-    <h4>响应参数</h4>
-    <parameter-table :data="docInfo.responseParams" />
-    <h4>响应示例</h4>
-    <pre class="normal-text">{{ formatJson(responseSuccessExample) }}</pre>
-    <h4>错误码</h4>
+    <div v-if="docInfo.headerParams.length > 0">
+      <h4>{{ $ts('requestHeader') }}</h4>
+      <parameter-table
+        :data="docInfo.headerParams"
+        :can-add-node="false"
+        :hidden-columns="['type', 'maxLength']"
+        :empty-text="$ts('noHeader')"
+      />
+    </div>
+    <h4>{{ $ts('requestParams') }}</h4>
+    <span v-show="docInfo.queryParams.length === 0 && docInfo.requestParams.length === 0" class="normal-text">{{ $ts('empty') }}</span>
+    <div v-show="docInfo.queryParams.length > 0">
+      <h5>Query Parameter</h5>
+      <parameter-table :data="docInfo.queryParams" />
+    </div>
+    <div v-show="docInfo.requestParams.length > 0">
+      <h5>Body Parameter</h5>
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayReqTip')" />
+      <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
+    </div>
+    <div v-show="isRequestJson">
+      <h4>{{ $ts('requestExample') }}</h4>
+      <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+    </div>
+    <h4>{{ $ts('responseParam') }}</h4>
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
+    <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
+    <h4>{{ $ts('responseExample') }}</h4>
+    <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
+    <h4>{{ $ts('errorCode') }}</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
-      empty-text="无错误码"
+      :empty-text="$ts('emptyErrorCode')"
       :hidden-columns="['required', 'maxLength', 'type']"
-      name-label="错误码"
-      description-label="错误描述"
-      example-label="解决方案"
+      :name-label="$ts('errorCode')"
+      :description-label="$ts('errorDesc')"
+      :example-label="$ts('solution')"
     />
     <div v-if="docInfo.remark" class="doc-info-remark">
-      <el-divider content-position="left">修改备注</el-divider>
+      <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <span>{{ docInfo.remark }}</span>
     </div>
     <el-dialog
@@ -84,28 +104,17 @@
     </el-dialog>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.doc-view {
-  .http-method {
-    height: auto !important;
-    line-height: 20px !important;
-    padding: 0 4px !important;
-  }
-  .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
-  .debug-url { font-size: 14px;color: #606266 }
-}
-.doc-title {
-  margin: 0
+<style scoped>
+h4 .content {
+  margin: 0 10px;
 }
 </style>
-
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
-import { get_effective_url } from '@/utils/common'
+import { get_effective_url, parse_root_array } from '@/utils/common'
 
 export default {
   name: 'DocView',
@@ -130,6 +139,10 @@ export default {
     showOptBar: {
       type: Boolean,
       default: true
+    },
+    initSubscribe: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -151,6 +164,7 @@ export default {
         url: '',
         contentType: '',
         description: '',
+        author: '',
         httpMethod: 'GET',
         parentId: '',
         moduleId: '',
@@ -161,6 +175,7 @@ export default {
         gmtModified: '',
         pathParams: [],
         headerParams: [],
+        queryParams: [],
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
@@ -168,12 +183,32 @@ export default {
         globalParams: [],
         globalReturns: [],
         debugEnvs: [],
-        folders: []
+        folders: [],
+        isRequestArray: 0,
+        isResponseArray: 0,
+        requestArrayType: 'object',
+        responseArrayType: 'object'
       },
+      requestExample: {},
       responseSuccessExample: {},
       historyShow: false,
       historyDocId: '',
       isSubscribe: false
+      isSubscribe: false,
+      responseHiddenColumns: []
+    }
+  },
+  computed: {
+    isRequestJson() {
+      return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
+    },
+    requestParamHiddenColumns() {
+      const isRawArray = this.docInfo.isRequestArray && this.docInfo.requestArrayType !== 'object'
+      return isRawArray ? ['name', 'required', 'maxLength'] : []
+    },
+    responseParamHiddenColumns() {
+      const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
+      return isRawArray ? ['name', 'required', 'maxLength'] : this.responseHiddenColumns
     }
   },
   watch: {
@@ -185,7 +220,8 @@ export default {
       this.setData(data)
     }
   },
-  created() {
+  mounted() {
+    this.initResponseHiddenColumns()
   },
   methods: {
     loadData: function(docId) {
@@ -198,17 +234,49 @@ export default {
       }
     },
     loadSubscribe(id) {
-      this.get('/user/subscribe/doc/isSubscribe', { sourceId: id }, resp => {
-        this.isSubscribe = resp.data
-      })
+      if (id && this.initSubscribe) {
+        this.get('/user/subscribe/doc/isSubscribe', { sourceId: id }, resp => {
+          this.isSubscribe = resp.data
+        })
+      }
     },
     setData: function(data) {
-      if (data.id) {
-        this.loadSubscribe(data.id)
-      }
+      this.loadSubscribe(data.id)
       Object.assign(this.docInfo, data)
       this.$store.state.settings.moduleId = this.docInfo.moduleId
+      this.requestExample = this.doCreateResponseExample(data.requestParams)
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
+      // 如果是数组对象
+      if (this.docInfo.isRequestArray) {
+        this.requestExample = [this.requestExample]
+        const arrayType = this.docInfo.requestArrayType
+        if (arrayType !== 'object') {
+          const filterRow = data.requestParams.filter(el => el.isDeleted === 0)
+          this.requestExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
+      }
+      // 如果返回纯数组对象
+      if (this.docInfo.isResponseArray) {
+        this.responseSuccessExample = [this.responseSuccessExample]
+        const arrayType = this.docInfo.responseArrayType
+        if (arrayType !== 'object') {
+          const filterRow = data.responseParams.filter(el => el.isDeleted === 0)
+          this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
+      }
+    },
+    initResponseHiddenColumns() {
+      this.getViewConfig(config => {
+        const responseHiddenColumnsConfig = config.responseHiddenColumns
+        const responseHiddenColumns = []
+        if (responseHiddenColumnsConfig) {
+          const columnNames = responseHiddenColumnsConfig.split(',')
+          for (const columnName of columnNames) {
+            responseHiddenColumns.push(columnName.trim())
+          }
+        }
+        this.responseHiddenColumns = responseHiddenColumns
+      })
     },
     buildRequestUrl(hostConfig) {
       const baseUrl = hostConfig.configValue
@@ -231,12 +299,12 @@ export default {
     onSubscribe() {
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess('关注成功')
+          this.tipSuccess($ts('subscribeSuccess'))
           this.isSubscribe = true
         })
       } else {
         this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess('取消关注成功')
+          this.tipSuccess($ts('unsubscribeSuccess'))
           this.isSubscribe = false
         })
       }

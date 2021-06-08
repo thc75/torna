@@ -66,7 +66,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
                 "/", "/*.html", "/*.ico", "/static/**",
                 // 排除服务端请求
                 "/api", "/api/**", "/opendoc/**", "/doc/debug/**", "/system/**", "/captcha/**",
-                "/mock/**", "/error"
+                "/mock/**", "/error", "/share/**"
         };
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(excludes);

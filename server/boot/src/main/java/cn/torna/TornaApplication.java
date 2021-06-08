@@ -7,7 +7,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"cn.torna", "com.anji.captcha"})
+@SpringBootApplication(scanBasePackages = {"cn.torna"})
 public class TornaApplication implements ApplicationRunner {
 
     @Autowired
@@ -22,4 +22,5 @@ public class TornaApplication implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         upgradeService.upgrade();
     }
+
 }

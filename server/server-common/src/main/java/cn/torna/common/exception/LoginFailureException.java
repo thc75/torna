@@ -8,4 +8,11 @@ public class LoginFailureException extends RuntimeException implements Exception
     public ErrorCode getCode() {
         return ErrorCode.LOGIN_FAIL;
     }
+
+    public LoginFailureException(String message) {
+        super(message);
+    }
+
+    public LoginFailureException() {
+    }
 }

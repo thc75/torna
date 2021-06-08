@@ -1,19 +1,21 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.DataIdUtil;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.entity.EnumItem;
 import cn.torna.service.dto.EnumInfoDTO;
+import cn.torna.service.dto.EnumItemDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import cn.torna.common.exception.BizException;
-import cn.torna.service.dto.EnumInfoDTO;
-import cn.torna.service.dto.EnumItemDTO;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,14 +46,12 @@ public class EnumService {
             enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
             enumInfo.setDataId(dataId);
             enumInfoService.save(enumInfo);
-            List<EnumItemDTO> items = enumInfoDTO.getItems();
-            this.updateItems(enumInfo, items);
         } else {
             enumInfo.setDescription(enumInfoDTO.getDescription());
             enumInfoService.update(enumInfo);
-            List<EnumItemDTO> items = enumInfoDTO.getItems();
-            this.updateItems(enumInfo, items);
         }
+        List<EnumItemDTO> items = enumInfoDTO.getItems();
+        this.updateItems(enumInfo, items);
         return enumInfo;
     }
 
@@ -93,9 +93,11 @@ public class EnumService {
         EnumItem enumItem = enumItemService.getByEnumIdAndName(itemDTO.getEnumId(), itemDTO.getName());
         if (enumItem == null) {
             enumItem = CopyUtil.copyBean(itemDTO, EnumItem::new);
+            enumItem.setIsDeleted(Booleans.FALSE);
             enumItemService.save(enumItem);
         } else {
             CopyUtil.copyPropertiesIgnoreNull(itemDTO, enumItem);
+            enumItem.setIsDeleted(Booleans.FALSE);
             enumItemService.update(enumItem);
         }
     }

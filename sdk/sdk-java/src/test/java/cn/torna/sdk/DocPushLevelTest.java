@@ -96,6 +96,17 @@ public class DocPushLevelTest extends BaseTest {
         pathParam.setRequired(Booleans.TRUE);
         item.setPathParams(Arrays.asList(pathParam));
 
+        /* 设置Query参数 */
+        DocParamReq queryCreateParamReq = new DocParamReq();
+        queryCreateParamReq.setName("uid");
+        queryCreateParamReq.setType("number");
+        queryCreateParamReq.setDescription("uid");
+        queryCreateParamReq.setExample("1111");
+        queryCreateParamReq.setMaxLength("64");
+        queryCreateParamReq.setRequired(Booleans.TRUE);
+        queryCreateParamReq.setParentId("");
+        item.setQueryParams(Arrays.asList(queryCreateParamReq));
+
         /* 设置header */
         DocParamHeader header = new DocParamHeader();
         header.setName("token");

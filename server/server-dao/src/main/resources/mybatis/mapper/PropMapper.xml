@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.torna.dao.mapper.PropMapper">
+    <!-- 插入不为NULL的字段 -->
+    <insert id="saveProps">
+        INSERT INTO prop
+        (
+            `ref_id`
+            ,`type`
+            ,`name`
+            ,`val`
+            ,`gmt_create`
+            ,`gmt_modified`
+        )
+        VALUES
+        <foreach collection="items" item="data" separator="," >
+            (
+            #{data.refId}
+            ,#{data.type}
+            ,#{data.name}
+            ,#{data.val}
+            ,now()
+            ,now()
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        val = VALUES(val),
+        gmt_modified = now()
+    </insert>
+</mapper>

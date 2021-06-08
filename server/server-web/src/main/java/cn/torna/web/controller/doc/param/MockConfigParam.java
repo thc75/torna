@@ -19,7 +19,10 @@ public class MockConfigParam {
     private String name;
 
     private List<NameValueDTO> dataKv;
+
     private String dataJson;
+
+    private String path;
 
     /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
     private Byte requestDataType;

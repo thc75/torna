@@ -7,12 +7,20 @@
     :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     highlight-current-row
     :empty-text="emptyText"
+    :indent="20"
+    class="el-table-tree"
   >
     <el-table-column
       prop="name"
       :label="nameLabel"
       width="250"
-    />
+    >
+      <template slot-scope="scope">
+        <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
+          {{ scope.row.name }}
+        </span>
+      </template>
+    </el-table-column>
     <el-table-column
       prop="type"
       label="类型"

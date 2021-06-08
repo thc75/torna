@@ -7,7 +7,7 @@
           <li class="el-submenu is-active is-opened">
             <div class="el-submenu__title" style="padding-left: 20px;">
               <span slot="title">
-                模块列表
+                {{ $ts('moduleList') }}
                 <el-dropdown
                   v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
                   trigger="click"
@@ -16,9 +16,9 @@
                 >
                   <el-button type="text" size="mini" icon="el-icon-circle-plus-outline"></el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">新建模块</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">导入Swagger文档</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-download" :command="onImportPostman">导入Postman文档</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </span>
@@ -35,7 +35,7 @@
                 <span>
                   {{ item.name }}
                 </span>
-                <el-tooltip effect="dark" content="同步Swagger文档" placement="bottom">
+                <el-tooltip effect="dark" :content="$ts('syncSwaggerDoc')" placement="bottom">
                   <el-button
                     v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
                     v-show="module.id === item.id && item.type === 1"
@@ -59,9 +59,9 @@
             >
               <el-button type="text" icon="el-icon-circle-plus-outline"></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">新建模块</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">导入Swagger文档</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-download" :command="onImportPostman">导入Postman文档</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
+                <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </li>
@@ -212,18 +212,18 @@ export default {
       return this.getProjectConfig(this.projectId).moduleId
     },
     onModuleAdd() {
-      this.$prompt('请输入模块名称', '新建模块', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$prompt(this.$ts('inputModuleName'), this.$ts('newModule'), {
+        confirmButtonText: this.$ts('ok'),
+        cancelButtonText: this.$ts('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: '不能为空且长度在64以内'
+        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           name: value,
           projectId: this.projectId
         }
         this.post('/module/add', data, resp => {
-          this.tipSuccess('创建成功')
+          this.tipSuccess(this.$ts('createSuccess'))
           this.module = resp.data
           this.reload()
         })
@@ -234,7 +234,7 @@ export default {
       this.refreshSwaggerLoading = true
       this.get('/module/refresh/swagger', { moduleId: item.id }, () => {
         this.refreshSwaggerLoading = false
-        this.tipSuccess('同步成功')
+        this.tipSuccess(this.$ts('syncSuccess'))
         this.$refs.docInfo.reload()
       }, () => {
         this.refreshSwaggerLoading = false

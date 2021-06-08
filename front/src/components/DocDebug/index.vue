@@ -11,31 +11,34 @@
             />
           </el-radio-group>
           <span class="split">|</span>
-          <el-checkbox v-model="isProxy" label="代理转发" />
+          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" />
           <el-popover
             placement="right"
-            title="代理转发"
+            :title="$ts('proxyForward')"
             width="400"
             :open-delay="500"
             trigger="hover"
           >
-            <p>勾选：服务端代理转发请求</p>
-            <p>取消勾选：页面使用axios请求，需要处理跨域</p>
+            <p>{{ $ts('proxyForwardOn') }}</p>
+            <p>{{ $ts('proxyForwardOff') }}</p>
             <i slot="reference" class="el-icon-question"></i>
           </el-popover>
           <el-input v-model="requestUrl" :readonly="pathData.length > 0" class="request-url">
             <span slot="prepend">
               {{ currentMethod }}
             </span>
-            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send"> 发 送 </el-button>
+            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send">{{ $ts('debugSend') }}</el-button>
           </el-input>
         </div>
         <el-alert v-else :closable="false">
-          <span slot="title">
-            尚未指定调试环境，请前往
-            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">模块配置</router-link>】
-            进行添加。
-            <router-link class="el-link el-link--primary" target="_blank" to="/help?id=debug">参考文档</router-link>
+          <span v-if="internal" slot="title">
+            {{ $ts('noDebugEvnTip1') }}
+            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">{{ $ts('moduleSetting') }}</router-link>】
+            {{ $ts('noDebugEvnTip2') }}
+            <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('referenceDoc') }}</el-link>
+          </span>
+          <span v-else>
+            {{ $ts('noDebugEvnTip3') }}
           </span>
         </el-alert>
         <div v-show="pathData.length > 0" class="path-param">
@@ -47,10 +50,10 @@
           >
             <el-table-column
               prop="name"
-              label="Path参数"
+              :label="$ts('pathVariable')"
               width="300"
             />
-            <el-table-column label="参数值">
+            <el-table-column :label="$ts('value')">
               <template slot-scope="scope">
                 <el-form :model="scope.row" size="mini">
                   <el-form-item label-width="0">
@@ -75,12 +78,13 @@
             </span>
             <div>
               <el-table
+                ref="headerDataRef"
                 :data="headerData"
                 border
-                :header-cell-style="cellStyle"
-                :cell-style="cellStyle"
-                empty-text="无header"
+                :empty-text="$ts('noHeader')"
+                @selection-change="handleHeaderSelectionChange"
               >
+                <el-table-column type="selection" width="50" />
                 <el-table-column label="Name" prop="name" width="300px" />
                 <el-table-column label="Value">
                   <template slot-scope="scope">
@@ -96,10 +100,44 @@
           </el-collapse-item>
         </el-collapse>
         <el-tabs v-model="requestActive" type="card" style="margin-top: 10px">
-          <el-tab-pane label="Body" name="body">
+          <el-tab-pane name="query">
+            <span slot="label" class="result-header-label">
+              <span>Query Parameter <span class="param-count">({{ queryData.length }})</span></span>
+            </span>
+            <el-table
+              ref="queryDataRef"
+              :data="queryData"
+              border
+              @selection-change="handleQuerySelectionChange"
+            >
+              <el-table-column type="selection" width="50" />
+              <el-table-column
+                prop="name"
+                :label="$ts('paramName')"
+                width="300"
+              />
+              <el-table-column :label="$ts('value')">
+                <template slot-scope="scope">
+                  <el-form :model="scope.row" size="mini">
+                    <el-form-item label-width="0">
+                      <div v-if="scope.row.type === 'enum'">
+                        <el-select v-model="scope.row.example">
+                          <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
+                        </el-select>
+                      </div>
+                      <div v-else>
+                        <el-input v-model="scope.row.example" />
+                      </div>
+                    </el-form-item>
+                  </el-form>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane name="body">
             <span slot="label" class="result-header-label">
               <el-badge :is-dot="hasBody" type="danger">
-                <span>Body</span>
+                <span>Body Parameter</span>
               </el-badge>
             </span>
             <el-radio-group v-model="postActive" size="small" style="margin-bottom: 20px;">
@@ -108,7 +146,7 @@
               <el-radio-button label="multipart">multipart <span class="param-count">({{ multipartData.length }})</span></el-radio-button>
             </el-radio-group>
             <div v-show="showBody('text')">
-              <el-radio-group v-model="contentType" style="margin-bottom: 10px;">
+              <el-radio-group v-model="textRadio" style="margin-bottom: 10px;">
                 <el-radio label="application/json">JSON</el-radio>
                 <el-radio label="text/plain">Text</el-radio>
                 <el-radio label="application/xml">XML</el-radio>
@@ -117,23 +155,24 @@
               </el-radio-group>
               <el-form>
                 <el-form-item label-width="0">
-                  <el-input v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" />
+                  <el-input v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" @blur="onBodyBlur" />
                 </el-form-item>
               </el-form>
             </div>
             <div v-show="showBody('form')">
               <el-table
+                ref="formDataRef"
                 :data="formData"
                 border
-                :header-cell-style="cellStyle"
-                :cell-style="cellStyle"
+                @selection-change="handleFormSelectionChange"
               >
+                <el-table-column type="selection" width="50" />
                 <el-table-column
                   prop="name"
-                  label="参数名"
+                  :label="$ts('paramName')"
                   width="300"
                 />
-                <el-table-column label="参数值">
+                <el-table-column :label="$ts('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0">
@@ -160,33 +199,34 @@
                 :on-remove="(file, fileList) => onSelectMultiFile(file, fileList)"
                 :on-change="(file, fileList) => onSelectMultiFile(file, fileList)"
               >
-                <el-button slot="trigger" type="primary" size="mini">上传多个文件</el-button>
+                <el-button slot="trigger" type="primary" size="mini">{{ $ts('uploadMultiFiles') }}</el-button>
               </el-upload>
               <el-table
                 v-show="showBody('multipart')"
+                ref="multipartDataRef"
                 :data="multipartData"
                 border
-                :header-cell-style="cellStyle"
-                :cell-style="cellStyle"
+                @selection-change="handleMultipartSelectionChange"
               >
+                <el-table-column type="selection" width="50" />
                 <el-table-column
                   prop="name"
-                  label="参数名"
+                  :label="$ts('paramName')"
                   width="300"
                 />
-                <el-table-column label="参数值">
+                <el-table-column :label="$ts('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0" style="margin-bottom: 0">
                         <el-upload
-                          v-if="scope.row.type === 'file' || scope.row.elementType === 'file'"
+                          v-if="isFileParam(scope.row)"
                           action=""
-                          :multiple="true"
+                          :multiple="scope.row.type === 'file[]'"
                           :auto-upload="false"
                           :on-change="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                           :on-remove="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                         >
-                          <el-button slot="trigger" class="choose-file" type="primary">选择文件</el-button>
+                          <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
                         </el-upload>
                         <div v-else-if="scope.row.type === 'enum'">
                           <el-select v-model="scope.row.example">
@@ -203,39 +243,6 @@
               </el-table>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="Query" name="query">
-            <span slot="label" class="result-header-label">
-              <span>Query <span class="param-count">({{ queryData.length }})</span></span>
-            </span>
-            <el-table
-              :data="queryData"
-              border
-              :header-cell-style="cellStyle"
-              :cell-style="cellStyle"
-            >
-              <el-table-column
-                prop="name"
-                label="参数名"
-                width="300"
-              />
-              <el-table-column label="参数值">
-                <template slot-scope="scope">
-                  <el-form :model="scope.row" size="mini">
-                    <el-form-item label-width="0">
-                      <div v-if="scope.row.type === 'enum'">
-                        <el-select v-model="scope.row.example">
-                          <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                        </el-select>
-                      </div>
-                      <div v-else>
-                        <el-input v-model="scope.row.example" />
-                      </div>
-                    </el-form-item>
-                  </el-form>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
         </el-tabs>
       </el-col>
       <el-col :span="rightSpanSize" style="border-left: 1px #E4E7ED solid;">
@@ -243,7 +250,7 @@
           Status: <el-tag :type="result.status === 200 ? 'success' : 'danger'">{{ result.status }}</el-tag>
         </div>
         <el-tabs v-model="resultActive" type="card">
-          <el-tab-pane label="返回结果" name="body">
+          <el-tab-pane :label="$ts('returnResult')" name="body">
             <el-input v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
@@ -252,8 +259,6 @@
             </span>
             <el-table
               :data="result.headerData"
-              :header-cell-style="cellStyle"
-              :cell-style="cellStyle"
             >
               <el-table-column label="Name" prop="name" />
               <el-table-column label="Value" prop="value" />
@@ -265,12 +270,6 @@
   </div>
 </template>
 <style>
-.btn-send {
-  color: #FFFFFF !important;
-  width: 100px;
-  background-color: #409EFF !important;
-  border-radius: 0 !important;
-}
 .cell .choose-file {padding: 5px;}
 .doc-debug .cell .el-form-item {margin-bottom: 0;}
 .result-header-label {font-size: 14px;}
@@ -285,10 +284,11 @@
 <script>
 require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
-import { request, get_full_url } from '@/utils/http'
-import { get_effective_url } from '@/utils/common'
+import { get_full_url, request } from '@/utils/http'
+import { get_effective_url, is_array_string } from '@/utils/common'
 
 const HOST_KEY = 'torna.debug-host'
+const FILE_TYPES = ['file', 'file[]']
 
 export default {
   name: 'DocDebug',
@@ -296,6 +296,10 @@ export default {
     item: {
       type: Object,
       default: () => {}
+    },
+    internal: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -306,26 +310,32 @@ export default {
         debugEnvs: []
       },
       itemMap: null,
+      textRadio: 'application/json',
       currentMethod: 'GET',
       cellStyle: { paddingTop: '5px', paddingBottom: '5px' },
       requestUrl: '',
       bodyText: '',
       hasBody: false,
-      isTextBody: false,
+      isPostJson: false,
       contentType: '',
       requestActive: 'body',
       postActive: '',
       collapseActive: '',
+      pathData: [],
+      headerData: [],
+      queryData: [],
       formData: [],
       multipartData: [],
-      queryData: [],
+      // check
+      headerDataChecked: [],
+      queryDataChecked: [],
+      formDataChecked: [],
+      multipartDataChecked: [],
       uploadFiles: [],
       fieldTypes: [
-        { type: 'text', label: '文本' },
-        { type: 'file', label: '文件' }
+        { type: 'text', label: $ts('text') },
+        { type: 'file', label: $ts('file') }
       ],
-      headerData: [],
-      pathData: [],
       debugEnv: '',
       resultActive: 'result',
       sendLoading: false,
@@ -359,15 +369,14 @@ export default {
     loadItem(item) {
       this.currentItem = item
       this.currentMethod = item.httpMethod
-      this.hasBody = this.isRequestBody(this.currentMethod)
-      this.contentType = item.contentType
-      if (!this.contentType) {
-        this.contentType = this.hasBody ? 'application/json' : ''
-      }
-      this.isTextBody = this.contentType.toLowerCase().indexOf('application') > -1
+      this.hasBody = item.requestParams.length > 0
+      this.contentType = item.contentType || ''
+      this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
       this.initDebugHost()
       this.bindRequestParam(item)
       this.initActive()
+      this.loadProps()
+      this.setTableCheck()
     },
     initDebugHost() {
       const debugEnv = this.getAttr(HOST_KEY) || ''
@@ -389,62 +398,51 @@ export default {
       this.debugEnv = debugEnv
     },
     bindRequestParam(item) {
-      const queryData = []
       const formData = []
       const multipartData = []
       const requestParameters = item.requestParams
       // 是否是上传文件请求
       const uploadRequest = this.isUploadRequest(this.contentType, requestParameters)
-      requestParameters.forEach(row => {
-        if (this.hasBody) {
+      if (this.isPostJson) {
+        this.bodyText = this.buildJsonText(requestParameters)
+      } else {
+        requestParameters.forEach(row => {
           if (uploadRequest) {
             multipartData.push(row)
           } else {
             formData.push(row)
           }
-        } else {
-          queryData.push(row)
-        }
-      })
+        })
+      }
       this.pathData = item.pathParams
       this.headerData = item.headerParams
-      this.queryData = queryData
+      this.queryData = item.queryParams
       this.formData = formData
       this.multipartData = multipartData
-      if (this.isJsonBody()) {
-        const arrayBody = false
-        let jsonObj = this.doCreateResponseExample(requestParameters)
-        if (arrayBody) {
-          jsonObj = [jsonObj]
-        }
-        this.bodyText = JSON.stringify(jsonObj, null, 4)
+    },
+    buildJsonText(requestParameters) {
+      const arrayBody = false
+      let jsonObj = this.doCreateResponseExample(requestParameters)
+      if (arrayBody) {
+        jsonObj = [jsonObj]
       }
+      return this.formatJson(jsonObj)
     },
     initActive() {
       if (this.hasBody) {
         this.requestActive = 'body'
-        const contentType = this.contentType || ''
-        if (contentType.toLowerCase().indexOf('multipart') > -1 || this.multipartData.length > 0) {
+        const contentType = (this.contentType || '').toLowerCase()
+        if (contentType.indexOf('multipart') > -1 || this.multipartData.length > 0) {
           this.postActive = 'multipart'
+        } else if (contentType.indexOf('json') > -1) {
+          this.postActive = 'text'
         } else {
-          this.postActive = this.isTextBody ? 'text' : 'form'
+          this.postActive = 'form'
         }
       } else {
         this.requestActive = 'query'
         this.postActive = ''
       }
-    },
-    isJsonBody() {
-      return this.isTextBody && this.contentType.toLowerCase().indexOf('json') > -1
-    },
-    isRequestBody(httpMethod) {
-      const methods = ['get', 'head']
-      for (const method of methods) {
-        if (method === httpMethod.toLowerCase()) {
-          return false
-        }
-      }
-      return true
     },
     isUploadRequest(contentType, requestParameters) {
       if (contentType.toLowerCase().indexOf('multipart') > -1) {
@@ -474,34 +472,23 @@ export default {
     send() {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
-      let data = this.getParamObj(this.queryData)
-      let isJson = false
-      let isForm = false
+      const params = this.getQueryParams(this.queryDataChecked)
+      let data = {}
       let isMultipart = false
       // 如果请求body
-      switch (this.postActive) {
-        case 'text':
-          headers['Content-Type'] = this.contentType
+      if (this.hasBody) {
+        headers['Content-Type'] = this.contentType
+        const contentType = (this.contentType || '').toLowerCase()
+        if (contentType.indexOf('json') > -1) {
           data = this.bodyText
-          if (this.contentType.indexOf('json') > -1) {
-            isJson = true
-          }
-          break
-        case 'form':
-          isForm = true
-          data = this.getParamObj(this.formData)
-          break
-        case 'multipart':
+        } else if (contentType.indexOf('multipart') > -1 || this.multipartDataChecked.length > 0) {
           isMultipart = true
-          data = this.getParamObj(this.multipartData)
-          break
-        default:
-      }
-      if (isForm) {
-        headers['Content-Type'] = 'application/x-www-form-urlencoded'
-      }
-      if (isJson) {
-        headers['Content-Type'] = 'application/json'
+          data = this.getParamObj(this.multipartDataChecked)
+        } else if (contentType.indexOf('x-www-form-urlencoded') > -1) {
+          data = this.getQueryParams(this.formDataChecked)
+        } else {
+          data = this.bodyText
+        }
       }
       this.sendLoading = true
       const targetHeaders = JSON.stringify(headers)
@@ -512,18 +499,142 @@ export default {
         url = this.getProxyUrl('/doc/debug/v1')
         realHeaders['target-url'] = this.url
       }
-      request.call(this, item.httpMethod, url, data, realHeaders, isMultipart, this.doProxyResponse, () => {
+      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, () => {
         this.sendLoading = false
-        this.result.content = '发送失败，请按F12查看Console'
+        this.result.content = $ts('sendErrorTip')
         this.openRightPanel()
       })
+      this.setProps()
     },
     getProxyUrl(uri) {
       return get_full_url(uri)
     },
+    getQueryParams(paramsArr) {
+      const data = {}
+      for (const row of paramsArr) {
+        let value = row.example || ''
+        const type = row.type || 'string'
+        // 如果是数组
+        if (type.toLowerCase().indexOf('array') > -1) {
+          // 空数组不传递
+          if (value === '[]' || value === '') {
+            continue
+          }
+          if (is_array_string(value)) {
+            value = value.substring(1, value.length - 1)
+          }
+          const arr = value.split(',')
+          const finalArr = []
+          for (let i = 0; i < arr.length; i++) {
+            let val = arr[i]
+            if (val === '' || val === undefined) {
+              continue
+            }
+            val = val.trim()
+            // 去除首尾'，"
+            if ((val.startsWith('\'') && val.endsWith('\'')) || (val.startsWith('"') && val.endsWith('"'))) {
+              // 只有'',""的情况
+              if (val.length === 2) {
+                val = ''
+              } else {
+                val = val.substring(1, val.length - 1)
+              }
+            }
+            finalArr.push(val)
+          }
+          data[row.name] = finalArr
+        } else {
+          data[row.name] = value
+        }
+      }
+      return data
+    },
+    setProps() {
+      const formatData = (arr) => {
+        const data = {}
+        arr.forEach(row => {
+          data[row.name] = row.example
+        })
+        return data
+      }
+      const props = {
+        isProxy: this.isProxy,
+        headerData: formatData(this.headerData),
+        pathData: formatData(this.pathData),
+        queryData: formatData(this.queryData),
+        multipartData: formatData(this.multipartData.filter(row => row.type !== 'file')),
+        formData: formatData(this.formData),
+        bodyText: this.bodyText
+      }
+      for (const key in props) {
+        if (props[key] === '' || JSON.stringify(props[key]) === '{}') {
+          delete props[key]
+        }
+      }
+      const data = {
+        refId: this.item.id,
+        type: this.getEnums().PROP_TYPE.DEBUG,
+        props: {
+          debugData: JSON.stringify(props)
+        }
+      }
+      this.post('/prop/set', data, resp => {})
+    },
+    loadProps() {
+      const data = {
+        refId: this.item.id,
+        type: this.getEnums().PROP_TYPE.DEBUG
+      }
+      this.get('/prop/get', data, resp => {
+        const debugData = resp.data.debugData
+        if (!debugData) {
+          return
+        }
+        const props = JSON.parse(debugData)
+        const setProp = (params, data) => {
+          if (data && Object.keys(data).length > 0 && params) {
+            params.forEach(row => {
+              const val = data[row.name]
+              if (val !== undefined) {
+                row.example = val
+              }
+            })
+          }
+        }
+        if (props.isProxy !== undefined) {
+          this.isProxy = props.isProxy
+        }
+        setProp(this.headerData, props.headerData)
+        setProp(this.pathData, props.pathData)
+        setProp(this.queryData, props.queryData)
+        setProp(this.multipartData, props.multipartData)
+        setProp(this.formData, props.formData)
+        if (props.bodyText !== undefined) {
+          this.bodyText = props.bodyText
+        }
+      })
+    },
+    setTableCheck() {
+      this.$refs.headerDataRef.toggleAllSelection()
+      this.$refs.queryDataRef.toggleAllSelection()
+      this.$refs.formDataRef.toggleAllSelection()
+      this.$refs.multipartDataRef.toggleAllSelection()
+    },
+    handleHeaderSelectionChange(val) {
+      this.headerDataChecked = val
+    },
+    handleQuerySelectionChange(val) {
+      this.queryDataChecked = val
+    },
+    handleFormSelectionChange(val) {
+      this.formDataChecked = val
+    },
+    handleMultipartSelectionChange(val) {
+      this.multipartDataChecked = val
+    },
     buildRequestHeaders() {
       const headers = {}
-      this.headerData.forEach(row => {
+      this.headerDataChecked.forEach(row => {
         headers[row.name] = row.example || ''
       })
       return headers
@@ -581,7 +692,7 @@ export default {
         try {
           content = this.formatResponse(contentType, data)
         } catch (e) {
-          console.error('格式转换错误', e)
+          console.error($ts('parseError'), e)
           content = response.data
         }
         this.result.content = content
@@ -590,6 +701,14 @@ export default {
     },
     getHeaderValue(headers, key) {
       return headers[key] || headers[key.toLowerCase()]
+    },
+    onBodyBlur() {
+      if (this.bodyText && this.contentType === 'application/json') {
+        try {
+          this.bodyText = this.formatJson(JSON.parse(this.bodyText))
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+      }
     },
     formatResponse(contentType, stringBody) {
       if (this.isObject(stringBody) || this.isArray(stringBody)) {
@@ -649,6 +768,15 @@ export default {
     openRightPanel() {
       this.resultActive = 'body'
       this.rightSpanSize = 10
+    },
+    isFileParam(row) {
+      const type = row.type
+      for (const fileType of FILE_TYPES) {
+        if (type === fileType) {
+          return true
+        }
+      }
+      return false
     }
   }
 }

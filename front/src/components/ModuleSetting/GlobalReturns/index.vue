@@ -6,35 +6,46 @@
       style="margin-bottom: 10px"
       @click="onParamAdd"
     >
-      添加
+      {{ $ts('add') }}
     </el-button>
     <help-link style="margin-left: 20px;" to="/help?id=global" />
     <el-table
       :data="globalReturns"
       border
       highlight-current-row
+      row-key="id"
+      default-expand-all
+      :indent="20"
+      class="el-table-tree"
     >
-      <el-table-column label="参数名" prop="name" width="300px" />
-      <el-table-column label="类型" prop="type" width="120px" />
-      <el-table-column label="示例值" prop="example" >
+      <el-table-column :label="$ts('paramName')" prop="name" width="300px">
+        <template slot-scope="scope">
+          <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
+            {{ scope.row.name }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$ts('type')" prop="type" width="120px" />
+      <el-table-column :label="$ts('example')" prop="example" >
         <template slot-scope="scope">
           <span v-show="!isNodeData(scope.row)">
             {{ scope.row.example }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="描述" prop="description" />
+      <el-table-column :label="$ts('description')" prop="description" />
       <el-table-column
-        label="操作"
-        width="150"
+        :label="$ts('operation')"
+        :width="$width(200, { 'en': 240 })"
       >
         <template slot-scope="scope">
-          <el-link type="primary" size="mini" @click="onParamUpdate(scope.row)">修改</el-link>
+          <el-link type="primary" size="mini" @click="onParamAddChild(scope.row)">{{ $ts('addChildNode') }}</el-link>
+          <el-link type="primary" size="mini" @click="onParamUpdate(scope.row)">{{ $ts('update') }}</el-link>
           <el-popconfirm
-            :title="`确定要删除 ${scope.row.name} 吗？`"
-            @onConfirm="onParamDelete(scope.row)"
+            :title="$ts('deleteConfirm', scope.row.name)"
+            @confirm="onParamDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">删除</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -55,20 +66,20 @@
       >
         <el-form-item
           prop="name"
-          label="参数名称"
+          :label="$ts('paramName')"
         >
-          <el-input v-model="dialogParamFormData.name" placeholder="参数名称" show-word-limit maxlength="50" />
+          <el-input v-model="dialogParamFormData.name" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="dataType"
-          label="参数类型"
+          :label="$ts('type')"
         >
           <el-select v-model="dialogParamFormData.type" size="mini">
             <el-option v-for="type in getTypeConfig()" :key="type" :label="type" :value="type"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item
-          label="关联字典"
+          :label="$ts('linkDict')"
         >
           <el-select v-model="dialogParamFormData.enumId" :clearable="true" size="mini">
             <el-option v-for="enumInfo in enumData" :key="enumInfo.id" :label="enumInfo.name" :value="enumInfo.id">
@@ -78,25 +89,25 @@
         </el-form-item>
         <el-form-item
           prop="example"
-          label="示例值"
+          :label="$ts('example')"
         >
           <el-switch
             v-model="isDataNode"
-            active-text="是否数据节点"
+            :active-text="$ts('isDataNode')"
             inactive-text=""
           />
-          <el-input v-show="!isDataNode" v-model="dialogParamFormData.example" placeholder="示例值" show-word-limit maxlength="200" />
+          <el-input v-show="!isDataNode" v-model="dialogParamFormData.example" show-word-limit maxlength="200" />
         </el-form-item>
         <el-form-item
           prop="description"
-          label="描述"
+          :label="$ts('description')"
         >
-          <el-input v-model="dialogParamFormData.description" type="textarea" placeholder="描述" show-word-limit maxlength="200" />
+          <el-input v-model="dialogParamFormData.description" type="textarea" show-word-limit maxlength="200" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogParamVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onDialogParamSave">保 存</el-button>
+        <el-button @click="dialogParamVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogParamSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -125,10 +136,10 @@ export default {
       },
       dialogParamFormRules: {
         name: [
-          { required: true, message: '不能为空', trigger: 'blur' },
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^[a-zA-Z0-9\-_]+$/.test(value)) {
-              callback(new Error('格式错误，支持大小写英文、数字、-、下划线'))
+              callback(new Error(this.$ts('errorParam')))
             } else {
               callback()
             }
@@ -167,20 +178,40 @@ export default {
     },
     loadParams(moduleId) {
       this.get('/module/setting/globalReturns/list', { moduleId: moduleId }, resp => {
-        this.globalReturns = resp.data
+        const data = resp.data
+        this.globalReturns = this.convertTree(data)
       })
     },
     isNodeData(row) {
       return row.example === DATA_PLACEHOLDER
     },
     onParamAdd() {
-      this.dialogParamTitle = '新增参数'
+      this.dialogParamTitle = this.$ts('addParam')
       this.dialogParamVisible = true
       this.dialogParamFormData.id = ''
+      this.dialogParamFormData.enumId = ''
       this.dialogParamFormData.type = 'string'
     },
+    onParamAddChild(row) {
+      const child = this.getNewData(row)
+      this.dialogParamTitle = this.$ts('addChildTitle', row.name)
+      this.dialogParamVisible = true
+      this.dialogParamFormData = child
+    },
+    getNewData(parent) {
+      const parentId = parent ? parent.id : ''
+      return {
+        id: '',
+        moduleId: '',
+        name: '',
+        type: 'string',
+        parentId: parentId,
+        example: '',
+        description: ''
+      }
+    },
     onParamUpdate(row) {
-      this.dialogParamTitle = '修改参数'
+      this.dialogParamTitle = this.$ts('updateParam')
       this.dialogParamVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogParamFormData, row)

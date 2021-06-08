@@ -16,4 +16,5 @@ public class DebugHostDTO {
     /** 配置值 */
     private String configValue;
 
+    private Long extendId;
 }

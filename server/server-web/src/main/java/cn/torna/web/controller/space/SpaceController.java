@@ -1,8 +1,10 @@
 package cn.torna.web.controller.space;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.SpaceService;
@@ -22,6 +24,7 @@ import cn.torna.service.dto.SpaceDTO;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -61,6 +64,20 @@ public class SpaceController {
     }
 
     /**
+     * 返回用户所在的非聚合空间
+     * @return
+     */
+    @GetMapping("listNormal")
+    public Result<List<SpaceDTO>> listNormal() {
+        User user = UserContext.getUser();
+        List<SpaceDTO> spaceDTOS = spaceService.listSpace(user);
+        List<SpaceDTO> list = spaceDTOS.stream()
+                .filter(spaceDTO -> spaceDTO.getIsCompose() == Booleans.FALSE)
+                .collect(Collectors.toList());
+        return Result.ok(list);
+    }
+
+    /**
      * 添加空间
      * @param spaceAddDTO
      * @return
@@ -80,8 +97,16 @@ public class SpaceController {
 
     @PostMapping("delete")
     public Result del(@RequestBody SpaceParam param) {
+        User user = UserContext.getUser();
         Space space = spaceService.getById(param.getId());
-        spaceService.delete(space);
+        List<Long> spaceAdminIds = spaceService.listSpaceAdminId(space.getId());
+        if (!user.isSuperAdmin() && !spaceAdminIds.contains(user.getUserId())) {
+            throw new BizException("无操作权限");
+        }
+        space.setModifierId(user.getUserId());
+        space.setModifierName(user.getNickname());
+        space.setIsDeleted(Booleans.TRUE);
+        spaceService.update(space);
         return Result.ok();
     }
 

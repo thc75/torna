@@ -185,7 +185,7 @@ public class SdkTest extends BaseTest {
         paramCreateParamResp3.setType("object");
         paramCreateParamResp3.setDescription("数组" + suffix);
         paramCreateParamResp3.setRequired(Booleans.TRUE);
-        List<DocParamReq> childrenResp = buildChildren();
+        List<DocParamResp> childrenResp = buildChildrenResp();
         paramCreateParamResp3.setChildren(childrenResp);
         item.setResponseParams(Arrays.asList(paramCreateParamResp, paramCreateParamResp2, paramCreateParamResp3));
 
@@ -203,6 +203,21 @@ public class SdkTest extends BaseTest {
         List<DocParamReq> list = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             DocParamReq paramCreateParamReq2_child = new DocParamReq();
+            paramCreateParamReq2_child.setName("price" + i);
+            paramCreateParamReq2_child.setType("string");
+            paramCreateParamReq2_child.setDescription("子节点描述");
+            paramCreateParamReq2_child.setExample("100");
+            paramCreateParamReq2_child.setMaxLength("64");
+            paramCreateParamReq2_child.setRequired(Booleans.TRUE);
+            list.add(paramCreateParamReq2_child);
+        }
+        return list;
+    }
+
+    private static List<DocParamResp> buildChildrenResp() {
+        List<DocParamResp> list = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            DocParamResp paramCreateParamReq2_child = new DocParamResp();
             paramCreateParamReq2_child.setName("price" + i);
             paramCreateParamReq2_child.setType("string");
             paramCreateParamReq2_child.setDescription("子节点描述");

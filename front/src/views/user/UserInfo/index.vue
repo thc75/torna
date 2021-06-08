@@ -7,20 +7,20 @@
       label-width="120px"
       style="width: 500px;"
     >
-      <el-form-item label="登录账号">
+      <el-form-item :label="$ts('loginAccount')">
         {{ userInfo.username }}
       </el-form-item>
-      <el-form-item label="昵称" prop="nickname">
+      <el-form-item :label="$ts('nickname')" prop="nickname">
         <el-input v-model="userInfo.nickname" show-word-limit maxlength="50" />
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
+      <el-form-item :label="$ts('email')" prop="email">
         <el-input v-model="userInfo.email" show-word-limit maxlength="100" />
       </el-form-item>
-      <el-form-item label="注册时间">
+      <el-form-item :label="$ts('regTime')">
         {{ userInfo.gmtCreate }}
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSave">保 存</el-button>
+        <el-button type="primary" @click="onSave">{{ $ts('dlgSave') }}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -38,7 +38,7 @@ export default {
     return {
       rules: {
         nickname: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -56,7 +56,7 @@ export default {
       this.$refs.userForm.validate(valid => {
         if (valid) {
           this.post('/user/update', this.userInfo, () => {
-            this.tipSuccess('保存成功')
+            this.tipSuccess($ts('saveSuccess'))
           })
         }
       })

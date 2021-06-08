@@ -13,6 +13,8 @@ public class ApiUser implements User {
 
     private Long id;
 
+    private String nickname = "OpenAPI";
+
     @Override
     public Long getUserId() {
         return id;
@@ -30,7 +32,11 @@ public class ApiUser implements User {
 
     @Override
     public String getNickname() {
-        return "OpenAPI";
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     @Override

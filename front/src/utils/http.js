@@ -1,7 +1,17 @@
 import axios from 'axios'
-import {getToken} from '@/utils/auth'
+import { getToken } from '@/utils/auth'
+import qs from 'qs'
 
-const baseURL = process.env.VUE_APP_BASE_API || `${location.protocol}//${location.host}`
+function getBaseUrl() {
+  const url = location.href.toString()
+  let baseUrl = url.split('#')[0]
+  if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.substring(0, baseUrl.length - 1)
+  }
+  return baseUrl
+}
+
+const baseURL = process.env.VUE_APP_BASE_API || getBaseUrl()
 
 // 创建axios实例
 const client = axios.create({
@@ -66,7 +76,7 @@ export function post(uri, data, callback, errorCallback) {
  */
 export function do_get(uri, data, callback) {
   const that = this
-  client.get(uri, {
+  client.get(formatUri(uri), {
     params: data
   })
     .then(response => {
@@ -86,7 +96,7 @@ export function do_get(uri, data, callback) {
  */
 export function do_post(uri, data, callback) {
   const that = this
-  client.post(uri, data)
+  client.post(formatUri(uri), data)
     .then(response => {
       callback.call(that, response)
     })
@@ -94,6 +104,10 @@ export function do_post(uri, data, callback) {
       console.error('error', error)
       that.$message.error('请求异常，请查看日志')
     })
+}
+
+function formatUri(uri) {
+  return uri.startsWith('/') ? uri.substring(1) : uri
 }
 
 export function get_headers() {
@@ -107,23 +121,30 @@ function get_token() {
   return `Bearer ${token}`
 }
 
-export function request(method, url, data, headers, isMultipart, callback, errorCall) {
+export function request(method, url, params, data, headers, isMultipart, callback, errorCall) {
   if (isMultipart) {
-    doMultipart.call(this, url, data, headers, callback, errorCall)
+    doMultipart.call(this, url, params, data, headers, callback, errorCall)
     return
   }
   const that = this
-  const methodUpper = method.toUpperCase()
-  const hasQuery = methodUpper === 'GET' || methodUpper === 'HEAD'
-  const params = hasQuery ? data : null
-  const postData = !hasQuery ? data : null
-  axios.request({
+  const config = {
     url: url,
     method: method,
     headers: headers,
     params: params,
-    data: postData
-  })
+    data: data,
+    paramsSerializer: args => {
+      return qs.stringify(args, { indices: false })
+    }
+  }
+  const contentType = headers['Content-Type'] || headers['content-type']
+  // 如果是模拟表单提交
+  if (contentType && contentType.toLowerCase().indexOf('x-www-form-urlencoded') > -1) {
+    config.transformRequest = [function(data) {
+      return qs.stringify(data, { indices: false })
+    }]
+  }
+  axios.request(config)
     .then(response => {
       callback.call(that, response)
     })
@@ -132,7 +153,7 @@ export function request(method, url, data, headers, isMultipart, callback, error
     })
 }
 
-export function doMultipart(url, data, headers, callback, errorCall) {
+export function doMultipart(url, params, data, headers, callback, errorCall) {
   const that = this
   const formData = new FormData()
   for (const name in data) {
@@ -147,11 +168,9 @@ export function doMultipart(url, data, headers, callback, errorCall) {
       formData.append(name, data[name])
     }
   }
-  for (const name in data) {
-    formData.append(name, data[name])
-  }
   axios.post(url, formData, {
-    headers: headers
+    headers: headers,
+    params: params
   })
     .then(response => {
       callback.call(that, response)

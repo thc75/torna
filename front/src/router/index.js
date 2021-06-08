@@ -1,8 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
-Vue.use(Router)
-
 /* Layout */
 import Layout from '@/layout'
 import LayoutView from '@/layout_view'
@@ -10,6 +7,10 @@ import LayoutUserCenter from '@/layout/index_user'
 import LayoutSpace from '@/layout/index_space'
 import LayoutProject from '@/layout/index_project'
 import LayoutAdmin from '@/layout_admin'
+import LayoutShare from '@/layout_share'
+import LayoutShow from '@/layout_show'
+
+Vue.use(Router)
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -102,6 +103,12 @@ export const constantRoutes = [
         meta: { title: '项目列表' }
       },
       {
+        path: 'compose/:spaceId(\\w+)',
+        name: 'SpaceComposeProject',
+        component: () => import('@/views/space/index_compose_project'),
+        meta: { title: '项目列表' }
+      },
+      {
         path: 'info/:spaceId(\\w+)',
         name: 'SpaceInfo',
         component: () => import('@/views/space/index_info'),
@@ -163,6 +170,13 @@ export const constantRoutes = [
         meta: { title: '新建文档' }
       },
       {
+        path: 'copy/:moduleId(\\w+)/:copyId(\\w+)',
+        name: 'NewCopy',
+        hidden: true,
+        component: () => import('@/views/doc/edit/index'),
+        meta: { title: '复制文档' }
+      },
+      {
         path: 'new/:moduleId(\\w+)',
         name: 'New2',
         hidden: true,
@@ -197,6 +211,13 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/user/message'),
         meta: { title: '我的消息' }
+      },
+      {
+        path: 'systemSetting',
+        name: 'SystemSetting',
+        hidden: true,
+        component: () => import('@/views/common/systemSetting'),
+        meta: { title: '系统设置' }
       }
     ]
   },
@@ -224,13 +245,51 @@ export const constantRoutes = [
     children: [
       {
         path: '/',
-        name: 'Home',
+        name: 'ViewHome',
         component: () => import('@/views/view/index')
       },
       {
         path: ':docId(\\w+)',
         name: 'ViewDoc',
         component: () => import('@/views/view/index')
+      }
+    ]
+  },
+  // 分享模式
+  {
+    path: '/share', // 必须/开头
+    component: LayoutShare,
+    name: 'Share',
+    meta: { title: '文档', icon: 'example' },
+    children: [
+      {
+        path: ':shareId(\\w+)',
+        name: 'ShareHome',
+        component: () => import('@/views/share/index')
+      },
+      {
+        path: ':shareId(\\w+)/:docId(\\w+)',
+        name: 'ShareHome2',
+        component: () => import('@/views/share/index')
+      }
+    ]
+  },
+  // 聚合模式
+  {
+    path: '/show', // 必须/开头
+    component: LayoutShow,
+    name: 'Show',
+    meta: { title: '文档', icon: 'example' },
+    children: [
+      {
+        path: ':showId(\\w+)',
+        name: 'ShowHome',
+        component: () => import('@/views/show/index')
+      },
+      {
+        path: ':showId(\\w+)/:docId(\\w+)',
+        name: 'ShowHome2',
+        component: () => import('@/views/show/index')
       }
     ]
   },

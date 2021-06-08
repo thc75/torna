@@ -30,4 +30,6 @@ public class DebugEnvParam {
     @Length(max = 100)
     private String configValue;
 
+    private Long extendId;
+
 }

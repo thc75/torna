@@ -2,19 +2,20 @@
 注册全局方法
  */
 import Vue from 'vue'
-import { getToken, removeToken } from './auth'
-import { do_get, get, get_baseUrl, get_file, post } from './http'
+import {getToken, removeToken} from './auth'
+import {do_get, get, get_baseUrl, get_file, post} from './http'
 import {
   convert_tree,
   create_response_example,
   get_requestUrl,
   init_docInfo,
+  init_docInfo_complete_view,
   init_docInfo_view,
-  init_docInfo_complete_view
+  is_ding_talk
 } from './common'
-import { format_json } from '@/utils/format'
-import { Enums } from './enums'
-import { add_init } from './init'
+import {format_json} from '@/utils/format'
+import {Enums} from './enums'
+import {add_init} from './init'
 
 const SPACE_ID_KEY = 'torna.spaceid'
 const TORNA_FROM = 'torna.from'
@@ -26,9 +27,12 @@ const typeConfig = [
   'string',
   'number',
   'boolean',
-  'array',
   'object',
+  'array',
+  'num_array',
+  'str_array',
   'file',
+  'file[]',
   'enum'
 ]
 
@@ -39,6 +43,9 @@ const baseTypeConfig = [
 ]
 
 let next_id = 1
+
+let server_config
+let view_config
 
 Object.assign(Vue.prototype, {
   /**
@@ -122,9 +129,9 @@ Object.assign(Vue.prototype, {
    */
   confirm: function(msg, okHandler, cancelHandler) {
     const that = this
-    this.$confirm(msg, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    this.$confirm(msg, this.$ts('tip'), {
+      confirmButtonText: this.$ts('ok'),
+      cancelButtonText: this.$ts('cancel'),
       type: 'warning'
     }).then(() => {
       okHandler.call(that)
@@ -145,12 +152,26 @@ Object.assign(Vue.prototype, {
    */
   alert: function(msg, title, callback) {
     const that = this
-    this.$alert(msg, title || '提示', {
-      confirmButtonText: '确定',
+    this.$alert(msg, title || this.$ts('tip'), {
+      confirmButtonText: this.$ts('ok'),
       callback: action => {
         callback && callback.call(that, action)
       }
     })
+  },
+  /**
+   * 新窗口打开
+   * @param path 路由path
+   */
+  openLink(path) {
+    // 如果是钉钉应用，不支持新窗口打开
+    if (is_ding_talk()) {
+      this.$router.push({ path: path })
+    } else {
+      // 新窗口打开
+      const routeData = this.$router.resolve({ path: path })
+      window.open(routeData.href, '_blank')
+    }
   },
   nextId() {
     return next_id++
@@ -182,11 +203,34 @@ Object.assign(Vue.prototype, {
     this.$router.go(-1)
   },
   getServerConfig(callback) {
-    this.get('/system/config', {}, resp => {
-      if (callback) {
-        callback.call(this, resp.data)
-      }
-    })
+    if (!callback) {
+      return
+    }
+    if (server_config) {
+      callback.call(this, server_config)
+    } else {
+      this.get('/system/config', {}, resp => {
+        server_config = resp.data
+        callback.call(this, server_config)
+      })
+    }
+  },
+  /**
+   * 获取页面配置
+   * @param callback 回调函数，参数为配置内容
+   */
+  getViewConfig(callback) {
+    if (!callback) {
+      return
+    }
+    if (view_config) {
+      callback.call(this, view_config)
+    } else {
+      this.get('/system/viewConfig', {}, resp => {
+        view_config = resp.data
+        callback.call(this, view_config)
+      })
+    }
   },
   loadEnumData(moduleId, callback) {
     this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
@@ -247,7 +291,61 @@ Object.assign(Vue.prototype, {
   getRequestUrl(item) {
     return get_requestUrl(item)
   },
+  /**
+   * 导入参数
+   * @param params 响应参数数组
+   * @param json 当前json
+   */
+  doImportParam: function(params, json) {
+    for (const name in json) {
+      const value = json[name]
+      let row = this.findRow(params, name)
+      const isExist = row !== null
+      if (!isExist) {
+        row = this.getParamNewRow(name, value)
+      }
+      row.example = value
+      // 如果有子节点
+      if (this.isObject(value)) {
+        row.type = 'object'
+        row.example = ''
+        const children = row.children
+        this.doImportParam(children, value)
+        children.forEach(child => { child.parentId = row.id })
+      } else if (this.isArray(value)) {
+        row.type = 'array'
+        row.example = ''
+        const oneVal = value.length === 0 ? {} : value[0]
+        if (this.isObject(oneVal)) {
+          const children = row.children
+          this.doImportParam(children, oneVal)
+          children.forEach(child => { child.parentId = row.id })
+        } else {
+          row.example = JSON.stringify(value)
+        }
+      } else {
+        // 单值
+        row.type = typeof value
+        row.example = String(value)
+      }
+      if (!isExist) {
+        params.push(row)
+      }
+    }
+  },
+  findRow: function(params, name) {
+    for (let i = 0; i < params.length; i++) {
+      const r = params[i]
+      if (r.name === name) {
+        return r
+      }
+    }
+    return null
+  },
   getParamNewRow: function(name, value) {
+    if (value === undefined) {
+      value = ''
+    }
     return {
       id: this.nextId(),
       name: name || '',
@@ -256,7 +354,7 @@ Object.assign(Vue.prototype, {
       description: '',
       enumContent: '',
       maxLength: 64,
-      example: value || '',
+      example: value,
       isDeleted: 0,
       isNew: true,
       children: []
@@ -370,7 +468,7 @@ Object.assign(Vue.prototype, {
     this.setCurrentProject(project)
   },
   loadSpaceData(callback) {
-    this.get('/space/list', {}, resp => {
+    this.get('/space/listNormal', {}, resp => {
       const data = resp.data
       let spaceId = ''
       const cacheId = this.getSpaceId()
@@ -489,7 +587,7 @@ Object.assign(Vue.prototype, {
     }
   },
   handleCommand: function(command) {
-    command()
+    command && command()
   },
   isObject: function(obj) {
     return Object.prototype.toString.call(obj) === '[object Object]'
@@ -517,6 +615,14 @@ Object.assign(Vue.prototype, {
   },
   addInit(fn) {
     add_init.call(this, fn)
+  },
+  hasNoParentAndChildren(row) {
+    const children = row.children
+    const noChildren = !children || children.length === 0
+    return !row.parentId && noChildren
+  },
+  deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj))
   }
 })
 

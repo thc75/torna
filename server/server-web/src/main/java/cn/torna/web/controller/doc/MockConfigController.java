@@ -9,13 +9,16 @@ import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
+import cn.torna.service.dto.NameValueDTO;
 import cn.torna.web.controller.doc.param.MockConfigParam;
 import cn.torna.web.controller.doc.vo.MockBaseVO;
 import cn.torna.web.controller.doc.vo.MockConfigVO;
 import cn.torna.web.controller.doc.vo.NameValueVO;
 import cn.torna.web.controller.system.param.IdParam;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +26,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,6 +91,9 @@ public class MockConfigController {
             save = true;
         }
         mockConfig.setName(param.getName());
+        mockConfig.setPath(param.getPath());
+        String dataId = buildDataId(param);
+        mockConfig.setDataId(dataId);
         mockConfig.setRequestDataType(param.getRequestDataType());
         mockConfig.setRequestData(getRequestData(param));
         mockConfig.setHttpStatus(param.getHttpStatus());
@@ -107,12 +115,19 @@ public class MockConfigController {
         return Result.ok(mockBaseVO);
     }
 
+    private String buildDataId(MockConfigParam param) {
+        List<NameValueDTO> dataKv = param.getDataKv();
+        String dataKvContent = MockConfigService.getDataKvContent(dataKv);
+        String dataJson = param.getDataJson();
+        return MockConfigService.buildDataId(param.getPath(), dataKvContent, dataJson);
+    }
+
     private String getRequestData(MockConfigParam param) {
         String data;
         MockRequestDataTypeEnum mockParamTypeEnum = MockRequestDataTypeEnum.of(param.getRequestDataType());
         switch (mockParamTypeEnum) {
             case KV:
-                data = JSON.toJSONString(param.getDataKv());
+                data = MockConfigService.getDataKvContent(param.getDataKv());
                 break;
             case JSON:
                 data = param.getDataJson();

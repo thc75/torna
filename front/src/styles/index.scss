@@ -125,6 +125,7 @@ $light_gray:#eee;
     }
   }
 }
+.cursor-pointer { cursor: pointer; }
 // 修复el-link在表格中会下沉1px
 .el-alert__content .el-link,
 .cell .el-link {
@@ -136,10 +137,11 @@ $light_gray:#eee;
 .reg-box-card .alert{ margin-bottom: 20px;}
 span.success, div.success, i.el-icon-success {color:#67C23A;}
 span.warning, div.warning {color:#E6A23C;}
-span.danger, div.danger {color:#F56C6C;}
+span.danger, div.danger, li.danger {color:#F56C6C;}
 .info-tip {color: #909399;font-size: 14px;margin: 20px;}
 span.tip {color: #909399;font-size: 13px;margin: 0 10px;}
 h4 span, .normal-text { font-size: 14px;color: #606266;font-weight: normal; }
+.code-block { font-size: 14px;color: #606266;font-weight: normal; background-color: #fafafa; padding: 5px;}
 .text-form .el-form-item {margin-bottom: 0}
 .base-info {margin-left: 20px;padding-top: 10px; color: #606266;}
 .login-page {
@@ -211,7 +213,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   margin-bottom: 20px;
 }
 
-.cell .el-tag {
+.cell .el-tag, .el-tag--small {
   height: auto !important;
   padding: 0 4px !important;
   line-height: 20px !important;
@@ -344,6 +346,14 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   color: #909399;
 }
 
+.doc-descr {
+  display: flex;
+
+  span{
+    display: inline-block;
+  }
+}
+
 .v-note-wrapper {z-index: 1 !important;}
 .normal-menu {height: 100%;}
 .doc-modify-info {
@@ -371,5 +381,52 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   th,td {
     padding: 5px 0;
   }
+  .tree--btn-wrapper {
+    .el-icon-arrow-down {
+      font-size: initial;
+    }
+  }
+}
+.icon-operation {
+  .el-link {
+    margin-right: 12px !important;
+    font-size: 16px !important;
+  }
 }
 // el-table end~
+
+.table-right {
+  float: right;
+  margin-bottom: 10px;
+  .table-right-item {
+    display: inline-block;
+  }
+}
+
+.doc-tree {
+  .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner::after { border-color: #FFFFFF !important;}
+  .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner { background-color: #409EFF !important;}
+  .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner::before { background-color: #FFFFFF !important;}
+  .el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner { background-color: #409EFF !important;}
+}
+
+// doc view
+.doc-view {
+  .http-method {
+    height: auto !important;
+    line-height: 20px !important;
+    padding: 0 4px !important;
+  }
+  .doc-overview {margin-top: 20px;margin-bottom: 30px;color: #666;font-size: 14px;}
+  .debug-url { font-size: 14px;color: #606266 }
+  .doc-title {
+    margin: 0
+  }
+}
+
+.btn-send {
+  color: #FFFFFF !important;
+  width: 100px;
+  background-color: #409EFF !important;
+  border-radius: 0 !important;
+}

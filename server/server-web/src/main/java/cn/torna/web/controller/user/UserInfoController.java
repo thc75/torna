@@ -12,7 +12,9 @@ import cn.torna.web.controller.user.param.UpdateInfoParam;
 import cn.torna.web.controller.user.param.UpdatePasswordParam;
 import cn.torna.web.controller.user.param.UserIdParam;
 import cn.torna.web.controller.user.param.UserInfoSearchParam;
+import com.gitee.fastmybatis.core.query.Joint;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.expression.ValueExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -68,7 +70,8 @@ public class UserInfoController {
         if (StringUtils.isEmpty(username)) {
             return Result.ok(Collections.emptyList());
         }
-        Query query = Query.build(param).setQueryAll(true);
+        Query query = new Query();
+        query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
         List<UserInfo> list = userInfoService.list(query);
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
         return Result.ok(userInfoDTOS);

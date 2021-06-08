@@ -68,5 +68,7 @@ public class DocParamPushParam {
 
     private Byte isDeleted = Booleans.FALSE;
 
-
+    /** 排序 */
+    @ApiDocField(description = "排序字段", example = "1")
+    private Integer orderIndex;
 }
