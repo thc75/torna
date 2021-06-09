@@ -288,7 +288,7 @@
 require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
 import { get_full_url, request } from '@/utils/http'
-import { get_effective_url, is_array_string } from '@/utils/common'
+import { get_effective_url, is_array_string, parse_root_array } from '@/utils/common'
 import PreRequestScript from '../PreRequestScript'
 
 const HOST_KEY = 'torna.debug-host'
@@ -426,10 +426,15 @@ export default {
       this.multipartData = multipartData
     },
     buildJsonText(requestParameters) {
-      const arrayBody = false
+      const arrayBody = this.item.isRequestArray === 1
       let jsonObj = this.doCreateResponseExample(requestParameters)
       if (arrayBody) {
         jsonObj = [jsonObj]
+        const arrayType = this.item.requestArrayType
+        if (arrayType !== 'object') {
+          const filterRow = requestParameters.filter(el => el.isDeleted === 0)
+          jsonObj = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
+        }
       }
       return this.formatJson(jsonObj)
     },

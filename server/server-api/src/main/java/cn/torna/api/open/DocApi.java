@@ -169,9 +169,12 @@ public class DocApi {
                     }
                     moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
-                // 先删除之前的文档
-                User user = context.getApiUser();
-                docInfoService.deleteOpenAPIModuleDocs(moduleId, user.getUserId());
+                // 替换文档
+                if (Booleans.isTrue(param.getIsReplace(), true)) {
+                    // 先删除之前的文档
+                    User user = context.getApiUser();
+                    this.deleteOpenAPIModuleDocs(moduleId, user.getUserId());
+                }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
                     this.pushDocItem(detailPushParam, context, 0L);
                 }
@@ -183,6 +186,15 @@ public class DocApi {
             log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
             this.sendMessage(e.getMessage());
         });
+    }
+
+    /**
+     * 删除之前的文档
+     * @param moduleId moduleId
+     * @param userId userId
+     */
+    private void deleteOpenAPIModuleDocs(long moduleId, long userId) {
+        docInfoService.deleteOpenAPIModuleDocs(moduleId, userId);
     }
 
     private void sendMessage(String msg) {

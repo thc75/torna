@@ -9,9 +9,9 @@ import junit.framework.TestCase;
 public class BaseTest extends TestCase {
 
     static String url = "http://localhost:7700/api";
-    static String appKey = "20210527847416013153632256";
-    static String secret = "7zMFQr-oJ7NxOrHSyWlmNKrwy35b>xwZ";
-    static String token = "9eb04190b4e1463d80f93c5c4bb8ffa9";
+    static String appKey = "20201216788835306945118208";
+    static String secret = "W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR";
+    static String token = "c16931fa6590483fb7a4e85340fcbfef";
 
 
     static OpenClient client = new OpenClient(url, appKey, secret);

@@ -51,6 +51,7 @@ public class SwaggerPluginConfiguration implements InitializingBean {
         tornaConfig.setFormName(environment.getProperty("torna.swagger-plugin.form-name", "form"));
         tornaConfig.setBodyName(environment.getProperty("torna.swagger-plugin.body-name", "body"));
         tornaConfig.setHasBodyMethods(environment.getProperty("torna.swagger-plugin.has-body-methods", "POST,PUT,DELETE"));
+        tornaConfig.setIsReplace(environment.getProperty("torna.swagger-plugin.is-replace", "true"));
         return tornaConfig;
     }
 

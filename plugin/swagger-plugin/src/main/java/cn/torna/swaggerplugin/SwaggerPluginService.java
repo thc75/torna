@@ -173,6 +173,7 @@ public class SwaggerPluginService {
         request.setApis(docItems);
         request.setDebugEnvs(buildDebugEnvs());
         request.setAuthor(tornaConfig.getAuthor());
+        request.setIsReplace(Booleans.toValue(Objects.equals("true", tornaConfig.getIsReplace())));
         if ("true".equals(tornaConfig.getDebug())) {
             System.out.println("-------- Torna配置 --------");
             System.out.println(JSON.toJSONString(tornaConfig, SerializerFeature.PrettyFormat));

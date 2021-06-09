@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin-starter</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
 
     <name>swagger-plugin-starter</name>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>cn.torna</groupId>
             <artifactId>swagger-plugin</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </dependency>
 
         <!-- spring-boot -->
