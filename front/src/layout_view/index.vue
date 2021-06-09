@@ -1,10 +1,10 @@
 <template>
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebarView.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar id="leftPanelView" class="sidebar-container-view" />
-    <div id="rightPanelView" class="main-container-view">
-      <div id="resizeBarView" class="resize-bar"></div>
-      <div id="navBarView" :class="{'fixed-header':fixedHeader}">
+    <sidebar id="leftPanel" class="sidebar-container-view" />
+    <div id="rightPanel" class="main-container-view">
+      <div id="resizeBar" class="resize-bar"></div>
+      <div id="navBar" :class="{'fixed-header':fixedHeader}">
         <navbar />
       </div>
       <view-main />
@@ -45,15 +45,15 @@ export default {
     }
   },
   mounted() {
-    new ResizeBar(this, {
-      leftPanel: 'leftPanelView',
-      rightPanel: 'rightPanelView',
-      resizeBar: 'resizeBarView',
-      navBar: 'navBarView'
+    this.ResizeBar = new ResizeBar({
+      leftPanel: 'leftPanel',
+      rightPanel: 'rightPanel',
+      resizeBar: 'resizeBar',
+      navBar: 'navBar'
     })
   },
   destroyed() {
-    document.body.style.overflowY = 'auto'
+    this.ResizeBar.destroyed()
   },
   methods: {
     handleClickOutside() {

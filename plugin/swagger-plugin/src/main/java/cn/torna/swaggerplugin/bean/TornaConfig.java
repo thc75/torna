@@ -42,5 +42,7 @@ public class TornaConfig {
     private String bodyName;
     /** 具有body体的方法 */
     private String hasBodyMethods = "POST,PUT,DELETE";
+    /** 是否替换文档，true：替换，false：不替换（追加）。默认：true */
+    private String isReplace;
 
 }

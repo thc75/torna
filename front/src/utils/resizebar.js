@@ -9,9 +9,8 @@ const MIN_WIDTH = 50
 const MAX_WIDTH = 800
 const CLIENT_WIDTH = document.body.clientWidth - 14
 
-export function ResizeBar(scope, opts) {
+export function ResizeBar(opts) {
   document.body.style.overflowY = 'scroll'
-  this.scope = scope
   this.leftPanel = document.getElementById(opts['leftPanel'])
   this.rightPanel = document.getElementById(opts['rightPanel'])
   this.resizeBar = document.getElementById(opts['resizeBar'])
@@ -51,7 +50,6 @@ ResizeBar.prototype = {
     this.setLeftWidth(width)
   },
   setLeftWidth(width) {
-    console.log(document.body.clientWidth)
     width = width || variables.sideBarViewWidth
     this.leftPanel.style.width = width
     this.navBar.style.width = `${CLIENT_WIDTH - parseInt(width)}px`
@@ -68,5 +66,8 @@ ResizeBar.prototype = {
   },
   getAttr: function(key) {
     return localStorage.getItem(key)
+  },
+  destroyed() {
+    document.body.style.overflowY = 'auto'
   }
 }
