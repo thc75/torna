@@ -9,12 +9,17 @@ const MIN_WIDTH = 50
 const MAX_WIDTH = 800
 const CLIENT_WIDTH = document.body.clientWidth - 14
 
-export function ResizeBar(opts) {
+export function ResizeBar(vueScope, opts) {
   document.body.style.overflowY = 'scroll'
+  this.vueScope = vueScope
   this.leftPanel = document.getElementById(opts['leftPanel'])
   this.rightPanel = document.getElementById(opts['rightPanel'])
   this.resizeBar = document.getElementById(opts['resizeBar'])
   this.navBar = document.getElementById(opts['navBar'])
+  const that = this
+  this.navBar.onclick = function() {
+    that.resizeNavBarWidth()
+  }
   this.initDragAside()
   this.initLeftWidth()
 }
@@ -46,26 +51,34 @@ ResizeBar.prototype = {
     }
   },
   initLeftWidth() {
-    const width = this.getAttr(LEFT_WIDTH_KEY)
+    const width = this.getLeftWidth()
     this.setLeftWidth(width)
   },
+  getLeftWidth() {
+    return this.getAttr(LEFT_WIDTH_KEY) || variables.sideBarViewWidth
+  },
   setLeftWidth(width) {
-    width = width || variables.sideBarViewWidth
     this.leftPanel.style.width = width
-    this.navBar.style.width = `${CLIENT_WIDTH - parseInt(width)}px`
     this.rightPanel.style.marginLeft = width
     this.resizeBar.style.opacity = OPACITY_0
     this.resizeBar.style.marginLeft = RESIZE_BAR_MARGIN_LEFT
+    this.resizeNavBarWidth()
     this.setAttr(LEFT_WIDTH_KEY, width)
   },
-  setAttr: function(key, val) {
-    if (val === undefined) {
-      val = ''
+  resizeNavBarWidth() {
+    // 如果是打开状态
+    if (this.vueScope.sidebarView.opened) {
+      const width = this.leftPanel.style.width
+      this.navBar.style.width = `${CLIENT_WIDTH - parseInt(width)}px`
+    } else {
+      this.navBar.style.width = ''
     }
-    localStorage.setItem(key, val + '')
+  },
+  setAttr: function(key, val) {
+    this.vueScope.setAttr(key, val)
   },
   getAttr: function(key) {
-    return localStorage.getItem(key)
+    return this.vueScope.getAttr(key)
   },
   destroyed() {
     document.body.style.overflowY = 'auto'

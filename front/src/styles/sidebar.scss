@@ -2,14 +2,13 @@
 
   .main-container {
     min-height: 100%;
-    transition: margin-left .28s;
+    transition: margin-left 0s;
     margin-left: $sideBarWidth;
     position: relative;
   }
 
   .sidebar-container {
     border-right: 1px #EBEEF5 solid;
-    transition: width 0.28s;
     height: 100%;
     position: fixed;
     font-size: 0px;
