@@ -119,7 +119,7 @@ export default {
       }
     },
     initResizeBar() {
-      this.ResizeBar = new ResizeBar({
+      this.ResizeBar = new ResizeBar(this, {
         leftPanel: 'leftPanel',
         rightPanel: 'rightPanel',
         resizeBar: 'resizeBar',
@@ -171,15 +171,6 @@ export default {
     height: 100%;
     position: absolute;
     z-index: 999;
-  }
-
-  .fixed-header {
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 9;
-    width: calc(100% - #{$sideBarViewWidth});
-    transition: width 0.28s;
   }
 
   .hideSidebar .fixed-header {
