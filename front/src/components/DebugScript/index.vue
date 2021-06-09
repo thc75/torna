@@ -3,8 +3,16 @@
     <el-tabs v-model="activeName">
       <el-tab-pane name="pre" label="Pre-request Script">
         <div class="table-opt-btn">
+          <el-switch
+            v-model="preEnable"
+            :active-text="$ts('enable')"
+            inactive-text=""
+            :active-value="true"
+            :inactive-value="false"
+          />
+          <span class="split">|</span>
           <span class="tip">{{ $ts('preScriptTip') }}</span>
-          <el-link type="primary" :underline="false">文档</el-link>
+          <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('document') }}</el-link>
         </div>
         <editor
           v-model="preContent"
@@ -18,8 +26,16 @@
       </el-tab-pane>
       <el-tab-pane name="after" label="After Response Script">
         <div class="table-opt-btn">
+          <el-switch
+            v-model="afterEnable"
+            :active-text="$ts('enable')"
+            inactive-text=""
+            :active-value="true"
+            :inactive-value="false"
+          />
+          <span class="split">|</span>
           <span class="tip">{{ $ts('afterScriptTip') }}</span>
-          <el-link type="primary" :underline="false">文档</el-link>
+          <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('document') }}</el-link>
         </div>
         <editor
           v-model="afterContent"
@@ -35,13 +51,16 @@
   </div>
 </template>
 <script>
+const CryptoJS = require('crypto-js')
 export default {
-  name: 'PreRequestScript',
+  name: 'DebugScript',
   components: { editor: require('vue2-ace-editor') },
   data() {
     return {
       activeName: 'pre',
+      preEnable: true,
       preContent: '',
+      afterEnable: true,
       afterContent: '',
       aceEditorConfig: {
         // 去除编辑器里的竖线
@@ -71,11 +90,11 @@ export default {
         }())`
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
-      const fn = new Function('ctx', `return ${code}`)
-      fn(ctx)
+      const fn = new Function('CryptoJS', 'ctx', `return ${code}`)
+      fn(CryptoJS, ctx)
       return ctx
     },
-    runAfter(resp) {
+    runAfter(resp, ctx) {
       const script = this.afterContent
       if (!script) {
         return resp
@@ -85,9 +104,28 @@ export default {
         }())`
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
-      const fn = new Function('resp', `return ${code}`)
-      fn(resp)
+      const fn = new Function('CryptoJS', 'ctx', 'resp', `return ${code}`)
+      fn(CryptoJS, ctx, resp)
       return resp
+    },
+    setData(data) {
+      if (data) {
+        this.preEnable = data.preEnable === undefined ? true : data.preEnable
+        this.preContent = data.preContent || ''
+        this.afterEnable = data.afterEnable === undefined ? true : data.afterEnable
+        this.afterContent = data.afterContent || ''
+      }
+    },
+    getData() {
+      return {
+        preEnable: this.preEnable,
+        preContent: this.preContent,
+        afterEnable: this.afterEnable,
+        afterContent: this.afterContent
+      }
+    },
+    getEnable() {
+      return (this.preEnable && this.preContent.length > 0) || (this.afterEnable && this.afterContent.length > 0)
     }
   }
 }

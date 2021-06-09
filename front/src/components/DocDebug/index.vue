@@ -243,8 +243,13 @@
               </el-table>
             </div>
           </el-tab-pane>
-          <el-tab-pane name="script" :label="$ts('script')">
-            <pre-request-script ref="preRequestScriptRef" />
+          <el-tab-pane name="script">
+            <span slot="label" class="result-header-label">
+              <el-badge :is-dot="enableScript" type="danger">
+                <span>{{ $ts('script') }}</span>
+              </el-badge>
+            </span>
+            <debug-script ref="debugScriptRef" />
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -289,14 +294,14 @@ require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
 import { get_full_url, request } from '@/utils/http'
 import { get_effective_url, is_array_string, parse_root_array } from '@/utils/common'
-import PreRequestScript from '../PreRequestScript'
+import DebugScript from '../DebugScript'
 
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
 
 export default {
   name: 'DocDebug',
-  components: { PreRequestScript },
+  components: { DebugScript },
   props: {
     item: {
       type: Object,
@@ -348,7 +353,8 @@ export default {
         headerData: [],
         content: '',
         status: 200
-      }
+      },
+      enableScript: false
     }
   },
   computed: {
@@ -490,7 +496,7 @@ export default {
         headers['Content-Type'] = this.contentType
         const contentType = (this.contentType || '').toLowerCase()
         if (contentType.indexOf('json') > -1) {
-          data = this.bodyText
+          data = JSON.parse(this.bodyText)
         } else if (contentType.indexOf('multipart') > -1 || this.multipartDataChecked.length > 0) {
           isMultipart = true
           data = this.getParamObj(this.multipartDataChecked)
@@ -517,7 +523,7 @@ export default {
         headers: realHeaders
       }
       try {
-        ctx = this.$refs.preRequestScriptRef.runPre(ctx)
+        ctx = this.getDebugScript().runPre(ctx)
       } catch (e) {
         this.tipError('Run pre-request script error, ' + e)
         this.sendLoading = false
@@ -531,7 +537,9 @@ export default {
         ctx.data,
         ctx.headers,
         isMultipart,
-        this.doProxyResponse,
+        (response) => {
+          this.doProxyResponse(response, ctx)
+        },
         () => {
           this.sendLoading = false
           this.result.content = $ts('sendErrorTip')
@@ -605,11 +613,13 @@ export default {
           delete props[key]
         }
       }
+      const scriptData = this.getDebugScript().getData()
       const data = {
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
         props: {
-          debugData: JSON.stringify(props)
+          debugData: JSON.stringify(props),
+          scriptData: JSON.stringify(scriptData)
         }
       }
       this.post('/prop/set', data, resp => {})
@@ -620,33 +630,46 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG
       }
       this.get('/prop/get', data, resp => {
-        const debugData = resp.data.debugData
-        if (!debugData) {
-          return
-        }
-        const props = JSON.parse(debugData)
-        const setProp = (params, data) => {
-          if (data && Object.keys(data).length > 0 && params) {
-            params.forEach(row => {
-              const val = data[row.name]
-              if (val !== undefined) {
-                row.example = val
-              }
-            })
-          }
-        }
-        if (props.isProxy !== undefined) {
-          this.isProxy = props.isProxy
-        }
-        setProp(this.headerData, props.headerData)
-        setProp(this.pathData, props.pathData)
-        setProp(this.queryData, props.queryData)
-        setProp(this.multipartData, props.multipartData)
-        setProp(this.formData, props.formData)
-        if (props.bodyText !== undefined) {
-          this.bodyText = props.bodyText
-        }
+        const data = resp.data
+        this.setDebugData(data.debugData)
+        this.setDebugScript(data.scriptData)
       })
+    },
+    setDebugData(debugData) {
+      if (!debugData) {
+        return
+      }
+      const props = JSON.parse(debugData)
+      const setProp = (params, data) => {
+        if (data && Object.keys(data).length > 0 && params) {
+          params.forEach(row => {
+            const val = data[row.name]
+            if (val !== undefined) {
+              row.example = val
+            }
+          })
+        }
+      }
+      if (props.isProxy !== undefined) {
+        this.isProxy = props.isProxy
+      }
+      setProp(this.headerData, props.headerData)
+      setProp(this.pathData, props.pathData)
+      setProp(this.queryData, props.queryData)
+      setProp(this.multipartData, props.multipartData)
+      setProp(this.formData, props.formData)
+      if (props.bodyText !== undefined) {
+        this.bodyText = props.bodyText
+      }
+    },
+    setDebugScript(scriptData) {
+      if (!scriptData) {
+        return
+      }
+      const data = JSON.parse(scriptData)
+      const debugScript = this.getDebugScript()
+      debugScript.setData(data)
+      this.enableScript = debugScript.getEnable()
     },
     setTableCheck() {
       this.$refs.headerDataRef.toggleAllSelection()
@@ -700,10 +723,10 @@ export default {
       }
       return fileConfigs
     },
-    doProxyResponse(response) {
+    doProxyResponse(response, ctx) {
       this.sendLoading = false
       try {
-        response = this.$refs.preRequestScriptRef.runAfter(response)
+        response = this.getDebugScript().runAfter(response, ctx)
       } catch (e) {
         this.tipError('Run after response script error, ' + e)
       }
@@ -816,6 +839,9 @@ export default {
         }
       }
       return false
+    },
+    getDebugScript() {
+      return this.$refs.debugScriptRef
     }
   }
 }
