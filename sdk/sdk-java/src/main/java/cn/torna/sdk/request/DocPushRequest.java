@@ -1,9 +1,9 @@
 package cn.torna.sdk.request;
 
+import cn.torna.sdk.common.Booleans;
 import cn.torna.sdk.param.DebugEnv;
 import cn.torna.sdk.param.DocItem;
 import cn.torna.sdk.param.DocParamCode;
-import cn.torna.sdk.param.EnumItemParam;
 import cn.torna.sdk.response.DocPushResponse;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +30,9 @@ public class DocPushRequest extends BaseRequest<DocPushResponse> {
 
     /** 公共错误码 */
     private List<DocParamCode> commonErrorCodes;
+
+    /** 是否替换文档，1：替换，0：不替换（追加）。默认：1 */
+    private Byte isReplace = Booleans.TRUE;
 
     /**
      * @param token OpenAPI对应的token

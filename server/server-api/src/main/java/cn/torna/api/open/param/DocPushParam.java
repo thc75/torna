@@ -28,4 +28,7 @@ public class DocPushParam {
     @ApiDocField(description = "公共错误码", elementClass = CodeParamPushParam.class)
     private List<CodeParamPushParam> commonErrorCodes;
 
+    @ApiDocField(description = "是否替换文档，1：替换，0：不替换（追加）。缺省：1", example = "1")
+    private Byte isReplace;
+
 }

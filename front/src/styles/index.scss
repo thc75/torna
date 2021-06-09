@@ -430,3 +430,14 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   background-color: #409EFF !important;
   border-radius: 0 !important;
 }
+
+.resize-bar {
+  position: absolute;
+  width: $resizeBarWidth;
+  border-left: 2px dashed #b2b3b4;
+  opacity: 0;
+  height: 100%;
+  cursor: ew-resize;
+  float: left;
+  z-index: 9999;
+}

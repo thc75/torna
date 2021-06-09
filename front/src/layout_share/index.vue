@@ -2,9 +2,10 @@
   <div :class="classObj" class="app-wrapper">
     <div v-if="canVisit">
       <div v-if="device==='mobile'&&sidebarView.opened" class="drawer-bg" @click="handleClickOutside" />
-      <sidebar class="sidebar-container-view" />
-      <div class="main-container-view">
-        <div :class="{'fixed-header':fixedHeader}">
+      <sidebar id="leftPanel" class="sidebar-container-view" />
+      <div id="rightPanel" class="main-container-view">
+        <div id="resizeBar" class="resize-bar"></div>
+        <div id="navBar" :class="{'fixed-header':fixedHeader}">
           <navbar />
         </div>
         <view-main />
@@ -38,6 +39,7 @@
 import { Navbar, Sidebar, ViewMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import md5 from 'js-md5'
+import { ResizeBar } from '@/utils/resizebar'
 
 export default {
   name: 'LayoutShare',
@@ -95,14 +97,30 @@ export default {
   created() {
     this.initShare()
   },
+  destroyed() {
+    this.ResizeBar && this.ResizeBar.destroyed()
+  },
   methods: {
     initShare() {
       const shareId = this.$route.params.shareId
       if (shareId) {
         this.get('/share/get', { id: shareId }, resp => {
           this.shareConfig = resp.data
+          if (this.canVisit) {
+            this.$nextTick(() => {
+              this.initResizeBar()
+            })
+          }
         })
       }
+    },
+    initResizeBar() {
+      this.ResizeBar = new ResizeBar({
+        leftPanel: 'leftPanel',
+        rightPanel: 'rightPanel',
+        resizeBar: 'resizeBar',
+        navBar: 'navBar'
+      })
     },
     getStoreKey(shareConfig) {
       return `torna.share.${shareConfig.id}`
