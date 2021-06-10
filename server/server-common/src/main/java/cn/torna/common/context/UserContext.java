@@ -63,6 +63,14 @@ public class UserContext {
         return token;
     }
 
+    public static String getPrefixUserId(String token) {
+        if (StringUtils.isEmpty(token) || !token.contains(":")) {
+            return null;
+        }
+        String[] tokenArr = token.split(":");
+        return tokenArr[0];
+    }
+
     /**
      * 获取登录用户
      * @param token 格式：<userId>:<jwt>
