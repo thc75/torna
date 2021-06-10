@@ -35,7 +35,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         User user = UserContext.getUser();
         if (user == null || UserStatusEnum.of(user.getStatus()) == UserStatusEnum.DISABLED) {
             String token = UserContext.getToken(request);
-            Long userId = UserContext.getPrefixUserId(token);
+            String userId = UserContext.getPrefixUserId(token);
             log.error("登录失败，userId:{}, 客户端ip:{}, uri:{}", userId, RequestUtil.getIP(request), request.getRequestURI());
             throw new LoginFailureException("登录失败");
         }
