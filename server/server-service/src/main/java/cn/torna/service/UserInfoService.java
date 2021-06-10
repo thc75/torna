@@ -111,7 +111,12 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     public User getLoginUser(long id) {
         UserInfo userInfo = getById(id);
-        if (userInfo == null || userInfo.getStatus() == UserStatusEnum.DISABLED.getStatus()) {
+        if (userInfo == null) {
+            log.warn("登录用户不存在，userId：{}", id);
+            return null;
+        }
+        if (userInfo.getStatus() == UserStatusEnum.DISABLED.getStatus()) {
+            log.warn("用户被禁用, userId:{}, username:{}, nickname:{}", userInfo.getId(), userInfo.getUsername(), userInfo.getNickname());
             return null;
         }
         return CopyUtil.copyBean(userInfo, LoginUser::new);
