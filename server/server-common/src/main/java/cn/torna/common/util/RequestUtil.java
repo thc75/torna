@@ -8,6 +8,8 @@ import org.springframework.web.util.UriUtils;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +21,10 @@ import java.util.Set;
  */
 @Slf4j
 public class RequestUtil {
+
+    private static final String IP_UNKNOWN = "unknown";
+    private static final String IP_LOCAL = "127.0.0.1";
+    private static final int IP_LEN = 15;
 
     /**
      * 获取表单中的字段，请求类型是application/x-www-form-urlencoded
@@ -70,5 +76,42 @@ public class RequestUtil {
             }
         });
         return uploadParams;
+    }
+
+    /**
+     * 获取客户端IP
+     *
+     * @param request request
+     * @return 返回ip
+     */
+    public static String getIP(HttpServletRequest request) {
+        String ipAddress = request.getHeader("x-forwarded-for");
+        if (ipAddress == null || ipAddress.length() == 0 || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.length() == 0 || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.length() == 0 || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+            if (IP_LOCAL.equals(ipAddress)) {
+                // 根据网卡取本机配置的IP
+                try {
+                    InetAddress inet = InetAddress.getLocalHost();
+                    ipAddress = inet.getHostAddress();
+                } catch (UnknownHostException e) {
+                    // ignore
+                }
+            }
+
+        }
+
+        // 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
+        if (ipAddress != null && ipAddress.length() > IP_LEN) {
+            if (ipAddress.indexOf(",") > 0) {
+                ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+            }
+        }
+        return ipAddress;
     }
 }
