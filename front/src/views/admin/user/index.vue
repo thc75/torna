@@ -1,9 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
-      <el-form-item
-        :label="$ts('loginAccount')"
-      >
+      <el-form-item label="UserId">
+        <el-input v-model="searchFormData.id" :clearable="true" style="width: 250px;" />
+      </el-form-item>
+      <el-form-item :label="$ts('loginAccount')">
         <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
@@ -18,6 +19,11 @@
       border
       highlight-current-row
     >
+      <el-table-column
+        prop="id"
+        label="UserId"
+        width="150"
+      />
       <el-table-column
         prop="username"
         :label="$ts('loginAccount')"
@@ -163,6 +169,7 @@ export default {
   data() {
     return {
       searchFormData: {
+        id: '',
         username: '',
         pageIndex: 1,
         pageSize: 10

@@ -4,6 +4,7 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.IdUtil;
 import cn.torna.service.UserInfoService;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
@@ -19,6 +20,7 @@ import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +44,15 @@ public class UserController {
     @PostMapping("page")
     public Result<PageEasyui<UserInfoDTO>> page(@RequestBody UserSearch userSearch) {
         Query query = userSearch.toQuery();
+        String id = userSearch.getId();
+        if (StringUtils.hasText(id)) {
+            Long userId = IdUtil.decode(id);
+            // 没有查到，指定一个查不到的值
+            if (userId == null) {
+                userId = -100L;
+            }
+            query.eq("id", userId);
+        }
         query.orderby("id", Sort.DESC);
         PageEasyui<UserInfoDTO> page = MapperUtil.queryForEasyuiDatagrid(userInfoService.getMapper(), query, UserInfoDTO.class);
         return Result.ok(page);

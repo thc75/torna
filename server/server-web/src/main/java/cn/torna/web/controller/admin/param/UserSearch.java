@@ -13,6 +13,9 @@ import lombok.Setter;
 @Setter
 public class UserSearch extends PageParam {
 
+    @Condition(ignore = true)
+    private String id;
+
     @Condition(ignoreEmptyString = true, operator = Operator.like)
     private String username;
 }

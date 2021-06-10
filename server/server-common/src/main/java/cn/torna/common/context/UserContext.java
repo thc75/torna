@@ -63,13 +63,12 @@ public class UserContext {
         return token;
     }
 
-    public static Long getPrefixUserId(String token) {
+    public static String getPrefixUserId(String token) {
         if (StringUtils.isEmpty(token) || !token.contains(":")) {
             return null;
         }
         String[] tokenArr = token.split(":");
-        String userIdStr = tokenArr[0];
-        return IdUtil.decode(userIdStr);
+        return tokenArr[0];
     }
 
     /**
