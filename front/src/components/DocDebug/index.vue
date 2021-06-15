@@ -354,7 +354,8 @@ export default {
         content: '',
         status: 200
       },
-      enableScript: false
+      preCheckedId: '',
+      afterCheckedId: ''
     }
   },
   computed: {
@@ -369,6 +370,9 @@ export default {
       set(val) {
         this.requestUrl = val
       }
+    },
+    enableScript() {
+      return this.preCheckedId.length > 0 || this.afterCheckedId.length > 0
     }
   },
   watch: {
@@ -599,6 +603,9 @@ export default {
         })
         return data
       }
+      const scriptData = this.getDebugScript().getData()
+      const preCheckedRow = scriptData.preCheckedRow
+      const afterCheckedRow = scriptData.afterCheckedRow
       const props = {
         isProxy: this.isProxy,
         headerData: formatData(this.headerData),
@@ -606,20 +613,20 @@ export default {
         queryData: formatData(this.queryData),
         multipartData: formatData(this.multipartData.filter(row => row.type !== 'file')),
         formData: formatData(this.formData),
-        bodyText: this.bodyText
+        bodyText: this.bodyText,
+        preCheckedId: preCheckedRow ? preCheckedRow.id : '',
+        afterCheckedId: afterCheckedRow ? afterCheckedRow.id : ''
       }
       for (const key in props) {
         if (props[key] === '' || JSON.stringify(props[key]) === '{}') {
           delete props[key]
         }
       }
-      const scriptData = this.getDebugScript().getData()
       const data = {
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
         props: {
-          debugData: JSON.stringify(props),
-          scriptData: JSON.stringify(scriptData)
+          debugData: JSON.stringify(props)
         }
       }
       this.post('/prop/set', data, resp => {})
@@ -632,7 +639,7 @@ export default {
       this.get('/prop/get', data, resp => {
         const data = resp.data
         this.setDebugData(data.debugData)
-        this.setDebugScript(data.scriptData)
+        this.$refs.debugScriptRef.load(this.item.id, this.preCheckedId, this.afterCheckedId)
       })
     },
     setDebugData(debugData) {
@@ -661,15 +668,8 @@ export default {
       if (props.bodyText !== undefined) {
         this.bodyText = props.bodyText
       }
-    },
-    setDebugScript(scriptData) {
-      if (!scriptData) {
-        return
-      }
-      const data = JSON.parse(scriptData)
-      const debugScript = this.getDebugScript()
-      debugScript.setData(data)
-      this.enableScript = debugScript.getEnable()
+      this.preCheckedId = props.preCheckedId
+      this.afterCheckedId = props.afterCheckedId
     },
     setTableCheck() {
       this.$refs.headerDataRef.toggleAllSelection()

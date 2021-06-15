@@ -72,5 +72,22 @@ export const Enums = {
     TYPE_MODULE: 1,
     TYPE_FOLDER: 2,
     TYPE_DOC: 3
+  },
+  /**
+   * 调试脚本类型
+   */
+  DEBUG_SCRIPT_TYPE: {
+    /** 前置脚本 */
+    PRE: 0,
+    /** 后置脚本 */
+    AFTER: 1
+  },
+  /**
+   * 调试脚本作用域
+   */
+  DEBUG_SCRIPT_SCOPE: {
+    DOC: 0,
+    MODULE: 1,
+    PROJECT: 2
   }
 }

@@ -364,7 +364,9 @@ const MAPPING = {
   'debugEnvPublicTip': 'Public: debug url show in compose page',
   'script': 'Script',
   'preScriptTip': 'Modify request info before send request',
-  'afterScriptTip': 'Modify response info after response'
+  'afterScriptTip': 'Modify response info after response',
+  'canUseScope': 'Use Scope',
+  'dlgClose': 'Close'
 
 }
 

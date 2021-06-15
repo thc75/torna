@@ -21,6 +21,7 @@ import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.DocRefDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
@@ -423,5 +424,15 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .in("doc_id", idList);
         // DELETE FROM doc_param WHERE doc_id in (..)
         docParamService.getMapper().deleteByQuery(paramDelQuery);
+    }
+
+    public DocRefDTO getDocRefInfo(long docId) {
+        DocRefDTO docRefDTO = new DocRefDTO();
+        DocInfo docInfo = getById(docId);
+        docRefDTO.setDocId(docId);
+        docRefDTO.setModuleId(docInfo.getModuleId());
+        Module module = moduleService.getById(docInfo.getModuleId());
+        docRefDTO.setProjectId(module.getProjectId());
+        return docRefDTO;
     }
 }

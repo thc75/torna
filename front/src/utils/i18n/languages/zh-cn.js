@@ -365,7 +365,9 @@ const MAPPING = {
   'debugEnvPublicTip': '公开：聚合页面显示公开的调试路径',
   'script': '脚本',
   'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
-  'afterScriptTip': '请求后处理结果，可动态修改返回内容'
+  'afterScriptTip': '请求后处理结果，可动态修改返回内容',
+  'canUseScope': '可用范围',
+  'dlgClose': '关 闭'
 
 }
 
