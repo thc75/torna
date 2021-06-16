@@ -198,6 +198,18 @@ import CryptoJS from 'crypto-js'
 import moment from 'moment'
 import qs from 'qs'
 import { RSA } from '@/utils/rsa'
+import { loadJS } from '@/utils/loadjs'
+
+function getLib() {
+  return {
+    CryptoJS: CryptoJS,
+    moment: moment,
+    qs: qs,
+    RSA: RSA,
+    loadJS: loadJS
+  }
+}
+
 export default {
   name: 'DebugScript',
   components: { editor: require('vue2-ace-editor') },
@@ -383,14 +395,6 @@ export default {
       }
       return ''
     },
-    getLib() {
-      return {
-        CryptoJS: CryptoJS,
-        moment: moment,
-        qs: qs,
-        RSA: RSA
-      }
-    },
     runPre(req) {
       const data = this.getData()
       const script = data.preContent
@@ -403,7 +407,7 @@ export default {
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
       const fn = new Function('lib', 'req', `return ${code}`)
-      fn(this.getLib(), req)
+      fn(getLib(), req)
       return req
     },
     runAfter(resp, req) {
@@ -418,7 +422,7 @@ export default {
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
       const fn = new Function('lib', 'req', 'resp', `return ${code}`)
-      fn(this.getLib(), req, resp)
+      fn(getLib(), req, resp)
       return resp
     },
     getData() {
