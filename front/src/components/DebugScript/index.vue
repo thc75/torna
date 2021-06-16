@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-tabs v-model="activeName" @tab-click="loadTable">
-      <el-tab-pane name="pre" label="Pre-request Script">
+    <el-tabs v-model="activeName">
+      <el-tab-pane name="pre" :label="$ts('preRequestScript')">
         <div class="table-opt-btn">
           <el-button
             type="primary"
@@ -91,7 +91,7 @@
           </el-form>
         </div>
       </el-tab-pane>
-      <el-tab-pane name="after" label="After Response Script">
+      <el-tab-pane name="after" :label="$ts('afterResponseScript')">
         <div class="table-opt-btn">
           <el-button
             type="primary"
@@ -194,7 +194,10 @@
   </div>
 </template>
 <script>
-const CryptoJS = require('crypto-js')
+import CryptoJS from 'crypto-js'
+import moment from 'moment'
+import qs from 'qs'
+import { RSA } from '@/utils/rsa'
 export default {
   name: 'DebugScript',
   components: { editor: require('vue2-ace-editor') },
@@ -272,14 +275,16 @@ export default {
       if (this.docId) {
         this.get('/doc/debugscript/list', { docId: this.docId }, resp => {
           const data = resp.data
-          data.forEach(row => {
-            row.checked = false
-            if (row.id === this.preCheckedId || row.id === this.afterCheckedId) {
-              row.checked = true
-            }
+          const preData = data.filter(row => row.type === this.getEnums().DEBUG_SCRIPT_TYPE.PRE)
+          const afterData = data.filter(row => row.type === this.getEnums().DEBUG_SCRIPT_TYPE.AFTER)
+          preData.forEach(row => {
+            row.checked = row.id === this.preCheckedId
           })
-          this.preData = data.filter(row => row.type === this.getEnums().DEBUG_SCRIPT_TYPE.PRE)
-          this.afterData = data.filter(row => row.type === this.getEnums().DEBUG_SCRIPT_TYPE.AFTER)
+          afterData.forEach(row => {
+            row.checked = row.id === this.afterCheckedId
+          })
+          this.preData = preData
+          this.afterData = afterData
         })
       }
     },
@@ -311,13 +316,19 @@ export default {
         row.checked = false
       })
       row.checked = val
+      if (val) {
+        this.preCheckedId = row.id
+      }
     },
     handleAfterTableCurrentChange(row, val) {
-      const data = this.preData
+      const data = this.afterData
       data.forEach(row => {
         row.checked = false
       })
       row.checked = val
+      if (val) {
+        this.afterCheckedId = row.id
+      }
     },
     onPreSave() {
       this.$refs.preFormRef.validate(valid => {
@@ -372,22 +383,30 @@ export default {
       }
       return ''
     },
-    runPre(ctx) {
+    getLib() {
+      return {
+        CryptoJS: CryptoJS,
+        moment: moment,
+        qs: qs,
+        RSA: RSA
+      }
+    },
+    runPre(req) {
       const data = this.getData()
       const script = data.preContent
       if (!script) {
-        return ctx
+        return req
       }
       const code = `(function() {
           ${script}
         }())`
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
-      const fn = new Function('CryptoJS', 'ctx', `return ${code}`)
-      fn(CryptoJS, ctx)
-      return ctx
+      const fn = new Function('lib', 'req', `return ${code}`)
+      fn(this.getLib(), req)
+      return req
     },
-    runAfter(resp, ctx) {
+    runAfter(resp, req) {
       const data = this.getData()
       const script = data.afterContent
       if (!script) {
@@ -398,8 +417,8 @@ export default {
         }())`
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
-      const fn = new Function('CryptoJS', 'ctx', 'resp', `return ${code}`)
-      fn(CryptoJS, ctx, resp)
+      const fn = new Function('lib', 'req', 'resp', `return ${code}`)
+      fn(this.getLib(), req, resp)
       return resp
     },
     getData() {

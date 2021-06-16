@@ -367,7 +367,9 @@ const MAPPING = {
   'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
   'afterScriptTip': '请求后处理结果，可动态修改返回内容',
   'canUseScope': '可用范围',
-  'dlgClose': '关 闭'
+  'dlgClose': '关 闭',
+  'preRequestScript': '前置脚本',
+  'afterResponseScript': '后置脚本'
 
 }
 

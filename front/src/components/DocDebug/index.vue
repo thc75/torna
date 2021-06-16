@@ -372,7 +372,7 @@ export default {
       }
     },
     enableScript() {
-      return this.preCheckedId.length > 0 || this.afterCheckedId.length > 0
+      return (this.preCheckedId !== undefined && this.preCheckedId.length > 0) || (this.afterCheckedId !== undefined && this.afterCheckedId.length > 0)
     }
   },
   watch: {
@@ -519,7 +519,7 @@ export default {
         url = this.getProxyUrl('/doc/debug/v1')
         realHeaders['target-url'] = this.url
       }
-      let ctx = {
+      let req = {
         url: url,
         method: item.httpMethod,
         params: params,
@@ -527,7 +527,7 @@ export default {
         headers: realHeaders
       }
       try {
-        ctx = this.getDebugScript().runPre(ctx)
+        req = this.getDebugScript().runPre(req)
       } catch (e) {
         this.tipError('Run pre-request script error, ' + e)
         this.sendLoading = false
@@ -535,14 +535,14 @@ export default {
       }
       request.call(
         this,
-        ctx.method,
-        ctx.url,
-        ctx.params,
-        ctx.data,
-        ctx.headers,
+        req.method,
+        req.url,
+        req.params,
+        req.data,
+        req.headers,
         isMultipart,
         (response) => {
-          this.doProxyResponse(response, ctx)
+          this.doProxyResponse(response, req)
         },
         () => {
           this.sendLoading = false
@@ -723,10 +723,10 @@ export default {
       }
       return fileConfigs
     },
-    doProxyResponse(response, ctx) {
+    doProxyResponse(response, req) {
       this.sendLoading = false
       try {
-        response = this.getDebugScript().runAfter(response, ctx)
+        response = this.getDebugScript().runAfter(response, req)
       } catch (e) {
         this.tipError('Run after response script error, ' + e)
       }

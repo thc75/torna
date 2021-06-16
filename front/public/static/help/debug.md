@@ -16,38 +16,47 @@
 
 ## 脚本
 
-脚本分为两类：`Pre-request Script`和`After Response Script`
+脚本分为两类：`前置脚本`和`后置脚本`
 
-### Pre-request Script
+### 前置脚本
 
 请求前预处理，可动态修改请求参数等信息。
 
 #### 内置参数
 
-脚本提供了一些内置参数，可以拿来直接使用。
+脚本提供了一些内置参数，可以直接使用。
 
-- `ctx`对象
+- `req`对象
 
 存放请求信息，具体内容如下：
 
 | 参数 | 类型 | 说明 |
 | ---- | ---- | ---- |
-| ctx.url | 字符串 | 请求URL，字符串格式 |
-| ctx.method | 字符串 | 请求方法，如：GET |
-| ctx.params | object | 请求的query参数 |
-| ctx.data | object | 请求的body体参数 |
-| ctx.headers | object | 请求的header |
+| req.url | 字符串 | 请求URL，字符串格式 |
+| req.method | 字符串 | 请求方法，如：GET |
+| req.params | object | 请求的query参数 |
+| req.data | object | 请求的body体参数 |
+| req.headers | object | 请求的header |
 
  
-可通过`console.log(ctx)`查看详情
+可通过`console.log(req)`查看详情
 
-- `CryptoJS`对象
+- `lib`对象
 
-基于`crypto-js`加密库，可进行`MD5/AES/sha1/sha256`等加密操作，API使用方式参考：[CryptoJS API](https://cryptojs.gitbook.io/docs/)
+存放常用的类库，目前包括：
+
+| 参数  | 说明 |
+| ---- | ---- |
+| lib.CryptoJS | 基于`crypto-js（4.0.0）`加密库，可进行`MD5/AES/sha1/sha256`等加密操作，API使用方式参考：[CryptoJS API](https://cryptojs.gitbook.io/docs/) |
+| lib.moment | 时间处理库（2.27.0），[docs](https://momentjs.com/docs/) |
+| lib.qs | querystring库（6.10.1）|
+| lib.RSA | 自定义的RSA签名库，使用方法见文末 |
+
 
 示例：
 
 ```javascript
+const CryptoJS = lib.CryptoJS;
 // Encrypt
 var ciphertext = CryptoJS.AES.encrypt('my message', 'secret key 123').toString();
  
@@ -58,11 +67,11 @@ var originalText = bytes.toString(CryptoJS.enc.Utf8);
 console.log(originalText); // 'my message'
 ```
 
-脚本示例：
+#### 前置脚本示例
 
-> 将密码进行MD5
+- 将密码进行MD5
 
-假设请求json如下：
+假设登录请求json如下：
 
 ```json
 {
@@ -71,61 +80,131 @@ console.log(originalText); // 'my message'
 }
 ```
 
+需要对密码进行MD5，编写脚本如下：
+
 ```javascript
-// 查看ctx内容
-console.log(ctx)
+// 查看req内容
+console.log(req)
 // 获取请求body
-var data = ctx.data
+var data = req.data
 var password = data.password
 // 将密码进行MD5
-var hash = CryptoJS.MD5(password)
+var hash = lib.CryptoJS.MD5(password)
 data.password = hash.toString(CryptoJS.enc.Hex)
 console.log('data', data)
 ```
 
-### After Response Script
+- 复杂示例：将参数进行签名
+
+开放平台需要对参数进行签名，此处演示使用RSA算法生成签名
+
+```javascript
+/*
+演示签名认证
+*/
+// APP_ID
+var appId = '2019032617262200001';
+// 私钥内容
+var privateKey = 'xx'
+// 业务参数
+var bizContent = req.data
+
+// 先按name进行排序，然后按name1=value1&name2=value2方式连接起来
+function getSignContent(params) {
+    const paramNames = [];
+    for (const key in params) {
+        paramNames.push(key);
+    }
+    paramNames.sort();
+    const paramNameValue = [];
+    for (let i = 0, len = paramNames.length; i < len; i++) {
+        const paramName = paramNames[i];
+        const val = params[paramName];
+        if (paramName && val) {
+            paramNameValue.push(`${paramName}=${val}`);
+        }
+    }
+    return paramNameValue.join('&');
+}
+
+const allParams = {
+    'app_id': appId,
+    'method': req.headers.method,
+    'charset': 'UTF-8',
+    'sign_type': 'RSA2',
+    'timestamp': lib.moment().format('YYYY-MM-DD HH:mm:ss'),
+    'version': req.headers.version,
+    'biz_content': JSON.stringify(bizContent)
+};
+// 生成签名内容
+var signContent = getSignContent(allParams);
+// 生成签名，RSA签名，hash方式采用：SHA256withRSA
+var sign = lib.RSA.signToB64(signContent, privateKey, lib.RSA.HASH_TYPE.SHA256withRSA)
+// 将签名串添加到系统参数中
+allParams.sign = sign
+// 替换请求参数
+req.data = allParams
+```
+
+### 后置脚本
 
 请求后处理结果，可动态修改返回内容。
 
 #### 内置参数
 
-- resp：存放了返回信息
+- `resp`对象：存放了返回信息
 
 | 参数 | 类型 | 说明 |
 | ---- | ---- | ---- |
 | resp.status | number | http status，如：200 |
 | resp.data | object | 返回内容 |
-| resp.targetHeaders | object | 返回的请求头 |
+| resp.targetHeaders | object | 服务器响应头(勾选代理) |
+| resp.headers | object | 服务器响应头(未勾选代理) |
 
 
 `resp`实际上是axios返回的对象，可通过`console.log(resp)`查看更多内容
 
-- `CryptoJS`对象
+- `lib`对象
 
 内容同上
 
-脚本示例：
+#### 后置脚本示例
 
-假设返回结果如下：
+假设登录成功返回结果如下：
 
 ```json
 {
     "code": 0,
     "data": {
         "userId": 11,
-        "orderNo": "1",
-        "payTime": "2021-06-09T07:28:50.941+00:00",
-        "remark": null
+        "username": "Jim",
+        "token": "xxx"
     }
 }
 ```
 
+现在把token存到本地
+
 ```javascript
-var params = ctx.params
-// 如果id为1，将用户id改成666
-if (params.id == 1) {
-    // 获取返回数据
-    var body = resp.data
-    body.data.userId = 666;
+// 获取返回数据
+var body = resp.data
+if (body.code == 0) {
+  var token = body.data.token
+  // 保存token到本地
+  localStorage.setItem('xx-token', token)
 }
 ```
+
+## lib.RSA使用
+
+```javascript
+/**
+ * rsa签名
+ * @param content {string}  签名内容
+ * @param privateKey {string} 私钥
+ * @param hash {string} hash算法，SHA256withRSA，SHA1withRSA
+ * @returns {string} 返回签名字符串，base64后的内容
+ */
+var sign = lib.RSA.signToB64(content, privateKey, 'SHA256withRSA');
+```
+

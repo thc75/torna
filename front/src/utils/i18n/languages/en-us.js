@@ -366,7 +366,9 @@ const MAPPING = {
   'preScriptTip': 'Modify request info before send request',
   'afterScriptTip': 'Modify response info after response',
   'canUseScope': 'Use Scope',
-  'dlgClose': 'Close'
+  'dlgClose': 'Close',
+  'preRequestScript': 'Pre-request Script',
+  'afterResponseScript': 'After Response Script'
 
 }
 
