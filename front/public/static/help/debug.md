@@ -48,7 +48,7 @@
 | 参数  | 类型 | 说明 |
 | ---- | ---- | ---- |
 | lib.CryptoJS | Object | 基于`crypto-js（4.0.0）`加密库，可进行`MD5/AES/sha1/sha256`等加密操作，API使用方式参考：[CryptoJS API](https://cryptojs.gitbook.io/docs/) |
-| lib.moment | Function |时间处理库（2.27.0），[docs](https://momentjs.com/docs/) |
+| lib.moment | Object |时间处理库（2.27.0），[docs](https://momentjs.com/docs/) |
 | lib.qs | Object |querystring库（6.10.1）|
 | lib.RSA | Object |自定义的RSA签名库，使用方法见文末 |
 | lib.loadJS | Function | 加载第三方js，使用方法见文末 |
