@@ -8,15 +8,12 @@ import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
 import cn.torna.service.dto.NameValueDTO;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tanghc
@@ -66,17 +65,30 @@ public class MockController {
     }
 
     private String getMockId(HttpServletRequest request) {
+        String queryString = request.getQueryString();
         String servletPath = request.getServletPath();
-        return servletPath.substring(PREFIX.length());
+        String mockId = servletPath.substring(PREFIX.length());
+        if (StringUtils.hasText(queryString)) {
+            mockId = mockId + "?" + queryString;
+        }
+        return mockId;
     }
 
     private String buildDataId(String path, HttpServletRequest request) {
         List<NameValueDTO> dataKv = new ArrayList<>();
+        Map<String, String> queryParams = Collections.emptyMap();
+        if (path.contains("?")) {
+            String queryString = path.substring(path.indexOf("?"));
+            queryParams = RequestUtil.parseQueryString(queryString);
+        }
+        Map<String, String> finalQueryParams = queryParams;
         request.getParameterMap().forEach((key, value) -> {
-            NameValueDTO nameValueDTO = new NameValueDTO();
-            nameValueDTO.setName(key);
-            nameValueDTO.setValue(value[0]);
-            dataKv.add(nameValueDTO);
+            if (!finalQueryParams.containsKey(key)) {
+                NameValueDTO nameValueDTO = new NameValueDTO();
+                nameValueDTO.setName(key);
+                nameValueDTO.setValue(value[0]);
+                dataKv.add(nameValueDTO);
+            }
         });
         String dataKvContent = MockConfigService.getDataKvContent(dataKv);
         String dataJson = "";
