@@ -273,5 +273,21 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
     private List<Project> listSpaceProject(long spaceId) {
         return this.list("space_id", spaceId);
     }
-   
+
+    /**
+     * 用户能否操作项目
+     * @param user 用户
+     * @param projectId 项目id
+     * @return true：是
+     */
+    public boolean canOperateProject(User user, long projectId) {
+        if (user.isSuperAdmin()) {
+            return true;
+        }
+        List<UserInfoDTO> userInfoDTOS = this.listProjectLeader(projectId);
+        return userInfoDTOS.stream()
+                .map(UserInfoDTO::getId)
+                .collect(Collectors.toList())
+                .contains(user.getUserId());
+    }
 }
