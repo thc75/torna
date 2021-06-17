@@ -77,8 +77,9 @@ public class MockController {
     private String buildDataId(String path, HttpServletRequest request) {
         List<NameValueDTO> dataKv = new ArrayList<>();
         Map<String, String> queryParams = Collections.emptyMap();
-        if (path.contains("?")) {
-            String queryString = path.substring(path.indexOf("?"));
+        int index = path.indexOf("?");
+        if (index > -1) {
+            String queryString = path.substring(index);
             queryParams = RequestUtil.parseQueryString(queryString);
         }
         Map<String, String> finalQueryParams = queryParams;
