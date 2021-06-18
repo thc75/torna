@@ -17,9 +17,8 @@
       />
       <el-tree
         ref="tree"
-        :data="treeData"
+        :data="treeRows"
         :props="defaultProps"
-        :filter-node-method="filterNode"
         :highlight-current="true"
         :expand-on-click-node="true"
         :default-expanded-keys="expandKeys"
@@ -98,9 +97,14 @@ export default {
       types: this.getEnums().FOLDER_TYPE
     }
   },
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val)
+  computed: {
+    treeRows() {
+      let search = this.filterText.trim()
+      if (!search) {
+        return this.treeData
+      }
+      search = search.toLowerCase()
+      return this.searchRow(search, this.treeData, this.searchContent, this.isFolder)
     }
   },
   mounted() {
@@ -141,6 +145,14 @@ export default {
         }
       })
     },
+    isFolder(row) {
+      return !row.url
+    },
+    searchContent(searchText, row) {
+      return (row.url && row.url.toLowerCase().indexOf(searchText) > -1) ||
+        (row.label && row.label.toLowerCase().indexOf(searchText) > -1) ||
+        (row.docId && row.docId.toLowerCase().indexOf(searchText) > -1)
+    },
     getCurrentNode(data) {
       const docId = this.$route.params.docId
       let currentNode
@@ -163,13 +175,6 @@ export default {
         tree.setCurrentKey(currentNode.id)
         this.expandKeys = [currentNode.parentId]
       }
-    },
-    filterNode(value, row) {
-      if (!value) return true
-      const searchText = value.toLowerCase()
-      return (row.docId && row.docId.toLowerCase().indexOf(searchText) > -1) ||
-        (row.label && row.label.toLowerCase().indexOf(searchText) > -1) ||
-        (row.url && row.url.toLowerCase().indexOf(searchText) > -1)
     },
     getClassName(data) {
       return file_typ_map[data.type + '']
