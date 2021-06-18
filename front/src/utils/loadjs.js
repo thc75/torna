@@ -5,7 +5,7 @@ const cache = {}
  * @param url js全路径
  * @param success 加载成功后回调函数
  */
-export function loadJS(url, success) {
+export function loadJs(url, success) {
   if (cache[url]) {
     success()
     return

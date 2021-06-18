@@ -198,7 +198,7 @@ import CryptoJS from 'crypto-js'
 import moment from 'moment'
 import qs from 'qs'
 import { RSA } from '@/utils/rsa'
-import { loadJS } from '@/utils/loadjs'
+import { loadJs } from '@/utils/loadjs'
 
 function getLib() {
   return {
@@ -206,7 +206,7 @@ function getLib() {
     moment: moment,
     qs: qs,
     RSA: RSA,
-    loadJS: loadJS
+    loadJs: loadJs
   }
 }
 

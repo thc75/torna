@@ -51,7 +51,7 @@
 | lib.moment | Object |时间处理库（2.27.0），[docs](https://momentjs.com/docs/) |
 | lib.qs | Object |querystring库（6.10.1）|
 | lib.RSA | Object |自定义的RSA签名库，使用方法见文末 |
-| lib.loadJS | Function | 加载第三方js，使用方法见文末 |
+| lib.loadJs | Function | 加载第三方js，使用方法见文末 |
 
 
 示例：
@@ -221,14 +221,14 @@ var sign = lib.RSA.signToB64(content, privateKey, 'SHA256withRSA');
  * @param url js全路径
  * @param success 加载成功后回调函数
  */
-function loadJS(url, success){}
+function loadJs(url, success){}
 ```
 
 使用：
 
 ```javascript
 // 加载js文件
-lib.loadJS('http://libs.baidu.com/jquery/2.0.0/jquery.min.js', function() {
+lib.loadJs('http://libs.baidu.com/jquery/2.0.0/jquery.min.js', function() {
     console.log(jQuery('#app'))
 })
 ```
