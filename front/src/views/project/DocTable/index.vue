@@ -176,28 +176,7 @@ export default {
         return this.tableData
       }
       search = search.toLowerCase()
-      const data = []
-      for (const row of this.tableData) {
-        // 如果是分类，需要找分类中的子文档
-        if (this.isFolder(row)) {
-          const children = row.children || []
-          const newChildren = children.filter(child => {
-            return this.searchContent(search, child)
-          })
-          // 如果找到了
-          if (newChildren.length > 0) {
-            const rowCopy = Object.assign({}, row)
-            rowCopy.children = newChildren
-            data.push(rowCopy)
-          }
-        } else {
-          // 不是分类找到了直接加入
-          if (this.searchContent(search, row)) {
-            data.push(row)
-          }
-        }
-      }
-      return data
+      return this.searchRow(search, this.tableData, this.searchContent, this.isFolder)
     }
   },
   created() {
