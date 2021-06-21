@@ -9,9 +9,12 @@
 | 模块 | 版本 |
 | :----: | :----: |
 | Torna | 1.8.7 |
-| sdk-java | 1.0.10 |
-| swagger-plugin | 1.0.5 |
+| sdk-java | ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk) |
+| swagger-plugin | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin) |
+| swagger-plugin-starter | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin-starter) |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
+
+
 
 ## 特性介绍
 
