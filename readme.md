@@ -11,7 +11,7 @@
 | Torna | 1.8.7 |
 | sdk-java | 1.0.10 |
 | swagger-plugin | 1.0.5 |
-| smart-doc | 2.1.9 |
+| smart-doc | 2.2.0 |
 
 ## 特性介绍
 
