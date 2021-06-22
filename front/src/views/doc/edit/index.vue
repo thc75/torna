@@ -66,6 +66,9 @@
               :inactive-value="0"
             />
           </el-form-item>
+          <el-form-item :label="$ts('orderIndex')">
+            <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
+          </el-form-item>
         </el-form>
       </el-tab-pane>
       <el-tab-pane :label="$ts('requestHeader')" name="headerParam">
@@ -259,7 +262,8 @@ export default {
         queryParams: [],
         requestParams: [],
         responseParams: [],
-        errorCodeParams: []
+        errorCodeParams: [],
+        orderIndex: this.getEnums().INIT_ORDER_INDEX
       },
       paramsActive: 'tabQueryParams',
       remark: '',
@@ -327,7 +331,7 @@ export default {
       this.initFolders(moduleId)
       const finalId = docId || copyId
       if (finalId) {
-        this.get('/doc/detail', { id: finalId }, function(resp) {
+        this.get('/doc/form', { id: finalId }, function(resp) {
           const data = resp.data
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
@@ -345,10 +349,17 @@ export default {
           }
         })
       }
+      this.initOrderIndex()
     },
     initCopyData(docInfo) {
       docInfo.id = ''
       docInfo.name = `${this.docInfo.name} Copy`
+    },
+    initOrderIndex() {
+      const order = this.$route.query.order
+      if (order !== undefined) {
+        this.docInfo.orderIndex = order
+      }
     },
     initResponseHiddenColumns() {
       this.getViewConfig(config => {
@@ -393,13 +404,15 @@ export default {
       }
     },
     onParamAdd: function(row) {
-      row.push(this.getParamNewRow())
+      const item = this.getParamNewRow()
+      item.orderIndex = this.getNextOrderIndex(row)
+      row.push(item)
     },
     onResponseParamAdd: function() {
-      this.docInfo.responseParams.push(this.getParamNewRow())
+      this.onParamAdd(this.docInfo.responseParams)
     },
     onErrorCodeAdd: function() {
-      this.docInfo.errorCodeParams.push(this.getParamNewRow())
+      this.onParamAdd(this.docInfo.errorCodeParams)
     },
     // 修改文档内容
     submitForm() {

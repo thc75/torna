@@ -72,5 +72,9 @@ export const Enums = {
     TYPE_MODULE: 1,
     TYPE_FOLDER: 2,
     TYPE_DOC: 3
-  }
+  },
+  /**
+   * 初始orderIndex
+   */
+  INIT_ORDER_INDEX: 10000
 }

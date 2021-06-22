@@ -112,6 +112,44 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return getDocDetail(docInfo);
     }
 
+    /**
+     * 返回文档详情
+     * @param docId 文档id
+     * @return 返回文档详情
+     */
+    public DocInfoDTO getDocForm(long docId) {
+        DocInfo docInfo = this.getById(docId);
+        return getDocInfoDTO(docInfo);
+    }
+
+    private DocInfoDTO getDocInfoDTO(DocInfo docInfo) {
+        Assert.notNull(docInfo, () -> "文档不存在");
+        DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+        Long moduleId = docInfo.getModuleId();
+        Module module = moduleService.getById(moduleId);
+        docInfoDTO.setProjectId(module.getProjectId());
+        docInfoDTO.setModuleType(module.getType());
+        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
+        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
+        List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
+        params.sort(Comparator.comparing(DocParam::getOrderIndex));
+        Map<Byte, List<DocParam>> paramsMap = params.stream()
+                .collect(Collectors.groupingBy(DocParam::getStyle));
+        List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
+        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
+        List<DocParam> queryParams = paramsMap.getOrDefault(ParamStyleEnum.QUERY.getStyle(), Collections.emptyList());
+        List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
+        List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
+        List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), new ArrayList<>(0));
+        docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
+        docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
+        docInfoDTO.setQueryParams(CopyUtil.copyList(queryParams, DocParamDTO::new));
+        docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
+        docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
+        docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+        return docInfoDTO;
+    }
+
 
     public List<DocInfoDTO> listDocDetail(Collection<Long> docIdList) {
         if (CollectionUtils.isEmpty(docIdList)) {
@@ -137,40 +175,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
 
     private DocInfoDTO getDocDetail(DocInfo docInfo) {
-        Assert.notNull(docInfo, () -> "文档不存在");
-        DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
-        Long moduleId = docInfo.getModuleId();
-        Module module = moduleService.getById(moduleId);
-        docInfoDTO.setProjectId(module.getProjectId());
-        docInfoDTO.setModuleType(module.getType());
-        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
-        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
-        List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
-        params.sort(Comparator.comparing(DocParam::getOrderIndex));
-        Map<Byte, List<DocParam>> paramsMap = params.stream()
-                .collect(Collectors.groupingBy(DocParam::getStyle));
-        List<DocParam> pathParams = paramsMap.getOrDefault(ParamStyleEnum.PATH.getStyle(), Collections.emptyList());
+        DocInfoDTO docInfoDTO = this.getDocInfoDTO(docInfo);
+        Long moduleId = docInfoDTO.getModuleId();
         List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         List<DocParam> globalParams = moduleConfigService.listGlobalParams(moduleId);
         List<DocParam> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
         List<DocParam> globalErrorCodes = listCommonErrorCodes(moduleId);
-        List<DocParam> headerParams = paramsMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
-        List<DocParam> queryParams = paramsMap.getOrDefault(ParamStyleEnum.QUERY.getStyle(), Collections.emptyList());
-        List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
-        List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
-        List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), new ArrayList<>(0));
-        errorCodeParams.addAll(globalErrorCodes);
-        docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
-        docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
-        docInfoDTO.setQueryParams(CopyUtil.copyList(queryParams, DocParamDTO::new));
-        docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
-        docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
-        docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
-
         docInfoDTO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
         docInfoDTO.setGlobalParams(CopyUtil.copyList(globalParams, DocParamDTO::new));
         docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
-
+        docInfoDTO.getErrorCodeParams().addAll(CopyUtil.copyList(globalErrorCodes, DocParamDTO::new));
         return docInfoDTO;
     }
 

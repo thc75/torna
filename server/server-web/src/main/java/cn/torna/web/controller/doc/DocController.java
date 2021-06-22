@@ -15,6 +15,7 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.param.DocInfoSearch;
+import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.system.param.IdParam;
@@ -132,6 +133,17 @@ public class DocController {
     }
 
     /**
+     * 查询文档表单详细信息
+     * @param id
+     * @return
+     */
+    @GetMapping("form")
+    public Result<DocInfoDTO> form(@HashId Long id) {
+        DocInfoDTO docInfoDTO = docInfoService.getDocForm(id);
+        return Result.ok(docInfoDTO);
+    }
+
+    /**
      * 查询文档详细信息，不需要登录
      *
      * @param id 主键
@@ -220,5 +232,11 @@ public class DocController {
         return Result.ok(docInfoDTOList);
     }
 
-
+    @PostMapping("orderindex/update")
+    public Result<List<DocInfoDTO>> updateOrderIndex(@RequestBody UpdateOrderIndexParam param) {
+        DocInfo docInfo = docInfoService.getById(param.getId());
+        docInfo.setOrderIndex(param.getOrderIndex());
+        docInfoService.update(docInfo);
+        return Result.ok();
+    }
 }

@@ -50,6 +50,8 @@ public class DocInfoVO {
 
     private Byte isDeleted;
 
+    private Integer orderIndex;
+
     private Date gmtCreate;
 
     private Date gmtModified;

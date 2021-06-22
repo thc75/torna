@@ -303,6 +303,7 @@ Object.assign(Vue.prototype, {
       const isExist = row !== null
       if (!isExist) {
         row = this.getParamNewRow(name, value)
+        row.orderIndex = this.getNextOrderIndex(params)
       }
       row.example = value
       // 如果有子节点
@@ -655,6 +656,16 @@ Object.assign(Vue.prototype, {
       }
     }
     return ret
+  },
+  getNextOrderIndex(children) {
+    if (!children || children.length === 0) {
+      return this.getEnums().INIT_ORDER_INDEX
+    }
+    let max = this.getEnums().INIT_ORDER_INDEX
+    children.forEach(row => {
+      max = Math.max(row.orderIndex, max)
+    })
+    return max + 10
   }
 })
 

@@ -76,7 +76,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         Long docId = docInfo.getId();
         String dataId = DataIdUtil.getDocParamDataId(docId, parentId, paramStyleEnum.getStyle(), docParamDTO.getName());
         // 如果删除
-        if (docParamDTO.getIsDeleted() == Booleans.TRUE) {
+        if (Booleans.isTrue(docParamDTO.getIsDeleted())) {
             dataId = IdGen.nextId();
         }
         docParam.setId(docParamDTO.getId());
