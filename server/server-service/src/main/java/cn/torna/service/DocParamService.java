@@ -141,6 +141,9 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     public DocParam saveParam(DocParam docParam) {
+        if (docParam.getDescription() == null) {
+            docParam.setDescription("");
+        }
         this.getMapper().saveParam(docParam);
         return docParam;
     }
