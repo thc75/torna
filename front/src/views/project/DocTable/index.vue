@@ -321,9 +321,9 @@ export default {
       })
     },
     onDocAdd(row) {
-      console.log(row)
-      const order = this.getNextOrderIndex(row.children)
-      this.goRoute(`/doc/new/${this.moduleId}/${row.id}?order=${order}`)
+      this.pmsNextOrderIndex(row.children).then(order => {
+        this.goRoute(`/doc/new/${this.moduleId}/${row.id}?order=${order}`)
+      })
     },
     onDocUpdate: function(row) {
       if (row.isFolder) {

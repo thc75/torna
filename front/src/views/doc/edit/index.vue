@@ -362,7 +362,7 @@ export default {
       }
     },
     initResponseHiddenColumns() {
-      this.getViewConfig(config => {
+      this.pmsConfig().then(config => {
         const responseHiddenColumnsConfig = config.responseHiddenColumns
         const responseHiddenColumns = []
         if (responseHiddenColumnsConfig) {
@@ -403,10 +403,12 @@ export default {
         }
       }
     },
-    onParamAdd: function(row) {
+    onParamAdd: function(rows) {
       const item = this.getParamNewRow()
-      item.orderIndex = this.getNextOrderIndex(row)
-      row.push(item)
+      this.pmsNextOrderIndex(rows).then(order => {
+        item.orderIndex = order
+      })
+      rows.push(item)
     },
     onResponseParamAdd: function() {
       this.onParamAdd(this.docInfo.responseParams)

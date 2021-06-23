@@ -238,7 +238,9 @@ export default {
       const children = row.children || []
       const child = this.getParamNewRow()
       child.parentId = row.id
-      child.orderIndex = this.getNextOrderIndex(children)
+      this.pmsNextOrderIndex(children).then(order => {
+        child.orderIndex = order
+      })
       children.push(child)
       row.children = children
     },

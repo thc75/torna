@@ -45,7 +45,6 @@ const baseTypeConfig = [
 let next_id = 1
 
 let server_config
-let view_config
 
 Object.assign(Vue.prototype, {
   /**
@@ -202,35 +201,22 @@ Object.assign(Vue.prototype, {
   goBack() {
     this.$router.go(-1)
   },
-  getServerConfig(callback) {
-    if (!callback) {
-      return
-    }
-    if (server_config) {
-      callback.call(this, server_config)
-    } else {
-      this.get('/system/config', {}, resp => {
-        server_config = resp.data
-        callback.call(this, server_config)
-      })
-    }
-  },
   /**
-   * 获取页面配置
-   * @param callback 回调函数，参数为配置内容
+   * 获取服务端配置
+   * @return 返回Promise
    */
-  getViewConfig(callback) {
-    if (!callback) {
-      return
-    }
-    if (view_config) {
-      callback.call(this, view_config)
-    } else {
-      this.get('/system/viewConfig', {}, resp => {
-        view_config = resp.data
-        callback.call(this, view_config)
+  pmsConfig() {
+    if (server_config) {
+      return new Promise((resolve, reject) => {
+        resolve(server_config)
       })
     }
+    return new Promise((resolve, reject) => {
+      get('/system/viewConfig', {}, resp => {
+        server_config = resp.data
+        resolve(resp.data)
+      })
+    })
   },
   loadEnumData(moduleId, callback) {
     this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
@@ -303,7 +289,9 @@ Object.assign(Vue.prototype, {
       const isExist = row !== null
       if (!isExist) {
         row = this.getParamNewRow(name, value)
-        row.orderIndex = this.getNextOrderIndex(params)
+        this.pmsNextOrderIndex(params).then(order => {
+          row.orderIndex = order
+        })
       }
       row.example = value
       // 如果有子节点
@@ -657,11 +645,12 @@ Object.assign(Vue.prototype, {
     }
     return ret
   },
-  getNextOrderIndex(children) {
+  async pmsNextOrderIndex(children) {
+    const config = await this.pmsConfig()
     if (!children || children.length === 0) {
-      return this.getEnums().INIT_ORDER_INDEX
+      return config.initOrder
     }
-    let max = this.getEnums().INIT_ORDER_INDEX
+    let max = config.initOrder
     children.forEach(row => {
       max = Math.max(row.orderIndex, max)
     })
