@@ -16,4 +16,6 @@ public class ComposeDocFolderAddParam {
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long parentId;
+
+    private Integer orderIndex;
 }

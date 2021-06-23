@@ -233,7 +233,7 @@ public class DocController {
     }
 
     @PostMapping("orderindex/update")
-    public Result<List<DocInfoDTO>> updateOrderIndex(@RequestBody UpdateOrderIndexParam param) {
+    public Result updateOrderIndex(@RequestBody UpdateOrderIndexParam param) {
         DocInfo docInfo = docInfoService.getById(param.getId());
         docInfo.setOrderIndex(param.getOrderIndex());
         docInfoService.update(docInfo);

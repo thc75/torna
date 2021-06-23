@@ -19,6 +19,7 @@ import cn.torna.web.controller.compose.param.ComposeDocAddParam;
 import cn.torna.web.controller.compose.param.ComposeDocFolderAddParam;
 import cn.torna.web.controller.compose.param.ComposeDocFolderUpdateParam;
 import cn.torna.web.controller.compose.vo.ComposeDocVO;
+import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
 import cn.torna.web.controller.system.param.IdParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class ComposeDocController {
             return Result.ok();
         }
         List<ComposeDoc> tobeSave = docList.stream()
-                .map(docId -> buildComposeDoc(docId, param, user))
+                .map(doc -> buildComposeDoc(doc, param, user))
                 .collect(Collectors.toList());
         composeDocService.saveBatch(tobeSave);
         return Result.ok();
@@ -101,7 +102,7 @@ public class ComposeDocController {
         composeDoc.setFolderName("");
         composeDoc.setOrigin(doc.getOrigin());
         composeDoc.setIsDeleted(Booleans.FALSE);
-        composeDoc.setOrderIndex(0);
+        composeDoc.setOrderIndex(doc.getOrderIndex());
         composeDoc.setGmtCreate(date);
         composeDoc.setGmtModified(date);
         return composeDoc;
@@ -116,6 +117,7 @@ public class ComposeDocController {
         composeDoc.setFolderName(param.getName());
         composeDoc.setCreator(user.getNickname());
         composeDoc.setParentId(param.getParentId());
+        composeDoc.setOrderIndex(param.getOrderIndex());
         composeDocService.save(composeDoc);
         return Result.ok();
     }
@@ -130,7 +132,7 @@ public class ComposeDocController {
 
     @GetMapping("list")
     public Result<List<ComposeDocVO>> list(@HashId Long projectId) {
-        List<ComposeDoc> composeDocList = composeDocService.list("project_id", projectId);
+        List<ComposeDoc> composeDocList = composeDocService.listByProjectId(projectId);
         // 所有文档id
         List<Long> docIdList = composeDocList.stream()
                 .filter(composeDoc -> composeDoc.getDocId() > 0)
@@ -166,6 +168,14 @@ public class ComposeDocController {
             return Result.ok(Collections.emptyList());
         }
         return this.list(projectId);
+    }
+
+    @PostMapping("orderindex/update")
+    public Result updateOrderIndex(@RequestBody UpdateOrderIndexParam param) {
+        ComposeDoc composeDoc = composeDocService.getById(param.getId());
+        composeDoc.setOrderIndex(param.getOrderIndex());
+        composeDocService.update(composeDoc);
+        return Result.ok();
     }
 
 }
