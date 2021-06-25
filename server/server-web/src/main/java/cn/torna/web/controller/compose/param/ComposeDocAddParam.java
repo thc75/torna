@@ -24,6 +24,7 @@ public class ComposeDocAddParam {
         @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
         private Long docId;
         private String origin;
+        private Integer orderIndex;
     }
 
 }

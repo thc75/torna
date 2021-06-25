@@ -12,6 +12,7 @@ import org.springframework.util.ClassUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -111,7 +112,7 @@ public class CopyUtil extends BeanUtils {
 
     public static <T> List<T> copyList(List<?> fromList, Supplier<T> toElement) {
         if (fromList == null || fromList.isEmpty()) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         return fromList.stream()
                 .map(source -> {

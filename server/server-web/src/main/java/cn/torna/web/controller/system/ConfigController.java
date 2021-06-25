@@ -3,6 +3,7 @@ package cn.torna.web.controller.system;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
+import cn.torna.common.util.CopyUtil;
 import cn.torna.web.config.TornaViewProperties;
 import cn.torna.web.controller.system.vo.ConfigVO;
 import org.springframework.beans.factory.InitializingBean;
@@ -58,5 +59,7 @@ public class ConfigController implements InitializingBean {
         configVO.setEnableThirdPartyOauth(typeOauth);
         configVO.setOauthLoginUrl(oauthLoginUrl);
         configVO.setOauthButtonText(oauthButtonText);
+
+        CopyUtil.copyProperties(configVO, tornaViewProperties);
     }
 }

@@ -48,4 +48,6 @@ public class ComposeDocVO {
 
     /** http方法, 数据库字段：http_method */
     private String httpMethod;
+
+    private Integer orderIndex;
 }
