@@ -1,7 +1,11 @@
 package cn.torna.swaggerplugin.builder;
 
 import cn.torna.swaggerplugin.bean.ApiModelPropertyWrapper;
+import cn.torna.swaggerplugin.bean.ApiParamInfo;
+import cn.torna.swaggerplugin.bean.Booleans;
+import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.util.PluginUtil;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
@@ -18,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static cn.torna.swaggerplugin.util.PluginUtil.getGenericParamKey;
 
@@ -33,15 +39,63 @@ public class ApiDocBuilder {
     private Class<?> lastClass;
     private int loopCount;
     private Map<String, Class<?>> genericParamMap = Collections.emptyMap();
+    private Set<String> hiddenColumns = Collections.emptySet();
+    private TornaConfig tornaConfig;
 
     public ApiDocBuilder() {
     }
 
-    public ApiDocBuilder(Map<String, Class<?>> genericParamMap) {
+    public ApiDocBuilder(Map<String, Class<?>> genericParamMap, TornaConfig tornaConfig) {
+        this.tornaConfig = tornaConfig;
         if (genericParamMap == null) {
             genericParamMap = Collections.emptyMap();
         }
         this.genericParamMap = genericParamMap;
+        this.initHiddenColumns(tornaConfig);
+    }
+
+    private void initHiddenColumns(TornaConfig tornaConfig) {
+        JSONObject jarClass = tornaConfig.getJarClass();
+        if (jarClass == null) {
+            return;
+        }
+        hiddenColumns = new HashSet<>(8);
+        Set<String> classNames = jarClass.keySet();
+        for (String className : classNames) {
+            /*
+            "com.baomidou.mybatisplus.extension.plugins.pagination.Page": {
+              "countId": { "value": "xxx", "hidden": true, "required": false, "example": "" }
+            }
+             */
+            JSONObject classConfig = jarClass.getJSONObject(className);
+            Set<String> fields = classConfig.keySet();
+            for (String field : fields) {
+                // { "value": "xxx", "hidden": true, "required": false, "example": "" }
+                JSONObject fieldConfig = classConfig.getJSONObject(field);
+                Boolean hidden = fieldConfig.getBoolean("hidden");
+                if (hidden != null && hidden) {
+                    hiddenColumns.add(className + "." + field.trim());
+                }
+            }
+        }
+    }
+
+    private ApiParamInfo getApiParamInfo(String className, String fieldName) {
+        JSONObject jarClass = tornaConfig.getJarClass();
+        if (jarClass == null) {
+            return null;
+        }
+        JSONObject classConfig = jarClass.getJSONObject(className);
+        if (classConfig == null)
+            return null;
+        Set<String> fields = classConfig.keySet();
+        for (String field : fields) {
+            if (Objects.equals(field, fieldName)) {
+                JSONObject fieldConfig = classConfig.getJSONObject(field);
+                return fieldConfig == null ? null : fieldConfig.toJavaObject(ApiParamInfo.class);
+            }
+        }
+        return null;
     }
 
     /**
@@ -74,14 +128,16 @@ public class ApiDocBuilder {
             FieldDocInfo fieldDocInfo;
             Class<?> fieldType = field.getType();
             Type genericType = field.getGenericType();
+            Class<?> realClass = null;
+            // 如果是未知泛型，private T data
+            // 获取真实的类型
             if (genericType instanceof TypeVariable) {
                 String typeName = ((TypeVariable<?>) genericType).getName();
-                Class<?> realClass = getGenericParamClass(targetClass, typeName);
-                if (realClass != null) {
-                    fieldType = realClass;
-                }
+                realClass = getGenericParamClass(targetClass, typeName);
             }
-            if (PluginUtil.isPojo(fieldType)) {
+            if (realClass != null) {
+                fieldDocInfo = buildFieldDocInfoByClass(apiModelProperty, realClass, field);
+            } else if (PluginUtil.isPojo(fieldType)) {
                 // 如果是自定义类
                 fieldDocInfo = buildFieldDocInfoByClass(apiModelProperty, fieldType, field);
             } else {
@@ -89,13 +145,26 @@ public class ApiDocBuilder {
             }
             fieldDocInfos.add(fieldDocInfo);
         }, field -> {
-            if (Modifier.isStatic(field.getModifiers())) {
+            if (Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
                 return false;
             }
             ApiModelProperty apiModelProperty = AnnotationUtils.findAnnotation(field, ApiModelProperty.class);
             return apiModelProperty == null || !apiModelProperty.hidden();
         });
+        this.bindJarClassFields(targetClass, fieldDocInfos);
         return fieldDocInfos;
+    }
+
+    protected void bindJarClassFields(Class<?> targetClass, List<FieldDocInfo> fieldDocInfos) {
+        for (FieldDocInfo child : fieldDocInfos) {
+            ApiParamInfo apiParamInfo = this.getApiParamInfo(targetClass.getName(), child.getName());
+            if (apiParamInfo != null) {
+                child.setRequired(Booleans.toValue(apiParamInfo.isRequired()));
+                child.setExample(apiParamInfo.getExample());
+                child.setDescription(apiParamInfo.getValue());
+                child.setOrderIndex(apiParamInfo.getPosition());
+            }
+        }
     }
 
     protected Class<?> getCollectionElementClass(Class<?> clazz) {
@@ -142,6 +211,7 @@ public class ApiDocBuilder {
         Class<?> fieldType = field.getType();
         Type genericType = field.getGenericType();
         Type elementClass = null;
+        // 如果有明确的泛型，如List<Order>
         if (PluginUtil.isGenericType(genericType)) {
             elementClass = PluginUtil.getGenericType(genericType);
             if (elementClass instanceof TypeVariable) {
@@ -177,7 +247,7 @@ public class ApiDocBuilder {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(field);
         String name = getFieldName(field, apiModelPropertyWrapper);
-        String type = getFieldType(field, apiModelPropertyWrapper);
+        String type = PluginUtil.getDataType(clazz);
         String description = apiModelPropertyWrapper.getDescription();
         boolean required = apiModelPropertyWrapper.getRequired();
         String example = apiModelPropertyWrapper.getExample();
@@ -190,10 +260,21 @@ public class ApiDocBuilder {
         fieldDocInfo.setDescription(description);
         fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
 
+        if (PluginUtil.isCollection(clazz)) {
+            Class<?> elementClass = this.getCollectionElementClass(clazz);
+            if (elementClass != null) {
+                clazz = elementClass;
+            }
+        }
         List<FieldDocInfo> children = buildFieldDocInfosByType(clazz, false);
         fieldDocInfo.setChildren(children);
 
         return fieldDocInfo;
+    }
+
+    private boolean isClassFieldHidden(Class<?> clazz, Field field) {
+        String key = clazz.getName() + "." + field.getName();
+        return hiddenColumns.contains(key);
     }
 
     private static byte getRequiredValue(boolean b) {

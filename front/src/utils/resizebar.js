@@ -69,7 +69,7 @@ ResizeBar.prototype = {
     // 如果是打开状态
     if (this.vueScope.sidebarView.opened) {
       const width = this.leftPanel.style.width
-      this.navBar.style.width = `${CLIENT_WIDTH - parseInt(width)}px`
+      this.navBar.style.width = `${document.body.clientWidth - parseInt(width)}px`
     } else {
       this.navBar.style.width = ''
     }
