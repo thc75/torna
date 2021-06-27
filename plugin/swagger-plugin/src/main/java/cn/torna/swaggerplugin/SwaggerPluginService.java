@@ -85,7 +85,6 @@ public class SwaggerPluginService {
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final TornaConfig tornaConfig;
     private final OpenClient client;
-    private final ApiDocBuilder apiDocBuilder = new ApiDocBuilder();
 
     public SwaggerPluginService(RequestMappingHandlerMapping requestMappingHandlerMapping, TornaConfig tornaConfig) {
         this.requestMappingHandlerMapping = requestMappingHandlerMapping;
@@ -94,7 +93,7 @@ public class SwaggerPluginService {
     }
 
     public void init() {
-        if (!"true".equals(tornaConfig.getEnable())) {
+        if (!tornaConfig.getEnable()) {
             return;
         }
         Objects.requireNonNull(requestMappingHandlerMapping, "requestMappingHandlerMapping can not null");
@@ -133,6 +132,7 @@ public class SwaggerPluginService {
         List<DocItem> docItems = mergeSameFolder(controllerDocMap);
         this.push(docItems);
     }
+
 
     private List<DocItem> mergeSameFolder(Map<ControllerInfo, List<DocItem>> controllerDocMap) {
         // key：文件夹，value：文档
@@ -177,8 +177,8 @@ public class SwaggerPluginService {
         request.setApis(docItems);
         request.setDebugEnvs(buildDebugEnvs());
         request.setAuthor(tornaConfig.getAuthor());
-        request.setIsReplace(Booleans.toValue(Objects.equals("true", tornaConfig.getIsReplace())));
-        if ("true".equals(tornaConfig.getDebug())) {
+        request.setIsReplace(Booleans.toValue(tornaConfig.getIsReplace()));
+        if (tornaConfig.getDebug()) {
             System.out.println("-------- Torna配置 --------");
             System.out.println(JSON.toJSONString(tornaConfig, SerializerFeature.PrettyFormat));
             System.out.println("-------- 推送数据 --------");
@@ -263,7 +263,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamPath> buildPathParams(HandlerMethod handlerMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> tornaConfig.getPathName().equalsIgnoreCase(param.paramType()));
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "path".equalsIgnoreCase(param.paramType()));
         List<DocParamPath> docParamPaths = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -341,7 +341,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamHeader> buildHeaderParams(HandlerMethod handlerMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> tornaConfig.getHeaderName().equalsIgnoreCase(param.paramType()));
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "header".equalsIgnoreCase(param.paramType()));
         List<DocParamHeader> docParamHeaders = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -376,7 +376,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamReq> buildQueryParams(HandlerMethod handlerMethod, String httpMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> tornaConfig.getQueryName().equalsIgnoreCase(param.paramType()));
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "query".equalsIgnoreCase(param.paramType()));
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -471,8 +471,8 @@ public class SwaggerPluginService {
 
     protected DocParamReqWrapper buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
         List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param ->
-                tornaConfig.getFormName().equalsIgnoreCase(param.paramType())
-                        || tornaConfig.getBodyName().equalsIgnoreCase(param.paramType())
+                "form".equalsIgnoreCase(param.paramType())
+                        || "body".equalsIgnoreCase(param.paramType())
                         || param.dataType().toLowerCase().contains("file")
         );
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
@@ -661,7 +661,7 @@ public class SwaggerPluginService {
 
     protected List<DocParamReq> buildReqClassParams(Map<String, Class<?>> genericParamMap, Class<?> clazz) {
         clazz = getClassFromArrayType(clazz);
-        List<FieldDocInfo> fieldDocInfoList = new ApiDocBuilder(genericParamMap).buildFieldDocInfo(clazz);
+        List<FieldDocInfo> fieldDocInfoList = new ApiDocBuilder(genericParamMap, tornaConfig).buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
                 .map(this::convertReqParam)
                 .collect(Collectors.toList());
@@ -669,7 +669,7 @@ public class SwaggerPluginService {
 
     protected List<DocParamResp> buildRespClassParams(Map<String, Class<?>> genericParamMap, Class<?> clazz) {
         clazz = getClassFromArrayType(clazz);
-        List<FieldDocInfo> fieldDocInfoList = new ApiDocBuilder(genericParamMap).buildFieldDocInfo(clazz);
+        List<FieldDocInfo> fieldDocInfoList = new ApiDocBuilder(genericParamMap, tornaConfig).buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
                 .map(this::convertRespParam)
                 .collect(Collectors.toList());
@@ -835,6 +835,10 @@ public class SwaggerPluginService {
         controllerInfo.setDescription(description);
         controllerInfo.setPosition(position);
         return controllerInfo;
+    }
+
+    public TornaConfig getTornaConfig() {
+        return tornaConfig;
     }
 
     public boolean match(HandlerMethod handlerMethod) {

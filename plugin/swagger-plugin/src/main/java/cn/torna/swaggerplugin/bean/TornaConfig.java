@@ -1,5 +1,6 @@
 package cn.torna.swaggerplugin.bean;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Data;
 public class TornaConfig {
 
     /** 开启推送 */
-    private String enable;
+    private Boolean enable = false;
     /** 扫描package，多个用";"隔开。不指定扫描全部 */
     private String basePackage;
     /** 推送URL */
@@ -26,23 +27,14 @@ public class TornaConfig {
     /** 推送人 */
     private String author;
     /** 打开调试:true/false */
-    private String debug;
+    private Boolean debug = true;
     /** 接口多个method只显示 */
-    private String methodWhenMulti;
-
-    /** path参数名称 */
-    private String pathName;
-    /** header参数名称 */
-    private String headerName;
-    /** query参数名称 */
-    private String queryName;
-    /** form参数名称 */
-    private String formName;
-    /** body参数名称 */
-    private String bodyName;
+    private String methodWhenMulti = "GET";
     /** 具有body体的方法 */
     private String hasBodyMethods = "POST,PUT,DELETE";
     /** 是否替换文档，true：替换，false：不替换（追加）。默认：true */
-    private String isReplace;
+    private Boolean isReplace = true;
+
+    private JSONObject jarClass;
 
 }
