@@ -35,7 +35,7 @@ public class SwaggerPluginConfiguration implements InitializingBean {
     public SwaggerPluginConfiguration() {
     }
 
-    public void init(RequestMappingHandlerMapping requestMappingHandlerMapping) {
+    public void init(RequestMappingHandlerMapping requestMappingHandlerMapping) throws IOException {
         if (this.tornaConfig == null) {
             this.tornaConfig = buildTornaConfig();
         }
@@ -45,6 +45,7 @@ public class SwaggerPluginConfiguration implements InitializingBean {
 
     protected TornaConfig buildTornaConfig() {
         TornaConfig tornaConfig = new TornaConfig();
+        tornaConfig.setConfigFile(environment.getProperty("torna.swagger-plugin.config-file", "torna.json"));
         tornaConfig.setEnable(Boolean.parseBoolean(environment.getProperty("torna.swagger-plugin.enable", "false")));
         tornaConfig.setBasePackage(environment.getProperty("torna.swagger-plugin.basePackage", ""));
         tornaConfig.setUrl(environment.getProperty("torna.swagger-plugin.url"));
@@ -60,19 +61,17 @@ public class SwaggerPluginConfiguration implements InitializingBean {
         return tornaConfig;
     }
 
-    protected void loadConfig(TornaConfig tornaConfig) {
-        ClassPathResource classPathResource = new ClassPathResource("torna.json");
+    protected void loadConfig(TornaConfig tornaConfig) throws IOException {
+        String configFile = environment.getProperty("torna.push.configfile", tornaConfig.getConfigFile());
+        ClassPathResource classPathResource = new ClassPathResource(configFile);
         if (classPathResource.exists()) {
-            try {
-                InputStream inputStream = classPathResource.getInputStream();
-                String json = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-                JSONObject jsonObject = JSON.parseObject(json);
-                TornaConfig tornaConfigOther = jsonObject.toJavaObject(TornaConfig.class);
-                PluginUtil.copyPropertiesIgnoreNull(tornaConfigOther, tornaConfig);
-                tornaConfig.setJarClass(jsonObject.getJSONObject("jarClass"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println("加载Torna配置文件:" + configFile);
+            InputStream inputStream = classPathResource.getInputStream();
+            String json = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+            JSONObject jsonObject = JSON.parseObject(json);
+            TornaConfig tornaConfigOther = jsonObject.toJavaObject(TornaConfig.class);
+            PluginUtil.copyPropertiesIgnoreNull(tornaConfigOther, tornaConfig);
+            tornaConfig.setJarClass(jsonObject.getJSONObject("jarClass"));
         }
     }
 
