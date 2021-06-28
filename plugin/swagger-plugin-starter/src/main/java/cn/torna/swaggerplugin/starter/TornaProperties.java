@@ -12,6 +12,9 @@ public class TornaProperties {
 
     public static final String PREFIX = "torna.swagger-plugin";
 
+    /* torna配置文件名称，默认找classpath下的torna.json文件 */
+    private String configFile = "torna.json";
+
     /** 开启推送 */
     private Boolean enable = false;
     /** 扫描package，多个用";"隔开。不指定扫描全部 */

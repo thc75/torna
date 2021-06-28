@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class TornaConfig {
 
+    private String configFile;
+
     /** 开启推送 */
     private Boolean enable = false;
     /** 扫描package，多个用";"隔开。不指定扫描全部 */
