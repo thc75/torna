@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static cn.torna.swaggerplugin.util.PluginUtil.getGenericParamKey;
 
@@ -36,8 +38,8 @@ import static cn.torna.swaggerplugin.util.PluginUtil.getGenericParamKey;
  */
 public class ApiDocBuilder {
 
-    private Class<?> lastClass;
-    private int loopCount;
+    // key: ClassA.getName() + fieldType.getName() + field.getName()
+    private Map<String, AtomicInteger> cycleFieldsMap = new HashMap<>();
     private Map<String, Class<?>> genericParamMap = Collections.emptyMap();
     private Set<String> hiddenColumns = Collections.emptySet();
     private TornaConfig tornaConfig;
@@ -116,8 +118,6 @@ public class ApiDocBuilder {
         if (!PluginUtil.isPojo(targetClass)) {
             return Collections.emptyList();
         }
-        // 解决循环注解导致死循环问题
-        this.addCycle(targetClass);
         final List<FieldDocInfo> fieldDocInfos = new ArrayList<>();
         // 遍历参数对象中的属性
         ReflectionUtils.doWithFields(targetClass, field -> {
@@ -228,9 +228,9 @@ public class ApiDocBuilder {
         if (elementClass != null && elementClass != Object.class && elementClass != Void.class) {
             Class<?> clazz = (Class<?>) elementClass;
             if (PluginUtil.isPojo(clazz)) {
-                List<FieldDocInfo> fieldDocInfos = loopCount < 1
-                        ? buildFieldDocInfosByType(clazz, false)
-                        : Collections.emptyList();
+                List<FieldDocInfo> fieldDocInfos = isCycle(clazz, field)
+                        ? Collections.emptyList()
+                        : buildFieldDocInfosByType(clazz, false);
                 fieldDocInfo.setChildren(fieldDocInfos);
             }
         }
@@ -266,10 +266,19 @@ public class ApiDocBuilder {
                 clazz = elementClass;
             }
         }
-        List<FieldDocInfo> children = buildFieldDocInfosByType(clazz, false);
+        // 解决循环依赖问题
+        boolean cycle = isCycle(clazz, field);
+        List<FieldDocInfo> children = cycle ? Collections.emptyList()
+                : buildFieldDocInfosByType(clazz, false);
         fieldDocInfo.setChildren(children);
 
         return fieldDocInfo;
+    }
+
+    protected boolean isCycle(Class<?> clazz, Field field) {
+        String key = clazz.getName() + field.getType().getName() + field.getName();
+        AtomicInteger atomicInteger = cycleFieldsMap.computeIfAbsent(key, k -> new AtomicInteger());
+        return atomicInteger.getAndIncrement() >= 1;
     }
 
     private boolean isClassFieldHidden(Class<?> clazz, Field field) {
@@ -329,16 +338,7 @@ public class ApiDocBuilder {
         return desc;
     }
 
-    private void addCycle(Class<?> clazz) {
-        if (lastClass == clazz) {
-            loopCount++;
-        } else {
-            loopCount = 0;
-        }
-        lastClass = clazz;
-    }
-
     private void resetCycle() {
-        loopCount = 0;
+        cycleFieldsMap.clear();
     }
 }
