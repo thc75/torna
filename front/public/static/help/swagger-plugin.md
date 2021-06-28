@@ -1,4 +1,4 @@
-插件的作用是将本地项目中的Swagger文档内容推送到Torna服务器。
+插件的作用是将本地项目中的Swagger文档内容推送到Torna服务器。[参考文档](http://torna.cn/dev/swagger-plugin.html)
 
 **使用步骤：**
 
@@ -12,10 +12,12 @@ pom.xml添加依赖：
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin-starter</artifactId>
-    <version>1.1.0</version>
+    <version>最新版本</version>
     <scope>provided</scope>
 </dependency>
 ```
+
+`swagger-plugin-starter`最新版本：![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin-starter)
 
 `src/main/resources`下添加一个`torna.json`文件，内容如下：
 
@@ -55,9 +57,12 @@ pom.xml添加依赖：
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin</artifactId>
-    <version>1.1.0</version>
+    <version>最新版本</version>
 </dependency>
 ```
+
+`swagger-plugin`最新版本： ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)
+
 
 新建一个类，继承`SwaggerPluginConfiguration`
 
