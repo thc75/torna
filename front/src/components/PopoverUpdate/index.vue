@@ -16,29 +16,52 @@
       @submit.native.prevent
     >
       <el-form-item :label="label" prop="value">
-        <el-input ref="input" v-model="updateForm.value" show-word-limit maxlength="50" />
+        <el-input-number v-if="isNumber" ref="inputNumber" v-model="updateForm.value" controls-position="right" style="width: 150px;" />
+        <el-input v-else ref="input" v-model="updateForm.value" show-word-limit maxlength="50" />
       </el-form-item>
       <div style="text-align: right; margin: 0">
-        <el-button type="primary" native-type="submit" @click="onUpdateNameSave">确定</el-button>
+        <el-button type="text" size="mini" @click="hide">{{ $ts('cancel') }}</el-button>
+        <el-button type="primary" size="mini" native-type="submit" @click="onUpdateNameSave">{{ $ts('ok') }}</el-button>
       </div>
     </el-form>
     <el-button
+      v-if="showIcon"
       slot="reference"
       type="text"
       icon="el-icon-edit"
       @click.stop="() => {}"
     />
+    <el-button
+      v-else
+      slot="reference"
+      type="text"
+      @click.stop="() => {}"
+    >
+      {{ value }}
+    </el-button>
   </el-popover>
 </template>
 <script>
 export default {
   name: 'PopoverUpdate',
   props: {
+    isNumber: {
+      type: Boolean,
+      default: false
+    },
+    showIcon: {
+      type: Boolean,
+      default: true
+    },
     title: {
       type: String,
       default: $ts('updateName')
     },
     label: {
+      type: String,
+      default: ''
+    },
+    value: {
       type: String,
       default: ''
     },
@@ -75,12 +98,10 @@ export default {
       })
     },
     showHandler() {
-      const value = this.onShow(this.updateForm)
-      if (value) {
-        this.updateForm.value = value
-      }
+      this.updateForm.value = this.onShow(this.updateForm)
       this.$nextTick(() => {
-        this.$refs.input.focus()
+        this.$refs.input && this.$refs.input.focus()
+        this.$refs.inputNumber && this.$refs.inputNumber.focus()
       })
     },
     hide() {

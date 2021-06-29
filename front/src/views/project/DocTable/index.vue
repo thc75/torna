@@ -11,6 +11,10 @@
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
+        <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
+          <el-radio-button label="1">{{ $ts('expand') }}</el-radio-button>
+          <el-radio-button label="0">{{ $ts('collapse') }}</el-radio-button>
+        </el-radio-group>
         <div class="table-right-item">
           <el-input
             v-model="tableSearch"
@@ -36,7 +40,12 @@
       :data="tableRows"
       row-id="id"
       use-virtual
-      :treeConfig="{ children: 'children', iconClose: 'el-icon-arrow-right', iconOpen: 'el-icon-arrow-down', expandAll: true}"
+      :treeConfig="{
+        children: 'children',
+        iconClose: 'el-icon-arrow-right',
+        iconOpen: 'el-icon-arrow-down',
+        expandAll: triggerStatus === '1'
+      }"
       :height="tableHeight"
       :row-height="30"
       border
@@ -87,6 +96,23 @@
       >
         <template slot-scope="scope">
           <time-tooltip :time="scope.row.gmtModified" />
+        </template>
+      </u-table-column>
+      <u-table-column
+        v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+        prop="orderIndex"
+        :label="$ts('orderIndex')"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <popover-update
+            :title="$ts('orderIndex')"
+            is-number
+            :show-icon="false"
+            :value="`${scope.row.orderIndex}`"
+            :on-show="() => {return scope.row.orderIndex}"
+            :on-save="(val, call) => onSaveOrderIndex(scope.row.id, val, call)"
+          />
         </template>
       </u-table-column>
       <u-table-column
@@ -150,10 +176,11 @@ import HttpMethod from '@/components/HttpMethod'
 import SvgIcon from '@/components/SvgIcon'
 import TimeTooltip from '@/components/TimeTooltip'
 import DocExportDialog from '@/components/DocExportDialog'
+import PopoverUpdate from '@/components/PopoverUpdate'
 
 export default {
   name: 'DocTable',
-  components: { HttpMethod, SvgIcon, TimeTooltip, DocExportDialog },
+  components: { HttpMethod, SvgIcon, TimeTooltip, DocExportDialog, PopoverUpdate },
   props: {
     projectId: {
       type: String,
@@ -166,7 +193,8 @@ export default {
       tableHeight: 0,
       tableData: [],
       tableSearch: '',
-      loading: false
+      loading: false,
+      triggerStatus: '1'
     }
   },
   computed: {
@@ -176,28 +204,7 @@ export default {
         return this.tableData
       }
       search = search.toLowerCase()
-      const data = []
-      for (const row of this.tableData) {
-        // 如果是分类，需要找分类中的子文档
-        if (this.isFolder(row)) {
-          const children = row.children || []
-          const newChildren = children.filter(child => {
-            return this.searchContent(search, child)
-          })
-          // 如果找到了
-          if (newChildren.length > 0) {
-            const rowCopy = Object.assign({}, row)
-            rowCopy.children = newChildren
-            data.push(rowCopy)
-          }
-        } else {
-          // 不是分类找到了直接加入
-          if (this.searchContent(search, row)) {
-            data.push(row)
-          }
-        }
-      }
-      return data
+      return this.searchRow(search, this.tableData, this.searchContent, this.isFolder)
     }
   },
   created() {
@@ -220,6 +227,7 @@ export default {
       if (moduleId) {
         this.moduleId = moduleId
       }
+      this.triggerStatus = this.getAttr(this.getTriggerStatusKey()) || '1'
       this.loading = true
       this.get('/doc/list', { moduleId: this.moduleId }, function(resp) {
         this.tableData = this.convertTree(resp.data)
@@ -229,6 +237,15 @@ export default {
     },
     initHeight() {
       this.tableHeight = window.innerHeight - 165
+    },
+    onSaveOrderIndex(id, orderIndex, callback) {
+      callback()
+      this.updateOrderIndex(id, orderIndex)
+    },
+    updateOrderIndex(id, orderIndex) {
+      this.post('/doc/orderindex/update', { id: id, orderIndex: orderIndex }, resp => {
+        this.loadTable()
+      })
     },
     onFolderUpdate(row) {
       this.$prompt(this.$ts('inputFolderMsg'), this.$ts('updateFolderTitle'), {
@@ -270,6 +287,17 @@ export default {
       }).catch(() => {
       })
     },
+    onTriggerStatus(val) {
+      this.setAttr(this.getTriggerStatusKey(), val)
+      if (val === '1') {
+        this.$refs.plTreeTable.setAllTreeExpansion()
+      } else {
+        this.$refs.plTreeTable.clearTreeExpand()
+      }
+    },
+    getTriggerStatusKey() {
+      return `torna.doc.table.trigger.${this.moduleId}`
+    },
     isDoc(row) {
       return !this.isFolder(row)
     },
@@ -293,7 +321,9 @@ export default {
       })
     },
     onDocAdd(row) {
-      this.goRoute(`/doc/new/${this.moduleId}/${row.id}`)
+      this.pmsNextOrderIndex(row.children).then(order => {
+        this.goRoute(`/doc/new/${this.moduleId}/${row.id}?order=${order}`)
+      })
     },
     onDocUpdate: function(row) {
       if (row.isFolder) {

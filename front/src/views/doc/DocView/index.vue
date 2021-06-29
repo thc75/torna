@@ -265,7 +265,7 @@ export default {
       }
     },
     initResponseHiddenColumns() {
-      this.getViewConfig(config => {
+      this.pmsConfig().then(config => {
         const responseHiddenColumnsConfig = config.responseHiddenColumns
         const responseHiddenColumns = []
         if (responseHiddenColumnsConfig) {

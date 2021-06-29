@@ -48,6 +48,7 @@ public class RequestUtil {
         if (StringUtils.isEmpty(query)) {
             return Collections.emptyMap();
         }
+        query = StringUtils.trimLeadingCharacter(query, '?');
         String[] pairs = query.split("&");
         Map<String, String> form = new HashMap<>(pairs.length * 2);
         for (String pair : pairs) {

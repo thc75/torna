@@ -119,6 +119,20 @@
       </template>
     </el-table-column>
     <el-table-column
+      prop="orderIndex"
+      :label="$ts('orderIndex')"
+      width="125"
+    >
+      <template slot-scope="scope">
+        <el-input-number
+          v-model="scope.row.orderIndex"
+          controls-position="right"
+          size="mini"
+          style="width: 100px"
+        />
+      </template>
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('opt')"
       :label="$ts('operation')"
       width="90"
@@ -224,6 +238,9 @@ export default {
       const children = row.children || []
       const child = this.getParamNewRow()
       child.parentId = row.id
+      this.pmsNextOrderIndex(children).then(order => {
+        child.orderIndex = order
+      })
       children.push(child)
       row.children = children
     },

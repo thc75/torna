@@ -71,6 +71,10 @@
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
+        <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
+          <el-radio-button label="1">{{ $ts('expand') }}</el-radio-button>
+          <el-radio-button label="0">{{ $ts('collapse') }}</el-radio-button>
+        </el-radio-group>
         <div class="table-right-item">
           <el-input
             v-model="tableSearch"
@@ -92,7 +96,12 @@
         :data="tableRows"
         row-id="id"
         use-virtual
-        :treeConfig="{ children: 'children', iconClose: 'el-icon-arrow-right', iconOpen: 'el-icon-arrow-down', expandAll: true}"
+        :treeConfig="{
+          children: 'children',
+          iconClose: 'el-icon-arrow-right',
+          iconOpen: 'el-icon-arrow-down',
+          expandAll: triggerStatus === '1'
+        }"
         :height="tableHeight"
         :row-height="30"
         border
@@ -132,6 +141,23 @@
         >
           <template slot-scope="scope">
             <time-tooltip :time="scope.row.gmtCreate" />
+          </template>
+        </u-table-column>
+        <u-table-column
+          v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
+          prop="orderIndex"
+          :label="$ts('orderIndex')"
+          width="80"
+        >
+          <template slot-scope="scope">
+            <popover-update
+              :title="$ts('orderIndex')"
+              is-number
+              :show-icon="false"
+              :value="`${scope.row.orderIndex}`"
+              :on-show="() => {return scope.row.orderIndex}"
+              :on-save="(val, call) => onSaveOrderIndex(scope.row.id, val, call)"
+            />
           </template>
         </u-table-column>
         <u-table-column
@@ -188,9 +214,10 @@ import ComposeProjectCreateDialog from '@/components/ComposeProjectCreateDialog'
 import DocSelect from '@/components/DocSelect'
 import HttpMethod from '@/components/HttpMethod'
 import TimeTooltip from '@/components/TimeTooltip'
+import PopoverUpdate from '@/components/PopoverUpdate'
 
 export default {
-  components: { ComposeProjectCreateDialog, DocSelect, HttpMethod, TimeTooltip },
+  components: { ComposeProjectCreateDialog, DocSelect, HttpMethod, TimeTooltip, PopoverUpdate },
   props: {
     spaceId: {
       type: String,
@@ -213,7 +240,8 @@ export default {
       selectDocShow: false,
       tableHeight: 0,
       tableSearch: '',
-      tableData: []
+      tableData: [],
+      triggerStatus: '1'
     }
   },
   computed: {
@@ -288,6 +316,7 @@ export default {
     },
     loadTable(projectId, callback) {
       if (projectId) {
+        this.triggerStatus = this.getAttr(this.getTriggerStatusKey()) || '1'
         this.get('/compose/doc/list', { projectId: projectId }, function(resp) {
           this.tableData = this.convertTree(resp.data)
           callback && callback()
@@ -356,6 +385,10 @@ export default {
         if (parent) {
           data.parentId = parent.id
         }
+        const children = parent ? parent.children : []
+        this.pmsNextOrderIndex(children).then(order => {
+          data.orderIndex = order
+        })
         this.post('/compose/doc/folder/add', data, () => {
           this.tipSuccess(this.$ts('createSuccess'))
           this.reload()
@@ -382,11 +415,29 @@ export default {
       if (this.parentDoc) {
         data.parentId = this.parentDoc.id
       }
-      this.post('/compose/doc/add', data, () => {
-        this.selectDocShow = false
-        this.tipSuccess($ts('addSuccess'))
-        this.reloadTable()
+      const children = this.parentDoc ? this.parentDoc.children : []
+      this.pmsNextOrderIndex(children).then(order => {
+        docList.forEach(row => {
+          row.orderIndex = order
+          order = order + 10
+        })
+        this.post('/compose/doc/add', data, () => {
+          this.selectDocShow = false
+          this.tipSuccess($ts('addSuccess'))
+          this.reloadTable()
+        })
       })
+    },
+    onTriggerStatus(val) {
+      this.setAttr(this.getTriggerStatusKey(), val)
+      if (val === '1') {
+        this.$refs.plTreeTable.setAllTreeExpansion()
+      } else {
+        this.$refs.plTreeTable.clearTreeExpand()
+      }
+    },
+    getTriggerStatusKey() {
+      return `torna.composedoc.table.trigger.${this.projectInfo.id}`
     },
     onUpdate() {
       this.$refs.projectCreateDlg.updateShow(this.projectInfo)
@@ -400,6 +451,15 @@ export default {
           this.tipSuccess(this.$ts('deleteSuccess'))
           this.reload()
         })
+      })
+    },
+    onSaveOrderIndex(id, orderIndex, callback) {
+      callback()
+      this.updateOrderIndex(id, orderIndex)
+    },
+    updateOrderIndex(id, orderIndex) {
+      this.post('/compose/doc/orderindex/update', { id: id, orderIndex: orderIndex }, resp => {
+        this.reloadTable()
       })
     },
     initHeight() {

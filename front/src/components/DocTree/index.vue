@@ -10,10 +10,9 @@
     </el-input>
     <el-tree
       ref="tree"
-      :data="treeData"
+      :data="treeRows"
       :props="props"
       node-key="id"
-      :filter-node-method="filterNode"
       show-checkbox
       @check="onCheckClick"
     >
@@ -52,9 +51,14 @@ export default {
       filterText: ''
     }
   },
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val)
+  computed: {
+    treeRows() {
+      let search = this.filterText.trim()
+      if (!search) {
+        return this.treeData
+      }
+      search = search.toLowerCase()
+      return this.searchRow(search, this.treeData, this.searchContent, this.isFolder)
     }
   },
   methods: {
@@ -72,10 +76,13 @@ export default {
         }
       })
     },
-    filterNode(value, data) {
-      if (!value) return true
-      value = value.toLowerCase()
-      return data.name.toLowerCase().indexOf(value) !== -1 || data.url.toLowerCase().indexOf(value) > -1
+    isFolder(row) {
+      return row.isFolder === 1
+    },
+    searchContent(searchText, row) {
+      return (row.url && row.url.toLowerCase().indexOf(searchText) > -1) ||
+        (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
+        (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onCheckClick(data, status) {
       const node = this.$refs.tree.getNode(data)

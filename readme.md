@@ -2,43 +2,20 @@
 
 企业接口文档解决方案，目标是让文档管理变得更加方便、快捷。Torna采用团队协作的方式管理和维护项目API文档，将不同形式的文档纳入进来，形成一个统一的维护方式。
 
-<img src="./front/public/static/images/arc.png" width="80%" height="80%" />
+Torna弥补了传统文档生成工具（如swagger）的不如之处，在保持原有功能的前提下丰富并增强了一些实用的功能。
+
+<img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
 
 ## 当前版本号
 
 | 模块 | 版本 |
 | :----: | :----: |
-| Torna | 1.8.5 |
-| sdk-java | 1.0.10 |
-| swagger-plugin | 1.0.5 |
-| smart-doc | 2.1.9 |
+| Torna | 1.9.0 |
+| sdk-java | ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk) |
+| swagger-plugin | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin) |
+| swagger-plugin-starter | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin-starter) |
+| smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
 
-## 特性介绍
-
-- 支持接口文档增删改查
-- 支持导入外部接口（支持导入swagger、postman）
-- 支持分享文档（匿名访问、密码访问）
-- 支持OpenAPI管理接口
-- 支持字典管理
-- 支持导出为markdown格式、html格式
-- 支持文档聚合，将不同模块中的文档聚合展示
-- 支持多环境接口调试
-- 支持Mock数据
-- 支持文档权限管理，访客、开发者、管理员对应不同权限
-- 支持第三方登录接入/OAuth认证登录
-- 支持钉钉免密登录
-- 支持设置全局请求头/请求参数/响应参数
-- 支持中英文切换(i18n)
-- 支持docker运行
-- 提供swagger插件，快速导入swagger文档
-- 提供`管理模式`和`浏览模式`双模式，管理模式用来编辑文档内容，浏览模式纯粹查阅文档，界面无其它元素干扰
-- 部署简单，直接运行脚本启动程序
-
----
-
-[演示地址](http://demo.torna.cn/) 演示账号：`guest@torna.cn` 密码：`123456`
-
-当前账号是访问者，只能阅读文档，可以自行部署到本地体验更多功能。
 
 ## 使用步骤
 

@@ -349,6 +349,11 @@ export function init_docInfo_view(data) {
 }
 
 export function init_docInfo_complete_view(data) {
+  sortByIndex(data.headerParams)
+  sortByIndex(data.queryParams)
+  sortByIndex(data.requestParams, true)
+  sortByIndex(data.responseParams, true)
+  sortByIndex(data.errorCodeParams)
   if (data.isUseGlobalHeaders) {
     const globalHeaders = data.globalHeaders || []
     data.headerParams = globalHeaders.concat(data.headerParams)
@@ -395,6 +400,25 @@ export function init_docInfo_complete_view(data) {
       dataNode.children = responseParams
       data.responseParams = data.globalReturns
     }
+  }
+}
+
+function sortByIndex(arr, deep) {
+  if (!is_array(arr)) {
+    return
+  }
+  arr.sort((a, b) => {
+    const aVal = a.orderIndex || 0
+    const bVal = b.orderIndex || 0
+    return aVal - bVal
+  })
+  if (deep) {
+    arr.forEach(row => {
+      const children = row.children
+      if (children && children.length > 0) {
+        sortByIndex(children, deep)
+      }
+    })
   }
 }
 

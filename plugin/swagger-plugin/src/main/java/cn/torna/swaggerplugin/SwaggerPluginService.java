@@ -11,6 +11,7 @@ import cn.torna.sdk.param.DocParamResp;
 import cn.torna.sdk.param.IParam;
 import cn.torna.sdk.request.DocPushRequest;
 import cn.torna.sdk.response.DocPushResponse;
+import cn.torna.swaggerplugin.bean.ApiParamWrapper;
 import cn.torna.swaggerplugin.bean.Booleans;
 import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.DocParamInfo;
@@ -57,7 +58,6 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import springfox.documentation.annotations.ApiIgnore;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -65,13 +65,13 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -81,10 +81,10 @@ import java.util.stream.Collectors;
  */
 public class SwaggerPluginService {
 
+
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final TornaConfig tornaConfig;
     private final OpenClient client;
-    private final ApiDocBuilder apiDocBuilder = new ApiDocBuilder();
 
     public SwaggerPluginService(RequestMappingHandlerMapping requestMappingHandlerMapping, TornaConfig tornaConfig) {
         this.requestMappingHandlerMapping = requestMappingHandlerMapping;
@@ -93,7 +93,7 @@ public class SwaggerPluginService {
     }
 
     public void init() {
-        if (!"true".equals(tornaConfig.getEnable())) {
+        if (!tornaConfig.getEnable()) {
             return;
         }
         Objects.requireNonNull(requestMappingHandlerMapping, "requestMappingHandlerMapping can not null");
@@ -124,11 +124,15 @@ public class SwaggerPluginService {
                 docItems.add(apiInfo);
             } catch (HiddenException | IgnoreException e) {
                 System.out.println(e.getMessage());
+            } catch (Exception e) {
+                System.out.printf("构建文档出错, method:%s%n", handlerMethod.toString());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         List<DocItem> docItems = mergeSameFolder(controllerDocMap);
         this.push(docItems);
     }
+
 
     private List<DocItem> mergeSameFolder(Map<ControllerInfo, List<DocItem>> controllerDocMap) {
         // key：文件夹，value：文档
@@ -173,8 +177,8 @@ public class SwaggerPluginService {
         request.setApis(docItems);
         request.setDebugEnvs(buildDebugEnvs());
         request.setAuthor(tornaConfig.getAuthor());
-        request.setIsReplace(Booleans.toValue(Objects.equals("true", tornaConfig.getIsReplace())));
-        if ("true".equals(tornaConfig.getDebug())) {
+        request.setIsReplace(Booleans.toValue(tornaConfig.getIsReplace()));
+        if (tornaConfig.getDebug()) {
             System.out.println("-------- Torna配置 --------");
             System.out.println(JSON.toJSONString(tornaConfig, SerializerFeature.PrettyFormat));
             System.out.println("-------- 推送数据 --------");
@@ -259,7 +263,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamPath> buildPathParams(HandlerMethod handlerMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> tornaConfig.getPathName().equalsIgnoreCase(param.paramType()));
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "path".equalsIgnoreCase(param.paramType()));
         List<DocParamPath> docParamPaths = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -337,7 +341,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamHeader> buildHeaderParams(HandlerMethod handlerMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> tornaConfig.getHeaderName().equalsIgnoreCase(param.paramType()));
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "header".equalsIgnoreCase(param.paramType()));
         List<DocParamHeader> docParamHeaders = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -372,7 +376,7 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamReq> buildQueryParams(HandlerMethod handlerMethod, String httpMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> tornaConfig.getQueryName().equalsIgnoreCase(param.paramType()));
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "query".equalsIgnoreCase(param.paramType()));
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -396,7 +400,7 @@ public class SwaggerPluginService {
                 continue;
             }
             // 如果是Get请求
-            if (httpMethod.equalsIgnoreCase(HttpMethod.GET.name())) {
+            if (httpMethod.equalsIgnoreCase(HttpMethod.GET.name()) || requestParam != null) {
                 boolean isPojo = PluginUtil.isPojo(parameterType);
                 // 当get请求时，遇到普通类则认为类中的属性都是query参数
                 if (isPojo) {
@@ -404,12 +408,10 @@ public class SwaggerPluginService {
                     docParamReqs.addAll(docParamReqList);
                 } else {
                     DocParamReq docParamReq = buildDocParamReq(parameter);
+                    Boolean required = Optional.ofNullable(requestParam).map(RequestParam::required).orElse(false);
+                    docParamReq.setRequired(Booleans.toValue(required));
                     docParamReqs.add(docParamReq);
                 }
-            } else if (requestParam != null) {
-                // 如果非GET请求，只找有@RequestParam注解的
-                DocParamReq docParamReq = buildDocParamReq(parameter);
-                docParamReqs.add(docParamReq);
             }
         }
         return docParamReqs;
@@ -469,8 +471,8 @@ public class SwaggerPluginService {
 
     protected DocParamReqWrapper buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
         List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param ->
-                tornaConfig.getFormName().equalsIgnoreCase(param.paramType())
-                        || tornaConfig.getBodyName().equalsIgnoreCase(param.paramType())
+                "form".equalsIgnoreCase(param.paramType())
+                        || "body".equalsIgnoreCase(param.paramType())
                         || param.dataType().toLowerCase().contains("file")
         );
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
@@ -493,55 +495,57 @@ public class SwaggerPluginService {
         }
         Method method = handlerMethod.getMethod();
         Parameter[] parameters = method.getParameters();
-        byte isArray = Booleans.FALSE;
-        String arrayType = DataType.OBJECT.getValue();
+        boolean array = false;
+        String arrayElementDataType = DataType.OBJECT.getValue();
         for (Parameter parameter : parameters) {
-            String name = getParameterName(parameter);
-            if (containsName(docParamReqs, name) || !isBodyParameter(parameter, httpMethod)) {
-                continue;
-            }
-            RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
-            ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
-            Class<?> type = parameter.getType();
-            final boolean array = PluginUtil.isCollectionOrArray(type);
-            Type parameterizedType = parameter.getParameterizedType();
-            // 如果有泛型如：List<Order>，取出Order.class
-            if (parameterizedType != null && type != parameterizedType) {
-                type = (Class<?>) PluginUtil.getGenericType(parameterizedType);
-            }
-            if (requestBody != null) {
-                isArray = Booleans.toValue(array);
-                List<DocParamReq> docParamReqList = buildReqClassParams(type);
-                if (array && docParamReqList.isEmpty() && apiParam != null) {
-                    String dataType = apiParam.type();
-                    if (StringUtils.isEmpty(dataType)) {
-                        dataType = PluginUtil.getDataType(type);
+            try {
+                String name = getParameterName(parameter);
+                if (containsName(docParamReqs, name) || !isBodyParameter(parameter, httpMethod)) {
+                    continue;
+                }
+                RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
+                Class<?> type = parameter.getType();
+                Type parameterizedType = parameter.getParameterizedType();
+                ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
+                array = PluginUtil.isCollectionOrArray(type);
+                Map<String, Class<?>> genericParamMap = buildParamsByGeneric(parameterizedType);
+                if (requestBody != null) {
+                    List<DocParamReq> docParamReqList;
+                    if (array) {
+                        // 获取数元素类型
+                        arrayElementDataType = this.getArrayElementType(apiParamWrapper, type, parameterizedType);
+                        // 如果元素类型是对象
+                        if (Objects.equals(DataType.OBJECT.getValue(), arrayElementDataType)) {
+                            docParamReqList = buildReqClassParams(genericParamMap, type);
+                        } else {
+                            // 否则元素类型是基本类型
+                            DocParamReq docParamReq = new DocParamReq();
+                            docParamReq.setType(arrayElementDataType);
+                            docParamReq.setDescription(apiParamWrapper.getDescription());
+                            docParamReq.setExample(apiParamWrapper.getExample());
+                            docParamReqList = Collections.singletonList(docParamReq);
+                        }
+                    } else {
+                        docParamReqList = buildReqClassParams(genericParamMap, type);
                     }
-                    DocParamReq docParamReq = new DocParamReq();
-                    docParamReq.setName("");
-                    docParamReq.setType(dataType);
-                    docParamReq.setDescription(apiParam.value());
-                    docParamReq.setExample(apiParam.example());
-                    docParamReqList = Collections.singletonList(docParamReq);
-                }
-                // 如果元素非object
-                if (docParamReqList.size() == 1 && StringUtils.isEmpty(docParamReqList.get(0).getName())) {
-                    arrayType = docParamReqList.get(0).getType();
-                }
-                docParamReqs.addAll(docParamReqList);
-            } else {
-                boolean isPojo = PluginUtil.isPojo(type);
-                // 遇到普通类则认为类中的属性都是body参数
-                if (isPojo) {
-                    List<DocParamReq> docParamReqList = buildReqClassParams(type);
                     docParamReqs.addAll(docParamReqList);
                 } else {
-                    DocParamReq docParamReq = buildDocParamReq(parameter);
-                    docParamReqs.add(docParamReq);
+                    boolean isPojo = PluginUtil.isPojo(type);
+                    // 遇到普通类则认为类中的属性都是body参数
+                    if (isPojo) {
+                        List<DocParamReq> docParamReqList = buildReqClassParams(type);
+                        docParamReqs.addAll(docParamReqList);
+                    } else {
+                        DocParamReq docParamReq = buildDocParamReq(parameter);
+                        docParamReqs.add(docParamReq);
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println("生成文档参数出错，parameter：" + parameter.toString() + "，method:" + method.toString() + "， msg:" + e.getMessage());
+                throw new RuntimeException(e);
             }
         }
-        return new DocParamReqWrapper(isArray, arrayType, docParamReqs);
+        return new DocParamReqWrapper(Booleans.toValue(array), arrayElementDataType, docParamReqs);
     }
 
     /**
@@ -569,65 +573,60 @@ public class SwaggerPluginService {
         return hasBodyMethods.contains(httpMethod.toLowerCase());
     }
 
+
     protected DocParamRespWrapper buildResponseParams(HandlerMethod handlerMethod) {
         MethodParameter returnType = handlerMethod.getReturnType();
-        Class<?> type = returnType.getParameterType();
         Type genericParameterType = returnType.getGenericParameterType();
+        Map<String, Class<?>> genericParamMap = buildParamsByGeneric(genericParameterType);
+        Class<?> type = returnType.getParameterType();
         boolean isCollection = PluginUtil.isCollectionOrArray(type);
-        List<DocParamResp> rootParams = null;
-        // 如果被泛型包装，如：Result<Order>
-        if (!type.toString().equals(genericParameterType.toString())) {
-            rootParams = buildRespClassParams(returnType.getParameterType());
-            Type genericType = PluginUtil.getGenericType(genericParameterType);
-            // 双层泛型，如：Result<List<Order>>
-            if (genericType instanceof ParameterizedTypeImpl) {
-                // 有可能是List<Order>
-                ParameterizedTypeImpl parameterizedType = (ParameterizedTypeImpl) genericType;
-                // 取出Order.class
-                type = (Class<?>) PluginUtil.getGenericType(parameterizedType);
-                Class<?> rawType = parameterizedType.getRawType();
-                isCollection = PluginUtil.isCollectionOrArray(rawType);
-            } else {
-                type = (Class<?>) genericType;
-            }
-        }
         boolean array = PluginUtil.isCollectionOrArray(type) || isCollection;
-        byte isArray = Booleans.toValue(array);
         // 数组元素
-        String arrayType = DataType.OBJECT.getValue();
-        List<DocParamResp> docParamRespList = buildRespClassParams(type);
-        ApiParam apiParam = handlerMethod.getMethodAnnotation(ApiParam.class);
-        if (array && docParamRespList.isEmpty() && apiParam != null) {
-            String dataType = apiParam.type();
-            if (StringUtils.isEmpty(dataType)) {
-                dataType = PluginUtil.getDataType(type);
+        String arrayElementDataType = DataType.OBJECT.getValue();
+        List<DocParamResp> docParamRespList;
+        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(handlerMethod.getMethodAnnotation(ApiParam.class));
+        // 如果只返回数组
+        if (array) {
+            // 获取数元素类型
+            arrayElementDataType = this.getArrayElementType(apiParamWrapper, type, genericParameterType);
+            // 如果元素类型是对象
+            if (Objects.equals(DataType.OBJECT.getValue(), arrayElementDataType)) {
+                docParamRespList = buildRespClassParams(genericParamMap, type);
+            } else {
+                // 否则元素类型是基本类型
+                DocParamResp docParamResp = new DocParamResp();
+                docParamResp.setType(arrayElementDataType);
+                docParamResp.setDescription(apiParamWrapper.getDescription());
+                docParamResp.setExample(apiParamWrapper.getExample());
+                docParamRespList = Collections.singletonList(docParamResp);
             }
-            DocParamResp docParamReq = new DocParamResp();
-            docParamReq.setName("");
-            docParamReq.setType(dataType);
-            docParamReq.setDescription(apiParam.value());
-            docParamReq.setExample(apiParam.example());
-            docParamRespList = Collections.singletonList(docParamReq);
+        } else {
+            docParamRespList = buildRespClassParams(genericParamMap, type);
         }
-        // 如果元素非object
-        if (docParamRespList.size() == 1 && StringUtils.isEmpty(docParamRespList.get(0).getName())) {
-            arrayType = docParamRespList.get(0).getType();
+        return new DocParamRespWrapper(Booleans.toValue(array), arrayElementDataType, docParamRespList);
+    }
+
+    protected String getArrayElementType(ApiParamWrapper apiParamWrapper, Class<?> type, Type genericParameterType) {
+        String dataType = apiParamWrapper.getType();
+        if (StringUtils.hasText(dataType)) {
+            return dataType;
         }
-        List<DocParamResp> finalParams = docParamRespList;
-        if (!CollectionUtils.isEmpty(rootParams)) {
-            isArray = Booleans.FALSE;
-            for (DocParamResp rootParam : rootParams) {
-                // 找到数据节点
-                if (Objects.equals(rootParam.getType(), DataType.OBJECT.getValue())) {
-                    if (isCollection) {
-                        rootParam.setType(DataType.ARRAY.getValue());
-                    }
-                    rootParam.setChildren(docParamRespList);
-                }
-            }
-            finalParams = rootParams;
+        if (type.isArray()) {
+            Class<?> componentType = type.getComponentType();
+            return PluginUtil.getDataType(componentType);
         }
-        return new DocParamRespWrapper(isArray, arrayType, finalParams);
+        Class<?> realType = type;
+        // 如果有泛型
+        if (PluginUtil.isGenericType(genericParameterType)) {
+            realType = (Class<?>) PluginUtil.getGenericType(genericParameterType);
+        }
+        return PluginUtil.getDataType(realType);
+    }
+
+    protected Map<String, Class<?>> buildParamsByGeneric(Type genericParameterType) {
+        Map<String, Class<?>> genericParamMap = new HashMap<>(8);
+        PluginUtil.appendGenericParamMap(genericParamMap, genericParameterType);
+        return genericParamMap;
     }
 
     protected List<DocParamCode> buildErrorCodes(ApiOperation apiOperation) {
@@ -657,16 +656,20 @@ public class SwaggerPluginService {
     }
 
     protected List<DocParamReq> buildReqClassParams(Class<?> clazz) {
+        return buildReqClassParams(null, clazz);
+    }
+
+    protected List<DocParamReq> buildReqClassParams(Map<String, Class<?>> genericParamMap, Class<?> clazz) {
         clazz = getClassFromArrayType(clazz);
-        List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
+        List<FieldDocInfo> fieldDocInfoList = new ApiDocBuilder(genericParamMap, tornaConfig).buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
                 .map(this::convertReqParam)
                 .collect(Collectors.toList());
     }
 
-    protected List<DocParamResp> buildRespClassParams(Class<?> clazz) {
+    protected List<DocParamResp> buildRespClassParams(Map<String, Class<?>> genericParamMap, Class<?> clazz) {
         clazz = getClassFromArrayType(clazz);
-        List<FieldDocInfo> fieldDocInfoList = apiDocBuilder.buildFieldDocInfo(clazz);
+        List<FieldDocInfo> fieldDocInfoList = new ApiDocBuilder(genericParamMap, tornaConfig).buildFieldDocInfo(clazz);
         return fieldDocInfoList.stream()
                 .map(this::convertRespParam)
                 .collect(Collectors.toList());
@@ -834,20 +837,27 @@ public class SwaggerPluginService {
         return controllerInfo;
     }
 
+    public TornaConfig getTornaConfig() {
+        return tornaConfig;
+    }
+
     public boolean match(HandlerMethod handlerMethod) {
-        String name = handlerMethod.getBeanType().getName();
-        boolean rightPackage = true;
+        return isRightPackage(handlerMethod) && handlerMethod.hasMethodAnnotation(ApiOperation.class);
+    }
+
+    private boolean isRightPackage(HandlerMethod handlerMethod) {
         String basePackage = tornaConfig.getBasePackage();
-        if (StringUtils.hasText(basePackage)) {
-            String[] packages = basePackage.split(";");
-            for (String aPackage : packages) {
-                if (!name.contains(aPackage)) {
-                    rightPackage = false;
-                    break;
-                }
+        if (StringUtils.isEmpty(basePackage)) {
+            return true;
+        }
+        String name = handlerMethod.getBeanType().getName();
+        String[] packages = basePackage.split(";");
+        for (String pkg : packages) {
+            if (name.contains(pkg)) {
+                return true;
             }
         }
-        return rightPackage && handlerMethod.hasMethodAnnotation(ApiOperation.class);
+        return false;
     }
 
     private interface ParamFilter {

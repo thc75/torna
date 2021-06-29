@@ -4,7 +4,6 @@ import cn.torna.swaggerplugin.SwaggerPluginConfiguration;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -23,7 +22,6 @@ public class TornaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = TornaProperties.PREFIX, name = "enable", havingValue = "true")
     public SwaggerPluginConfiguration swaggerPluginConfiguration() {
         TornaConfig tornaConfig = new TornaConfig();
         BeanUtils.copyProperties(tornaProperties, tornaConfig);

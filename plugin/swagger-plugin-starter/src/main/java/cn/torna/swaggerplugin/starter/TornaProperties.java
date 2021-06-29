@@ -12,8 +12,11 @@ public class TornaProperties {
 
     public static final String PREFIX = "torna.swagger-plugin";
 
+    /* torna配置文件名称，默认找classpath下的torna.json文件 */
+    private String configFile = "torna.json";
+
     /** 开启推送 */
-    private String enable;
+    private Boolean enable = false;
     /** 扫描package，多个用";"隔开。不指定扫描全部 */
     private String basePackage;
     /** 推送URL */
@@ -30,23 +33,12 @@ public class TornaProperties {
     /** 推送人 */
     private String author;
     /** 打开调试:true/false */
-    private String debug = "false";
+    private Boolean debug = false;
     /** 接口多个method只显示 */
     private String methodWhenMulti = "GET";
-
-    /** path参数名称 */
-    private String pathName = "path";
-    /** header参数名称 */
-    private String headerName = "header";
-    /** query参数名称 */
-    private String queryName = "query";
-    /** form参数名称 */
-    private String formName = "form";
-    /** body参数名称 */
-    private String bodyName = "body";
     /** 具有body体的方法 */
     private String hasBodyMethods = "POST,PUT,DELETE";
     /** 是否替换文档，true：替换，false：不替换（追加）。默认：true */
-    private String isReplace = "true";
+    private Boolean isReplace = true;
 
 }

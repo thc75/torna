@@ -45,13 +45,6 @@
           prefix-icon="el-icon-lock"
         />
       </el-form-item>
-      <Verify
-        ref="verify"
-        :imgSize="{ width: '330px', height: '155px' }"
-        :captchaType="'blockPuzzle'"
-        :mode="'pop'"
-        @success="onCaptchaSuccess"
-      />
       <el-button type="primary" style="width: 100%;" native-type="submit" @click="handleReg">注 册</el-button>
       <div class="footer">
         已有账号，<el-button type="text" @click="goLogin">去登录</el-button>
@@ -108,7 +101,7 @@ export default {
     }
   },
   created() {
-    this.getServerConfig(config => {
+    this.pmsConfig().then(config => {
       Object.assign(this.serverConfig, config)
     })
   },

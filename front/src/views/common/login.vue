@@ -103,7 +103,7 @@ export default {
   },
   created() {
     removeToken()
-    this.getServerConfig(config => {
+    this.pmsConfig().then(config => {
       Object.assign(this.serverConfig, config)
     })
   },

@@ -74,6 +74,11 @@ export const Enums = {
     TYPE_DOC: 3
   },
   /**
+   * 初始orderIndex
+   */
+  INIT_ORDER_INDEX: 10000
+  },
+  /**
    * 调试脚本类型
    */
   DEBUG_SCRIPT_TYPE: {
