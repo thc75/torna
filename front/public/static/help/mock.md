@@ -293,3 +293,11 @@ return {
 同理，如果参数填的是json格式，可以使用`var name = $body.name`获取变量。
 
 > 备注：Mock脚本是预先生成结果然后保存到数据库中等待请求，因此每次请求的结果都是一样的。
+
+## 忽略参数
+
+默认情况下通过不同的参数来区分不同的mock配置，如果需要忽略任何参数，包括body参数，可在`application.properties`中指定`torna.mock.ignore-param=true`将忽略任何参数
+
+如：`http://xxx/mock/listOrder`,`http://xxx/mock/listOrder?id=1`将返回同样的内容
+
+> 注：这种情况下只能通过不同的path来区分mock配置
