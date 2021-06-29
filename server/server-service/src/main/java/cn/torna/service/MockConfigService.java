@@ -48,4 +48,8 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
         return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
     }
 
+    public static String buildDataId(String path) {
+        return buildDataId(path, "", "");
+    }
+
 }

@@ -338,6 +338,9 @@ export default {
         name: $ts('newConfig'),
         path: path,
         responseBody: this.formatJson(respBody),
+        responseHeaders: [
+          { name: 'Content-Type', value: 'application/json;charset=UTF-8' }
+        ],
         isNew: true
       })
       this.addMock(node)
