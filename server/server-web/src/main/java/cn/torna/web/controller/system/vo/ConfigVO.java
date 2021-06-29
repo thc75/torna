@@ -14,5 +14,6 @@ public class ConfigVO {
     private boolean enableThirdPartyLogin;
     private String oauthLoginUrl;
     private String oauthButtonText;
+    private boolean ignoreParam;
 
 }

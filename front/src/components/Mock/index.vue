@@ -60,7 +60,7 @@
         <el-form-item :label="$ts('name')" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
-        <el-form-item :label="$ts('param')">
+        <el-form-item v-show="!ignoreParam" :label="$ts('param')">
           <el-switch
             v-model="formData.requestDataType"
             :active-text="$ts('jsonType')"
@@ -207,7 +207,8 @@ export default {
       mockResultDlgTitle: $ts('runResult'),
       mockResultDlgView: '',
       mockResultDlgShow: false,
-      mockResultRunResult: false
+      mockResultRunResult: false,
+      ignoreParam: false
     }
   },
   computed: {
@@ -232,6 +233,12 @@ export default {
     item(newVal) {
       this.init(newVal)
     }
+  },
+  mounted() {
+    this.pmsConfig().then(config => {
+      console.log(config)
+      this.ignoreParam = config.ignoreParam
+    })
   },
   methods: {
     init(item) {
@@ -339,7 +346,7 @@ export default {
         path: path,
         responseBody: this.formatJson(respBody),
         responseHeaders: [
-          { name: 'Content-Type', value: 'application/json;charset=UTF-8' }
+          { name: 'Content-Type', value: 'application/json;charset=UTF-8', isDeleted: 0, isNew: 1 }
         ],
         isNew: true
       })
