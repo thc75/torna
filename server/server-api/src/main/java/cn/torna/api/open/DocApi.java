@@ -243,7 +243,7 @@ public class DocApi {
             docInfoDTO.setModuleId(moduleId);
             docInfoDTO.setParentId(parentId);
             formatUrl(docInfoDTO);
-            docInfoService.doSaveDocInfo(docInfoDTO, user);
+            docInfoService.doPushSaveDocInfo(docInfoDTO, user);
         }
     }
 
