@@ -2,6 +2,7 @@ package cn.torna.web.controller.system;
 
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
+import cn.torna.common.context.EnvironmentContext;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.web.config.TornaViewProperties;
@@ -59,6 +60,7 @@ public class ConfigController implements InitializingBean {
         configVO.setEnableThirdPartyOauth(typeOauth);
         configVO.setOauthLoginUrl(oauthLoginUrl);
         configVO.setOauthButtonText(oauthButtonText);
+        configVO.setIgnoreParam(Boolean.parseBoolean(EnvironmentContext.getValue("torna.mock.ignore-param", "false")));
 
         CopyUtil.copyProperties(configVO, tornaViewProperties);
     }

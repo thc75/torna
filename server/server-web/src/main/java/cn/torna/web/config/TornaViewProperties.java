@@ -20,4 +20,6 @@ public class TornaViewProperties {
     private String responseHiddenColumns;
 
     private Integer initOrder;
+
+    private boolean ignoreParam;
 }

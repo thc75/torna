@@ -203,31 +203,52 @@ public class DocImportService {
     }
 
     private List<Param> parseParams(JSONObject jsonObject) {
-        List<Param> list = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-            Param param = new Param();
-            list.add(param);
-            param.setKey(entry.getKey());
-            param.setType("string");
-            Object value = entry.getValue();
-            if (value instanceof JSONObject) {
-                param.setType("object");
-                JSONObject valueObject = (JSONObject) value;
-                List<Param> params = this.parseParams(valueObject);
-                param.setChildren(params);
-            } else if (value instanceof JSONArray) {
-                param.setType("array");
-                JSONArray array = (JSONArray) value;
-                if (array.size() > 0) {
-                    JSONObject el = array.getJSONObject(0);
-                    List<Param> params = this.parseParams(el);
+        try {
+            List<Param> list = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                Param param = new Param();
+                list.add(param);
+                param.setKey(entry.getKey());
+                param.setType("string");
+                Object value = entry.getValue();
+                if (value instanceof JSONObject) {
+                    param.setType("object");
+                    JSONObject valueObject = (JSONObject) value;
+                    List<Param> params = this.parseParams(valueObject);
                     param.setChildren(params);
+                } else if (value instanceof JSONArray) {
+                    param.setType("array");
+                    JSONArray array = (JSONArray) value;
+                    if (array.size() > 0) {
+                        if (isPureArray(array)) {
+                            param.setValue(array.toJSONString());
+                        } else {
+                            JSONObject el = array.getJSONObject(0);
+                            List<Param> params = this.parseParams(el);
+                            param.setChildren(params);
+                        }
+
+                    }
+                } else {
+                    param.setValue(String.valueOf(entry.getValue()));
                 }
-            } else {
-                param.setValue(String.valueOf(entry.getValue()));
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(jsonObject.toJSONString());
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isPureArray(JSONArray array) {
+        for (int i = 0; i < array.size(); i++) {
+            String value = array.getString(i);
+            if (value.startsWith("{") && value.endsWith("}")) {
+                return false;
             }
         }
-        return list;
+        return true;
     }
 
     /**
