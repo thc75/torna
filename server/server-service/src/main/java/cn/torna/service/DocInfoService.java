@@ -207,6 +207,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return doUpdateDocInfo(docInfoDTO, user);
     }
 
+    public DocInfo doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
+        // 修改基本信息
+        DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
+        // 修改参数
+        this.doUpdateParams(docInfo, docInfoDTO, user);
+        return docInfo;
+    }
+
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);

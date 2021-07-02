@@ -48,7 +48,7 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
     }
 
     public RequestForm createRequestForm() {
-        String data = JSON.toJSONString(this);
+        String data = buildJsonData();
         // 公共参数
         Map<String, Object> param = new HashMap<>();
         String name = name();
@@ -63,6 +63,10 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
         RequestForm requestForm = new RequestForm(param);
         requestForm.setFiles(this.files);
         return requestForm;
+    }
+
+    protected String buildJsonData() {
+        return JSON.toJSONString(this);
     }
 
     /**

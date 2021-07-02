@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -40,13 +41,21 @@ public class MockController {
     @Autowired
     private MockConfigService mockConfigService;
 
+    @Value("${torna.mock.ignore-param:false}")
+    private boolean ignoreParam;
+
     @RequestMapping("/**")
     public void mock(
             HttpServletRequest request,
             HttpServletResponse response) {
         MockConfig mockConfig;
         String mockId = getMockId(request);
-        String dataId = buildDataId(mockId, request);
+        String dataId;
+        if (ignoreParam) {
+            dataId = MockConfigService.buildDataId(getPath(request));
+        } else {
+            dataId = buildDataId(mockId, request);
+        }
         mockConfig = mockConfigService.getByDataId(dataId);
         if (mockConfig == null) {
             Long id = IdUtil.decode(mockId);
@@ -62,6 +71,11 @@ public class MockController {
         response.setStatus(mockConfig.getHttpStatus());
         String responseBody = getResponseBody(mockConfig);
         ResponseUtil.write(response, responseBody);
+    }
+
+    private String getPath(HttpServletRequest request) {
+        String servletPath = request.getServletPath();
+        return servletPath.substring(PREFIX.length());
     }
 
     private String getMockId(HttpServletRequest request) {
