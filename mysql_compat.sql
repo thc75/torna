@@ -6,12 +6,17 @@ USE `torna`;
 
 
 
+
 DROP TABLE IF EXISTS `user_subscribe`;
 DROP TABLE IF EXISTS `user_message`;
 DROP TABLE IF EXISTS `user_info`;
+DROP TABLE IF EXISTS `user_dingtalk_info`;
 DROP TABLE IF EXISTS `system_config`;
 DROP TABLE IF EXISTS `space_user`;
 DROP TABLE IF EXISTS `space`;
+DROP TABLE IF EXISTS `share_content`;
+DROP TABLE IF EXISTS `share_config`;
+DROP TABLE IF EXISTS `prop`;
 DROP TABLE IF EXISTS `project_user`;
 DROP TABLE IF EXISTS `project`;
 DROP TABLE IF EXISTS `open_user`;
@@ -22,6 +27,47 @@ DROP TABLE IF EXISTS `enum_item`;
 DROP TABLE IF EXISTS `enum_info`;
 DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
+DROP TABLE IF EXISTS `compose_project`;
+DROP TABLE IF EXISTS `compose_doc`;
+
+
+CREATE TABLE `compose_doc` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+  `project_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'compose_project.id',
+  `is_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否文件夹',
+  `folder_name` varchar(64) NOT NULL DEFAULT '' COMMENT '文件夹名称',
+  `parent_id` bigint(20) NOT NULL DEFAULT '0',
+  `origin` varchar(128) NOT NULL DEFAULT '' COMMENT '文档来源',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+  `order_index` int(10) unsigned NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_projectid` (`project_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='文档引用';
+
+
+CREATE TABLE `compose_project` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '项目名称',
+  `description` varchar(128) NOT NULL DEFAULT '' COMMENT '项目描述',
+  `space_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '所属空间，space.id',
+  `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '访问形式，1：公开，2：加密',
+  `password` varchar(64) NOT NULL DEFAULT '' COMMENT '访问密码',
+  `creator_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者userid',
+  `creator_name` varchar(64) NOT NULL DEFAULT '',
+  `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `modifier_name` varchar(64) NOT NULL DEFAULT '',
+  `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1：有效，0：无效',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_spaceid` (`space_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='组合项目表';
 
 
 CREATE TABLE `doc_info` (
@@ -172,7 +218,7 @@ CREATE TABLE `module` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_token` (`token`) USING BTREE,
   KEY `idx_projectid` (`project_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='项目模块';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='项目模块';
 
 
 CREATE TABLE `module_config` (
@@ -240,6 +286,50 @@ CREATE TABLE `project_user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='项目用户关系表';
 
 
+CREATE TABLE `prop` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ref_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '关联id',
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，0：doc_info属性',
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `val` text NOT NULL,
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_docid_name` (`ref_id`,`type`,`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='属性表';
+
+
+CREATE TABLE `share_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '分享形式，1：公开，2：加密',
+  `password` varchar(128) NOT NULL DEFAULT '' COMMENT '密码',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态，1：有效，0：无效',
+  `module_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'module.id',
+  `is_all` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为全部文档',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
+  `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_moduleid` (`module_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分享配置表';
+
+
+CREATE TABLE `share_content` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `share_config_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'share_config.id',
+  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文档id',
+  `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '父id',
+  `is_share_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否分享整个分类',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_shareconfigid_docid` (`share_config_id`,`doc_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分享详情';
+
+
 CREATE TABLE `space` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL DEFAULT '' COMMENT '空间名称',
@@ -280,6 +370,24 @@ CREATE TABLE `system_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_configkey` (`config_key`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='系统配置表';
+
+
+CREATE TABLE `user_dingtalk_info` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `nick` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在钉钉上面的昵称',
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '员工名称。',
+  `email` varchar(128) NOT NULL DEFAULT '' COMMENT '员工邮箱。',
+  `userid` varchar(128) NOT NULL DEFAULT '' COMMENT '员工的userid。',
+  `unionid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用所属企业的唯一标识。',
+  `openid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用内的唯一标识。',
+  `user_info_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'user_info.id',
+  `gmt_create` datetime DEFAULT NULL,
+  `gmt_modified` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_unionid` (`unionid`) USING BTREE,
+  KEY `idx_openid` (`openid`) USING BTREE,
+  KEY `idx_userid` (`user_info_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='钉钉开放平台用户';
 
 
 CREATE TABLE `user_info` (
@@ -328,27 +436,40 @@ CREATE TABLE `user_subscribe` (
 
 
 
-INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `author`, `type`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `is_use_global_headers`, `is_use_global_params`, `is_use_global_returns`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
-	(1,'5fa7cd78bc872cd8fdc09ee3d6afedd2','故事接口','','',0,'','','',1,0,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(2,'3292c28718c1e74d6e14e0160eecf379','获取分类信息','','',0,'/story/category/get/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',1,'超级管理员',0,'',1,0,'2020-12-15 10:01:48','2021-01-19 17:03:29'),
-	(3,'48ae195650ab5cd4d521b62704d15b57','忽略签名验证','','',0,'/story/get/ignore/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(4,'d623ea4fe35e903a42530643e6087795','获取故事信息（首位）','','',0,'/story/get/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(5,'1319b1ba77712fc4c6668d04b05fd68a','获取故事信息','','',0,'/story/get/v2','POST','application/json',0,1,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(6,'3a15e3407182ccf902b6e9f5c1b1b875','返回数组结果（第二）','','',0,'/story/list/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(7,'fa3324c4dd6b978434f8541f73393118','树状返回','','',0,'/story/tree/v1','POST','application/json',0,1,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(8,'ac0c66314833ef010bf7df1cf5692b43','传递token','','',0,'/token','POST','application/json',0,1,1,1,1,1,0,0,3,'',1,'',0,'',1,0,'2020-12-15 10:01:48','2021-01-19 17:03:30'),
-	(9,'7ededf48dec7c2b582affe2d08d7d0b2','文件上传','','',0,'','','',1,0,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(10,'84d41cbee05d97aa568b7a06759cc19c','文件上传例1','','',0,'/upload/file1','POST','multipart/form-data',0,9,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(11,'1172c623f531324750aad5c2fa72a751','文件上传例2','','',0,'/upload/file2','POST','multipart/form-data',0,9,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(12,'92d2fa5b0ae7a0f2e29648929c5e435f','文件下载','','',0,'','','',1,0,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(13,'f184470a11e0fd559e1f56294b53d4cb','文件下载','','',0,'/download/file1','POST','application/json',0,12,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(14,'3f3aab998c9785fe13d41e02c95f7ef4','食物接口','','',0,'','','',1,0,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(15,'4942c1bd41bbf75d995722986f70a9f4','获取食物','','',0,'/food/getFoodById','GET','',0,14,1,1,1,1,0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(16,'940818d032209bc3628895d483463ce1','获取用户接口','获取用户接口','',0,'get/group/{groupId}/id/{id}','GET','',0,0,2,1,1,1,0,0,12,'李四',1,'超级管理员',0,'ccc',1,0,'2020-12-15 10:15:55','2021-01-18 15:05:16'),
-	(17,'2df0b4e87fc3a8c37d08e3d7a95d0cf4','comment','','',0,'phoenix/web/v1/comment/list/101426186','GET','',0,0,1,1,1,1,0,0,2,'研发一部经理',1,'研发一部经理',0,'',1,1,'2021-01-19 17:29:23','2021-01-22 11:52:21');
+INSERT INTO `compose_doc` (`id`, `doc_id`, `project_id`, `is_folder`, `folder_name`, `parent_id`, `origin`, `is_deleted`, `creator`, `order_index`, `gmt_create`, `gmt_modified`) VALUES
+	(1,0,1,1,'订单模块',0,'',0,'超级管理员',0,'2021-05-25 18:05:23','2021-05-25 18:05:23'),
+	(2,0,1,1,'产品模块',0,'',0,'超级管理员',0,'2021-05-25 18:05:30','2021-05-25 18:05:30'),
+	(3,2,1,0,'',1,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:46','2021-05-25 18:05:46'),
+	(4,3,1,0,'',1,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:46','2021-05-25 18:05:46'),
+	(5,10,1,0,'',2,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:53','2021-05-25 18:05:53'),
+	(6,11,1,0,'',2,'研发一部/商城项目/故事API',0,'超级管理员',0,'2021-05-25 18:05:53','2021-05-25 18:05:53');
 
 
-INSERT INTO `doc_param` (`id`, `data_id`, `name`, `type`, `required`, `max_length`, `example`, `description`, `enum_id`, `doc_id`, `parent_id`, `style`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `compose_project` (`id`, `name`, `description`, `space_id`, `type`, `password`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
+	(1,'聚合接口','提供给第三方的接口',18,1,'',1,'超级管理员',1,'超级管理员',0,1,0,'2021-05-25 18:05:14','2021-05-25 18:05:14');
+
+
+INSERT INTO `doc_info` (`id`, `data_id`, `name`, `description`, `author`, `type`, `url`, `http_method`, `content_type`, `is_folder`, `parent_id`, `module_id`, `is_use_global_headers`, `is_use_global_params`, `is_use_global_returns`, `is_request_array`, `is_response_array`, `request_array_type`, `response_array_type`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `remark`, `is_show`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
+	(1,'5fa7cd78bc872cd8fdc09ee3d6afedd2','故事接口','','',0,'','','',1,0,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(2,'3292c28718c1e74d6e14e0160eecf379','获取分类信息','','',0,'/story/category/get/v1','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',1,'超级管理员',0,'',1,0,'2020-12-15 10:01:48','2021-01-19 17:03:29'),
+	(3,'48ae195650ab5cd4d521b62704d15b57','忽略签名验证','','',0,'/story/get/ignore/v1','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(4,'d623ea4fe35e903a42530643e6087795','获取故事信息（首位）','','',0,'/story/get/v1','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(5,'1319b1ba77712fc4c6668d04b05fd68a','获取故事信息','','',0,'/story/get/v2','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(6,'3a15e3407182ccf902b6e9f5c1b1b875','返回数组结果（第二）','','',0,'/story/list/v1','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(7,'fa3324c4dd6b978434f8541f73393118','树状返回','','',0,'/story/tree/v1','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(8,'ac0c66314833ef010bf7df1cf5692b43','传递token','','',0,'/token','POST','application/json',0,1,1,1,1,1,0,0,'object','object',0,0,3,'',1,'',0,'',1,0,'2020-12-15 10:01:48','2021-01-19 17:03:30'),
+	(9,'7ededf48dec7c2b582affe2d08d7d0b2','文件上传','','',0,'','','',1,0,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(10,'84d41cbee05d97aa568b7a06759cc19c','文件上传例1','','',0,'/upload/file1','POST','multipart/form-data',0,9,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(11,'1172c623f531324750aad5c2fa72a751','文件上传例2','','',0,'/upload/file2','POST','multipart/form-data',0,9,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(12,'92d2fa5b0ae7a0f2e29648929c5e435f','文件下载','','',0,'','','',1,0,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(13,'f184470a11e0fd559e1f56294b53d4cb','文件下载','','',0,'/download/file1','POST','application/json',0,12,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(14,'3f3aab998c9785fe13d41e02c95f7ef4','食物接口','','',0,'','','',1,0,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(15,'4942c1bd41bbf75d995722986f70a9f4','获取食物','','',0,'/food/getFoodById','GET','',0,14,1,1,1,1,0,0,'object','object',0,0,3,'',3,'',0,'',1,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
+	(16,'940818d032209bc3628895d483463ce1','获取用户接口','获取用户接口','',0,'get/group/{groupId}/id/{id}','GET','',0,0,2,1,1,1,0,0,'object','object',0,0,12,'李四',1,'超级管理员',0,'ccc',1,0,'2020-12-15 10:15:55','2021-01-18 15:05:16'),
+	(17,'2df0b4e87fc3a8c37d08e3d7a95d0cf4','comment','','',0,'phoenix/web/v1/comment/list/101426186','GET','',0,0,1,1,1,1,0,0,'object','object',0,0,2,'研发一部经理',1,'研发一部经理',0,'',1,1,'2021-01-19 17:29:23','2021-01-22 11:52:21');
+
+
+INSERT INTO `doc_param` (`id`, `data_id`, `name`, `type`, `required`, `max_length`, `example`, `description`, `enum_id`, `doc_id`, `parent_id`, `style`, `create_mode`, `modify_mode`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'9cedd1b23736a816e96bca9603c2b5f4','categoryName','string',0,'-','娱乐','分类名称',0,2,0,2,0,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 10:01:48','2021-01-19 16:39:35'),
 	(2,'df34a965ab9c44e2e6b0b282c711e9b9','createTime','string',0,'-','2019-09-25 17:12:52','创建时间',0,2,0,2,0,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 10:01:48','2021-01-19 16:39:35'),
 	(3,'841d66d19b087e9982b76ba0a0aab7a4','storyParam','object',0,'-','','',0,2,0,2,0,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 10:01:48','2021-01-19 16:39:35'),
@@ -434,7 +555,7 @@ INSERT INTO `doc_param` (`id`, `data_id`, `name`, `type`, `required`, `max_lengt
 	(83,'14c5f6044d9ce6850dc4e1951d0151f2','commentId','string',1,'64','','',0,17,0,2,0,0,2,'研发一部经理',2,'研发一部经理',0,0,'2021-01-19 17:29:23','2021-01-19 17:29:23');
 
 
-INSERT INTO `enum_info` (`id`, `data_id`, `name`, `description`, `module_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `enum_info` (`id`, `data_id`, `name`, `description`, `module_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'0b28cfdbc7f250d85614eacda8248eb4','性别','',2,0,'2020-12-16 13:57:09','2020-12-16 13:57:09');
 
 
@@ -442,29 +563,30 @@ INSERT INTO `enum_info` (`id`, `data_id`, `name`, `description`, `module_id`, `i
 
 
 
-INSERT INTO `module` (`id`, `name`, `project_id`, `type`, `import_url`, `basic_auth_username`, `basic_auth_password`, `token`, `create_mode`, `modify_mode`, `creator_id`, `modifier_id`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `module` (`id`, `name`, `project_id`, `type`, `import_url`, `basic_auth_username`, `basic_auth_password`, `token`, `create_mode`, `modify_mode`, `creator_id`, `modifier_id`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'故事API',1,1,'http://localhost:2222/v2/api-docs','','','c16931fa6590483fb7a4e85340fcbfef',0,0,3,3,0,0,'2020-12-15 10:01:48','2020-12-15 10:01:48'),
-	(2,'用户模块',2,0,'','','','b215b7010db5451e98305152a5fa2ddf',0,0,12,12,0,0,'2020-12-15 10:14:55','2020-12-15 10:14:55');
+	(2,'用户模块',2,0,'','','','b215b7010db5451e98305152a5fa2ddf',0,0,12,12,0,0,'2020-12-15 10:14:55','2020-12-15 10:14:55'),
+	(3,'swagger-push',1,0,'','','','931167d9347e4aec9409f2b275437431',0,0,1,1,0,0,'2021-06-02 10:26:27','2021-06-02 10:26:27');
 
 
-INSERT INTO `module_config` (`id`, `module_id`, `type`, `config_key`, `config_value`, `extend_id`, `description`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `module_config` (`id`, `module_id`, `type`, `config_key`, `config_value`, `extend_id`, `description`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,1,0,'debughost_1','http://10.1.30.165:2222',0,'',0,'2020-12-15 10:01:48','2021-01-22 11:51:05'),
 	(2,2,0,'debughost_2','http://www.aaa.com',0,'',0,'2020-12-16 15:41:14','2020-12-16 15:41:14');
 
 
-INSERT INTO `open_user` (`id`, `app_key`, `secret`, `status`, `applicant`, `space_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `open_user` (`id`, `app_key`, `secret`, `status`, `applicant`, `space_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'20201215788408948171472896','WeNAdSucgduD$M?*83?dJR&IvgU~Re75',1,'张三',0,0,'2020-12-15 14:07:21','2021-01-25 09:59:10'),
 	(2,'20201216788835306945118208','W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR',1,'张三',9,0,'2020-12-16 18:21:33','2021-01-25 09:59:10'),
 	(3,'20201216788835536872669184','Bq.XRN!S0$t8!UYpWgSOl7oHlY#XeenJ',1,'张三',9,0,'2020-12-16 18:22:28','2021-01-25 09:59:11');
 
 
-INSERT INTO `project` (`id`, `name`, `description`, `space_id`, `is_private`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `project` (`id`, `name`, `description`, `space_id`, `is_private`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `order_index`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'商城项目','商城项目',9,0,3,'商城项目admin',1,'超级管理员',0,0,'2020-12-15 09:56:39','2021-01-25 08:31:33'),
 	(2,'后台项目','后台项目',11,1,11,'后台项目负责人',11,'后台项目负责人',0,0,'2020-12-15 10:12:37','2020-12-15 10:12:37'),
 	(3,'测试项目','这是一个测试项目',17,1,14,'测试A',14,'测试A',0,0,'2021-01-25 09:10:47','2021-01-25 09:10:47');
 
 
-INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,1,3,'admin',0,'2020-12-15 09:56:38','2021-01-25 08:31:33'),
 	(2,1,4,'dev',0,'2020-12-15 09:58:35','2021-01-25 08:31:38'),
 	(3,1,9,'guest',1,'2020-12-15 09:58:44','2020-12-15 09:59:01'),
@@ -474,7 +596,13 @@ INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role_code`, `is_dele
 	(9,3,14,'admin',0,'2021-01-25 09:10:47','2021-01-25 09:10:47');
 
 
-INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_compose`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+
+
+
+
+
+
+INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, `modifier_name`, `is_compose`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(9,'研发一部',2,'研发一部经理',2,'研发一部经理',0,0,'2020-12-15 09:48:13','2020-12-15 09:48:13'),
 	(11,'研发二部',5,'研发二部经理',5,'研发二部经理',0,0,'2020-12-15 10:08:39','2020-12-15 10:08:39'),
 	(14,'研发三部',11,'后台项目负责人',11,'后台项目负责人',0,1,'2020-12-16 10:04:13','2020-12-16 10:04:13'),
@@ -483,7 +611,7 @@ INSERT INTO `space` (`id`, `name`, `creator_id`, `creator_name`, `modifier_id`, 
 	(18,'聚合空间',1,'超级管理员',1,'超级管理员',1,0,'2021-05-25 18:04:34','2021-05-25 18:04:34');
 
 
-INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,2,1,'admin',0,'2020-12-15 09:41:16','2020-12-15 09:41:16'),
 	(2,3,2,'admin',0,'2020-12-15 09:41:58','2020-12-15 09:41:58'),
 	(3,4,3,'admin',0,'2020-12-15 09:42:12','2020-12-15 09:42:12'),
@@ -510,11 +638,13 @@ INSERT INTO `space_user` (`id`, `user_id`, `space_id`, `role_code`, `is_deleted`
 	(24,2,18,'admin',0,'2021-05-25 18:04:33','2021-05-25 18:04:33');
 
 
-INSERT INTO `system_config` (`id`, `config_key`, `config_value`, `remark`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `system_config` (`id`, `config_key`, `config_value`, `remark`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'torna.version','11','当前内部版本号。不要删除这条记录！！',0,'2021-05-25 18:03:08','2021-05-25 18:03:08');
 
 
-INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `source`, `email`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+
+
+INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_admin`, `source`, `email`, `status`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,'admin@torna.cn','f1e27f8ec06b0ea415583c26457dd111','超级管理员',1,'register','admin@torna.cn',1,0,'2020-12-15 09:04:13','2021-05-25 18:03:07'),
 	(2,'dev1admin@torna.cn','1231d3ef9f1a6b3771d19e3ae453b07d','研发一部经理',0,'register','dev1admin@torna.cn',1,0,'2020-12-15 09:41:16','2021-05-25 18:03:07'),
 	(3,'dev1shop_admin@torna.cn','8429b4b5d6ef210811a25ad6e2e47403','商城项目admin',0,'register','dev1shop_admin@torna.cn',1,0,'2020-12-15 09:41:58','2021-05-25 18:03:07'),
@@ -528,7 +658,7 @@ INSERT INTO `user_info` (`id`, `username`, `password`, `nickname`, `is_super_adm
 	(14,'test@torna.cn','c19b85cecd8787ba8712ff764bf70f81','测试A',0,'register','test@torna.cn',1,0,'2021-01-25 09:08:21','2021-05-25 18:03:07');
 
 
-INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `source_id`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `source_id`, `gmt_create`, `gmt_modified`) VALUES
 	(3,2,'超级管理员 修改了文档 获取分类信息',1,1,2,'2021-01-19 13:38:20','2021-01-19 16:28:54'),
 	(4,2,'超级管理员 更新了【获取分类信息】，备注: 111',1,1,2,'2021-01-19 13:43:42','2021-01-19 16:30:36'),
 	(5,2,'超级管理员 更新了【获取分类信息】，备注: 3333',1,1,2,'2021-01-19 13:43:45','2021-01-19 15:27:41'),
@@ -539,7 +669,7 @@ INSERT INTO `user_message` (`id`, `user_id`, `message`, `is_read`, `type`, `sour
 	(10,2,'超级管理员 删除了【获取分类信息】',1,1,2,'2021-01-19 16:44:37','2021-01-19 16:46:06');
 
 
-INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES 
+INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`, `gmt_create`, `gmt_modified`) VALUES
 	(1,1,1,16,0,'2021-01-18 16:33:51','2021-01-18 16:38:58'),
 	(2,1,1,4,0,'2021-01-18 16:41:09','2021-01-18 17:18:12'),
 	(3,1,1,6,0,'2021-01-18 17:17:57','2021-01-18 17:17:57'),
@@ -548,7 +678,6 @@ INSERT INTO `user_subscribe` (`id`, `user_id`, `type`, `source_id`, `is_deleted`
 	(6,1,1,2,0,'2021-01-18 17:18:07','2021-01-18 17:18:07'),
 	(7,1,1,3,0,'2021-01-18 17:18:10','2021-01-18 17:18:10'),
 	(8,2,1,2,0,'2021-01-19 10:24:11','2021-01-19 10:24:11');
-
 
 
 
