@@ -135,7 +135,7 @@ function is_number_type(type) {
  * @returns {boolean}
  */
 function is_num_array(type, example) {
-  if (is_array_string(example)) {
+  if (is_array_string(example) || (type === 'array' && typeof (example) === 'string')) {
     example = example.substring(1, example.length - 1)
     const arr = example.split(',')
     for (const num of arr) {
@@ -170,7 +170,7 @@ function parse_num_array(val) {
 }
 
 function is_str_array(type, example) {
-  if (is_array_string(example)) {
+  if (is_array_string(example) || (type === 'array' && typeof (example) === 'string')) {
     example = example.substring(1, example.length - 1)
     const arr = example.split(',')
     for (const num of arr) {
@@ -192,7 +192,8 @@ function parse_str_array(val) {
     str = str.substring(1, str.length - 1)
   }
   const arr = str.split(',')
-  return arr.map(el => {
+  return arr.map(item => {
+    let el = item.trim()
     if (el.startsWith('\"') || el.startsWith('\'')) {
       el = el.substring(1)
     }
