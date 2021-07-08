@@ -75,29 +75,55 @@ function createTable(params, style) {
 }
 
 const MarkdownUtil = {
+
+  appendMarkdown(doc_info, markdown_content) {
+    init_docInfo(doc_info)
+    const markdown = MarkdownUtil.toMarkdown(doc_info)
+    markdown_content.append(markdown)
+  },
+  doMarkdownByData(treeData, markdown_content) {
+    treeData.forEach(docInfo => {
+      const children = docInfo.children
+      if (docInfo.isFolder === 1) {
+        console.log(`${docInfo.name} is folder`)
+        markdown_content.append(`## ${docInfo.name}\n\n`)
+        this.doMarkdownByData(children, markdown_content)
+      } else {
+        MarkdownUtil.appendMarkdown(docInfo, markdown_content)
+      }
+    })
+    return markdown_content
+  },
   toMarkdownByData(docInfoList, title) {
     title = title || $ts('document')
     const treeData = convert_tree(docInfoList)
     const markdown_content = new StringBuilder(`# ${title}\n\n`)
-    const appendMarkdown = (doc_info) => {
-      init_docInfo(doc_info)
-      const markdown = MarkdownUtil.toMarkdown(doc_info)
-      markdown_content.append(markdown)
-    }
-    treeData.forEach(docInfo => {
-      const children = docInfo.children
-      const isFolder = children && children.length > 0
-      if (isFolder) {
-        markdown_content.append(`## ${docInfo.name}\n\n`)
-        children.forEach(child => {
-          appendMarkdown(child)
-        })
-      } else {
-        appendMarkdown(docInfo)
-      }
-    })
+    MarkdownUtil.doMarkdownByData(treeData, markdown_content)
     return markdown_content.toString()
   },
+  // toMarkdownByData(docInfoList, title) {
+  //   title = title || $ts('document')
+  //   const treeData = convert_tree(docInfoList)
+  //   const markdown_content = new StringBuilder(`# ${title}\n\n`)
+  //   const appendMarkdown = (doc_info) => {
+  //     init_docInfo(doc_info)
+  //     const markdown = MarkdownUtil.toMarkdown(doc_info)
+  //     markdown_content.append(markdown)
+  //   }
+  //   treeData.forEach(docInfo => {
+  //     const children = docInfo.children
+  //     const isFolder = children && children.length > 0
+  //     if (isFolder) {
+  //       markdown_content.append(`## ${docInfo.name}\n\n`)
+  //       children.forEach(child => {
+  //         appendMarkdown(child)
+  //       })
+  //     } else {
+  //       appendMarkdown(docInfo)
+  //     }
+  //   })
+  //   return markdown_content.toString()
+  // },
   toMarkdown(docInfo) {
     const builder = new StringBuilder()
     const append = (str) => {
