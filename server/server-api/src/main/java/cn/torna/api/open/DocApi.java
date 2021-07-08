@@ -130,6 +130,7 @@ public class DocApi {
 
     /**
      * 将相同的目录进行合并
+     *
      * @param param
      */
     private void mergeSameFolder(DocPushParam param) {
@@ -157,11 +158,8 @@ public class DocApi {
         String token = context.getToken();
         long moduleId = context.getModuleId();
         log.info("收到文档推送，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId);
-        tornaTransactionManager.execute(() -> {
-            // fix:MySQL多个session下insert on duplicate key update导致死锁问题
-            // https://blog.csdn.net/li563868273/article/details/105213266/
-            // 解决思路：只能有一个线程在执行，当一个线程处理完后，下一个线程再接着执行
-            synchronized (lock) {
+        synchronized (lock) {
+            tornaTransactionManager.execute(() -> {
                 // 设置调试环境
                 for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
                     if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
@@ -180,18 +178,19 @@ public class DocApi {
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
-            }
-            return null;
-        }, e -> {
-            log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
-            this.sendMessage(e.getMessage());
-        });
+                return null;
+            }, e -> {
+                log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
+                this.sendMessage(e.getMessage());
+            });
+        }
     }
 
     /**
      * 删除之前的文档
+     *
      * @param moduleId moduleId
-     * @param userId userId
+     * @param userId   userId
      */
     private void deleteOpenAPIModuleDocs(long moduleId, long userId) {
         docInfoService.deleteOpenAPIModuleDocs(moduleId, userId);
