@@ -36,8 +36,8 @@ public class TornaTransactionManager {
             transactionManager.commit(status);
             return result;
         } catch (Exception e) {
-            onError.accept(e);
             transactionManager.rollback(status);
+            onError.accept(e);
             return null;
         }
     }

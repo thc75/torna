@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
+ * 模拟多线程推送
  * @author tanghc
  */
 public class ConcurrentDocPushTest extends BaseTest {
@@ -28,11 +29,11 @@ public class ConcurrentDocPushTest extends BaseTest {
     public void testDocPush() throws InterruptedException {
         final CountDownLatch count = new CountDownLatch(1);
         Map<String, String> map = new HashMap<>();
-        map.put("A", "c7e795e89b6c4d1d9fdc847ed2b31ddf");
-        map.put("B", "1c659839bff3470badff731431aa51e7");
-        map.put("C", "67fe7060780140b6b38a94a6dafae243");
-        map.put("D", "5757dcec82b24234ae663d44124aa072");
-        map.put("E", "3351d2d7e17a4b49962efb74efcf8a85");
+        map.put("A", "41aed17e31c44bff941cd9d047b532db");
+        map.put("B", "ee8a128302124a1986ec778a2e6c1700");
+        map.put("C", "b30174a555b745969b52aa06992efaeb");
+        map.put("D", "b54d6d8d1d974791918b29d740865d9e");
+        map.put("E", "2d3e79d55b1849afbb858adb800be54b");
         for (Map.Entry<String, String> entry : map.entrySet()) {
             getThread(entry.getKey(), entry.getValue(), count).start();
         }
