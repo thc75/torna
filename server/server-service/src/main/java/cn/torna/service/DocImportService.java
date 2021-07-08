@@ -193,6 +193,9 @@ public class DocImportService {
         switch (mode) {
             case "raw":
                 String json = body.getRaw();
+                if (StringUtils.isEmpty(json)) {
+                    return Collections.emptyList();
+                }
                 JSONObject jsonObject = JSON.parseObject(json);
                 return this.parseParams(jsonObject);
             case "urlencoded":
