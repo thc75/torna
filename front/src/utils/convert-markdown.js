@@ -85,7 +85,6 @@ const MarkdownUtil = {
     treeData.forEach(docInfo => {
       const children = docInfo.children
       if (docInfo.isFolder === 1) {
-        console.log(`${docInfo.name} is folder`)
         markdown_content.append(`## ${docInfo.name}\n\n`)
         this.doMarkdownByData(children, markdown_content)
       } else {
