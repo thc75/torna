@@ -107,7 +107,7 @@
         <el-form-item :label="$ts('user')" required>
           <user-select ref="userSelect" :loader="loadSpaceMember" multiple />
         </el-form-item>
-        <el-form-item :label="$ts('user')" prop="roleCode">
+        <el-form-item :label="$ts('role')" prop="roleCode">
           <el-select v-model="memberAddFormData.roleCode">
             <el-option v-for="item in getProjectRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
