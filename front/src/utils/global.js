@@ -490,11 +490,13 @@ Object.assign(Vue.prototype, {
   headCellStyleSmall: function() {
     return { padding: '5px 0' }
   },
-  loadSpaceMember(searchData) {
-    searchData.spaceId = this.getSpaceId()
+  loadSpaceMember() {
+    const searchData = {
+      spaceId: this.getSpaceId()
+    }
     return new Promise(resolve => {
-      this.get('/space/member/search', searchData, resp => {
-        resolve(resp.data)
+      this.get('/space/member/all', searchData, resp => {
+        resolve.call(this, resp.data)
       })
     })
   },

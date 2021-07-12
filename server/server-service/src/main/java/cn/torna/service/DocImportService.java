@@ -163,7 +163,19 @@ public class DocImportService {
             } else {
                 DocItemCreateDTO docItemCreateDTO = this.buildPostmanDocItemCreateDTO(item, parent, module, user);
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
-                // 创建参数
+
+                // path参数
+                Url url = item.getRequest().getUrl();
+                List<Param> variable = url.getVariable();
+                this.savePostmanParams(variable, docItem, docParameter -> {
+                    return ParamStyleEnum.PATH;
+                }, user);
+                // query参数
+                List<Param> queryParams = url.getQuery();
+                this.savePostmanParams(queryParams, docItem, docParameter -> {
+                    return ParamStyleEnum.QUERY;
+                }, user);
+                // body参数
                 List<Param> params = this.buildPostmanParams(item);
                 this.savePostmanParams(params, docItem, docParameter -> {
                     return ParamStyleEnum.REQUEST;
@@ -175,11 +187,6 @@ public class DocImportService {
     private List<Param> buildPostmanParams(Item item) {
         List<Param> list = new ArrayList<>();
         Request request = item.getRequest();
-        Url url = request.getUrl();
-        List<Param> query = url.getQuery();
-        if (query != null) {
-            list.addAll(query);
-        }
         Body body = request.getBody();
         if (body != null) {
             List<Param> params = this.parseBody(body);
@@ -390,10 +397,11 @@ public class DocImportService {
 
     private DocItemCreateDTO buildPostmanDocItemCreateDTO(Item item, DocInfo parent, Module module, User user) {
         Request request = item.getRequest();
+        String url = request.getUrl().getFullUrl();
         String contentType = this.buildContentType(request);
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getName());
-        docItemCreateDTO.setUrl(request.getUrl().getFullUrl());
+        docItemCreateDTO.setUrl(url);
         docItemCreateDTO.setContentType(contentType);
         docItemCreateDTO.setHttpMethod(request.getMethod());
         docItemCreateDTO.setDescription(request.getDescription());

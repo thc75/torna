@@ -105,7 +105,7 @@
         label-width="150px"
       >
         <el-form-item :label="$ts('user')" required>
-          <user-select ref="userSelect" :loader="loadSpaceMember" multiple />
+          <user-select-v2 ref="userSelect" multiple />
         </el-form-item>
         <el-form-item :label="$ts('role')" prop="roleCode">
           <el-select v-model="memberAddFormData.roleCode">
@@ -123,11 +123,11 @@
   </div>
 </template>
 <script>
-import UserSelect from '@/components/UserSelect'
+import UserSelectV2 from '@/components/UserSelectV2'
 export default {
   name: 'ProjectMember',
   components: {
-    UserSelect
+    UserSelectV2
   },
   props: {
     projectId: {
@@ -151,7 +151,8 @@ export default {
         roleCode: [
           { required: true, message: this.$ts('pleaseSelect'), trigger: ['blur', 'change'] }
         ]
-      }
+      },
+      spaceUsers: []
     }
   },
   watch: {
@@ -163,6 +164,11 @@ export default {
     }
   },
   methods: {
+    loadSelectUser() {
+      this.loadSpaceMember().then(data => {
+        this.spaceUsers = data
+      })
+    },
     loadTable() {
       this.get('/project/member/list', this.searchFormData, resp => {
         this.userData = resp.data
@@ -190,6 +196,11 @@ export default {
     },
     onMemberAdd() {
       this.memberAddDlgShow = true
+      this.$nextTick(() => {
+        this.loadSpaceMember().then(data => {
+          this.$refs.userSelect.setData(data)
+        })
+      })
     },
     onMemberAddSave() {
       const promise = this.$refs.userSelect.validate()

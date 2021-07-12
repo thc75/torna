@@ -236,7 +236,6 @@ export default {
   },
   mounted() {
     this.pmsConfig().then(config => {
-      console.log(config)
       this.ignoreParam = config.ignoreParam
     })
   },
