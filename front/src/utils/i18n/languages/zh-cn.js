@@ -365,7 +365,9 @@ const MAPPING = {
   'debugEnvPublicTip': '公开：聚合页面显示公开的调试路径',
   'orderIndex': '排序值',
   'expand': '展开',
-  'collapse': '收起'
+  'collapse': '收起',
+  'composeProject': '聚合项目',
+  'setting': '设置'
 
 }
 

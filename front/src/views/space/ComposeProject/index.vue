@@ -50,144 +50,151 @@
       </el-tab-pane>
     </el-tabs>
     <div v-show="projectList.length > 0" class="compose-content">
-      <div class="compose-url">
-        <span style="margin-right: 20px">
-          状态：
-          <el-tag v-if="projectInfo.status" type="success">{{ $ts('enable') }}</el-tag>
-          <el-tag v-else type="danger">{{ $ts('disable') }}</el-tag>
-        </span>
-        <span v-show="visitUrl" style="margin-right: 20px">
-          {{ $ts('visitUrl') }}：<el-link :href="visitUrl" type="primary" :underline="false" target="_blank">{{ visitUrl }}</el-link>
-        </span>
-        <span v-show="visitPassword">{{ $ts('pwdShow') }}：{{ visitPassword }}</span>
-      </div>
-      <el-dropdown v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
-        <el-button type="primary" size="mini">
-          {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-document" :command="onDocAdd">{{ $ts('createDoc') }}</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-folder" :command="onDocFolderAdd">{{ $ts('createFolder') }}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <div class="table-right">
-        <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
-          <el-radio-button label="1">{{ $ts('expand') }}</el-radio-button>
-          <el-radio-button label="0">{{ $ts('collapse') }}</el-radio-button>
-        </el-radio-group>
-        <div class="table-right-item">
-          <el-input
-            v-model="tableSearch"
-            prefix-icon="el-icon-search"
-            clearable
-            size="mini"
-            :placeholder="$ts('apiFilter')"
-            style="width: 300px;"
-          />
-        </div>
-        <div class="table-right-item">
-          <el-tooltip placement="top" :content="$ts('refreshTable')">
-            <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
-          </el-tooltip>
-        </div>
-      </div>
-      <u-table
-        ref="plTreeTable"
-        :data="tableRows"
-        row-id="id"
-        use-virtual
-        :treeConfig="{
-          children: 'children',
-          iconClose: 'el-icon-arrow-right',
-          iconOpen: 'el-icon-arrow-down',
-          expandAll: triggerStatus === '1'
-        }"
-        :height="tableHeight"
-        :row-height="30"
-        border
-      >
-        <u-table-column
-          :tree-node="true"
-          prop="name"
-          :label="$ts('docName')"
-          show-overflow-tooltip
-        />
-        <u-table-column
-          prop="url"
-          label="URL"
-          show-overflow-tooltip
-        >
-          <template slot-scope="scope">
-            <http-method v-if="scope.row.httpMethod && scope.row.url" :method="scope.row.httpMethod" />
-            <span style="margin-left: 5px;">{{ scope.row.url }}</span>
-          </template>
-        </u-table-column>
-        <u-table-column
-          prop="origin"
-          :label="$ts('origin')"
-          width="250"
-          show-overflow-tooltip
-        />
-        <u-table-column
-          prop="creator"
-          :label="$ts('creator')"
-          width="120"
-          show-overflow-tooltip
-        />
-        <u-table-column
-          prop="gmtCreate"
-          :label="$ts('createTime')"
-          width="110"
-        >
-          <template slot-scope="scope">
-            <time-tooltip :time="scope.row.gmtCreate" />
-          </template>
-        </u-table-column>
-        <u-table-column
-          v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
-          prop="orderIndex"
-          :label="$ts('orderIndex')"
-          width="80"
-        >
-          <template slot-scope="scope">
-            <popover-update
-              :title="$ts('orderIndex')"
-              is-number
-              :show-icon="false"
-              :value="`${scope.row.orderIndex}`"
-              :on-show="() => {return scope.row.orderIndex}"
-              :on-save="(val, call) => onSaveOrderIndex(scope.row.id, val, call)"
-            />
-          </template>
-        </u-table-column>
-        <u-table-column
-          v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
-          :label="$ts('operation')"
-          width="150"
-        >
-          <template slot-scope="scope">
-            <div class="icon-operation">
-              <div v-if="isFolder(scope.row)" style="display: inline-block">
-                <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createDoc')" :open-delay="500">
-                  <el-link type="primary" icon="el-icon-document-add" @click="onDocAdd(scope.row)" />
-                </el-tooltip>
-                <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createFolder')" :open-delay="500">
-                  <el-link type="primary" icon="el-icon-folder-add" @click="onDocFolderAdd(scope.row)" />
-                </el-tooltip>
-                <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('updateName')" :open-delay="500">
-                  <el-link type="primary" icon="el-icon-edit" @click="onDocUpdate(scope.row)" />
-                </el-tooltip>
-              </div>
-              <el-popconfirm
-                :title="$ts('deleteConfirm', scope.row.name)"
-                @confirm="onDocRemove(scope.row)"
-              >
-                <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$ts('delete')" />
-              </el-popconfirm>
+      <el-tabs active-name="doc" tab-position="left">
+        <el-tab-pane :label="$ts('apiList')" name="doc">
+          <div class="compose-url">
+            <span style="margin-right: 20px">
+              状态：
+              <el-tag v-if="projectInfo.status" type="success">{{ $ts('enable') }}</el-tag>
+              <el-tag v-else type="danger">{{ $ts('disable') }}</el-tag>
+            </span>
+            <span v-show="visitUrl" style="margin-right: 20px">
+              {{ $ts('visitUrl') }}：<el-link :href="visitUrl" type="primary" :underline="false" target="_blank">{{ visitUrl }}</el-link>
+            </span>
+            <span v-show="visitPassword">{{ $ts('pwdShow') }}：{{ visitPassword }}</span>
+          </div>
+          <el-dropdown v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
+            <el-button type="primary" size="mini">
+              {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-document" :command="onDocAdd">{{ $ts('createDoc') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-folder" :command="onDocFolderAdd">{{ $ts('createFolder') }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <div class="table-right">
+            <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
+              <el-radio-button label="1">{{ $ts('expand') }}</el-radio-button>
+              <el-radio-button label="0">{{ $ts('collapse') }}</el-radio-button>
+            </el-radio-group>
+            <div class="table-right-item">
+              <el-input
+                v-model="tableSearch"
+                prefix-icon="el-icon-search"
+                clearable
+                size="mini"
+                :placeholder="$ts('apiFilter')"
+                style="width: 300px;"
+              />
             </div>
-          </template>
-        </u-table-column>
-      </u-table>
+            <div class="table-right-item">
+              <el-tooltip placement="top" :content="$ts('refreshTable')">
+                <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
+              </el-tooltip>
+            </div>
+          </div>
+          <u-table
+            ref="plTreeTable"
+            :data="tableRows"
+            row-id="id"
+            use-virtual
+            :treeConfig="{
+              children: 'children',
+              iconClose: 'el-icon-arrow-right',
+              iconOpen: 'el-icon-arrow-down',
+              expandAll: triggerStatus === '1'
+            }"
+            :height="tableHeight"
+            :row-height="30"
+            border
+          >
+            <u-table-column
+              :tree-node="true"
+              prop="name"
+              :label="$ts('docName')"
+              show-overflow-tooltip
+            />
+            <u-table-column
+              prop="url"
+              label="URL"
+              show-overflow-tooltip
+            >
+              <template slot-scope="scope">
+                <http-method v-if="scope.row.httpMethod && scope.row.url" :method="scope.row.httpMethod" />
+                <span style="margin-left: 5px;">{{ scope.row.url }}</span>
+              </template>
+            </u-table-column>
+            <u-table-column
+              prop="origin"
+              :label="$ts('origin')"
+              width="250"
+              show-overflow-tooltip
+            />
+            <u-table-column
+              prop="creator"
+              :label="$ts('creator')"
+              width="120"
+              show-overflow-tooltip
+            />
+            <u-table-column
+              prop="gmtCreate"
+              :label="$ts('createTime')"
+              width="110"
+            >
+              <template slot-scope="scope">
+                <time-tooltip :time="scope.row.gmtCreate" />
+              </template>
+            </u-table-column>
+            <u-table-column
+              v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
+              prop="orderIndex"
+              :label="$ts('orderIndex')"
+              width="80"
+            >
+              <template slot-scope="scope">
+                <popover-update
+                  :title="$ts('orderIndex')"
+                  is-number
+                  :show-icon="false"
+                  :value="`${scope.row.orderIndex}`"
+                  :on-show="() => {return scope.row.orderIndex}"
+                  :on-save="(val, call) => onSaveOrderIndex(scope.row.id, val, call)"
+                />
+              </template>
+            </u-table-column>
+            <u-table-column
+              v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
+              :label="$ts('operation')"
+              width="150"
+            >
+              <template slot-scope="scope">
+                <div class="icon-operation">
+                  <div v-if="isFolder(scope.row)" style="display: inline-block">
+                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createDoc')" :open-delay="500">
+                      <el-link type="primary" icon="el-icon-document-add" @click="onDocAdd(scope.row)" />
+                    </el-tooltip>
+                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createFolder')" :open-delay="500">
+                      <el-link type="primary" icon="el-icon-folder-add" @click="onDocFolderAdd(scope.row)" />
+                    </el-tooltip>
+                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('updateName')" :open-delay="500">
+                      <el-link type="primary" icon="el-icon-edit" @click="onDocUpdate(scope.row)" />
+                    </el-tooltip>
+                  </div>
+                  <el-popconfirm
+                    :title="$ts('deleteConfirm', scope.row.name)"
+                    @confirm="onDocRemove(scope.row)"
+                  >
+                    <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$ts('delete')" />
+                  </el-popconfirm>
+                </div>
+              </template>
+            </u-table-column>
+          </u-table>
+        </el-tab-pane>
+        <el-tab-pane :label="$ts('setting')" name="setting">
+          11
+        </el-tab-pane>
+      </el-tabs>
     </div>
     <compose-project-create-dialog ref="projectCreateDlg" :success="onProjectAddSuccess" />
     <el-dialog
@@ -463,7 +470,7 @@ export default {
       })
     },
     initHeight() {
-      this.tableHeight = window.innerHeight - 225
+      this.tableHeight = window.innerHeight - 240
     },
     isFolder(row) {
       return row.isFolder === 1
