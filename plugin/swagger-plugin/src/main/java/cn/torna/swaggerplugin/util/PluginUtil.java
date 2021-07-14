@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author tanghc
@@ -196,6 +197,24 @@ public class PluginUtil {
                     }
                 }
             }
+        }
+    }
+
+    public static boolean isFileParameter(Parameter parameter) {
+        Class<?> type = parameter.getType();
+        boolean pojo = PluginUtil.isPojo(type);
+        if (pojo) {
+            AtomicInteger fileCount = new AtomicInteger();
+            ReflectionUtils.doWithFields(type, field -> {
+                String fieldType = field.getType().getSimpleName();
+                if (fieldType.contains("MultipartFile")) {
+                    fileCount.incrementAndGet();
+                }
+            });
+            return fileCount.get() > 0;
+        } else {
+            String parameterType = PluginUtil.getParameterType(parameter);
+            return parameterType.equals("file") || parameterType.equals("file[]");
         }
     }
 

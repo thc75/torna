@@ -40,5 +40,11 @@ public class TornaProperties {
     private String hasBodyMethods = "POST,PUT,DELETE";
     /** 是否替换文档，true：替换，false：不替换（追加）。默认：true */
     private Boolean isReplace = true;
+    /** 0:springmvc, 1:dubbo或其它.如果是1，必须指定basePackage */
+    private int mode = 0;
+    /** 全局的contentType */
+    private String globalContentType = "application/json";
+    /** 全局的url */
+    private String globalUrl = "";
 
 }
