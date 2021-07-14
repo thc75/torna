@@ -28,6 +28,8 @@ public class DubboPushTest extends BaseTest {
             "    <version>1.0.2</version>\n" +
             "</dependency>";
 
+    String token = "a5c72fd4571e45e38848031102ab5730";
+
     public void testDocPush() {
         DocPushRequest request = new DocPushRequest(token);
         // 创建分类

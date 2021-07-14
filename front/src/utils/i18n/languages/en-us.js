@@ -364,7 +364,9 @@ const MAPPING = {
   'debugEnvPublicTip': 'Public: debug url show in compose page',
   'orderIndex': 'Order',
   'expand': 'Expand',
-  'collapse': 'Collapse'
+  'collapse': 'Collapse',
+  'composeProject': 'Compose Project',
+  'setting': 'Setting'
 
 }
 
