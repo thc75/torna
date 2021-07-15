@@ -18,7 +18,7 @@ public class OtherRequestInfoBuilder extends HttpMethodInfoBuilder  {
 
     @Override
     public String buildUrl() {
-        return getTornaConfig().getGlobalUrl();
+        return getMethod().toString();
     }
 
     @Override

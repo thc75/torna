@@ -40,8 +40,6 @@ public class TornaConfig {
     private int mode = 0;
     /** 全局的contentType */
     private String globalContentType = "application/json";
-    /** 全局的url */
-    private String globalUrl = "";
 
     private JSONObject jarClass;
 
