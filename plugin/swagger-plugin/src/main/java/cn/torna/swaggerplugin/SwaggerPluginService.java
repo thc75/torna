@@ -104,11 +104,8 @@ public class SwaggerPluginService {
             throw new IllegalArgumentException("mode=1的情况下必须指定basePackage");
         }
         Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
-        Set<Class<?>> classes = ClassUtil.getClasses(basePackage);
+        Set<Class<?>> classes = ClassUtil.getClasses(basePackage, Api.class);
         for (Class<?> clazz : classes) {
-            if (!matchClass(clazz)) {
-                continue;
-            }
             ControllerInfo controllerInfo;
             try {
                 controllerInfo = buildControllerInfo(clazz);
@@ -119,7 +116,7 @@ public class SwaggerPluginService {
             List<DocItem> docItems = controllerDocMap.computeIfAbsent(controllerInfo, k -> new ArrayList<>());
             ReflectionUtils.doWithMethods(clazz, method -> {
                 try {
-                    DocItem apiInfo = buildDocItem(new OtherRequestInfoBuilder(method, tornaConfig) , method);
+                    DocItem apiInfo = buildDocItem(new OtherRequestInfoBuilder(method, tornaConfig));
                     docItems.add(apiInfo);
                 } catch (HiddenException | IgnoreException e) {
                     System.out.println(e.getMessage());
@@ -127,7 +124,7 @@ public class SwaggerPluginService {
                     System.out.printf("构建文档出错, method:%s%n", method);
                     throw new RuntimeException(e.getMessage(), e);
                 }
-            });
+            }, this::match);
         }
         List<DocItem> docItems = mergeSameFolder(controllerDocMap);
         this.push(docItems);
@@ -159,7 +156,7 @@ public class SwaggerPluginService {
             List<DocItem> docItems = controllerDocMap.computeIfAbsent(controllerInfo, k -> new ArrayList<>());
             RequestMappingInfo requestMappingInfo = entry.getKey();
             try {
-                DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(requestMappingInfo, method, tornaConfig), method);
+                DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(requestMappingInfo, method, tornaConfig));
                 docItems.add(apiInfo);
             } catch (HiddenException | IgnoreException e) {
                 System.out.println(e.getMessage());
@@ -245,7 +242,8 @@ public class SwaggerPluginService {
         return debugEnvs;
     }
 
-    protected DocItem buildDocItem(RequestInfoBuilder requestInfoBuilder, Method method) throws HiddenException, IgnoreException {
+    protected DocItem buildDocItem(RequestInfoBuilder requestInfoBuilder) throws HiddenException, IgnoreException {
+        Method method = requestInfoBuilder.getMethod();
         ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
         ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
         if (apiOperation.hidden()) {
@@ -254,10 +252,12 @@ public class SwaggerPluginService {
         if (apiIgnore != null) {
             throw new IgnoreException("忽略接口（@ApiIgnore）：" + apiOperation.value());
         }
-        return buildDocItem(apiOperation, requestInfoBuilder, method);
+        return doBuildDocItem(requestInfoBuilder);
     }
 
-    protected DocItem buildDocItem(ApiOperation apiOperation, RequestInfoBuilder requestInfoBuilder, Method method) {
+    protected DocItem doBuildDocItem(RequestInfoBuilder requestInfoBuilder) {
+        ApiOperation apiOperation = requestInfoBuilder.getApiOperation();
+        Method method = requestInfoBuilder.getMethod();
         DocItem docItem = new DocItem();
         String httpMethod = requestInfoBuilder.getHttpMethod();
         docItem.setAuthor(buildAuthor(apiOperation));
@@ -801,10 +801,6 @@ public class SwaggerPluginService {
 
     public boolean match(Method method) {
         return isRightPackage(method) && method.getAnnotation(ApiOperation.class) != null;
-    }
-
-    public boolean matchClass(Class<?> clazz) {
-        return AnnotationUtils.findAnnotation(clazz, Api.class) != null;
     }
 
     private boolean isRightPackage(Method method) {

@@ -19,4 +19,8 @@ public interface RequestInfoBuilder {
     String getHttpMethod();
 
     String buildContentType();
+
+    Method getMethod();
+
+    ApiOperation getApiOperation();
 }

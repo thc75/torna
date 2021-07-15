@@ -44,5 +44,7 @@ public class TornaProperties {
     private int mode = 0;
     /** 全局的contentType */
     private String globalContentType = "application/json";
+    /** 默认的http method */
+    private String defaultHttpMethod = "POST";
 
 }

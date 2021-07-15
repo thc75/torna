@@ -25,4 +25,5 @@ public class OtherRequestInfoBuilder extends HttpMethodInfoBuilder  {
     public String buildContentType() {
         return getTornaConfig().getGlobalContentType();
     }
+
 }

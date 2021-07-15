@@ -54,17 +54,19 @@ public abstract class HttpMethodInfoBuilder implements RequestInfoBuilder {
         if (deleteMapping != null) return HttpMethod.DELETE.name();
         PatchMapping patchMapping = method.getAnnotation(PatchMapping.class);
         if (patchMapping != null) return HttpMethod.PATCH.name();
-        return HttpMethod.GET.name();
+        return tornaConfig.getDefaultHttpMethod();
     }
 
     public TornaConfig getTornaConfig() {
         return tornaConfig;
     }
 
+    @Override
     public Method getMethod() {
         return method;
     }
 
+    @Override
     public ApiOperation getApiOperation() {
         return apiOperation;
     }
