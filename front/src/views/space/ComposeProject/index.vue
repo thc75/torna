@@ -192,7 +192,7 @@
           </u-table>
         </el-tab-pane>
         <el-tab-pane :label="$ts('setting')" name="setting">
-          11
+          <compose-project-setting ref="composeProjectSettingRef" :project-id="projectInfo.id" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -218,13 +218,14 @@
 </template>
 <script>
 import ComposeProjectCreateDialog from '@/components/ComposeProjectCreateDialog'
+import ComposeProjectSetting from '@/components/ComposeProjectSetting'
 import DocSelect from '@/components/DocSelect'
 import HttpMethod from '@/components/HttpMethod'
 import TimeTooltip from '@/components/TimeTooltip'
 import PopoverUpdate from '@/components/PopoverUpdate'
 
 export default {
-  components: { ComposeProjectCreateDialog, DocSelect, HttpMethod, TimeTooltip, PopoverUpdate },
+  components: { ComposeProjectCreateDialog, ComposeProjectSetting, DocSelect, HttpMethod, TimeTooltip, PopoverUpdate },
   props: {
     spaceId: {
       type: String,

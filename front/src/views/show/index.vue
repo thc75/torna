@@ -5,7 +5,7 @@
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="item" />
       </el-tab-pane>
-      <el-tab-pane name="debug">
+      <el-tab-pane v-if="showDebug" name="debug">
         <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
         <doc-debug :item="debugItem" :internal="false" />
       </el-tab-pane>
@@ -22,10 +22,14 @@ export default {
     return {
       item: {},
       debugItem: {},
-      hasData: false
+      hasData: false,
+      showDebug: false
     }
   },
   created() {
+    this.pmsConfig().then(config => {
+      this.showDebug = config.composeShowDebug
+    })
     const docId = this.$route.params.docId
     this.$nextTick(() => {
       if (docId) {
