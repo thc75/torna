@@ -25,7 +25,15 @@
         </template>
       </el-table-column>
       <el-table-column :label="$ts('type')" prop="type" width="120px" />
-      <el-table-column :label="$ts('required')" prop="required" width="80px" />
+      <el-table-column
+        prop="required"
+        :label="$ts('require')"
+        :width="$width(60, { 'en': 75 })"
+      >
+        <template slot-scope="scope">
+          <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$ts('example')" prop="example" >
         <template slot-scope="scope">
           <span v-show="!isNodeData(scope.row)">

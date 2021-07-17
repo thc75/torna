@@ -51,6 +51,9 @@ public class ComposeProject {
     /**  数据库字段：modifier_name */
     private String modifierName;
 
+    /** 网关地址, 数据库字段：gateway_url */
+    private String gatewayUrl;
+
     /** 排序索引, 数据库字段：order_index */
     private Integer orderIndex;
 

@@ -3,10 +3,10 @@
     <h4>网关URL<span class="info-tip">所有接口显示同一个网关URL，自带URL将隐藏</span></h4>
     <div>
       <el-input v-model="setting.gatewayUrl" size="mini" style="width: 500px" />
-      <el-button type="primary" size="mini" style="margin-top: 10px;">保存</el-button>
+      <el-button type="primary" size="mini" style="margin-top: 10px;" @click="onGatewayUrlSave">保存</el-button>
     </div>
     <h4>公共参数</h4>
-    <el-tabs active-name="commonRequestParam">
+    <el-tabs active-name="commonRequestParam" @tab-click="onCommonTabChange">
       <el-tab-pane :label="$ts('commonRequest')" name="commonRequestParam">
         <common-param
           ref="commonRequestParamRef"
@@ -18,11 +18,11 @@
       </el-tab-pane>
       <el-tab-pane :label="$ts('commonResponse')" name="commonResponseParam">
         <common-param
-          ref="commonResponseRef"
-          list-url="/compose/project/setting/returnParams/list"
-          add-url="/compose/project/setting/returnParams/add"
-          update-url="/compose/project/setting/returnParams/update"
-          delete-url="/compose/project/setting/returnParams/delete"
+          ref="commonResponseParamRef"
+          list-url="/compose/project/setting/globalReturns/list"
+          add-url="/compose/project/setting/globalReturns/add"
+          update-url="/compose/project/setting/globalReturns/update"
+          delete-url="/compose/project/setting/globalReturns/delete"
         />
       </el-tab-pane>
     </el-tabs>
@@ -83,7 +83,26 @@ export default {
   },
   watch: {
     projectId(val) {
+      this.loadSetting(val)
       this.$refs.commonRequestParamRef.reload(val)
+    }
+  },
+  methods: {
+    loadSetting(projectId) {
+      this.get('/compose/project/setting/setting/get', { id: projectId }, resp => {
+        this.setting = resp.data
+      })
+    },
+    onGatewayUrlSave() {
+      this.post('/compose/project/setting/gatewayurl/set', {
+        id: this.projectId,
+        gatewayUrl: this.setting.gatewayUrl
+      }, resp => {
+        this.tipSuccess('修改成功')
+      })
+    },
+    onCommonTabChange(tab) {
+      this.$refs[`${tab.name}Ref`].reload(this.projectId)
     }
   }
 }
