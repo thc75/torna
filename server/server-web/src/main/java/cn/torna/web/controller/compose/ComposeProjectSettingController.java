@@ -28,17 +28,34 @@ public class ComposeProjectSettingController {
     @Autowired
     private ComposeProjectService composeProjectService;
 
-    @GetMapping("/setting/get")
+    @GetMapping("/get")
     public Result<ComposeProjectSettingVO> getSetting(@HashId Long id) {
         ComposeProject composeProject = composeProjectService.getById(id);
         ComposeProjectSettingVO settingVO = CopyUtil.copyBean(composeProject, ComposeProjectSettingVO::new);
         return Result.ok(settingVO);
     }
 
-    @PostMapping("/gatewayurl/set")
+    @GetMapping("/getall")
+    public Result<ComposeProjectSettingVO> getall(@HashId Long id) {
+        ComposeProject composeProject = composeProjectService.getById(id);
+        ComposeProjectSettingVO settingVO = CopyUtil.copyBean(composeProject, ComposeProjectSettingVO::new);
+
+        List<ComposeCommonParam> docParams = composeCommonParamService.listGlobalParams(id);
+        List<ComposeProjectGlobalParamVO> globalParamVOS = CopyUtil.copyList(docParams, ComposeProjectGlobalParamVO::new);
+
+
+        List<ComposeCommonParam> docReturns = composeCommonParamService.listGlobalReturns(id);
+        List<ComposeProjectGlobalParamVO> globalReturnVOS = CopyUtil.copyList(docReturns, ComposeProjectGlobalParamVO::new);
+
+        settingVO.setGlobalParams(globalParamVOS);
+        settingVO.setGlobalReturns(globalReturnVOS);
+
+        return Result.ok(settingVO);
+    }
+    @PostMapping("/save")
     public Result setGatewayUrl(@RequestBody ComposeProjectSettingParam param) {
         ComposeProject composeProject = composeProjectService.getById(param.getId());
-        composeProject.setGatewayUrl(param.getGatewayUrl());
+        CopyUtil.copyPropertiesIgnoreNull(param, composeProject);
         composeProjectService.update(composeProject);
         return Result.ok();
     }

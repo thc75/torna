@@ -81,9 +81,13 @@ public class UpgradeService {
     private void v1_9_3(int oldVersion) {
         if (oldVersion < 12) {
             createTable("compose_common_param", "upgrade/1.9.3_ddl.txt");
+            createTable("compose_additional_page", "upgrade/1.9.3_ddl2.txt");
             addColumn("compose_project",
                     "gateway_url",
                     "ALTER TABLE `compose_project` ADD COLUMN `gateway_url` VARCHAR(128) DEFAULT ''  NOT NULL  COMMENT '网关地址' AFTER `modifier_name`");
+            addColumn("compose_project",
+                    "show_debug",
+                    "ALTER TABLE `compose_project` ADD COLUMN `show_debug` TINYINT(4) DEFAULT 1  NOT NULL   COMMENT '是否显示调试' AFTER `order_index`");
         }
     }
 

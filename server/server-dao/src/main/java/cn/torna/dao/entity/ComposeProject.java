@@ -57,6 +57,9 @@ public class ComposeProject {
     /** 排序索引, 数据库字段：order_index */
     private Integer orderIndex;
 
+    /** 是否显示调试, 数据库字段：show_debug */
+    private Byte showDebug;
+
     /** 1：有效，0：无效, 数据库字段：status */
     private Byte status;
 

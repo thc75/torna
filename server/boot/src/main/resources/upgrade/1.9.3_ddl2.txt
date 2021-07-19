@@ -1,0 +1,12 @@
+CREATE TABLE `compose_additional_page`(
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_id` BIGINT UNSIGNED NOT NULL COMMENT 'compose_project.id',
+  `title` VARCHAR(64) NOT NULL COMMENT '文档标题',
+  `content` TEXT COMMENT '文档内容',
+  `order_index` INT NOT NULL DEFAULT 0 COMMENT '排序值',
+  `is_deleted` TINYINT(4) NOT NULL DEFAULT 0,
+  `gmt_create` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_projectid` (`project_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聚合文档附加页'

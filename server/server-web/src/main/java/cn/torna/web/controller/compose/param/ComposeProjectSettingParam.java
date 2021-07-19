@@ -10,4 +10,6 @@ public class ComposeProjectSettingParam {
     private Long id;
 
     private String gatewayUrl;
+
+    private Byte showDebug;
 }
