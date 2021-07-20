@@ -9,15 +9,27 @@
         <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
         <doc-debug :item="debugItem" :internal="false" />
       </el-tab-pane>
+      <el-tab-pane v-for="page in extPageData" :key="page.id" :label="page.title" :label-content="() => page"></el-tab-pane>
     </el-tabs>
+    <div v-show="extViewShow">
+      <mavon-editor
+        v-model="extViewContent"
+        :boxShadow="false"
+        :subfield="false"
+        defaultOpen="preview"
+        :editable="false"
+        :toolbarsFlag="false"
+      />
+    </div>
   </div>
 </template>
 <script>
 import DocView from '../doc/DocView'
 import DocDebug from '@/components/DocDebug'
-
+import { mavonEditor } from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
 export default {
-  components: { DocView, DocDebug },
+  components: { DocView, DocDebug, mavonEditor },
   data() {
     return {
       item: {},
@@ -28,7 +40,10 @@ export default {
         showDebug: 0,
         globalParams: [],
         globalReturns: []
-      }
+      },
+      extPageData: [],
+      extViewContent: '',
+      extViewShow: false
     }
   },
   created() {
@@ -52,11 +67,17 @@ export default {
         if (this.setting.gatewayUrl) {
           data.url = this.setting.gatewayUrl
         }
+        this.initExtPage(projectId)
         this.initDocInfoView(data)
         this.item = data
         this.setTitle(data.name)
         this.hasData = true
       }
+    },
+    initExtPage(projectId) {
+      this.get('/compose/additional/list', { projectId: projectId }, resp => {
+        this.extPageData = resp.data
+      })
     },
     async getSetting(projectId) {
       return new Promise(ok => {
@@ -78,7 +99,20 @@ export default {
       })
     },
     onTabSelect(tab) {
-      this.selectTab(tab.name)
+      const fun = tab.labelContent
+      this.extViewShow = fun !== undefined
+      if (tab.labelContent) {
+        this.extViewShow = true
+        const page = fun()
+        this.get('/compose/additional/get', { id: page.id }, resp => {
+          const data = resp.data
+          this.$nextTick(() => {
+            this.extViewContent = data.content
+          })
+        })
+      } else {
+        this.selectTab(tab.name)
+      }
     },
     selectTab(name) {
       this[`${name}Item`] = this.item
