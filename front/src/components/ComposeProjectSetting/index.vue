@@ -60,6 +60,16 @@
         </template>
       </el-table-column>
       <el-table-column
+        prop="status"
+        :label="$ts('status')"
+        width="100px"
+      >
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status === 1" type="success">{{ $ts('enable') }}</el-tag>
+          <el-tag v-if="scope.row.status === 0" type="danger">{{ $ts('disable') }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="gmtCreate"
         :label="$ts('createTime')"
         width="110"
@@ -73,6 +83,20 @@
         :width="$width(200, { 'en': 240 })"
       >
         <template slot-scope="scope">
+          <el-popconfirm
+            v-if="scope.row.status === 1"
+            :title="$ts('disableConfirm', scope.row.title)"
+            @confirm="onExtDocUpdateStatus(scope.row, 0)"
+          >
+            <el-link slot="reference" :underline="false" type="danger">{{ $ts('disable') }}</el-link>
+          </el-popconfirm>
+          <el-popconfirm
+            v-if="scope.row.status === 0"
+            :title="$ts('enableConfirm', scope.row.title)"
+            @confirm="onExtDocUpdateStatus(scope.row, 1)"
+          >
+            <el-link slot="reference" :underline="false" type="primary">{{ $ts('enable') }}</el-link>
+          </el-popconfirm>
           <el-link type="primary" size="mini" @click="onExtDocUpdate(scope.row)">{{ $ts('update') }}</el-link>
           <el-popconfirm
             :title="$ts('deleteConfirm', scope.row.title)"
@@ -271,6 +295,12 @@ export default {
         this.$nextTick(() => {
           Object.assign(this.dialogExtFormData, data)
         })
+      })
+    },
+    onExtDocUpdateStatus(row, status) {
+      this.post('/compose/additional/status/update', { id: row.id, status: status }, resp => {
+        this.tipSuccess(this.$ts('operateSuccess'))
+        this.loadExtTable()
       })
     },
     onExtDialogSave() {

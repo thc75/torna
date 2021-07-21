@@ -28,6 +28,9 @@ public class ComposeAdditionalPageParam {
     /** 文档内容 */
     private String content;
 
+    /** 1:启用，0：禁用 */
+    private Byte status;
+
     /** 排序值 */
     private Integer orderIndex;
 

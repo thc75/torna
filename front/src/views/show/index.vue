@@ -75,7 +75,7 @@ export default {
       }
     },
     initExtPage(projectId) {
-      this.get('/compose/additional/list', { projectId: projectId }, resp => {
+      this.get('/compose/additional/listvisible', { projectId: projectId }, resp => {
         this.extPageData = resp.data
       })
     },

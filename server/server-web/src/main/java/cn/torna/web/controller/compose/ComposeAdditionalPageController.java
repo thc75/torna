@@ -2,6 +2,8 @@ package cn.torna.web.controller.compose;
 
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
+import cn.torna.common.enums.StatusEnum;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ComposeAdditionalPage;
 import cn.torna.dao.mapper.ComposeAdditionalPageMapper;
@@ -46,11 +48,36 @@ public class ComposeAdditionalPageController {
                 .orderby("order_index", Sort.ASC)
                 .orderby("id", Sort.ASC);
         List<ComposeAdditionalPage> additionalPages = composeAdditionalPageMapper.listBySpecifiedColumns(
-                Arrays.asList("id", "title", "gmt_create"),query);
+                Arrays.asList("id", "title", "status", "gmt_create"),query);
         List<ComposeAdditionalPageVO> list = CopyUtil.copyList(additionalPages, ComposeAdditionalPageVO::new);
         return Result.ok(list);
     }
 
+    @GetMapping("/listvisible")
+    public Result<List<ComposeAdditionalPageVO>> list(@HashId Long projectId) {
+        Query query = new Query()
+                .eq("project_id", projectId)
+                .eq("status", StatusEnum.ENABLE.getStatus())
+                .orderby("order_index", Sort.ASC)
+                .orderby("id", Sort.ASC);
+        List<ComposeAdditionalPage> additionalPages = composeAdditionalPageMapper.listBySpecifiedColumns(
+                Arrays.asList("id", "title"),query);
+        List<ComposeAdditionalPageVO> list = CopyUtil.copyList(additionalPages, ComposeAdditionalPageVO::new);
+        return Result.ok(list);
+    }
+
+    /**
+     * 修改状态
+     * @param param
+     * @return
+     */
+    @PostMapping("status/update")
+    public Result updateStatus(@RequestBody ComposeAdditionalPageParam param) {
+        ComposeAdditionalPage page = composeAdditionalPageMapper.getById(param.getId());
+        page.setStatus(param.getStatus());
+        composeAdditionalPageMapper.update(page);
+        return Result.ok();
+    }
 
     /**
      * 根据主键查询
@@ -60,7 +87,13 @@ public class ComposeAdditionalPageController {
      */
     @GetMapping("get")
     public Result<ComposeAdditionalPageVO> getById(@HashId Long id) {
-        ComposeAdditionalPage additionalPage = composeAdditionalPageMapper.getById(id);
+        Query query = new Query()
+                .eq("id", id)
+                .eq("status", StatusEnum.ENABLE.getStatus());
+        ComposeAdditionalPage additionalPage = composeAdditionalPageMapper.getByQuery(query);
+        if (additionalPage == null) {
+            throw new BizException("文档不存在");
+        }
         ComposeAdditionalPageVO composeAdditionalPageVO = CopyUtil.copyBean(additionalPage, ComposeAdditionalPageVO::new);
         return Result.ok(composeAdditionalPageVO);
     }    
