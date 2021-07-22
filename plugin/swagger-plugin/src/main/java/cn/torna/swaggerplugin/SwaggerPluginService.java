@@ -1,41 +1,18 @@
 package cn.torna.swaggerplugin;
 
 import cn.torna.sdk.client.OpenClient;
-import cn.torna.sdk.param.DebugEnv;
-import cn.torna.sdk.param.DocItem;
-import cn.torna.sdk.param.DocParamCode;
-import cn.torna.sdk.param.DocParamHeader;
-import cn.torna.sdk.param.DocParamPath;
-import cn.torna.sdk.param.DocParamReq;
-import cn.torna.sdk.param.DocParamResp;
-import cn.torna.sdk.param.IParam;
+import cn.torna.sdk.param.*;
 import cn.torna.sdk.request.DocPushRequest;
 import cn.torna.sdk.response.DocPushResponse;
-import cn.torna.swaggerplugin.bean.ApiParamWrapper;
-import cn.torna.swaggerplugin.bean.Booleans;
-import cn.torna.swaggerplugin.bean.ControllerInfo;
-import cn.torna.swaggerplugin.bean.DocParamInfo;
-import cn.torna.swaggerplugin.bean.PluginConstants;
-import cn.torna.swaggerplugin.bean.TornaConfig;
-import cn.torna.swaggerplugin.builder.ApiDocBuilder;
-import cn.torna.swaggerplugin.builder.DataType;
-import cn.torna.swaggerplugin.builder.FieldDocInfo;
-import cn.torna.swaggerplugin.builder.MvcRequestInfoBuilder;
-import cn.torna.swaggerplugin.builder.OtherRequestInfoBuilder;
-import cn.torna.swaggerplugin.builder.RequestInfoBuilder;
+import cn.torna.swaggerplugin.bean.*;
+import cn.torna.swaggerplugin.builder.*;
 import cn.torna.swaggerplugin.exception.HiddenException;
 import cn.torna.swaggerplugin.exception.IgnoreException;
 import cn.torna.swaggerplugin.util.ClassUtil;
 import cn.torna.swaggerplugin.util.PluginUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Extension;
-import io.swagger.annotations.ExtensionProperty;
+import io.swagger.annotations.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -49,25 +26,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -75,14 +40,10 @@ import java.util.stream.Collectors;
  */
 public class SwaggerPluginService {
 
-
-    public static final int MVC_MODE = 0;
-    private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final TornaConfig tornaConfig;
     private final OpenClient client;
 
-    public SwaggerPluginService(RequestMappingHandlerMapping requestMappingHandlerMapping, TornaConfig tornaConfig) {
-        this.requestMappingHandlerMapping = requestMappingHandlerMapping;
+    public SwaggerPluginService(TornaConfig tornaConfig) {
         this.tornaConfig = tornaConfig;
         client = new OpenClient(tornaConfig.getUrl(), tornaConfig.getAppKey(), tornaConfig.getSecret());
     }
@@ -91,18 +52,15 @@ public class SwaggerPluginService {
         if (!tornaConfig.getEnable()) {
             return;
         }
-        if (tornaConfig.getMode() == MVC_MODE) {
-            initMvc();
-        } else {
-            initOther();
-        }
-    }
-
-    protected void initOther() {
         String basePackage = tornaConfig.getBasePackage();
         if (StringUtils.isEmpty(basePackage)) {
-            throw new IllegalArgumentException("mode=1的情况下必须指定basePackage");
+            throw new IllegalArgumentException("必须指定basePackage");
         }
+        this.doInit();
+    }
+
+    protected void doInit() {
+        String basePackage = tornaConfig.getBasePackage();
         Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
         Set<Class<?>> classes = ClassUtil.getClasses(basePackage, Api.class);
         for (Class<?> clazz : classes) {
@@ -116,7 +74,7 @@ public class SwaggerPluginService {
             List<DocItem> docItems = controllerDocMap.computeIfAbsent(controllerInfo, k -> new ArrayList<>());
             ReflectionUtils.doWithMethods(clazz, method -> {
                 try {
-                    DocItem apiInfo = buildDocItem(new OtherRequestInfoBuilder(method, tornaConfig));
+                    DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(method, tornaConfig));
                     docItems.add(apiInfo);
                 } catch (HiddenException | IgnoreException e) {
                     System.out.println(e.getMessage());
@@ -125,45 +83,6 @@ public class SwaggerPluginService {
                     throw new RuntimeException(e.getMessage(), e);
                 }
             }, this::match);
-        }
-        List<DocItem> docItems = mergeSameFolder(controllerDocMap);
-        this.push(docItems);
-    }
-
-    protected void initMvc() {
-        Objects.requireNonNull(requestMappingHandlerMapping, "requestMappingHandlerMapping can not null");
-        Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
-        Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
-        List<Class<?>> hiddenClass = new ArrayList<>();
-        for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethodMap.entrySet()) {
-            HandlerMethod handlerMethod = entry.getValue();
-            Method method = handlerMethod.getMethod();
-            if (!match(method)) {
-                continue;
-            }
-            Class<?> controllerClass = handlerMethod.getBeanType();
-            if (hiddenClass.contains(controllerClass)) {
-                continue;
-            }
-            ControllerInfo controllerInfo;
-            try {
-                controllerInfo = buildControllerInfo(controllerClass);
-            } catch (HiddenException | IgnoreException e) {
-                hiddenClass.add(controllerClass);
-                System.out.println(e.getMessage());
-                continue;
-            }
-            List<DocItem> docItems = controllerDocMap.computeIfAbsent(controllerInfo, k -> new ArrayList<>());
-            RequestMappingInfo requestMappingInfo = entry.getKey();
-            try {
-                DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(requestMappingInfo, method, tornaConfig));
-                docItems.add(apiInfo);
-            } catch (HiddenException | IgnoreException e) {
-                System.out.println(e.getMessage());
-            } catch (Exception e) {
-                System.out.printf("构建文档出错, handlerMethod:%s%n", handlerMethod);
-                throw new RuntimeException(e.getMessage(), e);
-            }
         }
         List<DocItem> docItems = mergeSameFolder(controllerDocMap);
         this.push(docItems);

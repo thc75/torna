@@ -2,11 +2,11 @@ package cn.torna.swaggerplugin.builder;
 
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.util.PluginUtil;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -14,20 +14,25 @@ import java.util.Set;
 
 /**
  * @author tanghc
+ * @version 1.0.0
+ * @description
+ * @date 2021/7/14/014
  */
 public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
 
-    private RequestMappingInfo requestMappingInfo;
-
-    public MvcRequestInfoBuilder(RequestMappingInfo requestMappingInfo, Method method, TornaConfig tornaConfig) {
+    public MvcRequestInfoBuilder(Method method, TornaConfig tornaConfig) {
         super(method, tornaConfig);
-        this.requestMappingInfo = requestMappingInfo;
     }
 
     @Override
     public String buildUrl() {
-        Set<String> patterns = requestMappingInfo.getPatternsCondition().getPatterns();
-        return patterns.iterator().next();
+        Method method = getMethod();
+        RequestMapping requestMapping = AnnotationUtils.findAnnotation(method, RequestMapping.class);
+        if (requestMapping != null) {
+            return requestMapping.value()[0];
+        } else {
+            return method.toString();
+        }
     }
 
     @Override
@@ -37,7 +42,6 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
             return consumes;
         }
         Parameter[] methodParameters = getMethod().getParameters();
-        Set<MediaType> mediaTypes = requestMappingInfo.getConsumesCondition().getConsumableMediaTypes();
         for (Parameter methodParameter : methodParameters) {
             RequestBody requestBody = methodParameter.getAnnotation(RequestBody.class);
             if (requestBody != null) {
@@ -47,13 +51,19 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
                 return MediaType.MULTIPART_FORM_DATA_VALUE;
             }
         }
-        if (mediaTypes.contains(MediaType.MULTIPART_FORM_DATA)) {
-            return MediaType.MULTIPART_FORM_DATA_VALUE;
+        String[] consumeArr = getConsumes();
+        if (consumeArr != null && consumeArr.length > 0) {
+            return consumeArr[0];
         }
-        if (mediaTypes.contains(MediaType.APPLICATION_FORM_URLENCODED) || getHttpMethod().equalsIgnoreCase(HttpMethod.POST.name())) {
-            return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+        return getTornaConfig().getGlobalContentType();
+    }
+
+    private String[] getConsumes() {
+        RequestMapping requestMapping = AnnotationUtils.findAnnotation(getMethod(), RequestMapping.class);
+        if (requestMapping != null) {
+            return requestMapping.consumes();
         }
-        return "";
+        return null;
     }
 
 }

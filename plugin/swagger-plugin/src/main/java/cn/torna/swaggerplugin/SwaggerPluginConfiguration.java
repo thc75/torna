@@ -9,11 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -35,12 +41,13 @@ public class SwaggerPluginConfiguration implements InitializingBean {
     public SwaggerPluginConfiguration() {
     }
 
-    public void init(RequestMappingHandlerMapping requestMappingHandlerMapping) throws IOException {
+    public void init() throws IOException {
         if (this.tornaConfig == null) {
             this.tornaConfig = buildTornaConfig();
         }
         this.loadConfig(tornaConfig);
-        new SwaggerPluginService(requestMappingHandlerMapping, tornaConfig).init();
+        this.loadBasePackage(tornaConfig);
+        new SwaggerPluginService(tornaConfig).init();
     }
 
     protected TornaConfig buildTornaConfig() {
@@ -75,13 +82,32 @@ public class SwaggerPluginConfiguration implements InitializingBean {
         }
     }
 
+    protected void loadBasePackage(TornaConfig tornaConfig) {
+        if (StringUtils.hasLength(tornaConfig.getBasePackage())) {
+            return;
+        }
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
+        Set<String> packages = handlerMethods.values()
+                .stream()
+                .map(handlerMethod -> {
+                    Package aPackage = handlerMethod.getBeanType().getPackage();
+                    return aPackage.getName();
+                })
+                .collect(Collectors.toSet());
+        String basePackage = String.join(";", packages);
+        tornaConfig.setBasePackage(basePackage);
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         try {
-            init(requestMappingHandlerMapping);
+            init();
         } catch (Exception e) {
             System.out.println("推送Torna文档失败，msg:" + e.getMessage());
             e.printStackTrace();
         }
     }
+
+
+
 }
