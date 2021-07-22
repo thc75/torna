@@ -11,10 +11,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * 文档推送辅助类
  * @author thc
- * @version 1.0.0
- * @description
- * @date 2021/7/22/022
  */
 public class SwaggerPlugin {
 
