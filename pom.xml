@@ -24,7 +24,6 @@
         <module>server</module>
         <module>sdk/sdk-java</module>
         <module>plugin/swagger-plugin</module>
-        <module>plugin/swagger-plugin-starter</module>
     </modules>
 
     <build>
