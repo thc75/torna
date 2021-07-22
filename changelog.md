@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.9.3
+
+- 【优化】优化Postman导入
+- 【优化】成员选择控件
+- 【增强】增强聚合文档展示，支持自定义页面
+
 ## 1.9.2
 
 - 【修复】简单数组类型显示方式错误 [#I3ZFCU](https://gitee.com/durcframework/torna/issues/I3ZFCU)
