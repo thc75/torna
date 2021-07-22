@@ -2,7 +2,7 @@
   <div class="doc-debug">
     <el-row :gutter="20">
       <el-col :span="24-rightSpanSize">
-        <div v-if="currentItem.debugEnvs.length > 0 || currentItem.moduleType === 2">
+        <div v-if="currentItem.debugEnvs.length > 0">
           <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
             <el-radio-button
               v-for="hostConfig in currentItem.debugEnvs"

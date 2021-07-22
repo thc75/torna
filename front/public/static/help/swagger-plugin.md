@@ -2,22 +2,20 @@
 
 **使用步骤：**
 
-前提：新建一个模块
-
-- SpringBoot项目
+> 前提：新建一个模块
 
 pom.xml添加依赖：
 
 ```xml
 <dependency>
     <groupId>cn.torna</groupId>
-    <artifactId>swagger-plugin-starter</artifactId>
+    <artifactId>swagger-plugin</artifactId>
     <version>最新版本</version>
-    <scope>provided</scope>
+    <scope>test</scope>
 </dependency>
 ```
 
-`swagger-plugin-starter`最新版本：![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin-starter)
+`swagger-plugin`最新版本：![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin-starter)
 
 `src/main/resources`下添加一个`torna.json`文件，内容如下：
 
@@ -25,9 +23,9 @@ pom.xml添加依赖：
 {
   // 开启推送
   "enable": true,
-  // 扫描package，多个用": "","隔开。不指定扫描全部
-  //"basePackage": "cn.torna.tornaexample.controller.order.OrderDetailController",
-  // 推送URL
+  // 扫描package，多个用;隔开
+  "basePackage": "cn.torna.tornaexample.controller",
+  // 推送URL，IP端口对应Torna服务器
   "url": "http://localhost:7700/api",
   // appKey
   "appKey": "20201216788835306945118208",
@@ -47,31 +45,17 @@ pom.xml添加依赖：
 }
 ```
 
-启动项目，插件会自动把swagger文档推送到Torna服务器。
+新增一个测试用例，内容如下：
 
-- SpringMVC项目
-
-pom.xml添加依赖：
-
-```xml
-<dependency>
-    <groupId>cn.torna</groupId>
-    <artifactId>swagger-plugin</artifactId>
-    <version>最新版本</version>
-</dependency>
-```
-
-`swagger-plugin`最新版本： ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)
-
-
-新建一个类，继承`SwaggerPluginConfiguration`
-
-```java
-@Configuration
-public class SwaggerPluginConfig extends SwaggerPluginConfiguration {
+```javascript
+/**
+ * 推送swagger文档
+ */
+public class DocPushTest {
+    public static void main(String[] args) {
+        SwaggerPlugin.pushDoc();
+    }
 }
 ```
 
-添加上面的配置
-
-启动项目，插件会自动把swagger文档推送到Torna服务器。
+运行main方法，插件会自动把swagger文档推送到Torna服务器。

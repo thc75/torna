@@ -45,18 +45,22 @@ public class SpaceMemberController {
         return Result.ok(userInfoDTOS);
     }
 
+    @GetMapping("/all")
+    public Result<List<UserInfoDTO>> search(
+            @HashId Long spaceId
+    ) {
+        List<UserInfoDTO> userInfoDTOS = spaceService.listAllSpaceUser(spaceId);
+        return Result.ok(userInfoDTOS);
+    }
+
     /**
      * 分页查询空间成员
      * @return
      */
     @PostMapping("/page")
     public Result<PageEasyui<SpaceUserInfoDTO>> page(@Valid @RequestBody SpaceMemberPageParam param) {
-        Query query = new Query();
         String username = param.getUsername();
-        if (StringUtils.hasText(username)) {
-            query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
-        }
-        PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), query);
+        PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), username, param);
         return Result.ok(pageSpaceUser);
     }
 
