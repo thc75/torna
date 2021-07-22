@@ -2,15 +2,15 @@ package cn.torna.swaggerplugin.builder;
 
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.util.PluginUtil;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Set;
 
 /**
  * @author tanghc
@@ -27,9 +27,19 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
     @Override
     public String buildUrl() {
         Method method = getMethod();
-        RequestMapping requestMapping = AnnotationUtils.findAnnotation(method, RequestMapping.class);
+        RequestMapping baseMapping = AnnotationUtils.findAnnotation(method.getDeclaringClass(), RequestMapping.class);
+        String basePath = "/";
+        if (baseMapping != null) {
+            String[] value = baseMapping.value();
+            if (value.length > 0) {
+                basePath = '/' + StringUtils.trimLeadingCharacter(value[0], '/');
+            }
+        }
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
         if (requestMapping != null) {
-            return requestMapping.value()[0];
+            String[] value = requestMapping.value();
+            String path = '/' + StringUtils.trimLeadingCharacter(value[0], '/');
+            return basePath + path;
         } else {
             return method.toString();
         }
@@ -41,6 +51,10 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
         if (StringUtils.hasText(consumes)) {
             return consumes;
         }
+        String[] consumeArr = getConsumes();
+        if (consumeArr != null && consumeArr.length > 0) {
+            return consumeArr[0];
+        }
         Parameter[] methodParameters = getMethod().getParameters();
         for (Parameter methodParameter : methodParameters) {
             RequestBody requestBody = methodParameter.getAnnotation(RequestBody.class);
@@ -51,15 +65,11 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
                 return MediaType.MULTIPART_FORM_DATA_VALUE;
             }
         }
-        String[] consumeArr = getConsumes();
-        if (consumeArr != null && consumeArr.length > 0) {
-            return consumeArr[0];
-        }
         return getTornaConfig().getGlobalContentType();
     }
 
     private String[] getConsumes() {
-        RequestMapping requestMapping = AnnotationUtils.findAnnotation(getMethod(), RequestMapping.class);
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(getMethod(), RequestMapping.class);
         if (requestMapping != null) {
             return requestMapping.consumes();
         }

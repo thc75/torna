@@ -47,7 +47,7 @@ public class SwaggerPluginConfiguration implements InitializingBean {
         }
         this.loadConfig(tornaConfig);
         this.loadBasePackage(tornaConfig);
-        new SwaggerPluginService(tornaConfig).init();
+        new SwaggerPluginService(tornaConfig).pushDoc();
     }
 
     protected TornaConfig buildTornaConfig() {

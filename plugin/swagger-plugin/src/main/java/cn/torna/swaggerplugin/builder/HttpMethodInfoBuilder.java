@@ -2,13 +2,8 @@ package cn.torna.swaggerplugin.builder;
 
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -35,7 +30,7 @@ public abstract class HttpMethodInfoBuilder implements RequestInfoBuilder {
         if (StringUtils.hasText(httpMethod)) {
             return httpMethod;
         }
-        RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
         if (requestMapping != null) {
             RequestMethod[] methods = requestMapping.method();
             if (methods.length == 0) {
@@ -44,16 +39,6 @@ public abstract class HttpMethodInfoBuilder implements RequestInfoBuilder {
                 return methods[0].name();
             }
         }
-        GetMapping getMapping = method.getAnnotation(GetMapping.class);
-        if (getMapping != null) return HttpMethod.GET.name();
-        PostMapping postMapping = method.getAnnotation(PostMapping.class);
-        if (postMapping != null) return HttpMethod.POST.name();
-        PutMapping putMapping = method.getAnnotation(PutMapping.class);
-        if (putMapping != null) return HttpMethod.PUT.name();
-        DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
-        if (deleteMapping != null) return HttpMethod.DELETE.name();
-        PatchMapping patchMapping = method.getAnnotation(PatchMapping.class);
-        if (patchMapping != null) return HttpMethod.PATCH.name();
         return tornaConfig.getDefaultHttpMethod();
     }
 

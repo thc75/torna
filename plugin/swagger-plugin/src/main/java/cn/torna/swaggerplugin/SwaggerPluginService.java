@@ -1,18 +1,40 @@
 package cn.torna.swaggerplugin;
 
 import cn.torna.sdk.client.OpenClient;
-import cn.torna.sdk.param.*;
+import cn.torna.sdk.param.DebugEnv;
+import cn.torna.sdk.param.DocItem;
+import cn.torna.sdk.param.DocParamCode;
+import cn.torna.sdk.param.DocParamHeader;
+import cn.torna.sdk.param.DocParamPath;
+import cn.torna.sdk.param.DocParamReq;
+import cn.torna.sdk.param.DocParamResp;
+import cn.torna.sdk.param.IParam;
 import cn.torna.sdk.request.DocPushRequest;
 import cn.torna.sdk.response.DocPushResponse;
-import cn.torna.swaggerplugin.bean.*;
-import cn.torna.swaggerplugin.builder.*;
+import cn.torna.swaggerplugin.bean.ApiParamWrapper;
+import cn.torna.swaggerplugin.bean.Booleans;
+import cn.torna.swaggerplugin.bean.ControllerInfo;
+import cn.torna.swaggerplugin.bean.DocParamInfo;
+import cn.torna.swaggerplugin.bean.PluginConstants;
+import cn.torna.swaggerplugin.bean.TornaConfig;
+import cn.torna.swaggerplugin.builder.ApiDocBuilder;
+import cn.torna.swaggerplugin.builder.DataType;
+import cn.torna.swaggerplugin.builder.FieldDocInfo;
+import cn.torna.swaggerplugin.builder.MvcRequestInfoBuilder;
+import cn.torna.swaggerplugin.builder.RequestInfoBuilder;
 import cn.torna.swaggerplugin.exception.HiddenException;
 import cn.torna.swaggerplugin.exception.IgnoreException;
 import cn.torna.swaggerplugin.util.ClassUtil;
 import cn.torna.swaggerplugin.util.PluginUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Extension;
+import io.swagger.annotations.ExtensionProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -32,7 +54,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +79,7 @@ public class SwaggerPluginService {
         client = new OpenClient(tornaConfig.getUrl(), tornaConfig.getAppKey(), tornaConfig.getSecret());
     }
 
-    public void init() {
+    public void pushDoc() {
         if (!tornaConfig.getEnable()) {
             return;
         }
@@ -56,10 +87,10 @@ public class SwaggerPluginService {
         if (StringUtils.isEmpty(basePackage)) {
             throw new IllegalArgumentException("必须指定basePackage");
         }
-        this.doInit();
+        this.doPush();
     }
 
-    protected void doInit() {
+    protected void doPush() {
         String basePackage = tornaConfig.getBasePackage();
         Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
         Set<Class<?>> classes = ClassUtil.getClasses(basePackage, Api.class);
