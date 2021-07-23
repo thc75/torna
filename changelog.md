@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.9.2
+
+- 【修复】简单数组类型显示方式错误 [#I3ZFCU](https://gitee.com/durcframework/torna/issues/I3ZFCU)
+- 【优化】优化markdown导出 [#I3Z9NS](https://gitee.com/durcframework/torna/issues/I3Z9NS)
+
 ## 1.9.1
 
 - 【增强】mock添加一个配置，忽略query + body
