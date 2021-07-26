@@ -126,10 +126,7 @@ public class MockConfigController {
             }
             return MockConfigService.buildDataId(path);
         }
-        List<NameValueDTO> dataKv = param.getDataKv();
-        String dataKvContent = MockConfigService.getDataKvContent(dataKv);
-        String dataJson = param.getDataJson();
-        return MockConfigService.buildDataId(path, dataKvContent, dataJson);
+        return MockConfigService.buildDataId(path);
     }
 
     private String getRequestData(MockConfigParam param) {
