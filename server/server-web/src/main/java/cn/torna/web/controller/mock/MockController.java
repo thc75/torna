@@ -1,6 +1,7 @@
 package cn.torna.web.controller.mock;
 
 import cn.torna.common.enums.MockResultTypeEnum;
+
 import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.RequestUtil;
 import cn.torna.common.util.ResponseUtil;
@@ -8,7 +9,6 @@ import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
 import cn.torna.service.dto.NameValueDTO;
 import com.alibaba.fastjson.JSON;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +30,6 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("mock")
-@Slf4j
 public class MockController {
 
     public static final int ONE_MINUTE_MILLS = 60000;
@@ -54,7 +52,7 @@ public class MockController {
         if (ignoreParam) {
             dataId = MockConfigService.buildDataId(getPath(request));
         } else {
-            dataId = buildDataId(mockId, request);
+            dataId = buildDataId(request);
         }
         mockConfig = mockConfigService.getByDataId(dataId);
         if (mockConfig == null) {
@@ -88,17 +86,13 @@ public class MockController {
         return mockId;
     }
 
-    private String buildDataId(String path, HttpServletRequest request) {
+    private String buildDataId(HttpServletRequest request) {
         List<NameValueDTO> dataKv = new ArrayList<>();
-        Map<String, String> queryParams = Collections.emptyMap();
-        int index = path.indexOf("?");
-        if (index > -1) {
-            String queryString = path.substring(index);
-            queryParams = RequestUtil.parseQueryString(queryString);
-        }
+        Map<String, String> queryParams = RequestUtil.parseQueryString(request.getQueryString());
+        String path = getPath(request);
         Map<String, String> finalQueryParams = queryParams;
         request.getParameterMap().forEach((key, value) -> {
-            if (!finalQueryParams.containsKey(key)) {
+            if (finalQueryParams.containsKey(key)) {
                 NameValueDTO nameValueDTO = new NameValueDTO();
                 nameValueDTO.setName(key);
                 nameValueDTO.setValue(value[0]);
