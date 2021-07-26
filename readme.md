@@ -76,10 +76,10 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 ```
 
 ### docker-compose部署torna
-[【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-docker-compose/README.md)
+[【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
 
 ### kubernetes部署torna
-[【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-on-kubernetes/README.md)
+[【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-on-kubernetes)
 
 ## 推荐组合
 
