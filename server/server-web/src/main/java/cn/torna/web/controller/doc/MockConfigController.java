@@ -60,16 +60,6 @@ public class MockConfigController {
 
     private MockConfigVO convert(MockConfig mockConfig) {
         MockConfigVO mockConfigVO = CopyUtil.copyBean(mockConfig, MockConfigVO::new);
-        switch (MockRequestDataTypeEnum.of(mockConfigVO.getRequestDataType())) {
-            case KV:
-                mockConfigVO.setDataKv(JSON.parseArray(mockConfig.getRequestData(), NameValueVO.class));
-                mockConfigVO.setDataJson("");
-                break;
-            case JSON:
-                mockConfigVO.setDataKv(Collections.emptyList());
-                mockConfigVO.setDataJson(mockConfig.getRequestData());
-                break;
-        }
         mockConfigVO.setResponseHeaders(JSON.parseArray(mockConfig.getResponseHeaders(), NameValueVO.class));
         MockResultTypeEnum mockResponseBodyTypeEnum = StringUtils.hasLength(mockConfig.getMockScript()) ?
                 MockResultTypeEnum.SCRIPT : MockResultTypeEnum.CUSTOM;

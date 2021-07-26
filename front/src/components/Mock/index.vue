@@ -406,18 +406,11 @@ export default {
       })
     },
     validate(callback) {
-      const promiseForm = this.$refs.mockForm.validate()
-      let promiseArr = [promiseForm]
-      if (this.$refs.dataKvRef) {
-        const promiseKv = this.$refs.dataKvRef.validate()
-        const promiseHeader = this.$refs.responseHeadersRef.validate()
-        promiseArr = promiseArr.concat(promiseKv).concat(promiseHeader)
-      }
-      Promise.all(promiseArr).then(validArr => {
-        // 到这里来表示全部内容校验通过
-        callback.call(this)
-      }).catch((e) => {
-        this.tipError($ts('pleaseFinishForm'))
+      this.$refs.mockForm.validate(valid => {
+        if (valid) {
+          // 到这里来表示全部内容校验通过
+          callback.call(this)
+        }
       })
     },
     isAdded() {
@@ -427,7 +420,7 @@ export default {
       const filter = row => {
         return row.isDeleted === undefined || row.isDeleted === 0
       }
-      this.formData.dataKv = this.formData.dataKv.filter(filter)
+      // this.formData.dataKv = this.formData.dataKv.filter(filter)
       this.formData.responseHeaders = this.formData.responseHeaders.filter(filter)
     }
   }
