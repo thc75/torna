@@ -288,23 +288,10 @@ public class DocImportService {
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
                 // query参数
                 List<DocParameter> queryParameters = item.getQueryParameters();
-                this.saveParams(queryParameters, docItem, docParameter -> ParamStyleEnum.QUERY, user);
+                this.saveParams(queryParameters, docItem, this::buildStyleEnum, user);
                 // body参数
                 List<DocParameter> requestParameters = item.getRequestParameters();
-                this.saveParams(requestParameters, docItem, docParameter -> {
-                    String in = ((DocParameter) docParameter).getIn();
-                    if (in == null) {
-                        in = "request";
-                    }
-                    switch (in) {
-                        case "path":
-                            return ParamStyleEnum.PATH;
-                        case "header":
-                            return ParamStyleEnum.HEADER;
-                        default:
-                            return ParamStyleEnum.REQUEST;
-                    }
-                }, user);
+                this.saveParams(requestParameters, docItem, this::buildStyleEnum, user);
                 List<DocParameter> responseParameters = item.getResponseParameters();
                 this.saveParams(responseParameters, docItem, p -> ParamStyleEnum.RESPONSE, user);
             }
@@ -432,6 +419,23 @@ public class DocImportService {
                 return "application/x-www-form-urlencoded";
             default:
                 return "";
+        }
+    }
+
+    private ParamStyleEnum buildStyleEnum(IParam docParameter) {
+        String in = ((DocParameter)docParameter).getIn();
+        if (in == null) {
+            in = "request";
+        }
+        switch (in) {
+            case "path":
+                return ParamStyleEnum.PATH;
+            case "query":
+                return ParamStyleEnum.QUERY;
+            case "header":
+                return ParamStyleEnum.HEADER;
+            default:
+                return ParamStyleEnum.REQUEST;
         }
     }
 
