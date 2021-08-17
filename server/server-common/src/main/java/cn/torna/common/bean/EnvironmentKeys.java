@@ -1,6 +1,8 @@
 package cn.torna.common.bean;
 
 import cn.torna.common.context.EnvironmentContext;
+import cn.torna.common.context.SpringContext;
+import cn.torna.common.interfaces.IConfig;
 
 public enum EnvironmentKeys {
     /** 是否开启注册 */
@@ -56,7 +58,16 @@ public enum EnvironmentKeys {
     }
 
     public String getValue() {
+        IConfig iConfig = SpringContext.getBean(IConfig.class);
+        String config = iConfig.getConfig(this.key);
+        if (config != null) {
+            return config;
+        }
         return getValue(defaultValue);
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public String getValue(String defaultValue) {

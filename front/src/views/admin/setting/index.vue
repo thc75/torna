@@ -31,6 +31,9 @@ export default {
   },
   methods: {
     loadConfig() {
+      this.get('/system/config/adminsetting', {}, resp => {
+        this.config = resp.data
+      })
     },
     onConfigChange(config) {
       this.post('/system/config/update', config, () => {

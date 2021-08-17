@@ -5,7 +5,9 @@ import cn.torna.sdk.request.DocPushDataRequest;
 import cn.torna.sdk.response.DocPushResponse;
 import cn.torna.sdk.util.FileUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * 用来演示推送纯json内容，可用于调试
