@@ -5,12 +5,16 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.context.EnvironmentContext;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.service.SystemConfigService;
 import cn.torna.web.config.TornaViewProperties;
+import cn.torna.web.controller.system.param.ConfigUpdateParam;
 import cn.torna.web.controller.system.vo.ConfigVO;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,8 +37,17 @@ public class ConfigController implements InitializingBean {
     @Autowired
     private TornaViewProperties tornaViewProperties;
 
+    @Autowired
+    private SystemConfigService systemConfigService;
+
     @GetMapping("/config")
     public Result<ConfigVO> config() {
+        return Result.ok(configVO);
+    }
+
+    @GetMapping("/config/update")
+    public Result<ConfigVO> configUpdate(@RequestBody ConfigUpdateParam param) {
+        systemConfigService.setConfig(param.getKey(), param.getValue());
         return Result.ok(configVO);
     }
 
