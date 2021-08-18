@@ -309,7 +309,20 @@ export function init_docInfo(data) {
 
 export function init_docInfo_view(data) {
   if (data.isUseGlobalHeaders) {
-    data.headerParams = data.globalHeaders.concat(data.headerParams)
+    const globalHeaders = data.globalHeaders || []
+    globalHeaders.forEach(param => {
+      param.global = true
+    })
+    const hParams = data.headerParams.filter(param => {
+      // same header
+      for (const globalHeader of globalHeaders) {
+        if (param.name === globalHeader.name) {
+          return false
+        }
+      }
+      return true
+    })
+    data.headerParams = globalHeaders.concat(hParams)
   }
   if (data.isUseGlobalParams) {
     const dataNode = (data.globalParams || [])
@@ -357,7 +370,16 @@ export function init_docInfo_complete_view(data) {
   sortByIndex(data.errorCodeParams)
   if (data.isUseGlobalHeaders) {
     const globalHeaders = data.globalHeaders || []
-    data.headerParams = globalHeaders.concat(data.headerParams)
+    const hParams = data.headerParams.filter(param => {
+      // same header
+      for (const globalHeader of globalHeaders) {
+        if (param.name === globalHeader.name) {
+          return false
+        }
+      }
+      return true
+    })
+    data.headerParams = globalHeaders.concat(hParams)
   }
   if (data.isUseGlobalParams) {
     const dataNode = (data.globalParams || [])

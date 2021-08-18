@@ -6,9 +6,11 @@
           <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
             <el-radio-button
               v-for="hostConfig in currentItem.debugEnvs"
-              :key="hostConfig.configKey"
-              :label="hostConfig.configKey"
-            />
+              :key="hostConfig.id"
+              :label="hostConfig.id"
+            >
+              {{ hostConfig.configKey }}
+            </el-radio-button>
           </el-radio-group>
           <span class="split">|</span>
           <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" />
@@ -375,7 +377,6 @@ export default {
       this.initDebugHost()
       this.bindRequestParam(item)
       this.initActive()
-      this.loadProps()
       this.setTableCheck()
     },
     initDebugHost() {
@@ -389,13 +390,13 @@ export default {
         this.requestUrl = item.url
         return
       }
-      const debugConfigs = debugEnvs.filter(row => row.configKey === debugEnv)
+      const debugConfigs = debugEnvs.filter(row => row.id === debugEnv)
       const debugConfig = debugConfigs.length === 0 ? debugEnvs[0] : debugConfigs[0]
-      debugEnv = debugConfig.configKey
       const baseUrl = debugConfig.configValue
       this.requestUrl = get_effective_url(baseUrl, item.url)
       this.setAttr(HOST_KEY, debugEnv)
       this.debugEnv = debugEnv
+      this.loadProps()
     },
     bindRequestParam(item) {
       const formData = []
@@ -558,7 +559,10 @@ export default {
       const formatData = (arr) => {
         const data = {}
         arr.forEach(row => {
-          data[row.name] = row.example
+          // 全局属性不加入
+          if (!row.global) {
+            data[row.name] = row.example
+          }
         })
         return data
       }
@@ -576,12 +580,14 @@ export default {
           delete props[key]
         }
       }
+      const propsData = {}
+      propsData[this.debugEnv] = {
+        debugData: props
+      }
       const data = {
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
-        props: {
-          debugData: JSON.stringify(props)
-        }
+        props: propsData
       }
       this.post('/prop/set', data, resp => {})
     },
@@ -591,11 +597,13 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG
       }
       this.get('/prop/get', data, resp => {
-        const debugData = resp.data.debugData
-        if (!debugData) {
+        const propsData = resp.data
+        const envDataStr = propsData[this.debugEnv]
+        if (!envDataStr) {
           return
         }
-        const props = JSON.parse(debugData)
+        const propsObj = JSON.parse(envDataStr)
+        const props = propsObj.debugData
         const setProp = (params, data) => {
           if (data && Object.keys(data).length > 0 && params) {
             params.forEach(row => {
