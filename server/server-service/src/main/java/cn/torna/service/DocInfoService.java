@@ -215,6 +215,17 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
+    /**
+     * 返回模块下已被锁住的文档id
+     * @param moduleId 模块id
+     * @return 返回文档dataId
+     */
+    public List<String> listLockedDataIds(long moduleId) {
+        Query query = new Query().eq("module_id", moduleId)
+                .eq("is_locked", Booleans.TRUE);
+        return this.getMapper().listBySpecifiedColumns(Collections.singletonList("data_id"), query, String.class);
+    }
+
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);

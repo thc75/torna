@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 12;
+    private static final int VERSION = 13;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -76,6 +76,16 @@ public class UpgradeService {
         v1_8_0(oldVersion);
         v1_8_1(oldVersion);
         v1_9_3(oldVersion);
+        v1_9_5(oldVersion);
+    }
+
+    private void v1_9_5(int oldVersion) {
+        if (oldVersion < 13) {
+            addColumn("doc_info",
+                "is_locked",
+                "ALTER TABLE `doc_info` ADD COLUMN `is_locked` TINYINT DEFAULT 0  NOT NULL  COMMENT '是否锁住' AFTER `is_deleted`"
+            );
+        }
     }
 
     private void v1_9_3(int oldVersion) {

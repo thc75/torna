@@ -58,12 +58,17 @@
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
-          <div v-if="isDoc(scope.row)" style="display: inline-block;">
+          <div v-if="isDoc(scope.row)" class="el-table-cell-icon">
             <div v-if="!scope.row.isShow">
-              <el-tooltip placement="bottom" :content="$ts('hidden')">
+              <el-tooltip placement="top" :content="$ts('hidden')">
                 <svg-icon icon-class="eye" svg-style="color: #e6a23c" />
               </el-tooltip>
             </div>
+          </div>
+          <div v-if="scope.row.isLocked" class="el-table-cell-icon">
+            <el-tooltip placement="top" :content="$ts('lockDocDesc')">
+              <i class="el-icon-lock"></i>
+            </el-tooltip>
           </div>
         </template>
       </u-table-column>
@@ -139,6 +144,22 @@
                   :command="() => { onDocRemove(scope.row) }"
                 >
                   {{ $ts('delete') }}
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-if="!scope.row.isLocked"
+                  icon="el-icon-lock"
+                  :command="() => { onDocLock(scope.row) }"
+                >
+                  <el-tooltip placement="top" :content="$ts('lockDocDesc')">
+                    <span>{{ $ts('lock') }}</span>
+                  </el-tooltip>
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-else
+                  icon="el-icon-unlock"
+                  :command="() => { onDocUnLock(scope.row) }"
+                >
+                  {{ $ts('unlock') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -318,6 +339,18 @@ export default {
           this.tipSuccess(this.$ts('deleteSuccess'))
           this.loadTable()
         })
+      })
+    },
+    onDocLock(row) {
+      this.post('/doc/lock', { id: row.id }, () => {
+        this.tipSuccess(this.$ts('operateSuccess'))
+        this.loadTable()
+      })
+    },
+    onDocUnLock(row) {
+      this.post('/doc/unlock', { id: row.id }, () => {
+        this.tipSuccess(this.$ts('operateSuccess'))
+        this.loadTable()
       })
     },
     onDocAdd(row) {

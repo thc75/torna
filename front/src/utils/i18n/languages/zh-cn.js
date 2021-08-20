@@ -367,7 +367,11 @@ const MAPPING = {
   'expand': '展开',
   'collapse': '收起',
   'composeProject': '聚合项目',
-  'setting': '设置'
+  'setting': '设置',
+  'lockDoc': '锁住文档',
+  'lock': '加锁',
+  'unlock': '解锁',
+  'lockDocDesc': '锁住文档不会被推送修改'
 
 }
 

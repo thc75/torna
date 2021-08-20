@@ -109,6 +109,9 @@ public class DocInfo {
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
 
+    /** 是否锁住 */
+    private Byte isLocked;
+
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
 

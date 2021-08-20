@@ -84,6 +84,8 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private Byte isDeleted;
 
+    private Byte isLocked;
+
     private String remark;
 
     private Integer orderIndex;

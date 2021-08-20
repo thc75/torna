@@ -2,6 +2,7 @@ package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -157,6 +158,22 @@ public class DocController {
         }
         DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
         return Result.ok(docInfoDTO);
+    }
+
+    @PostMapping("lock")
+    public Result lock(@RequestBody IdParam param) {
+        DocInfo docInfo = docInfoService.getById(param.getId());
+        docInfo.setIsLocked(Booleans.TRUE);
+        docInfoService.update(docInfo);
+        return Result.ok();
+    }
+
+    @PostMapping("unlock")
+    public Result unlock(@RequestBody IdParam param) {
+        DocInfo docInfo = docInfoService.getById(param.getId());
+        docInfo.setIsLocked(Booleans.FALSE);
+        docInfoService.update(docInfo);
+        return Result.ok();
     }
 
     /**

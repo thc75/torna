@@ -158,6 +158,7 @@ public class DocApi {
         String token = context.getToken();
         long moduleId = context.getModuleId();
         log.info("收到文档推送，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId);
+        List<String> lockedDocIds = docInfoService.listLockedDataIds(moduleId);
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
                 // 设置调试环境
@@ -174,7 +175,7 @@ public class DocApi {
                     this.deleteOpenAPIModuleDocs(moduleId, user.getUserId());
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
-                    this.pushDocItem(detailPushParam, context, 0L);
+                    this.pushDocItem(detailPushParam, context, 0L, lockedDocIds);
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
@@ -205,7 +206,7 @@ public class DocApi {
         userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
-    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId) {
+    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, List<String> lockedDocIds) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
         if (Booleans.isTrue(param.getIsFolder())) {
@@ -224,6 +225,10 @@ public class DocApi {
             docFolderCreateDTO.setProps(props);
             docFolderCreateDTO.setAuthor(param.getAuthor());
             docFolderCreateDTO.setOrderIndex(param.getOrderIndex());
+            // 被锁住
+            if (lockedDocIds.contains(docFolderCreateDTO.buildDataId())) {
+                return;
+            }
             folder = docInfoService.createDocFolder(docFolderCreateDTO);
             List<DocPushItemParam> items = param.getItems();
             if (items != null) {
@@ -234,7 +239,7 @@ public class DocApi {
                     if (StringUtils.isEmpty(item.getAuthor())) {
                         item.setAuthor(folder.getAuthor());
                     }
-                    this.pushDocItem(item, context, pid);
+                    this.pushDocItem(item, context, pid, lockedDocIds);
                 }
             }
         } else {
@@ -242,6 +247,10 @@ public class DocApi {
             docInfoDTO.setModuleId(moduleId);
             docInfoDTO.setParentId(parentId);
             formatUrl(docInfoDTO);
+            // 被锁住
+            if (lockedDocIds.contains(docInfoDTO.buildDataId())) {
+                return;
+            }
             docInfoService.doPushSaveDocInfo(docInfoDTO, user);
         }
     }

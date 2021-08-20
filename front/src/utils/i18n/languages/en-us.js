@@ -366,7 +366,11 @@ const MAPPING = {
   'expand': 'Expand',
   'collapse': 'Collapse',
   'composeProject': 'Compose Project',
-  'setting': 'Setting'
+  'setting': 'Setting',
+  'lockDoc': 'Lock Doc',
+  'lock': 'Lock',
+  'unlock': 'Unlock',
+  'lockDocDesc': 'Locked doc can\'t be modified by push.'
 
 }
 
