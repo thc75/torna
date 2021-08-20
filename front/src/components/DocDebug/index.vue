@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <el-col :span="24-rightSpanSize">
         <div v-if="currentItem.debugEnvs.length > 0">
-          <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
+          <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugId" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
             <el-radio-button
               v-for="hostConfig in currentItem.debugEnvs"
               :key="hostConfig.id"
@@ -339,6 +339,7 @@ export default {
         { type: 'file', label: $ts('file') }
       ],
       debugEnv: '',
+      debugId: '',
       resultActive: 'result',
       sendLoading: false,
       result: {
@@ -383,19 +384,20 @@ export default {
       const debugEnv = this.getAttr(HOST_KEY) || ''
       this.changeHostEnv(debugEnv)
     },
-    changeHostEnv(debugEnv) {
+    changeHostEnv(debugId) {
       const item = this.currentItem
       const debugEnvs = item.debugEnvs
       if (debugEnvs.length === 0) {
         this.requestUrl = item.url
         return
       }
-      const debugConfigs = debugEnvs.filter(row => row.id === debugEnv)
+      const debugConfigs = debugEnvs.filter(row => row.id === debugId || row.configKey === debugId)
       const debugConfig = debugConfigs.length === 0 ? debugEnvs[0] : debugConfigs[0]
       const baseUrl = debugConfig.configValue
       this.requestUrl = get_effective_url(baseUrl, item.url)
-      this.setAttr(HOST_KEY, debugEnv)
-      this.debugEnv = debugEnv
+      this.debugEnv = debugConfig.configKey
+      this.debugId = debugConfig.id
+      this.setAttr(HOST_KEY, this.debugId)
       this.loadProps()
     },
     bindRequestParam(item) {
@@ -559,10 +561,7 @@ export default {
       const formatData = (arr) => {
         const data = {}
         arr.forEach(row => {
-          // 全局属性不加入
-          if (!row.global) {
-            data[row.name] = row.example
-          }
+          data[row.name] = row.example
         })
         return data
       }
@@ -580,10 +579,11 @@ export default {
           delete props[key]
         }
       }
-      const propsData = {}
-      propsData[this.debugEnv] = {
-        debugData: props
+      const debugDataStr = JSON.stringify(props)
+      const propsData = {
+        debugData: debugDataStr
       }
+      propsData[this.debugId] = debugDataStr
       const data = {
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
@@ -597,13 +597,12 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG
       }
       this.get('/prop/get', data, resp => {
-        const propsData = resp.data
-        const envDataStr = propsData[this.debugEnv]
-        if (!envDataStr) {
+        const respData = resp.data
+        const debugData = respData[this.debugId] || respData.debugData
+        if (!debugData) {
           return
         }
-        const propsObj = JSON.parse(envDataStr)
-        const props = propsObj.debugData
+        const props = JSON.parse(debugData)
         const setProp = (params, data) => {
           if (data && Object.keys(data).length > 0 && params) {
             params.forEach(row => {
