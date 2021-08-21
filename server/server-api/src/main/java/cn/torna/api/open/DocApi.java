@@ -283,7 +283,7 @@ public class DocApi {
         if (StringUtils.hasText(url) && !CollectionUtils.isEmpty(contentChangedDocs)) {
             String names = contentChangedDocs.stream()
                     .map(DocInfoDTO::getName)
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining("、"));
             String content = String.format(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue(), names);
             DingdingWebHookBody dingdingWebHookBody = DingdingWebHookBody.create(content);
             try {
