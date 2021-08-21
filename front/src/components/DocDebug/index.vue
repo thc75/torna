@@ -561,10 +561,14 @@ export default {
       const formatData = (arr) => {
         const data = {}
         arr.forEach(row => {
-          data[row.name] = row.example
+          // 全局属性不加入
+          if (!row.global) {
+            data[row.name] = row.example
+          }
         })
         return data
       }
+      console.log(this.headerData)
       const props = {
         isProxy: this.isProxy,
         headerData: formatData(this.headerData),

@@ -51,9 +51,8 @@ public class ConfigController implements InitializingBean {
     @GetMapping("/config/adminsetting")
     public Result<AdminConfigVO> getAdminConfig() {
         AdminConfigVO adminConfigVO = new AdminConfigVO();
-        EnvironmentKeys registerEnable = EnvironmentKeys.REGISTER_ENABLE;
-        ConfigItemVO regEnable = AdminConfigVO.buildItem(registerEnable.getKey(), registerEnable.getValue());
-        adminConfigVO.setRegEnable(regEnable);
+        adminConfigVO.setRegEnable(AdminConfigVO.buildItem(EnvironmentKeys.REGISTER_ENABLE));
+        adminConfigVO.setDingdingWebhookUrl(AdminConfigVO.buildItem(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_URL));
         return Result.ok(adminConfigVO);
     }
 

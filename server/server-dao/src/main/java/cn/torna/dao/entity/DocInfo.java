@@ -27,6 +27,8 @@ public class DocInfo {
     /** 唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name), 数据库字段：data_id */
     private String dataId;
 
+    private String md5;
+
     /** 文档名称, 数据库字段：name */
     private String name;
 

@@ -39,6 +39,11 @@ public enum EnvironmentKeys {
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_NICKNAME("torna.login.third-party.oauth.key.result-nickname"),
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_EMAIL("torna.login.third-party.oauth.key.result-email"),
     LOGIN_THIRD_PARTY_OAUTH_PARSER_CLASS_NAME("torna.login.third-party.oauth.parser-class-name", "cn.torna.service.login.oauth.DefaultAuthCustomResultParser"),
+
+    /** 推送钉钉webhook */
+    PUSH_DINGDING_WEBHOOK_URL("torna.push.dingding-webhook-url"),
+    /** 变更文档内容模板 */
+    PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "文档[%s]内容已变更")
     ;
 
     private final String key;

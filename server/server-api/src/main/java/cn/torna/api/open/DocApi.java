@@ -1,6 +1,7 @@
 package cn.torna.api.open;
 
 import cn.torna.api.bean.ApiUser;
+import cn.torna.api.bean.PushContext;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.CategoryAddParam;
 import cn.torna.api.open.param.CategoryUpdateParam;
@@ -14,6 +15,9 @@ import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.api.open.result.DocInfoDetailResult;
 import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.DingdingWebHookBody;
+import cn.torna.common.bean.EnvironmentKeys;
+import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
@@ -28,6 +32,7 @@ import cn.torna.service.ModuleConfigService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.MessageDTO;
 import com.alibaba.fastjson.JSON;
@@ -41,6 +46,7 @@ import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +59,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -158,7 +165,8 @@ public class DocApi {
         String token = context.getToken();
         long moduleId = context.getModuleId();
         log.info("收到文档推送，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId);
-        List<String> lockedDocIds = docInfoService.listLockedDataIds(moduleId);
+        List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
+        PushContext pushContext = new PushContext(docMetas, new ArrayList<>());
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
                 // 设置调试环境
@@ -175,10 +183,12 @@ public class DocApi {
                     this.deleteOpenAPIModuleDocs(moduleId, user.getUserId());
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
-                    this.pushDocItem(detailPushParam, context, 0L, lockedDocIds);
+                    this.pushDocItem(detailPushParam, context, 0L, pushContext);
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
+                // 处理修改过的文档
+                processModifiedDocs(pushContext);
                 return null;
             }, e -> {
                 log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
@@ -206,9 +216,10 @@ public class DocApi {
         userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
-    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, List<String> lockedDocIds) {
+    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
+        List<DocMeta> docMetas = pushContext.getDocMetas();
         if (Booleans.isTrue(param.getIsFolder())) {
             DocInfo folder;
             Map<String, Object> props = null;
@@ -226,7 +237,7 @@ public class DocApi {
             docFolderCreateDTO.setAuthor(param.getAuthor());
             docFolderCreateDTO.setOrderIndex(param.getOrderIndex());
             // 被锁住
-            if (lockedDocIds.contains(docFolderCreateDTO.buildDataId())) {
+            if (DocInfoService.isLocked(docFolderCreateDTO.buildDataId(), docMetas)) {
                 return;
             }
             folder = docInfoService.createDocFolder(docFolderCreateDTO);
@@ -239,7 +250,7 @@ public class DocApi {
                     if (StringUtils.isEmpty(item.getAuthor())) {
                         item.setAuthor(folder.getAuthor());
                     }
-                    this.pushDocItem(item, context, pid, lockedDocIds);
+                    this.pushDocItem(item, context, pid, pushContext);
                 }
             }
         } else {
@@ -248,12 +259,45 @@ public class DocApi {
             docInfoDTO.setParentId(parentId);
             formatUrl(docInfoDTO);
             // 被锁住
-            if (lockedDocIds.contains(docInfoDTO.buildDataId())) {
+            if (DocInfoService.isLocked(docInfoDTO.buildDataId(), docMetas)) {
                 return;
             }
+            doDocModifyProcess(docInfoDTO, pushContext);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user);
         }
     }
+
+    protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
+        String md5 = DigestUtils.md5Hex(JSON.toJSONString(docInfoDTO));
+        docInfoDTO.setMd5(md5);
+        boolean contentChanged = DocInfoService.isContentChanged(docInfoDTO.buildDataId(), md5, pushContext.getDocMetas());
+        // 文档内容被修改，做相关处理
+        if (contentChanged) {
+            pushContext.addChangedDoc(docInfoDTO);
+        }
+    }
+
+    private void processModifiedDocs(PushContext pushContext) {
+        String url = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_URL.getValue();
+        List<DocInfoDTO> contentChangedDocs = pushContext.getContentChangedDocs();
+        if (StringUtils.hasText(url) && !CollectionUtils.isEmpty(contentChangedDocs)) {
+            String names = contentChangedDocs.stream()
+                    .map(DocInfoDTO::getName)
+                    .collect(Collectors.joining(","));
+            String content = String.format(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue(), names);
+            DingdingWebHookBody dingdingWebHookBody = DingdingWebHookBody.create(content);
+            try {
+                // 推送钉钉机器人
+                String result = HttpHelper.postJson(url, JSON.toJSONString(dingdingWebHookBody))
+                        .execute()
+                        .asString();
+                log.info("文档变更，推送钉钉机器人, url:{}, content:{}, 推送结果:{}", url, content, result);
+            } catch (Exception e) {
+                log.error("推送钉钉失败, url:{}", url, e);
+            }
+        }
+    }
+
 
     private void setCommonErrorCodes(long moduleId, List<CodeParamPushParam> commonErrorCodes) {
         if (CollectionUtils.isEmpty(commonErrorCodes)) {

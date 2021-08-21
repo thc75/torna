@@ -5,6 +5,10 @@
         {{ space.name }}
       </el-option>
     </el-select>
+    <el-radio-group v-model="expandAllTrigger" size="mini" style="padding-bottom: 10px;" @change="onTriggerStatus">
+      <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
+      <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
+    </el-radio-group>
     <div class="menu-tree">
       <el-input
         v-show="treeData.length > 0"
@@ -19,6 +23,7 @@
         ref="tree"
         :data="treeRows"
         :props="defaultProps"
+        :default-expand-all="expandAll"
         :highlight-current="true"
         :expand-on-click-node="true"
         :default-expanded-keys="expandKeys"
@@ -90,6 +95,7 @@ export default {
       docIdMap: {},
       spaceData: [],
       expandKeys: [],
+      expandAllTrigger: false,
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -105,9 +111,13 @@ export default {
       }
       search = search.toLowerCase()
       return this.searchRow(search, this.treeData, this.searchContent, this.isFolder)
+    },
+    expandAll() {
+      return (this.getAttr(this.getTriggerStatusKey()) || 'false') === 'true'
     }
   },
   mounted() {
+    this.expandAllTrigger = this.expandAll
     if (this.loadInit) {
       this.init()
     }
@@ -169,6 +179,13 @@ export default {
       this.onSpaceChange(spaceId)
       this.loadMenu(spaceId)
     },
+    onTriggerStatus(val) {
+      this.setAttr(this.getTriggerStatusKey(), val)
+      location.reload()
+    },
+    getTriggerStatusKey() {
+      return `torna.doc.view.tree.trigger`
+    },
     setCurrentNode(currentNode) {
       if (currentNode) {
         const tree = this.$refs.tree
@@ -218,7 +235,7 @@ export default {
 </script>
 <style scoped>
 .menu-tree {
-  padding: 10px;
+  padding: 0 10px;
   font-size: 14px !important;
 }
 .space-select {

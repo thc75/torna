@@ -102,6 +102,9 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private Byte moduleType;
 
+    @JSONField(serialize = false)
+    private String md5;
+
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
     private List<DocParamDTO> queryParams;

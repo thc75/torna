@@ -72,6 +72,8 @@ public class DocParamDTO {
     /**  数据库字段：gmt_modified */
     private Date gmtModified;
 
+    private boolean global;
+
     private List<DocParamDTO> children;
 
 }

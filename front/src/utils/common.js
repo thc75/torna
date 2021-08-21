@@ -310,9 +310,6 @@ export function init_docInfo(data) {
 export function init_docInfo_view(data) {
   if (data.isUseGlobalHeaders) {
     const globalHeaders = data.globalHeaders || []
-    globalHeaders.forEach(param => {
-      param.global = true
-    })
     const hParams = data.headerParams.filter(param => {
       // same header
       for (const globalHeader of globalHeaders) {
