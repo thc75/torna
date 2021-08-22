@@ -623,14 +623,14 @@ Object.assign(Vue.prototype, {
     }
     const ret = []
     for (const row of rows) {
+      // 找到分类
       if (folderHandler(row)) {
-        // 找到分类
         if (searchHandler(search, row)) {
           ret.push(row)
         } else {
           // 分类名字没找到，需要从子文档中找
-          const children = row.children || []
-          const searchedChildren = this.searchRow(search, children, searchHandler, folderHandler)
+          const children = row.children || [];
+          const searchedChildren = this.searchRow(search, children, searchHandler, folderHandler);
           // 如果子文档中有
           if (searchedChildren && searchedChildren.length > 0) {
             const rowCopy = Object.assign({}, row)

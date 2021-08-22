@@ -87,7 +87,7 @@ public class UpgradeService {
             );
             addColumn("doc_info",
                     "md5",
-                    "ALTER TABLE `doc_info` ADD COLUMN `md5` varchar(32) NOT NULL DEFAULT '' COMMENT '文档内容的md5值' AFTER `data_id"
+                    "ALTER TABLE `doc_info` ADD COLUMN `md5` varchar(32) NOT NULL DEFAULT '' COMMENT '文档内容的md5值' AFTER `data_id`"
             );
         }
     }
