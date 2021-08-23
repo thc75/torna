@@ -1,20 +1,36 @@
 package cn.torna.service;
 
+import cn.torna.common.interfaces.IConfig;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.SystemConfig;
 import cn.torna.dao.mapper.SystemConfigMapper;
 import cn.torna.service.dto.SystemConfigDTO;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author tanghc
  */
 @Service
-public class SystemConfigService extends BaseService<SystemConfig, SystemConfigMapper> {
+public class SystemConfigService extends BaseService<SystemConfig, SystemConfigMapper> implements IConfig, InitializingBean {
+
+    // key: configKey, value: configValue
+    private final LoadingCache<String, Optional<String>> configCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(15, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, Optional<String>>() {
+        @Override
+        public Optional<String> load(String key) throws Exception {
+            return Optional.ofNullable(getConfigValue(key, null));
+        }
+    });
 
     public void setConfig(String key, String value) {
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
@@ -34,6 +50,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
             CopyUtil.copyPropertiesIgnoreNull(systemConfigDTO, systemConfig);
             this.update(systemConfig);
         }
+        configCache.invalidate(systemConfigDTO.getConfigKey());
     }
 
     public String getConfigValue(String key, String defaultValue) {
@@ -44,4 +61,16 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
                 .orElse(defaultValue);
     }
 
+    @Override
+    public String getConfig(String key) {
+        return configCache.getUnchecked(key).orElse(null);
+    }
+
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.listAll().forEach(systemConfig -> {
+            configCache.put(systemConfig.getConfigKey(), Optional.of(systemConfig.getConfigValue()));
+        });
+    }
 }

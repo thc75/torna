@@ -84,6 +84,8 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private Byte isDeleted;
 
+    private Byte isLocked;
+
     private String remark;
 
     private Integer orderIndex;
@@ -99,6 +101,9 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DebugHostDTO> debugEnvs;
 
     private Byte moduleType;
+
+    @JSONField(serialize = false)
+    private String md5;
 
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;

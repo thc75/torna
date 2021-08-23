@@ -66,6 +66,16 @@
               :inactive-value="0"
             />
           </el-form-item>
+          <el-form-item :label="$ts('lockDoc')">
+            <el-switch
+              v-model="docInfo.isLocked"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              :active-value="1"
+              :inactive-value="0"
+            />
+            <span class="info-tip">{{ $ts('lockDocDesc') }}</span>
+          </el-form-item>
           <el-form-item :label="$ts('orderIndex')">
             <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
           </el-form-item>
@@ -257,6 +267,7 @@ export default {
         requestArrayType: 'object',
         responseArrayType: 'object',
         isShow: 1,
+        isLocked: 0,
         pathParams: [],
         headerParams: [],
         queryParams: [],

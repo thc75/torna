@@ -5,6 +5,10 @@
         {{ space.name }}
       </el-option>
     </el-select>
+    <el-radio-group v-model="expandAll" size="mini" style="padding-bottom: 10px;" @change="onTriggerStatus">
+      <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
+      <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
+    </el-radio-group>
     <div class="menu-tree">
       <el-input
         v-show="treeData.length > 0"
@@ -90,6 +94,7 @@ export default {
       docIdMap: {},
       spaceData: [],
       expandKeys: [],
+      expandAll: false,
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -99,15 +104,12 @@ export default {
   },
   computed: {
     treeRows() {
-      let search = this.filterText.trim()
-      if (!search) {
-        return this.treeData
-      }
-      search = search.toLowerCase()
-      return this.searchRow(search, this.treeData, this.searchContent, this.isFolder)
+      const search = this.filterText.trim().toLowerCase()
+      return this.searchDoc(search, this.treeData, this.searchContent, this.isFolder)
     }
   },
   mounted() {
+    this.expandAll = (this.getAttr(this.getTriggerStatusKey()) || 'false') === 'true'
     if (this.loadInit) {
       this.init()
     }
@@ -124,8 +126,12 @@ export default {
         })
       }
     },
+    reloadMenu() {
+      this.loadMenu(this.currentSpaceId)
+    },
     loadMenu(spaceId) {
       if (spaceId) {
+        this.expandKeys = []
         this.get('/doc/view/data', { spaceId: spaceId }, resp => {
           const data = resp.data
           this.initDocMap(data)
@@ -135,6 +141,63 @@ export default {
             this.setCurrentNode(currentNode)
           })
         })
+      }
+    },
+    searchDoc(search, rows, searchHandler, folderHandler) {
+      if (search.length === 0) {
+        this.addExpandKeys(rows)
+        return rows
+      }
+      if (!folderHandler) {
+        folderHandler = (row) => {
+          return row.isFolder === 1
+        }
+      }
+      const ret = []
+      for (const row of rows) {
+        // 找到分类
+        if (folderHandler(row)) {
+          this.addExpandKey(row)
+          if (searchHandler(search, row)) {
+            ret.push(row)
+          } else {
+            // 分类名字没找到，需要从子文档中找
+            const children = row.children || []
+            const searchedChildren = this.searchDoc(search, children, searchHandler, folderHandler)
+            // 如果子文档中有
+            if (searchedChildren && searchedChildren.length > 0) {
+              const rowCopy = Object.assign({}, row)
+              rowCopy.children = searchedChildren
+              ret.push(rowCopy)
+            }
+          }
+        } else {
+          // 不是分类且被找到
+          if (searchHandler(search, row)) {
+            ret.push(row)
+          }
+        }
+      }
+      return ret
+    },
+    addExpandKeys(rows) {
+      if (this.expandAll) {
+        rows.forEach(row => {
+          if (row.type === this.getEnums().FOLDER_TYPE.TYPE_FOLDER) {
+            this.addExpandKey(row)
+          }
+          const children = row.children
+          if (children && children.length > 0) {
+            this.addExpandKeys(children)
+          }
+        })
+      }
+    },
+    addExpandKey(row) {
+      if (this.expandAll) {
+        if (row.type === this.getEnums().FOLDER_TYPE.TYPE_FOLDER) {
+          this.expandKeys.push(row.id)
+        }
       }
     },
     initDocMap(data) {
@@ -168,6 +231,13 @@ export default {
     onSpaceSelect(spaceId) {
       this.onSpaceChange(spaceId)
       this.loadMenu(spaceId)
+    },
+    onTriggerStatus(val) {
+      this.setAttr(this.getTriggerStatusKey(), val)
+      this.reloadMenu()
+    },
+    getTriggerStatusKey() {
+      return `torna.doc.view.tree.trigger`
     },
     setCurrentNode(currentNode) {
       if (currentNode) {
@@ -218,7 +288,7 @@ export default {
 </script>
 <style scoped>
 .menu-tree {
-  padding: 10px;
+  padding: 0 10px;
   font-size: 14px !important;
 }
 .space-select {

@@ -424,6 +424,18 @@ public class HttpHelper {
          * http OPTIONS
          */
         OPTIONS,
+        /**
+         * http PATCH
+         */
+        PATCH,
+        /**
+         * http TRACE
+         */
+        TRACE,
+        /**
+         * http CONNECT
+         */
+        CONNECT,
         ;
 
         private HTTPMethod() {

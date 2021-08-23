@@ -233,6 +233,13 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/admin/user/index'),
         meta: { title: '用户管理' }
+      },
+      {
+        path: 'setting',
+        name: 'Setting',
+        hidden: true,
+        component: () => import('@/views/admin/setting/index'),
+        meta: { title: '系统设置' }
       }
     ]
   },

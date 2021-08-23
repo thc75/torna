@@ -19,24 +19,30 @@ import cn.torna.service.dto.DebugHostDTO;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
+import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
+import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -185,6 +191,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setGlobalParams(CopyUtil.copyList(globalParams, DocParamDTO::new));
         docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
         docInfoDTO.getErrorCodeParams().addAll(CopyUtil.copyList(globalErrorCodes, DocParamDTO::new));
+        docInfoDTO.getGlobalHeaders().forEach(docParamDTO -> docParamDTO.setGlobal(true));
         return docInfoDTO;
     }
 
@@ -213,6 +220,39 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         return docInfo;
+    }
+
+    public List<DocMeta> listDocMeta(long moduleId) {
+        Query query = new Query().eq("module_id", moduleId);
+        return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "is_locked", "md5"), query, DocMeta.class);
+    }
+
+    public static boolean isLocked(String dataId, List<DocMeta> docMetas) {
+        if (CollectionUtils.isEmpty(docMetas)) {
+            return false;
+        }
+        for (DocMeta docMeta : docMetas) {
+            if (Objects.equals(dataId, docMeta.getDataId()) && docMeta.getIsLocked() == Booleans.TRUE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isContentChanged(String dataId, String newMd5, List<DocMeta> docMetas) {
+        if (CollectionUtils.isEmpty(docMetas)) {
+            return false;
+        }
+        for (DocMeta docMeta : docMetas) {
+            // 为空的不校验
+            if (StringUtils.isEmpty(docMeta.getMd5())) {
+                continue;
+            }
+            if (Objects.equals(dataId, docMeta.getDataId()) && !Objects.equals(newMd5, docMeta.getMd5())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
@@ -404,7 +444,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("create_mode", OperationMode.OPEN.getType())
-                .eq("creator_id", userId);
+                .eq("creator_id", userId)
+                .eq("is_locked", Booleans.FALSE);
         // 查询出文档id
         List<Long> idList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
         if (CollectionUtils.isEmpty(idList)) {
