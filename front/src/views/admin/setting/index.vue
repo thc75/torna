@@ -12,7 +12,7 @@
           @change="onConfigChange(config.regEnable)"
         />
       </el-form-item>
-      <el-form-item label="文档变更钉钉推送">
+      <el-form-item label="文档变更钉钉推送" style="display: none;">
         <el-input v-model="config.dingdingWebhookUrl.value" placeholder="输入钉钉机器人Webhook地址" clearable @change="onConfigChange(config.dingdingWebhookUrl)" />
         <el-link type="primary" href="https://developers.dingtalk.com/document/robots/custom-robot-access" target="_blank">机器人设置</el-link>
         <span class="info-tip">
