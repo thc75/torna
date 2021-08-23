@@ -151,7 +151,7 @@
                   :command="() => { onDocLock(scope.row) }"
                 >
                   <el-tooltip placement="top" :content="$ts('lockDocDesc')">
-                    <span>{{ $ts('lock') }}</span>
+                    <span>{{ $ts('lockOn') }}</span>
                   </el-tooltip>
                 </el-dropdown-item>
                 <el-dropdown-item
