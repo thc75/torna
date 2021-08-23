@@ -368,7 +368,7 @@ const MAPPING = {
   'composeProject': 'Compose Project',
   'setting': 'Setting',
   'lockDoc': 'Lock Doc',
-  'lock': 'Lock',
+  'lockOn': 'Lock',
   'unlock': 'Unlock',
   'lockDocDesc': 'Locked doc can\'t be modified by push.'
 
