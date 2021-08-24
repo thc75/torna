@@ -2,7 +2,7 @@
 
 ## 1.10.0
 
-- 【修复】理员模块无法删除问题 [I3I2B1](https://gitee.com/durcframework/torna/issues/I3I2B1) [I3ZG1Q](https://gitee.com/durcframework/torna/issues/I3ZG1Q)
+- 【修复】模块无法删除问题 [I3I2B1](https://gitee.com/durcframework/torna/issues/I3I2B1) [I3ZG1Q](https://gitee.com/durcframework/torna/issues/I3ZG1Q)
 - 【修复】请求支持PATCH方法 [I46MAP](https://gitee.com/durcframework/torna/issues/I46MAP)
 - 【优化】用户管理的优化 [I424OB](https://gitee.com/durcframework/torna/issues/I424OB )
 - 【优化】有重复header优先使用公共的 [I3ZO8R](https://gitee.com/durcframework/torna/issues/I3ZO8R)
