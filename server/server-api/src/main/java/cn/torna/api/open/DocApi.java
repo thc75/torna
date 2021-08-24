@@ -188,7 +188,8 @@ public class DocApi {
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
                 // 处理修改过的文档
-                processModifiedDocs(pushContext);
+                // TODO: 完善钉钉推送
+                //processModifiedDocs(pushContext);
                 return null;
             }, e -> {
                 log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
