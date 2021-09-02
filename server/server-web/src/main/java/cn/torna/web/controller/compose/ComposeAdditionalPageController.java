@@ -1,6 +1,7 @@
 package cn.torna.web.controller.compose;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.exception.BizException;
@@ -22,12 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * <p></p>
- * 
- * @description
+ * 附加页
  * @author tanghc
- * @date 2021-07-18 19:17:49
- * @version 1.0.0
  */
 @RestController
 @RequestMapping("compose/additional")
@@ -54,6 +51,7 @@ public class ComposeAdditionalPageController {
     }
 
     @GetMapping("/listvisible")
+    @NoLogin
     public Result<List<ComposeAdditionalPageVO>> list(@HashId Long projectId) {
         Query query = new Query()
                 .eq("project_id", projectId)
@@ -86,6 +84,7 @@ public class ComposeAdditionalPageController {
      * @return 返回记录，没有返回null
      */
     @GetMapping("get")
+    @NoLogin
     public Result<ComposeAdditionalPageVO> getById(@HashId Long id) {
         Query query = new Query()
                 .eq("id", id)

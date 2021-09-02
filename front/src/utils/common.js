@@ -335,7 +335,11 @@ export function init_docInfo_view(data) {
         }
       })
     }
-    data.requestParams = data.globalParams.concat(data.requestParams)
+    if (data.httpMethod && data.httpMethod.toLowerCase() === 'get') {
+      data.queryParams = data.globalParams.concat(data.queryParams)
+    } else {
+      data.requestParams = data.globalParams.concat(data.requestParams)
+    }
   }
   // 如果使用公共返回参数
   if (data.isUseGlobalReturns) {
@@ -399,7 +403,11 @@ export function init_docInfo_complete_view(data) {
       data.requestParams = data.globalParams
     } else {
       data.globalParams = convert_tree(data.globalParams)
-      data.requestParams = data.globalParams.concat(data.requestParams)
+      if (data.httpMethod && data.httpMethod.toLowerCase() === 'get') {
+        data.queryParams = data.globalParams.concat(data.queryParams)
+      } else {
+        data.requestParams = data.globalParams.concat(data.requestParams)
+      }
     }
   }
   if (data.isUseGlobalReturns) {
