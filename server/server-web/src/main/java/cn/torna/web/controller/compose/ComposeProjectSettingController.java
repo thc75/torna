@@ -1,6 +1,7 @@
 package cn.torna.web.controller.compose;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
@@ -40,6 +41,7 @@ public class ComposeProjectSettingController {
     }
 
     @GetMapping("/getall")
+    @NoLogin
     public Result<ComposeProjectSettingVO> getall(@HashId Long id) {
         ComposeProject composeProject = composeProjectService.getById(id);
         ComposeProjectSettingVO settingVO = CopyUtil.copyBean(composeProject, ComposeProjectSettingVO::new);

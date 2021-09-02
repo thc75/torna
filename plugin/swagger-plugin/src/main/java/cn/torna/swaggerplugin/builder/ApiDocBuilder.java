@@ -113,7 +113,16 @@ public class ApiDocBuilder {
      * 从api参数中构建
      */
     protected List<FieldDocInfo> buildFieldDocInfosByType(Class<?> clazz, boolean root) {
-        final Class<?> targetClass = PluginUtil.isCollectionOrArray(clazz) ? getCollectionElementClass(clazz) : clazz;
+        Class<?> targetClassRef = PluginUtil.isCollectionOrArray(clazz) ? getCollectionElementClass(clazz) : clazz;
+
+        // 查找泛型
+        if(targetClassRef.getName().equals("org.springframework.http.ResponseEntity")){
+            Field body = ReflectionUtils.findField(targetClassRef, "body");
+            String typeName = ((TypeVariable<?>) body.getGenericType()).getName();
+            targetClassRef = getGenericParamClass(targetClassRef, typeName);
+        }
+
+        final Class<?> targetClass = targetClassRef;
         // 如果是基本类型
         if (!PluginUtil.isPojo(targetClass)) {
             return Collections.emptyList();
@@ -163,6 +172,9 @@ public class ApiDocBuilder {
                 child.setExample(apiParamInfo.getExample());
                 child.setDescription(apiParamInfo.getValue());
                 child.setOrderIndex(apiParamInfo.getPosition());
+                if(!StringUtils.isEmpty(apiParamInfo.getName())){
+                    child.setName(apiParamInfo.getName());
+                }
             }
         }
     }
