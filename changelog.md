@@ -1,5 +1,13 @@
 # 更新日志
 
+## 1.10.1
+
+- 【修复】修复聚合项目预览页登录失败BUG
+- 【优化】优化swagger插件 [PR](https://gitee.com/durcframework/torna/pulls/15)
+- 【优化】优化聚合项目预览页左侧树展示
+- 【优化】优化聚合项目公共参数展示
+- 【优化】优化文档预览页展示
+
 ## 1.10.0
 
 - 【修复】模块无法删除问题 [I3I2B1](https://gitee.com/durcframework/torna/issues/I3I2B1) [I3ZG1Q](https://gitee.com/durcframework/torna/issues/I3ZG1Q)
