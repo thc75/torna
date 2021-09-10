@@ -719,11 +719,13 @@ export default {
       return headers[key] || headers[key.toLowerCase()]
     },
     onBodyBlur() {
-      if (this.bodyText && this.contentType === 'application/json') {
+      if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
         try {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
-        } catch (e) {}
+        } catch (e) {
+          console.log('format json error', e)
+        }
       }
     },
     formatResponse(contentType, stringBody) {
