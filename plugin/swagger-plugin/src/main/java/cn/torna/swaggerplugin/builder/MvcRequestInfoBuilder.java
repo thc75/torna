@@ -14,9 +14,6 @@ import java.lang.reflect.Parameter;
 
 /**
  * @author tanghc
- * @version 1.0.0
- * @description
- * @date 2021/7/14/014
  */
 public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
 
@@ -38,8 +35,13 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
         RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
         if (requestMapping != null) {
             String[] value = requestMapping.value();
-            String path = '/' + StringUtils.trimLeadingCharacter(value[0], '/');
-            return basePath + path;
+            if (value.length > 0) {
+                String path = '/' + StringUtils.trimLeadingCharacter(value[0], '/');
+                return basePath + path;
+            } else {
+                // 如果没有指定方法上的RequestMapping.value，则使用类上面的RequestMapping.value
+                return basePath;
+            }
         } else {
             return method.toString();
         }
