@@ -2,6 +2,8 @@
 
 ## 更新日志
 
+- 1.2.2：修复@RequestMapping注解没value属性值会报错  https://gitee.com/durcframework/torna/issues/I49DC0
+- 1.2.1：优化org.springframework.http.ResponseEntity的swagger解析逻辑及swagger中name字段优化  https://gitee.com/durcframework/torna/pulls/15
 - 1.2.0：优化推送，支持dubbo
 - 1.1.2：解决循环依赖问题
 - 1.1.1：支持多环境配置
