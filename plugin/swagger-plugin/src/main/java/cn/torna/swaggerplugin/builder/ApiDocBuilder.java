@@ -149,7 +149,9 @@ public class ApiDocBuilder {
                 String typeName = ((TypeVariable<?>) genericType).getName();
                 realClass = getGenericParamClass(targetClass, typeName);
             }
-            if (realClass != null) {
+            if (fieldType.isEnum()) {
+                fieldDocInfo = buildFieldDocInfoByEnumClass((Class<Enum>) fieldType, apiModelProperty, field);
+            } else if (realClass != null) {
                 fieldDocInfo = buildFieldDocInfoByClass(apiModelProperty, realClass, field);
             } else if (PluginUtil.isPojo(fieldType)) {
                 // 如果是自定义类
@@ -212,9 +214,6 @@ public class ApiDocBuilder {
     protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field) {
         ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Class<?> fieldType = field.getType();
-        if (fieldType.isEnum()) {
-            return buildFieldDocInfoByEnumClass((Class<Enum>) fieldType, apiModelPropertyWrapper);
-        }
         String type = getFieldType(field, apiModelPropertyWrapper);
         // 优先使用注解中的字段名
         String fieldName = getFieldName(field, apiModelPropertyWrapper);
@@ -267,9 +266,6 @@ public class ApiDocBuilder {
         ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(field);
-        if (clazz.isEnum()) {
-            return buildFieldDocInfoByEnumClass((Class<Enum>) clazz, apiModelPropertyWrapper);
-        }
         String name = getFieldName(field, apiModelPropertyWrapper);
         String type = PluginUtil.getDataType(clazz);
         String description = apiModelPropertyWrapper.getDescription();
@@ -299,7 +295,8 @@ public class ApiDocBuilder {
         return fieldDocInfo;
     }
 
-    protected FieldDocInfo buildFieldDocInfoByEnumClass(Class<Enum> enumClass, ApiModelPropertyWrapper apiModelPropertyWrapper) {
+    protected FieldDocInfo buildFieldDocInfoByEnumClass(Class<Enum> enumClass, ApiModelProperty apiModelProperty, Field field) {
+        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Enum[] enumConstants = enumClass.getEnumConstants();
         FieldDocInfo fieldDocInfo = new FieldDocInfo();
         fieldDocInfo.setName(apiModelPropertyWrapper.getName());
