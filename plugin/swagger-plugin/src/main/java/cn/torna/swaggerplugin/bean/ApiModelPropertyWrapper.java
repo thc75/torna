@@ -3,6 +3,7 @@ package cn.torna.swaggerplugin.bean;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 /**
@@ -10,13 +11,19 @@ import java.util.Optional;
  */
 public class ApiModelPropertyWrapper {
     private final Optional<ApiModelProperty> apiModelPropertyOptional;
+    private final Optional<Field> fieldOptional;
 
-    public ApiModelPropertyWrapper(ApiModelProperty apiModelProperty) {
-        this.apiModelPropertyOptional = Optional.ofNullable(apiModelProperty);
+    public ApiModelPropertyWrapper(ApiModelProperty apiModelPropertyOptional, Field field) {
+        this.apiModelPropertyOptional = Optional.ofNullable(apiModelPropertyOptional);
+        this.fieldOptional = Optional.ofNullable(field);
     }
 
     public String getName() {
-        return apiModelPropertyOptional.map(ApiModelProperty::name).orElse("");
+        String name = apiModelPropertyOptional.map(ApiModelProperty::name).orElse(null);
+        if (StringUtils.isEmpty(name)) {
+            name = fieldOptional.map(Field::getName).orElse("");
+        }
+        return name;
     }
 
     public String getValue() {
@@ -45,6 +52,10 @@ public class ApiModelPropertyWrapper {
     }
 
     public String getDataType() {
-        return apiModelPropertyOptional.map(ApiModelProperty::dataType).orElse("");
+        String dataType = apiModelPropertyOptional.map(ApiModelProperty::dataType).orElse(null);
+        if (StringUtils.isEmpty(dataType)) {
+            dataType = fieldOptional.map(Field::getType).map(Class::getSimpleName).orElse("");
+        }
+        return dataType;
     }
 }

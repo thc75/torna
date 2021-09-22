@@ -120,6 +120,11 @@ public class ApiDocBuilder {
             Field body = ReflectionUtils.findField(targetClassRef, "body");
             String typeName = ((TypeVariable<?>) body.getGenericType()).getName();
             targetClassRef = getGenericParamClass(targetClassRef, typeName);
+            // 没有指定泛型类型
+            if (targetClassRef == null) {
+                System.out.println("Warning: Use ResponseEntity but not specified generic parameter.");
+                return Collections.emptyList();
+            }
         }
 
         final Class<?> targetClass = targetClassRef;
@@ -164,6 +169,7 @@ public class ApiDocBuilder {
         return fieldDocInfos;
     }
 
+
     protected void bindJarClassFields(Class<?> targetClass, List<FieldDocInfo> fieldDocInfos) {
         for (FieldDocInfo child : fieldDocInfos) {
             ApiParamInfo apiParamInfo = this.getApiParamInfo(targetClass.getName(), child.getName());
@@ -204,7 +210,11 @@ public class ApiDocBuilder {
     }
 
     protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field) {
-        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty);
+        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
+        Class<?> fieldType = field.getType();
+        if (fieldType.isEnum()) {
+            return buildFieldDocInfoByEnumClass((Class<Enum>) fieldType, apiModelPropertyWrapper);
+        }
         String type = getFieldType(field, apiModelPropertyWrapper);
         // 优先使用注解中的字段名
         String fieldName = getFieldName(field, apiModelPropertyWrapper);
@@ -220,7 +230,6 @@ public class ApiDocBuilder {
         fieldDocInfo.setDescription(description);
         fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
 
-        Class<?> fieldType = field.getType();
         Type genericType = field.getGenericType();
         Type elementClass = null;
         // 如果有明确的泛型，如List<Order>
@@ -255,9 +264,12 @@ public class ApiDocBuilder {
     }
 
     protected FieldDocInfo buildFieldDocInfoByClass(ApiModelProperty apiModelProperty, Class<?> clazz, Field field) {
-        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty);
+        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(field);
+        if (clazz.isEnum()) {
+            return buildFieldDocInfoByEnumClass((Class<Enum>) clazz, apiModelPropertyWrapper);
+        }
         String name = getFieldName(field, apiModelPropertyWrapper);
         String type = PluginUtil.getDataType(clazz);
         String description = apiModelPropertyWrapper.getDescription();
@@ -284,6 +296,28 @@ public class ApiDocBuilder {
                 : buildFieldDocInfosByType(clazz, false);
         fieldDocInfo.setChildren(children);
 
+        return fieldDocInfo;
+    }
+
+    protected FieldDocInfo buildFieldDocInfoByEnumClass(Class<Enum> enumClass, ApiModelPropertyWrapper apiModelPropertyWrapper) {
+        Enum[] enumConstants = enumClass.getEnumConstants();
+        FieldDocInfo fieldDocInfo = new FieldDocInfo();
+        fieldDocInfo.setName(apiModelPropertyWrapper.getName());
+        fieldDocInfo.setType(DataType.ENUM.getValue());
+        fieldDocInfo.setRequired(Booleans.toValue(apiModelPropertyWrapper.getRequired()));
+        fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
+        List<String> examples = new ArrayList<>(enumConstants.length);
+        for (Enum enumConstant : enumConstants) {
+            examples.add(enumConstant.name());
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        String description = apiModelPropertyWrapper.getDescription();
+        stringBuilder.append(description);
+        if (examples.size() > 0) {
+            stringBuilder.append(" Available values:").append(String.join(", ", examples));
+            fieldDocInfo.setExample(examples.get(0));
+        }
+        fieldDocInfo.setDescription(stringBuilder.toString());
         return fieldDocInfo;
     }
 
