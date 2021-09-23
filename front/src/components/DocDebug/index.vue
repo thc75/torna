@@ -568,7 +568,6 @@ export default {
         })
         return data
       }
-      console.log(this.headerData)
       const props = {
         isProxy: this.isProxy,
         headerData: formatData(this.headerData),
@@ -700,7 +699,7 @@ export default {
         contentDisposition.indexOf('attachment') > -1
       ) {
         const filename = this.getDispositionFilename(contentDisposition)
-        this.downloadFile(filename, response.data)
+        this.downloadFile(filename, response.data, contentType)
       } else {
         let content = ''
         // axios返回data部分
@@ -719,11 +718,13 @@ export default {
       return headers[key] || headers[key.toLowerCase()]
     },
     onBodyBlur() {
-      if (this.bodyText && this.contentType === 'application/json') {
+      if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
         try {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
-        } catch (e) {}
+        } catch (e) {
+          console.log('format json error', e)
+        }
       }
     },
     formatResponse(contentType, stringBody) {
@@ -742,8 +743,9 @@ export default {
         return stringBody
       }
     },
-    downloadFile(filename, buffer) {
-      const url = window.URL.createObjectURL(new Blob([buffer]))
+    downloadFile(filename, buffer, contentType) {
+      const blob = new Blob([buffer])
+      const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', filename)

@@ -85,7 +85,7 @@ public class SwaggerPluginService {
         }
         String basePackage = tornaConfig.getBasePackage();
         if (StringUtils.isEmpty(basePackage)) {
-            throw new IllegalArgumentException("必须指定basePackage");
+            throw new IllegalArgumentException("basePackage can not empty.");
         }
         this.doPush();
     }
@@ -110,7 +110,7 @@ public class SwaggerPluginService {
                 } catch (HiddenException | IgnoreException e) {
                     System.out.println(e.getMessage());
                 } catch (Exception e) {
-                    System.out.printf("构建文档出错, method:%s%n", method);
+                    System.out.printf("Create doc error, method:%s%n", method);
                     throw new RuntimeException(e.getMessage(), e);
                 }
             }, this::match);
@@ -164,17 +164,17 @@ public class SwaggerPluginService {
         request.setAuthor(tornaConfig.getAuthor());
         request.setIsReplace(Booleans.toValue(tornaConfig.getIsReplace()));
         if (tornaConfig.getDebug()) {
-            System.out.println("-------- Torna配置 --------");
+            System.out.println("-------- Torna config --------");
             System.out.println(JSON.toJSONString(tornaConfig, SerializerFeature.PrettyFormat));
-            System.out.println("-------- 推送数据 --------");
+            System.out.println("-------- Push data --------");
             System.out.println(JSON.toJSONString(request));
         }
         // 发送请求
         DocPushResponse response = client.execute(request);
         if (response.isSuccess()) {
-            System.out.println("推送Torna文档成功");
+            System.out.println("Push success");
         } else {
-            System.out.println("推送Torna文档失败，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+            System.out.println("Push error，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
         }
     }
 
@@ -197,10 +197,10 @@ public class SwaggerPluginService {
         ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
         ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
         if (apiOperation.hidden()) {
-            throw new HiddenException("隐藏接口（@ApiOperation.hidden=true）：" + apiOperation.value());
+            throw new HiddenException("Hidden API（@ApiOperation.hidden=true）：" + apiOperation.value());
         }
         if (apiIgnore != null) {
-            throw new IgnoreException("忽略接口（@ApiIgnore）：" + apiOperation.value());
+            throw new IgnoreException("Ignore API（@ApiIgnore）：" + apiOperation.value());
         }
         return doBuildDocItem(requestInfoBuilder);
     }
@@ -525,7 +525,7 @@ public class SwaggerPluginService {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("生成文档参数出错，parameter：" + parameter.toString() + "，method:" + method.toString() + "， msg:" + e.getMessage());
+                System.out.println("Create doc parameters error, parameter：" + parameter.toString() + "，method:" + method.toString() + "， msg:" + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -720,10 +720,10 @@ public class SwaggerPluginService {
         Api api = AnnotationUtils.findAnnotation(controllerClass, Api.class);
         ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
         if (api != null && api.hidden()) {
-            throw new HiddenException("隐藏文档（@Api.hidden=true）：" + api.value());
+            throw new HiddenException("Hidden doc（@Api.hidden=true）：" + api.value());
         }
         if (apiIgnore != null) {
-            throw new IgnoreException("忽略文档（@ApiIgnore）：" + controllerClass.getName());
+            throw new IgnoreException("Ignore doc（@ApiIgnore）：" + controllerClass.getName());
         }
         String name, description;
         int position = 0;
@@ -750,7 +750,7 @@ public class SwaggerPluginService {
     }
 
     public boolean match(Method method) {
-        return isRightPackage(method) && method.getAnnotation(ApiOperation.class) != null;
+        return method.getAnnotation(ApiOperation.class) != null && isRightPackage(method);
     }
 
     private boolean isRightPackage(Method method) {

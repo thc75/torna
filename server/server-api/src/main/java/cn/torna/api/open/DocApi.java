@@ -71,6 +71,8 @@ public class DocApi {
 
     private static final String HTTP = "http:";
     private static final String HTTPS = "https:";
+    private static final char SPLIT = '/';
+    private static final String PREFIX = "://";
 
     private final Object lock = new Object();
 
@@ -343,22 +345,17 @@ public class DocApi {
         if (StringUtils.isEmpty(url)) {
             return url;
         }
-        char split = '/';
         String urlLowerCase = url.toLowerCase();
-        if (urlLowerCase.startsWith(HTTP)) {
-            url = url.substring(HTTP.length());
-            url = StringUtils.trimLeadingCharacter(url, split);
-        } else if (urlLowerCase.startsWith(HTTPS)) {
-            url = url.substring(HTTPS.length());
-            url = StringUtils.trimLeadingCharacter(url, split);
-        } else if (url.charAt(0) != split) {
-            url = split + url;
+        if (urlLowerCase.startsWith(HTTP) || urlLowerCase.startsWith(HTTPS)) {
+            int prefixIndex = urlLowerCase.indexOf(PREFIX);
+            url = url.substring(prefixIndex + PREFIX.length());
+            url = StringUtils.trimLeadingCharacter(url, SPLIT);
+            int index = url.indexOf(SPLIT);
+            if (index > 0) {
+                url = url.substring(index);
+            }
         }
-        int index = url.indexOf(split);
-        if (index > 0) {
-            url = url.substring(index);
-        }
-        return url;
+        return SPLIT + StringUtils.trimLeadingCharacter(url, SPLIT);
     }
 
     @Api(name = "doc.list")
