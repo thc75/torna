@@ -291,6 +291,7 @@ import { get_effective_url, is_array_string, parse_root_array } from '@/utils/co
 
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
+const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
@@ -695,20 +696,27 @@ export default {
       const contentType = this.getHeaderValue(headers, 'Content-Type') || ''
       const contentDisposition = this.getHeaderValue(headers, 'Content-Disposition') || ''
       // 如果是下载文件
-      if (contentType.indexOf('stream') > -1 ||
-        contentDisposition.indexOf('attachment') > -1
-      ) {
+      if (contentType.indexOf('stream') > -1 || contentDisposition.indexOf('attachment') > -1) {
         const filename = this.getDispositionFilename(contentDisposition)
-        this.downloadFile(filename, response.data, contentType)
+        this.downloadFile(filename, response.data)
       } else {
         let content = ''
-        // axios返回data部分
-        const data = response.data
+        let json
+        const arrayBuffer = response.data
+        // 如果是ArrayBuffer
+        if (arrayBuffer && arrayBuffer.toString() === '[object ArrayBuffer]') {
+          if (arrayBuffer.byteLength > 0) {
+            json = TEXT_DECODER.decode(new Uint8Array(arrayBuffer))
+          }
+        } else {
+          // 否则认为是json
+          json = arrayBuffer
+        }
+        // 格式化json
         try {
-          content = this.formatResponse(contentType, data)
+          content = this.formatResponse(contentType, json)
         } catch (e) {
           console.error($ts('parseError'), e)
-          content = response.data
         }
         this.result.content = content
       }
@@ -743,7 +751,7 @@ export default {
         return stringBody
       }
     },
-    downloadFile(filename, buffer, contentType) {
+    downloadFile(filename, buffer) {
       const blob = new Blob([buffer])
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
