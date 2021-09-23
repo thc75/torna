@@ -568,7 +568,6 @@ export default {
         })
         return data
       }
-      console.log(this.headerData)
       const props = {
         isProxy: this.isProxy,
         headerData: formatData(this.headerData),
@@ -700,7 +699,7 @@ export default {
         contentDisposition.indexOf('attachment') > -1
       ) {
         const filename = this.getDispositionFilename(contentDisposition)
-        this.downloadFile(filename, response.data)
+        this.downloadFile(filename, response.data, contentType)
       } else {
         let content = ''
         // axios返回data部分
@@ -744,8 +743,9 @@ export default {
         return stringBody
       }
     },
-    downloadFile(filename, buffer) {
-      const url = window.URL.createObjectURL(new Blob([buffer]))
+    downloadFile(filename, buffer, contentType) {
+      const blob = new Blob([buffer])
+      const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', filename)
