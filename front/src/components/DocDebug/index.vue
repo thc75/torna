@@ -714,7 +714,9 @@ export default {
         }
         // 格式化json
         try {
-          content = this.formatResponse(contentType, json)
+          if (json) {
+            content = this.formatResponse(contentType, json)
+          }
         } catch (e) {
           console.error($ts('parseError'), e)
         }
