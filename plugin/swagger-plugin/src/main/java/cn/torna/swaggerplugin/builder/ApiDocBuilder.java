@@ -311,7 +311,7 @@ public class ApiDocBuilder {
         String description = apiModelPropertyWrapper.getDescription();
         stringBuilder.append(description);
         if (examples.size() > 0) {
-            stringBuilder.append(" Available values:").append(String.join(", ", examples));
+            stringBuilder.append(" values:").append(String.join(", ", examples));
             fieldDocInfo.setExample(examples.get(0));
         }
         fieldDocInfo.setDescription(stringBuilder.toString());
