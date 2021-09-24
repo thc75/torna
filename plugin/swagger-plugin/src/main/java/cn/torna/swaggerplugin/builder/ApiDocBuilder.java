@@ -161,7 +161,7 @@ public class ApiDocBuilder {
             }
             fieldDocInfos.add(fieldDocInfo);
         }, field -> {
-            if (Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
+            if (PluginUtil.isTransientField(field) || Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
                 return false;
             }
             ApiModelProperty apiModelProperty = AnnotationUtils.findAnnotation(field, ApiModelProperty.class);
@@ -229,6 +229,7 @@ public class ApiDocBuilder {
         fieldDocInfo.setDescription(description);
         fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
 
+        boolean isList = PluginUtil.isCollectionOrArray(fieldType);
         Type genericType = field.getGenericType();
         Type elementClass = null;
         // 如果有明确的泛型，如List<Order>
@@ -245,13 +246,26 @@ public class ApiDocBuilder {
         } else if (fieldType.isArray()) {
             elementClass = fieldType.getComponentType();
         }
+
         if (elementClass != null && elementClass != Object.class && elementClass != Void.class) {
-            Class<?> clazz = (Class<?>) elementClass;
-            if (PluginUtil.isPojo(clazz)) {
-                List<FieldDocInfo> fieldDocInfos = isCycle(clazz, field)
-                        ? Collections.emptyList()
-                        : buildFieldDocInfosByType(clazz, false);
-                fieldDocInfo.setChildren(fieldDocInfos);
+            // 如果是嵌套泛型类型，如：List<List<String>>
+            if (PluginUtil.isGenericType(elementClass)) {
+                Type genericRawType = PluginUtil.getGenericRawType(elementClass);
+                if (PluginUtil.isCollectionOrArray((Class<?>) genericRawType)) {
+                    Type genericElType = PluginUtil.getGenericType(elementClass);
+                    if (isList) {
+                        Class<?> elType = (Class<?>) genericElType;
+                        fieldDocInfo.setType("List<List<" + elType.getSimpleName() + ">>");
+                    }
+                }
+            } else {
+                Class<?> clazz = (Class<?>) elementClass;
+                if (PluginUtil.isPojo(clazz)) {
+                    List<FieldDocInfo> fieldDocInfos = isCycle(clazz, field)
+                            ? Collections.emptyList()
+                            : buildFieldDocInfosByType(clazz, false);
+                    fieldDocInfo.setChildren(fieldDocInfos);
+                }
             }
         }
         return fieldDocInfo;
