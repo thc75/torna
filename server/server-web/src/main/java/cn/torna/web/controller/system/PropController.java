@@ -1,6 +1,7 @@
 package cn.torna.web.controller.system;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.service.PropService;
 import cn.torna.web.controller.system.param.PropsParam;
@@ -18,6 +19,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("prop")
+@NoLogin
 public class PropController {
 
     @Autowired

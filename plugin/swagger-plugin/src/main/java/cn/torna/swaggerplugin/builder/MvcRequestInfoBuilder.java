@@ -58,6 +58,9 @@ public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
             return consumeArr[0];
         }
         Parameter[] methodParameters = getMethod().getParameters();
+        if (methodParameters.length == 0) {
+            return "";
+        }
         for (Parameter methodParameter : methodParameters) {
             RequestBody requestBody = methodParameter.getAnnotation(RequestBody.class);
             if (requestBody != null) {

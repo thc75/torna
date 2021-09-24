@@ -10,6 +10,9 @@ import org.springframework.util.ReflectionUtils;
 import sun.reflect.generics.repository.ClassRepository;
 
 import java.beans.PropertyDescriptor;
+import java.beans.Transient;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -64,12 +67,53 @@ public class PluginUtil {
         return true;
     }
 
+    /**
+     * 字段是否被transient关键字修饰或有@Transient注解
+     * @param field
+     * @return 是返回true
+     */
+    public static boolean isTransientField(Field field) {
+        Transient transientAnno = field.getAnnotation(Transient.class);
+        return transientAnno != null || Modifier.isTransient(field.getModifiers());
+    }
+
+    public static <T extends Annotation> boolean isExistAnnotation(Annotation[] annotations, Class<T> annoClass) {
+        if (annotations == null) {
+            return false;
+        }
+        for (Annotation annotation : annotations) {
+            if (annotation.getClass() == annoClass) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * 获取泛型参数类型，如：List{@literal <String> }  返回String
+     * @param type 泛型参数
+     * @return 返回泛型参数类型
+     */
     public static Type getGenericType(Type type) {
         Type[] params = ((ParameterizedType) type).getActualTypeArguments();
         if (params.length == 0) {
             return Object.class;
         }
         return params[0];
+    }
+
+    /**
+     * 获取泛型参数的原理类型，如：List{@literal <String> }  返回List
+     * @param type 泛型参数
+     * @return 返回泛型参数原始类型
+     */
+    public static Type getGenericRawType(Type type) {
+        Type rawType = ((ParameterizedType) type).getRawType();
+        if (rawType == null) {
+            return Object.class;
+        }
+        return rawType;
     }
 
     public static Type getGenericTypeDeeply(Type type) {

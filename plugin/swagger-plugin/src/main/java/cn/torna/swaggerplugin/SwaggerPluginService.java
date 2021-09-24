@@ -377,6 +377,14 @@ public class SwaggerPluginService {
         }
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
+            PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
+            if (pathVariable != null) {
+                continue;
+            }
+            RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
+            if (requestHeader != null) {
+                continue;
+            }
             Class<?> parameterType = parameter.getType();
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
             String name = getParameterName(parameter);
