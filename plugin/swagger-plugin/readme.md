@@ -2,6 +2,7 @@
 
 ## 更新日志
 
+- 1.2.4：修复泛型嵌套问题；优化Path参数显示
 - 1.2.3：修复ResponseEntity无泛型参数报NPE问题，支持枚举参数
 - 1.2.2：修复@RequestMapping注解没value属性值会报错  https://gitee.com/durcframework/torna/issues/I49DC0
 - 1.2.1：优化org.springframework.http.ResponseEntity的swagger解析逻辑及swagger中name字段优化  https://gitee.com/durcframework/torna/pulls/15
