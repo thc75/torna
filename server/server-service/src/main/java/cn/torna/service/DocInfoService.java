@@ -459,7 +459,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
         // 删除文档对应的参数
         Query paramDelQuery = new Query()
-                .in("doc_id", idList);
+                .in("doc_id", idList)
+                .eq("create_mode", OperationMode.OPEN.getType())
+                ;
         // DELETE FROM doc_param WHERE doc_id in (..)
         docParamService.getMapper().deleteByQuery(paramDelQuery);
     }
