@@ -371,7 +371,8 @@ const MAPPING = {
   'lockDoc': '锁定文档',
   'lockOn': '锁定',
   'unlock': '解锁',
-  'lockDocDesc': '锁定后不被推送修改'
+  'lockDocDesc': '锁定后不被推送修改',
+  'nameValue': '字面量(值)'
 
 }
 
