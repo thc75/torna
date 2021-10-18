@@ -4,7 +4,16 @@
     border
     highlight-current-row
   >
-    <el-table-column :label="$ts('value')" prop="value" />
+    <el-table-column :label="$ts('nameValue')" prop="value">
+      <template slot-scope="scope">
+        <span v-if="scope.row.type.toLowerCase() === 'string'">
+          {{ `${scope.row.name}("${scope.row.value}")` }}
+        </span>
+        <span v-else>
+          {{ `${scope.row.name}(${scope.row.value})` }}
+        </span>
+      </template>
+    </el-table-column>
     <el-table-column :label="$ts('type')" prop="type" />
     <el-table-column :label="$ts('description')" prop="description" />
   </el-table>

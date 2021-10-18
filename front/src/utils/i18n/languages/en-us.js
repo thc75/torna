@@ -370,7 +370,8 @@ const MAPPING = {
   'lockDoc': 'Lock Doc',
   'lockOn': 'Lock',
   'unlock': 'Unlock',
-  'lockDocDesc': 'Locked doc can\'t be modified by push.'
+  'lockDocDesc': 'Locked doc can\'t be modified by push.',
+  'nameValue': 'Name(Value)'
 
 }
 
