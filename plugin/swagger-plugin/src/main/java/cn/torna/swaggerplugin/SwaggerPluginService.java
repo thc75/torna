@@ -59,6 +59,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,9 +92,14 @@ public class SwaggerPluginService {
     }
 
     protected void doPush() {
-        String basePackage = tornaConfig.getBasePackage();
+        String packageConfig = tornaConfig.getBasePackage();
+        String[] pkgs = packageConfig.split(";");
+        Set<Class<?>> classes = new HashSet<>();
+        for (String basePackage : pkgs) {
+            Set<Class<?>> clazzs = ClassUtil.getClasses(basePackage, Api.class);
+            classes.addAll(clazzs);
+        }
         Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
-        Set<Class<?>> classes = ClassUtil.getClasses(basePackage, Api.class);
         for (Class<?> clazz : classes) {
             ControllerInfo controllerInfo;
             try {
@@ -533,7 +539,7 @@ public class SwaggerPluginService {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Create doc parameters error, parameter：" + parameter.toString() + "，method:" + method.toString() + "， msg:" + e.getMessage());
+                System.out.println("Create doc parameters error, parameter：" + parameter.toString() + "，method:" + method + "， msg:" + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -758,22 +764,7 @@ public class SwaggerPluginService {
     }
 
     public boolean match(Method method) {
-        return method.getAnnotation(ApiOperation.class) != null && isRightPackage(method);
-    }
-
-    private boolean isRightPackage(Method method) {
-        String basePackage = tornaConfig.getBasePackage();
-        if (StringUtils.isEmpty(basePackage)) {
-            return true;
-        }
-        String name = method.toString();
-        String[] packages = basePackage.split(";");
-        for (String pkg : packages) {
-            if (name.contains(pkg)) {
-                return true;
-            }
-        }
-        return false;
+        return method.getAnnotation(ApiOperation.class) != null;
     }
 
     private interface ParamFilter {
