@@ -1,14 +1,14 @@
 # Torna
 
-企业接口文档解决方案，目标是让文档管理变得更加方便、快捷。Torna采用团队协作的方式管理和维护项目API文档，将不同形式的文档纳入进来，形成一个统一的维护方式。
+Enterprise API document solution, the goal is to make the document management become more convenient, fast. Torna takes a collaborative approach to managing and maintaining project API documents, incorporating different forms of documents into a unified maintenance approach.
 
-Torna弥补了传统文档生成工具（如swagger）的不如之处，在保持原有功能的前提下丰富并增强了一些实用的功能。
+Torna makes up for the shortcomings of traditional document generation tools such as Swagger by enriching and enhancing some useful functionality while maintaining the original functionality.
 
 <img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
 
-## 当前版本号
+## Current version
 
-| 模块 | 版本 |
+| Module | Version |
 | :----: | :----: |
 | Torna | 1.10.5 |
 | sdk-java | ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk) |
@@ -16,113 +16,92 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
 
 
-## 使用步骤
+## Usage
 
-### 方式1：下载zip本地运行
+### Method 1:download zip
 
-- 准备工作
+- Prepare
 
-  - Java环境，最低要求Java8
-  - MySQL，要求5.6.5及以后，5.6.5之前的版本见：[支持低版本MySQL](http://torna.cn/dev/mysql-lower-version.html)
+  - Java8+
+  - MySQL,need 5.6.5+,before 5.6.5:[Support low version for MySQL](http://torna.cn/dev/mysql-lower-version.html)
 
-前往 [发行版页面](https://gitee.com/durcframework/torna/releases) ，下载最新版本，解压zip
+Go [Release page](https://github.com/torna-group/torna/releases) ,download latest version,unzip
 
-导入数据库，执行[mysql.sql](./mysql.sql)
+Import database,execute [mysql.sql](./mysql.sql)
 
-打开`application.properties`配置文件，修改数据库连接配置
+Open`application.properties`,modify database config
 
-执行`sh startup.sh`启动（Windows执行`startup.bat`）
+Run`sh startup.sh` to startup.(Windows run `startup.bat`)
 
-访问：`http://ip:7700`
+Visit:`http://ip:7700`
 
-- 后续升级
+- About upgrade
 
-无特殊说明，只需要覆盖`torna.jar文件`和`dist文件夹`，然后重启即可
+Override `torna.jar` file and `dist` folder,and startup.
 
-### 方式2：docker运行
+### Method 2: run in docker
 
-下载公共镜像
+Download image
 
 `docker pull tanghc2020/torna:latest`
 
-导入数据库，执行[mysql.sql](./mysql.sql)
+Import database,run [mysql.sql](./mysql.sql)
 
-复制`server/boot/src/main/resources/application.properties`文件到`/opt/torna/config`下，修改数据库连接配置
+Copy `server/boot/src/main/resources/application.properties` to `/opt/torna/config`,modify database config
 
-执行`docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <镜像ID>`
+Run `docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <IMAGE ID>`
 
-浏览器访问`http://ip:7700`
+Visit:`http://ip:7700`
 
 ---
 
-体验账号：
+Test accounts:
 
 ```
-密码均为：123456
+All password is 123456
 
-超级管理员：admin@torna.cn
-
-研发一部空间管理员：dev1admin@torna.cn
-研发一部-商城项目（公开）-项目管理员：dev1shop_admin@torna.cn
-研发一部-商城项目（公开）-开发者张三：dev1shop_zhangsan@torna.cn
-研发一部-访客王五：dev1guest_wangwu@torna.cn
-
-
-研发二部空间管理员：dev2admin@torna.cn
-研发二部-后台项目（私有）-项目管理员：dev2back_admin@torna.cn
-研发二部-后台项目（私有）-开发者李四：dev2back_lisi@torna.cn
-研发二部-后台项目（私有）-访客：dev2back_guest@torna.cn
-研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
+Super admin:admin@torna.cn
 ```
 
-### docker-compose部署torna
-[【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
+### docker-compose deploy
+[docker-compose deploy](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
 
-### kubernetes部署torna
-[【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-on-kubernetes)
+### kubernetes deploy
+[kubernetes deploy](https://gitee.com/durcframework/torna/tree/master/torna-on-kubernetes)
 
-## 推荐组合
+## Recommended combination
 
-**smart-doc + Torna实现文档全流程自动化**
+**smart-doc + Torna**
 
-如果您使用Java语言，推荐使用`smart-doc + Torna`
+If you use Java,we recommended you use `smart-doc + Torna`
 
-[smart-doc](https://gitee.com/smart-doc-team/smart-doc) + Torna 组成行业领先的文档生成和管理解决方案，使用smart-doc无侵入完成Java源代码和注释提取生成API文档，自动将文档推送到Torna企业级接口文档管理平台。
+[smart-doc](https://github.com/smart-doc-group/smart-doc) + Torna form an industry-leading document generation and management solution, using smart-Doc non-intrusive Java source code and annotation extraction to generate API documents, automatically push documents to Torna enterprise interface document management platform.
+Through this combination you can achieve: only need to write Java annotation can push the API information to the Torna platform, so as to achieve interface preview, interface debugging.
 
-通过这套组合您可以实现：只需要写完Java注释就能把接口信息推送到Torna平台，从而实现接口预览、接口调试。
+Push content:`API name/author/path param/header/body/response/dict/error code`
 
-推送的内容有：`接口名称/author/Path参数/Header/请求参数/返回参数/字典列表/公共错误码`
+If you use other language, you can use the form page to edit the above content, and then you can also preview and debug the API.
 
-如果您是非Java语言，可以使用表单页面编辑以上内容，完成后同样可以进行接口预览、调试。
+## Development and deployment
 
-## 开发部署
+See:[Development document](http://torna.cn/dev/)
 
-参见：[开发文档](http://torna.cn/dev/)
+## Other resource
 
-## 其它资源
+- [torna-example](https://gitee.com/durcframework/torna-example) ,show usage of swagger-plugin
 
-- [Torna对应的示例工程](https://gitee.com/durcframework/torna-example) ，演示swagger插件的用法
-
-## 更新日志
+## Changelog
 
 [changelog](./changelog.md)
 
-## 参与贡献
 
-欢迎贡献代码，PR请提交到`develop`分支
+## Page preview
 
+![API management](./front/public/static/images/table.png "table.png")
 
-## 界面预览
+![Edit API](./front/public/static/images/edit.png "edit.png")
 
-![文档管理](./front/public/static/images/table.png "table.png")
+![Preview](./front/public/static/images/view.png "view.png")
 
-![编辑接口](./front/public/static/images/edit.png "edit.png")
+![Debug API](./front/public/static/images/debug.png "debug.png")
 
-![浏览文档](./front/public/static/images/view.png "view.png")
-
-![调试接口](./front/public/static/images/debug.png "debug.png")
-
-
-## 沟通交流
-
-<img src="./front/public/static/images/group.jpg" width="50%" height="50%" />
