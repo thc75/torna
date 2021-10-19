@@ -135,7 +135,7 @@ function is_number_type(type) {
  * @returns {boolean}
  */
 function is_num_array(type, example) {
-  if (is_array_string(example)) {
+  if (is_array_string(example) || (type === 'array' && typeof (example) === 'string')) {
     example = example.substring(1, example.length - 1)
     const arr = example.split(',')
     for (const num of arr) {
@@ -170,7 +170,7 @@ function parse_num_array(val) {
 }
 
 function is_str_array(type, example) {
-  if (is_array_string(example)) {
+  if (is_array_string(example) || (type === 'array' && typeof (example) === 'string')) {
     example = example.substring(1, example.length - 1)
     const arr = example.split(',')
     for (const num of arr) {
@@ -192,7 +192,8 @@ function parse_str_array(val) {
     str = str.substring(1, str.length - 1)
   }
   const arr = str.split(',')
-  return arr.map(el => {
+  return arr.map(item => {
+    let el = item.trim()
     if (el.startsWith('\"') || el.startsWith('\'')) {
       el = el.substring(1)
     }
@@ -308,7 +309,17 @@ export function init_docInfo(data) {
 
 export function init_docInfo_view(data) {
   if (data.isUseGlobalHeaders) {
-    data.headerParams = data.globalHeaders.concat(data.headerParams)
+    const globalHeaders = data.globalHeaders || []
+    const hParams = data.headerParams.filter(param => {
+      // same header
+      for (const globalHeader of globalHeaders) {
+        if (param.name === globalHeader.name) {
+          return false
+        }
+      }
+      return true
+    })
+    data.headerParams = globalHeaders.concat(hParams)
   }
   if (data.isUseGlobalParams) {
     const dataNode = (data.globalParams || [])
@@ -324,7 +335,11 @@ export function init_docInfo_view(data) {
         }
       })
     }
-    data.requestParams = data.globalParams.concat(data.requestParams)
+    if (data.httpMethod && data.httpMethod.toLowerCase() === 'get') {
+      data.queryParams = data.globalParams.concat(data.queryParams)
+    } else {
+      data.requestParams = data.globalParams.concat(data.requestParams)
+    }
   }
   // 如果使用公共返回参数
   if (data.isUseGlobalReturns) {
@@ -356,7 +371,16 @@ export function init_docInfo_complete_view(data) {
   sortByIndex(data.errorCodeParams)
   if (data.isUseGlobalHeaders) {
     const globalHeaders = data.globalHeaders || []
-    data.headerParams = globalHeaders.concat(data.headerParams)
+    const hParams = data.headerParams.filter(param => {
+      // same header
+      for (const globalHeader of globalHeaders) {
+        if (param.name === globalHeader.name) {
+          return false
+        }
+      }
+      return true
+    })
+    data.headerParams = globalHeaders.concat(hParams)
   }
   if (data.isUseGlobalParams) {
     const dataNode = (data.globalParams || [])
@@ -379,7 +403,11 @@ export function init_docInfo_complete_view(data) {
       data.requestParams = data.globalParams
     } else {
       data.globalParams = convert_tree(data.globalParams)
-      data.requestParams = data.globalParams.concat(data.requestParams)
+      if (data.httpMethod && data.httpMethod.toLowerCase() === 'get') {
+        data.queryParams = data.globalParams.concat(data.queryParams)
+      } else {
+        data.requestParams = data.globalParams.concat(data.requestParams)
+      }
     }
   }
   if (data.isUseGlobalReturns) {

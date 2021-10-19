@@ -2,13 +2,15 @@
   <div class="doc-debug">
     <el-row :gutter="20">
       <el-col :span="24-rightSpanSize">
-        <div v-if="currentItem.debugEnvs.length > 0 || currentItem.moduleType === 2">
-          <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugEnv" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
+        <div v-if="currentItem.debugEnvs.length > 0">
+          <el-radio-group v-if="currentItem.debugEnvs.length > 0" v-model="debugId" size="mini" style="margin-bottom: 4px;" @change="changeHostEnv">
             <el-radio-button
               v-for="hostConfig in currentItem.debugEnvs"
-              :key="hostConfig.configKey"
-              :label="hostConfig.configKey"
-            />
+              :key="hostConfig.id"
+              :label="hostConfig.id"
+            >
+              {{ hostConfig.configKey }}
+            </el-radio-button>
           </el-radio-group>
           <span class="split">|</span>
           <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" />
@@ -298,6 +300,7 @@ import DebugScript from '../DebugScript'
 
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
+const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
@@ -347,6 +350,7 @@ export default {
         { type: 'file', label: $ts('file') }
       ],
       debugEnv: '',
+      debugId: '',
       resultActive: 'result',
       sendLoading: false,
       result: {
@@ -390,27 +394,27 @@ export default {
       this.initDebugHost()
       this.bindRequestParam(item)
       this.initActive()
-      this.loadProps()
       this.setTableCheck()
     },
     initDebugHost() {
       const debugEnv = this.getAttr(HOST_KEY) || ''
       this.changeHostEnv(debugEnv)
     },
-    changeHostEnv(debugEnv) {
+    changeHostEnv(debugId) {
       const item = this.currentItem
       const debugEnvs = item.debugEnvs
       if (debugEnvs.length === 0) {
         this.requestUrl = item.url
         return
       }
-      const debugConfigs = debugEnvs.filter(row => row.configKey === debugEnv)
+      const debugConfigs = debugEnvs.filter(row => row.id === debugId || row.configKey === debugId)
       const debugConfig = debugConfigs.length === 0 ? debugEnvs[0] : debugConfigs[0]
-      debugEnv = debugConfig.configKey
       const baseUrl = debugConfig.configValue
       this.requestUrl = get_effective_url(baseUrl, item.url)
-      this.setAttr(HOST_KEY, debugEnv)
-      this.debugEnv = debugEnv
+      this.debugEnv = debugConfig.configKey
+      this.debugId = debugConfig.id
+      this.setAttr(HOST_KEY, this.debugId)
+      this.loadProps()
     },
     bindRequestParam(item) {
       const formData = []
@@ -599,7 +603,10 @@ export default {
       const formatData = (arr) => {
         const data = {}
         arr.forEach(row => {
-          data[row.name] = row.example
+          // 全局属性不加入
+          if (!row.global) {
+            data[row.name] = row.example
+          }
         })
         return data
       }
@@ -622,12 +629,15 @@ export default {
           delete props[key]
         }
       }
+      const debugDataStr = JSON.stringify(props)
+      const propsData = {
+        debugData: debugDataStr
+      }
+      propsData[this.debugId] = debugDataStr
       const data = {
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
-        props: {
-          debugData: JSON.stringify(props)
-        }
+        props: propsData
       }
       this.post('/prop/set', data, resp => {})
     },
@@ -637,8 +647,12 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG
       }
       this.get('/prop/get', data, resp => {
-        const data = resp.data
-        this.setDebugData(data.debugData)
+        const respData = resp.data
+        const debugData = respData[this.debugId] || respData.debugData
+        if (!debugData) {
+          return
+        }
+        this.setDebugData(debugData)
         this.$refs.debugScriptRef.load(this.item.id, this.preCheckedId, this.afterCheckedId)
       })
     },
@@ -742,20 +756,29 @@ export default {
       const contentType = this.getHeaderValue(headers, 'Content-Type') || ''
       const contentDisposition = this.getHeaderValue(headers, 'Content-Disposition') || ''
       // 如果是下载文件
-      if (contentType.indexOf('stream') > -1 ||
-        contentDisposition.indexOf('attachment') > -1
-      ) {
+      if (contentType.indexOf('stream') > -1 || contentDisposition.indexOf('attachment') > -1) {
         const filename = this.getDispositionFilename(contentDisposition)
         this.downloadFile(filename, response.data)
       } else {
         let content = ''
-        // axios返回data部分
-        const data = response.data
+        let json
+        const arrayBuffer = response.data
+        // 如果是ArrayBuffer
+        if (arrayBuffer && arrayBuffer.toString() === '[object ArrayBuffer]') {
+          if (arrayBuffer.byteLength > 0) {
+            json = TEXT_DECODER.decode(new Uint8Array(arrayBuffer))
+          }
+        } else {
+          // 否则认为是json
+          json = arrayBuffer
+        }
+        // 格式化json
         try {
-          content = this.formatResponse(contentType, data)
+          if (json) {
+            content = this.formatResponse(contentType, json)
+          }
         } catch (e) {
           console.error($ts('parseError'), e)
-          content = response.data
         }
         this.result.content = content
       }
@@ -765,11 +788,13 @@ export default {
       return headers[key] || headers[key.toLowerCase()]
     },
     onBodyBlur() {
-      if (this.bodyText && this.contentType === 'application/json') {
+      if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
         try {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
-        } catch (e) {}
+        } catch (e) {
+          console.log('format json error', e)
+        }
       }
     },
     formatResponse(contentType, stringBody) {
@@ -789,7 +814,8 @@ export default {
       }
     },
     downloadFile(filename, buffer) {
-      const url = window.URL.createObjectURL(new Blob([buffer]))
+      const blob = new Blob([buffer])
+      const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', filename)

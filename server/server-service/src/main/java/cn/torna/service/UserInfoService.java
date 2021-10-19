@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -60,8 +59,6 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     @Value("${torna.jwt.secret:CHezCvjte^WHy5^#MqSVx9A%6.F$eV}")
     private String jwtSecret;
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
     private ThirdPartyLoginManager thirdPartyLoginManager;
@@ -108,6 +105,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         UserInfo userInfo = get("username", email);
         Assert.isNull(userInfo, () -> "账号已被注册");
     }
+
 
     public User getLoginUser(long id) {
         UserInfo userInfo = getById(id);

@@ -53,7 +53,7 @@
           />
         </el-form-item>
         <el-form-item :label="$ts('projectAdmin')" required>
-          <user-select ref="userSelect" :loader="loadSpaceMember" multiple :value="projectFormData.adminIds" />
+          <user-select-v2 ref="userSelect" multiple :value="projectFormData.adminIds" />
         </el-form-item>
         <el-form-item :label="$ts('visitPermission')">
           <el-radio-group v-model="projectFormData.isPrivate">
@@ -71,12 +71,12 @@
   </div>
 </template>
 <script>
-import UserSelect from '@/components/UserSelect'
+import UserSelectV2 from '@/components/UserSelectV2'
 import QuestionPrivate from '@/components/QuestionPrivate'
 
 export default {
   name: 'ProjectInfo',
-  components: { UserSelect, QuestionPrivate },
+  components: { UserSelectV2, QuestionPrivate },
   props: {
     projectId: {
       type: String,
@@ -120,6 +120,11 @@ export default {
     }
   },
   methods: {
+    loadSelectUser() {
+      this.loadSpaceMember().then(data => {
+        this.spaceUsers = data
+      })
+    },
     onProjectDel() {
       this.confirm(this.$ts('deleteProjectConfirm'), () => {
         this.post('/project/delete', { id: this.projectId }, () => {
@@ -131,6 +136,12 @@ export default {
     onProjectUpdate() {
       this.projectDlgShow = true
       Object.assign(this.projectFormData, this.form)
+      this.$nextTick(() => {
+        this.loadSpaceMember().then(data => {
+          this.$refs.userSelect.setData(data)
+          this.$refs.userSelect.setValue(this.projectFormData.adminIds)
+        })
+      })
     },
     onProjectUpdateSave() {
       const promise = this.$refs.userSelect.validate()

@@ -17,6 +17,7 @@ import cn.torna.service.dto.SpaceUserInfoDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,26 +110,33 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     /**
      * 获取空间下的用户
      * @param spaceId 空间id
-     * @param query 查询条件
+     * @param username 查询用户
+     * @param pageParam 分页信息
      * @return
      */
-    public PageEasyui<SpaceUserInfoDTO> pageSpaceUser(Long spaceId, Query query) {
-        List<SpaceUser> spaceUsers = listSpaceUser(spaceId);
-        if (CollectionUtils.isEmpty(spaceUsers)) {
+    public PageEasyui<SpaceUserInfoDTO> pageSpaceUser(Long spaceId, String username, PageParam pageParam) {
+        PageEasyui spaceUserPageInfo = pageSpaceUser(spaceId, pageParam.getPageIndex(), pageParam.getPageSize());
+        if (spaceUserPageInfo == null) {
             return new PageEasyui<>();
         }
-        Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
+        Map<Long, SpaceUser> userIdMap = ((PageEasyui<SpaceUser>)spaceUserPageInfo).getRows().stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
-        query.in("id", userIdMap.keySet())
-                .orderby("id", Sort.DESC);
-        PageEasyui<SpaceUserInfoDTO> pageInfo = MapperUtil.queryForEasyuiDatagrid(userInfoService.getMapper(), query, SpaceUserInfoDTO.class);
+        Query query = new Query();
+        query.in("id", userIdMap.keySet());
+        if (StringUtils.hasText(username)) {
+            query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
+        }
+        List<UserInfo> userInfos = userInfoService.list(query);
+        List<SpaceUserInfoDTO> spaceUserInfoDTOS = CopyUtil.copyList(userInfos, SpaceUserInfoDTO::new);
         // 设置添加时间
-        pageInfo.getRows().forEach(userInfoDTO -> {
+        spaceUserInfoDTOS.forEach(userInfoDTO -> {
             SpaceUser spaceUser = userIdMap.get(userInfoDTO.getId());
             userInfoDTO.setGmtCreate(spaceUser.getGmtCreate());
             userInfoDTO.setRoleCode(spaceUser.getRoleCode());
         });
-        return pageInfo;
+        spaceUserInfoDTOS.sort(Comparator.comparing(SpaceUserInfoDTO::getGmtCreate).reversed());
+        spaceUserPageInfo.setList(spaceUserInfoDTOS);
+        return spaceUserPageInfo;
     }
 
     /**
@@ -146,6 +155,22 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Query query = new Query();
         query.in("id", userIdMap.keySet());
         query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
+
+        List<UserInfo> userInfoList = userInfoService.list(query);
+        return CopyUtil.copyList(userInfoList, UserInfoDTO::new);
+    }
+
+    /**
+     * 查询空间用户
+     * @param spaceId
+     * @return
+     */
+    public List<UserInfoDTO> listAllSpaceUser(long spaceId) {
+        List<SpaceUser> spaceUsers = listSpaceUser(spaceId);
+        Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
+                .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
+        Query query = new Query();
+        query.in("id", userIdMap.keySet());
 
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);
@@ -210,7 +235,21 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         if (spaceId == null) {
             return Collections.emptyList();
         }
-        return spaceUserMapper.listByColumn("space_id", spaceId);
+        Query query = new Query()
+                .eq("space_id", spaceId)
+                .orderby("gmt_create", Sort.DESC);
+        return spaceUserMapper.list(query);
+    }
+
+    public PageEasyui<SpaceUser> pageSpaceUser(Long spaceId, int pageIndex, int pageSize) {
+        if (spaceId == null) {
+            return null;
+        }
+        Query query = new Query()
+                .eq("space_id", spaceId)
+                .orderby("gmt_create", Sort.DESC)
+                .page(pageIndex, pageSize);
+        return MapperUtil.queryForEasyuiDatagrid(spaceUserMapper, query);
     }
 
     /**

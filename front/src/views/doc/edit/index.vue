@@ -66,6 +66,16 @@
               :inactive-value="0"
             />
           </el-form-item>
+          <el-form-item :label="$ts('lockDoc')">
+            <el-switch
+              v-model="docInfo.isLocked"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              :active-value="1"
+              :inactive-value="0"
+            />
+            <span class="info-tip">{{ $ts('lockDocDesc') }}</span>
+          </el-form-item>
           <el-form-item :label="$ts('orderIndex')">
             <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
           </el-form-item>
@@ -97,7 +107,7 @@
               <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">{{ $ts('newQueryParam') }}</el-button>
               <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">{{ $ts('importQueryParam') }}</el-button>
             </div>
-            <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" :hidden-columns="['enum']" />
+            <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" />
           </el-tab-pane>
           <el-tab-pane label="Body Parameter" name="tabBodyParams">
             <div class="table-opt-btn">
@@ -124,7 +134,7 @@
               </div>
             </div>
             <root-array-table v-show="isEnableRequestRootArray" ref="requestArrayTable" :data="docInfo.requestParams" :el-type="docInfo.requestArrayType" />
-            <edit-table v-show="!isEnableRequestRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" :hidden-columns="['enum']" />
+            <edit-table v-show="!isEnableRequestRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" />
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
@@ -257,6 +267,7 @@ export default {
         requestArrayType: 'object',
         responseArrayType: 'object',
         isShow: 1,
+        isLocked: 0,
         pathParams: [],
         headerParams: [],
         queryParams: [],

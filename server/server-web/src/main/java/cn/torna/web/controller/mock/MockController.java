@@ -2,15 +2,13 @@ package cn.torna.web.controller.mock;
 
 import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.common.util.IdUtil;
-import cn.torna.common.util.RequestUtil;
 import cn.torna.common.util.ResponseUtil;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
 import cn.torna.service.dto.NameValueDTO;
 import com.alibaba.fastjson.JSON;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -18,19 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author tanghc
  */
 @Controller
 @RequestMapping("mock")
-@Slf4j
 public class MockController {
 
     public static final int ONE_MINUTE_MILLS = 60000;
@@ -40,13 +32,16 @@ public class MockController {
     @Autowired
     private MockConfigService mockConfigService;
 
+    @Value("${torna.mock.ignore-param:false}")
+    private boolean ignoreParam;
+
     @RequestMapping("/**")
     public void mock(
             HttpServletRequest request,
             HttpServletResponse response) {
         MockConfig mockConfig;
         String mockId = getMockId(request);
-        String dataId = buildDataId(mockId, request);
+        String dataId = buildDataId(request);
         mockConfig = mockConfigService.getByDataId(dataId);
         if (mockConfig == null) {
             Long id = IdUtil.decode(mockId);
@@ -64,6 +59,11 @@ public class MockController {
         ResponseUtil.write(response, responseBody);
     }
 
+    private String getPath(HttpServletRequest request) {
+        String servletPath = request.getServletPath();
+        return servletPath.substring(PREFIX.length());
+    }
+
     private String getMockId(HttpServletRequest request) {
         String queryString = request.getQueryString();
         String servletPath = request.getServletPath();
@@ -74,31 +74,17 @@ public class MockController {
         return mockId;
     }
 
-    private String buildDataId(String path, HttpServletRequest request) {
-        List<NameValueDTO> dataKv = new ArrayList<>();
-        Map<String, String> queryParams = Collections.emptyMap();
-        int index = path.indexOf("?");
-        if (index > -1) {
-            String queryString = path.substring(index);
-            queryParams = RequestUtil.parseQueryString(queryString);
+    private String buildDataId(HttpServletRequest request) {
+        String path = getPath(request);
+        if (ignoreParam) {
+            return MockConfigService.buildDataId(path);
         }
-        Map<String, String> finalQueryParams = queryParams;
-        request.getParameterMap().forEach((key, value) -> {
-            if (!finalQueryParams.containsKey(key)) {
-                NameValueDTO nameValueDTO = new NameValueDTO();
-                nameValueDTO.setName(key);
-                nameValueDTO.setValue(value[0]);
-                dataKv.add(nameValueDTO);
-            }
-        });
-        String dataKvContent = MockConfigService.getDataKvContent(dataKv);
-        String dataJson = "";
-        try {
-            dataJson = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
+        String queryString = request.getQueryString();
+        queryString = StringUtils.trimLeadingCharacter(queryString, '?');
+        if (StringUtils.hasText(queryString)) {
+            path = path + '?' + queryString;
         }
-        return MockConfigService.buildDataId(path, dataKvContent, dataJson);
+        return MockConfigService.buildDataId(path);
     }
 
     private String getResponseBody(MockConfig mockConfig) {

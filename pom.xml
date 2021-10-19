@@ -16,7 +16,7 @@
 
     <properties>
         <!-- Project revision -->
-        <revision>1.9.0</revision>
+        <revision>1.10.5</revision>
         <java.version>1.8</java.version>
     </properties>
 
@@ -24,7 +24,6 @@
         <module>server</module>
         <module>sdk/sdk-java</module>
         <module>plugin/swagger-plugin</module>
-        <module>plugin/swagger-plugin-starter</module>
     </modules>
 
     <build>

@@ -113,7 +113,21 @@ public class ApiDocBuilder {
      * 从api参数中构建
      */
     protected List<FieldDocInfo> buildFieldDocInfosByType(Class<?> clazz, boolean root) {
-        final Class<?> targetClass = PluginUtil.isCollectionOrArray(clazz) ? getCollectionElementClass(clazz) : clazz;
+        Class<?> targetClassRef = PluginUtil.isCollectionOrArray(clazz) ? getCollectionElementClass(clazz) : clazz;
+
+        // 查找泛型
+        if(targetClassRef.getName().equals("org.springframework.http.ResponseEntity")){
+            Field body = ReflectionUtils.findField(targetClassRef, "body");
+            String typeName = ((TypeVariable<?>) body.getGenericType()).getName();
+            targetClassRef = getGenericParamClass(targetClassRef, typeName);
+            // 没有指定泛型类型
+            if (targetClassRef == null) {
+                System.out.println("Warning: Use ResponseEntity but not specified generic parameter.");
+                return Collections.emptyList();
+            }
+        }
+
+        final Class<?> targetClass = targetClassRef;
         // 如果是基本类型
         if (!PluginUtil.isPojo(targetClass)) {
             return Collections.emptyList();
@@ -135,7 +149,9 @@ public class ApiDocBuilder {
                 String typeName = ((TypeVariable<?>) genericType).getName();
                 realClass = getGenericParamClass(targetClass, typeName);
             }
-            if (realClass != null) {
+            if (fieldType.isEnum()) {
+                fieldDocInfo = buildFieldDocInfoByEnumClass((Class<Enum>) fieldType, apiModelProperty, field);
+            } else if (realClass != null) {
                 fieldDocInfo = buildFieldDocInfoByClass(apiModelProperty, realClass, field);
             } else if (PluginUtil.isPojo(fieldType)) {
                 // 如果是自定义类
@@ -145,7 +161,7 @@ public class ApiDocBuilder {
             }
             fieldDocInfos.add(fieldDocInfo);
         }, field -> {
-            if (Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
+            if (PluginUtil.isTransientField(field) || Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
                 return false;
             }
             ApiModelProperty apiModelProperty = AnnotationUtils.findAnnotation(field, ApiModelProperty.class);
@@ -155,6 +171,7 @@ public class ApiDocBuilder {
         return fieldDocInfos;
     }
 
+
     protected void bindJarClassFields(Class<?> targetClass, List<FieldDocInfo> fieldDocInfos) {
         for (FieldDocInfo child : fieldDocInfos) {
             ApiParamInfo apiParamInfo = this.getApiParamInfo(targetClass.getName(), child.getName());
@@ -163,6 +180,9 @@ public class ApiDocBuilder {
                 child.setExample(apiParamInfo.getExample());
                 child.setDescription(apiParamInfo.getValue());
                 child.setOrderIndex(apiParamInfo.getPosition());
+                if(!StringUtils.isEmpty(apiParamInfo.getName())){
+                    child.setName(apiParamInfo.getName());
+                }
             }
         }
     }
@@ -192,7 +212,8 @@ public class ApiDocBuilder {
     }
 
     protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field) {
-        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty);
+        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
+        Class<?> fieldType = field.getType();
         String type = getFieldType(field, apiModelPropertyWrapper);
         // 优先使用注解中的字段名
         String fieldName = getFieldName(field, apiModelPropertyWrapper);
@@ -208,7 +229,7 @@ public class ApiDocBuilder {
         fieldDocInfo.setDescription(description);
         fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
 
-        Class<?> fieldType = field.getType();
+        boolean isList = PluginUtil.isCollectionOrArray(fieldType);
         Type genericType = field.getGenericType();
         Type elementClass = null;
         // 如果有明确的泛型，如List<Order>
@@ -225,13 +246,26 @@ public class ApiDocBuilder {
         } else if (fieldType.isArray()) {
             elementClass = fieldType.getComponentType();
         }
+
         if (elementClass != null && elementClass != Object.class && elementClass != Void.class) {
-            Class<?> clazz = (Class<?>) elementClass;
-            if (PluginUtil.isPojo(clazz)) {
-                List<FieldDocInfo> fieldDocInfos = isCycle(clazz, field)
-                        ? Collections.emptyList()
-                        : buildFieldDocInfosByType(clazz, false);
-                fieldDocInfo.setChildren(fieldDocInfos);
+            // 如果是嵌套泛型类型，如：List<List<String>>
+            if (PluginUtil.isGenericType(elementClass)) {
+                Type genericRawType = PluginUtil.getGenericRawType(elementClass);
+                if (PluginUtil.isCollectionOrArray((Class<?>) genericRawType)) {
+                    Type genericElType = PluginUtil.getGenericType(elementClass);
+                    if (isList) {
+                        Class<?> elType = (Class<?>) genericElType;
+                        fieldDocInfo.setType("List<List<" + elType.getSimpleName() + ">>");
+                    }
+                }
+            } else {
+                Class<?> clazz = (Class<?>) elementClass;
+                if (PluginUtil.isPojo(clazz)) {
+                    List<FieldDocInfo> fieldDocInfos = isCycle(clazz, field)
+                            ? Collections.emptyList()
+                            : buildFieldDocInfosByType(clazz, false);
+                    fieldDocInfo.setChildren(fieldDocInfos);
+                }
             }
         }
         return fieldDocInfo;
@@ -243,7 +277,7 @@ public class ApiDocBuilder {
     }
 
     protected FieldDocInfo buildFieldDocInfoByClass(ApiModelProperty apiModelProperty, Class<?> clazz, Field field) {
-        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty);
+        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(field);
         String name = getFieldName(field, apiModelPropertyWrapper);
@@ -272,6 +306,29 @@ public class ApiDocBuilder {
                 : buildFieldDocInfosByType(clazz, false);
         fieldDocInfo.setChildren(children);
 
+        return fieldDocInfo;
+    }
+
+    protected FieldDocInfo buildFieldDocInfoByEnumClass(Class<Enum> enumClass, ApiModelProperty apiModelProperty, Field field) {
+        ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
+        Enum[] enumConstants = enumClass.getEnumConstants();
+        FieldDocInfo fieldDocInfo = new FieldDocInfo();
+        fieldDocInfo.setName(apiModelPropertyWrapper.getName());
+        fieldDocInfo.setType(DataType.ENUM.getValue());
+        fieldDocInfo.setRequired(Booleans.toValue(apiModelPropertyWrapper.getRequired()));
+        fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
+        List<String> examples = new ArrayList<>(enumConstants.length);
+        for (Enum enumConstant : enumConstants) {
+            examples.add(enumConstant.name());
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        String description = apiModelPropertyWrapper.getDescription();
+        stringBuilder.append(description);
+        if (examples.size() > 0) {
+            stringBuilder.append(" values:").append(String.join(", ", examples));
+            fieldDocInfo.setExample(examples.get(0));
+        }
+        fieldDocInfo.setDescription(stringBuilder.toString());
         return fieldDocInfo;
     }
 

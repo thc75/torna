@@ -20,4 +20,11 @@ public class TornaViewProperties {
     private String responseHiddenColumns;
 
     private Integer initOrder;
+
+    private boolean ignoreParam;
+
+    /**
+     * 聚合文档是否显示调试页面
+     */
+    private boolean composeShowDebug = true;
 }

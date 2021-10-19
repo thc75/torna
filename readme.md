@@ -10,10 +10,9 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 | 模块 | 版本 |
 | :----: | :----: |
-| Torna | 1.9.0 |
+| Torna | 1.10.3 |
 | sdk-java | ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk) |
 | swagger-plugin | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin) |
-| swagger-plugin-starter | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin-starter) |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
 
 
@@ -77,10 +76,10 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 ```
 
 ### docker-compose部署torna
-[【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-docker-compose)
+[【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
 
 ### kubernetes部署torna
-[【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/docker/torna-on-kubernetes)
+[【kubernetes部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-on-kubernetes)
 
 ## 推荐组合
 

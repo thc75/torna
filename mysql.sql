@@ -28,44 +28,84 @@ DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
 DROP TABLE IF EXISTS `compose_project`;
 DROP TABLE IF EXISTS `compose_doc`;
+DROP TABLE IF EXISTS `compose_additional_page`;
+DROP TABLE IF EXISTS `compose_common_param`;
+
+CREATE TABLE `compose_additional_page` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `project_id` bigint(20) unsigned NOT NULL COMMENT 'compose_project.id',
+    `title` varchar(64) NOT NULL COMMENT '文档标题',
+    `content` text COMMENT '文档内容',
+    `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序值',
+    `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1:启用，0：禁用',
+    `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+    `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_projectid` (`project_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='聚合文档附加页';
+
+CREATE TABLE `compose_common_param` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT '唯一id，md5(doc_id:parent_id:style:name)',
+    `name` varchar(64) NOT NULL DEFAULT '' COMMENT '字段名称',
+    `type` varchar(64) NOT NULL DEFAULT 'String' COMMENT '字段类型',
+    `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必须，1：是，0：否',
+    `max_length` varchar(64) NOT NULL DEFAULT '-' COMMENT '最大长度',
+    `example` varchar(1024) NOT NULL DEFAULT '' COMMENT '示例值',
+    `description` text NOT NULL COMMENT '描述',
+    `enum_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'enum_info.id',
+    `compose_project_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'compose_project.id',
+    `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+    `style` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0：path, 1：header， 2：请求参数，3：返回参数，4：错误码',
+    `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
+    `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+    `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_dataid` (`data_id`) USING BTREE,
+    KEY `idx_compose_project_id` (`compose_project_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='聚合文档公共参数';
 
 
 CREATE TABLE `compose_doc` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
-  `project_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'compose_project.id',
-  `is_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否文件夹',
-  `folder_name` varchar(64) NOT NULL DEFAULT '' COMMENT '文件夹名称',
-  `parent_id` bigint(20) NOT NULL DEFAULT '0',
-  `origin` varchar(128) NOT NULL DEFAULT '' COMMENT '文档来源',
-  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
-  `order_index` int(10) unsigned NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_projectid` (`project_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='文档引用';
+   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+   `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+   `project_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'compose_project.id',
+   `is_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否文件夹',
+   `folder_name` varchar(64) NOT NULL DEFAULT '' COMMENT '文件夹名称',
+   `parent_id` bigint(20) NOT NULL DEFAULT '0',
+   `origin` varchar(128) NOT NULL DEFAULT '' COMMENT '文档来源',
+   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+   `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
+   `order_index` int(10) unsigned NOT NULL DEFAULT '0',
+   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY `idx_projectid` (`project_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档引用';
 
 
 CREATE TABLE `compose_project` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '项目名称',
-  `description` varchar(128) NOT NULL DEFAULT '' COMMENT '项目描述',
-  `space_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '所属空间，space.id',
-  `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '访问形式，1：公开，2：加密',
-  `password` varchar(64) NOT NULL DEFAULT '' COMMENT '访问密码',
-  `creator_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者userid',
-  `creator_name` varchar(64) NOT NULL DEFAULT '',
-  `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `modifier_name` varchar(64) NOT NULL DEFAULT '',
-  `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
-  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1：有效，0：无效',
-  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_spaceid` (`space_id`) USING BTREE
+   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+   `name` varchar(64) NOT NULL DEFAULT '' COMMENT '项目名称',
+   `description` varchar(128) NOT NULL DEFAULT '' COMMENT '项目描述',
+   `space_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '所属空间，space.id',
+   `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '访问形式，1：公开，2：加密',
+   `password` varchar(64) NOT NULL DEFAULT '' COMMENT '访问密码',
+   `creator_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '创建者userid',
+   `creator_name` varchar(64) NOT NULL DEFAULT '',
+   `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+   `modifier_name` varchar(64) NOT NULL DEFAULT '',
+   `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
+   `show_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示调试',
+   `gateway_url` varchar(128) NOT NULL DEFAULT '' COMMENT '网关url',
+   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1：有效，0：无效',
+   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY `idx_spaceid` (`space_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='组合项目表';
 
 

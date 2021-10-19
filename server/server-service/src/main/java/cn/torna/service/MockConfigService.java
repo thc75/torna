@@ -41,11 +41,11 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
     }
 
     public static String buildDataId(String path, String dataKvContent, String dataJson) {
-        if (StringUtils.hasText(dataJson)) {
-            dataJson = JSON.parseObject(dataJson).toString(SerializerFeature.SortField);
-        }
-        String content = path + dataKvContent + dataJson;
-        return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
+        return DigestUtils.md5DigestAsHex(path.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String buildDataId(String path) {
+        return buildDataId(path, "", "");
     }
 
 }

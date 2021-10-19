@@ -2,6 +2,13 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'script': '脚本',
+  'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
+  'afterScriptTip': '请求后处理结果，可动态修改返回内容',
+  'canUseScope': '可用范围',
+  'dlgClose': '关 闭',
+  'preRequestScript': '前置脚本',
+  'afterResponseScript': '后置脚本',
   'ok': '确定',
   'cancel': '取消',
   'home': '首页',
@@ -366,13 +373,13 @@ const MAPPING = {
   'orderIndex': '排序值',
   'expand': '展开',
   'collapse': '收起',
-  'script': '脚本',
-  'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
-  'afterScriptTip': '请求后处理结果，可动态修改返回内容',
-  'canUseScope': '可用范围',
-  'dlgClose': '关 闭',
-  'preRequestScript': '前置脚本',
-  'afterResponseScript': '后置脚本'
+  'composeProject': '聚合项目',
+  'setting': '设置',
+  'lockDoc': '锁定文档',
+  'lockOn': '锁定',
+  'unlock': '解锁',
+  'lockDocDesc': '锁定后不被推送修改',
+  'nameValue': '字面量(值)'
 
 }
 

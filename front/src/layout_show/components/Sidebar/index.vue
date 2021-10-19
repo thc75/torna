@@ -2,6 +2,10 @@
   <div :class="{'has-logo':showLogo}">
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <div class="menu-tree">
+        <el-radio-group v-model="expandAll" size="mini" style="padding-bottom: 10px;" @change="onTriggerStatus">
+          <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
+          <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
+        </el-radio-group>
         <el-input
           v-show="treeData.length > 0"
           v-model="filterText"
@@ -13,7 +17,7 @@
         />
         <el-tree
           ref="tree"
-          :data="treeData"
+          :data="treeRows"
           :props="defaultProps"
           :filter-node-method="filterNode"
           :highlight-current="true"
@@ -53,6 +57,7 @@ export default {
       currentSpaceId: '',
       treeData: [],
       expandKeys: [],
+      expandAll: false,
       defaultProps: {
         children: 'children',
         label: 'name'
@@ -65,6 +70,10 @@ export default {
     ]),
     showLogo() {
       return this.$store.state.settings.sidebarLogo
+    },
+    treeRows() {
+      const search = this.filterText.trim().toLowerCase()
+      return this.searchDoc(search, this.treeData, this.searchContent, this.isFolder)
     }
   },
   watch: {
@@ -73,10 +82,12 @@ export default {
     }
   },
   mounted() {
+    this.expandAll = (this.getAttr(this.getTriggerStatusKey()) || 'false') === 'true'
     this.loadMenu()
   },
   methods: {
     loadMenu() {
+      this.expandKeys = []
       const id = this.$route.params.showId
       this.get('/compose/doc/menu', { projectId: id }, resp => {
         const data = resp.data
@@ -119,6 +130,76 @@ export default {
         const showId = this.$route.params.showId
         this.goRoute(`/show/${showId}/${data.docId}`)
       }
+    },
+    onTriggerStatus(val) {
+      this.setAttr(this.getTriggerStatusKey(), val)
+      this.loadMenu()
+    },
+    getTriggerStatusKey() {
+      return `torna.doc.show.tree.trigger`
+    },
+    searchDoc(search, rows, searchHandler, folderHandler) {
+      if (search.length === 0) {
+        this.addExpandKeys(rows)
+        return rows
+      }
+      if (!folderHandler) {
+        folderHandler = (row) => {
+          return row.isFolder === 1
+        }
+      }
+      const ret = []
+      for (const row of rows) {
+        // 找到分类
+        if (folderHandler(row)) {
+          this.addExpandKey(row)
+          if (searchHandler(search, row)) {
+            ret.push(row)
+          } else {
+            // 分类名字没找到，需要从子文档中找
+            const children = row.children || []
+            const searchedChildren = this.searchDoc(search, children, searchHandler, folderHandler)
+            // 如果子文档中有
+            if (searchedChildren && searchedChildren.length > 0) {
+              const rowCopy = Object.assign({}, row)
+              rowCopy.children = searchedChildren
+              ret.push(rowCopy)
+            }
+          }
+        } else {
+          // 不是分类且被找到
+          if (searchHandler(search, row)) {
+            ret.push(row)
+          }
+        }
+      }
+      return ret
+    },
+    addExpandKeys(rows) {
+      if (this.expandAll) {
+        rows.forEach(row => {
+          if (this.isFolder(row)) {
+            this.addExpandKey(row)
+          }
+          const children = row.children
+          if (children && children.length > 0) {
+            this.addExpandKeys(children)
+          }
+        })
+      }
+    },
+    addExpandKey(row) {
+      if (this.expandAll && this.isFolder(row)) {
+        this.expandKeys.push(row.id)
+      }
+    },
+    searchContent(searchText, row) {
+      return (row.url && row.url.toLowerCase().indexOf(searchText) > -1) ||
+        (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
+        (row.docId && row.docId.toLowerCase().indexOf(searchText) > -1)
+    },
+    isFolder(row) {
+      return row.isFolder === 1
     }
   }
 }

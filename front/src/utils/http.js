@@ -135,7 +135,8 @@ export function request(method, url, params, data, headers, isMultipart, callbac
     data: data,
     paramsSerializer: args => {
       return qs.stringify(args, { indices: false })
-    }
+    },
+    responseType: 'arraybuffer'
   }
   const contentType = headers['Content-Type'] || headers['content-type']
   // 如果是模拟表单提交

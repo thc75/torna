@@ -2,12 +2,10 @@
 
 在后端没有提供接口数据的情况下，前端开发人员可以配置Mock，模拟返回数据。
 
-点击`添加配置`，填入基本信息，如下图所示：
+点击`添加配置`，填入基本信息
 
-<img src="/static/help/images/mock1.png" style="height: 300px" />
-
+- Mock地址：自动生成，可在url后面添加query参数区分不同mock，如`xx/getOrder?id=2`
 - 名称：配置名称
-- 参数：请求参数
 
 接着填写返回信息
 
@@ -266,30 +264,9 @@ return menuSource;
 ]
 ```
 
-### 使用内置变量
 
-默认提供了两个内置变量：
+## 忽略参数
 
-- $params：获取请求参数
-- $body：获取请求体json对象
+默认情况下通过不同的参数来区分不同的mock配置，如果需要忽略任何参数，可在`application.properties`中指定`torna.mock.ignore-param=true`将忽略任何参数
 
-首先定义请求参数
-
-<img src="/static/help/images/mock6.png" style="height: 200px" />
-
-然后编写脚本：
-
-```javascript
-var name = $params.name;
-return {
-    "myName": name
-}
-```
-
-运行结果如下：
-
-<img src="/static/help/images/mock7.png" style="height: 400px" />
-
-同理，如果参数填的是json格式，可以使用`var name = $body.name`获取变量。
-
-> 备注：Mock脚本是预先生成结果然后保存到数据库中等待请求，因此每次请求的结果都是一样的。
+如：`http://xxx/mock/listOrder`,`http://xxx/mock/listOrder?id=1`将返回同样的内容

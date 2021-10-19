@@ -119,11 +119,9 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
     }
 
     public void delete(long moduleId, User user) {
-        if (user.isSuperAdmin()) {
-            Module module = getById(moduleId);
-            module.setModifierId(user.getUserId());
-            this.delete(module);
-        }
+        Module module = getById(moduleId);
+        module.setModifierId(user.getUserId());
+        this.delete(module);
     }
 
 }

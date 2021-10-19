@@ -104,7 +104,7 @@
       >
         <el-form-item :label="$ts('user')" required>
           <!-- role_pos -->
-          <user-select ref="userSelect" multiple />
+          <user-select-v2 ref="userSelect" multiple />
         </el-form-item>
         <el-form-item :label="$ts('role')" prop="roleCode">
           <el-select v-model="memberAddFormData.roleCode">
@@ -122,11 +122,11 @@
   </div>
 </template>
 <script>
-import UserSelect from '@/components/UserSelect'
+import UserSelectV2 from '@/components/UserSelectV2'
 export default {
   name: 'SpaceMember',
   components: {
-    UserSelect
+    UserSelectV2
   },
   props: {
     spaceId: {
@@ -184,6 +184,11 @@ export default {
     },
     onMemberAdd() {
       this.memberAddDlgShow = true
+      this.$nextTick(() => {
+        this.post('/user/list', { }, resp => {
+          this.$refs.userSelect.setData(resp.data)
+        })
+      })
     },
     onRoleChange(row) {
       const data = {

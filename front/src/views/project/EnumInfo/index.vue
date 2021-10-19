@@ -108,7 +108,6 @@
       :title="dialogEnumItemTitle"
       :visible.sync="dialogEnumItemVisible"
       :close-on-click-modal="false"
-      @close="resetForm('dialogEnumItemForm')"
     >
       <el-form
         ref="dialogEnumItemForm"
@@ -275,8 +274,13 @@ export default {
       const enumInfo = this.enumInfo
       this.dialogEnumItemTitle = this.$ts('newItem')
       this.dialogEnumItemVisible = true
-      this.dialogEnumItemFormData.id = 0
-      this.dialogEnumItemFormData.enumId = enumInfo.id
+      Object.assign(this.dialogEnumItemFormData, {
+        id: 0,
+        name: '',
+        value: '',
+        description: '',
+        enumId: enumInfo.id
+      })
     },
     onEnumItemUpdate(row) {
       this.dialogEnumItemTitle = this.$ts('updateDict')

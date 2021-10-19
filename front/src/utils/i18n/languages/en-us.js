@@ -2,6 +2,17 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'canUseScope': 'Use Scope',
+  'dlgClose': 'Close',
+  'preRequestScript': 'Pre-request Script',
+  'afterResponseScript': 'After Response Script',
+  'composeProject': 'Compose Project',
+  'setting': 'Setting',
+  'lockDoc': 'Lock Doc',
+  'lockOn': 'Lock',
+  'unlock': 'Unlock',
+  'lockDocDesc': 'Locked doc can\'t be modified by push.',
+  'nameValue': 'Name(Value)',
   'ok': 'OK',
   'cancel': 'Cancel',
   'home': 'Home',
@@ -364,14 +375,10 @@ const MAPPING = {
   'debugEnvPublicTip': 'Public: debug url show in compose page',
   'orderIndex': 'Order',
   'expand': 'Expand',
-  'collapse': 'Collapse'
+  'collapse': 'Collapse',
   'script': 'Script',
   'preScriptTip': 'Modify request info before send request',
-  'afterScriptTip': 'Modify response info after response',
-  'canUseScope': 'Use Scope',
-  'dlgClose': 'Close',
-  'preRequestScript': 'Pre-request Script',
-  'afterResponseScript': 'After Response Script'
+  'afterScriptTip': 'Modify response info after response'
 
 }
 

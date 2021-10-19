@@ -3,8 +3,10 @@ package cn.torna.web.controller.admin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdUtil;
+import cn.torna.dao.entity.UserInfo;
 import cn.torna.service.UserInfoService;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
@@ -12,6 +14,7 @@ import cn.torna.web.controller.admin.param.ResetPasswordParam;
 import cn.torna.web.controller.admin.param.UserCreateParam;
 import cn.torna.web.controller.admin.param.UserInfoParam;
 import cn.torna.web.controller.admin.param.UserSearch;
+import cn.torna.web.controller.admin.param.UserUpdateParam;
 import cn.torna.web.controller.admin.vo.UserCreateVO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * @author tanghc
@@ -71,6 +75,24 @@ public class UserController {
         return Result.ok(userCreateVO);
     }
 
+    @PostMapping("update")
+    public Result update(@RequestBody UserUpdateParam param) {
+        String email = param.getUsername();
+        UserInfo exist = userInfoService.get("username", email);
+        if (exist != null && !Objects.equals(param.getId(), exist.getId())) {
+            throw new BizException("该邮箱已存在");
+        }
+        UserInfo userInfo = userInfoService.getById(param.getId());
+        CopyUtil.copyPropertiesIgnoreNull(param, userInfo);
+        // 简单判断邮箱
+        String username = userInfo.getUsername();
+        if (username.contains("@") && StringUtils.isEmpty(userInfo.getEmail())) {
+            userInfo.setEmail(username);
+        }
+        userInfoService.update(userInfo);
+        return Result.ok();
+    }
+
     @PostMapping("disable")
     public Result disable(@RequestBody UserInfoParam param) {
         Long id = param.getId();
@@ -82,6 +104,13 @@ public class UserController {
     public Result enable(@RequestBody UserInfoParam param) {
         Long id = param.getId();
         userInfoService.enableUser(id);
+        return Result.ok();
+    }
+
+    @PostMapping("delete")
+    public Result delete(@RequestBody UserInfoParam param) {
+        Long id = param.getId();
+        userInfoService.deleteById(id);
         return Result.ok();
     }
 

@@ -1,5 +1,64 @@
 # 更新日志
 
+## 1.10.5
+
+- 【优化】优化字典展示
+- 【优化】请求参数可以选择字典项
+
+## 1.10.4
+
+- 【修复】修复推送删除了自定义错误码问题
+
+## 1.10.3
+
+- 【修复】修复聚合浏览页面点击调试需要登录问题
+
+## 1.10.2
+
+- 【修复】修复下载二进制文件错误
+- 【修复】修复无法格式化json问题
+
+## 1.10.1
+
+- 【修复】修复聚合项目预览页登录失败BUG
+- 【优化】优化swagger插件 [PR](https://gitee.com/durcframework/torna/pulls/15)
+- 【优化】优化聚合项目预览页左侧树展示
+- 【优化】优化聚合项目公共参数展示
+- 【优化】优化文档预览页展示
+
+## 1.10.0
+
+- 【修复】模块无法删除问题 [I3I2B1](https://gitee.com/durcframework/torna/issues/I3I2B1) [I3ZG1Q](https://gitee.com/durcframework/torna/issues/I3ZG1Q)
+- 【修复】请求支持PATCH方法 [I46MAP](https://gitee.com/durcframework/torna/issues/I46MAP)
+- 【优化】用户管理的优化 [I424OB](https://gitee.com/durcframework/torna/issues/I424OB )
+- 【优化】有重复header优先使用公共的 [I3ZO8R](https://gitee.com/durcframework/torna/issues/I3ZO8R)
+- 【优化】不记住公共请求头 
+- 【优化】根据环境保存Debug配置
+- 【新增】增加接口更新锁定 [I465C7](https://gitee.com/durcframework/torna/issues/I465C7)
+- 【新增】页左侧树自动打开
+
+## 1.9.4
+
+- 【修复】修复mock，移除请求参数部分
+
+## 1.9.3
+
+- 【优化】优化Postman导入
+- 【优化】成员选择控件
+- 【增强】增强聚合文档展示，支持自定义页面
+
+## 1.9.2
+
+- 【修复】简单数组类型显示方式错误 [#I3ZFCU](https://gitee.com/durcframework/torna/issues/I3ZFCU)
+- 【优化】优化markdown导出 [#I3Z9NS](https://gitee.com/durcframework/torna/issues/I3Z9NS)
+
+## 1.9.1
+
+- 【增强】mock添加一个配置，忽略query + body
+- 【优化】mock的content-type默认选择json
+- 【优化】优化Postman导入
+- 【修复】修复推送出现NPE问题
+
 ## 1.9.0
 
 - 【新增】排序字段，可调整文档/参数顺序

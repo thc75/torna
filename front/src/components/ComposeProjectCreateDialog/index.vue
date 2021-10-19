@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="$ts('createProject')"
+    :title="$ts('composeProject')"
     :close-on-click-modal="false"
     :visible.sync="visible"
     @close="onHide"

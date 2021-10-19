@@ -20,8 +20,11 @@ import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.builder.ApiDocBuilder;
 import cn.torna.swaggerplugin.builder.DataType;
 import cn.torna.swaggerplugin.builder.FieldDocInfo;
+import cn.torna.swaggerplugin.builder.MvcRequestInfoBuilder;
+import cn.torna.swaggerplugin.builder.RequestInfoBuilder;
 import cn.torna.swaggerplugin.exception.HiddenException;
 import cn.torna.swaggerplugin.exception.IgnoreException;
+import cn.torna.swaggerplugin.util.ClassUtil;
 import cn.torna.swaggerplugin.util.PluginUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -35,28 +38,16 @@ import io.swagger.annotations.ExtensionProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.lang.annotation.Annotation;
@@ -68,12 +59,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -81,58 +72,58 @@ import java.util.stream.Collectors;
  */
 public class SwaggerPluginService {
 
-
-    private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final TornaConfig tornaConfig;
     private final OpenClient client;
 
-    public SwaggerPluginService(RequestMappingHandlerMapping requestMappingHandlerMapping, TornaConfig tornaConfig) {
-        this.requestMappingHandlerMapping = requestMappingHandlerMapping;
+    public SwaggerPluginService(TornaConfig tornaConfig) {
         this.tornaConfig = tornaConfig;
         client = new OpenClient(tornaConfig.getUrl(), tornaConfig.getAppKey(), tornaConfig.getSecret());
     }
 
-    public void init() {
+    public void pushDoc() {
         if (!tornaConfig.getEnable()) {
             return;
         }
-        Objects.requireNonNull(requestMappingHandlerMapping, "requestMappingHandlerMapping can not null");
-        Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
+        String basePackage = tornaConfig.getBasePackage();
+        if (StringUtils.isEmpty(basePackage)) {
+            throw new IllegalArgumentException("basePackage can not empty.");
+        }
+        this.doPush();
+    }
+
+    protected void doPush() {
+        String packageConfig = tornaConfig.getBasePackage();
+        String[] pkgs = packageConfig.split(";");
+        Set<Class<?>> classes = new HashSet<>();
+        for (String basePackage : pkgs) {
+            Set<Class<?>> clazzs = ClassUtil.getClasses(basePackage, Api.class);
+            classes.addAll(clazzs);
+        }
         Map<ControllerInfo, List<DocItem>> controllerDocMap = new HashMap<>(32);
-        List<Class<?>> hiddenClass = new ArrayList<>();
-        for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethodMap.entrySet()) {
-            HandlerMethod handlerMethod = entry.getValue();
-            if (!match(handlerMethod)) {
-                continue;
-            }
-            Class<?> controllerClass = handlerMethod.getBeanType();
-            if (hiddenClass.contains(controllerClass)) {
-                continue;
-            }
+        for (Class<?> clazz : classes) {
             ControllerInfo controllerInfo;
             try {
-                controllerInfo = buildControllerInfo(controllerClass);
+                controllerInfo = buildControllerInfo(clazz);
             } catch (HiddenException | IgnoreException e) {
-                hiddenClass.add(controllerClass);
                 System.out.println(e.getMessage());
                 continue;
             }
             List<DocItem> docItems = controllerDocMap.computeIfAbsent(controllerInfo, k -> new ArrayList<>());
-            RequestMappingInfo requestMappingInfo = entry.getKey();
-            try {
-                DocItem apiInfo = buildDocItem(requestMappingInfo, handlerMethod);
-                docItems.add(apiInfo);
-            } catch (HiddenException | IgnoreException e) {
-                System.out.println(e.getMessage());
-            } catch (Exception e) {
-                System.out.printf("构建文档出错, method:%s%n", handlerMethod.toString());
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            ReflectionUtils.doWithMethods(clazz, method -> {
+                try {
+                    DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(method, tornaConfig));
+                    docItems.add(apiInfo);
+                } catch (HiddenException | IgnoreException e) {
+                    System.out.println(e.getMessage());
+                } catch (Exception e) {
+                    System.out.printf("Create doc error, method:%s%n", method);
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }, this::match);
         }
         List<DocItem> docItems = mergeSameFolder(controllerDocMap);
         this.push(docItems);
     }
-
 
     private List<DocItem> mergeSameFolder(Map<ControllerInfo, List<DocItem>> controllerDocMap) {
         // key：文件夹，value：文档
@@ -179,17 +170,17 @@ public class SwaggerPluginService {
         request.setAuthor(tornaConfig.getAuthor());
         request.setIsReplace(Booleans.toValue(tornaConfig.getIsReplace()));
         if (tornaConfig.getDebug()) {
-            System.out.println("-------- Torna配置 --------");
+            System.out.println("-------- Torna config --------");
             System.out.println(JSON.toJSONString(tornaConfig, SerializerFeature.PrettyFormat));
-            System.out.println("-------- 推送数据 --------");
+            System.out.println("-------- Push data --------");
             System.out.println(JSON.toJSONString(request));
         }
         // 发送请求
         DocPushResponse response = client.execute(request);
         if (response.isSuccess()) {
-            System.out.println("推送Torna文档成功");
+            System.out.println("Push success");
         } else {
-            System.out.println("推送Torna文档失败，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+            System.out.println("Push error，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
         }
     }
 
@@ -207,35 +198,38 @@ public class SwaggerPluginService {
         return debugEnvs;
     }
 
-    protected DocItem buildDocItem(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod) throws HiddenException, IgnoreException {
-        ApiOperation apiOperation = handlerMethod.getMethodAnnotation(ApiOperation.class);
-        ApiIgnore apiIgnore = handlerMethod.getMethodAnnotation(ApiIgnore.class);
+    protected DocItem buildDocItem(RequestInfoBuilder requestInfoBuilder) throws HiddenException, IgnoreException {
+        Method method = requestInfoBuilder.getMethod();
+        ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
+        ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
         if (apiOperation.hidden()) {
-            throw new HiddenException("隐藏接口（@ApiOperation.hidden=true）：" + apiOperation.value());
+            throw new HiddenException("Hidden API（@ApiOperation.hidden=true）：" + apiOperation.value());
         }
         if (apiIgnore != null) {
-            throw new IgnoreException("忽略接口（@ApiIgnore）：" + apiOperation.value());
+            throw new IgnoreException("Ignore API（@ApiIgnore）：" + apiOperation.value());
         }
-        return buildDocItem(apiOperation, requestMappingInfo, handlerMethod);
+        return doBuildDocItem(requestInfoBuilder);
     }
 
-    protected DocItem buildDocItem(ApiOperation apiOperation, RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod) {
+    protected DocItem doBuildDocItem(RequestInfoBuilder requestInfoBuilder) {
+        ApiOperation apiOperation = requestInfoBuilder.getApiOperation();
+        Method method = requestInfoBuilder.getMethod();
         DocItem docItem = new DocItem();
+        String httpMethod = requestInfoBuilder.getHttpMethod();
         docItem.setAuthor(buildAuthor(apiOperation));
         docItem.setName(apiOperation.value());
         docItem.setDescription(apiOperation.notes());
-        docItem.setOrderIndex(buildOrder(apiOperation, handlerMethod));
-        docItem.setUrl(buildUrl(requestMappingInfo));
-        String httpMethod = buildHttpMethod(apiOperation, handlerMethod);
-        String contentType = buildContentType(httpMethod, apiOperation, handlerMethod, requestMappingInfo);
+        docItem.setOrderIndex(buildOrder(apiOperation, method));
+        docItem.setUrl(requestInfoBuilder.buildUrl());
+        String contentType = requestInfoBuilder.buildContentType();
         docItem.setHttpMethod(httpMethod);
         docItem.setContentType(contentType);
         docItem.setIsFolder(PluginConstants.FALSE);
-        docItem.setPathParams(buildPathParams(handlerMethod));
-        docItem.setHeaderParams(buildHeaderParams(handlerMethod));
-        docItem.setQueryParams(buildQueryParams(handlerMethod, httpMethod));
-        DocParamReqWrapper reqWrapper = buildRequestParams(handlerMethod, httpMethod);
-        DocParamRespWrapper respWrapper = buildResponseParams(handlerMethod);
+        docItem.setPathParams(buildPathParams(method));
+        docItem.setHeaderParams(buildHeaderParams(method));
+        docItem.setQueryParams(buildQueryParams(method, httpMethod));
+        DocParamReqWrapper reqWrapper = buildRequestParams(method, httpMethod);
+        DocParamRespWrapper respWrapper = buildResponseParams(method);
         docItem.setRequestParams(reqWrapper.getData());
         docItem.setResponseParams(respWrapper.getData());
         docItem.setIsRequestArray(reqWrapper.getIsArray());
@@ -246,8 +240,8 @@ public class SwaggerPluginService {
         return docItem;
     }
 
-    protected int buildOrder(ApiOperation apiOperation, HandlerMethod handlerMethod) {
-        Order order = handlerMethod.getMethodAnnotation(Order.class);
+    protected int buildOrder(ApiOperation apiOperation, Method method) {
+        Order order = method.getAnnotation(Order.class);
         if (order != null) {
             return order.value();
         } else {
@@ -262,8 +256,8 @@ public class SwaggerPluginService {
                 .collect(Collectors.joining(","));
     }
 
-    protected List<DocParamPath> buildPathParams(HandlerMethod handlerMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "path".equalsIgnoreCase(param.paramType()));
+    protected List<DocParamPath> buildPathParams(Method method) {
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(method, param -> "path".equalsIgnoreCase(param.paramType()));
         List<DocParamPath> docParamPaths = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -276,7 +270,6 @@ public class SwaggerPluginService {
                 docParamPaths.add(docParamPath);
             }
         }
-        Method method = handlerMethod.getMethod();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
@@ -340,8 +333,8 @@ public class SwaggerPluginService {
         return false;
     }
 
-    protected List<DocParamHeader> buildHeaderParams(HandlerMethod handlerMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "header".equalsIgnoreCase(param.paramType()));
+    protected List<DocParamHeader> buildHeaderParams(Method method) {
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(method, param -> "header".equalsIgnoreCase(param.paramType()));
         List<DocParamHeader> docParamHeaders = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -353,7 +346,6 @@ public class SwaggerPluginService {
                 docParamHeaders.add(docParamHeader);
             }
         }
-        Method method = handlerMethod.getMethod();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
@@ -375,8 +367,8 @@ public class SwaggerPluginService {
         return docParamHeaders;
     }
 
-    protected List<DocParamReq> buildQueryParams(HandlerMethod handlerMethod, String httpMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param -> "query".equalsIgnoreCase(param.paramType()));
+    protected List<DocParamReq> buildQueryParams(Method method, String httpMethod) {
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(method, param -> "query".equalsIgnoreCase(param.paramType()));
         List<DocParamReq> docParamReqs = new ArrayList<>(apiImplicitParamList.size());
         if (!apiImplicitParamList.isEmpty()) {
             for (ApiImplicitParam apiImplicitParam : apiImplicitParamList) {
@@ -389,9 +381,16 @@ public class SwaggerPluginService {
                 docParamReqs.add(paramReq);
             }
         }
-        Method method = handlerMethod.getMethod();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
+            PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
+            if (pathVariable != null) {
+                continue;
+            }
+            RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
+            if (requestHeader != null) {
+                continue;
+            }
             Class<?> parameterType = parameter.getType();
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
             String name = getParameterName(parameter);
@@ -469,8 +468,8 @@ public class SwaggerPluginService {
         return name;
     }
 
-    protected DocParamReqWrapper buildRequestParams(HandlerMethod handlerMethod, String httpMethod) {
-        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(handlerMethod, param ->
+    protected DocParamReqWrapper buildRequestParams(Method method, String httpMethod) {
+        List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(method, param ->
                 "form".equalsIgnoreCase(param.paramType())
                         || "body".equalsIgnoreCase(param.paramType())
                         || param.dataType().toLowerCase().contains("file")
@@ -493,7 +492,6 @@ public class SwaggerPluginService {
                 }
             }
         }
-        Method method = handlerMethod.getMethod();
         Parameter[] parameters = method.getParameters();
         boolean array = false;
         String arrayElementDataType = DataType.OBJECT.getValue();
@@ -541,7 +539,7 @@ public class SwaggerPluginService {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("生成文档参数出错，parameter：" + parameter.toString() + "，method:" + method.toString() + "， msg:" + e.getMessage());
+                System.out.println("Create doc parameters error, parameter：" + parameter.toString() + "，method:" + method + "， msg:" + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -556,7 +554,7 @@ public class SwaggerPluginService {
      * @return true：是body参数
      */
     protected boolean isBodyParameter(Parameter parameter, String httpMethod) {
-        if (isFileParameter(parameter)) {
+        if (PluginUtil.isFileParameter(parameter)) {
             return true;
         }
         Annotation[] annotations = parameter.getAnnotations();
@@ -574,17 +572,16 @@ public class SwaggerPluginService {
     }
 
 
-    protected DocParamRespWrapper buildResponseParams(HandlerMethod handlerMethod) {
-        MethodParameter returnType = handlerMethod.getReturnType();
-        Type genericParameterType = returnType.getGenericParameterType();
+    protected DocParamRespWrapper buildResponseParams(Method method) {
+        Type genericParameterType = method.getGenericReturnType();
         Map<String, Class<?>> genericParamMap = buildParamsByGeneric(genericParameterType);
-        Class<?> type = returnType.getParameterType();
+        Class<?> type = method.getReturnType();
         boolean isCollection = PluginUtil.isCollectionOrArray(type);
         boolean array = PluginUtil.isCollectionOrArray(type) || isCollection;
         // 数组元素
         String arrayElementDataType = DataType.OBJECT.getValue();
         List<DocParamResp> docParamRespList;
-        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(handlerMethod.getMethodAnnotation(ApiParam.class));
+        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(method.getAnnotation(ApiParam.class));
         // 如果只返回数组
         if (array) {
             // 获取数元素类型
@@ -719,8 +716,8 @@ public class SwaggerPluginService {
         }
     }
 
-    protected List<ApiImplicitParam> buildApiImplicitParams(HandlerMethod handlerMethod, ParamFilter filter) {
-        ApiImplicitParams apiImplicitParams = handlerMethod.getMethodAnnotation(ApiImplicitParams.class);
+    protected List<ApiImplicitParam> buildApiImplicitParams(Method method, ParamFilter filter) {
+        ApiImplicitParams apiImplicitParams = method.getAnnotation(ApiImplicitParams.class);
         if (apiImplicitParams == null) {
             return Collections.emptyList();
         }
@@ -733,89 +730,14 @@ public class SwaggerPluginService {
         return apiImplicitParamList;
     }
 
-    public String buildUrl(RequestMappingInfo requestMappingInfo) {
-        Set<String> patterns = requestMappingInfo.getPatternsCondition().getPatterns();
-        return patterns.iterator().next();
-    }
-
-    private String buildContentType(String httpMethod, ApiOperation apiOperation, HandlerMethod handlerMethod, RequestMappingInfo requestMappingInfo) {
-        String consumes = apiOperation.consumes();
-        if (StringUtils.hasText(consumes)) {
-            return consumes;
-        }
-        MethodParameter[] methodParameters = handlerMethod.getMethodParameters();
-        Set<MediaType> mediaTypes = requestMappingInfo.getConsumesCondition().getConsumableMediaTypes();
-        for (MethodParameter methodParameter : methodParameters) {
-            RequestBody requestBody = methodParameter.getParameterAnnotation(RequestBody.class);
-            if (requestBody != null) {
-                return MediaType.APPLICATION_JSON_VALUE;
-            }
-            if (isFileParameter(methodParameter.getParameter())) {
-                return MediaType.MULTIPART_FORM_DATA_VALUE;
-            }
-        }
-        if (mediaTypes.contains(MediaType.MULTIPART_FORM_DATA)) {
-            return MediaType.MULTIPART_FORM_DATA_VALUE;
-        }
-        if (mediaTypes.contains(MediaType.APPLICATION_FORM_URLENCODED) || httpMethod.equalsIgnoreCase(HttpMethod.POST.name())) {
-            return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-        }
-        return "";
-    }
-
-    protected boolean isFileParameter(Parameter parameter) {
-        Class<?> type = parameter.getType();
-        boolean pojo = PluginUtil.isPojo(type);
-        if (pojo) {
-            AtomicInteger fileCount = new AtomicInteger();
-            ReflectionUtils.doWithFields(type, field -> {
-                String fieldType = field.getType().getSimpleName();
-                if (fieldType.contains("MultipartFile")) {
-                    fileCount.incrementAndGet();
-                }
-            });
-            return fileCount.get() > 0;
-        } else {
-            String parameterType = PluginUtil.getParameterType(parameter);
-            return parameterType.equals("file") || parameterType.equals("file[]");
-        }
-    }
-
-    protected String buildHttpMethod(ApiOperation apiOperation, HandlerMethod handlerMethod) {
-        String httpMethod = apiOperation.httpMethod();
-        if (StringUtils.hasText(httpMethod)) {
-            return httpMethod;
-        }
-        RequestMapping requestMapping = handlerMethod.getMethodAnnotation(RequestMapping.class);
-        if (requestMapping != null) {
-            RequestMethod[] methods = requestMapping.method();
-            if (methods.length == 0) {
-                return this.tornaConfig.getMethodWhenMulti();
-            } else {
-                return methods[0].name();
-            }
-        }
-        GetMapping getMapping = handlerMethod.getMethodAnnotation(GetMapping.class);
-        if (getMapping != null) return HttpMethod.GET.name();
-        PostMapping postMapping = handlerMethod.getMethodAnnotation(PostMapping.class);
-        if (postMapping != null) return HttpMethod.POST.name();
-        PutMapping putMapping = handlerMethod.getMethodAnnotation(PutMapping.class);
-        if (putMapping != null) return HttpMethod.PUT.name();
-        DeleteMapping deleteMapping = handlerMethod.getMethodAnnotation(DeleteMapping.class);
-        if (deleteMapping != null) return HttpMethod.DELETE.name();
-        PatchMapping patchMapping = handlerMethod.getMethodAnnotation(PatchMapping.class);
-        if (patchMapping != null) return HttpMethod.PATCH.name();
-        return HttpMethod.GET.name();
-    }
-
     private ControllerInfo buildControllerInfo(Class<?> controllerClass) throws HiddenException, IgnoreException {
         Api api = AnnotationUtils.findAnnotation(controllerClass, Api.class);
         ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
         if (api != null && api.hidden()) {
-            throw new HiddenException("隐藏文档（@Api.hidden=true）：" + api.value());
+            throw new HiddenException("Hidden doc（@Api.hidden=true）：" + api.value());
         }
         if (apiIgnore != null) {
-            throw new IgnoreException("忽略文档（@ApiIgnore）：" + controllerClass.getName());
+            throw new IgnoreException("Ignore doc（@ApiIgnore）：" + controllerClass.getName());
         }
         String name, description;
         int position = 0;
@@ -841,23 +763,8 @@ public class SwaggerPluginService {
         return tornaConfig;
     }
 
-    public boolean match(HandlerMethod handlerMethod) {
-        return isRightPackage(handlerMethod) && handlerMethod.hasMethodAnnotation(ApiOperation.class);
-    }
-
-    private boolean isRightPackage(HandlerMethod handlerMethod) {
-        String basePackage = tornaConfig.getBasePackage();
-        if (StringUtils.isEmpty(basePackage)) {
-            return true;
-        }
-        String name = handlerMethod.getBeanType().getName();
-        String[] packages = basePackage.split(";");
-        for (String pkg : packages) {
-            if (name.contains(pkg)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean match(Method method) {
+        return method.getAnnotation(ApiOperation.class) != null;
     }
 
     private interface ParamFilter {

@@ -112,10 +112,20 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
             Long pid = savedParam.getId();
+            // 修复NPE问题
+            if (pid == null) {
+                DocParam exist = getByDataId(savedParam.getDataId());
+                if (exist != null) {
+                    pid = exist.getId();
+                }
+            }
             for (DocParamDTO child : children) {
                 // 如果父节点被删除，子节点也要删除
                 if (docParam.getIsDeleted() == Booleans.TRUE) {
                     child.setIsDeleted(docParam.getIsDeleted());
+                }
+                if (pid == null) {
+                    continue;
                 }
                 this.doSave(child, pid, docInfo, paramStyleEnum, user);
             }
@@ -143,6 +153,9 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     public DocParam saveParam(DocParam docParam) {
         if (docParam.getDescription() == null) {
             docParam.setDescription("");
+        }
+        if (docParam.getExample() == null) {
+            docParam.setExample("");
         }
         this.getMapper().saveParam(docParam);
         return docParam;

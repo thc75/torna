@@ -56,11 +56,14 @@
           <el-input v-model="formData.path" placeholder="path">
             <template slot="prepend">{{ mockBaseUrl }}</template>
           </el-input>
+          <span class="tip">
+            可在path后面添加query参数区分不同mock，如：{{ 'product/getDetail?id=2' }}
+          </span>
         </el-form-item>
         <el-form-item :label="$ts('name')" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
-        <el-form-item :label="$ts('param')">
+<!--        <el-form-item v-show="!ignoreParam" :label="$ts('param')">
           <el-switch
             v-model="formData.requestDataType"
             :active-text="$ts('jsonType')"
@@ -79,7 +82,7 @@
             :options="aceEditorConfig"
             @init="editorInit"
           />
-        </el-form-item>
+        </el-form-item>-->
         <el-divider content-position="left">{{ $ts('response') }}</el-divider>
         <el-form-item label="Http Status">
           <el-input-number v-model="formData.httpStatus" controls-position="right" />
@@ -207,7 +210,8 @@ export default {
       mockResultDlgTitle: $ts('runResult'),
       mockResultDlgView: '',
       mockResultDlgShow: false,
-      mockResultRunResult: false
+      mockResultRunResult: false,
+      ignoreParam: false
     }
   },
   computed: {
@@ -232,6 +236,11 @@ export default {
     item(newVal) {
       this.init(newVal)
     }
+  },
+  mounted() {
+    this.pmsConfig().then(config => {
+      this.ignoreParam = config.ignoreParam
+    })
   },
   methods: {
     init(item) {
@@ -338,6 +347,9 @@ export default {
         name: $ts('newConfig'),
         path: path,
         responseBody: this.formatJson(respBody),
+        responseHeaders: [
+          { name: 'Content-Type', value: 'application/json;charset=UTF-8', isDeleted: 0, isNew: 1 }
+        ],
         isNew: true
       })
       this.addMock(node)
@@ -394,18 +406,11 @@ export default {
       })
     },
     validate(callback) {
-      const promiseForm = this.$refs.mockForm.validate()
-      let promiseArr = [promiseForm]
-      if (this.$refs.dataKvRef) {
-        const promiseKv = this.$refs.dataKvRef.validate()
-        const promiseHeader = this.$refs.responseHeadersRef.validate()
-        promiseArr = promiseArr.concat(promiseKv).concat(promiseHeader)
-      }
-      Promise.all(promiseArr).then(validArr => {
-        // 到这里来表示全部内容校验通过
-        callback.call(this)
-      }).catch((e) => {
-        this.tipError($ts('pleaseFinishForm'))
+      this.$refs.mockForm.validate(valid => {
+        if (valid) {
+          // 到这里来表示全部内容校验通过
+          callback.call(this)
+        }
       })
     },
     isAdded() {
@@ -415,7 +420,7 @@ export default {
       const filter = row => {
         return row.isDeleted === undefined || row.isDeleted === 0
       }
-      this.formData.dataKv = this.formData.dataKv.filter(filter)
+      // this.formData.dataKv = this.formData.dataKv.filter(filter)
       this.formData.responseHeaders = this.formData.responseHeaders.filter(filter)
     }
   }

@@ -18,6 +18,7 @@ import cn.torna.web.controller.system.param.IdParam;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,8 @@ public class MockConfigController {
     @Autowired
     private MockConfigService mockConfigService;
 
+    @Value("${torna.mock.ignore-param:false}")
+    private boolean ignoreParam;
 
     /**
      * 获取
@@ -57,16 +60,6 @@ public class MockConfigController {
 
     private MockConfigVO convert(MockConfig mockConfig) {
         MockConfigVO mockConfigVO = CopyUtil.copyBean(mockConfig, MockConfigVO::new);
-        switch (MockRequestDataTypeEnum.of(mockConfigVO.getRequestDataType())) {
-            case KV:
-                mockConfigVO.setDataKv(JSON.parseArray(mockConfig.getRequestData(), NameValueVO.class));
-                mockConfigVO.setDataJson("");
-                break;
-            case JSON:
-                mockConfigVO.setDataKv(Collections.emptyList());
-                mockConfigVO.setDataJson(mockConfig.getRequestData());
-                break;
-        }
         mockConfigVO.setResponseHeaders(JSON.parseArray(mockConfig.getResponseHeaders(), NameValueVO.class));
         MockResultTypeEnum mockResponseBodyTypeEnum = StringUtils.hasLength(mockConfig.getMockScript()) ?
                 MockResultTypeEnum.SCRIPT : MockResultTypeEnum.CUSTOM;
@@ -116,10 +109,14 @@ public class MockConfigController {
     }
 
     private String buildDataId(MockConfigParam param) {
-        List<NameValueDTO> dataKv = param.getDataKv();
-        String dataKvContent = MockConfigService.getDataKvContent(dataKv);
-        String dataJson = param.getDataJson();
-        return MockConfigService.buildDataId(param.getPath(), dataKvContent, dataJson);
+        String path = param.getPath();
+        if (ignoreParam) {
+            if (path.contains("?")) {
+                path = path.split("\\?")[0];
+            }
+            return MockConfigService.buildDataId(path);
+        }
+        return MockConfigService.buildDataId(path);
     }
 
     private String getRequestData(MockConfigParam param) {

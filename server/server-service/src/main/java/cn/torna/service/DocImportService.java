@@ -163,7 +163,19 @@ public class DocImportService {
             } else {
                 DocItemCreateDTO docItemCreateDTO = this.buildPostmanDocItemCreateDTO(item, parent, module, user);
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
-                // 创建参数
+
+                // path参数
+                Url url = item.getRequest().getUrl();
+                List<Param> variable = url.getVariable();
+                this.savePostmanParams(variable, docItem, docParameter -> {
+                    return ParamStyleEnum.PATH;
+                }, user);
+                // query参数
+                List<Param> queryParams = url.getQuery();
+                this.savePostmanParams(queryParams, docItem, docParameter -> {
+                    return ParamStyleEnum.QUERY;
+                }, user);
+                // body参数
                 List<Param> params = this.buildPostmanParams(item);
                 this.savePostmanParams(params, docItem, docParameter -> {
                     return ParamStyleEnum.REQUEST;
@@ -175,11 +187,6 @@ public class DocImportService {
     private List<Param> buildPostmanParams(Item item) {
         List<Param> list = new ArrayList<>();
         Request request = item.getRequest();
-        Url url = request.getUrl();
-        List<Param> query = url.getQuery();
-        if (query != null) {
-            list.addAll(query);
-        }
         Body body = request.getBody();
         if (body != null) {
             List<Param> params = this.parseBody(body);
@@ -193,6 +200,9 @@ public class DocImportService {
         switch (mode) {
             case "raw":
                 String json = body.getRaw();
+                if (StringUtils.isEmpty(json)) {
+                    return Collections.emptyList();
+                }
                 JSONObject jsonObject = JSON.parseObject(json);
                 return this.parseParams(jsonObject);
             case "urlencoded":
@@ -203,31 +213,52 @@ public class DocImportService {
     }
 
     private List<Param> parseParams(JSONObject jsonObject) {
-        List<Param> list = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-            Param param = new Param();
-            list.add(param);
-            param.setKey(entry.getKey());
-            param.setType("string");
-            Object value = entry.getValue();
-            if (value instanceof JSONObject) {
-                param.setType("object");
-                JSONObject valueObject = (JSONObject) value;
-                List<Param> params = this.parseParams(valueObject);
-                param.setChildren(params);
-            } else if (value instanceof JSONArray) {
-                param.setType("array");
-                JSONArray array = (JSONArray) value;
-                if (array.size() > 0) {
-                    JSONObject el = array.getJSONObject(0);
-                    List<Param> params = this.parseParams(el);
+        try {
+            List<Param> list = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                Param param = new Param();
+                list.add(param);
+                param.setKey(entry.getKey());
+                param.setType("string");
+                Object value = entry.getValue();
+                if (value instanceof JSONObject) {
+                    param.setType("object");
+                    JSONObject valueObject = (JSONObject) value;
+                    List<Param> params = this.parseParams(valueObject);
                     param.setChildren(params);
+                } else if (value instanceof JSONArray) {
+                    param.setType("array");
+                    JSONArray array = (JSONArray) value;
+                    if (array.size() > 0) {
+                        if (isPureArray(array)) {
+                            param.setValue(array.toJSONString());
+                        } else {
+                            JSONObject el = array.getJSONObject(0);
+                            List<Param> params = this.parseParams(el);
+                            param.setChildren(params);
+                        }
+
+                    }
+                } else {
+                    param.setValue(String.valueOf(entry.getValue()));
                 }
-            } else {
-                param.setValue(String.valueOf(entry.getValue()));
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(jsonObject.toJSONString());
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isPureArray(JSONArray array) {
+        for (int i = 0; i < array.size(); i++) {
+            String value = array.getString(i);
+            if (value.startsWith("{") && value.endsWith("}")) {
+                return false;
             }
         }
-        return list;
+        return true;
     }
 
     /**
@@ -257,23 +288,10 @@ public class DocImportService {
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
                 // query参数
                 List<DocParameter> queryParameters = item.getQueryParameters();
-                this.saveParams(queryParameters, docItem, docParameter -> ParamStyleEnum.QUERY, user);
+                this.saveParams(queryParameters, docItem, this::buildStyleEnum, user);
                 // body参数
                 List<DocParameter> requestParameters = item.getRequestParameters();
-                this.saveParams(requestParameters, docItem, docParameter -> {
-                    String in = ((DocParameter) docParameter).getIn();
-                    if (in == null) {
-                        in = "request";
-                    }
-                    switch (in) {
-                        case "path":
-                            return ParamStyleEnum.PATH;
-                        case "header":
-                            return ParamStyleEnum.HEADER;
-                        default:
-                            return ParamStyleEnum.REQUEST;
-                    }
-                }, user);
+                this.saveParams(requestParameters, docItem, this::buildStyleEnum, user);
                 List<DocParameter> responseParameters = item.getResponseParameters();
                 this.saveParams(responseParameters, docItem, p -> ParamStyleEnum.RESPONSE, user);
             }
@@ -366,10 +384,11 @@ public class DocImportService {
 
     private DocItemCreateDTO buildPostmanDocItemCreateDTO(Item item, DocInfo parent, Module module, User user) {
         Request request = item.getRequest();
+        String url = request.getUrl().getFullUrl();
         String contentType = this.buildContentType(request);
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getName());
-        docItemCreateDTO.setUrl(request.getUrl().getFullUrl());
+        docItemCreateDTO.setUrl(url);
         docItemCreateDTO.setContentType(contentType);
         docItemCreateDTO.setHttpMethod(request.getMethod());
         docItemCreateDTO.setDescription(request.getDescription());
@@ -400,6 +419,23 @@ public class DocImportService {
                 return "application/x-www-form-urlencoded";
             default:
                 return "";
+        }
+    }
+
+    private ParamStyleEnum buildStyleEnum(IParam docParameter) {
+        String in = ((DocParameter)docParameter).getIn();
+        if (in == null) {
+            in = "request";
+        }
+        switch (in) {
+            case "path":
+                return ParamStyleEnum.PATH;
+            case "query":
+                return ParamStyleEnum.QUERY;
+            case "header":
+                return ParamStyleEnum.HEADER;
+            default:
+                return ParamStyleEnum.REQUEST;
         }
     }
 

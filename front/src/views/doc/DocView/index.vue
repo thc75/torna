@@ -72,7 +72,7 @@
       <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayReqTip')" />
       <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
-    <div v-show="isRequestJson">
+    <div v-show="isShowRequestExample">
       <h4>{{ $ts('requestExample') }}</h4>
       <pre class="code-block">{{ formatJson(requestExample) }}</pre>
     </div>
@@ -199,7 +199,11 @@ export default {
   },
   computed: {
     isRequestJson() {
-      return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
+      const docInfo = this.docInfo
+      return docInfo.contentType && docInfo.contentType.toLowerCase().indexOf('json') > -1
+    },
+    isShowRequestExample() {
+      return this.isRequestJson && this.docInfo.requestParams.length > 0
     },
     requestParamHiddenColumns() {
       const isRawArray = this.docInfo.isRequestArray && this.docInfo.requestArrayType !== 'object'

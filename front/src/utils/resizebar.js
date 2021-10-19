@@ -2,12 +2,11 @@ import variables from '@/styles/variables.scss'
 
 const LEFT_WIDTH_KEY = 'torna-menuwidth'
 // 分隔条位置
-const RESIZE_BAR_MARGIN_LEFT = `${-2}px`
+const RESIZE_BAR_MARGIN_LEFT = `${-4}px`
 const OPACITY_1 = '1'
 const OPACITY_0 = '0'
 const MIN_WIDTH = 50
 const MAX_WIDTH = 800
-const CLIENT_WIDTH = document.body.clientWidth - 14
 
 export function ResizeBar(vueScope, opts) {
   document.body.style.overflowY = 'scroll'

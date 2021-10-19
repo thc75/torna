@@ -75,10 +75,11 @@
       </el-table-column>
       <el-table-column
         :label="$ts('operation')"
-        width="200"
+        width="210"
       >
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
+            <el-link :underline="false" type="primary" @click="onUserUpdate(scope.row)">{{ $ts('update') }}</el-link>
             <el-popconfirm
               v-if="scope.row.source === getEnums().SOURCE.REGISTER || scope.row.source === getEnums().SOURCE.BACKEND"
               :title="$ts('resetPasswordConfirm', scope.row.nickname)"
@@ -100,6 +101,12 @@
             >
               <el-link slot="reference" :underline="false" type="primary">{{ $ts('enable') }}</el-link>
             </el-popconfirm>
+            <el-popconfirm
+              :title="$ts('deleteConfirm', scope.row.nickname)"
+              @confirm="onUserDelete(scope.row)"
+            >
+              <el-link slot="reference" :underline="false" type="danger">{{ $ts('delete') }}</el-link>
+            </el-popconfirm>
           </div>
         </template>
       </el-table-column>
@@ -116,7 +123,7 @@
       @current-change="onPageIndexChange"
     />
     <el-dialog
-      :title="$ts('addNewUser')"
+      :title="dialogTitle"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       @close="resetForm('dialogForm')"
@@ -179,6 +186,7 @@ export default {
         total: 0
       },
       dialogVisible: false,
+      dialogTitle: $ts('addNewUser'),
       dialogFormData: {
         username: '',
         nickname: '',
@@ -224,16 +232,37 @@ export default {
         this.loadTable()
       })
     },
+    onUserDelete(row) {
+      this.post('/admin/user/delete', row, () => {
+        this.tipSuccess($ts('operateSuccess'))
+        this.loadTable()
+      })
+    },
+    onUserUpdate(row) {
+      this.dialogTitle = $ts('update')
+      Object.assign(this.dialogFormData, row)
+      this.dialogVisible = true
+    },
     onDialogSave() {
       this.$refs.dialogForm.validate((valid) => {
         if (valid) {
-          const uri = '/admin/user/create'
-          this.post(uri, this.dialogFormData, (resp) => {
-            const data = resp.data
-            this.alert($ts('addUserSuccess', data.username, data.password), $ts('createSuccess'))
-            this.dialogVisible = false
-            this.loadTable()
-          })
+          const isUpdate = this.dialogFormData.id && this.dialogFormData.id.length > 0
+          if (isUpdate) {
+            const uri = '/admin/user/update'
+            this.post(uri, this.dialogFormData, () => {
+              this.tipSuccess($ts('operateSuccess'))
+              this.dialogVisible = false
+              this.loadTable()
+            })
+          } else {
+            const uri = '/admin/user/create'
+            this.post(uri, this.dialogFormData, (resp) => {
+              const data = resp.data
+              this.alert($ts('addUserSuccess', data.username, data.password), $ts('createSuccess'))
+              this.dialogVisible = false
+              this.loadTable()
+            })
+          }
         }
       })
     },
@@ -244,6 +273,12 @@ export default {
     },
     onAdd() {
       this.dialogVisible = true
+      this.dialogTitle = $ts('addNewUser')
+      this.dialogFormData = {
+        username: '',
+        nickname: '',
+        isSuperAdmin: 0
+      }
     },
     onPageIndexChange(pageIndex) {
       this.searchFormData.pageIndex = pageIndex
