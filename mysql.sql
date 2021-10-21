@@ -23,7 +23,6 @@ DROP TABLE IF EXISTS `module`;
 DROP TABLE IF EXISTS `mock_config`;
 DROP TABLE IF EXISTS `enum_item`;
 DROP TABLE IF EXISTS `enum_info`;
-DROP TABLE IF EXISTS `doc_snapshot`;
 DROP TABLE IF EXISTS `doc_param`;
 DROP TABLE IF EXISTS `doc_info`;
 DROP TABLE IF EXISTS `compose_project`;
@@ -146,17 +145,6 @@ CREATE TABLE `doc_info` (
   KEY `idx_moduleid` (`module_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='文档信息';
 
-CREATE TABLE `doc_snapshot` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
-  `modifier_name` varchar(64) NOT NULL DEFAULT '' COMMENT '修改人',
-  `modifier_time` datetime NOT NULL COMMENT '修改时间',
-  `content` text COMMENT '修改内容',
-  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_docid` (`doc_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档快照';
 
 CREATE TABLE `doc_param` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

@@ -213,6 +213,13 @@ function getLib() {
 export default {
   name: 'DebugScript',
   components: { editor: require('vue2-ace-editor') },
+  props: {
+    id: {
+      type: String,
+      required: false,
+      default: ''
+    }
+  },
   data() {
     const DEBUG_SCRIPT_SCOPE = this.getEnums().DEBUG_SCRIPT_SCOPE
     return {
@@ -265,6 +272,11 @@ export default {
       afterCheckedId: ''
     }
   },
+  watch: {
+    id(val) {
+      this.docId = val
+    }
+  },
   methods: {
     editorInit: function() {
       // language extension prerequsite...
@@ -277,8 +289,7 @@ export default {
       // snippet
       require('brace/snippets/javascript')
     },
-    load(docId, preCheckedId, afterCheckedId) {
-      this.docId = docId
+    load(preCheckedId, afterCheckedId) {
       this.preCheckedId = preCheckedId || ''
       this.afterCheckedId = afterCheckedId || ''
       this.loadTable()

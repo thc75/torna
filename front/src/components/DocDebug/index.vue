@@ -251,7 +251,7 @@
                 <span>{{ $ts('script') }}</span>
               </el-badge>
             </span>
-            <debug-script ref="debugScriptRef" />
+            <debug-script ref="debugScriptRef" :id="currentItem.id"/>
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -653,7 +653,6 @@ export default {
           return
         }
         this.setDebugData(debugData)
-        this.$refs.debugScriptRef.load(this.item.id, this.preCheckedId, this.afterCheckedId)
       })
     },
     setDebugData(debugData) {
@@ -684,6 +683,7 @@ export default {
       }
       this.preCheckedId = props.preCheckedId
       this.afterCheckedId = props.afterCheckedId
+      this.$refs.debugScriptRef.load(this.preCheckedId, this.afterCheckedId)
     },
     setTableCheck() {
       this.$refs.headerDataRef.toggleAllSelection()
