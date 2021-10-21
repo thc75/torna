@@ -19,6 +19,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -179,6 +180,11 @@ public class PluginUtil {
                     for (int i = 0; i < typeParameters.length; i++) {
                         String key = getGenericParamKey(rawType, typeParameters[i].getName());
                         Type actualTypeArgument = actualTypeArguments[i];
+                        // 如果泛型填的?,即：Result<?>
+                        if (actualTypeArgument instanceof WildcardType) {
+                            genericParamMap.put(key, Object.class);
+                            continue;
+                        }
                         boolean isGeneric = PluginUtil.isGenericType(actualTypeArgument);
                         Class <?> value = isGeneric ?
                                 (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType() : (Class<?>) actualTypeArgument;
