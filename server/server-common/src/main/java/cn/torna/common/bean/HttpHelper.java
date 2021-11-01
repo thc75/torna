@@ -5,7 +5,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
@@ -16,11 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -349,37 +344,16 @@ public class HttpHelper {
             e.printStackTrace();
             throw new IllegalArgumentException("url不合法, url:" + url);
         }
-        switch (this.method) {
-            case GET:
-                request = new HttpGet(uri);
-                break;
-            case POST:
-                request = new HttpPost(uri);
-                break;
-            case PUT:
-                request = new HttpPut(uri);
-                break;
-            case HEAD:
-                request = new HttpHead(uri);
-                break;
-            case DELETE:
-                // fix：Apache httpclient DELETE请求不支持body
-                // 需要自己实现一个对象
-                // see issues:https://gitee.com/durcframework/torna/issues/I4GAAU
-                request = new HttpDeleteRequest(uri);
-                break;
-            case OPTIONS:
-                request = new HttpOptions(uri);
-                break;
-            default:
-                throw new IllegalArgumentException("method error: " + this.method);
-
+        if (this.method == HTTPMethod.OPTIONS) {
+            request = new HttpOptions(uri);
+        } else {
+            request = new HttpEntityEnclosingRequest(uri, this.method);
         }
         if (headers != null) {
             headers.forEach(request::setHeader);
         }
-        if (request instanceof HttpEntityEnclosingRequest && entity != null) {
-            HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) request;
+        if (request instanceof org.apache.http.HttpEntityEnclosingRequest && entity != null) {
+            org.apache.http.HttpEntityEnclosingRequest httpEntityEnclosingRequest = (org.apache.http.HttpEntityEnclosingRequest) request;
             httpEntityEnclosingRequest.setEntity(this.entity);
         }
         request.setConfig(requestConfig);
@@ -611,26 +585,20 @@ public class HttpHelper {
     /**
      * delete method support request body
      */
-    private static class HttpDeleteRequest extends HttpEntityEnclosingRequestBase {
+    private static class HttpEntityEnclosingRequest extends HttpEntityEnclosingRequestBase {
 
-        private static final String METHOD_NAME = "DELETE";
+        private final HTTPMethod httpMethod;
 
-        public HttpDeleteRequest(final URI uri) {
+        public HttpEntityEnclosingRequest(final URI uri, HTTPMethod httpMethod) {
             super();
             setURI(uri);
+            this.httpMethod = httpMethod;
         }
 
-        /**
-         * @throws IllegalArgumentException if the uri is invalid.
-         */
-        public HttpDeleteRequest(final String uri) {
-            super();
-            setURI(URI.create(uri));
-        }
 
         @Override
         public String getMethod() {
-            return METHOD_NAME;
+            return httpMethod.name();
         }
     }
 
