@@ -2,17 +2,19 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse, 'sidebar-logo-container-style': !noStyle}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" to="/" class="sidebar-logo-link">
-        <img src="@/assets/images/logo.png" class="sidebar-logo">
+        <img src="@/assets/images/logo.png" class="sidebar-logo" :title="version">
       </router-link>
       <router-link v-else key="expand" to="/" class="sidebar-logo-link">
         <img src="@/assets/images/logo.png" class="sidebar-logo">
-        <h1 class="sidebar-title">{{ title }} </h1>
+        <h1 class="sidebar-title">{{ title }} <span class="version">{{ version }}</span> </h1>
       </router-link>
     </transition>
   </div>
 </template>
 
 <script>
+// eslint-disable-next-line
+const VER="1.10.6"
 export default {
   name: 'SidebarLogo',
   props: {
@@ -27,6 +29,7 @@ export default {
   },
   data() {
     return {
+      version: VER,
       title: 'Torna'
     }
   },
@@ -54,7 +57,7 @@ export default {
       width: 32px;
       height: 32px;
       vertical-align: middle;
-      margin-right: 12px;
+      margin-right: 5px;
     }
 
     & .sidebar-title {
@@ -62,9 +65,14 @@ export default {
       margin: 0;
       font-weight: 600;
       line-height: 50px;
-      font-size: 14px;
+      font-size: 16px;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
       vertical-align: middle;
+    }
+    & .version {
+      font-weight: normal;
+      font-size: 12px;
+      color: #909399;
     }
   }
 
