@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.10.6
+
+- 【修复】DELETE请求无法传递body问题 [#I4GAAU](https://gitee.com/durcframework/torna/issues/I4GAAU)
+
 ## 1.10.5
 
 - 【优化】优化字典展示
