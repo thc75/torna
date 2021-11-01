@@ -15,7 +15,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
@@ -216,7 +216,7 @@ public class HttpHelper {
      * 发送请求
      *
      * @return 返回响应结果
-     * @throws IOException
+     * @throws IOException 请求失败抛出IO异常
      */
     public ResponseResult execute() throws IOException {
         HttpUriRequest request = this.buildHttpRequest();
@@ -300,9 +300,7 @@ public class HttpHelper {
         HttpHelper httpHelper = post(url);
         List<NameValuePair> formParams = new ArrayList<>();
         if (form != null) {
-            form.forEach((key, value) -> {
-                formParams.add(new BasicNameValuePair(key, String.valueOf(value)));
-            });
+            form.forEach((key, value) -> formParams.add(new BasicNameValuePair(key, String.valueOf(value))));
         }
         httpHelper.entity = new UrlEncodedFormEntity(formParams, Consts.UTF_8);
         return httpHelper;
@@ -365,7 +363,10 @@ public class HttpHelper {
                 request = new HttpHead(uri);
                 break;
             case DELETE:
-                request = new HttpDelete(uri);
+                // fix：Apache httpclient DELETE请求不支持body
+                // 需要自己实现一个对象
+                // see issues:https://gitee.com/durcframework/torna/issues/I4GAAU
+                request = new HttpDeleteRequest(uri);
                 break;
             case OPTIONS:
                 request = new HttpOptions(uri);
@@ -438,7 +439,7 @@ public class HttpHelper {
         CONNECT,
         ;
 
-        private HTTPMethod() {
+        HTTPMethod() {
         }
 
         public String value() {
@@ -483,7 +484,7 @@ public class HttpHelper {
          * 返回字符串结果，使用UTF_8编码
          *
          * @return 返回字符串结果
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          */
         @Override
         public String asString() throws IOException {
@@ -499,7 +500,7 @@ public class HttpHelper {
          * InputStream使用完毕后，需要手动调用close()
          *
          * @return 返回InputStream
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          * @see #closeResponse()
          */
         @Override
@@ -550,7 +551,7 @@ public class HttpHelper {
         /**
          * @param name 表单名称，不能重复
          * @param file 文件
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          */
         public UploadFile(String name, File file) throws IOException {
             this(name, file.getName(), FileUtils.readFileToByteArray(file));
@@ -560,7 +561,7 @@ public class HttpHelper {
          * @param name     表单名称，不能重复
          * @param fileName 文件名
          * @param input    文件流
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          */
         public UploadFile(String name, String fileName, InputStream input) throws IOException {
             this(name, fileName, IOUtils.toByteArray(input));
@@ -604,6 +605,32 @@ public class HttpHelper {
 
         public void setFileData(byte[] fileData) {
             this.fileData = fileData;
+        }
+    }
+
+    /**
+     * delete method support request body
+     */
+    private static class HttpDeleteRequest extends HttpEntityEnclosingRequestBase {
+
+        private static final String METHOD_NAME = "DELETE";
+
+        public HttpDeleteRequest(final URI uri) {
+            super();
+            setURI(uri);
+        }
+
+        /**
+         * @throws IllegalArgumentException if the uri is invalid.
+         */
+        public HttpDeleteRequest(final String uri) {
+            super();
+            setURI(URI.create(uri));
+        }
+
+        @Override
+        public String getMethod() {
+            return METHOD_NAME;
         }
     }
 
