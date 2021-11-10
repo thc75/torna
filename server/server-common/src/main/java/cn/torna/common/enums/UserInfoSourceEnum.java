@@ -8,6 +8,7 @@ public enum UserInfoSourceEnum {
     BACKEND("backend"),
     FORM("form"),
     OAUTH("oauth"),
+    LDAP("ldap"),
     ;
     private final String source;
 

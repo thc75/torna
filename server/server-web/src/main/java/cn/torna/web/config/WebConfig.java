@@ -9,6 +9,7 @@ import cn.torna.common.util.FastjsonUtil;
 import cn.torna.common.util.SystemUtil;
 import cn.torna.service.login.form.ThirdPartyLoginManager;
 import cn.torna.service.login.form.impl.DefaultThirdPartyLoginManager;
+import cn.torna.service.login.form.impl.LdapLoginManager;
 import cn.torna.web.interceptor.AdminInterceptor;
 import cn.torna.web.interceptor.LoginInterceptor;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -18,7 +19,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -144,9 +145,19 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnProperty(value = "torna.login.third-party.enable", havingValue = "true")
     public ThirdPartyLoginManager thirdPartyLoginManager() {
         return new DefaultThirdPartyLoginManager();
+    }
+
+    /**
+     * LDAP登录实现
+     * @return
+     */
+    @Bean
+    @ConditionalOnProperty(value = "torna.ldap.enable", havingValue = "true")
+    public ThirdPartyLoginManager thirdPartyLoginManager2() {
+        return new LdapLoginManager();
     }
 
     @Override

@@ -60,7 +60,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     @Value("${torna.jwt.secret:CHezCvjte^WHy5^#MqSVx9A%6.F$eV}")
     private String jwtSecret;
 
-    @Autowired
+    @Autowired(required = false)
     private ThirdPartyLoginManager thirdPartyLoginManager;
 
     @Autowired
@@ -151,9 +151,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         Assert.notNull(password, () -> "密码不能为空");
         UserInfo userInfo;
         // 是否开启第三方登录
-        boolean isFormLogin = EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean()
-                && ThirdPartyLoginTypeEnum.FORM.getType().equals(EnvironmentKeys.LOGIN_THIRD_PARTY_TYPE.getValue());
-        if (isFormLogin) {
+        if (thirdPartyLoginManager != null) {
             userInfo = this.doThirdPartyLogin(username, password);
         } else {
             userInfo = this.doDatabaseLogin(username, password);
@@ -244,7 +242,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
             userInfo.setIsSuperAdmin(Booleans.FALSE);
             userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
             userInfo.setIsDeleted(Booleans.FALSE);
-            userInfo.setSource(UserInfoSourceEnum.FORM.getSource());
+            userInfo.setSource(loginResult.getUserInfoSourceEnum().getSource());
             userInfo.setEmail(loginResult.getEmail());
             this.save(userInfo);
         }

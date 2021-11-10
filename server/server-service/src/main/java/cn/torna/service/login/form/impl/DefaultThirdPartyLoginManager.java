@@ -3,6 +3,7 @@ package cn.torna.service.login.form.impl;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
+import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.service.login.form.LoginForm;
 import cn.torna.service.login.form.LoginResult;
@@ -58,9 +59,8 @@ public class DefaultThirdPartyLoginManager implements ThirdPartyLoginManager {
         }
         String nicknameKey = EnvironmentKeys.LOGIN_THIRD_PARTY_FORM_KEY_RESULT_NICKNAME.getValue();
         String emailKey = EnvironmentKeys.LOGIN_THIRD_PARTY_FORM_KEY_RESULT_EMAIL.getValue();
-        String dataKey = EnvironmentKeys.LOGIN_THIRD_PARTY_FORM_KEY_RESULT_DATA.getValue();
         // 获取数据节点
-        JSONObject data = StringUtils.isEmpty(dataKey) ? result : result.getJSONObject(dataKey);
+        JSONObject data = buildData(result);
         String username = loginForm.getUsername();
         String nickname = data.getString(nicknameKey);
         if (nickname == null) {
@@ -71,7 +71,31 @@ public class DefaultThirdPartyLoginManager implements ThirdPartyLoginManager {
         loginResult.setUsername(username);
         loginResult.setNickname(nickname);
         loginResult.setEmail(email);
+        loginResult.setUserInfoSourceEnum(UserInfoSourceEnum.FORM);
         return loginResult;
+    }
+
+    protected JSONObject buildData(JSONObject result) {
+        String dataKey = EnvironmentKeys.LOGIN_THIRD_PARTY_FORM_KEY_RESULT_DATA.getValue();
+        if (StringUtils.isEmpty(dataKey)) {
+            return result;
+        }
+        /*
+        {
+            "data": {
+                "user": {
+                    "username": "Jim"
+                }
+            }
+        }
+         */
+        // torna.login.third-party.form.key.result-data=data.user
+        String[] arr = dataKey.split("\\.");
+        JSONObject data = result;
+        for (String key : arr) {
+            data = data.getJSONObject(key);
+        }
+        return data;
     }
 
     protected HttpHelper.ResponseResult requestForm(LoginForm loginForm) throws IOException {
