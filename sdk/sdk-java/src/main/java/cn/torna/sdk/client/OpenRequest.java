@@ -2,14 +2,12 @@ package cn.torna.sdk.client;
 
 import cn.torna.sdk.common.RequestForm;
 import cn.torna.sdk.common.RequestMethod;
-import cn.torna.sdk.common.UploadFile;
 import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.util.JsonUtil;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,12 +62,7 @@ public class OpenRequest {
     protected String doPost(String url, RequestForm requestForm, Map<String, String> header) {
         try {
             Map<String, Object> form = requestForm.getForm();
-            List<UploadFile> files = requestForm.getFiles();
-            if (files != null && files.size() > 0) {
-                return openHttp.postFile(url, form, header, files);
-            } else {
-                return openHttp.postJsonBody(url, JsonUtil.toJSONString(form), header);
-            }
+            return openHttp.postJsonBody(url, JsonUtil.toJSONString(form), header);
         } catch (IOException e) {
             return this.causeException(e);
         }

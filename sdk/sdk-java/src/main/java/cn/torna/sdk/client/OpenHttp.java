@@ -1,16 +1,14 @@
 package cn.torna.sdk.client;
 
+import cn.torna.sdk.common.OpenConfig;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import cn.torna.sdk.common.OpenConfig;
-import cn.torna.sdk.common.UploadFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,46 +78,6 @@ public class OpenHttp {
     public String postJsonBody(String url, String json, Map<String, String> header) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
         Request.Builder builder = new Request.Builder().url(url).post(body);
-        // 添加header
-        addHeader(builder, header);
-
-        Request request = builder.build();
-        Response response = httpClient.newCall(request).execute();
-        return response.body().string();
-    }
-
-    /**
-     * 提交表单，并且上传文件
-     *
-     * @param url
-     * @param form
-     * @param header
-     * @param files
-     * @return
-     * @throws IOException
-     */
-    public String postFile(String url, Map<String, Object> form, Map<String, String> header, List<UploadFile> files)
-            throws IOException {
-        // 创建MultipartBody.Builder，用于添加请求的数据
-        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
-        bodyBuilder.setType(MultipartBody.FORM);
-
-        for (UploadFile uploadFile : files) {
-            bodyBuilder.addFormDataPart(uploadFile.getName(), // 请求的名字
-                    uploadFile.getFileName(), // 文件的文字，服务器端用来解析的
-                    RequestBody.create(null, uploadFile.getFileData()) // 创建RequestBody，把上传的文件放入
-            );
-        }
-
-        Set<Map.Entry<String, Object>> entrySet = form.entrySet();
-        for (Map.Entry<String, Object> entry : entrySet) {
-            bodyBuilder.addFormDataPart(entry.getKey(), String.valueOf(entry.getValue()));
-        }
-
-        RequestBody requestBody = bodyBuilder.build();
-
-        Request.Builder builder = new Request.Builder().url(url).post(requestBody);
-
         // 添加header
         addHeader(builder, header);
 

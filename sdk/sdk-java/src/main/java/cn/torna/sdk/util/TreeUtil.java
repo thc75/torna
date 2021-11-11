@@ -4,7 +4,6 @@ import cn.torna.sdk.common.TreeAware;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
