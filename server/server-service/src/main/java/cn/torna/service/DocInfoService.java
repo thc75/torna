@@ -438,13 +438,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     /**
      * 删除模块下所有文档
      * @param moduleId 模块id
-     * @param userId 用户id，只能删除自己创建的
      */
-    public void deleteOpenAPIModuleDocs(long moduleId, long userId) {
+    public void deleteOpenAPIModuleDocs(long moduleId) {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("create_mode", OperationMode.OPEN.getType())
-                .eq("creator_id", userId)
                 .eq("is_locked", Booleans.FALSE);
         // 查询出文档id
         List<Long> idList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);

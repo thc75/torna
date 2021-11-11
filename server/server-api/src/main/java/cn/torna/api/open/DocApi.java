@@ -182,7 +182,7 @@ public class DocApi {
                 if (Booleans.isTrue(param.getIsReplace(), true)) {
                     // 先删除之前的文档
                     User user = context.getApiUser();
-                    this.deleteOpenAPIModuleDocs(moduleId, user.getUserId());
+                    this.deleteOpenAPIModuleDocs(moduleId);
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
                     this.pushDocItem(detailPushParam, context, 0L, pushContext);
@@ -204,10 +204,9 @@ public class DocApi {
      * 删除之前的文档
      *
      * @param moduleId moduleId
-     * @param userId   userId
      */
-    private void deleteOpenAPIModuleDocs(long moduleId, long userId) {
-        docInfoService.deleteOpenAPIModuleDocs(moduleId, userId);
+    private void deleteOpenAPIModuleDocs(long moduleId) {
+        docInfoService.deleteOpenAPIModuleDocs(moduleId);
     }
 
     private void sendMessage(String msg) {
