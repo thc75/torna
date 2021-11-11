@@ -16,8 +16,6 @@ public class OpenClient {
     private static final String ACCEPT_LANGUAGE = "Accept-Language";
 
     private final String url;
-    private String appKey;
-    private String secret;
 
     private OpenRequest openRequest = new OpenRequest();
 
@@ -29,8 +27,6 @@ public class OpenClient {
      */
     public OpenClient(String url, String appKey, String secret) {
         this.url = url;
-        this.appKey = appKey;
-        this.secret = secret;
     }
 
     /**
