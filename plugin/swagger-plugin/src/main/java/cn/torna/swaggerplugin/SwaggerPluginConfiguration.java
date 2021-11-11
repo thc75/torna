@@ -56,8 +56,6 @@ public class SwaggerPluginConfiguration implements InitializingBean {
         tornaConfig.setEnable(Boolean.parseBoolean(environment.getProperty("torna.swagger-plugin.enable", "false")));
         tornaConfig.setBasePackage(environment.getProperty("torna.swagger-plugin.basePackage", ""));
         tornaConfig.setUrl(environment.getProperty("torna.swagger-plugin.url"));
-        tornaConfig.setAppKey(environment.getProperty("torna.swagger-plugin.app-key"));
-        tornaConfig.setSecret(environment.getProperty("torna.swagger-plugin.secret"));
         tornaConfig.setToken(environment.getProperty("torna.swagger-plugin.token"));
         tornaConfig.setDebugEnv(environment.getProperty("torna.swagger-plugin.debug-env"));
         tornaConfig.setAuthor(environment.getProperty("torna.swagger-plugin.author"));

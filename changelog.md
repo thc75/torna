@@ -1,5 +1,12 @@
 # 更新日志
 
+## 1.11.0
+
+- 【新增】支持LDAP登录 [doc](http://torna.cn/dev/third-party-login.html#ldap%E7%99%BB%E5%BD%95)
+- 【优化】优化第三方接入返回结果嵌套对象问题
+- 【优化】优化登录、注册页面国际化显示
+- 【优化】简化文档推送
+
 ## 1.10.6
 
 - 【修复】DELETE请求无法传递body问题 [#I4GAAU](https://gitee.com/durcframework/torna/issues/I4GAAU)

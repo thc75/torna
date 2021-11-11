@@ -17,10 +17,6 @@ public class TornaConfig {
     private String basePackage;
     /** 推送URL */
     private String url;
-    /** appKey */
-    private String appKey;
-    /** secret */
-    private String secret;
     /** 模块token */
     private String token;
 
