@@ -1,15 +1,25 @@
 package cn.torna.swaggerplugin.bean;
 
+import cn.torna.swaggerplugin.util.PluginUtil;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * @author tanghc
  */
 public class ApiModelPropertyWrapper {
+
+    private static final List<String> NOT_NULL_ANNOTATIONS = Arrays.asList(
+            "NotNull",
+            "NotBlank",
+            "NotEmpty"
+    );
+
     private final Optional<ApiModelProperty> apiModelPropertyOptional;
     private final Optional<Field> fieldOptional;
 
@@ -40,6 +50,14 @@ public class ApiModelPropertyWrapper {
     }
 
     public boolean getRequired() {
+        if (fieldOptional.isPresent()) {
+            Field field = fieldOptional.get();
+            boolean hasAnyAnnotation = PluginUtil.hasAnyAnnotation(field, NOT_NULL_ANNOTATIONS);
+            // 如果有不为null相关的注解，直接返回true，必填
+            if (hasAnyAnnotation) {
+                return true;
+            }
+        }
         return apiModelPropertyOptional.map(ApiModelProperty::required).orElse(false);
     }
 
@@ -58,4 +76,5 @@ public class ApiModelPropertyWrapper {
         }
         return dataType;
     }
+
 }

@@ -5,10 +5,12 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.service.UserInfoService;
+import cn.torna.service.dto.LoginDTO;
 import cn.torna.web.controller.system.param.LoginForm;
 import cn.torna.web.controller.system.vo.LoginResult;
 import cn.torna.web.controller.system.param.UpdatePasswordByFirstLoginParam;
@@ -37,7 +39,11 @@ public class LoginController {
     @PostMapping("login")
     @NoLogin
     public Result<LoginResult> login(@RequestBody @Valid LoginForm param) {
-        LoginUser loginUser = userInfoService.login(param.getUsername(), param.getPassword());
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setUsername(param.getUsername());
+        loginDTO.setPassword(param.getPassword());
+        loginDTO.setUserInfoSourceEnum(UserInfoSourceEnum.of(param.getSource()));
+        LoginUser loginUser = userInfoService.login(loginDTO);
         LoginResult loginResult = new LoginResult();
         loginResult.setToken(loginUser.getToken());
         loginResult.setStatus(loginUser.getStatus());

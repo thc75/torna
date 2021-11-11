@@ -16,7 +16,7 @@ Torna提供了一组开放接口，第三方服务可以通过开放接口来创
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>torna-sdk</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.11</version>
 </dependency>
 ```
 
@@ -24,12 +24,10 @@ Torna提供了一组开放接口，第三方服务可以通过开放接口来创
 
 ```java
 static String url = "http://localhost:7700/api";
-static String appKey = "20201127781912960996999168";
-static String secret = "ltatugCHeRJzCvjVxF39A%6.F$eV#~~L";
 static String token = "e807db2eb8564c4b89caf5a2f2d15b77";
 
 // 创建请求客户端
-static OpenClient client = new OpenClient(url, appKey, secret);
+static OpenClient client = new OpenClient(url);
 
 /**
  * 获取文档信息
@@ -54,13 +52,12 @@ public void testDocGetRequest() {
 
 ## 其它语言封装接口
 
-OpenAPI定义了7个公共参数，用json接收
+OpenAPI定义了6个公共参数，用json接收
 
 ```
 {
 	"name":"doc.push",
 	"version":"1.0",
-	"app_key":"xxx",
 	"data":"%7B%22goods_name%22%3A%22iphone6%22%7D",	
 	"timestamp":"2018-01-16 17:02:02",
 	"access_token":"ccc",
@@ -70,7 +67,6 @@ OpenAPI定义了7个公共参数，用json接收
 
 - name：接口名称，参见各接口文档
 - version：接口版本号，参见各接口文档
-- app_key：分配给客户端的app_key
 - data：业务参数，见每个文档，json格式并且urlencode
 - timestamp：时间戳，yyyy-MM-dd HH:mm:ss
 - access_token：项目模块对应的token

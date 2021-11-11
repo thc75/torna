@@ -4,6 +4,7 @@ import cn.torna.swaggerplugin.bean.ApiModelPropertyWrapper;
 import cn.torna.swaggerplugin.bean.ApiParamInfo;
 import cn.torna.swaggerplugin.bean.Booleans;
 import cn.torna.swaggerplugin.bean.TornaConfig;
+import cn.torna.swaggerplugin.util.ClassUtil;
 import cn.torna.swaggerplugin.util.PluginUtil;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.ApiModelProperty;
@@ -82,19 +83,24 @@ public class ApiDocBuilder {
         }
     }
 
-    private ApiParamInfo getApiParamInfo(String className, String fieldName) {
+    private ApiParamInfo getApiParamInfo(Class<?> targetClass, String fieldName) {
         JSONObject jarClass = tornaConfig.getJarClass();
         if (jarClass == null) {
             return null;
         }
-        JSONObject classConfig = jarClass.getJSONObject(className);
-        if (classConfig == null)
-            return null;
-        Set<String> fields = classConfig.keySet();
-        for (String field : fields) {
-            if (Objects.equals(field, fieldName)) {
-                JSONObject fieldConfig = classConfig.getJSONObject(field);
-                return fieldConfig == null ? null : fieldConfig.toJavaObject(ApiParamInfo.class);
+        List<Class<?>> allClasses = ClassUtil.getAllClasses(targetClass);
+        for (Class<?> clazz : allClasses) {
+            String className = clazz.getName();
+            JSONObject classConfig = jarClass.getJSONObject(className);
+            if (classConfig == null) {
+                continue;
+            }
+            Set<String> fields = classConfig.keySet();
+            for (String field : fields) {
+                if (Objects.equals(field, fieldName)) {
+                    JSONObject fieldConfig = classConfig.getJSONObject(field);
+                    return fieldConfig == null ? null : fieldConfig.toJavaObject(ApiParamInfo.class);
+                }
             }
         }
         return null;
@@ -174,7 +180,7 @@ public class ApiDocBuilder {
 
     protected void bindJarClassFields(Class<?> targetClass, List<FieldDocInfo> fieldDocInfos) {
         for (FieldDocInfo child : fieldDocInfos) {
-            ApiParamInfo apiParamInfo = this.getApiParamInfo(targetClass.getName(), child.getName());
+            ApiParamInfo apiParamInfo = this.getApiParamInfo(targetClass, child.getName());
             if (apiParamInfo != null) {
                 child.setRequired(Booleans.toValue(apiParamInfo.isRequired()));
                 child.setExample(apiParamInfo.getExample());
@@ -241,6 +247,8 @@ public class ApiDocBuilder {
                 Class<?> realClass = this.getGenericParamClass(genericDeclaration, typeVariable.getName());
                 if (realClass != null) {
                     elementClass = realClass;
+                } else {
+                    elementClass = Object.class;
                 }
             }
         } else if (fieldType.isArray()) {

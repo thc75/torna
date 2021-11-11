@@ -27,10 +27,6 @@ pom.xml添加依赖：
   "basePackage": "cn.torna.tornaexample.controller",
   // 推送URL，IP端口对应Torna服务器
   "url": "http://localhost:7700/api",
-  // appKey
-  "appKey": "20201216788835306945118208",
-  // secret
-  "secret": "W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR",
   // 模块token
   "token": "931167d9347e4aec9409f2b275437431",
 

@@ -9,11 +9,11 @@ import cn.torna.service.SystemConfigService;
 import cn.torna.web.config.TornaViewProperties;
 import cn.torna.web.controller.system.param.ConfigUpdateParam;
 import cn.torna.web.controller.system.vo.AdminConfigVO;
-import cn.torna.web.controller.system.vo.ConfigItemVO;
 import cn.torna.web.controller.system.vo.ConfigVO;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,7 +87,7 @@ public class ConfigController implements InitializingBean {
         configVO.setOauthLoginUrl(oauthLoginUrl);
         configVO.setOauthButtonText(oauthButtonText);
         configVO.setIgnoreParam(Boolean.parseBoolean(EnvironmentContext.getValue("torna.mock.ignore-param", "false")));
-
         CopyUtil.copyProperties(configVO, tornaViewProperties);
+        tornaViewProperties.setEnableLdap(StringUtils.hasText(EnvironmentKeys.TORNA_LDAP_URL.getValue()));
     }
 }

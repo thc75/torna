@@ -52,6 +52,9 @@ const MAPPING = {
   'deleteSuccess': 'Delete Success',
   'tip': 'Tip',
   'loginAccount': 'Login Account',
+  'password': 'Password',
+  'passwordConfirm': 'Confirm password',
+  'loginSubmit': 'Login',
   'search': 'Search',
   'addMember': 'Add Member',
   'member': 'Member',
@@ -174,10 +177,9 @@ const MAPPING = {
   'whatsOpenApi': 'What\'s OpenAPI',
   'whatsOpenApiText': 'Request API to operate documents, third-party application can update documents by this way.',
   'useStep': 'Use steps',
-  'useStep1': '1、Find space admin to get AppKey and Secret',
-  'useStep2': '2、Project depend SDK，request API with SDK',
+  'useStep1': '1、Project depend SDK',
+  'useStep2': '2、Config settings',
   'requestUrl': 'Url',
-  'spaceAdminSupply': 'Space admin supplied',
   'refreshTokenConfirm': 'Refresh token? Old token will not available',
   'refreshToken': 'Refresh Token',
   'openApiLink': 'OpenAPI Doc',
@@ -371,7 +373,18 @@ const MAPPING = {
   'lockOn': 'Lock',
   'unlock': 'Unlock',
   'lockDocDesc': 'Locked doc can\'t be modified by push.',
-  'nameValue': 'Name(Value)'
+  'nameValue': 'Name(Value)',
+  'userLogin': 'User Login',
+  'signUp': 'Sign Up',
+  'goLogin': 'Go Login',
+  'forgetPwd': 'Forget Password',
+  'plzInputLoginAccount': 'Required login account',
+  'plzInputPassword': 'Required password',
+  'askSuperAdminRestPwd': 'Ask super admin reset password',
+  'accountLogin': 'Account Login',
+  'ldapLogin': 'LDAP Login',
+  'thirdpartyLogin': 'Third-party Login',
+  'useSmartDoc': 'Use smart-doc push documents'
 
 }
 

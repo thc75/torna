@@ -13,9 +13,6 @@
       <el-form-item :label="$ts('requestUrl')">
         {{ `${getBaseUrl()}/api` }}
       </el-form-item>
-      <el-form-item label="AppKey/Secret">
-        {{ $ts('spaceAdminSupply') }}
-      </el-form-item>
       <el-form-item label="token">
         {{ token }}
       </el-form-item>
@@ -28,7 +25,9 @@
         </el-popconfirm>
       </el-form-item>
     </el-form>
-    <el-button type="text" @click="openLink('/openapi')">{{ $ts('openApiLink') }}</el-button>
+    <el-link type="primary" :underline="false" href="https://smart-doc-group.github.io/#/zh-cn/torna/tornaIntegration" target="_blank">[推荐]{{ $ts('useSmartDoc') }}</el-link>
+    <span class="split">|</span>
+    <el-link type="primary" :underline="false" @click="openLink('/openapi')">{{ $ts('openApiLink') }}</el-link>
   </div>
 </template>
 <style>
