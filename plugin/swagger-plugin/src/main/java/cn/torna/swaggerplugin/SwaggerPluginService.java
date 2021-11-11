@@ -764,7 +764,17 @@ public class SwaggerPluginService {
     }
 
     public boolean match(Method method) {
-        return method.getAnnotation(ApiOperation.class) != null;
+        List<String> scanApis = this.tornaConfig.getScanApis();
+        if (CollectionUtils.isEmpty(scanApis)) {
+            return method.getAnnotation(ApiOperation.class) != null;
+        }
+        for (String scanApi : scanApis) {
+            String methodName = method.toString();
+            if (methodName.contains(scanApi)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private interface ParamFilter {
