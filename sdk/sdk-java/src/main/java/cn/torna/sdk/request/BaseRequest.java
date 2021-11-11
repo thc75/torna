@@ -2,18 +2,17 @@ package cn.torna.sdk.request;
 
 import cn.torna.sdk.common.OpenConfig;
 import cn.torna.sdk.common.RequestForm;
-import cn.torna.sdk.common.UploadFile;
 import cn.torna.sdk.response.BaseResponse;
 import cn.torna.sdk.util.ClassUtil;
 import cn.torna.sdk.util.JsonUtil;
-import cn.torna.sdk.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -23,12 +22,10 @@ import java.util.Map;
  */
 public abstract class BaseRequest<T extends BaseResponse<?>> {
 
+    private final static String UTF8 = "UTF-8";
+
     @JSONField(serialize = false)
     private final String token;
-
-    /** 上传文件 */
-    @JSONField(serialize = false)
-    private List<UploadFile> files;
 
     @JSONField(serialize = false)
     private final Class<T> responseClass;
@@ -56,13 +53,19 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
             throw new IllegalArgumentException("name不能为null");
         }
         param.put(OpenConfig.apiName, name);
-        param.put(OpenConfig.dataName, StringUtil.encodeUrl(data));
+        param.put(OpenConfig.dataName, encodeUrl(data));
         param.put(OpenConfig.timestampName, new SimpleDateFormat(OpenConfig.timestampPattern).format(new Date()));
         param.put(OpenConfig.versionName, version());
         param.put(OpenConfig.accessTokenName, token);
-        RequestForm requestForm = new RequestForm(param);
-        requestForm.setFiles(this.files);
-        return requestForm;
+        return new RequestForm(param);
+    }
+
+    private static String encodeUrl(String input) {
+        try {
+            return URLEncoder.encode(input, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected String buildJsonData() {
@@ -76,10 +79,6 @@ public abstract class BaseRequest<T extends BaseResponse<?>> {
      */
     public T parseResponse(String resp) {
         return JsonUtil.parseObject(resp, getResponseClass());
-    }
-
-    private void setFiles(List<UploadFile> files) {
-        this.files = files;
     }
 
     private Class<T> getResponseClass() {
