@@ -27,7 +27,7 @@ public class DocPushTest extends BaseTest {
         // 创建分类
         DocItem folder = new DocItem();
         folder.setIsFolder(Booleans.TRUE);
-        folder.setName("手机分类");
+        folder.setName("手机分类2");
         folder.setAuthor("李四");
 
         List<DocItem> items = new ArrayList<>(8);
@@ -80,7 +80,7 @@ public class DocPushTest extends BaseTest {
             item.setAuthor("王五");
         }
         /* 设置基本信息 */
-        item.setName("a获取商品名称" + i);
+        item.setName("获取商品名称" + i);
         item.setDescription("这里是描述信息..." + i);
         item.setUrl("/goods/{id}/get" + i);
         item.setHttpMethod("GET");

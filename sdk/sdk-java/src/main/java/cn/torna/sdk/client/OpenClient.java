@@ -17,8 +17,8 @@ public class OpenClient {
     private static final String ACCEPT_LANGUAGE = "Accept-Language";
 
     private final String url;
-    private final String appKey;
-    private final String secret;
+    private String appKey;
+    private String secret;
 
     private OpenRequest openRequest = new OpenRequest();
 
@@ -32,6 +32,14 @@ public class OpenClient {
         this.url = url;
         this.appKey = appKey;
         this.secret = secret;
+    }
+
+    /**
+     * 创建客户端
+     * @param url 请求URL
+     */
+    public OpenClient(String url) {
+        this.url = url;
     }
 
     /**

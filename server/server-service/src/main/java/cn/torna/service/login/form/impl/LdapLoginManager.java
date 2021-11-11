@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 /**
  * LDAP登录
  */
 @Slf4j
+@Service
 public class LdapLoginManager implements ThirdPartyLoginManager {
 
     @Autowired
@@ -42,7 +44,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager {
         }
         loginResult.setNickname(displayName);
         String mail = ldapUser.getMail();
-        if (StringUtils.isEmpty(mail) && StringUtils.hasText(emailDomain)) {
+        if (StringUtils.hasText(emailDomain)) {
             mail = ldapUser.getUid() + "@" + StringUtils.trimLeadingCharacter(emailDomain, '@');
         }
         loginResult.setEmail(mail);

@@ -1,10 +1,8 @@
 package cn.torna.api.config;
 
-import cn.torna.api.manager.ApiAppSecretManager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.gitee.easyopen.ApiConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,9 +12,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ApiCfg {
 
-    @Autowired
-    private ApiAppSecretManager apiAppSecretManager;
-
     @Bean
     public ApiConfig apiConfig() {
         ApiConfig apiConfig = new ApiConfig();
@@ -25,7 +20,6 @@ public class ApiCfg {
                 , SerializerFeature.WriteMapNullValue
                 , SerializerFeature.WriteDateUseDateFormat)
         );
-        apiConfig.setAppSecretManager(apiAppSecretManager);
         return apiConfig;
     }
 

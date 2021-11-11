@@ -36,7 +36,7 @@ public class LdapTest extends TornaApplicationTests {
 
     @Test
     public void authenticationTest2() {
-        String uid = "zhangsan";
+        String uid = "ldapUser";
         String password = "123456";
         LdapUser authenticate = ldapTemplate.authenticate(
                 LdapQueryBuilder.query().where("uid").is(uid),

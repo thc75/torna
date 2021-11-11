@@ -52,6 +52,9 @@ const MAPPING = {
   'deleteSuccess': '删除成功',
   'tip': '提示',
   'loginAccount': '登录账号',
+  'password': '密码',
+  'passwordConfirm': '确认密码',
+  'loginSubmit': '登 录',
   'search': '查询',
   'addMember': '添加成员',
   'member': '成员',
@@ -175,10 +178,9 @@ const MAPPING = {
   'whatsOpenApi': 'OpenAPI的作用',
   'whatsOpenApiText': '可通过接口调用方式操作文档，第三方App以此来更新文档内容。',
   'useStep': '使用步骤',
-  'useStep1': '1、找到空间管理员索要AppKey和Secret',
-  'useStep2': '2、项目依赖SDK，使用SDK中的API调用接口',
+  'useStep1': '1、项目依赖SDK',
+  'useStep2': '2、配置请求参数',
   'requestUrl': '请求路径',
-  'spaceAdminSupply': '空间管理员提供',
   'refreshTokenConfirm': '确定要刷新token吗？老token将不可用',
   'refreshToken': '刷新token',
   'openApiLink': 'OpenAPI接口文档',
@@ -372,7 +374,18 @@ const MAPPING = {
   'lockOn': '锁定',
   'unlock': '解锁',
   'lockDocDesc': '锁定后不被推送修改',
-  'nameValue': '字面量(值)'
+  'nameValue': '字面量(值)',
+  'userLogin': '用户登录',
+  'signUp': '注册新账号',
+  'goLogin': '去登陆',
+  'forgetPwd': '忘记密码',
+  'plzInputLoginAccount': '请输入登录账号',
+  'plzInputPassword': '请输入密码',
+  'askSuperAdminRestPwd': '询问超级管理员重置密码',
+  'accountLogin': '账号登录',
+  'ldapLogin': 'LDAP登录',
+  'thirdpartyLogin': '第三方登录',
+  'useSmartDoc': '使用smart-doc推送'
 
 }
 

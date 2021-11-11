@@ -11,6 +11,7 @@ import cn.torna.service.login.form.ThirdPartyLoginManager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.Objects;
  * 第三方登录，模拟表单提交
  * @author tanghc
  */
+@Service
 public class DefaultThirdPartyLoginManager implements ThirdPartyLoginManager {
 
     @Override

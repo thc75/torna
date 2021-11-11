@@ -18,11 +18,14 @@ import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserInfoMapper;
 import cn.torna.service.dto.DingTalkLoginDTO;
+import cn.torna.service.dto.LoginDTO;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.service.login.form.LoginForm;
 import cn.torna.service.login.form.LoginResult;
 import cn.torna.service.login.form.ThirdPartyLoginManager;
+import cn.torna.service.login.form.impl.DefaultThirdPartyLoginManager;
+import cn.torna.service.login.form.impl.LdapLoginManager;
 import com.gitee.fastmybatis.core.query.Query;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
@@ -60,8 +63,11 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     @Value("${torna.jwt.secret:CHezCvjte^WHy5^#MqSVx9A%6.F$eV}")
     private String jwtSecret;
 
-    @Autowired(required = false)
-    private ThirdPartyLoginManager thirdPartyLoginManager;
+    @Autowired
+    private DefaultThirdPartyLoginManager defaultThirdPartyLoginManager;
+
+    @Autowired
+    private LdapLoginManager ldapLoginManager;
 
     @Autowired
     private UserDingtalkInfoService userDingtalkInfoService;
@@ -146,15 +152,24 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         throw new BizException(String.join("、", nicknames) + " 已存在");
     }
 
-    public LoginUser login(String username, String password) {
-        Assert.notNull(username, () -> "用户名不能为空");
-        Assert.notNull(password, () -> "密码不能为空");
+    public LoginUser login(LoginDTO loginDTO) {
+        String username = loginDTO.getUsername();
+        String password = loginDTO.getPassword();
+        UserInfoSourceEnum userInfoSourceEnum = loginDTO.getUserInfoSourceEnum();
         UserInfo userInfo;
-        // 是否开启第三方登录
-        if (thirdPartyLoginManager != null) {
-            userInfo = this.doThirdPartyLogin(username, password);
-        } else {
-            userInfo = this.doDatabaseLogin(username, password);
+        switch (userInfoSourceEnum) {
+            case FORM:
+                // 第三方表单登录
+                userInfo = this.doThirdPartyLogin(defaultThirdPartyLoginManager, username, password);
+                break;
+            case LDAP:
+                // LDAP登录
+                userInfo = this.doThirdPartyLogin(ldapLoginManager, username, password);
+                break;
+            default:{
+                // 默认注册账号登录
+                userInfo = this.doDatabaseLogin(username, password);
+            }
         }
         return buildLoginUser(userInfo);
     }
@@ -219,7 +234,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         return buildLoginUser(userInfo);
     }
 
-    private UserInfo doThirdPartyLogin(String username, String password) {
+    private UserInfo doThirdPartyLogin(ThirdPartyLoginManager thirdPartyLoginManager, String username, String password) {
         LoginForm loginForm = new LoginForm();
         loginForm.setUsername(username);
         loginForm.setPassword(password);

@@ -9,12 +9,10 @@ import junit.framework.TestCase;
 public class BaseTest extends TestCase {
 
     static String url = "http://localhost:7700/api";
-    static String appKey = "20201216788835306945118208";
-    static String secret = "W.ZyGMOB9Q0UqujVxnfi@.I#V&tUUYZR";
     static String token = "c16931fa6590483fb7a4e85340fcbfef";
 
 
-    static OpenClient client = new OpenClient(url, appKey, secret);
+    static OpenClient client = new OpenClient(url);
 
     protected void printResponse(BaseResponse<?> response) {
         if (response.isSuccess()) {
