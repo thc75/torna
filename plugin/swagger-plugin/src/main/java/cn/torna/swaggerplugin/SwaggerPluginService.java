@@ -392,12 +392,12 @@ public class SwaggerPluginService {
                 continue;
             }
             Class<?> parameterType = parameter.getType();
-            RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
             String name = getParameterName(parameter);
             // 如果已经有了不添加
             if (containsName(docParamReqs, name)) {
                 continue;
             }
+            RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
             // 如果是Get请求
             if (httpMethod.equalsIgnoreCase(HttpMethod.GET.name()) || requestParam != null) {
                 boolean isPojo = PluginUtil.isPojo(parameterType);
@@ -407,8 +407,9 @@ public class SwaggerPluginService {
                     docParamReqs.addAll(docParamReqList);
                 } else {
                     DocParamReq docParamReq = buildDocParamReq(parameter);
-                    Boolean required = Optional.ofNullable(requestParam).map(RequestParam::required).orElse(false);
-                    docParamReq.setRequired(Booleans.toValue(required));
+                    Optional<Boolean> requiredOpt = Optional.ofNullable(requestParam).map(RequestParam::required);
+                    // 如果定义了RequestParam，required由它来指定
+                    requiredOpt.ifPresent(aBoolean -> docParamReq.setRequired(Booleans.toValue(aBoolean)));
                     docParamReqs.add(docParamReq);
                 }
             }
