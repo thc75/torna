@@ -16,9 +16,11 @@ Torna提供了一组开放接口，第三方服务可以通过开放接口来创
 <dependency>
     <groupId>cn.torna</groupId>
     <artifactId>torna-sdk</artifactId>
-    <version>1.0.11</version>
+    <version>最新版本</version>
 </dependency>
 ```
+
+`torna-sdk`最新版本：![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)
 
 - 调用示例
 
