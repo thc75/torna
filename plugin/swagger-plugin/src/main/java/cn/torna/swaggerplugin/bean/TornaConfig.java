@@ -34,6 +34,8 @@ public class TornaConfig {
     private String author;
     /** 打开调试:true/false */
     private Boolean debug = true;
+    /** 调试输出json格式化 */
+    private Boolean debugPrintFormat = false;
     /** 接口多个method只显示 */
     private String methodWhenMulti = "GET";
     /** 具有body体的方法 */
@@ -46,6 +48,10 @@ public class TornaConfig {
     /** 默认的http method */
     private String defaultHttpMethod = "POST";
 
+    /** 第三方jar */
     private JSONObject jarClass;
+
+    /** 定义错误码 */
+    private List<CodeInfo> codes;
 
 }
