@@ -8,11 +8,16 @@ import cn.torna.sdk.param.DocParamHeader;
 import cn.torna.sdk.param.DocParamPath;
 import cn.torna.sdk.param.DocParamReq;
 import cn.torna.sdk.param.DocParamResp;
+import cn.torna.sdk.param.EnumInfoParam;
 import cn.torna.sdk.param.IParam;
 import cn.torna.sdk.request.DocPushRequest;
+import cn.torna.sdk.request.EnumBatchPushRequest;
 import cn.torna.sdk.response.DocPushResponse;
+import cn.torna.sdk.response.EnumPushResponse;
 import cn.torna.swaggerplugin.bean.ApiParamWrapper;
 import cn.torna.swaggerplugin.bean.Booleans;
+import cn.torna.swaggerplugin.bean.CodeInfo;
+import cn.torna.swaggerplugin.bean.CodeItem;
 import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.DocParamInfo;
 import cn.torna.swaggerplugin.bean.PluginConstants;
@@ -27,6 +32,7 @@ import cn.torna.swaggerplugin.exception.IgnoreException;
 import cn.torna.swaggerplugin.util.ClassUtil;
 import cn.torna.swaggerplugin.util.PluginUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -89,6 +95,7 @@ public class SwaggerPluginService {
             throw new IllegalArgumentException("basePackage can not empty.");
         }
         this.doPush();
+        this.pushCode();
     }
 
     protected void doPush() {
@@ -123,6 +130,70 @@ public class SwaggerPluginService {
         }
         List<DocItem> docItems = mergeSameFolder(controllerDocMap);
         this.push(docItems);
+    }
+
+    /**
+     * 推送错误码
+     */
+    protected void pushCode() {
+        List<CodeInfo> codes = this.tornaConfig.getCodes();
+        if (CollectionUtils.isEmpty(codes)) {
+            return;
+        }
+        checkCode(codes);
+        formatCode(codes);
+        String json = JSONArray.toJSONString(codes);
+        List<EnumInfoParam> enumInfoParams = JSONArray.parseArray(json, EnumInfoParam.class);
+        String token = tornaConfig.getToken();
+        EnumBatchPushRequest request = new EnumBatchPushRequest(token);
+        request.setEnums(enumInfoParams);
+        // 发送请求
+        EnumPushResponse response = client.execute(request);
+        if (!response.isSuccess()) {
+            System.out.println("Push code error，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+        }
+    }
+
+    private void checkCode(List<CodeInfo> codeInfos) {
+        for (CodeInfo codeInfo : codeInfos) {
+            if (StringUtils.isEmpty(codeInfo.getName())) {
+                throw getDefineCodeException("missing code name");
+            }
+            List<CodeItem> items = codeInfo.getItems();
+            if (CollectionUtils.isEmpty(items)) {
+                throw getDefineCodeException("missing code items");
+            }
+            for (CodeItem item : items) {
+                if (StringUtils.isEmpty(item.getValue())) {
+                    throw getDefineCodeException("missing item.value");
+                }
+                if (StringUtils.isEmpty(item.getDescription())) {
+                    throw getDefineCodeException("missing item.description");
+                }
+            }
+        }
+    }
+
+    private static IllegalArgumentException getDefineCodeException(String msg) {
+        return new IllegalArgumentException("Define code error, " + msg);
+    }
+
+    private void formatCode(List<CodeInfo> codeInfos) {
+        for (CodeInfo codeInfo : codeInfos) {
+            List<CodeItem> items = codeInfo.getItems();
+            if (CollectionUtils.isEmpty(items)) {
+                continue;
+            }
+            for (CodeItem item : items) {
+                if (StringUtils.isEmpty(item.getType())) {
+                    String type = codeInfo.getItemType();
+                    item.setType(StringUtils.isEmpty(type) ? "string" : type);
+                }
+                if (StringUtils.isEmpty(item.getName())) {
+                    item.setName(item.getValue());
+                }
+            }
+        }
     }
 
     private List<DocItem> mergeSameFolder(Map<ControllerInfo, List<DocItem>> controllerDocMap) {
@@ -170,10 +241,11 @@ public class SwaggerPluginService {
         request.setAuthor(tornaConfig.getAuthor());
         request.setIsReplace(Booleans.toValue(tornaConfig.getIsReplace()));
         if (tornaConfig.getDebug()) {
+            Boolean printFormat = tornaConfig.getDebugPrintFormat();
             System.out.println("-------- Torna config --------");
-            System.out.println(JSON.toJSONString(tornaConfig, SerializerFeature.PrettyFormat));
+            printJson(tornaConfig, printFormat);
             System.out.println("-------- Push data --------");
-            System.out.println(JSON.toJSONString(request));
+            printJson(request, printFormat);
         }
         // 发送请求
         DocPushResponse response = client.execute(request);
@@ -181,6 +253,14 @@ public class SwaggerPluginService {
             System.out.println("Push success");
         } else {
             System.out.println("Push error，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
+        }
+    }
+
+    private static void printJson(Object obj, boolean format) {
+        if (format) {
+            System.out.println(JSON.toJSONString(obj, SerializerFeature.PrettyFormat));
+        } else {
+            System.out.println(JSON.toJSONString(obj));
         }
     }
 
