@@ -147,7 +147,7 @@ export default {
         { 'name': 'name', 'type': 'string', 'required': 1, 'description': '接口名', 'example': 'doc.push' },
         { 'name': 'version', 'type': 'string', 'required': 1, 'description': '版本号', 'example': '1.0' },
         { 'name': 'data', 'type': 'string', 'required': 1, 'description': '业务请求参数，json格式并且urlencode', 'example': '' },
-        { 'name': 'access_token', 'type': 'string', 'required': 1, 'description': '项目模块对应的token', 'example': 'c16931fa65983fb7a4e85340fcbfef' },
+        { 'name': 'access_token', 'type': 'string', 'required': 1, 'description': '项目模块对应的token', 'example': 'c16931fa65983fb7a4e85340fcbfef' }
       ],
       resultData: [
         { name: 'code', type: 'string', description: '返回code，"0"表示成功，其它都是失败', example: '"0"' },
