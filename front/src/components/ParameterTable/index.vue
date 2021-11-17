@@ -25,9 +25,9 @@
               placement="right"
               width="500"
               trigger="click"
-              @show="onEnumPopoverShow(`enumRef_${scope.row.name}`)"
+              @show="onEnumPopoverShow(`enumRef_${scope.row.id}`)"
             >
-              <enum-item-view :ref="`enumRef_${scope.row.name}`" :enum-id="scope.row.enumId" />
+              <enum-item-view :ref="`enumRef_${scope.row.id}`" :enum-id="scope.row.enumId" />
               <el-button v-if="scope.row.enumId" slot="reference" type="text" icon="el-icon-tickets" />
             </el-popover>
           </el-tooltip>
