@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.11.1
+
+- 【修复】修复枚举信息不显示问题 [#I4I7DZ](https://gitee.com/durcframework/torna/issues/I4I7DZ)
+- 【修复】修复保存mock脚本js错误
+
 ## 1.11.0
 
 - 【新增】支持LDAP登录 [doc](http://torna.cn/dev/third-party-login.html#ldap%E7%99%BB%E5%BD%95)
