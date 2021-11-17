@@ -500,15 +500,19 @@ export default {
         }
       }
       this.sendLoading = true
-      const targetHeaders = JSON.stringify(headers)
-      const realHeaders = Object.assign({}, headers)
-      realHeaders['target-headers'] = targetHeaders
+      let realHeaders
       let url = this.url
+      // 代理转发
       if (this.isProxy) {
-        url = this.getProxyUrl('/doc/debug/v1')
+        realHeaders = {}
+        realHeaders['target-headers'] = JSON.stringify(headers)
         realHeaders['target-url'] = this.url
+        url = this.getProxyUrl('/doc/debug/v1')
+      } else {
+        realHeaders = headers
       }
-      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, () => {
+      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, error => {
+        console.error(error)
         this.sendLoading = false
         this.result.content = $ts('sendErrorTip')
         this.openRightPanel()
