@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.11.2
+
+- 【修复】非代理模式下请求多余header [#I4INZZ](https://gitee.com/durcframework/torna/issues/I4INZZ)
+- 【修复】聚合接口分享输入密码跳转登录问题
+
 ## 1.11.1
 
 - 【修复】修复枚举信息不显示问题 [#I4I7DZ](https://gitee.com/durcframework/torna/issues/I4I7DZ)
