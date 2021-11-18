@@ -88,6 +88,7 @@ public class ComposeProjectController {
     }
 
     @PostMapping("checkPassword")
+    @NoLogin
     public Result checkPassword(@RequestBody ComposeProjectCheckPasswordParam param) {
         ComposeProject composeProject = composeProjectService.getById(param.getId());
         this.checkConfig(composeProject);
