@@ -144,15 +144,10 @@ export default {
       requestParamsExample: {},
       responseParamsExample: {},
       commonParams: [
-        { 'name': 'app_key', 'type': 'string', 'required': 1, 'description': '接入方appKey', 'example': '20200317689494536224768000' },
         { 'name': 'name', 'type': 'string', 'required': 1, 'description': '接口名', 'example': 'doc.push' },
         { 'name': 'version', 'type': 'string', 'required': 1, 'description': '版本号', 'example': '1.0' },
         { 'name': 'data', 'type': 'string', 'required': 1, 'description': '业务请求参数，json格式并且urlencode', 'example': '' },
-        { 'name': 'timestamp', 'type': 'string', 'required': 1,
-          'description': '时间戳，格式为yyyy-MM-dd HH:mm:ss，时区为GMT+8。服务端允许客户端请求最大时间误差为5分钟',
-          'example': '2020-11-01 13:44:11' },
-        { 'name': 'access_token', 'type': 'string', 'required': 1, 'description': '项目模块对应的token', 'example': 'c16931fa65983fb7a4e85340fcbfef' },
-        { 'name': 'sign', 'type': 'string', 'required': 1, 'description': '请求参数的签名串', 'example': 'xxxx' }
+        { 'name': 'access_token', 'type': 'string', 'required': 1, 'description': '项目模块对应的token', 'example': 'c16931fa65983fb7a4e85340fcbfef' }
       ],
       resultData: [
         { name: 'code', type: 'string', description: '返回code，"0"表示成功，其它都是失败', example: '"0"' },

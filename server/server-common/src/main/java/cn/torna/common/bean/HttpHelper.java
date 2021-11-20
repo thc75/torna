@@ -5,7 +5,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
@@ -15,12 +14,8 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -216,7 +211,7 @@ public class HttpHelper {
      * 发送请求
      *
      * @return 返回响应结果
-     * @throws IOException
+     * @throws IOException 请求失败抛出IO异常
      */
     public ResponseResult execute() throws IOException {
         HttpUriRequest request = this.buildHttpRequest();
@@ -300,9 +295,7 @@ public class HttpHelper {
         HttpHelper httpHelper = post(url);
         List<NameValuePair> formParams = new ArrayList<>();
         if (form != null) {
-            form.forEach((key, value) -> {
-                formParams.add(new BasicNameValuePair(key, String.valueOf(value)));
-            });
+            form.forEach((key, value) -> formParams.add(new BasicNameValuePair(key, String.valueOf(value))));
         }
         httpHelper.entity = new UrlEncodedFormEntity(formParams, Consts.UTF_8);
         return httpHelper;
@@ -351,34 +344,16 @@ public class HttpHelper {
             e.printStackTrace();
             throw new IllegalArgumentException("url不合法, url:" + url);
         }
-        switch (this.method) {
-            case GET:
-                request = new HttpGet(uri);
-                break;
-            case POST:
-                request = new HttpPost(uri);
-                break;
-            case PUT:
-                request = new HttpPut(uri);
-                break;
-            case HEAD:
-                request = new HttpHead(uri);
-                break;
-            case DELETE:
-                request = new HttpDelete(uri);
-                break;
-            case OPTIONS:
-                request = new HttpOptions(uri);
-                break;
-            default:
-                throw new IllegalArgumentException("method error: " + this.method);
-
+        if (this.method == HTTPMethod.OPTIONS) {
+            request = new HttpOptions(uri);
+        } else {
+            request = new HttpEntityEnclosingRequest(uri, this.method);
         }
         if (headers != null) {
             headers.forEach(request::setHeader);
         }
-        if (request instanceof HttpEntityEnclosingRequest && entity != null) {
-            HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) request;
+        if (request instanceof org.apache.http.HttpEntityEnclosingRequest && entity != null) {
+            org.apache.http.HttpEntityEnclosingRequest httpEntityEnclosingRequest = (org.apache.http.HttpEntityEnclosingRequest) request;
             httpEntityEnclosingRequest.setEntity(this.entity);
         }
         request.setConfig(requestConfig);
@@ -438,7 +413,7 @@ public class HttpHelper {
         CONNECT,
         ;
 
-        private HTTPMethod() {
+        HTTPMethod() {
         }
 
         public String value() {
@@ -483,7 +458,7 @@ public class HttpHelper {
          * 返回字符串结果，使用UTF_8编码
          *
          * @return 返回字符串结果
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          */
         @Override
         public String asString() throws IOException {
@@ -499,7 +474,7 @@ public class HttpHelper {
          * InputStream使用完毕后，需要手动调用close()
          *
          * @return 返回InputStream
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          * @see #closeResponse()
          */
         @Override
@@ -550,7 +525,7 @@ public class HttpHelper {
         /**
          * @param name 表单名称，不能重复
          * @param file 文件
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          */
         public UploadFile(String name, File file) throws IOException {
             this(name, file.getName(), FileUtils.readFileToByteArray(file));
@@ -560,7 +535,7 @@ public class HttpHelper {
          * @param name     表单名称，不能重复
          * @param fileName 文件名
          * @param input    文件流
-         * @throws IOException
+         * @throws IOException 请求失败抛出IO异常
          */
         public UploadFile(String name, String fileName, InputStream input) throws IOException {
             this(name, fileName, IOUtils.toByteArray(input));
@@ -604,6 +579,26 @@ public class HttpHelper {
 
         public void setFileData(byte[] fileData) {
             this.fileData = fileData;
+        }
+    }
+
+    /**
+     * delete method support request body
+     */
+    private static class HttpEntityEnclosingRequest extends HttpEntityEnclosingRequestBase {
+
+        private final HTTPMethod httpMethod;
+
+        public HttpEntityEnclosingRequest(final URI uri, HTTPMethod httpMethod) {
+            super();
+            setURI(uri);
+            this.httpMethod = httpMethod;
+        }
+
+
+        @Override
+        public String getMethod() {
+            return httpMethod.name();
         }
     }
 

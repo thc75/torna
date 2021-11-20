@@ -1,25 +1,23 @@
 package cn.torna.api.manager;
 
+import cn.torna.api.bean.ApiUser;
+import cn.torna.api.bean.RequestContext;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.OpenUser;
+import cn.torna.service.OpenUserService;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.AppSecretManager;
 import com.gitee.easyopen.ParamNames;
 import com.gitee.easyopen.message.Errors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import cn.torna.api.bean.ApiUser;
-import cn.torna.api.bean.RequestContext;
-import cn.torna.service.OpenUserService;
 
 import java.util.Map;
 
 /**
  * @author tanghc
  */
-@Service
 public class ApiAppSecretManager implements AppSecretManager {
 
     @Autowired

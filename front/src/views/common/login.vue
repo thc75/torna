@@ -10,12 +10,17 @@
       @submit.native.prevent
     >
       <div class="title-container">
-        <h3 class="title">用户登录</h3>
+        <h3 class="title">{{ $ts('userLogin') }}</h3>
       </div>
+      <el-tabs v-show="showLoginTab" v-model="loginForm.source" type="card">
+        <el-tab-pane :label="$ts('accountLogin')" name="register"></el-tab-pane>
+        <el-tab-pane v-if="serverConfig.enableThirdPartyForm" :label="$ts('thirdpartyLogin')" name="form"></el-tab-pane>
+        <el-tab-pane v-if="serverConfig.enableLdap" :label="$ts('ldapLogin')" name="ldap"></el-tab-pane>
+      </el-tabs>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
-          placeholder="登录邮箱"
+          :placeholder="$ts('loginAccount')"
           prefix-icon="el-icon-message"
           auto-complete="on"
         />
@@ -24,17 +29,17 @@
         <el-input
           v-model="loginForm.password"
           type="password"
-          placeholder="登录密码"
+          :placeholder="$ts('password')"
           prefix-icon="el-icon-lock"
           auto-complete="on"
         />
       </el-form-item>
-      <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">登 录</el-button>
+      <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">{{ $ts('loginSubmit') }}</el-button>
       <div class="footer">
         <div v-if="serverConfig.enableReg">
-          <el-link type="primary" :underline="false" @click="onReg">注册新账号</el-link>
+          <el-link type="primary" :underline="false" @click="onReg">{{ $ts('signUp') }}</el-link>
           <span class="split">|</span>
-          <el-link type="primary" :underline="false" @click="onForgetPwd">忘记密码？</el-link>
+          <el-link type="primary" :underline="false" @click="onForgetPwd">{{ $ts('forgetPwd') }}？</el-link>
         </div>
         <el-link
           v-if="serverConfig.enableThirdPartyOauth"
@@ -60,14 +65,14 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (value.length === 0) {
-        callback(new Error('请输入登录邮箱'))
+        callback(new Error($ts('plzInputLoginAccount')))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length === 0) {
-        callback(new Error('请输入密码'))
+        callback(new Error($ts('plzInputPassword')))
       } else {
         callback()
       }
@@ -77,12 +82,14 @@ export default {
         enableReg: false,
         enableThirdPartyForm: false,
         enableThirdPartyOauth: false,
+        enableLdap: false,
         oauthLoginUrl: '',
         oauthButtonText: ''
       },
       loginForm: {
         username: '',
-        password: ''
+        password: '',
+        source: 'register'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -91,6 +98,11 @@ export default {
       loading: false,
       passwordType: 'password',
       redirect: undefined
+    }
+  },
+  computed: {
+    showLoginTab() {
+      return this.serverConfig.enableThirdPartyForm || this.serverConfig.enableLdap
     }
   },
   watch: {
@@ -112,7 +124,7 @@ export default {
       this.$router.push({ path: `/reg` })
     },
     onForgetPwd() {
-      this.alert('询问超级管理员重置密码', '忘记密码')
+      this.alert($ts('askSuperAdminRestPwd'), $ts('forgetPwd'))
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -139,13 +151,12 @@ export default {
     doSubmit: function(callback) {
       const data = this.loginForm
       let pwd = data.password
-      if (!this.serverConfig.enableThirdPartyForm) {
+      if (this.loginForm.source === this.getEnums().SOURCE.REGISTER) {
         pwd = md5(pwd)
       }
-      const postData = {
-        username: data.username,
-        password: pwd
-      }
+      const postData = {}
+      Object.assign(postData, data)
+      postData.password = pwd
       callback && callback.call(this, postData)
       this.loading = true
       this.post('/system/login', postData, function(resp) {

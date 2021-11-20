@@ -1,14 +1,16 @@
 <template>
   <div>
-    <el-select v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
-      <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
-        {{ space.name }}
-      </el-option>
-    </el-select>
-    <el-radio-group v-model="expandAll" size="mini" style="padding-bottom: 10px;" @change="onTriggerStatus">
-      <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
-      <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
-    </el-radio-group>
+    <div class="select-area">
+      <el-select v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
+        <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
+          {{ space.name }}
+        </el-option>
+      </el-select>
+      <el-radio-group v-model="expandAll" size="mini" class="space-select" @change="onTriggerStatus">
+        <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
+        <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
+      </el-radio-group>
+    </div>
     <div class="menu-tree">
       <el-input
         v-show="treeData.length > 0"
@@ -286,14 +288,20 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .menu-tree {
-  padding: 0 10px;
+  padding: 10px;
   font-size: 14px !important;
 }
-.space-select {
-  padding: 10px 10px 0 10px;
+.select-area {
+  .space-select {
+    padding: 10px 0 0 10px;
+  }
+  .el-radio-group {
+    vertical-align: bottom;
+  }
 }
+
 .doc-select-url {
   margin-left: 10px;
   color: #909399;

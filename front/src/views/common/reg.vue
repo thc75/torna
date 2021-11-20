@@ -10,11 +10,11 @@
       style="margin: 60px auto;"
       @submit.native.prevent
     >
-      <h3>用户注册</h3>
+      <h3>{{ $ts('signUp') }}</h3>
       <el-form-item prop="username">
         <el-input
           v-model="regForm.username"
-          placeholder="邮箱地址"
+          :placeholder="$ts('loginAccount')"
           prefix-icon="el-icon-message"
           maxlength="100"
           show-word-limit
@@ -23,7 +23,7 @@
       <el-form-item prop="nickname">
         <el-input
           v-model="regForm.nickname"
-          placeholder="昵称"
+          :placeholder="$ts('nickname')"
           prefix-icon="el-icon-user"
           maxlength="100"
           show-word-limit
@@ -33,7 +33,7 @@
         <el-input
           v-model="regForm.password"
           type="password"
-          placeholder="登录密码"
+          :placeholder="$ts('password')"
           prefix-icon="el-icon-lock"
         />
       </el-form-item>
@@ -41,13 +41,13 @@
         <el-input
           v-model="regForm.password2"
           type="password"
-          placeholder="确认密码"
+          :placeholder="$ts('passwordConfirm')"
           prefix-icon="el-icon-lock"
         />
       </el-form-item>
-      <el-button type="primary" style="width: 100%;" native-type="submit" @click="handleReg">注 册</el-button>
+      <el-button type="primary" style="width: 100%;" native-type="submit" @click="handleReg">{{ $ts('signUp') }}</el-button>
       <div class="footer">
-        已有账号，<el-button type="text" @click="goLogin">去登录</el-button>
+        <el-button type="text" @click="goLogin">{{ $ts('goLogin') }}</el-button>
       </div>
     </el-form>
   </div>

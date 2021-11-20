@@ -288,14 +288,15 @@ export default {
       if (!this.sourceMap) {
         this.sourceMap = this.getSourceMap()
       }
-      return this.sourceMap[row.source] || $ts('unknown')
+      return this.sourceMap[row.source] || row.source
     },
     getSourceMap() {
       return {
         'register': $ts('selfReg'),
         'oauth': $ts('thirdPartyLogin'),
         'form': $ts('thirdPartyLogin'),
-        'backend': $ts('backendAdd')
+        'backend': $ts('backendAdd'),
+        'ldap': 'LDAP'
       }
     }
   }

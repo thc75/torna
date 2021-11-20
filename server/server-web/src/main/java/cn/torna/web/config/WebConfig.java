@@ -7,8 +7,6 @@ import cn.torna.common.support.HashIdParamResolver;
 import cn.torna.common.thread.TornaAsyncConfigurer;
 import cn.torna.common.util.FastjsonUtil;
 import cn.torna.common.util.SystemUtil;
-import cn.torna.service.login.form.ThirdPartyLoginManager;
-import cn.torna.service.login.form.impl.DefaultThirdPartyLoginManager;
 import cn.torna.web.interceptor.AdminInterceptor;
 import cn.torna.web.interceptor.LoginInterceptor;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -18,7 +16,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -57,6 +54,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
 
     /**
      * 配置拦截器
+     *
      * @param registry
      */
     @Override
@@ -94,6 +92,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
 
     /**
      * 配置静态资源
+     *
      * @param registry
      */
     @Override
@@ -121,10 +120,11 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
 
     /**
      * 使用fastjson代替jackson
+     *
      * @return
      */
     @Bean
-    public HttpMessageConverters fastJsonConfigure(){
+    public HttpMessageConverters fastJsonConfigure() {
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         fastJsonConfig.setSerializerFeatures(FastjsonUtil.SERIALIZER_FEATURES);
@@ -139,15 +139,6 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
         return new TornaAsyncConfigurer("torna-sync", threadPoolSize);
     }
 
-    /**
-     * 第三方简单登录模式默认实现
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public ThirdPartyLoginManager thirdPartyLoginManager() {
-        return new DefaultThirdPartyLoginManager();
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

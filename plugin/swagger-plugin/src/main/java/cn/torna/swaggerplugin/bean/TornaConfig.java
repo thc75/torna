@@ -3,6 +3,8 @@ package cn.torna.swaggerplugin.bean;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author tanghc
  */
@@ -15,12 +17,10 @@ public class TornaConfig {
     private Boolean enable = false;
     /** 扫描package，多个用";"隔开。不指定扫描全部 */
     private String basePackage;
+    /** 指定扫描的API，可以是某个controller，也可以是某个接口方法 */
+    private List<String> scanApis;
     /** 推送URL */
     private String url;
-    /** appKey */
-    private String appKey;
-    /** secret */
-    private String secret;
     /** 模块token */
     private String token;
 
@@ -30,6 +30,8 @@ public class TornaConfig {
     private String author;
     /** 打开调试:true/false */
     private Boolean debug = true;
+    /** 调试输出json格式化 */
+    private Boolean debugPrintFormat = false;
     /** 接口多个method只显示 */
     private String methodWhenMulti = "GET";
     /** 具有body体的方法 */
@@ -42,6 +44,10 @@ public class TornaConfig {
     /** 默认的http method */
     private String defaultHttpMethod = "POST";
 
+    /** 第三方jar */
     private JSONObject jarClass;
+
+    /** 定义错误码 */
+    private List<CodeInfo> codes;
 
 }

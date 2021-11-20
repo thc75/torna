@@ -313,7 +313,8 @@ export default {
     getGlobalVariable() {
       const globalVariable = {}
       const params = {}
-      this.formData.dataKv.forEach(row => {
+      const dataKv = this.formData.dataKv || []
+      dataKv.forEach(row => {
         params[row.name] = row.value
       })
       globalVariable.$params = params

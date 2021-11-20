@@ -4,6 +4,7 @@ import cn.torna.swaggerplugin.builder.DataType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -19,6 +20,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -179,6 +181,11 @@ public class PluginUtil {
                     for (int i = 0; i < typeParameters.length; i++) {
                         String key = getGenericParamKey(rawType, typeParameters[i].getName());
                         Type actualTypeArgument = actualTypeArguments[i];
+                        // 如果泛型填的?,即：Result<?>
+                        if (actualTypeArgument instanceof WildcardType) {
+                            genericParamMap.put(key, Object.class);
+                            continue;
+                        }
                         boolean isGeneric = PluginUtil.isGenericType(actualTypeArgument);
                         Class <?> value = isGeneric ?
                                 (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType() : (Class<?>) actualTypeArgument;
@@ -260,6 +267,25 @@ public class PluginUtil {
             String parameterType = PluginUtil.getParameterType(parameter);
             return parameterType.equals("file") || parameterType.equals("file[]");
         }
+    }
+
+    /**
+     * 字段是否包含某些注解
+     * @param field 字段
+     * @param annotationClassname 注解名称
+     * @return 如果有返回true
+     */
+    public static boolean hasAnyAnnotation(Field field, List<String> annotationClassname) {
+        Annotation[] annotations = field.getAnnotations();
+        for (Annotation annotation : annotations) {
+            String annotationClassName = annotation.annotationType().getName();
+            for (String name : annotationClassname) {
+                if (annotationClassName.contains(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

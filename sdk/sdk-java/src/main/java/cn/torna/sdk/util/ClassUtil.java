@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class ClassUtil {
 
-    private static Map<String, Class<?>> classGenricTypeCache = new HashMap<>(16);
+    private static final Map<String, Class<?>> CLASS_GENERIC_TYPE_CACHE = new HashMap<>(16);
 
     /**
      * 返回定义类时的泛型参数的类型. <br>
@@ -41,7 +41,7 @@ public class ClassUtil {
      */
     public static Class<?> getSuperClassGenricType(Class<?> clazz, int index) throws IndexOutOfBoundsException {
         String cacheKey = clazz.getName() + index;
-        Class<?> cachedClass = classGenricTypeCache.get(cacheKey);
+        Class<?> cachedClass = CLASS_GENERIC_TYPE_CACHE.get(cacheKey);
         if (cachedClass != null) {
             return cachedClass;
         }
@@ -63,7 +63,7 @@ public class ClassUtil {
 
             Class<?> retClass = (Class<?>) params[index];
             // 缓存起来
-            classGenricTypeCache.put(cacheKey, retClass);
+            CLASS_GENERIC_TYPE_CACHE.put(cacheKey, retClass);
 
             return retClass;
         }
