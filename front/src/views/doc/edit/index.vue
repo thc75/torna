@@ -213,7 +213,7 @@
       :title="$ts('importResponseParam')"
       :visible.sync="paramResponseTemplateDlgShow"
     >
-      <el-alert :title="$ts('importResponseParamTip')" :closable="false" class="el-alert-tip"/>
+      <el-alert :title="$ts('importResponseParamTip')" :closable="false" class="el-alert-tip" />
       <el-form ref="paramResponseTemplateForm" :model="paramResponseTemplateFormData">
         <el-form-item prop="value" :rules="[{ required: true, message: $ts('pleaseInputJson'), trigger: 'blur' }]">
           <el-input v-model="paramResponseTemplateFormData.value" type="textarea" :rows="14" :placeholder="$ts('jsonType')" />
@@ -342,7 +342,7 @@ export default {
       this.initFolders(moduleId)
       const finalId = docId || copyId
       if (finalId) {
-        this.get('/doc/form', { id: finalId }, function(resp) {
+        this.get('/doc/detail', { id: finalId }, function(resp) {
           const data = resp.data
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
