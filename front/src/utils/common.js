@@ -341,7 +341,6 @@ export function init_docInfo_view(data) {
       data.requestParams = data.globalParams.concat(data.requestParams)
     }
   }
-  debugger
   // 如果使用公共返回参数
   if (data.isUseGlobalReturns) {
     const dataNode = (data.globalReturns || [])
