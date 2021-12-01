@@ -27,7 +27,7 @@ public class AttachmentService extends BaseService<Attachment, AttachmentMapper>
     }
 
     /**
-     * 获取文档附件
+     * 获取评论附件
      * @param commentId
      * @return
      */

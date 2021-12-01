@@ -23,17 +23,11 @@ public class Attachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 来源，0：文档附件，1：评论附件 */
-    private Byte sourceType;
-
-    /** 文档附件时存doc_id,评论附件存comment_id */
-    private Long refId;
+    /** doc_id */
+    private Long docId;
 
     /** 文件名称 */
     private String filename;
-
-    /** 文件后缀 */
-    private String suffix;
 
     /** 本地保存路径 */
     private String saveDir;

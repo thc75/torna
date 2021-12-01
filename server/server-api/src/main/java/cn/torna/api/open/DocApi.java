@@ -270,7 +270,7 @@ public class DocApi {
     }
 
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        String md5 = DigestUtils.md5Hex(JSON.toJSONString(docInfoDTO));
+        String md5 = DocInfoService.buildMd5(docInfoDTO);
         docInfoDTO.setMd5(md5);
         boolean contentChanged = DocInfoService.isContentChanged(docInfoDTO.buildDataId(), md5, pushContext.getDocMetas());
         // 文档内容被修改，做相关处理

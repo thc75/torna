@@ -73,6 +73,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下的所有文档
+     *
      * @param moduleId 模块id
      * @return 返回文档
      */
@@ -102,6 +103,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -115,6 +117,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -125,6 +128,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -206,8 +210,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 保存文档信息
+     *
      * @param docInfoDTO 文档内容
-     * @param user 用户
+     * @param user       用户
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
@@ -261,6 +266,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
+        docInfoDTO.setMd5(buildMd5(docInfoDTO));
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
@@ -268,9 +274,19 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
+    public static String buildMd5(DocInfoDTO docInfoDTO) {
+        return DigestUtils.md5Hex(JSON.toJSONString(docInfoDTO));
+    }
+
     public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
-        // 保存上一次的快照
-        this.saveOldSnapshot(docInfoDTO);
+        DocInfo docInfoExist = getById(docInfoDTO.getId());
+        String oldMd5 = docInfoExist.getMd5();
+        String newMd5 = buildMd5(docInfoDTO);
+        if (!Objects.equals(oldMd5, newMd5)) {
+            // 保存上一次的快照
+            this.saveOldSnapshot(docInfoDTO);
+        }
+        docInfoDTO.setMd5(newMd5);
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
         // 修改参数
@@ -346,6 +362,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下面所有分类
+     *
      * @param moduleId 模块id
      * @return 返回分类
      */
@@ -373,7 +390,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     /**
      * 修改分类名称
      *
-     * @param id 文档id
+     * @param id   文档id
      * @param name 文档名称
      * @param user 操作人
      */
@@ -393,7 +410,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除文档
-     * @param id 文档注解
+     *
+     * @param id   文档注解
      * @param user 用户
      */
     public void deleteDocInfo(long id, User user) {
@@ -409,12 +427,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 创建文档分类，如果已存在，直接返回已存在的
+     *
      * @param folderName 分类名称
-     * @param moduleId 模块id
-     * @param user 操作人
+     * @param moduleId   模块id
+     * @param user       操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        return createDocFolder(folderName,  moduleId, user, 0L);
+        return createDocFolder(folderName, moduleId, user, 0L);
     }
 
     /**
@@ -462,6 +481,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除模块下所有文档
+     *
      * @param moduleId 模块id
      */
     public void deleteOpenAPIModuleDocs(long moduleId) {
@@ -483,8 +503,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 删除文档对应的参数
         Query paramDelQuery = new Query()
                 .in("doc_id", idList)
-                .eq("create_mode", OperationMode.OPEN.getType())
-                ;
+                .eq("create_mode", OperationMode.OPEN.getType());
         // DELETE FROM doc_param WHERE doc_id in (..)
         docParamService.getMapper().deleteByQuery(paramDelQuery);
     }
