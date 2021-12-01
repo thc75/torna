@@ -526,8 +526,6 @@ export default {
       } else {
         realHeaders = headers
       }
-      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, error => {
-        console.error(error)
       let req = {
         url: url,
         method: item.httpMethod,
