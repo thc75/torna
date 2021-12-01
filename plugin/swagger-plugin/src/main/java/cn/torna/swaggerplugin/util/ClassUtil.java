@@ -1,12 +1,23 @@
 package cn.torna.swaggerplugin.util;
 
 import cn.torna.swaggerplugin.scaner.ClassScanner;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartRequest;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.security.Principal;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
 
 /**
@@ -55,6 +66,24 @@ public class ClassUtil {
             allClasses.add(superclass);
             findSuperclass(superclass, allClasses);
         }
+    }
+
+    public static boolean isSpecialType(Class<?> paramType) {
+        // 特殊参数
+        boolean special = (
+                WebRequest.class.isAssignableFrom(paramType) ||
+                        MultipartRequest.class.isAssignableFrom(paramType) ||
+                        Principal.class.isAssignableFrom(paramType) ||
+                        InputStream.class.isAssignableFrom(paramType) ||
+                        Reader.class.isAssignableFrom(paramType) ||
+                        HttpMethod.class == paramType ||
+                        Locale.class == paramType ||
+                        TimeZone.class == paramType ||
+                        ZoneId.class == paramType ||
+                        OutputStream.class.isAssignableFrom(paramType) ||
+                        Writer.class.isAssignableFrom(paramType)
+        );
+        return paramType.getName().startsWith("javax") || special;
     }
 
 //    public static void main(String[] args) {

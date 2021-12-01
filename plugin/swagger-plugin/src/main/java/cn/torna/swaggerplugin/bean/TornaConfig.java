@@ -44,7 +44,7 @@ public class TornaConfig {
     private Boolean isReplace = true;
 
     /** 全局的contentType */
-    private String globalContentType = "application/json";
+    private String globalContentType = "application/x-www-form-urlencoded";
     /** 默认的http method */
     private String defaultHttpMethod = "POST";
 
