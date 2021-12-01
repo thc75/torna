@@ -129,8 +129,6 @@ public class DebugController {
         }
         JSONObject headersJson = JSON.parseObject(header);
         Headers headers = new Headers(headersJson);
-        String contentType = request.getContentType();
-        headers.put("Content-Type", contentType);
         return headers;
     }
 
