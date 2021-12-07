@@ -729,7 +729,12 @@ export default {
       this.openRightPanel()
     },
     getHeaderValue(headers, key) {
-      return headers[key] || headers[key.toLowerCase()]
+      for (const k in headers) {
+        if (k.toLowerCase() === key.toLowerCase()) {
+          return headers[k]
+        }
+      }
+      return null
     },
     onBodyBlur() {
       if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
@@ -770,10 +775,20 @@ export default {
       const dispositionArr = disposition.split(';')
       for (let i = 0; i < dispositionArr.length; i++) {
         const item = dispositionArr[i].trim()
-        // filename="xx"
+        // filename=xx.xls
         if (item.toLowerCase().startsWith('filename')) {
-          const result = item.match(new RegExp('filename="(.*?)"', 'i'))
-          return result ? result[1] : ''
+          const result = item.split('=')
+          if (result && result.length > 1) {
+            let filename = result[1]
+            if (filename.startsWith('\'') || filename.startsWith('\"')) {
+              filename = filename.substring(1)
+            }
+            if (filename.endsWith('\'') || filename.endsWith('\"')) {
+              filename = filename.substring(0, filename.length - 1)
+            }
+            return filename
+          }
+          return ''
         }
       }
     },
