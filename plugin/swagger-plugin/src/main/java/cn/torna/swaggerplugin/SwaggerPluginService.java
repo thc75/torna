@@ -336,6 +336,15 @@ public class SwaggerPluginService {
                 .collect(Collectors.joining(","));
     }
 
+    protected boolean isIgnoreParameter(Parameter parameter) {
+        Class<?> type = parameter.getType();
+        if (ClassUtil.isSpecialType(type)) {
+            return true;
+        }
+        ApiParam apiModelProperty = AnnotationUtils.findAnnotation(parameter, ApiParam.class);
+        return apiModelProperty != null && apiModelProperty.hidden();
+    }
+
     protected List<DocParamPath> buildPathParams(Method method) {
         List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(method, param -> "path".equalsIgnoreCase(param.paramType()));
         List<DocParamPath> docParamPaths = new ArrayList<>(apiImplicitParamList.size());
@@ -362,7 +371,7 @@ public class SwaggerPluginService {
                     name = parameter.getName();
                 }
                 // 如果已经有了不添加
-                if (containsName(docParamPaths, name)) {
+                if (containsName(docParamPaths, name) || isIgnoreParameter(parameter)) {
                     continue;
                 }
                 DocParamInfo docParamInfo = buildDocParamInfo(parameter);
@@ -432,7 +441,7 @@ public class SwaggerPluginService {
             if (requestHeader != null) {
                 String name = getParameterName(parameter);
                 // 如果已经有了不添加
-                if (containsName(docParamHeaders, name)) {
+                if (containsName(docParamHeaders, name) || isIgnoreParameter(parameter)) {
                     continue;
                 }
                 DocParamInfo docParamInfo = buildDocParamInfo(parameter);
@@ -474,7 +483,7 @@ public class SwaggerPluginService {
             Class<?> parameterType = parameter.getType();
             String name = getParameterName(parameter);
             // 如果已经有了不添加
-            if (containsName(docParamReqs, name)) {
+            if (containsName(docParamReqs, name) || isIgnoreParameter(parameter)) {
                 continue;
             }
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
@@ -579,7 +588,7 @@ public class SwaggerPluginService {
         for (Parameter parameter : parameters) {
             try {
                 String name = getParameterName(parameter);
-                if (containsName(docParamReqs, name) || !isBodyParameter(parameter, httpMethod)) {
+                if (containsName(docParamReqs, name) || !isBodyParameter(parameter, httpMethod) || isIgnoreParameter(parameter)) {
                     continue;
                 }
                 RequestBody requestBody = parameter.getAnnotation(RequestBody.class);

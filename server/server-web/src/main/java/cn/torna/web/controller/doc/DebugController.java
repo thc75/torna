@@ -128,8 +128,7 @@ public class DebugController {
             header = "{}";
         }
         JSONObject headersJson = JSON.parseObject(header);
-        Headers headers = new Headers(headersJson);
-        return headers;
+        return new Headers(headersJson);
     }
 
     static class Headers extends HashMap<String, String> {

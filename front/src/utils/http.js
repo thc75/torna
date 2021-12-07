@@ -138,7 +138,10 @@ export function request(method, url, params, data, headers, isMultipart, callbac
     },
     responseType: 'arraybuffer'
   }
-  const contentType = headers['Content-Type'] || headers['content-type']
+  const targetHeaders = headers['target-headers']
+  // 如果有目标头
+  const realHeaders = targetHeaders ? JSON.parse(targetHeaders) : headers
+  const contentType = realHeaders['Content-Type'] || realHeaders['content-type']
   // 如果是模拟表单提交
   if (contentType && contentType.toLowerCase().indexOf('x-www-form-urlencoded') > -1) {
     config.transformRequest = [function(data) {

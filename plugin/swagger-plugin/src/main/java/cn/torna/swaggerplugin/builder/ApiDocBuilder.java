@@ -135,9 +135,10 @@ public class ApiDocBuilder {
 
         final Class<?> targetClass = targetClassRef;
         // 如果是基本类型
-        if (!PluginUtil.isPojo(targetClass)) {
+        if (!PluginUtil.isPojo(targetClass) || isObjectClass(targetClass)) {
             return Collections.emptyList();
         }
+
         final List<FieldDocInfo> fieldDocInfos = new ArrayList<>();
         // 遍历参数对象中的属性
         ReflectionUtils.doWithFields(targetClass, field -> {
@@ -165,6 +166,7 @@ public class ApiDocBuilder {
             } else {
                 fieldDocInfo = buildFieldDocInfo(apiModelProperty, field);
             }
+            formatDataType(fieldDocInfo, realClass != null ? realClass : fieldType);
             fieldDocInfos.add(fieldDocInfo);
         }, field -> {
             if (PluginUtil.isTransientField(field) || Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
@@ -175,6 +177,22 @@ public class ApiDocBuilder {
         });
         this.bindJarClassFields(targetClass, fieldDocInfos);
         return fieldDocInfos;
+    }
+
+    protected void formatDataType(FieldDocInfo fieldDocInfo, Class<?> fieldType) {
+        if (isObjectClass(fieldType)) {
+            fieldDocInfo.setType(DataType.OBJECT.getValue());
+            fieldDocInfo.setChildren(Collections.emptyList());
+        }
+    }
+
+    protected boolean isObjectClass(Class<?> targetClass) {
+        List<String> objectClassList = this.tornaConfig.getObjectClassList();
+        if (objectClassList == null) {
+            return false;
+        }
+        String name = targetClass.getName();
+        return objectClassList.contains(name);
     }
 
 
