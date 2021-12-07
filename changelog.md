@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.11.3
+
+- 【修复】修复代理转发content-type错误
+- 【优化】优化调试接口文件导出功能
+
 ## 1.11.2
 
 - 【修复】非代理模式下请求多余header [#I4INZZ](https://gitee.com/durcframework/torna/issues/I4INZZ)
