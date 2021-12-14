@@ -83,6 +83,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addExposedHeader("target-response-headers");
+        corsConfiguration.addExposedHeader("Content-Disposition");
         corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
