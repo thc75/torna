@@ -9,11 +9,11 @@
               :key="hostConfig.id"
               :label="hostConfig.id"
             >
-              {{ hostConfig.configKey }}
+              {{ hostConfig.name }}
             </el-radio-button>
           </el-radio-group>
           <span class="split">|</span>
-          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" />
+          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" @change="saveProxySelect" />
           <el-popover
             placement="right"
             :title="$ts('proxyForward')"
@@ -392,14 +392,29 @@ export default {
         this.requestUrl = item.url
         return
       }
-      const debugConfigs = debugEnvs.filter(row => row.id === debugId || row.configKey === debugId)
+      const debugConfigs = debugEnvs.filter(row => row.id === debugId || row.name === debugId)
       const debugConfig = debugConfigs.length === 0 ? debugEnvs[0] : debugConfigs[0]
-      const baseUrl = debugConfig.configValue
+      const baseUrl = debugConfig.url
       this.requestUrl = get_effective_url(baseUrl, item.url)
-      this.debugEnv = debugConfig.configKey
+      this.debugEnv = debugConfig.name
       this.debugId = debugConfig.id
       this.setAttr(HOST_KEY, this.debugId)
       this.loadProps()
+      this.loadGlobalHeader(debugId)
+      this.loadProxySelect()
+    },
+    loadGlobalHeader(debugId) {
+      this.get('/doc/headers/global', { environmentId: debugId }, resp => {
+        const globalHeaders = resp.data
+        const headers = this.currentItem.headerParams
+        for (const target of headers) {
+          for (const globalHeader of globalHeaders) {
+            if (globalHeader.name === target.name) {
+              target.example = globalHeader.example
+            }
+          }
+        }
+      })
     },
     bindRequestParam(item) {
       const formData = []
@@ -563,6 +578,7 @@ export default {
       return data
     },
     setProps() {
+      const arr = []
       const formatData = (arr) => {
         const data = {}
         arr.forEach(row => {
@@ -574,7 +590,6 @@ export default {
         return data
       }
       const props = {
-        isProxy: this.isProxy,
         headerData: formatData(this.headerData),
         pathData: formatData(this.pathData),
         queryData: formatData(this.queryData),
@@ -588,25 +603,56 @@ export default {
         }
       }
       const debugDataStr = JSON.stringify(props)
-      const propsData = {
-        debugData: debugDataStr
-      }
-      propsData[this.debugId] = debugDataStr
-      const data = {
+      arr.push({
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
-        props: propsData
+        name: this.debugId,
+        val: debugDataStr
+      })
+      this.post('/prop/save', { propList: arr }, resp => {})
+    },
+    saveProxySelect() {
+      if (this.debugId) {
+        const arr = [this.getProxyProp()]
+        this.post('/prop/save', { propList: arr }, resp => {})
       }
-      this.post('/prop/set', data, resp => {})
+    },
+    getProxyProp() {
+      return {
+        refId: this.item.moduleId,
+        type: this.getEnums().PROP_TYPE.DEBUG_PROXY,
+        name: `torna.debug.proxy.${this.debugId}`,
+        val: this.isProxy
+      }
+    },
+    loadProxySelect() {
+      if (this.debugId) {
+        this.get('/prop/find', {
+          refId: this.item.moduleId,
+          type: this.getEnums().PROP_TYPE.DEBUG_PROXY,
+          name: `torna.debug.proxy.${this.debugId}`
+        }, resp => {
+          const data = resp.data
+          if (!data) {
+            this.isProxy = true
+          } else {
+            this.isProxy = data.value === 'true'
+          }
+        })
+      }
     },
     loadProps() {
       const data = {
         refId: this.item.id,
-        type: this.getEnums().PROP_TYPE.DEBUG
+        type: this.getEnums().PROP_TYPE.DEBUG,
+        name: this.debugId
       }
-      this.get('/prop/get', data, resp => {
+      this.get('/prop/find', data, resp => {
         const respData = resp.data
-        const debugData = respData[this.debugId] || respData.debugData
+        if (!respData) {
+          return
+        }
+        const debugData = respData.val
         if (!debugData) {
           return
         }
@@ -620,9 +666,6 @@ export default {
               }
             })
           }
-        }
-        if (props.isProxy !== undefined) {
-          this.isProxy = props.isProxy
         }
         setProp(this.headerData, props.headerData)
         setProp(this.pathData, props.pathData)
@@ -742,7 +785,7 @@ export default {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
         } catch (e) {
-          console.log('format json error', e)
+          console.error('format json error', e)
         }
       }
     },

@@ -13,21 +13,20 @@ import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
-import cn.torna.dao.entity.ModuleConfig;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.DocInfoMapper;
-import cn.torna.service.dto.DebugHostDTO;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
-import com.alibaba.fastjson.JSON;
+import cn.torna.service.dto.ModuleEnvironmentDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +64,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private PropService propService;
+
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
+
+    @Autowired
+    private ModuleEnvironmentParamService moduleEnvironmentParamService;
 
     /**
      * 查询模块下的所有文档
@@ -135,8 +140,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Module module = moduleService.getById(moduleId);
         docInfoDTO.setProjectId(module.getProjectId());
         docInfoDTO.setModuleType(module.getType());
-        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
-        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
+        List<ModuleEnvironment> debugEnvs = moduleEnvironmentService.listModuleEnvironment(moduleId);
+        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, ModuleEnvironmentDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         params.sort(Comparator.comparing(DocParam::getOrderIndex));
         Map<Byte, List<DocParam>> paramsMap = params.stream()
@@ -462,5 +467,28 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 ;
         // DELETE FROM doc_param WHERE doc_id in (..)
         docParamService.getMapper().deleteByQuery(paramDelQuery);
+    }
+
+    /**
+     * 获取指定环境下的header
+     * @param envId 环境id
+     * @param docId 文档id
+     * @return 返回所有的header，全局+文档
+     */
+    public List<DocParamDTO> listDocHeaders(Long envId, Long docId) {
+        ParamStyleEnum header = ParamStyleEnum.HEADER;
+        Query query = new Query()
+                .eq("id", docId)
+                .eq("style", header.getStyle());
+        List<DocParam> docHeaders = docParamService.list(query);
+        List<DocParamDTO> ret = new ArrayList<>();
+        List<DocParamDTO> headers = CopyUtil.copyList(docHeaders, DocParamDTO::new);
+        if (envId != null) {
+            List<ModuleEnvironmentParam> globalHeaders = moduleEnvironmentParamService.listByEnvironmentAndStyle(envId, header.getStyle());
+            List<DocParamDTO> globalHeaderDTOs = CopyUtil.copyList(globalHeaders, DocParamDTO::new);
+            ret.addAll(globalHeaderDTOs);
+        }
+        ret.addAll(headers);
+        return ret;
     }
 }

@@ -27,6 +27,9 @@ class Delegate extends BaseTranslator {
   translate(key) {
     return this.delegate.translate(key)
   }
+  addMapping(anotherMapping) {
+    this.delegate.addMapping(anotherMapping)
+  }
 }
 
 const delegate = new Delegate()
@@ -41,6 +44,23 @@ const _ts = function(key) {
     value = format_string(value, args)
   }
   return value
+}
+
+/**
+ * key为名称，value分为各个语言对应的翻译
+ * { 'addEnv': { 'zh': '添加环境', 'en': 'Add Environment' } }
+ * @param configMapping Object
+ * @private
+ */
+const _addI18n = function(configMapping) {
+  const lang = get_lang()
+  const mapping = {}
+  for (const name in configMapping) {
+    const config = configMapping[name]
+    const value = config[lang] || name
+    mapping[name] = value
+  }
+  delegate.addMapping(mapping)
 }
 
 Object.assign(Vue.prototype, {
@@ -59,5 +79,13 @@ Object.assign(Vue.prototype, {
 })
 
 Vue.prototype.$ts = _ts
+Vue.prototype.$addI18n = _addI18n
 
 window.$ts = _ts
+
+/**
+ * key为名称，value分为各个语言对应的翻译
+ * { 'addEnv': { 'zh': '添加环境', 'en': 'Add Environment' } }
+ * @type {_addI18n}
+ */
+window.$addI18n = _addI18n

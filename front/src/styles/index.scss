@@ -378,7 +378,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
 }
 .el-table {
   th,td {
-    padding: 5px 0;
+    padding: 5px 0 !important;
   }
   .tree--btn-wrapper {
     .el-icon-arrow-down {
@@ -386,6 +386,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
     }
   }
 }
+
 .icon-operation {
   .el-link {
     margin-right: 12px !important;

@@ -78,7 +78,7 @@ public class DocImportService {
     private ModuleService moduleService;
 
     @Autowired
-    private ModuleConfigService moduleConfigService;
+    private ModuleEnvironmentService moduleEnvironmentService;
 
     private static final Map<String, String> CONTEXT_TYPE_MAP = new HashMap<>();
     static {
@@ -274,7 +274,7 @@ public class DocImportService {
         Module module = moduleService.createSwaggerModule(importSwaggerDTO, title);
         // 保存调试环境
         for (Server server : docBean.getServers()) {
-            moduleConfigService.setDebugEnv(module.getId(), server.getDescription(), server.getUrl());
+            moduleEnvironmentService.setDebugEnv(module.getId(), server.getDescription(), server.getUrl());
         }
         // 创建文档分类
         List<DocModule> docModules = docBean.getDocModules();

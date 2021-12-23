@@ -76,12 +76,12 @@ export default {
   data() {
     return {
       globalHeaders: [],
-      moduleId: '',
+      environmentId: '',
       dialogHeaderVisible: false,
       dialogHeaderTitle: '',
       dialogHeaderFormData: {
         id: '',
-        moduleId: '',
+        environmentId: '',
         name: '',
         example: '',
         description: ''
@@ -103,14 +103,17 @@ export default {
     }
   },
   methods: {
-    reload(moduleId) {
-      if (moduleId) {
-        this.moduleId = moduleId
+    reload(environmentId) {
+      if (environmentId) {
+        this.environmentId = environmentId
       }
-      this.loadHeaders(this.moduleId)
+      this.loadHeaders(this.environmentId)
     },
-    loadHeaders(moduleId) {
-      this.get('/module/setting/globalHeaders/list', { moduleId: moduleId }, resp => {
+    loadHeaders(environmentId) {
+      this.get('module/environment/param/list', {
+        environmentId: environmentId,
+        style: this.getEnums().PARAM_STYLE.header
+      }, resp => {
         this.globalHeaders = resp.data
       })
     },
@@ -127,7 +130,7 @@ export default {
       })
     },
     onHeaderDelete(row) {
-      this.post('/module/setting/globalHeaders/delete', row, () => {
+      this.post('module/environment/param/delete', row, () => {
         this.tipSuccess(this.$ts('deleteSuccess'))
         this.reload()
       })
@@ -135,8 +138,9 @@ export default {
     onDialogHeaderSave() {
       this.$refs.dialogHeaderForm.validate((valid) => {
         if (valid) {
-          const uri = this.dialogHeaderFormData.id ? '/module/setting/globalHeaders/update' : '/module/setting/globalHeaders/add'
-          this.dialogHeaderFormData.moduleId = this.moduleId
+          const uri = this.dialogHeaderFormData.id ? 'module/environment/param/update' : 'module/environment/param/add'
+          this.dialogHeaderFormData.environmentId = this.environmentId
+          this.dialogHeaderFormData.style = this.getEnums().PARAM_STYLE.header
           this.post(uri, this.dialogHeaderFormData, () => {
             this.dialogHeaderVisible = false
             this.reload()

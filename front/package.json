@@ -16,7 +16,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "diff-match-patch": "^1.0.5",
-    "element-ui": "2.15.1",
+    "element-ui": "2.15.4",
     "fast-text-encoding": "^1.0.3",
     "file-saver": "^2.0.2",
     "js-cookie": "2.2.0",
@@ -27,6 +27,7 @@
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",
     "qs": "^6.10.1",
+    "query-string": "^7.0.1",
     "umy-ui": "^1.1.6",
     "vue": "2.6.10",
     "vue-codemirror": "^4.0.6",
