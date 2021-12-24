@@ -31,26 +31,20 @@
               <i v-show="env.isPublic === 1" class="el-icon-view"></i>
             </el-tooltip>
             {{ env.name }}
-            <el-dropdown
-              v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
-              v-show="env.id === curEnv.id"
-              trigger="click"
-              style="margin-left: 5px;"
-              @command="handleCommand"
-            >
-              <span class="el-dropdown-link">
-                <el-tooltip placement="top" :content="$ts('moreOperation')" :open-delay="500">
-                  <a class="el-icon-setting el-icon--right"></a>
-                </el-tooltip>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-edit" :command="onEnvUpdate">{{ $ts('update') }}</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-delete" class="danger" :command="onEnvDelete">{{ $ts('delete') }}</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
           </span>
         </el-tab-pane>
       </el-tabs>
+      <el-button-group v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" style="float: right">
+        <el-tooltip placement="top" :content="$ts('copyCurrent')" :open-delay="1000">
+          <el-button type="primary" size="mini" icon="el-icon-document-copy" @click="onEnvCopy" />
+        </el-tooltip>
+        <el-tooltip placement="top" :content="$ts('updateCurrent')" :open-delay="1000">
+          <el-button type="primary" size="mini" icon="el-icon-edit" @click="onEnvUpdate" />
+        </el-tooltip>
+        <el-tooltip placement="top" :content="$ts('deleteCurrent')" :open-delay="1000">
+          <el-button type="danger" size="mini" icon="el-icon-delete" @click="onEnvDelete" />
+        </el-tooltip>
+      </el-button-group>
       <h4>{{ $ts('baseUrl') }}：<span>{{ curEnv.url }}</span></h4>
       <el-tabs v-model="activeName" tab-position="left" @tab-click="onTabClick">
         <el-tab-pane :label="$ts('commonHeader')" name="globalHeaders">
@@ -75,10 +69,59 @@
       :close-on-click-modal="false"
       @close="resetForm('dialogDebugEnvForm')"
     >
+      <el-tabs active-name="add" type="card">
+        <el-tab-pane name="add" :label="$ts('newEnv')">
+          <el-form
+            ref="dialogDebugEnvForm"
+            :rules="dialogDebugEnvFormRules"
+            :model="dialogDebugEnvFormData"
+            label-position="top"
+            size="mini"
+          >
+            <el-form-item
+              prop="name"
+              :label="$ts('envName')"
+            >
+              <el-input v-model="dialogDebugEnvFormData.name" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
+            </el-form-item>
+            <el-form-item
+              prop="url"
+              :label="$ts('baseUrl')"
+            >
+              <el-input v-model="dialogDebugEnvFormData.url" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
+            </el-form-item>
+            <el-form-item
+              prop="extendId"
+              :label="$ts('isPublic')"
+            >
+              <el-radio-group v-model="dialogDebugEnvFormData.isPublic">
+                <el-radio :label="1">{{ $ts('yes') }}</el-radio>
+                <el-radio :label="0">{{ $ts('no') }}</el-radio>
+                <span class="info-tip">{{ $ts('debugEnvPublicTip') }}</span>
+              </el-radio-group>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane name="importEnv" :label="$ts('importEnv')">
+          a
+        </el-tab-pane>
+      </el-tabs>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogDebugEnvVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogDebugEnvSave">{{ $ts('dlgSave') }}</el-button>
+      </div>
+    </el-dialog>
+    <!--dialog-->
+    <el-dialog
+      :title="dialogCopyEnvTitle"
+      :visible.sync="dialogCopyEnvVisible"
+      :close-on-click-modal="false"
+      @close="resetForm('dialogCopyEnvForm')"
+    >
       <el-form
-        ref="dialogDebugEnvForm"
+        ref="dialogCopyEnvForm"
         :rules="dialogDebugEnvFormRules"
-        :model="dialogDebugEnvFormData"
+        :model="dialogCopyEnvFormData"
         label-position="top"
         size="mini"
       >
@@ -86,19 +129,19 @@
           prop="name"
           :label="$ts('envName')"
         >
-          <el-input v-model="dialogDebugEnvFormData.name" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
+          <el-input v-model="dialogCopyEnvFormData.name" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="url"
           :label="$ts('baseUrl')"
         >
-          <el-input v-model="dialogDebugEnvFormData.url" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
+          <el-input v-model="dialogCopyEnvFormData.url" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
         </el-form-item>
         <el-form-item
           prop="extendId"
           :label="$ts('isPublic')"
         >
-          <el-radio-group v-model="dialogDebugEnvFormData.isPublic">
+          <el-radio-group v-model="dialogCopyEnvFormData.isPublic">
             <el-radio :label="1">{{ $ts('yes') }}</el-radio>
             <el-radio :label="0">{{ $ts('no') }}</el-radio>
             <span class="info-tip">{{ $ts('debugEnvPublicTip') }}</span>
@@ -106,8 +149,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDebugEnvVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDialogDebugEnvSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="dialogCopyEnvVisible = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogCopyEnvSave">{{ $ts('dlgSave') }}</el-button>
       </div>
     </el-dialog>
 
@@ -120,10 +163,16 @@ import GlobalParams from '@/components/ModuleSetting/GlobalParams'
 import GlobalReturns from '@/components/ModuleSetting/GlobalReturns'
 import SwaggerSetting from '@/components/ModuleSetting/SwaggerSetting'
 
+// 添加国际化
 $addI18n({
   'addEnv': { 'zh': '添加环境', 'en': 'Add Environment' },
-  'importEnv': { 'zh': '其它模块导入', 'en': 'Import from other modules' },
-  'swaggerSetting': { 'zh': 'Swagger设置', 'en': 'Swagger Setting' }
+  'newEnv': { 'zh': '新环境', 'en': 'New Environment' },
+  'importEnv': { 'zh': '从其它模块导入', 'en': 'Import from other modules' },
+  'swaggerSetting': { 'zh': 'Swagger设置', 'en': 'Swagger Setting' },
+  'copyCurrent': { 'zh': '复制环境', 'en': 'Duplicate' },
+  'updateCurrent': { 'zh': '修改环境', 'en': 'Edit environment' },
+  'deleteCurrent': { 'zh': '删除环境', 'en': 'Delete environment' },
+  'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' }
 })
 
 export default {
@@ -169,6 +218,16 @@ export default {
         url: [
           { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
+      },
+      dialogCopyEnvVisible: false,
+      dialogCopyEnvTitle: '',
+      dialogCopyEnvFormData: {
+        id: '',
+        fromEnvId: '',
+        name: '',
+        url: '',
+        description: '',
+        isPublic: 0
       },
       isNew: false
     }
@@ -247,7 +306,14 @@ export default {
     onEnvAdd() {
       this.dialogDebugEnvTitle = this.$ts('addEnv')
       this.dialogDebugEnvVisible = true
-      this.dialogDebugEnvFormData.id = ''
+      this.dialogDebugEnvFormData = {
+        id: '',
+        moduleId: '',
+        name: '',
+        url: '',
+        description: '',
+        isPublic: 0
+      }
     },
     onEnvUpdate() {
       this.dialogDebugEnvTitle = this.$ts('updateEnv')
@@ -269,10 +335,38 @@ export default {
       this.$refs.dialogDebugEnvForm.validate((valid) => {
         if (valid) {
           this.isNew = this.dialogDebugEnvFormData.id.length === 0
-          const uri = this.dialogDebugEnvFormData.id ? '/module/environment/update' : '/module/environment/add'
+          let uri = this.dialogDebugEnvFormData.id ? '/module/environment/update' : '/module/environment/add'
+          if (this.dialogDebugEnvFormData.fromEnvId) {
+            uri = '/module/environment/copy'
+          }
           this.dialogDebugEnvFormData.moduleId = this.moduleId
           this.post(uri, this.dialogDebugEnvFormData, () => {
             this.dialogDebugEnvVisible = false
+            this.reload()
+          })
+        }
+      })
+    },
+    onEnvCopy() {
+      this.dialogCopyEnvTitle = this.$ts('copyEnv', this.curEnv.name)
+      this.dialogCopyEnvVisible = true
+      this.dialogCopyEnvFormData = {
+        id: '',
+        fromEnvId: this.curEnv.id,
+        name: this.curEnv.name + ' copy',
+        url: this.curEnv.url,
+        description: this.curEnv.description,
+        isPublic: this.curEnv.isPublic
+      }
+    },
+    onDialogCopyEnvSave() {
+      this.$refs.dialogCopyEnvForm.validate((valid) => {
+        if (valid) {
+          this.isNew = true
+          const uri = '/module/environment/copy'
+          this.dialogCopyEnvFormData.moduleId = this.moduleId
+          this.post(uri, this.dialogCopyEnvFormData, () => {
+            this.dialogCopyEnvVisible = false
             this.reload()
           })
         }

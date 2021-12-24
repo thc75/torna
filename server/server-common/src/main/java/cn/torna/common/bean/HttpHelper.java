@@ -483,6 +483,7 @@ public class HttpHelper {
             return entity.getContent();
         }
 
+        @Override
         public Map<String, String> getHeaders() {
             Header[] allHeaders = response.getAllHeaders();
             if (allHeaders == null || allHeaders.length == 0) {

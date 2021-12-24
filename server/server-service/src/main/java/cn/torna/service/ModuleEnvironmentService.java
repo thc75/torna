@@ -1,13 +1,19 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
+import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.ModuleEnvironmentMapper;
+import cn.torna.service.dto.ModuleEnvironmentCopyDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +23,10 @@ import java.util.List;
  */
 @Service
 public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, ModuleEnvironmentMapper> {
+
+    @Autowired
+    private ModuleEnvironmentParamService moduleEnvironmentParamService;
+
 
     public ModuleEnvironment getFirst(long moduleId) {
         Query query = new Query()
@@ -110,4 +120,35 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
             this.delete(moduleEnvironment);
         }
     }
+
+    /**
+     * 拷贝环境
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void copyEnvironment(ModuleEnvironmentCopyDTO moduleEnvironmentCopyDTO) {
+        // 更新环境配置
+        Long fromEnvId = moduleEnvironmentCopyDTO.getFromEnvId();
+        ModuleEnvironment moduleEnvironment = this.getById(fromEnvId);
+        ModuleEnvironment moduleEnvironmentNew = CopyUtil.copyBean(moduleEnvironmentCopyDTO, ModuleEnvironment::new);
+        moduleEnvironmentNew.setModuleId(moduleEnvironment.getModuleId());
+        this.save(moduleEnvironmentNew);
+        // 新环境id
+        Long newEnvId = moduleEnvironmentNew.getId();
+
+        // 更新公共部分
+        copyGlobal(fromEnvId, newEnvId, ParamStyleEnum.HEADER);
+        copyGlobal(fromEnvId, newEnvId, ParamStyleEnum.REQUEST);
+        copyGlobal(fromEnvId, newEnvId, ParamStyleEnum.RESPONSE);
+    }
+
+    private void copyGlobal(long fromEnvId, long newEnvId, ParamStyleEnum paramStyleEnum) {
+        List<ModuleEnvironmentParam> params = moduleEnvironmentParamService.listByEnvironmentAndStyle(fromEnvId, paramStyleEnum.getStyle());
+        List<ModuleEnvironmentParam> paramsNew = CopyUtil.copyList(params,
+                ModuleEnvironmentParam::new,
+                moduleEnvironmentParam -> {
+                    moduleEnvironmentParam.setEnvironmentId(newEnvId);
+                });
+        moduleEnvironmentParamService.saveBatch(paramsNew);
+    }
+
 }

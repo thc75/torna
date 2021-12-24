@@ -145,6 +145,9 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      * @return 返回影响行数
      */
     public int saveBatch(List<E> entityList) {
+        if (entityList == null || entityList.isEmpty()) {
+            return 0;
+        }
         return mapper.saveBatch(entityList);
     }
 
