@@ -114,7 +114,8 @@ public class ModuleEnvironmentController {
                 list.add(moduleVO);
                 List<ModuleEnvironment> moduleEnvironments = moduleEnvironmentService.listModuleEnvironment(module.getId());
                 for (ModuleEnvironment environment : moduleEnvironments) {
-                    TreeEnvVO envVO = new TreeEnvVO(IdUtil.encode(environment.getId()), module.getName(), moduleVO.getId());
+                    TreeEnvVO envVO = new TreeEnvVO(IdGen.nextId(), module.getName(), moduleVO.getId());
+                    envVO.setEnvId(environment.getId());
                     list.add(envVO);
                 }
             }
