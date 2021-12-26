@@ -103,7 +103,26 @@
           </el-form>
         </el-tab-pane>
         <el-tab-pane name="importEnv" :label="$ts('importEnv')">
-          a
+          <el-tree
+            ref="tree"
+            :data="treeRows"
+            :highlight-current="true"
+            :expand-on-click-node="true"
+            default-expand-all
+            :empty-text="$ts('noData')"
+            node-key="id"
+            class="filter-tree"
+            :show-checkbox="true"
+          >
+            <span slot-scope="{ node, data }">
+              <span>
+                {{ data.label }}
+              </span>
+              <span v-if="data.isEnv" class="doc-select-url">
+                {{ data.url }}
+              </span>
+            </span>
+          </el-tree>
         </el-tab-pane>
       </el-tabs>
       <div slot="footer" class="dialog-footer">
@@ -229,7 +248,8 @@ export default {
         description: '',
         isPublic: 0
       },
-      isNew: false
+      isNew: false,
+      treeRows: []
     }
   },
   methods: {
@@ -304,6 +324,7 @@ export default {
       })
     },
     onEnvAdd() {
+      this.loadEnvTree()
       this.dialogDebugEnvTitle = this.$ts('addEnv')
       this.dialogDebugEnvVisible = true
       this.dialogDebugEnvFormData = {
@@ -370,6 +391,17 @@ export default {
             this.reload()
           })
         }
+      })
+    },
+    loadEnvTree() {
+      this.get('/module/environment/userenvs', {}, resp => {
+        const rows = resp.data
+        for (const row of rows) {
+          if (!(row.isModule || row.isEnv)) {
+            row.disabled = true
+          }
+        }
+        this.treeRows = this.convertTree(rows)
       })
     }
   }

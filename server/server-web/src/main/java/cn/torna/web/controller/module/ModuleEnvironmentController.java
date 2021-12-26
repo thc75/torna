@@ -1,6 +1,7 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -16,8 +17,10 @@ import cn.torna.dao.entity.ProjectUser;
 import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
+import cn.torna.service.SpaceService;
 import cn.torna.service.dto.ModuleEnvironmentCopyDTO;
 import cn.torna.service.dto.ProjectDTO;
+import cn.torna.service.dto.SpaceDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
 import cn.torna.web.controller.module.param.ModuleEnvironmentSettingAddParam;
 import cn.torna.web.controller.module.param.ModuleEnvironmentSettingUpdateParam;
@@ -53,6 +56,9 @@ public class ModuleEnvironmentController {
     
     @Autowired
     private ModuleService moduleService;
+
+    @Autowired
+    private SpaceService spaceService;
 
 
     @GetMapping("/list")
@@ -103,20 +109,28 @@ public class ModuleEnvironmentController {
     public Result<List<TreeEnvVO>> userEnv() {
         // 获取空间下的项目
         User user = UserContext.getUser();
-        List<Project> projects = projectService.listUserProject(user);
         List<TreeEnvVO> list = new ArrayList<>();
-        for (Project project : projects) {
-            TreeEnvVO projectVO = new TreeEnvVO(IdGen.nextId(), project.getName(), "");
-            list.add(projectVO);
-            List<Module> modules = moduleService.listProjectModules(project.getId());
-            for (Module module : modules) {
-                TreeEnvVO moduleVO = new TreeEnvVO(IdGen.nextId(), module.getName(), projectVO.getId());
-                list.add(moduleVO);
-                List<ModuleEnvironment> moduleEnvironments = moduleEnvironmentService.listModuleEnvironment(module.getId());
-                for (ModuleEnvironment environment : moduleEnvironments) {
-                    TreeEnvVO envVO = new TreeEnvVO(IdGen.nextId(), module.getName(), moduleVO.getId());
-                    envVO.setEnvId(environment.getId());
-                    list.add(envVO);
+        List<SpaceDTO> spaceDTOS = spaceService.listSpace(user);
+        for (SpaceDTO spaceDTO : spaceDTOS) {
+            TreeEnvVO spaceVO = new TreeEnvVO(IdGen.nextId(), spaceDTO.getName(), "");
+            list.add(spaceVO);
+            List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceDTO.getId(), user);
+            for (ProjectDTO project : projectDTOS) {
+                TreeEnvVO projectVO = new TreeEnvVO(IdGen.nextId(), project.getName(), spaceVO.getId());
+                list.add(projectVO);
+                List<Module> modules = moduleService.listProjectModules(project.getId());
+                for (Module module : modules) {
+                    TreeEnvVO moduleVO = new TreeEnvVO(IdGen.nextId(), module.getName(), projectVO.getId());
+                    moduleVO.setIsModule(Booleans.TRUE);
+                    list.add(moduleVO);
+                    List<ModuleEnvironment> moduleEnvironments = moduleEnvironmentService.listModuleEnvironment(module.getId());
+                    for (ModuleEnvironment environment : moduleEnvironments) {
+                        TreeEnvVO envVO = new TreeEnvVO(IdGen.nextId(), environment.getName(), moduleVO.getId());
+                        envVO.setEnvId(environment.getId());
+                        envVO.setIsEnv(Booleans.TRUE);
+                        envVO.setUrl(environment.getUrl());
+                        list.add(envVO);
+                    }
                 }
             }
         }

@@ -22,6 +22,12 @@ public class TreeEnvVO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long envId;
 
+    private String url;
+
+    private Byte isModule;
+
+    private Byte isEnv;
+
 
     public TreeEnvVO(String id, String label, String parentId) {
         this.id = id;

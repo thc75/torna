@@ -301,9 +301,4 @@ export default {
     vertical-align: bottom;
   }
 }
-
-.doc-select-url {
-  margin-left: 10px;
-  color: #909399;
-}
 </style>
