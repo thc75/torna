@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="hasRole(`project:${projectId}`, [Role.admin])" style="float: right">
+    <div style="float: right">
       <el-button type="danger" size="mini" @click="onModuleDelete">{{ $ts('deleteModule') }}</el-button>
     </div>
     <h3>
@@ -8,7 +8,6 @@
       <span style="font-weight: normal">
         {{ moduleVO.name }}
         <popover-update
-          v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
           :value="moduleVO.name"
           :on-show="() => {return moduleVO.name}"
           :on-save="onSaveName"
@@ -19,33 +18,56 @@
       {{ $ts('debugEnv') }}
     </h3>
 
-    <div v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" style="margin-bottom: 10px">
+    <div style="margin-bottom: 10px">
       <el-button type="primary" size="mini" @click="onEnvAdd">{{ $ts('addEnv') }}</el-button>
     </div>
 
     <div v-show="envs.length > 0">
       <el-tabs v-model="activeNameEnv" type="card" @tab-click="onEnvTabClick">
-        <el-tab-pane v-for="env in envs" :key="env.id" :name="env.id" :label="env.name">
-          <span slot="label">
-            <el-tooltip placement="top" :content="$ts('public')" :open-delay="200">
-              <i v-show="env.isPublic === 1" class="el-icon-view"></i>
-            </el-tooltip>
-            {{ env.name }}
-          </span>
-        </el-tab-pane>
+        <el-tab-pane v-for="env in envs" :key="env.id" :name="env.id" :label="env.name" />
       </el-tabs>
-      <el-button-group v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" style="float: right">
-        <el-tooltip placement="top" :content="$ts('copyCurrent')" :open-delay="1000">
-          <el-button type="primary" size="mini" icon="el-icon-document-copy" @click="onEnvCopy" />
-        </el-tooltip>
-        <el-tooltip placement="top" :content="$ts('updateCurrent')" :open-delay="1000">
-          <el-button type="primary" size="mini" icon="el-icon-edit" @click="onEnvUpdate" />
-        </el-tooltip>
-        <el-tooltip placement="top" :content="$ts('deleteCurrent')" :open-delay="1000">
-          <el-button type="danger" size="mini" icon="el-icon-delete" @click="onEnvDelete" />
-        </el-tooltip>
-      </el-button-group>
-      <h4>{{ $ts('baseUrl') }}：<span>{{ curEnv.url }}</span></h4>
+      <!-- descriptions -->
+      <el-form
+        ref="updateEnvForm"
+        :rules="dialogDebugEnvFormRules"
+        :model="updateEnvFormData"
+        size="mini"
+        class="update-env-form"
+      >
+        <el-descriptions :column="3" border>
+          <template slot="extra">
+            <el-button-group style="float: right">
+              <el-tooltip placement="top" :content="$ts('copyCurrent')" :open-delay="1000">
+                <el-button type="primary" size="mini" icon="el-icon-document-copy" @click="onEnvCopy" />
+              </el-tooltip>
+              <el-tooltip placement="top" :content="$ts('deleteCurrent')" :open-delay="1000">
+                <el-button type="danger" size="mini" icon="el-icon-delete" @click="onEnvDelete" />
+              </el-tooltip>
+            </el-button-group>
+          </template>
+          <el-descriptions-item :label="$ts('envName')" content-class-name="update-env-name">
+            <el-form-item prop="name">
+              <el-input v-model="updateEnvFormData.name" />
+            </el-form-item>
+          </el-descriptions-item>
+          <el-descriptions-item :label="$ts('baseUrl')">
+            <el-form-item prop="url">
+              <el-input v-model="updateEnvFormData.url" />
+            </el-form-item>
+          </el-descriptions-item>
+          <el-descriptions-item :label="$ts('isPublic')">
+            <el-switch
+              v-model="updateEnvFormData.isPublic"
+              :active-text="$ts('yes')"
+              :inactive-text="$ts('no')"
+              :active-value="1"
+              :inactive-value="0"
+            />
+          </el-descriptions-item>
+        </el-descriptions>
+      </el-form>
+      <el-button type="primary" size="mini" style="margin: 10px 0;" @click="updateEnv">{{ $ts('save') }}</el-button>
+      <h4>{{ $ts('commonSetting') }}</h4>
       <el-tabs v-model="activeName" tab-position="left" @tab-click="onTabClick">
         <el-tab-pane :label="$ts('commonHeader')" name="globalHeaders">
           <global-headers ref="globalHeaders" />
@@ -69,7 +91,7 @@
       :close-on-click-modal="false"
       @close="resetForm('dialogDebugEnvForm')"
     >
-      <el-tabs active-name="add" type="card">
+      <el-tabs v-model="activeNameAdd" type="card">
         <el-tab-pane name="add" :label="$ts('newEnv')">
           <el-form
             ref="dialogDebugEnvForm"
@@ -191,7 +213,8 @@ $addI18n({
   'copyCurrent': { 'zh': '复制环境', 'en': 'Duplicate' },
   'updateCurrent': { 'zh': '修改环境', 'en': 'Edit environment' },
   'deleteCurrent': { 'zh': '删除环境', 'en': 'Delete environment' },
-  'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' }
+  'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' },
+  'commonSetting': { 'zh': '公共设置', 'en': 'Common Settings' }
 })
 
 export default {
@@ -207,6 +230,7 @@ export default {
     return {
       activeNameEnv: '',
       activeName: 'globalHeaders',
+      activeNameAdd: 'add',
       envs: [],
       curEnv: {
         id: '',
@@ -227,7 +251,13 @@ export default {
         moduleId: '',
         name: '',
         url: '',
-        description: '',
+        isPublic: 0
+      },
+      updateEnvFormData: {
+        id: '',
+        moduleId: '',
+        name: '',
+        url: '',
         isPublic: 0
       },
       dialogDebugEnvFormRules: {
@@ -245,7 +275,6 @@ export default {
         fromEnvId: '',
         name: '',
         url: '',
-        description: '',
         isPublic: 0
       },
       isNew: false,
@@ -259,7 +288,6 @@ export default {
       }
       this.loadModuleInfo(this.moduleId)
       this.loadEnvs(this.moduleId)
-      this.activeNameEnv = ''
       this.activeName = 'globalHeaders'
     },
     onTabClick(tab) {
@@ -273,6 +301,7 @@ export default {
       const result = this.envs.filter(row => row.id === id)
       if (result && result.length > 0) {
         this.curEnv = result[0]
+        Object.assign(this.updateEnvFormData, this.curEnv)
         this.loadParams(this.curEnv.id)
       }
     },
@@ -293,6 +322,7 @@ export default {
           // 刚刚保存后
           if (this.isNew) {
             envId = this.envs[this.envs.length - 1].id
+            this.isNew = false
           } else {
             if (!this.activeNameEnv || this.activeNameEnv === '0') {
               envId = this.envs[0].id
@@ -332,34 +362,30 @@ export default {
         moduleId: '',
         name: '',
         url: '',
-        description: '',
         isPublic: 0
       }
-    },
-    onEnvUpdate() {
-      this.dialogDebugEnvTitle = this.$ts('updateEnv')
-      this.dialogDebugEnvVisible = true
-      this.$nextTick(() => {
-        Object.assign(this.dialogDebugEnvFormData, this.curEnv)
-      })
     },
     onEnvDelete() {
       this.confirm(this.$ts('deleteConfirm', this.curEnv.name), () => {
         this.post('/module/environment/delete', this.curEnv, () => {
           this.tip(this.$ts('deleteSuccess'))
-          this.curEnv.id = ''
+          this.activeNameEnv = ''
           this.reload()
         })
       })
     },
     onDialogDebugEnvSave() {
+      if (this.activeNameAdd === 'add') {
+        this.saveNewEnv()
+      } else {
+        this.importOtherEnvs()
+      }
+    },
+    saveNewEnv() {
       this.$refs.dialogDebugEnvForm.validate((valid) => {
         if (valid) {
           this.isNew = this.dialogDebugEnvFormData.id.length === 0
-          let uri = this.dialogDebugEnvFormData.id ? '/module/environment/update' : '/module/environment/add'
-          if (this.dialogDebugEnvFormData.fromEnvId) {
-            uri = '/module/environment/copy'
-          }
+          const uri = this.dialogDebugEnvFormData.id ? '/module/environment/update' : '/module/environment/add'
           this.dialogDebugEnvFormData.moduleId = this.moduleId
           this.post(uri, this.dialogDebugEnvFormData, () => {
             this.dialogDebugEnvVisible = false
@@ -367,6 +393,19 @@ export default {
           })
         }
       })
+    },
+    updateEnv() {
+      if (!this.objectEquals(this.curEnv, this.updateEnvFormData)) {
+        this.$refs.updateEnvForm.validate((valid) => {
+          if (valid) {
+            const uri = '/module/environment/update'
+            this.post(uri, this.updateEnvFormData, () => {
+              this.tipSuccess($ts('updateSuccess'))
+              this.reload()
+            })
+          }
+        })
+      }
     },
     onEnvCopy() {
       this.dialogCopyEnvTitle = this.$ts('copyEnv', this.curEnv.name)
@@ -403,7 +442,18 @@ export default {
         }
         this.treeRows = this.convertTree(rows)
       })
+    },
+    importOtherEnvs() {
+      const nodes = this.$refs.tree.getCheckedNodes(true)
+      console.log(nodes)
     }
   }
 }
 </script>
+<style lang="scss">
+th.is-bordered-label {width: 100px;}
+.update-env-name { width: 250px; }
+.update-env-form {
+  .el-form-item { margin-bottom: 0; }
+}
+</style>
