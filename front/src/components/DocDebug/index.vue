@@ -253,7 +253,8 @@
         </div>
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$ts('returnResult')" name="body">
-            <el-input v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
+            <img v-if="result.image.length > 0" :src="result.image" />
+            <el-input v-else v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
             <span slot="label" class="result-header-label">
@@ -346,7 +347,8 @@ export default {
       result: {
         headerData: [],
         content: '',
-        status: 200
+        status: 200,
+        image: ''
       }
     }
   },
@@ -504,7 +506,7 @@ export default {
         headers['Content-Type'] = this.contentType
         const contentType = (this.contentType || '').toLowerCase()
         if (contentType.indexOf('json') > -1) {
-          data = this.bodyText
+          data = JSON.parse(this.bodyText)
         } else if (contentType.indexOf('multipart') > -1 || this.multipartDataChecked.length > 0) {
           isMultipart = true
           data = this.getParamObj(this.multipartDataChecked)
@@ -731,6 +733,12 @@ export default {
     },
     doProxyResponse(response) {
       this.sendLoading = false
+      this.result = {
+        headerData: [],
+        content: '',
+        status: 200,
+        image: ''
+      }
       this.buildResultHeaders(response)
       this.buildResultStatus(response)
       this.buildResultContent(response)
@@ -746,6 +754,9 @@ export default {
       if (contentType.indexOf('stream') > -1 || contentDisposition.indexOf('attachment') > -1) {
         const filename = this.getDispositionFilename(contentDisposition)
         this.downloadFile(filename, response.data)
+      } else if (contentType.indexOf('image') > -1) {
+        // 如果返回图片
+        this.result.image = `data:${contentType};base64,` + btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''))
       } else {
         let content = ''
         let json

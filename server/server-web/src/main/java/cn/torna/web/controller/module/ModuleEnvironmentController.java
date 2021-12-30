@@ -19,10 +19,13 @@ import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
 import cn.torna.service.SpaceService;
 import cn.torna.service.dto.ModuleEnvironmentCopyDTO;
+import cn.torna.service.dto.ModuleEnvironmentImportDTO;
 import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.SpaceDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
+import cn.torna.web.controller.module.param.ModuleEnvironmentImportParam;
 import cn.torna.web.controller.module.param.ModuleEnvironmentSettingAddParam;
+import cn.torna.web.controller.module.param.ModuleEnvironmentSettingParam;
 import cn.torna.web.controller.module.param.ModuleEnvironmentSettingUpdateParam;
 import cn.torna.web.controller.module.vo.ModuleEnvironmentVO;
 import cn.torna.web.controller.module.vo.TreeEnvVO;
@@ -135,6 +138,12 @@ public class ModuleEnvironmentController {
             }
         }
         return Result.ok(list);
+    }
+
+    @PostMapping("import")
+    public Result importOtherEnvs(@Valid @RequestBody ModuleEnvironmentImportDTO param) {
+        moduleEnvironmentService.importEnvironment(param);
+        return Result.ok();
     }
 
 }

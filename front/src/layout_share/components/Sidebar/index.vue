@@ -23,7 +23,14 @@
           node-key="id"
           class="filter-tree"
           @node-click="onNodeClick"
-        />
+        >
+          <span slot-scope="{ node, data }">
+            <span>
+              <i :class="{ 'el-icon-folder': data.isFolder }"></i>
+              <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }} <span v-if="data.isFolder" class="tip">({{ data.apiCount }})</span>
+            </span>
+          </span>
+        </el-tree>
       </div>
     </el-scrollbar>
   </div>
@@ -36,8 +43,10 @@
 </style>
 <script>
 import { mapGetters } from 'vuex'
+import HttpMethod from '@/components/HttpMethod'
 
 export default {
+  components: { HttpMethod },
   data() {
     return {
       filterText: '',

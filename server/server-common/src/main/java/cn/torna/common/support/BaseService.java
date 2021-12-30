@@ -7,6 +7,7 @@ import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,16 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      */
     public List<E> list(String column, Object value) {
         return mapper.listByColumn(column, value);
+    }
+
+    /**
+     * 根据某个字段集合查询结果，即 IN 查询
+     * @param column 数据库字段名
+     * @param values 查询值
+     * @return 返回结果集，没有返回空集合
+     */
+    public List<E> listByCollection(String column, Collection<?> values) {
+        return mapper.listByCollection(column, values);
     }
 
     /**

@@ -17,6 +17,12 @@ public class ModuleEnvironmentCopyDTO {
     private Long fromEnvId;
 
     /**
+     * 目标模块
+     */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long destModuleId;
+
+    /**
      * 环境名称
      */
     private String name;

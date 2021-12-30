@@ -1,16 +1,18 @@
 package cn.torna.web.controller.doc.vo;
 
+import cn.torna.common.bean.TreeAware;
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author tanghc
  */
 @Data
-public class DocInfoVO {
+public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
@@ -57,4 +59,25 @@ public class DocInfoVO {
     private Date gmtCreate;
 
     private Date gmtModified;
+
+    private DocInfoVO parent;
+
+    private int apiCount;
+
+    public void addApiCount() {
+        this.apiCount++;
+        if (parent != null) {
+            parent.addApiCount();
+        }
+    }
+
+    @Override
+    public void setChildren(List<DocInfoVO> children) {
+
+    }
+
+    @Override
+    public void setParent(DocInfoVO parent) {
+        this.parent = parent;
+    }
 }

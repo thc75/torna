@@ -12,7 +12,7 @@ export function get_lang() {
   }
   if (!storeLang) {
     const get = () => {
-      const lang = localStorage.getItem(KEY) || getBrowserLanguage()
+      const lang = localStorage.getItem(KEY) || 'zh'
       if (lang.indexOf('zh') > -1) {
         return 'zh'
       } else if (lang.indexOf('en') > -1) {
@@ -24,17 +24,6 @@ export function get_lang() {
     storeLang = get()
   }
   return storeLang
-}
-
-function getBrowserLanguage() {
-  const lang = navigator.language || navigator.userLanguage
-  if (!lang || lang.indexOf('zh') > -1) {
-    return 'zh'
-  }
-  if (lang.indexOf('en') > -1) {
-    return 'en'
-  }
-  return 'zh'
 }
 
 export function set_lang(lang) {

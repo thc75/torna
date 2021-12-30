@@ -214,7 +214,8 @@ $addI18n({
   'updateCurrent': { 'zh': '修改环境', 'en': 'Edit environment' },
   'deleteCurrent': { 'zh': '删除环境', 'en': 'Delete environment' },
   'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' },
-  'commonSetting': { 'zh': '公共设置', 'en': 'Common Settings' }
+  'commonSetting': { 'zh': '公共设置', 'en': 'Common Settings' },
+  'plzCheckEnv': { 'zh': '请勾选环境', 'en': 'Please select environment' }
 })
 
 export default {
@@ -273,6 +274,7 @@ export default {
       dialogCopyEnvFormData: {
         id: '',
         fromEnvId: '',
+        destModuleId: '',
         name: '',
         url: '',
         isPublic: 0
@@ -285,6 +287,7 @@ export default {
     reload(moduleId) {
       if (moduleId) {
         this.moduleId = moduleId
+        this.activeNameEnv = ''
       }
       this.loadModuleInfo(this.moduleId)
       this.loadEnvs(this.moduleId)
@@ -413,6 +416,7 @@ export default {
       this.dialogCopyEnvFormData = {
         id: '',
         fromEnvId: this.curEnv.id,
+        destModuleId: this.moduleId,
         name: this.curEnv.name + ' copy',
         url: this.curEnv.url,
         description: this.curEnv.description,
@@ -445,7 +449,20 @@ export default {
     },
     importOtherEnvs() {
       const nodes = this.$refs.tree.getCheckedNodes(true)
-      console.log(nodes)
+      if (nodes.length === 0) {
+        this.tipError($ts('plzCheckEnv'))
+        return
+      }
+      const envIds = nodes.map(row => row.envId)
+      const data = {
+        destModuleId: this.moduleId,
+        envIds: envIds
+      }
+      this.post('/module/environment/import', data, resp => {
+        this.tipSuccess($ts('importSuccess'))
+        this.dialogDebugEnvVisible = false
+        this.reload()
+      })
     }
   }
 }

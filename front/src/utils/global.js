@@ -580,6 +580,9 @@ Object.assign(Vue.prototype, {
   handleCommand: function(command) {
     command && command()
   },
+  isString: function(obj) {
+    return Object.prototype.toString.call(obj) === '[object String]'
+  },
   isObject: function(obj) {
     return Object.prototype.toString.call(obj) === '[object Object]'
   },

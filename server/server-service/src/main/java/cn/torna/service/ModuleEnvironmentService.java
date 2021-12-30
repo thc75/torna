@@ -9,6 +9,7 @@ import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.ModuleEnvironmentMapper;
 import cn.torna.service.dto.ModuleEnvironmentCopyDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
+import cn.torna.service.dto.ModuleEnvironmentImportDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 /**
@@ -128,9 +132,8 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
     public void copyEnvironment(ModuleEnvironmentCopyDTO moduleEnvironmentCopyDTO) {
         // 更新环境配置
         Long fromEnvId = moduleEnvironmentCopyDTO.getFromEnvId();
-        ModuleEnvironment moduleEnvironment = this.getById(fromEnvId);
         ModuleEnvironment moduleEnvironmentNew = CopyUtil.copyBean(moduleEnvironmentCopyDTO, ModuleEnvironment::new);
-        moduleEnvironmentNew.setModuleId(moduleEnvironment.getModuleId());
+        moduleEnvironmentNew.setModuleId(moduleEnvironmentCopyDTO.getDestModuleId());
         this.save(moduleEnvironmentNew);
         // 新环境id
         Long newEnvId = moduleEnvironmentNew.getId();
@@ -149,6 +152,30 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
                     moduleEnvironmentParam.setEnvironmentId(newEnvId);
                 });
         moduleEnvironmentParamService.saveBatch(paramsNew);
+    }
+
+
+    /**
+     * 导入环境
+     * @param moduleEnvironmentImportDTO 导入参数
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void importEnvironment(ModuleEnvironmentImportDTO moduleEnvironmentImportDTO) {
+        Long destModuleId = moduleEnvironmentImportDTO.getDestModuleId();
+        Map<Long, ModuleEnvironment> envIdMap = this.listByCollection("id", moduleEnvironmentImportDTO.getEnvIds())
+                .stream()
+                .collect(Collectors.toMap(ModuleEnvironment::getId, Function.identity()));
+        moduleEnvironmentImportDTO.getEnvIds()
+                .stream().map(envId -> {
+            ModuleEnvironmentCopyDTO moduleEnvironmentCopyDTO = new ModuleEnvironmentCopyDTO();
+            ModuleEnvironment otherModuleEnvironment = envIdMap.get(envId);
+            moduleEnvironmentCopyDTO.setFromEnvId(envId);
+            moduleEnvironmentCopyDTO.setDestModuleId(destModuleId);
+            moduleEnvironmentCopyDTO.setName(otherModuleEnvironment.getName());
+            moduleEnvironmentCopyDTO.setUrl(otherModuleEnvironment.getUrl());
+            moduleEnvironmentCopyDTO.setIsPublic(otherModuleEnvironment.getIsPublic());
+            return moduleEnvironmentCopyDTO;
+        }).forEach(this::copyEnvironment);
     }
 
 }
