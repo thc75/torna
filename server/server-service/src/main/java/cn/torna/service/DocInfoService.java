@@ -407,6 +407,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回添加后的文档
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user, Long parentId) {
+        if (parentId == null) {
+            parentId = 0L;
+        }
         DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
         docFolderCreateDTO.setName(folderName);
         docFolderCreateDTO.setModuleId(moduleId);

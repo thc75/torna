@@ -229,7 +229,7 @@ public class DocController {
         String name = param.getName();
         Long moduleId = param.getModuleId();
         User user = UserContext.getUser();
-        docInfoService.createDocFolder(name, moduleId, user);
+        docInfoService.createDocFolder(name, moduleId, user, param.getParentId());
         return Result.ok();
     }
 

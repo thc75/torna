@@ -43,7 +43,7 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
     /**
      * 设置调试环境
      */
-    public void setEnvironment(ModuleEnvironmentDTO moduleEnvironmentSettingDTO) {
+    public ModuleEnvironment setEnvironment(ModuleEnvironmentDTO moduleEnvironmentSettingDTO) {
         Long moduleId = moduleEnvironmentSettingDTO.getModuleId();
         String name = moduleEnvironmentSettingDTO.getName();
         String url = moduleEnvironmentSettingDTO.getUrl();
@@ -61,6 +61,7 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
             moduleEnvironment.setIsPublic(isPublic);
             update(moduleEnvironment);
         }
+        return moduleEnvironment;
     }
 
     public ModuleEnvironment getByModuleIdAndName(long moduleId, String name) {
@@ -77,13 +78,13 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
      * @param url url
      * @param isPublic 是否公开
      */
-    public void setDebugEnv(long moduleId, String name, String url, boolean isPublic) {
+    public ModuleEnvironment setDebugEnv(long moduleId, String name, String url, boolean isPublic) {
         ModuleEnvironmentDTO moduleEnvironmentSettingDTO = new ModuleEnvironmentDTO();
         moduleEnvironmentSettingDTO.setModuleId(moduleId);
         moduleEnvironmentSettingDTO.setName(name);
         moduleEnvironmentSettingDTO.setUrl(url);
         moduleEnvironmentSettingDTO.setIsPublic(Booleans.toValue(isPublic));
-        setEnvironment(moduleEnvironmentSettingDTO);
+        return setEnvironment(moduleEnvironmentSettingDTO);
     }
 
     /**

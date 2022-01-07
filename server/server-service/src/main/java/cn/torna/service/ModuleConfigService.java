@@ -17,6 +17,7 @@ import cn.torna.service.dto.DocParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +65,19 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             moduleEnvironmentParam.setId(id++);
         }
         return CopyUtil.copyList(moduleEnvironmentParams, DocParam::new);
+    }
+
+    public List<DocParam> listGlobalOld(long moduleId, ModuleConfigTypeEnum moduleConfigTypeEnum) {
+        List<Long> docIdList = this.listByModuleIdAndType(moduleId, moduleConfigTypeEnum)
+                .stream()
+                .map(ModuleConfig::getExtendId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(docIdList)) {
+            return Collections.emptyList();
+        }
+        Query query = new Query()
+                .in("id", docIdList);
+        return docParamService.list(query);
     }
 
 
@@ -201,16 +215,19 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public List<ModuleConfig> listDebugHost(long moduleId) {
-        List<ModuleEnvironment> moduleEnvironments = moduleEnvironmentService.listModuleEnvironment(moduleId);
         return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.DEBUG_HOST);
     }
 
-
+    public List<ModuleConfig> listDebugHost() {
+        return this.listByModuleIdAndType(0, ModuleConfigTypeEnum.DEBUG_HOST);
+    }
 
     public List<ModuleConfig> listByModuleIdAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", typeEnum.getType());
+        Query query = new Query();
+        if (moduleId > 0) {
+            query.eq("module_id", moduleId);
+        }
+        query.eq("type", typeEnum.getType());
         return this.listAll(query);
     }
 
