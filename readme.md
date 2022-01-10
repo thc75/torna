@@ -107,3 +107,6 @@ See:[Development document](http://torna.cn/dev/)
 
 ![Debug API](./front/public/static/images/debug.png "debug.png")
 
+## Acknowledgements
+Thanks to [JetBrains SoftWare](https://www.jetbrains.com) for providing free Open Source license for this open source project.
+<img src="https://raw.githubusercontent.com/shalousun/smart-doc/dev/images/jetbrains-variant-3.png" width="260px" height="220px"/>
