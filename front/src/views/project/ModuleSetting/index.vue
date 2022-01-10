@@ -398,17 +398,15 @@ export default {
       })
     },
     updateEnv() {
-      if (!this.objectEquals(this.curEnv, this.updateEnvFormData)) {
-        this.$refs.updateEnvForm.validate((valid) => {
-          if (valid) {
-            const uri = '/module/environment/update'
-            this.post(uri, this.updateEnvFormData, () => {
-              this.tipSuccess($ts('updateSuccess'))
-              this.reload()
-            })
-          }
-        })
-      }
+      this.$refs.updateEnvForm.validate((valid) => {
+        if (valid) {
+          const uri = '/module/environment/update'
+          this.post(uri, this.updateEnvFormData, () => {
+            this.tipSuccess($ts('updateSuccess'))
+            this.reload()
+          })
+        }
+      })
     },
     onEnvCopy() {
       this.dialogCopyEnvTitle = this.$ts('copyEnv', this.curEnv.name)
