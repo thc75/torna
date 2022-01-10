@@ -7,6 +7,7 @@
 - 【优化】文档预览页树菜单显示接口数量
 - 【优化】优化参数描述内容过长显示
 - 【优化】优化国际化显示
+- 【优化】优化LDAP登录，登录后同步邮箱
 - 【修复】修复接口调试\n问题 [#I4KODO](https://gitee.com/durcframework/torna/issues/I4KODO)
 - 【升级】fastmybatis升级到1.10.11
 - 【新增】文档表格页可以新增分类
