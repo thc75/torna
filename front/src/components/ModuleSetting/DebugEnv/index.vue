@@ -13,11 +13,11 @@
       border
       highlight-current-row
     >
-      <el-table-column :label="$ts('envName')" prop="configKey" width="300px" />
-      <el-table-column :label="$ts('baseUrl')" prop="configValue" />
-      <el-table-column :label="$ts('isPublic')" prop="extendId" width="100px">
+      <el-table-column :label="$ts('envName')" prop="name" width="300px" />
+      <el-table-column :label="$ts('baseUrl')" prop="url" />
+      <el-table-column :label="$ts('isPublic')" prop="isPublic" width="100px">
         <template slot-scope="scope">
-          {{ scope.row.extendId === 1 ? $ts('yes') : $ts('no') }}
+          {{ scope.row.isPublic === 1 ? $ts('yes') : $ts('no') }}
         </template>
       </el-table-column>
       <el-table-column
@@ -27,7 +27,7 @@
         <template slot-scope="scope">
           <el-link type="primary" size="mini" @click="onDebugEnvUpdate(scope.row)">{{ $ts('update') }}</el-link>
           <el-popconfirm
-            :title="$ts('deleteConfirm', scope.row.configKey)"
+            :title="$ts('deleteConfirm', scope.row.name)"
             @confirm="onDebugEnvDelete(scope.row)"
           >
             <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
@@ -50,22 +50,22 @@
         size="mini"
       >
         <el-form-item
-          prop="configKey"
+          prop="name"
           :label="$ts('envName')"
         >
-          <el-input v-model="dialogDebugEnvFormData.configKey" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
+          <el-input v-model="dialogDebugEnvFormData.name" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
-          prop="configValue"
+          prop="url"
           :label="$ts('baseUrl')"
         >
-          <el-input v-model="dialogDebugEnvFormData.configValue" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
+          <el-input v-model="dialogDebugEnvFormData.url" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
         </el-form-item>
         <el-form-item
           prop="extendId"
           :label="$ts('isPublic')"
         >
-          <el-radio-group v-model="dialogDebugEnvFormData.extendId">
+          <el-radio-group v-model="dialogDebugEnvFormData.isPublic">
             <el-radio :label="1">{{ $ts('yes') }}</el-radio>
             <el-radio :label="0">{{ $ts('no') }}</el-radio>
             <span class="info-tip">{{ $ts('debugEnvPublicTip') }}</span>
@@ -90,16 +90,16 @@ export default {
       dialogDebugEnvFormData: {
         id: '',
         moduleId: '',
-        configKey: '',
-        configValue: '',
+        name: '',
+        url: '',
         description: '',
-        extendId: 0
+        isPublic: 0
       },
       dialogDebugEnvFormRules: {
-        configKey: [
+        name: [
           { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ],
-        configValue: [
+        url: [
           { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
       }
@@ -113,7 +113,7 @@ export default {
       this.loadDebugEnvs(this.moduleId)
     },
     loadDebugEnvs(moduleId) {
-      this.get('/module/setting/debugEnv/list', { moduleId: moduleId }, resp => {
+      this.get('/module/environment/list', { moduleId: moduleId }, resp => {
         this.debugEnv = resp.data
       })
     },
@@ -130,7 +130,7 @@ export default {
       })
     },
     onDebugEnvDelete(row) {
-      this.post('/module/setting/debugEnv/delete', row, () => {
+      this.post('/module/environment/delete', row, () => {
         this.tip(this.$ts('deleteSuccess'))
         this.reload()
       })
@@ -138,7 +138,7 @@ export default {
     onDialogDebugEnvSave() {
       this.$refs.dialogDebugEnvForm.validate((valid) => {
         if (valid) {
-          const uri = this.dialogDebugEnvFormData.id ? '/module/setting/debugEnv/update' : '/module/setting/debugEnv/add'
+          const uri = this.dialogDebugEnvFormData.id ? '/module/environment/update' : '/module/environment/add'
           this.dialogDebugEnvFormData.moduleId = this.moduleId
           this.post(uri, this.dialogDebugEnvFormData, () => {
             this.dialogDebugEnvVisible = false

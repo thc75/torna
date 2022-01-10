@@ -18,8 +18,6 @@ import java.util.Properties;
  */
 public class TornaEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-    private final Properties properties = new Properties();
-
     private static final String[] PROPERTIES_FILES = {
             "META-INF/torna.properties",
     };
@@ -29,27 +27,29 @@ public class TornaEnvironmentPostProcessor implements EnvironmentPostProcessor {
         for (String propertiesFile : PROPERTIES_FILES) {
             Resource resource = new ClassPathResource(propertiesFile);
             // 加载成PropertySource对象，并添加到Environment环境中
-            environment.getPropertySources().addLast(loadProfiles(resource));
+            PropertySource<?> propertySource = loadProfiles(resource, environment);
+            environment.getPropertySources().addLast(propertySource);
         }
     }
 
-    private PropertySource<?> loadProfiles(Resource resource) {
+    private PropertySource<?> loadProfiles(Resource resource, ConfigurableEnvironment environment) {
         if (resource == null || !resource.exists()) {
             throw new IllegalArgumentException("资源" + resource + "不存在");
         }
+        Properties properties = new Properties();
         try {
             properties.load(resource.getInputStream());
-            hookLdapAccount(properties);
+            hookLdapAccount(environment, properties);
             return new PropertiesPropertySource(resource.getFilename(), properties);
         } catch (IOException ex) {
             throw new IllegalStateException("加载配置文件失败" + resource, ex);
         }
     }
 
-    private void hookLdapAccount(Properties properties) {
-        String property = properties.getProperty("torna.ldap.username");
-        if (StringUtils.startsWithIgnoreCase(property, "cn=")) {
-            properties.put("spring.ldap.username", property);
+    private void hookLdapAccount(ConfigurableEnvironment environment, Properties properties) {
+        String value = environment.getProperty("torna.ldap.username");
+        if (StringUtils.startsWithIgnoreCase(value, "cn=")) {
+            properties.put("spring.ldap.username", value);
         }
     }
 

@@ -10,4 +10,6 @@ public interface TreeAware<T, IdType> {
     IdType getParentId();
 
     void setChildren(List<T> children);
+
+    default void setParent(T parent) {}
 }

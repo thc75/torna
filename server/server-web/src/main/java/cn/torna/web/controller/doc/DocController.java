@@ -6,13 +6,17 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocInfo;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.ModuleEnvironmentParamService;
 import cn.torna.service.dto.DebugHostDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.param.DocInfoSearch;
@@ -42,6 +46,9 @@ public class DocController {
 
     @Autowired
     private DocInfoService docInfoService;
+
+    @Autowired
+    private ModuleEnvironmentParamService moduleEnvironmentParamService;
 
     /**
      * 获取项目文档目录，可用于文档菜单
@@ -189,12 +196,12 @@ public class DocController {
             throw new BizException("文档不存在");
         }
         DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
-        List<DebugHostDTO> debugEnvs = docInfoDTO.getDebugEnvs();
+        List<ModuleEnvironmentDTO> debugEnvs = docInfoDTO.getDebugEnvs();
         if (debugEnvs != null) {
             // 只返回公开的调试环境
-            long isPublic = 1;
-            List<DebugHostDTO> finalDebugEnv = debugEnvs.stream()
-                    .filter(debugHostDTO -> debugHostDTO.getExtendId() == isPublic)
+            byte isPublic = 1;
+            List<ModuleEnvironmentDTO> finalDebugEnv = debugEnvs.stream()
+                    .filter(debugHostDTO -> debugHostDTO.getIsPublic() == isPublic)
                     .collect(Collectors.toList());
             docInfoDTO.setDebugEnvs(finalDebugEnv);
         }
@@ -222,7 +229,7 @@ public class DocController {
         String name = param.getName();
         Long moduleId = param.getModuleId();
         User user = UserContext.getUser();
-        docInfoService.createDocFolder(name, moduleId, user);
+        docInfoService.createDocFolder(name, moduleId, user, param.getParentId());
         return Result.ok();
     }
 
@@ -256,4 +263,13 @@ public class DocController {
         docInfoService.update(docInfo);
         return Result.ok();
     }
+
+
+    @GetMapping("headers/global")
+    public Result<List<DocParamDTO>> listDocHeaders(@HashId Long environmentId) {
+        List<ModuleEnvironmentParam> moduleEnvironmentParams = moduleEnvironmentParamService.listByEnvironmentAndStyle(environmentId, ParamStyleEnum.HEADER.getStyle());
+        List<DocParamDTO> docParamDTOS = CopyUtil.copyList(moduleEnvironmentParams, DocParamDTO::new, docParamDTO -> docParamDTO.setGlobal(true));
+        return Result.ok(docParamDTOS);
+    }
+
 }

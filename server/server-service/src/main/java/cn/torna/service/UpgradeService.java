@@ -1,8 +1,13 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
+import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ColumnInfo;
+import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.SystemConfigDTO;
@@ -27,7 +32,7 @@ import java.util.Optional;
 @Service
 public class UpgradeService {
 
-    private static final int VERSION = 13;
+    private static final int VERSION = 1120;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -39,6 +44,15 @@ public class UpgradeService {
 
     @Autowired
     private SystemConfigService systemConfigService;
+
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
+
+    @Autowired
+    private ModuleEnvironmentParamService moduleEnvironmentParamService;
+
+    @Autowired
+    private DocParamService docParamService;
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
@@ -77,6 +91,65 @@ public class UpgradeService {
         v1_8_1(oldVersion);
         v1_9_3(oldVersion);
         v1_9_5(oldVersion);
+        v1_12_0(oldVersion);
+    }
+
+    private void v1_12_0(int oldVersion) {
+        if (oldVersion < 1120) {
+            // DDL
+            createTable("module_environment", "upgrade/1.12.0_ddl_1.txt");
+            createTable("module_environment_param", "upgrade/1.12.0_ddl_2.txt");
+            // transfer data
+            List<ModuleConfig> moduleConfigs = moduleConfigService.listDebugHost();
+            for (ModuleConfig moduleConfig : moduleConfigs) {
+                Long moduleId = moduleConfig.getModuleId();
+                // create env
+                ModuleEnvironment moduleEnvironment = moduleEnvironmentService.setDebugEnv(
+                        moduleId,
+                        moduleConfig.getConfigKey(),
+                        moduleConfig.getConfigValue(),
+                        Booleans.isTrue(moduleConfig.getExtendId())
+                );
+                // transfer headers
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_HEADERS);
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_PARAMS);
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_RETURNS);
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_ERROR_CODES);
+            }
+        }
+    }
+
+    private void transferParams(ModuleEnvironment moduleEnvironment, ModuleConfigTypeEnum moduleConfigTypeEnum) {
+        // transfer headers
+        List<DocParam> docParams = moduleConfigService.listGlobalOld(moduleEnvironment.getModuleId(), moduleConfigTypeEnum);
+        for (DocParam docParam : docParams) {
+            Long parentId = docParam.getParentId();
+            ModuleEnvironmentParam moduleEnvironmentParam = buildModuleEnvironmentParam(docParam, moduleEnvironment, moduleConfigTypeEnum);
+            // if it has parented
+            if (parentId != null && parentId > 0) {
+                DocParam parentDoc = docParamService.getById(parentId);
+                if (parentDoc != null) {
+                    ModuleEnvironmentParam parent = buildModuleEnvironmentParam(parentDoc, moduleEnvironment, moduleConfigTypeEnum);
+                    saveModuleEnvironmentParam(parent);
+                    // get the parent's id
+                    Long newParentId = parent.getId();
+                    moduleEnvironmentParam.setParentId(newParentId);
+                }
+            }
+            this.saveModuleEnvironmentParam(moduleEnvironmentParam);
+        }
+    }
+
+    private void saveModuleEnvironmentParam(ModuleEnvironmentParam param) {
+        ModuleEnvironmentParamService.initDataId(param);
+        moduleEnvironmentParamService.save(param);
+    }
+
+    private static ModuleEnvironmentParam buildModuleEnvironmentParam(DocParam docParam, ModuleEnvironment moduleEnvironment, ModuleConfigTypeEnum moduleConfigTypeEnum) {
+        ModuleEnvironmentParam moduleEnvironmentParam = CopyUtil.copyBean(docParam, ModuleEnvironmentParam::new);
+        moduleEnvironmentParam.setEnvironmentId(moduleEnvironment.getId());
+        moduleEnvironmentParam.setStyle(moduleConfigTypeEnum.getStyle());
+        return moduleEnvironmentParam;
     }
 
     private void v1_9_5(int oldVersion) {

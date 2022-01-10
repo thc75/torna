@@ -38,7 +38,7 @@
         <span slot-scope="{ node, data }">
           <span>
             <i :class="getClassName(data)"></i>
-            <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }}
+            <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }} <span v-if="data.type !== types.TYPE_DOC" class="tip">({{ data.apiCount }})</span>
             <dubbo-service-tip v-if="data.type === types.TYPE_FOLDER && data.docType === getEnums().DOC_TYPE.DUBBO" :doc-id="data.docId" />
           </span>
           <span v-if="showUrl && data.url" class="doc-select-url">
@@ -300,10 +300,5 @@ export default {
   .el-radio-group {
     vertical-align: bottom;
   }
-}
-
-.doc-select-url {
-  margin-left: 10px;
-  color: #909399;
 }
 </style>

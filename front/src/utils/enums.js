@@ -62,7 +62,8 @@ export const Enums = {
    * 扩展属性
    */
   PROP_TYPE: {
-    DEBUG: 10
+    DEBUG: 10,
+    DEBUG_PROXY: 11
   },
   /**
    * 文件夹类型

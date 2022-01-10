@@ -1,0 +1,51 @@
+package cn.torna.service;
+
+import cn.torna.common.support.BaseService;
+import cn.torna.common.util.DataIdUtil;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
+import cn.torna.dao.mapper.ModuleEnvironmentParamMapper;
+import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.Sort;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+
+/**
+ * @author tanghc
+ */
+@Service
+public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironmentParam, ModuleEnvironmentParamMapper> {
+
+    public ModuleEnvironmentParam getByDataId(String dataId) {
+        return this.get("data_id", dataId);
+    }
+
+    public List<ModuleEnvironmentParam> listByEnvironmentAndStyle(long environmentId, byte style) {
+        Query query = new Query().eq("environment_id", environmentId)
+                .eq("style", style)
+                .orderby("order_index", Sort.ASC)
+                .orderby("id", Sort.ASC);
+        return list(query);
+    }
+
+    @Override
+    public int save(ModuleEnvironmentParam entity) {
+        initDataId(entity);
+        return super.save(entity);
+    }
+
+    @Override
+    public int saveBatch(List<ModuleEnvironmentParam> entityList) {
+        for (ModuleEnvironmentParam param : entityList) {
+            initDataId(param);
+        }
+        return super.saveBatch(entityList);
+    }
+
+    public static void initDataId(ModuleEnvironmentParam param) {
+        String dataId = DataIdUtil.getDocParamDataId(param.getEnvironmentId(), param.getParentId(), param.getStyle(), param.getName());
+        param.setDataId(dataId);
+    }
+
+}

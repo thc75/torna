@@ -29,6 +29,7 @@ import cn.torna.dao.entity.DocParam;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
+import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
@@ -81,6 +82,9 @@ public class DocApi {
 
     @Autowired
     private ModuleConfigService moduleConfigService;
+
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
 
     @Autowired
     private TornaTransactionManager tornaTransactionManager;
@@ -176,12 +180,11 @@ public class DocApi {
                     if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
                         continue;
                     }
-                    moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
+                    moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 替换文档
                 if (Booleans.isTrue(param.getIsReplace(), true)) {
                     // 先删除之前的文档
-                    User user = context.getApiUser();
                     this.deleteOpenAPIModuleDocs(moduleId);
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {

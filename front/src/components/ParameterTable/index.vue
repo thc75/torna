@@ -73,13 +73,7 @@
       <template slot-scope="scope">
         <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
         <div v-else>
-          <el-popover
-            placement="left"
-            trigger="click"
-          >
-            <div v-html="scope.row.description"></div>
-            <el-button slot="reference" type="text">{{ $ts('clickSee') }}</el-button>
-          </el-popover>
+          <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
         </div>
       </template>
     </el-table-column>

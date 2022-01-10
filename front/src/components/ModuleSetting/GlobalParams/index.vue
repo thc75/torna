@@ -111,12 +111,12 @@ export default {
   data() {
     return {
       globalParams: [],
-      moduleId: '',
+      environmentId: '',
       dialogParamVisible: false,
       dialogParamTitle: '',
       dialogParamFormData: {
         id: '',
-        moduleId: '',
+        environmentId: '',
         name: '',
         type: 'string',
         parentId: '',
@@ -134,7 +134,8 @@ export default {
             }
           }, trigger: 'blur' }
         ]
-      }
+      },
+      style: this.getEnums().PARAM_STYLE.request
     }
   },
   computed: {
@@ -154,14 +155,14 @@ export default {
     }
   },
   methods: {
-    reload(moduleId) {
-      if (moduleId) {
-        this.moduleId = moduleId
+    reload(environmentId) {
+      if (environmentId) {
+        this.environmentId = environmentId
       }
-      this.loadParams(this.moduleId)
+      this.loadParams(this.environmentId)
     },
-    loadParams(moduleId) {
-      this.get('/module/setting/globalParams/list', { moduleId: moduleId }, resp => {
+    loadParams(environmentId) {
+      this.get('/module/environment/param/list', { environmentId: environmentId, style: this.style }, resp => {
         const data = resp.data
         this.globalParams = this.convertTree(data)
       })
@@ -182,12 +183,13 @@ export default {
       const parentId = parent ? parent.id : ''
       return {
         id: '',
-        moduleId: '',
+        environmentId: '',
         name: '',
         type: 'string',
         parentId: parentId,
         example: '',
-        description: ''
+        description: '',
+        style: this.getEnums().PARAM_STYLE.request
       }
     },
     onParamAddChild(row) {
@@ -197,7 +199,7 @@ export default {
       this.dialogParamFormData = child
     },
     onParamDelete(row) {
-      this.post('/module/setting/globalParams/delete', row, () => {
+      this.post('/module/environment/param/delete', row, () => {
         this.tipSuccess(this.$ts('deleteSuccess'))
         this.reload()
       })
@@ -208,8 +210,9 @@ export default {
     onDialogParamSave() {
       this.$refs.dialogParamForm.validate((valid) => {
         if (valid) {
-          const uri = this.dialogParamFormData.id ? '/module/setting/globalParams/update' : '/module/setting/globalParams/add'
-          this.dialogParamFormData.moduleId = this.moduleId
+          const uri = this.dialogParamFormData.id ? 'module/environment/param/update' : 'module/environment/param/add'
+          this.dialogParamFormData.environmentId = this.environmentId
+          this.dialogParamFormData.style = this.style
           this.post(uri, this.dialogParamFormData, () => {
             this.dialogParamVisible = false
             this.reload()

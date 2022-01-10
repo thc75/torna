@@ -122,16 +122,17 @@ export default {
     return {
       globalReturns: [],
       enumData: [],
-      moduleId: '',
+      environmentId: '',
       dialogParamVisible: false,
       dialogParamTitle: '',
       dialogParamFormData: {
         id: '',
-        moduleId: '',
+        environmentId: '',
         name: '',
         example: '',
         type: 'string',
         enumId: '',
+        style: '',
         description: ''
       },
       dialogParamFormRules: {
@@ -145,7 +146,8 @@ export default {
             }
           }, trigger: 'blur' }
         ]
-      }
+      },
+      style: this.getEnums().PARAM_STYLE.response
     }
   },
   computed: {
@@ -165,19 +167,19 @@ export default {
     }
   },
   methods: {
-    reload(moduleId) {
-      if (moduleId) {
-        this.moduleId = moduleId
+    reload(environmentId) {
+      if (environmentId) {
+        this.environmentId = environmentId
       }
-      this.loadParams(this.moduleId)
-      if (this.moduleId) {
-        this.loadEnumData(this.moduleId, data => {
+      this.loadParams(this.environmentId)
+      if (this.environmentId) {
+        this.loadEnumData(this.environmentId, data => {
           this.enumData = data
         })
       }
     },
-    loadParams(moduleId) {
-      this.get('/module/setting/globalReturns/list', { moduleId: moduleId }, resp => {
+    loadParams(environmentId) {
+      this.get('/module/environment/param/list', { environmentId: environmentId, style: this.style }, resp => {
         const data = resp.data
         this.globalReturns = this.convertTree(data)
       })
@@ -202,7 +204,7 @@ export default {
       const parentId = parent ? parent.id : ''
       return {
         id: '',
-        moduleId: '',
+        environmentId: '',
         name: '',
         type: 'string',
         parentId: parentId,
@@ -218,7 +220,7 @@ export default {
       })
     },
     onParamDelete(row) {
-      this.post('/module/setting/globalReturns/delete', row, () => {
+      this.post('/module/environment/param/delete', row, () => {
         this.tip('删除成功')
         this.reload()
       })
@@ -226,8 +228,9 @@ export default {
     onDialogParamSave() {
       this.$refs.dialogParamForm.validate((valid) => {
         if (valid) {
-          const uri = this.dialogParamFormData.id ? '/module/setting/globalReturns/update' : '/module/setting/globalReturns/add'
-          this.dialogParamFormData.moduleId = this.moduleId
+          const uri = this.dialogParamFormData.id ? '/module/environment/param/update' : '/module/environment/param/add'
+          this.dialogParamFormData.environmentId = this.environmentId
+          this.dialogParamFormData.style = this.style
           this.post(uri, this.dialogParamFormData, () => {
             this.dialogParamVisible = false
             this.reload()

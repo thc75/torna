@@ -1,10 +1,10 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.context.ModuleConfigKeys;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
+import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
@@ -14,7 +14,6 @@ import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
 import cn.torna.web.controller.module.vo.DebugEnvVO;
-import cn.torna.web.controller.module.vo.ModuleConfigVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalVO;
 import cn.torna.web.controller.module.vo.SwaggerSettingVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +35,7 @@ public class ModuleSettingController {
     @Autowired
     private ModuleConfigService moduleConfigService;
 
-    @PostMapping("/debugEnv/set")
-    public Result setDebugEnv(@RequestBody DebugEnvParam param) {
-        moduleConfigService.setDebugEnv(
-                param.getModuleId(),
-                param.getConfigKey(),
-                param.getConfigValue(),
-                Booleans.isTrue(param.getExtendId())
-        );
-        return Result.ok();
-    }
-
+    @Deprecated
     @GetMapping("/debugEnv/list")
     public Result<List<DebugEnvVO>> listDebugHost(@HashId Long moduleId) {
         List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
@@ -97,7 +86,7 @@ public class ModuleSettingController {
 
     @GetMapping("/globalHeaders/list")
     public Result<List<ModuleGlobalVO>> listHeader(@HashId Long moduleId) {
-        List<DocParam> docParams = moduleConfigService.listGlobal(moduleId, ModuleConfigTypeEnum.GLOBAL_HEADERS);
+        List<DocParam> docParams = moduleConfigService.listGlobal(moduleId, ParamStyleEnum.HEADER);
         List<ModuleGlobalVO> moduleConfigVOS = convertModuleGlobalVO(docParams, moduleId);
         return Result.ok(moduleConfigVOS);
     }

@@ -20,9 +20,12 @@ public class DataIdUtil {
      * @param name 文档名称
      * @return
      */
-    public static String getDocParamDataId(long docId, long parentId, byte style, String name) {
+    public static String getDocParamDataId(long docId, Long parentId, byte style, String name) {
         if (name == null) {
             name = "";
+        }
+        if (parentId == null) {
+            parentId = 0L;
         }
         String content = String.format(TPL_PARAM, docId, parentId, style, name);
         return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));

@@ -580,6 +580,9 @@ Object.assign(Vue.prototype, {
   handleCommand: function(command) {
     command && command()
   },
+  isString: function(obj) {
+    return Object.prototype.toString.call(obj) === '[object String]'
+  },
   isObject: function(obj) {
     return Object.prototype.toString.call(obj) === '[object Object]'
   },
@@ -657,6 +660,25 @@ Object.assign(Vue.prototype, {
       max = Math.max(row.orderIndex, max)
     })
     return max + 10
+  },
+  /**
+   * 比较两个对象内容是否相等
+   * @param object1
+   * @param object2
+   * @returns {boolean}
+   */
+  objectEquals(object1, object2) {
+    const o1keys = Object.keys(object1)
+    const o2keys = Object.keys(object2)
+    o1keys.sort()
+    o2keys.sort()
+    if (o2keys.length !== o1keys.length) return false
+    for (let i = 0; i <= o1keys.length - 1; i++) {
+      const key = o1keys[i]
+      if (!o2keys.includes(key)) return false
+      if (object2[key] !== object1[key]) return false
+    }
+    return true
   }
 })
 
