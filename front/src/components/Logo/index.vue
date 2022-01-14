@@ -14,7 +14,7 @@
 
 <script>
 // eslint-disable-next-line
-const VER="1.12.0"
+const VERversion="1.12.1"
 export default {
   name: 'SidebarLogo',
   props: {
