@@ -21,6 +21,40 @@
         <dependency>
             <groupId>net.oschina.durcframework</groupId>
             <artifactId>easyopen-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.thoughtworks.xstream</groupId>
+                    <artifactId>xstream</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.oltu.oauth2</groupId>
+                    <artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.oltu.oauth2</groupId>
+                    <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-all</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.marshalling</groupId>
+                    <artifactId>jboss-marshalling-serial</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.itextpdf</groupId>
+                    <artifactId>itextpdf</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.itextpdf.tool</groupId>
+                    <artifactId>xmlworker</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.itextpdf</groupId>
+                    <artifactId>itext-asian</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

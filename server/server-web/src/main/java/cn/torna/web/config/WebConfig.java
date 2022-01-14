@@ -7,6 +7,7 @@ import cn.torna.common.support.HashIdParamResolver;
 import cn.torna.common.thread.TornaAsyncConfigurer;
 import cn.torna.common.util.FastjsonUtil;
 import cn.torna.common.util.SystemUtil;
+import cn.torna.web.controller.doc.DebugController;
 import cn.torna.web.interceptor.AdminInterceptor;
 import cn.torna.web.interceptor.LoginInterceptor;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -82,7 +83,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
         corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addExposedHeader("target-response-headers");
+        corsConfiguration.addExposedHeader(DebugController.TARGET_RESPONSE_HEADERS_NAME);
         corsConfiguration.addExposedHeader("Content-Disposition");
         corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
