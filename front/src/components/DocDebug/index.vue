@@ -638,7 +638,7 @@ export default {
           if (!data) {
             this.isProxy = true
           } else {
-            this.isProxy = data.value === 'true'
+            this.isProxy = data.val === 'true'
           }
         })
       }

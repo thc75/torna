@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.ByteArrayEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +37,7 @@ public class DebugController {
 
     private static final String HEADER_TARGET_URL = "target-url";
     private static final String HEADER_TARGET_HEADERS = "target-headers";
+    public static final String TARGET_RESPONSE_HEADERS_NAME = "target-response-headers";
 
     /**
      * 代理转发，前端调试请求转发到具体的服务器
@@ -73,12 +75,16 @@ public class DebugController {
 
         HttpHelper.ResponseResult responseResult = null;
         try {
+            // 转发请求
             responseResult = httpHelper.execute();
             Map<String, String> targetHeaders = responseResult.getHeaders();
-            response.addHeader("target-response-headers", JSON.toJSONString(targetHeaders));
+            response.addHeader(TARGET_RESPONSE_HEADERS_NAME, JSON.toJSONString(targetHeaders));
+            int status = responseResult.getStatus();
+            response.setStatus(status);
             InputStream inputStream = responseResult.asStream();
             IOUtils.copy(inputStream, response.getOutputStream());
         } catch (IOException e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             log.error("请求异常, url:{}", url, e);
             try {
                 IOUtils.copy(IOUtils.toInputStream(e.getMessage(), StandardCharsets.UTF_8), response.getOutputStream());
