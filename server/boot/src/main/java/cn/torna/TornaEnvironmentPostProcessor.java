@@ -1,5 +1,6 @@
 package cn.torna;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -7,7 +8,6 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -48,7 +48,7 @@ public class TornaEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     private void hookLdapAccount(ConfigurableEnvironment environment, Properties properties) {
         String value = environment.getProperty("torna.ldap.username");
-        if (StringUtils.startsWithIgnoreCase(value, "cn=")) {
+        if (StringUtils.containsIgnoreCase(value, "cn=") || StringUtils.containsIgnoreCase(value, "dc=")) {
             properties.put("spring.ldap.username", value);
         }
     }
