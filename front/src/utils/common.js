@@ -406,7 +406,6 @@ export function init_docInfo_complete_view(data) {
       dataNode.children = requestParams
       data.requestParams = data.globalParams
     } else {
-      data.globalParams = convert_tree(data.globalParams)
       if (data.httpMethod && data.httpMethod.toLowerCase() === 'get') {
         data.queryParams = data.globalParams.concat(data.queryParams)
       } else {
