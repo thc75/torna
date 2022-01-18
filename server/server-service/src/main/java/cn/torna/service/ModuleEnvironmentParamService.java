@@ -7,6 +7,7 @@ import cn.torna.dao.mapper.ModuleEnvironmentParamMapper;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -65,6 +66,13 @@ public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironment
         query.eq("environment_id", envId)
                 .ignoreLogicDeleteColumn();
         this.getMapper().deleteByQuery(query);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteGlobalParam(long id) {
+        this.getMapper().forceDeleteById(id);
+        // delete children
+        this.getMapper().forceDeleteByQuery(new Query().eq("parent_id", id));
     }
 
 }

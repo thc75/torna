@@ -21,6 +21,7 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
+import cn.torna.web.controller.doc.param.DocInfoSaveParam;
 import cn.torna.web.controller.doc.param.DocInfoSearch;
 import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
@@ -72,11 +73,12 @@ public class DocController {
 
     /**
      * 保存文档信息
-     * @param docInfoDTO
+     * @param param
      * @return
      */
     @PostMapping("save")
-    public Result<IdVO> save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
+    public Result<IdVO> save(@RequestBody @Valid DocInfoSaveParam param) {
+        DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
         User user = UserContext.getUser();
         Long id = docInfoDTO.getId();
         DocInfo docInfo;

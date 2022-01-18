@@ -1,6 +1,7 @@
 package cn.torna.common.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -175,7 +176,7 @@ public class CopyUtil extends BeanUtils {
      * @return 返回目标类
      */
     public static <T> T deepCopy(Object from, Class<T> toClass) {
-        String json = JSON.toJSONString(from);
+        String json = JSON.toJSONString(from, SerializerFeature.WriteDateUseDateFormat);
         return JSON.parseObject(json, toClass);
     }
 

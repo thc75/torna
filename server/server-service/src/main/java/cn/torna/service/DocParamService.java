@@ -147,7 +147,11 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
             EnumInfo enumInfo = enumService.saveEnumInfo(enumInfoDTO);
             return enumInfo.getId();
         }
-        return docParamDTO.getEnumId();
+        Long enumId = docParamDTO.getEnumId();
+        if (enumId == null) {
+            enumId = 0L;
+        }
+        return enumId;
     }
 
     public DocParam saveParam(DocParam docParam) {
