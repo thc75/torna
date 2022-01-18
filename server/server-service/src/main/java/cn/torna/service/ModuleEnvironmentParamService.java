@@ -7,6 +7,7 @@ import cn.torna.dao.mapper.ModuleEnvironmentParamMapper;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,6 +30,18 @@ public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironment
         return list(query);
     }
 
+    /**
+     * 获取所有的公共参数
+     * @param environmentId 环境id
+     * @return
+     */
+    public List<ModuleEnvironmentParam> listAllByEnvironment(long environmentId) {
+        Query query = new Query().eq("environment_id", environmentId)
+                .orderby("order_index", Sort.ASC)
+                .orderby("id", Sort.ASC);
+        return list(query);
+    }
+
     @Override
     public int save(ModuleEnvironmentParam entity) {
         initDataId(entity);
@@ -46,6 +59,20 @@ public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironment
     public static void initDataId(ModuleEnvironmentParam param) {
         String dataId = DataIdUtil.getDocParamDataId(param.getEnvironmentId(), param.getParentId(), param.getStyle(), param.getName());
         param.setDataId(dataId);
+    }
+
+    public void deleteByEnvId(long envId) {
+        Query query = new Query();
+        query.eq("environment_id", envId)
+                .ignoreLogicDeleteColumn();
+        this.getMapper().deleteByQuery(query);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteGlobalParam(long id) {
+        this.getMapper().forceDeleteById(id);
+        // delete children
+        this.getMapper().forceDeleteByQuery(new Query().eq("parent_id", id));
     }
 
 }

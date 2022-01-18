@@ -3,20 +3,23 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
-import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.ModuleEnvironmentParamDTO;
 import cn.torna.service.dto.SystemConfigDTO;
 import com.gitee.fastmybatis.core.query.Query;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ import java.util.Optional;
  * @author tanghc
  */
 @Service
+@Slf4j
 public class UpgradeService {
 
     private static final int VERSION = 1120;
@@ -48,11 +52,6 @@ public class UpgradeService {
     @Autowired
     private ModuleEnvironmentService moduleEnvironmentService;
 
-    @Autowired
-    private ModuleEnvironmentParamService moduleEnvironmentParamService;
-
-    @Autowired
-    private DocParamService docParamService;
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
@@ -61,6 +60,7 @@ public class UpgradeService {
     /**
      * 升级
      */
+    @Transactional(rollbackFor = Exception.class)
     public void upgrade() {
         this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
         int oldVersion = getVersion();
@@ -96,6 +96,7 @@ public class UpgradeService {
 
     private void v1_12_0(int oldVersion) {
         if (oldVersion < 1120) {
+            log.info("upgrade to 1.12.0");
             // DDL
             createTable("module_environment", "upgrade/1.12.0_ddl_1.txt");
             createTable("module_environment_param", "upgrade/1.12.0_ddl_2.txt");
@@ -122,34 +123,9 @@ public class UpgradeService {
     private void transferParams(ModuleEnvironment moduleEnvironment, ModuleConfigTypeEnum moduleConfigTypeEnum) {
         // transfer headers
         List<DocParam> docParams = moduleConfigService.listGlobalOld(moduleEnvironment.getModuleId(), moduleConfigTypeEnum);
-        for (DocParam docParam : docParams) {
-            Long parentId = docParam.getParentId();
-            ModuleEnvironmentParam moduleEnvironmentParam = buildModuleEnvironmentParam(docParam, moduleEnvironment, moduleConfigTypeEnum);
-            // if it has parented
-            if (parentId != null && parentId > 0) {
-                DocParam parentDoc = docParamService.getById(parentId);
-                if (parentDoc != null) {
-                    ModuleEnvironmentParam parent = buildModuleEnvironmentParam(parentDoc, moduleEnvironment, moduleConfigTypeEnum);
-                    saveModuleEnvironmentParam(parent);
-                    // get the parent's id
-                    Long newParentId = parent.getId();
-                    moduleEnvironmentParam.setParentId(newParentId);
-                }
-            }
-            this.saveModuleEnvironmentParam(moduleEnvironmentParam);
-        }
-    }
-
-    private void saveModuleEnvironmentParam(ModuleEnvironmentParam param) {
-        ModuleEnvironmentParamService.initDataId(param);
-        moduleEnvironmentParamService.save(param);
-    }
-
-    private static ModuleEnvironmentParam buildModuleEnvironmentParam(DocParam docParam, ModuleEnvironment moduleEnvironment, ModuleConfigTypeEnum moduleConfigTypeEnum) {
-        ModuleEnvironmentParam moduleEnvironmentParam = CopyUtil.copyBean(docParam, ModuleEnvironmentParam::new);
-        moduleEnvironmentParam.setEnvironmentId(moduleEnvironment.getId());
-        moduleEnvironmentParam.setStyle(moduleConfigTypeEnum.getStyle());
-        return moduleEnvironmentParam;
+        List<ModuleEnvironmentParamDTO> docParamDTOS = CopyUtil.copyList(docParams, ModuleEnvironmentParamDTO::new);
+        List<ModuleEnvironmentParamDTO> tree = TreeUtil.convertTree(docParamDTOS, 0L);
+        moduleEnvironmentService.doCopy(tree, moduleEnvironment.getId(), 0L);
     }
 
     private void v1_9_5(int oldVersion) {

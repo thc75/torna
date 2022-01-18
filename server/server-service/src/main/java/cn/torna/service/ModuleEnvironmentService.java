@@ -4,17 +4,20 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.ModuleEnvironmentMapper;
 import cn.torna.service.dto.ModuleEnvironmentCopyDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.ModuleEnvironmentImportDTO;
+import cn.torna.service.dto.ModuleEnvironmentParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -116,6 +119,7 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
      * @param moduleId 模块id
      * @param name     环境名称
      */
+    @Transactional(rollbackFor = Exception.class)
     public void deleteDebugEnv(long moduleId, String name) {
         Query query = new Query()
                 .eq("module_id", moduleId)
@@ -123,6 +127,7 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
         ModuleEnvironment moduleEnvironment = this.get(query);
         if (moduleEnvironment != null) {
             this.delete(moduleEnvironment);
+            moduleEnvironmentParamService.deleteByEnvId(moduleEnvironment.getId());
         }
     }
 
@@ -147,14 +152,25 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
 
     private void copyGlobal(long fromEnvId, long newEnvId, ParamStyleEnum paramStyleEnum) {
         List<ModuleEnvironmentParam> params = moduleEnvironmentParamService.listByEnvironmentAndStyle(fromEnvId, paramStyleEnum.getStyle());
-        List<ModuleEnvironmentParam> paramsNew = CopyUtil.copyList(params,
-                ModuleEnvironmentParam::new,
-                moduleEnvironmentParam -> {
-                    moduleEnvironmentParam.setEnvironmentId(newEnvId);
-                });
-        moduleEnvironmentParamService.saveBatch(paramsNew);
+        List<ModuleEnvironmentParamDTO> fromParams = CopyUtil.copyList(params, ModuleEnvironmentParamDTO::new);
+        List<ModuleEnvironmentParamDTO> tree = TreeUtil.convertTree(fromParams, 0L);
+        this.doCopy(tree, newEnvId, 0L);
     }
 
+    public void doCopy(List<ModuleEnvironmentParamDTO> tree, long newEnvId, long parentId) {
+        for (ModuleEnvironmentParamDTO moduleEnvironmentParamDTO : tree) {
+            ModuleEnvironmentParam newParam = CopyUtil.copyBean(moduleEnvironmentParamDTO, ModuleEnvironmentParam::new);
+            newParam.setParentId(parentId);
+            newParam.setEnvironmentId(newEnvId);
+            ModuleEnvironmentParamService.initDataId(newParam);
+            moduleEnvironmentParamService.save(newParam);
+            List<ModuleEnvironmentParamDTO> children = moduleEnvironmentParamDTO.getChildren();
+            // if it has children loop do it.
+            if (!CollectionUtils.isEmpty(children)) {
+                doCopy(children, newEnvId, newParam.getId());
+            }
+        }
+    }
 
     /**
      * 导入环境
@@ -176,7 +192,9 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
             moduleEnvironmentCopyDTO.setUrl(otherModuleEnvironment.getUrl());
             moduleEnvironmentCopyDTO.setIsPublic(otherModuleEnvironment.getIsPublic());
             return moduleEnvironmentCopyDTO;
-        }).forEach(this::copyEnvironment);
+        })
+                // 拷贝环境
+                .forEach(this::copyEnvironment);
     }
 
 }

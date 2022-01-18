@@ -20,17 +20,6 @@
       <template slot-scope="scope">
         <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
           {{ scope.row.name }}
-          <el-tooltip :content="$ts('checkDict')" placement="top">
-            <el-popover
-              placement="right"
-              width="500"
-              trigger="click"
-              @show="onEnumPopoverShow(`enumRef_${scope.row.id}`)"
-            >
-              <enum-item-view :ref="`enumRef_${scope.row.id}`" :enum-id="scope.row.enumId" />
-              <el-button v-if="scope.row.enumId" slot="reference" type="text" icon="el-icon-tickets" />
-            </el-popover>
-          </el-tooltip>
         </span>
       </template>
     </el-table-column>
@@ -71,9 +60,15 @@
       :label="descriptionLabel"
     >
       <template slot-scope="scope">
-        <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
+        <div v-if="scope.row.enumId">
+          {{ scope.row.description }}
+          <enum-item-view :ref="`enumRef_${scope.row.id}`" :enum-id="scope.row.enumId" mounted-load />
+        </div>
         <div v-else>
-          <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
+          <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
+          <div v-else>
+            <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
+          </div>
         </div>
       </template>
     </el-table-column>

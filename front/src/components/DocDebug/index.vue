@@ -122,10 +122,8 @@
                 <template slot-scope="scope">
                   <el-form :model="scope.row" size="mini">
                     <el-form-item label-width="0">
-                      <div v-if="scope.row.type === 'enum'">
-                        <el-select v-model="scope.row.example">
-                          <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                        </el-select>
+                      <div v-if="scope.row.enumInfo">
+                        <enum-select :row="scope.row" />
                       </div>
                       <div v-else>
                         <el-input v-model="scope.row.example" />
@@ -178,10 +176,8 @@
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0">
-                        <div v-if="scope.row.type === 'enum'">
-                          <el-select v-model="scope.row.example">
-                            <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                          </el-select>
+                        <div v-if="scope.row.enumInfo">
+                          <enum-select :row="scope.row" />
                         </div>
                         <div v-else>
                           <el-input v-model="scope.row.example" />
@@ -230,10 +226,8 @@
                         >
                           <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
                         </el-upload>
-                        <div v-else-if="scope.row.type === 'enum'">
-                          <el-select v-model="scope.row.example">
-                            <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                          </el-select>
+                        <div v-if="scope.row.enumInfo">
+                          <enum-select :row="scope.row" />
                         </div>
                         <div v-else>
                           <el-input v-model="scope.row.example" />
@@ -289,13 +283,14 @@ require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
 import { get_full_url, request } from '@/utils/http'
 import { get_effective_url, is_array_string, parse_root_array } from '@/utils/common'
-
+import EnumSelect from '@/components/EnumSelect'
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
 const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
+  components: { EnumSelect },
   props: {
     item: {
       type: Object,
@@ -438,6 +433,7 @@ export default {
       this.pathData = item.pathParams
       this.headerData = item.headerParams
       this.queryData = item.queryParams
+      console.log(this.queryData)
       this.formData = formData
       this.multipartData = multipartData
     },

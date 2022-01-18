@@ -10,19 +10,24 @@ import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocInfo;
+import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleEnvironmentParamService;
+import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.dto.DebugHostDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
+import cn.torna.web.controller.doc.param.DocInfoSaveParam;
 import cn.torna.web.controller.doc.param.DocInfoSearch;
 import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
+import cn.torna.web.controller.module.vo.ModuleEnvironmentParamVO;
+import cn.torna.web.controller.module.vo.ModuleGlobalParamsVO;
 import cn.torna.web.controller.system.param.IdParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -35,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +56,9 @@ public class DocController {
     @Autowired
     private ModuleEnvironmentParamService moduleEnvironmentParamService;
 
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
+
     /**
      * 获取项目文档目录，可用于文档菜单
      * @param moduleId 模块id
@@ -64,11 +73,12 @@ public class DocController {
 
     /**
      * 保存文档信息
-     * @param docInfoDTO
+     * @param param
      * @return
      */
     @PostMapping("save")
-    public Result<IdVO> save(@RequestBody @Valid DocInfoDTO docInfoDTO) {
+    public Result<IdVO> save(@RequestBody @Valid DocInfoSaveParam param) {
+        DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
         User user = UserContext.getUser();
         Long id = docInfoDTO.getId();
         DocInfo docInfo;
@@ -266,10 +276,32 @@ public class DocController {
 
 
     @GetMapping("headers/global")
-    public Result<List<DocParamDTO>> listDocHeaders(@HashId Long environmentId) {
+    public Result<List<DocParamDTO>> headersGlobal(@HashId Long environmentId) {
         List<ModuleEnvironmentParam> moduleEnvironmentParams = moduleEnvironmentParamService.listByEnvironmentAndStyle(environmentId, ParamStyleEnum.HEADER.getStyle());
         List<DocParamDTO> docParamDTOS = CopyUtil.copyList(moduleEnvironmentParams, DocParamDTO::new, docParamDTO -> docParamDTO.setGlobal(true));
         return Result.ok(docParamDTOS);
+    }
+
+
+    @GetMapping("globals")
+    public Result<ModuleGlobalParamsVO> globals(@HashId Long moduleId) {
+        ModuleEnvironment moduleEnvironment = moduleEnvironmentService.getFirst(moduleId);
+        if (moduleEnvironment == null) {
+            return Result.ok();
+        }
+        Long environmentId = moduleEnvironment.getId();
+        List<ModuleEnvironmentParam> list = moduleEnvironmentParamService.listAllByEnvironment(environmentId);
+        // 根据style分组
+        Map<Byte, List<ModuleEnvironmentParam>> styleMap = list.stream()
+                .collect(Collectors.groupingBy(ModuleEnvironmentParam::getStyle));
+        List<ModuleEnvironmentParam> globalHeaders = styleMap.getOrDefault(ParamStyleEnum.HEADER.getStyle(), Collections.emptyList());
+        List<ModuleEnvironmentParam> globalRequest = styleMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
+        List<ModuleEnvironmentParam> globalResponse = styleMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
+        ModuleGlobalParamsVO moduleGlobalParamsVO = new ModuleGlobalParamsVO();
+        moduleGlobalParamsVO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
+        moduleGlobalParamsVO.setGlobalParams(CopyUtil.copyList(globalRequest, DocParamDTO::new));
+        moduleGlobalParamsVO.setGlobalReturns(CopyUtil.copyList(globalResponse, DocParamDTO::new));
+        return Result.ok(moduleGlobalParamsVO);
     }
 
 }

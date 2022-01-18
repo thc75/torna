@@ -238,6 +238,7 @@
 import DocView from '../DocView'
 import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
+import {init_docInfo_complete_view} from "@/utils/common";
 
 export default {
   components: { DocView, EditTable, RootArrayTable },
@@ -358,6 +359,12 @@ export default {
           } else {
             this.alert(resp.msg)
           }
+        })
+      } else {
+        // init global
+        this.get('/doc/globals', { moduleId: moduleId }, resp => {
+          const globals = resp.data
+          Object.assign(this.docInfo, globals)
         })
       }
       this.initOrderIndex()
@@ -523,7 +530,7 @@ export default {
         viewData.requestParams = this.deepCopy(requestParams)
         viewData.responseParams = this.deepCopy(responseParams)
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
-        this.initDocInfoCompleteView(viewData)
+        init_docInfo_complete_view(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })
     },

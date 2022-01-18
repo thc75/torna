@@ -12,15 +12,19 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.DocInfoMapper;
+import cn.torna.manager.doc.DataType;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.EnumInfoDTO;
+import cn.torna.service.dto.EnumItemDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
@@ -50,6 +54,8 @@ import java.util.stream.Collectors;
 @Service
 public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
+    private static final String REGEX_BR = "<br\\s*/*>";
+
     @Autowired
     private DocParamService docParamService;
 
@@ -70,6 +76,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private ModuleEnvironmentParamService moduleEnvironmentParamService;
+
+    @Autowired
+    private EnumInfoService enumInfoService;
+
+    @Autowired
+    private EnumService enumService;
 
     /**
      * 查询模块下的所有文档
@@ -158,7 +170,52 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+        // 绑定枚举信息
+        bindEnumInfo(docInfoDTO.getQueryParams());
+        bindEnumInfo(docInfoDTO.getRequestParams());
         return docInfoDTO;
+    }
+
+    /**
+     * 绑定枚举信息
+     * @param docParamDTOS
+     */
+    private void bindEnumInfo(List<DocParamDTO> docParamDTOS) {
+        for (DocParamDTO docParamDTO : docParamDTOS) {
+            Long enumId = docParamDTO.getEnumId();
+            if (enumId != null && enumId > 0) {
+                EnumInfo enumInfo = enumInfoService.getById(enumId);
+                if (enumInfo == null) {
+                    continue;
+                }
+                EnumInfoDTO enumInfoDTO = CopyUtil.copyBean(enumInfo, EnumInfoDTO::new);
+                List<EnumItemDTO> enumItemDTOS = enumService.listItems(enumId);
+                enumInfoDTO.setItems(enumItemDTOS);
+                docParamDTO.setEnumInfo(enumInfoDTO);
+            } else if (DataType.ENUM.equalsIgnoreCase(docParamDTO.getType()) && StringUtils.hasText(docParamDTO.getDescription())) {
+                String description = docParamDTO.getDescription();
+                EnumInfoDTO enumInfoDTO = new EnumInfoDTO();
+                String[] arr;
+                if (description.contains("<br")) {
+                    arr = description.split(REGEX_BR);
+                } else if (description.contains("、")) {
+                    arr = description.split("、");
+                } else {
+                    arr = new String[]{description};
+                }
+                List<EnumItemDTO> items = Arrays.stream(arr)
+                        .map(val -> {
+                            EnumItemDTO enumItemDTO = new EnumItemDTO();
+                            enumItemDTO.setName(val);
+                            enumItemDTO.setValue(val);
+                            return enumItemDTO;
+                        })
+                        .collect(Collectors.toList());
+                enumInfoDTO.setItems(items);
+                docParamDTO.setEnumInfo(enumInfoDTO);
+            }
+
+        }
     }
 
 

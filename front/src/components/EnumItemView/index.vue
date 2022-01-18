@@ -3,6 +3,7 @@
     :data="data"
     border
     highlight-current-row
+    max-height="200"
   >
     <el-table-column :label="$ts('value')" prop="value">
       <template slot-scope="scope">

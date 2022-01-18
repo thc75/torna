@@ -78,7 +78,7 @@ public class ModuleEnvironmentParamController {
 
     @PostMapping("delete")
     public Result delete(@RequestBody ModuleEnvironmentParamParam param) {
-        moduleEnvironmentParamService.deleteById(param.getId());
+        moduleEnvironmentParamService.deleteGlobalParam(param.getId());
         return Result.ok();
     }
 

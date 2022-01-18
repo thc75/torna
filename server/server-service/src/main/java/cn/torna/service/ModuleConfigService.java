@@ -60,9 +60,12 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         }
         List<ModuleEnvironmentParam> moduleEnvironmentParams = moduleEnvironmentParamService.listByEnvironmentAndStyle(environment.getId(), paramStyleEnum.getStyle());
         // id去重，防止跟doc_param表id重复
-        long id = System.currentTimeMillis();
+        long offset = System.currentTimeMillis();
         for (ModuleEnvironmentParam moduleEnvironmentParam : moduleEnvironmentParams) {
-            moduleEnvironmentParam.setId(id++);
+            moduleEnvironmentParam.setId(moduleEnvironmentParam.getId() + offset);
+            if (moduleEnvironmentParam.getParentId() > 0) {
+                moduleEnvironmentParam.setParentId(moduleEnvironmentParam.getParentId() + offset);
+            }
         }
         return CopyUtil.copyList(moduleEnvironmentParams, DocParam::new);
     }
@@ -167,7 +170,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public static ParamStyleEnum buildStyle(ModuleConfigTypeEnum moduleConfigTypeEnum) {
-        ParamStyleEnum paramStyleEnum = ParamStyleEnum.REQUEST;
+        ParamStyleEnum paramStyleEnum;
         switch (moduleConfigTypeEnum) {
             case GLOBAL_HEADERS:
                 paramStyleEnum = ParamStyleEnum.HEADER;
@@ -181,7 +184,9 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             case GLOBAL_ERROR_CODES:
                 paramStyleEnum = ParamStyleEnum.ERROR_CODE;
                 break;
-            default:
+            default: {
+                paramStyleEnum = ParamStyleEnum.REQUEST;
+            }
         }
         return paramStyleEnum;
     }

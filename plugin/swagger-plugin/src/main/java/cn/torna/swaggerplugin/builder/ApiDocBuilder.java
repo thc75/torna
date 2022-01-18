@@ -347,14 +347,10 @@ public class ApiDocBuilder {
         for (Enum enumConstant : enumConstants) {
             examples.add(enumConstant.name());
         }
-        StringBuilder stringBuilder = new StringBuilder();
-        String description = apiModelPropertyWrapper.getDescription();
-        stringBuilder.append(description);
         if (examples.size() > 0) {
-            stringBuilder.append(" values:").append(String.join(", ", examples));
             fieldDocInfo.setExample(examples.get(0));
         }
-        fieldDocInfo.setDescription(stringBuilder.toString());
+        fieldDocInfo.setDescription(String.join("、", examples));
         return fieldDocInfo;
     }
 
