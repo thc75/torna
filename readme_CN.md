@@ -10,11 +10,11 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 ## 当前版本号
 
-| 模块 | 版本 |
-| :----: | :----: |
-| Torna | 1.11.2 |
-| sdk-java | ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk) |
-| swagger-plugin | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin) |
+| 模块 |                                       版本                                        |
+| :----: |:-------------------------------------------------------------------------------:|
+| Torna |                                     1.12.2                                      |
+| sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
+| swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
 
 
