@@ -50,7 +50,10 @@ ResizeBar.prototype = {
     }
   },
   initLeftWidth() {
-    const width = this.getLeftWidth()
+    let width = this.getLeftWidth()
+    if (isNaN(parseInt(width))) {
+      width = '300px'
+    }
     this.setLeftWidth(width)
   },
   getLeftWidth() {
