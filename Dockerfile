@@ -10,5 +10,5 @@ ADD server/boot/target/torna.jar torna/torna.jar
 ADD front/dist torna/dist
 
 # set jvm
-ENV JAVA_OPTS="-server -Xmx512m -Xms512m -Djava.awt.headless=true -Duser.timezone=Asia/Shanghai"
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /torna/torna.jar --spring.config.location=/torna/config/application.properties" ]
+ENV JAVA_OPTS="-server -Xmx512m -Xms512m"
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.awt.headless=true -Duser.timezone=Asia/Shanghai -Djava.security.egd=file:/dev/./urandom -jar /torna/torna.jar --spring.config.location=/torna/config/application.properties" ]
