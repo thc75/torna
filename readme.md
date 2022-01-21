@@ -43,15 +43,32 @@ Override `torna.jar` file and `dist` folder,and startup.
 
 ### Method 2: run in docker
 
+Import database,run [mysql.sql](./mysql.sql)
+
 Download image
 
 `docker pull tanghc2020/torna:latest`
 
-Import database,run [mysql.sql](./mysql.sql)
+Run docker:
 
-Copy `server/boot/src/main/resources/application.properties` to `/opt/torna/config`,modify database config
+```
+docker run --name torna --restart=always \
+  -p 7700:7700 \
+  -e JAVA_OPTS="-Xms256m -Xmx256m" \
+  -e MYSQL_HOST="172.16.60.102:3306" \
+  -e MYSQL_SCHEMA="torna" \
+  -e MYSQL_USERNAME="root" \
+  -e MYSQL_PASSWORD="root" \
+  -d tanghc2020/torna:latest
+```
 
-Run `docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <IMAGE ID>`
+Need modify：
+
+- MYSQL_HOST：MySQL host
+- MYSQL_SCHEMA：database name
+- MYSQL_USERNAME：MySQL username
+- MYSQL_PASSWORD：MySQL password
+
 
 Visit:`http://ip:7700`
 

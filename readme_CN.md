@@ -43,17 +43,33 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 ### 方式2：docker运行
 
+导入数据库，执行[mysql.sql](./mysql.sql)
+
 下载公共镜像
 
 `docker pull tanghc2020/torna:latest`
 
-导入数据库，执行[mysql.sql](./mysql.sql)
+下载完成后，执行docker命令：
 
-复制`server/boot/src/main/resources/application.properties`文件到`/opt/torna/config`下，修改数据库连接配置
+```
+docker run --name torna --restart=always \
+  -p 7700:7700 \
+  -e JAVA_OPTS="-Xms256m -Xmx256m" \
+  -e MYSQL_HOST="172.16.60.102:3306" \
+  -e MYSQL_SCHEMA="torna" \
+  -e MYSQL_USERNAME="root" \
+  -e MYSQL_PASSWORD="root" \
+  -d tanghc2020/torna:latest
+```
 
-执行`docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <镜像ID>`
+需改更改的部分：
 
-浏览器访问`http://ip:7700`
+- MYSQL_HOST：MySQL服务器地址
+- MYSQL_SCHEMA：数据库名称，默认不用改
+- MYSQL_USERNAME：MySQL用户名
+- MYSQL_PASSWORD：MySQL密码
+
+浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
 
 ---
 
