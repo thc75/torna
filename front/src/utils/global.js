@@ -17,7 +17,10 @@ import {format_json} from '@/utils/format'
 import {Enums} from './enums'
 import {add_init} from './init'
 
+// eslint-disable-next-line
+const VERSION="1.12.2"
 const SPACE_ID_KEY = 'torna.spaceid'
+const PROJECT_ID_KEY = 'torna.projectid'
 const TORNA_FROM = 'torna.from'
 const TORNA_PROJECT_CONFIG = 'torna.project.'
 
@@ -355,8 +358,24 @@ Object.assign(Vue.prototype, {
   setSpaceId(id) {
     this.setAttr(SPACE_ID_KEY, id)
   },
+  setProjectId(id) {
+    this.$store.state.settings.projectId = id
+    this.setAttr(PROJECT_ID_KEY, id)
+  },
   getSpaceId() {
     return this.getAttr(SPACE_ID_KEY)
+  },
+  getProjectId() {
+    const projectId = this.$store.state.settings.projectId
+    if (projectId) {
+      return projectId
+    }
+    const currentProject = this.getCurrentProject()
+    if (currentProject) {
+      return currentProject.id
+    } else {
+      return this.getAttr(PROJECT_ID_KEY)
+    }
   },
   setAttr: function(key, val) {
     if (val === undefined) {
@@ -679,7 +698,11 @@ Object.assign(Vue.prototype, {
       if (object2[key] !== object1[key]) return false
     }
     return true
+  },
+  getTornaVersion() {
+    return VERSION
   }
+
 })
 
 const formatMoney = function(cellValue) {

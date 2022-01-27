@@ -5,11 +5,13 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
@@ -17,6 +19,7 @@ import cn.torna.service.ProjectService;
 import cn.torna.service.SpaceService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ProjectDTO;
+import cn.torna.service.dto.SpaceProjectDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
@@ -33,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author tanghc
@@ -98,6 +102,62 @@ public class ViewController {
             }
         }
         calcDocCount(list);
+        return Result.ok(list);
+    }
+
+    @GetMapping("dataByProject")
+    public Result<List<TreeVO>> dataByProject(@HashId Long projectId) {
+        Project project = projectService.getById(projectId);
+        ProjectDTO projectDTO = CopyUtil.copyBean(project, ProjectDTO::new);
+        List<TreeVO> list = new ArrayList<>();
+        List<Module> modules = moduleService.listProjectModules(projectDTO.getId());
+        for (Module module : modules) {
+            TreeVO moduleVO = new TreeVO(IdGen.nextId(), module.getName(), "", TYPE_MODULE);
+            list.add(moduleVO);
+            List<DocInfo> docInfos = docInfoService.listDocMenuView(module.getId());
+            String base = moduleVO.getId();
+            for (DocInfo docInfo : docInfos) {
+                boolean isFolder = Booleans.isTrue(docInfo.getIsFolder());
+                String id = isFolder ? buildId(base, docInfo.getId()) : IdUtil.encode(docInfo.getId());
+                String parentId = buildParentId(base, docInfo.getParentId());
+                byte type = isFolder ? TYPE_FOLDER : TYPE_DOC;
+                TreeVO docInfoVO = new TreeVO(id, docInfo.getName(), parentId, type);
+                docInfoVO.setHttpMethod(docInfo.getHttpMethod());
+                docInfoVO.setDocType(docInfo.getType());
+                docInfoVO.setDocId(docInfo.getId());
+                // 如果是文档
+                if (!isFolder) {
+                    docInfoVO.setUrl(docInfo.getUrl());
+                    List<String> originInfo = Arrays.asList(
+                            "",
+                            projectDTO.getName(),
+                            module.getName()
+                    );
+                    docInfoVO.setOrigin(String.join("/", originInfo));
+                }
+                list.add(docInfoVO);
+            }
+        }
+        calcDocCount(list);
+        return Result.ok(list);
+    }
+
+    @GetMapping("projects")
+    public Result<List<SpaceProjectDTO>> projects() {
+        // 获取空间下的项目
+        User user = UserContext.getUser();
+        List<Project> projects = projectService.listUserProject(user);
+        Map<Long, List<Project>> spaceIdMap = projects.stream().collect(Collectors.groupingBy(Project::getSpaceId));
+        List<Space> spaces = spaceService.listByCollection("id", spaceIdMap.keySet());
+
+        List<SpaceProjectDTO> list = spaces.stream()
+                .map(space -> {
+                    SpaceProjectDTO spaceProjectDTO = CopyUtil.copyBean(space, SpaceProjectDTO::new);
+                    List<Project> projectList = spaceIdMap.getOrDefault(space.getId(), Collections.emptyList());
+                    spaceProjectDTO.setProjects(CopyUtil.copyList(projectList, ProjectDTO::new));
+                    return spaceProjectDTO;
+                })
+                .collect(Collectors.toList());
         return Result.ok(list);
     }
 

@@ -224,6 +224,11 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
         return projectUserMapper.listByColumn("user_id", userId);
     }
 
+    /**
+     * 获取用户能看到的项目
+     * @param user 用户
+     * @return 没有返回空list
+     */
     public List<Project> listUserProject(User user) {
         if (user.isSuperAdmin()) {
             return this.listAll();

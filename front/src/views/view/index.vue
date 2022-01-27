@@ -47,6 +47,7 @@ export default {
         this.get('/doc/view/detail', { id: docId }, function(resp) {
           this.load = true
           const data = resp.data
+          this.setProjectId(data.projectId)
           this.initDocInfoView(data)
           this.item = data
           this.selectTab('info')

@@ -1,6 +1,7 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -59,6 +60,7 @@ public class ModuleController {
     }
 
     @GetMapping("infoByDocId")
+    @NoLogin
     public Result<ModuleVO> infoByDocId(@HashId Long docId) {
         DocInfo docInfo = docInfoService.getById(docId);
         Module module = moduleService.getById(docInfo.getModuleId());

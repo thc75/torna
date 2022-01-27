@@ -276,6 +276,7 @@ public class DocController {
 
 
     @GetMapping("headers/global")
+    @NoLogin
     public Result<List<DocParamDTO>> headersGlobal(@HashId Long environmentId) {
         List<ModuleEnvironmentParam> moduleEnvironmentParams = moduleEnvironmentParamService.listByEnvironmentAndStyle(environmentId, ParamStyleEnum.HEADER.getStyle());
         List<DocParamDTO> docParamDTOS = CopyUtil.copyList(moduleEnvironmentParams, DocParamDTO::new, docParamDTO -> docParamDTO.setGlobal(true));
