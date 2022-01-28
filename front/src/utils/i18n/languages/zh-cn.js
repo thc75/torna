@@ -386,7 +386,8 @@ const MAPPING = {
   'ldapLogin': 'LDAP登录',
   'thirdpartyLogin': '第三方登录',
   'useSmartDoc': '使用smart-doc推送',
-  'moreOperation': '更多操作'
+  'moreOperation': '更多操作',
+  'copySuccess': '复制成功'
 
 }
 
