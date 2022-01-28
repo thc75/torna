@@ -33,6 +33,9 @@ public class ShareConfigVO {
     /** 备注, 数据库字段：remark */
     private String remark;
 
+    /** 是否显示调试 */
+    private Byte isShowDebug;
+
     private String creatorName;
 
     private Date gmtCreate;

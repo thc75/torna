@@ -38,6 +38,12 @@
           <el-tag v-if="scope.row.status === getEnums().STATUS.DISABLE" type="danger">{{ $ts('disable') }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column :label="$ts('allowDebug')" width="80">
+        <template slot-scope="scope">
+          <span v-if="scope.row.isShowDebug === getEnums().STATUS.ENABLE">{{ $ts('yes') }}</span>
+          <span v-else>{{ $ts('no') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="gmtCreate"
         :label="$ts('createTime')"
@@ -109,6 +115,14 @@
             <el-radio :label="1">{{ $ts('allDocs') }}<span class="normal-text">{{ $ts('wholeModule') }}</span></el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item :label="$ts('allowDebug')">
+          <el-switch
+            v-model="dialogFormData.isShowDebug"
+            active-color="#13ce66"
+            :active-value="1"
+            :inactive-value="0"
+          />
+        </el-form-item>
         <el-form-item v-show="dialogFormData.isAll === 0">
           <doc-tree ref="docTreeRef" />
         </el-form-item>
@@ -129,6 +143,11 @@
 </template>
 <script>
 import DocTree from '@/components/DocTree'
+
+$addI18n({
+  'allowDebug': { 'zh': '允许调试', 'en': 'Allow Debug' }
+})
+
 export default {
   components: { DocTree },
   props: {
@@ -155,7 +174,8 @@ export default {
         type: 1,
         moduleId: '',
         isAll: 0,
-        remark: ''
+        remark: '',
+        isShowDebug: 1
       },
       autoAppend: 1,
       dialogFormRules: {
@@ -213,6 +233,8 @@ export default {
               tree.setCheckedKeys(idList)
             })
           })
+        } else {
+          this.reloadDocTree()
         }
       })
     },

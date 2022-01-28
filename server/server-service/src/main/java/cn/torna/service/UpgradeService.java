@@ -36,7 +36,7 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 1120;
+    private static final int VERSION = 1123;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -92,6 +92,13 @@ public class UpgradeService {
         v1_9_3(oldVersion);
         v1_9_5(oldVersion);
         v1_12_0(oldVersion);
+        v1_12_3(oldVersion);
+    }
+
+    private void v1_12_3(int oldVersion) {
+        if (oldVersion < 1123) {
+            addColumn("share_config", "is_show_debug", "ALTER TABLE `share_config` ADD COLUMN `is_show_debug` tinyint NOT NULL DEFAULT 1 COMMENT '是否显示调试' AFTER `creator_name`");
+        }
     }
 
     private void v1_12_0(int oldVersion) {

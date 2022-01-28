@@ -22,7 +22,7 @@ public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironment
         return this.get("data_id", dataId);
     }
 
-    public List<ModuleEnvironmentParam> listByEnvironmentAndStyle(long environmentId, byte style) {
+    public List<ModuleEnvironmentParam> listByEnvironmentAndStyle(Long environmentId, byte style) {
         Query query = new Query().eq("environment_id", environmentId)
                 .eq("style", style)
                 .orderby("order_index", Sort.ASC)

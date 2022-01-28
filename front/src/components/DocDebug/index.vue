@@ -226,7 +226,7 @@
                         >
                           <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
                         </el-upload>
-                        <div v-if="scope.row.enumInfo">
+                        <div v-else-if="scope.row.enumInfo">
                           <enum-select :row="scope.row" />
                         </div>
                         <div v-else>
@@ -433,7 +433,6 @@ export default {
       this.pathData = item.pathParams
       this.headerData = item.headerParams
       this.queryData = item.queryParams
-      console.log(this.queryData)
       this.formData = formData
       this.multipartData = multipartData
     },
