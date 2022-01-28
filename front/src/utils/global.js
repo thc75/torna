@@ -2,8 +2,8 @@
 注册全局方法
  */
 import Vue from 'vue'
-import {getToken, removeToken} from './auth'
-import {do_get, get, get_baseUrl, get_file, post} from './http'
+import { getToken, removeToken } from './auth'
+import { do_get, get, get_baseUrl, get_file, post } from './http'
 import {
   convert_tree,
   create_response_example,
@@ -13,9 +13,9 @@ import {
   init_docInfo_view,
   is_ding_talk
 } from './common'
-import {format_json} from '@/utils/format'
-import {Enums} from './enums'
-import {add_init} from './init'
+import { format_json } from '@/utils/format'
+import { Enums } from './enums'
+import { add_init } from './init'
 
 // eslint-disable-next-line
 const VERSION="1.12.2"
@@ -651,8 +651,8 @@ Object.assign(Vue.prototype, {
           ret.push(row)
         } else {
           // 分类名字没找到，需要从子文档中找
-          const children = row.children || [];
-          const searchedChildren = this.searchRow(search, children, searchHandler, folderHandler);
+          const children = row.children || []
+          const searchedChildren = this.searchRow(search, children, searchHandler, folderHandler)
           // 如果子文档中有
           if (searchedChildren && searchedChildren.length > 0) {
             const rowCopy = Object.assign({}, row)
@@ -701,6 +701,20 @@ Object.assign(Vue.prototype, {
   },
   getTornaVersion() {
     return VERSION
+  },
+  copyText(text) {
+    const clip = navigator.clipboard
+    if (!clip) {
+      this.tipError('clipboard not supported')
+      return
+    }
+    const _this = this
+    const tip = $ts('copySuccess')
+    clip.writeText(text).then(function() {
+      _this.tipSuccess(tip)
+    }, function() {
+      this.tipError('copy failed')
+    })
   }
 
 })

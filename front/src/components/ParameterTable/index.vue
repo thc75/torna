@@ -10,6 +10,8 @@
     highlight-current-row
     default-expand-all
     class="el-table-tree"
+    @cell-mouse-enter="onCellMouseEnter"
+    @cell-mouse-leave="onCellMouseLeave"
   >
     <el-table-column
       v-if="isColumnShow('name')"
@@ -18,8 +20,8 @@
       width="250"
     >
       <template slot-scope="scope">
-        <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
-          {{ scope.row.name }}
+        <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''" style="white-space: nowrap">
+          {{ scope.row.name }}<el-tag v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.name)">{{ $ts('copy') }}</el-tag>
         </span>
       </template>
     </el-table-column>
@@ -60,16 +62,17 @@
       :label="descriptionLabel"
     >
       <template slot-scope="scope">
-        <div v-if="scope.row.enumId">
+        <div v-if="scope.row.enumId" style="display: inline-block;">
           {{ scope.row.description }}
           <enum-item-view :ref="`enumRef_${scope.row.id}`" :enum-id="scope.row.enumId" mounted-load />
         </div>
-        <div v-else>
+        <div v-else style="display: inline-block;">
           <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
           <div v-else>
             <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
           </div>
         </div>
+        <el-tag v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.description)">{{ $ts('copy') }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
@@ -86,6 +89,9 @@
 <style>
 .el-table .warning-row {
   background: oldlace;
+}
+.el-table .copyBtn {
+  margin-left: 10px;cursor: pointer;
 }
 </style>
 <script>
@@ -121,7 +127,8 @@ export default {
   },
   data() {
     return {
-      enumId: ''
+      enumId: '',
+      rowId: ''
     }
   },
   methods: {
@@ -140,6 +147,15 @@ export default {
     },
     isColumnShow(label) {
       return this.hiddenColumns.filter(lb => lb === label).length === 0
+    },
+    onCellMouseEnter(row, column, cell, event) {
+      this.rowId = row.id
+    },
+    onCellMouseLeave(row, column, cell, event) {
+      this.rowId = ''
+    },
+    copy(text) {
+      this.copyText(text)
     }
   }
 }

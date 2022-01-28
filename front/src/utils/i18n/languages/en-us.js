@@ -385,7 +385,8 @@ const MAPPING = {
   'ldapLogin': 'LDAP Login',
   'thirdpartyLogin': 'Third-party Login',
   'useSmartDoc': 'Use smart-doc push documents',
-  'moreOperation': 'More Operations'
+  'moreOperation': 'More Operations',
+  'copySuccess': 'Copy Success'
 
 }
 
