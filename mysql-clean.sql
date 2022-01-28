@@ -496,6 +496,7 @@ CREATE TABLE `share_config`
     `is_deleted`   tinyint(4)                                                    NOT NULL DEFAULT 0,
     `remark`       varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '备注',
     `creator_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL DEFAULT '' COMMENT '创建人',
+    `is_show_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示调试',
     `gmt_create`   datetime                                                      NULL     DEFAULT CURRENT_TIMESTAMP,
     `gmt_modified` datetime                                                      NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`) USING BTREE,
@@ -684,7 +685,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 
 INSERT INTO `system_config` (`config_key`, `config_value`, `remark`, `is_deleted`, `gmt_create`, `gmt_modified`)
-VALUES ('torna.version', '1120', '当前内部版本号。不要删除这条记录！！', 0, '2021-05-25 18:03:08', '2021-05-25 18:03:08');
+VALUES ('torna.version', '1123', '当前内部版本号。不要删除这条记录！！', 0, '2021-05-25 18:03:08', '2021-05-25 18:03:08');
 
 INSERT INTO `user_info` (`username`, `password`, `nickname`, `is_super_admin`, `source`, `email`, `status`,
                          `is_deleted`, `gmt_create`, `gmt_modified`)
