@@ -20,6 +20,8 @@ public class ShareConfigDTO {
     private Byte isAll;
     private List<Content> content;
     private String remark;
+    /** 是否显示调试 */
+    private Byte isShowDebug;
 
     @Data
     public static class Content {

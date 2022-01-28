@@ -1,11 +1,14 @@
 <template>
   <div>
     <div class="select-area">
-      <el-select v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
-        <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
-          {{ space.name }}
-        </el-option>
-      </el-select>
+      <el-cascader
+        v-model="currentProjectId"
+        :options="projectData"
+        :props="{ expandTrigger: 'hover', label: 'name', value: 'id', children: 'projects' }"
+        class="project-select"
+        size="mini"
+        @change="onProjectSelect"
+      />
     </div>
     <div class="menu-tree">
       <el-input
@@ -63,7 +66,7 @@ export default {
       type: Function,
       default: () => {}
     },
-    onSpaceChange: {
+    onProjectChange: {
       type: Function,
       default: () => {}
     },
@@ -87,10 +90,10 @@ export default {
   data() {
     return {
       filterText: '',
-      currentSpaceId: '',
       treeData: [],
+      currentProjectId: '',
       docIdMap: {},
-      spaceData: [],
+      projectData: [],
       expandKeys: [],
       expandAll: false,
       defaultProps: {
@@ -104,33 +107,40 @@ export default {
     treeRows() {
       const search = this.filterText.trim().toLowerCase()
       return this.searchDoc(search, this.treeData, this.searchContent, this.isFolder)
+    },
+    projectId() {
+      return this.$store.state.settings.projectId
+    }
+  },
+  watch: {
+    projectId(val) {
+      this.loadMenu(val)
     }
   },
   mounted() {
-    this.expandAll = (this.getAttr(this.getTriggerStatusKey()) || 'false') === 'true'
     if (this.loadInit) {
       this.init()
     }
   },
   methods: {
     init() {
-      if (this.spaceData.length === 0) {
-        this.loadSpaceData((data, spaceId) => {
-          if (data.length > 0) {
-            this.spaceData = data
-            this.currentSpaceId = spaceId
-            this.loadMenu(spaceId)
-          }
+      if (this.projectData.length === 0) {
+        // 获取项目列表
+        this.get('/doc/view/projects', { }, resp => {
+          this.projectData = resp.data
+          this.loadMenu(this.projectId)
         })
       }
     },
     reloadMenu() {
-      this.loadMenu(this.currentSpaceId)
+      this.loadMenu(this.projectId)
     },
-    loadMenu(spaceId) {
-      if (spaceId) {
+    loadMenu(projectId) {
+      if (projectId) {
+        this.currentProjectId = projectId
+        this.setProjectId(projectId)
         this.expandKeys = []
-        this.get('/doc/view/data', { spaceId: spaceId }, resp => {
+        this.get('/doc/view/dataByProject', { projectId: projectId }, resp => {
           const data = resp.data
           this.initDocMap(data)
           const currentNode = this.getCurrentNode(data)
@@ -226,16 +236,24 @@ export default {
       }
       return currentNode
     },
-    onSpaceSelect(spaceId) {
-      this.onSpaceChange(spaceId)
-      this.loadMenu(spaceId)
+    onProjectSelect(value) {
+      const spaceId = value[0]
+      const projectId = value[1]
+      this.loadMenu(projectId)
+      // 设置当前空间
+      for (const data of this.projectData) {
+        if (data.id === spaceId) {
+          this.setCurrentSpace({
+            id: data.id,
+            name: data.name
+          })
+          break
+        }
+      }
     },
     onTriggerStatus(val) {
       this.expandAll = val
       this.reloadMenu()
-    },
-    getTriggerStatusKey() {
-      return `torna.doc.view.tree.trigger`
     },
     setCurrentNode(currentNode) {
       if (currentNode) {
@@ -290,9 +308,9 @@ export default {
   font-size: 14px !important;
 }
 .select-area {
-  .space-select {
+  .project-select {
     padding: 10px 10px 0 10px;
-    width: 100%;
+    width: 100%
   }
   .el-radio-group {
     vertical-align: bottom;

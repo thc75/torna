@@ -36,6 +36,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         shareConfig.setRemark(shareConfigDTO.getRemark());
         shareConfig.setCreatorName(user.getNickname());
         shareConfig.setStatus(StatusEnum.ENABLE.getStatus());
+        shareConfig.setIsShowDebug(shareConfigDTO.getIsShowDebug());
         if (shareConfigDTO.getType() == ShareConfigTypeEnum.ENCRYPT.getType()) {
             String pwd = PasswordUtil.getRandomSimplePassword(4);
             shareConfig.setPassword(pwd);
@@ -52,6 +53,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         shareConfig.setType(shareConfigDTO.getType());
         shareConfig.setIsAll(shareConfigDTO.getIsAll());
         shareConfig.setRemark(shareConfigDTO.getRemark());
+        shareConfig.setIsShowDebug(shareConfigDTO.getIsShowDebug());
         if (shareConfigDTO.getType() == ShareConfigTypeEnum.ENCRYPT.getType()) {
             if (StringUtils.isBlank(shareConfig.getPassword())) {
                 String pwd = PasswordUtil.getRandomSimplePassword(4);

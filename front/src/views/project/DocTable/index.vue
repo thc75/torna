@@ -129,7 +129,7 @@
           <div class="icon-operation">
             <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-document-add" :title="$ts('createDoc')" @click="onDocAdd(scope.row)" />
             <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-folder-add" :title="$ts('createFolder')" @click="onDocFolderAdd(scope.row)" />
-            <el-link v-if="!isFolder(scope.row)" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(`/view/${scope.row.id}`)" />
+            <el-link v-if="!isFolder(scope.row)" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
             <el-link type="primary" icon="el-icon-edit" :title="$ts('update')" @click="onDocUpdate(scope.row)" />
             <el-link v-if="!isFolder(scope.row)" type="info" icon="el-icon-document-copy" :title="$ts('copy')" @click="onDocCopy(scope.row)" />
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
@@ -171,7 +171,7 @@
       >
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
-            <el-link v-if="scope.row.isShow" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(`/view/${scope.row.id}`)" />
+            <el-link v-if="scope.row.isShow" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
           </div>
         </template>
       </u-table-column>
@@ -229,6 +229,11 @@ export default {
   created() {
     this.initHeight()
     window.addEventListener('resize', this.initHeight)
+  },
+  mounted() {
+    if (this.projectId) {
+      this.setProjectId(this.projectId)
+    }
   },
   destroyed() {
     window.removeEventListener('resize', this.initHeight)
@@ -387,6 +392,9 @@ export default {
     },
     onExport() {
       this.$refs.exportDialog.show(this.tableData)
+    },
+    getViewUrl(row) {
+      return `/view/${row.id}`
     }
   }
 }
