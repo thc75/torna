@@ -13,7 +13,7 @@ cd ..
 
 # ----
 
-mvn clean package
+mvn clean package -pl server/boot -am
 
 # 创建镜像
 docker build -t tanghc2020/torna .

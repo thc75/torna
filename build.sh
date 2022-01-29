@@ -24,7 +24,7 @@ cd ..
 
 echo "开始构建服务端..."
 
-mvn clean package
+mvn clean package -pl server/boot -am
 
 # 复制文件
 if [ ! -d "$target_dir" ]; then
