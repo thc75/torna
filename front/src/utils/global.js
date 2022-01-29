@@ -706,7 +706,6 @@ Object.assign(Vue.prototype, {
   },
   copyText(text) {
     if (!text) {
-      console.error('复制内容不能为空')
       return
     }
     text = this.formatHtmlText(text)
