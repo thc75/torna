@@ -9,6 +9,7 @@ import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -23,6 +24,9 @@ public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironment
     }
 
     public List<ModuleEnvironmentParam> listByEnvironmentAndStyle(Long environmentId, byte style) {
+        if (environmentId == null) {
+            return Collections.emptyList();
+        }
         Query query = new Query().eq("environment_id", environmentId)
                 .eq("style", style)
                 .orderby("order_index", Sort.ASC)
