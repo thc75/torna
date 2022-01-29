@@ -45,6 +45,8 @@ const baseTypeConfig = [
   'boolean'
 ]
 
+const REGEX_BR = new RegExp('<br\\s*/*>')
+
 let next_id = 1
 
 let server_config
@@ -703,18 +705,39 @@ Object.assign(Vue.prototype, {
     return VERSION
   },
   copyText(text) {
-    const clip = navigator.clipboard
-    if (!clip) {
-      this.tipError('clipboard not supported')
+    if (!text) {
+      console.error('复制内容不能为空')
       return
     }
-    const _this = this
+    text = this.formatHtmlText(text)
+    const clip = navigator.clipboard
     const tip = $ts('copySuccess')
-    clip.writeText(text).then(function() {
-      _this.tipSuccess(tip)
-    }, function() {
-      this.tipError('copy failed')
-    })
+    if (clip) {
+      const _this = this
+      clip.writeText(text).then(function() {
+        _this.tipSuccess(tip)
+      }, function() {
+        this.tipError('copy failed')
+      })
+    } else if (document.execCommand) {
+      const input = document.createElement('textarea')
+      input.style.position = 'absolute'
+      input.style.left = '-999px'
+      document.body.appendChild(input)
+      input.value = text
+      input.select()
+      if (document.execCommand('Copy')) {
+        this.tipSuccess(tip)
+      } else {
+        this.tipError('copy failed')
+      }
+      document.body.removeChild(input)
+    } else {
+      this.tipError('clipboard not supported')
+    }
+  },
+  formatHtmlText(text) {
+    return text.replace(REGEX_BR, '\n')
   }
 
 })

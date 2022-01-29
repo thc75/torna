@@ -72,7 +72,7 @@
             <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
           </div>
         </div>
-        <el-tag v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.description)">{{ $ts('copy') }}</el-tag>
+        <el-tag v-if="scope.row.description && scope.row.description.length > 0" v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.description)">{{ $ts('copy') }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
