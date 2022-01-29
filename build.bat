@@ -16,7 +16,7 @@ call build.bat
 
 cd ..
 
-call mvn clean package
+call mvn clean package -pl server/boot -am
 
 ::copy files
 
