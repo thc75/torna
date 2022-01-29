@@ -716,21 +716,21 @@ Object.assign(Vue.prototype, {
       clip.writeText(text).then(function() {
         _this.tipSuccess(tip)
       }, function() {
-        this.tipError('copy failed')
+        _this.tipError('copy failed')
       })
     } else if (document.execCommand) {
-      const input = document.createElement('textarea')
-      input.style.position = 'absolute'
-      input.style.left = '-999px'
-      document.body.appendChild(input)
-      input.value = text
-      input.select()
+      const textarea = document.createElement('textarea')
+      textarea.style.position = 'absolute'
+      textarea.style.left = '-999px'
+      document.body.appendChild(textarea)
+      textarea.value = text
+      textarea.select()
       if (document.execCommand('Copy')) {
         this.tipSuccess(tip)
       } else {
         this.tipError('copy failed')
       }
-      document.body.removeChild(input)
+      document.body.removeChild(textarea)
     } else {
       this.tipError('clipboard not supported')
     }
