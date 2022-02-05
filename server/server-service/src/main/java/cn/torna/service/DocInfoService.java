@@ -34,6 +34,7 @@ import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

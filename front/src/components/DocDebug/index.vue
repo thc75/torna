@@ -698,38 +698,6 @@ export default {
         if (!debugData) {
           return
         }
-        this.setDebugData(debugData)
-      })
-    },
-    setDebugData(debugData) {
-      if (!debugData) {
-        return
-      }
-      const props = JSON.parse(debugData)
-      const setProp = (params, data) => {
-        if (data && Object.keys(data).length > 0 && params) {
-          params.forEach(row => {
-            const val = data[row.name]
-            if (val !== undefined) {
-              row.example = val
-            }
-          })
-        }
-      }
-      if (props.isProxy !== undefined) {
-        this.isProxy = props.isProxy
-      }
-      setProp(this.headerData, props.headerData)
-      setProp(this.pathData, props.pathData)
-      setProp(this.queryData, props.queryData)
-      setProp(this.multipartData, props.multipartData)
-      setProp(this.formData, props.formData)
-      if (props.bodyText !== undefined) {
-        this.bodyText = props.bodyText
-      }
-      this.preCheckedId = props.preCheckedId
-      this.afterCheckedId = props.afterCheckedId
-      this.$refs.debugScriptRef.load(this.preCheckedId, this.afterCheckedId)
         const props = JSON.parse(debugData)
         const setProp = (params, data) => {
           if (data && Object.keys(data).length > 0 && params) {
@@ -749,6 +717,9 @@ export default {
         if (props.bodyText !== undefined) {
           this.bodyText = props.bodyText
         }
+        this.preCheckedId = props.preCheckedId
+        this.afterCheckedId = props.afterCheckedId
+        this.$refs.debugScriptRef.load(this.preCheckedId, this.afterCheckedId)
       })
     },
     setTableCheck() {

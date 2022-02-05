@@ -1,0 +1,15 @@
+CREATE TABLE `doc_comment`
+(
+    `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `doc_id`       bigint(20)          NOT NULL COMMENT 'doc_info.id',
+    `user_id`      bigint(20)          NOT NULL COMMENT '评论人',
+    `nickname`     varchar(64)         NOT NULL COMMENT '评论人昵称',
+    `content`      varchar(255)        NOT NULL DEFAULT '' COMMENT '评论内容',
+    `reply_id`     bigint(20)          NOT NULL DEFAULT '0' COMMENT '回复id，即：parent_id',
+    `is_deleted`   tinyint(4)          NOT NULL DEFAULT '0',
+    `gmt_create`   datetime                     DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` datetime                     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_docid` (`doc_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='文档评论表'

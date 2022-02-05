@@ -1,0 +1,13 @@
+CREATE TABLE doc_snapshot
+(
+    id            BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    doc_id        BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+    modifier_name VARCHAR(64)         NOT NULL DEFAULT '' COMMENT '修改人',
+    modifier_time datetime            NOT NULL COMMENT '修改时间',
+    content       text COMMENT '修改内容',
+    gmt_create    datetime                     DEFAULT CURRENT_TIMESTAMP,
+    gmt_modified  datetime                     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_docid (doc_id) USING BTREE
+) ENGINE = INNODB
+  DEFAULT CHARSET = utf8mb4 COMMENT = '文档快照表'

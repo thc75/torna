@@ -1,6 +1,7 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.ModuleConfigKeys;
@@ -44,12 +45,6 @@ public class ModuleSettingController {
 
     @PostMapping("/debugEnv/set")
     public Result setDebugEnv(@RequestBody DebugEnvParam param) {
-        moduleConfigService.setDebugEnv(
-                param.getModuleId(),
-                param.getConfigKey(),
-                param.getConfigValue(),
-                Booleans.isTrue(param.getExtendId())
-        );
         return Result.ok();
     }
 

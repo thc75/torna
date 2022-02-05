@@ -36,8 +36,12 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
+    private static final int PRO_VERSION = 10;
+
     private static final int VERSION = 1130;
 
+
+    private static final String TORNA_PRO_VERSION_KEY = "tornapro.version";
     private static final String TORNA_VERSION_KEY = "torna.version";
 
     @Autowired
@@ -67,6 +71,27 @@ public class UpgradeService {
         doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
         saveVersion(oldVersion);
+
+        upgradePro();
+    }
+
+    /**
+     * 企业版升级
+     */
+    private void upgradePro() {
+        int oldVersion = getProVersion();
+        doUpgradePro(oldVersion);
+        // 最后更新当前版本到数据库
+        saveProVersion(oldVersion);
+    }
+
+    private void doUpgradePro(int oldVersion) {
+        if (oldVersion < 10) {
+            createTable("doc_snapshot", "upgrade/pro/1.0_ddl_1.txt");
+            createTable("debug_script", "upgrade/pro/1.0_ddl_2.txt");
+            createTable("doc_comment", "upgrade/pro/1.0_ddl_3.txt");
+            createTable("attachment", "upgrade/pro/1.0_ddl_4.txt");
+        }
     }
 
     /**
@@ -236,6 +261,16 @@ public class UpgradeService {
         }
     }
 
+    private void saveProVersion(int oldVersion) {
+        if (oldVersion != PRO_VERSION) {
+            SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
+            systemConfigDTO.setConfigKey(TORNA_PRO_VERSION_KEY);
+            systemConfigDTO.setConfigValue(String.valueOf(PRO_VERSION));
+            systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
+            systemConfigService.setConfig(systemConfigDTO);
+        }
+    }
+
     private void v1_5_0(int dbVersion) {
         if (dbVersion < 5) {
             this.createTable("prop", "upgrade/1.5.0_ddl.txt", "upgrade/1.5.0_ddl_compatible.txt");
@@ -319,6 +354,11 @@ public class UpgradeService {
 
     private int getVersion() {
         String version = systemConfigService.getConfigValue(TORNA_VERSION_KEY, "0");
+        return NumberUtils.toInt(version);
+    }
+
+    private int getProVersion() {
+        String version = systemConfigService.getConfigValue(TORNA_PRO_VERSION_KEY, "0");
         return NumberUtils.toInt(version);
     }
 
