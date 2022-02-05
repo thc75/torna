@@ -2,8 +2,8 @@
 注册全局方法
  */
 import Vue from 'vue'
-import {getToken, removeToken} from './auth'
-import {do_get, get, get_baseUrl, get_file, post} from './http'
+import { getToken, removeToken } from './auth'
+import { do_get, get, get_baseUrl, get_file, post } from './http'
 import {
   convert_tree,
   create_response_example,
@@ -13,11 +13,14 @@ import {
   init_docInfo_view,
   is_ding_talk
 } from './common'
-import {format_json} from '@/utils/format'
-import {Enums} from './enums'
-import {add_init} from './init'
+import { format_json } from '@/utils/format'
+import { Enums } from './enums'
+import { add_init } from './init'
 
+// eslint-disable-next-line
+const VERSION="1.13.0"
 const SPACE_ID_KEY = 'torna.spaceid'
+const PROJECT_ID_KEY = 'torna.projectid'
 const TORNA_FROM = 'torna.from'
 const TORNA_PROJECT_CONFIG = 'torna.project.'
 
@@ -41,6 +44,8 @@ const baseTypeConfig = [
   'number',
   'boolean'
 ]
+
+const REGEX_BR = new RegExp('<br\\s*/*>')
 
 let next_id = 1
 
@@ -355,8 +360,24 @@ Object.assign(Vue.prototype, {
   setSpaceId(id) {
     this.setAttr(SPACE_ID_KEY, id)
   },
+  setProjectId(id) {
+    this.$store.state.settings.projectId = id
+    this.setAttr(PROJECT_ID_KEY, id)
+  },
   getSpaceId() {
     return this.getAttr(SPACE_ID_KEY)
+  },
+  getProjectId() {
+    const projectId = this.$store.state.settings.projectId
+    if (projectId) {
+      return projectId
+    }
+    const currentProject = this.getCurrentProject()
+    if (currentProject) {
+      return currentProject.id
+    } else {
+      return this.getAttr(PROJECT_ID_KEY)
+    }
   },
   setAttr: function(key, val) {
     if (val === undefined) {
@@ -580,6 +601,9 @@ Object.assign(Vue.prototype, {
   handleCommand: function(command) {
     command && command()
   },
+  isString: function(obj) {
+    return Object.prototype.toString.call(obj) === '[object String]'
+  },
   isObject: function(obj) {
     return Object.prototype.toString.call(obj) === '[object Object]'
   },
@@ -629,8 +653,8 @@ Object.assign(Vue.prototype, {
           ret.push(row)
         } else {
           // 分类名字没找到，需要从子文档中找
-          const children = row.children || [];
-          const searchedChildren = this.searchRow(search, children, searchHandler, folderHandler);
+          const children = row.children || []
+          const searchedChildren = this.searchRow(search, children, searchHandler, folderHandler)
           // 如果子文档中有
           if (searchedChildren && searchedChildren.length > 0) {
             const rowCopy = Object.assign({}, row)
@@ -657,7 +681,64 @@ Object.assign(Vue.prototype, {
       max = Math.max(row.orderIndex, max)
     })
     return max + 10
+  },
+  /**
+   * 比较两个对象内容是否相等
+   * @param object1
+   * @param object2
+   * @returns {boolean}
+   */
+  objectEquals(object1, object2) {
+    const o1keys = Object.keys(object1)
+    const o2keys = Object.keys(object2)
+    o1keys.sort()
+    o2keys.sort()
+    if (o2keys.length !== o1keys.length) return false
+    for (let i = 0; i <= o1keys.length - 1; i++) {
+      const key = o1keys[i]
+      if (!o2keys.includes(key)) return false
+      if (object2[key] !== object1[key]) return false
+    }
+    return true
+  },
+  getTornaVersion() {
+    return VERSION
+  },
+  copyText(text) {
+    if (!text) {
+      return
+    }
+    text = this.formatHtmlText(text)
+    const clip = navigator.clipboard
+    const tip = $ts('copySuccess')
+    if (clip) {
+      const _this = this
+      clip.writeText(text).then(function() {
+        _this.tipSuccess(tip)
+      }, function() {
+        _this.tipError('copy failed')
+      })
+    } else if (document.execCommand) {
+      const textarea = document.createElement('textarea')
+      textarea.style.position = 'absolute'
+      textarea.style.left = '-999px'
+      document.body.appendChild(textarea)
+      textarea.value = text
+      textarea.select()
+      if (document.execCommand('Copy')) {
+        this.tipSuccess(tip)
+      } else {
+        this.tipError('copy failed')
+      }
+      document.body.removeChild(textarea)
+    } else {
+      this.tipError('clipboard not supported')
+    }
+  },
+  formatHtmlText(text) {
+    return text.replace(REGEX_BR, '\n')
   }
+
 })
 
 const formatMoney = function(cellValue) {

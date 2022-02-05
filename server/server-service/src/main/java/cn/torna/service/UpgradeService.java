@@ -1,17 +1,25 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
+import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
+import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
+import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.ModuleEnvironmentParamDTO;
 import cn.torna.service.dto.SystemConfigDTO;
 import com.gitee.fastmybatis.core.query.Query;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
@@ -25,9 +33,10 @@ import java.util.Optional;
  * @author tanghc
  */
 @Service
+@Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 13;
+    private static final int VERSION = 1130;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -40,6 +49,10 @@ public class UpgradeService {
     @Autowired
     private SystemConfigService systemConfigService;
 
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
+
+
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
 
@@ -47,6 +60,7 @@ public class UpgradeService {
     /**
      * 升级
      */
+    @Transactional(rollbackFor = Exception.class)
     public void upgrade() {
         this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
         int oldVersion = getVersion();
@@ -77,6 +91,48 @@ public class UpgradeService {
         v1_8_1(oldVersion);
         v1_9_3(oldVersion);
         v1_9_5(oldVersion);
+        v1_12_0(oldVersion);
+        v1_13_0(oldVersion);
+    }
+
+    private void v1_13_0(int oldVersion) {
+        if (oldVersion < 1130) {
+            addColumn("share_config", "is_show_debug", "ALTER TABLE `share_config` ADD COLUMN `is_show_debug` tinyint NOT NULL DEFAULT 1 COMMENT '是否显示调试' AFTER `creator_name`");
+        }
+    }
+
+    private void v1_12_0(int oldVersion) {
+        if (oldVersion < 1120) {
+            log.info("upgrade to 1.12.0");
+            // DDL
+            createTable("module_environment", "upgrade/1.12.0_ddl_1.txt");
+            createTable("module_environment_param", "upgrade/1.12.0_ddl_2.txt");
+            // transfer data
+            List<ModuleConfig> moduleConfigs = moduleConfigService.listDebugHost();
+            for (ModuleConfig moduleConfig : moduleConfigs) {
+                Long moduleId = moduleConfig.getModuleId();
+                // create env
+                ModuleEnvironment moduleEnvironment = moduleEnvironmentService.setDebugEnv(
+                        moduleId,
+                        moduleConfig.getConfigKey(),
+                        moduleConfig.getConfigValue(),
+                        Booleans.isTrue(moduleConfig.getExtendId())
+                );
+                // transfer headers
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_HEADERS);
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_PARAMS);
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_RETURNS);
+                this.transferParams(moduleEnvironment, ModuleConfigTypeEnum.GLOBAL_ERROR_CODES);
+            }
+        }
+    }
+
+    private void transferParams(ModuleEnvironment moduleEnvironment, ModuleConfigTypeEnum moduleConfigTypeEnum) {
+        // transfer headers
+        List<DocParam> docParams = moduleConfigService.listGlobalOld(moduleEnvironment.getModuleId(), moduleConfigTypeEnum);
+        List<ModuleEnvironmentParamDTO> docParamDTOS = CopyUtil.copyList(docParams, ModuleEnvironmentParamDTO::new);
+        List<ModuleEnvironmentParamDTO> tree = TreeUtil.convertTree(docParamDTOS, 0L);
+        moduleEnvironmentService.doCopy(tree, moduleEnvironment.getId(), 0L);
     }
 
     private void v1_9_5(int oldVersion) {

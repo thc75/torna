@@ -9,11 +9,11 @@
               :key="hostConfig.id"
               :label="hostConfig.id"
             >
-              {{ hostConfig.configKey }}
+              {{ hostConfig.name }}
             </el-radio-button>
           </el-radio-group>
           <span class="split">|</span>
-          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" />
+          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" @change="saveProxySelect" />
           <el-popover
             placement="right"
             :title="$ts('proxyForward')"
@@ -122,10 +122,8 @@
                 <template slot-scope="scope">
                   <el-form :model="scope.row" size="mini">
                     <el-form-item label-width="0">
-                      <div v-if="scope.row.type === 'enum'">
-                        <el-select v-model="scope.row.example">
-                          <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                        </el-select>
+                      <div v-if="scope.row.enumInfo">
+                        <enum-select :row="scope.row" />
                       </div>
                       <div v-else>
                         <el-input v-model="scope.row.example" />
@@ -178,10 +176,8 @@
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0">
-                        <div v-if="scope.row.type === 'enum'">
-                          <el-select v-model="scope.row.example">
-                            <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                          </el-select>
+                        <div v-if="scope.row.enumInfo">
+                          <enum-select :row="scope.row" />
                         </div>
                         <div v-else>
                           <el-input v-model="scope.row.example" />
@@ -230,10 +226,8 @@
                         >
                           <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
                         </el-upload>
-                        <div v-else-if="scope.row.type === 'enum'">
-                          <el-select v-model="scope.row.example">
-                            <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                          </el-select>
+                        <div v-else-if="scope.row.enumInfo">
+                          <enum-select :row="scope.row" />
                         </div>
                         <div v-else>
                           <el-input v-model="scope.row.example" />
@@ -261,7 +255,8 @@
         </div>
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$ts('returnResult')" name="body">
-            <el-input v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
+            <img v-if="result.image.length > 0" :src="result.image" />
+            <el-input v-else v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
             <span slot="label" class="result-header-label">
@@ -298,13 +293,14 @@ import { get_full_url, request } from '@/utils/http'
 import { get_effective_url, is_array_string, parse_root_array } from '@/utils/common'
 import DebugScript from '../DebugScript'
 
+import EnumSelect from '@/components/EnumSelect'
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
 const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
-  components: { DebugScript },
+  components: { EnumSelect, DebugScript },
   props: {
     item: {
       type: Object,
@@ -356,7 +352,8 @@ export default {
       result: {
         headerData: [],
         content: '',
-        status: 200
+        status: 200,
+        image: ''
       },
       preCheckedId: '',
       afterCheckedId: ''
@@ -407,14 +404,29 @@ export default {
         this.requestUrl = item.url
         return
       }
-      const debugConfigs = debugEnvs.filter(row => row.id === debugId || row.configKey === debugId)
+      const debugConfigs = debugEnvs.filter(row => row.id === debugId || row.name === debugId)
       const debugConfig = debugConfigs.length === 0 ? debugEnvs[0] : debugConfigs[0]
-      const baseUrl = debugConfig.configValue
+      const baseUrl = debugConfig.url
       this.requestUrl = get_effective_url(baseUrl, item.url)
-      this.debugEnv = debugConfig.configKey
+      this.debugEnv = debugConfig.name
       this.debugId = debugConfig.id
       this.setAttr(HOST_KEY, this.debugId)
       this.loadProps()
+      this.loadGlobalHeader(debugId)
+      this.loadProxySelect()
+    },
+    loadGlobalHeader(debugId) {
+      this.get('/doc/headers/global', { environmentId: debugId }, resp => {
+        const globalHeaders = resp.data
+        const headers = this.currentItem.headerParams
+        for (const target of headers) {
+          for (const globalHeader of globalHeaders) {
+            if (globalHeader.name === target.name) {
+              target.example = globalHeader.example
+            }
+          }
+        }
+      })
     },
     bindRequestParam(item) {
       const formData = []
@@ -603,6 +615,7 @@ export default {
       return data
     },
     setProps() {
+      const arr = []
       const formatData = (arr) => {
         const data = {}
         arr.forEach(row => {
@@ -617,7 +630,6 @@ export default {
       const preCheckedRow = scriptData.preCheckedRow
       const afterCheckedRow = scriptData.afterCheckedRow
       const props = {
-        isProxy: this.isProxy,
         headerData: formatData(this.headerData),
         pathData: formatData(this.pathData),
         queryData: formatData(this.queryData),
@@ -633,25 +645,56 @@ export default {
         }
       }
       const debugDataStr = JSON.stringify(props)
-      const propsData = {
-        debugData: debugDataStr
-      }
-      propsData[this.debugId] = debugDataStr
-      const data = {
+      arr.push({
         refId: this.item.id,
         type: this.getEnums().PROP_TYPE.DEBUG,
-        props: propsData
+        name: this.debugId,
+        val: debugDataStr
+      })
+      this.post('/prop/save', { propList: arr }, resp => {})
+    },
+    saveProxySelect() {
+      if (this.debugId) {
+        const arr = [this.getProxyProp()]
+        this.post('/prop/save', { propList: arr }, resp => {})
       }
-      this.post('/prop/set', data, resp => {})
+    },
+    getProxyProp() {
+      return {
+        refId: this.item.moduleId,
+        type: this.getEnums().PROP_TYPE.DEBUG_PROXY,
+        name: `torna.debug.proxy.${this.debugId}`,
+        val: this.isProxy
+      }
+    },
+    loadProxySelect() {
+      if (this.debugId) {
+        this.get('/prop/find', {
+          refId: this.item.moduleId,
+          type: this.getEnums().PROP_TYPE.DEBUG_PROXY,
+          name: `torna.debug.proxy.${this.debugId}`
+        }, resp => {
+          const data = resp.data
+          if (!data) {
+            this.isProxy = true
+          } else {
+            this.isProxy = data.val === 'true'
+          }
+        })
+      }
     },
     loadProps() {
       const data = {
         refId: this.item.id,
-        type: this.getEnums().PROP_TYPE.DEBUG
+        type: this.getEnums().PROP_TYPE.DEBUG,
+        name: this.debugId
       }
-      this.get('/prop/get', data, resp => {
+      this.get('/prop/find', data, resp => {
         const respData = resp.data
-        const debugData = respData[this.debugId] || respData.debugData
+        if (!respData) {
+          return
+        }
+        const debugData = respData.val
         if (!debugData) {
           return
         }
@@ -687,6 +730,26 @@ export default {
       this.preCheckedId = props.preCheckedId
       this.afterCheckedId = props.afterCheckedId
       this.$refs.debugScriptRef.load(this.preCheckedId, this.afterCheckedId)
+        const props = JSON.parse(debugData)
+        const setProp = (params, data) => {
+          if (data && Object.keys(data).length > 0 && params) {
+            params.forEach(row => {
+              const val = data[row.name]
+              if (val !== undefined) {
+                row.example = val
+              }
+            })
+          }
+        }
+        setProp(this.headerData, props.headerData)
+        setProp(this.pathData, props.pathData)
+        setProp(this.queryData, props.queryData)
+        setProp(this.multipartData, props.multipartData)
+        setProp(this.formData, props.formData)
+        if (props.bodyText !== undefined) {
+          this.bodyText = props.bodyText
+        }
+      })
     },
     setTableCheck() {
       this.$refs.headerDataRef.toggleAllSelection()
@@ -747,6 +810,12 @@ export default {
       } catch (e) {
         this.tipError('Run after response script error, ' + e)
       }
+      this.result = {
+        headerData: [],
+        content: '',
+        status: 200,
+        image: ''
+      }
       this.buildResultHeaders(response)
       this.buildResultStatus(response)
       this.buildResultContent(response)
@@ -762,6 +831,9 @@ export default {
       if (contentType.indexOf('stream') > -1 || contentDisposition.indexOf('attachment') > -1) {
         const filename = this.getDispositionFilename(contentDisposition)
         this.downloadFile(filename, response.data)
+      } else if (contentType.indexOf('image') > -1) {
+        // 如果返回图片
+        this.result.image = `data:${contentType};base64,` + btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''))
       } else {
         let content = ''
         let json
@@ -788,7 +860,12 @@ export default {
       this.openRightPanel()
     },
     getHeaderValue(headers, key) {
-      return headers[key] || headers[key.toLowerCase()]
+      for (const k in headers) {
+        if (k.toLowerCase() === key.toLowerCase()) {
+          return headers[k]
+        }
+      }
+      return null
     },
     onBodyBlur() {
       if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
@@ -796,7 +873,7 @@ export default {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
         } catch (e) {
-          console.log('format json error', e)
+          console.error('format json error', e)
         }
       }
     },
@@ -829,10 +906,20 @@ export default {
       const dispositionArr = disposition.split(';')
       for (let i = 0; i < dispositionArr.length; i++) {
         const item = dispositionArr[i].trim()
-        // filename="xx"
+        // filename=xx.xls
         if (item.toLowerCase().startsWith('filename')) {
-          const result = item.match(new RegExp('filename="(.*?)"', 'i'))
-          return result ? result[1] : ''
+          const result = item.split('=')
+          if (result && result.length > 1) {
+            let filename = result[1]
+            if (filename.startsWith('\'') || filename.startsWith('\"')) {
+              filename = filename.substring(1)
+            }
+            if (filename.endsWith('\'') || filename.endsWith('\"')) {
+              filename = filename.substring(0, filename.length - 1)
+            }
+            return filename
+          }
+          return ''
         }
       }
     },

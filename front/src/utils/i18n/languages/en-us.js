@@ -146,6 +146,7 @@ const MAPPING = {
   'importPostmanDoc': 'Import Postman',
   'syncSwaggerDoc': 'Sync Swagger',
   'inputModuleName': 'Input Module Name',
+  'moduleName': 'Module Name',
   'syncSuccess': 'Sync success',
   'importSwaggerPlaceholder': 'url, such as: http://xxx:8080/swagger/doc.json',
   'basicAuth': 'Basic Auth',
@@ -184,7 +185,6 @@ const MAPPING = {
   'baseUrl': 'Base Url',
   'envNamePlaceholder': 'Such as: Test Env',
   'baseUrlPlaceholder': 'Such as: http://10.0.1.31:8080',
-  'swaggerMultiMethod': 'Multi methods show',
   'whatsOpenApi': 'What\'s OpenAPI',
   'whatsOpenApiText': 'Request API to operate documents, third-party application can update documents by this way.',
   'useStep': 'Use steps',
@@ -391,13 +391,18 @@ const MAPPING = {
   'accountLogin': 'Account Login',
   'ldapLogin': 'LDAP Login',
   'thirdpartyLogin': 'Third-party Login',
-  'useSmartDoc': 'Use smart-doc push documents'
+  'useSmartDoc': 'Use smart-doc push documents',
+  'moreOperation': 'More Operations',
+  'copySuccess': 'Copy Success'
 
 }
 
 export class Translator extends BaseTranslator {
   getMapping() {
     return MAPPING
+  }
+  addMapping(anotherMapping) {
+    Object.assign(this.getMapping(), anotherMapping)
   }
 }
 

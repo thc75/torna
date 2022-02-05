@@ -6,7 +6,7 @@ dist_dir="dist"
 # 执行文件名称
 app_name="torna"
 
-version="1.11.2"
+version="1.13.0"
 
 build_folder="${app_name}-${version}"
 
@@ -24,7 +24,7 @@ cd ..
 
 echo "开始构建服务端..."
 
-mvn clean package
+mvn clean package -pl server/boot -am
 
 # 复制文件
 if [ ! -d "$target_dir" ]; then

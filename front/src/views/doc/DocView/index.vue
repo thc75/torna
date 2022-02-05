@@ -32,8 +32,8 @@
     <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
-      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.configKey">
-        {{ hostConfig.configKey }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
+      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name">
+        {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
       </li>
     </ul>
     <span v-else class="debug-url">
@@ -282,7 +282,7 @@ export default {
       })
     },
     buildRequestUrl(hostConfig) {
-      const baseUrl = hostConfig.configValue
+      const baseUrl = hostConfig.url
       const url = this.docInfo.url
       return get_effective_url(baseUrl, url)
     },

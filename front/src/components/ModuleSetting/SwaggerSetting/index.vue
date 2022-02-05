@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <h3>{{ $ts('swaggerMultiMethod') }}</h3>
+      <h4>{{ $ts('swaggerMultiMethod') }}</h4>
       <el-form ref="allowMethodsRef" :model="setting" size="mini">
         <el-form-item prop="allowMethods">
           <el-select v-model="setting.allowMethod" @change="onSaveAllowMethods">
@@ -15,6 +15,9 @@
   </div>
 </template>
 <script>
+$addI18n({
+  'swaggerMultiMethod': { 'zh': 'Swagger多个Method重复，只显示', 'en': 'Multi methods show' }
+})
 export default {
   data() {
     return {

@@ -225,6 +225,26 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
     }
 
     /**
+     * 获取用户能看到的项目
+     * @param user 用户
+     * @return 没有返回空list
+     */
+    public List<Project> listUserProject(User user) {
+        if (user.isSuperAdmin()) {
+            return this.listAll();
+        }
+        List<ProjectUser> projectUsers = listUserProject(user.getUserId());
+        if (CollectionUtils.isEmpty(projectUsers)) {
+            return Collections.emptyList();
+        }
+        List<Long> projectIds = projectUsers.stream().map(ProjectUser::getProjectId).distinct().collect(Collectors.toList());
+        Query query = new Query()
+                .in("id", projectIds)
+                .orderby("id", Sort.ASC);
+        return list(query);
+    }
+
+    /**
      * 查询用户在空间下能访问的项目
      * @param spaceId 空间ID
      * @param user user

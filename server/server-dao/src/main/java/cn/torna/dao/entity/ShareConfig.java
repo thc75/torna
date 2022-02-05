@@ -48,6 +48,9 @@ public class ShareConfig {
     /** 创建人, 数据库字段：creator_name */
     private String creatorName;
 
+    /** 是否显示调试 */
+    private Byte isShowDebug;
+
     /**  数据库字段：gmt_create */
     private Date gmtCreate;
 

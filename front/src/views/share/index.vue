@@ -5,7 +5,7 @@
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="infoItem" />
       </el-tab-pane>
-      <el-tab-pane name="debug">
+      <el-tab-pane v-if="isShowDebug" name="debug">
         <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
         <doc-debug :item="debugItem" />
       </el-tab-pane>
@@ -25,7 +25,8 @@ export default {
       item: {},
       infoItem: {},
       debugItem: {},
-      mockItem: {}
+      mockItem: {},
+      isShowDebug: false
     }
   },
   created() {
@@ -42,10 +43,19 @@ export default {
         })
       }
     })
+    this.showDebug()
   },
   methods: {
     onTabSelect(tab) {
       this[`${tab.name}Item`] = this.item
+    },
+    showDebug() {
+      const shareId = this.$route.params.shareId
+      if (shareId) {
+        this.get('/share/get', { id: shareId }, resp => {
+          this.isShowDebug = resp.data.isShowDebug === 1
+        })
+      }
     }
   }
 }

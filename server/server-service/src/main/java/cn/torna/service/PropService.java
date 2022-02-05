@@ -2,6 +2,7 @@ package cn.torna.service;
 
 import cn.torna.common.enums.PropTypeEnum;
 import cn.torna.common.support.BaseService;
+import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.Prop;
 import cn.torna.dao.mapper.PropMapper;
 import com.gitee.fastmybatis.core.query.Query;
@@ -38,9 +39,15 @@ public class PropService extends BaseService<Prop, PropMapper> {
                     return prop;
                 })
                 .collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(tobeSave)) {
-            this.getMapper().saveProps(tobeSave);
-        }
+        this.save(tobeSave);
+    }
+
+    public void save(List<Prop> tobeSave) {
+        ThreadPoolUtil.execute(() -> {
+            if (CollectionUtils.isNotEmpty(tobeSave)) {
+                this.getMapper().saveProps(tobeSave);
+            }
+        });
     }
 
     public Map<String, String> getDocProps(Long docId) {
@@ -51,15 +58,30 @@ public class PropService extends BaseService<Prop, PropMapper> {
     }
 
     public Map<String, String> getProps(Long refId, byte type) {
+        return this.listProps(refId, type)
+                .stream()
+                .collect(Collectors.toMap(Prop::getName, Prop::getVal));
+    }
+
+    public List<Prop> listProps(Long refId, byte type) {
         if (refId == null) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         Query query = new Query()
                 .eq("ref_id", refId)
                 .eq("type", type);
-        return this.list(query)
-                .stream()
-                .collect(Collectors.toMap(Prop::getName, Prop::getVal));
+        return this.list(query);
+
+    }
+
+    public Prop get(Long refId, byte type, String name) {
+        Query query = new Query()
+                .eq("ref_id", refId)
+                .eq("type", type)
+                .eq("name", name)
+                ;
+        return this.get(query);
+
     }
 
 }

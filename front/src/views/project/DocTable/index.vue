@@ -126,40 +126,38 @@
         :width="$width(160, { 'en': 190 })"
       >
         <template slot-scope="scope">
-          <div>
-            <el-link v-if="isFolder(scope.row)" type="primary" @click="onDocAdd(scope.row)">{{ $ts('createDoc') }}</el-link>
-            <el-link v-if="!isFolder(scope.row)" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">{{ $ts('preview') }}</el-link>
-            <el-link type="primary" @click="onDocUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <div class="icon-operation">
+            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-document-add" :title="$ts('createDoc')" @click="onDocAdd(scope.row)" />
+            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-folder-add" :title="$ts('createFolder')" @click="onDocFolderAdd(scope.row)" />
+            <el-link v-if="!isFolder(scope.row)" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
+            <el-link type="primary" icon="el-icon-edit" :title="$ts('update')" @click="onDocUpdate(scope.row)" />
+            <el-link v-if="!isFolder(scope.row)" type="info" icon="el-icon-document-copy" :title="$ts('copy')" @click="onDocCopy(scope.row)" />
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
               <span class="el-dropdown-link">
-                {{ $ts('more') }} <i class="el-icon-arrow-down el-icon--right"></i>
+                <i class="el-icon-more el-icon--right"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if="!isFolder(scope.row)" icon="el-icon-document-copy" :command="() => { onDocCopy(scope.row) }">
-                  {{ $ts('copy') }}
-                </el-dropdown-item>
                 <el-dropdown-item
                   icon="el-icon-delete"
                   class="danger"
+                  :title="$ts('delete')"
                   :command="() => { onDocRemove(scope.row) }"
                 >
-                  {{ $ts('delete') }}
                 </el-dropdown-item>
                 <el-dropdown-item
-                  v-if="!scope.row.isLocked"
-                  icon="el-icon-lock"
+                  v-if="!isFolder(scope.row) && !scope.row.isLocked"
                   :command="() => { onDocLock(scope.row) }"
                 >
                   <el-tooltip placement="top" :content="$ts('lockDocDesc')">
-                    <span>{{ $ts('lockOn') }}</span>
+                    <span class="el-icon-lock"></span>
                   </el-tooltip>
                 </el-dropdown-item>
                 <el-dropdown-item
-                  v-else
+                  v-if="scope.row.isLocked"
                   icon="el-icon-unlock"
+                  :title="$ts('unlock')"
                   :command="() => { onDocUnLock(scope.row) }"
                 >
-                  {{ $ts('unlock') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -173,7 +171,7 @@
       >
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
-            <el-link v-if="scope.row.isShow" type="success" :underline="false" @click="openLink(`/view/${scope.row.id}`)">{{ $ts('preview') }}</el-link>
+            <el-link v-if="scope.row.isShow" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
           </div>
         </template>
       </u-table-column>
@@ -231,6 +229,11 @@ export default {
   created() {
     this.initHeight()
     window.addEventListener('resize', this.initHeight)
+  },
+  mounted() {
+    if (this.projectId) {
+      this.setProjectId(this.projectId)
+    }
   },
   destroyed() {
     window.removeEventListener('resize', this.initHeight)
@@ -358,6 +361,25 @@ export default {
         this.goRoute(`/doc/new/${this.moduleId}/${row.id}?order=${order}`)
       })
     },
+    onDocFolderAdd(row) {
+      this.$prompt(this.$ts('inputFolderMsg'), `${row.name} - ${this.$ts('newFolderTitle')}`, {
+        confirmButtonText: this.$ts('ok'),
+        cancelButtonText: this.$ts('cancel'),
+        inputPattern: /^.{1,64}$/,
+        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+      }).then(({ value }) => {
+        const data = {
+          name: value,
+          moduleId: this.moduleId,
+          parentId: row.id
+        }
+        this.post('/doc/folder/add', data, () => {
+          this.tipSuccess(this.$ts('createSuccess'))
+          this.reload()
+        })
+      }).catch(() => {
+      })
+    },
     onDocUpdate: function(row) {
       if (row.isFolder) {
         this.onFolderUpdate(row)
@@ -370,6 +392,9 @@ export default {
     },
     onExport() {
       this.$refs.exportDialog.show(this.tableData)
+    },
+    getViewUrl(row) {
+      return `/view/${row.id}`
     }
   }
 }

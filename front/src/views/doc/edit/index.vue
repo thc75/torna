@@ -213,7 +213,7 @@
       :title="$ts('importResponseParam')"
       :visible.sync="paramResponseTemplateDlgShow"
     >
-      <el-alert :title="$ts('importResponseParamTip')" :closable="false" class="el-alert-tip"/>
+      <el-alert :title="$ts('importResponseParamTip')" :closable="false" class="el-alert-tip" />
       <el-form ref="paramResponseTemplateForm" :model="paramResponseTemplateFormData">
         <el-form-item prop="value" :rules="[{ required: true, message: $ts('pleaseInputJson'), trigger: 'blur' }]">
           <el-input v-model="paramResponseTemplateFormData.value" type="textarea" :rows="14" :placeholder="$ts('jsonType')" />
@@ -238,6 +238,7 @@
 import DocView from '../DocView'
 import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
+import {init_docInfo_complete_view} from "@/utils/common";
 
 export default {
   components: { DocView, EditTable, RootArrayTable },
@@ -342,7 +343,7 @@ export default {
       this.initFolders(moduleId)
       const finalId = docId || copyId
       if (finalId) {
-        this.get('/doc/form', { id: finalId }, function(resp) {
+        this.get('/doc/detail', { id: finalId }, function(resp) {
           const data = resp.data
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
@@ -358,6 +359,12 @@ export default {
           } else {
             this.alert(resp.msg)
           }
+        })
+      } else {
+        // init global
+        this.get('/doc/globals', { moduleId: moduleId }, resp => {
+          const globals = resp.data
+          Object.assign(this.docInfo, globals)
         })
       }
       this.initOrderIndex()
@@ -523,7 +530,7 @@ export default {
         viewData.requestParams = this.deepCopy(requestParams)
         viewData.responseParams = this.deepCopy(responseParams)
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
-        this.initDocInfoCompleteView(viewData)
+        init_docInfo_complete_view(viewData)
         this.docInfoString = JSON.stringify(viewData)
       })
     },

@@ -143,6 +143,7 @@ const MAPPING = {
   'importPostmanDoc': '导入Postman文档',
   'syncSwaggerDoc': '同步Swagger文档',
   'inputModuleName': '请输入模块名称',
+  'moduleName': '模块名称',
   'syncSuccess': '同步成功',
   'importSwaggerPlaceholder': '输入URL，如：http://xxx:8080/swagger/doc.json',
   'basicAuth': 'Basic认证',
@@ -181,7 +182,6 @@ const MAPPING = {
   'baseUrl': '基本路径',
   'envNamePlaceholder': '如：测试环境',
   'baseUrlPlaceholder': '如：http://10.0.1.31:8080',
-  'swaggerMultiMethod': 'Swagger多个Method重复，只显示',
   'whatsOpenApi': 'OpenAPI的作用',
   'whatsOpenApiText': '可通过接口调用方式操作文档，第三方App以此来更新文档内容。',
   'useStep': '使用步骤',
@@ -392,13 +392,18 @@ const MAPPING = {
   'accountLogin': '账号登录',
   'ldapLogin': 'LDAP登录',
   'thirdpartyLogin': '第三方登录',
-  'useSmartDoc': '使用smart-doc推送'
+  'useSmartDoc': '使用smart-doc推送',
+  'moreOperation': '更多操作',
+  'copySuccess': '复制成功'
 
 }
 
 export class Translator extends BaseTranslator {
   getMapping() {
     return MAPPING
+  }
+  addMapping(anotherMapping) {
+    Object.assign(this.getMapping(), anotherMapping)
   }
 }
 

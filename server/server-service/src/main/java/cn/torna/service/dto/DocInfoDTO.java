@@ -98,7 +98,7 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private String baseUrl;
 
-    private List<DebugHostDTO> debugEnvs;
+    private List<ModuleEnvironmentDTO> debugEnvs;
 
     private Byte moduleType;
 

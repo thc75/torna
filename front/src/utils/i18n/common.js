@@ -1,8 +1,15 @@
+import querystring from 'query-string'
+
 const KEY = 'torna.language'
 
 let storeLang
 
 export function get_lang() {
+  const query = location.search
+  const queryParam = querystring.parse(query) || {}
+  if (queryParam.lang) {
+    return queryParam.lang
+  }
   if (!storeLang) {
     const get = () => {
       const lang = localStorage.getItem(KEY) || 'zh'

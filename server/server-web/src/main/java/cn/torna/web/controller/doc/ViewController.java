@@ -5,10 +5,13 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
-import cn.torna.common.util.GenerateUtil;
+import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.IdGen;
 import cn.torna.common.util.IdUtil;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
@@ -16,6 +19,7 @@ import cn.torna.service.ProjectService;
 import cn.torna.service.SpaceService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ProjectDTO;
+import cn.torna.service.dto.SpaceProjectDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
@@ -26,7 +30,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author tanghc
@@ -60,11 +70,11 @@ public class ViewController {
         List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceId, user);
         List<TreeVO> list = new ArrayList<>();
         for (ProjectDTO projectDTO : projectDTOS) {
-            TreeVO projectVO = new TreeVO(GenerateUtil.getUUID(), projectDTO.getName(), "", TYPE_PROJECT);
+            TreeVO projectVO = new TreeVO(IdGen.nextId(), projectDTO.getName(), "", TYPE_PROJECT);
             list.add(projectVO);
             List<Module> modules = moduleService.listProjectModules(projectDTO.getId());
             for (Module module : modules) {
-                TreeVO moduleVO = new TreeVO(GenerateUtil.getUUID(), module.getName(), projectVO.getId(), TYPE_MODULE);
+                TreeVO moduleVO = new TreeVO(IdGen.nextId(), module.getName(), projectVO.getId(), TYPE_MODULE);
                 list.add(moduleVO);
                 List<DocInfo> docInfos = docInfoService.listDocMenuView(module.getId());
                 String base = moduleVO.getId();
@@ -91,7 +101,110 @@ public class ViewController {
                 }
             }
         }
+        calcDocCount(list);
         return Result.ok(list);
+    }
+
+    @GetMapping("dataByProject")
+    public Result<List<TreeVO>> dataByProject(@HashId Long projectId) {
+        Project project = projectService.getById(projectId);
+        ProjectDTO projectDTO = CopyUtil.copyBean(project, ProjectDTO::new);
+        List<TreeVO> list = new ArrayList<>();
+        List<Module> modules = moduleService.listProjectModules(projectDTO.getId());
+        for (Module module : modules) {
+            TreeVO moduleVO = new TreeVO(IdGen.nextId(), module.getName(), "", TYPE_MODULE);
+            list.add(moduleVO);
+            List<DocInfo> docInfos = docInfoService.listDocMenuView(module.getId());
+            String base = moduleVO.getId();
+            for (DocInfo docInfo : docInfos) {
+                boolean isFolder = Booleans.isTrue(docInfo.getIsFolder());
+                String id = isFolder ? buildId(base, docInfo.getId()) : IdUtil.encode(docInfo.getId());
+                String parentId = buildParentId(base, docInfo.getParentId());
+                byte type = isFolder ? TYPE_FOLDER : TYPE_DOC;
+                TreeVO docInfoVO = new TreeVO(id, docInfo.getName(), parentId, type);
+                docInfoVO.setHttpMethod(docInfo.getHttpMethod());
+                docInfoVO.setDocType(docInfo.getType());
+                docInfoVO.setDocId(docInfo.getId());
+                // 如果是文档
+                if (!isFolder) {
+                    docInfoVO.setUrl(docInfo.getUrl());
+                    List<String> originInfo = Arrays.asList(
+                            "",
+                            projectDTO.getName(),
+                            module.getName()
+                    );
+                    docInfoVO.setOrigin(String.join("/", originInfo));
+                }
+                list.add(docInfoVO);
+            }
+        }
+        calcDocCount(list);
+        return Result.ok(list);
+    }
+
+    @GetMapping("projects")
+    public Result<List<SpaceProjectDTO>> projects() {
+        // 获取空间下的项目
+        User user = UserContext.getUser();
+        List<Project> projects = projectService.listUserProject(user);
+        Map<Long, List<Project>> spaceIdMap = projects.stream().collect(Collectors.groupingBy(Project::getSpaceId));
+        List<Space> spaces = spaceService.listByCollection("id", spaceIdMap.keySet());
+
+        List<SpaceProjectDTO> list = spaces.stream()
+                .map(space -> {
+                    SpaceProjectDTO spaceProjectDTO = CopyUtil.copyBean(space, SpaceProjectDTO::new);
+                    List<Project> projectList = spaceIdMap.getOrDefault(space.getId(), Collections.emptyList());
+                    spaceProjectDTO.setProjects(CopyUtil.copyList(projectList, ProjectDTO::new));
+                    return spaceProjectDTO;
+                })
+                .collect(Collectors.toList());
+        return Result.ok(list);
+    }
+
+    /**
+     * 计算文档数量
+     * @param list 文档列表
+     */
+    private static void calcDocCount(List<TreeVO> list) {
+        Map<String, TreeVO> idMap = list.stream().collect(Collectors.toMap(TreeVO::getId, Function.identity()));
+        TreeUtil.initParent(list, "", idMap);
+        for (TreeVO treeVO : list) {
+            // 如果是文档类型，父节点数量+1
+            if (Objects.equals(treeVO.getType(), TYPE_DOC)) {
+                TreeVO parent = treeVO.getParent();
+                if (parent != null) {
+                    parent.addApiCount();
+                }
+            }
+        }
+    }
+
+    /**
+     * list转换成tree
+     * @param list
+     * @param parentId 当前父节点id
+     * @return
+     */
+    public static List<TreeVO> convertTree(List<TreeVO> list, String parentId, Map<String, TreeVO> idMap) {
+        if (parentId == null) {
+            parentId = "";
+        }
+        if (list == null) {
+            return Collections.emptyList();
+        }
+        List<TreeVO> temp = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            TreeVO item = list.get(i);
+            // 如果有子节点
+            if (Objects.equals(item.getParentId(), parentId)) {
+                List<TreeVO> children = convertTree(list, item.getId(), idMap);
+                item.setChildren(children);
+                TreeVO parent = idMap.get(item.getParentId());
+                item.setParent(parent);
+                temp.add(item);
+            }
+        }
+        return temp;
     }
 
     /**

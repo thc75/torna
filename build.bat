@@ -4,7 +4,7 @@ set dist_dir=dist
 
 set app_name=torna
 
-set version="1.11.2"
+set version="1.13.0"
 
 set build_folder=%app_name%-%version%
 
@@ -16,7 +16,7 @@ call build.bat
 
 cd ..
 
-call mvn clean package
+call mvn clean package -pl server/boot -am
 
 ::copy files
 

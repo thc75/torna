@@ -6,10 +6,6 @@
           {{ space.name }}
         </el-option>
       </el-select>
-      <el-radio-group v-model="expandAll" size="mini" class="space-select" @change="onTriggerStatus">
-        <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
-        <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
-      </el-radio-group>
     </div>
     <div class="menu-tree">
       <el-input
@@ -38,7 +34,7 @@
         <span slot-scope="{ node, data }">
           <span>
             <i :class="getClassName(data)"></i>
-            <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }}
+            <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }} <span v-if="data.type !== types.TYPE_DOC" class="tip">({{ data.apiCount }})</span>
             <dubbo-service-tip v-if="data.type === types.TYPE_FOLDER && data.docType === getEnums().DOC_TYPE.DUBBO" :doc-id="data.docId" />
           </span>
           <span v-if="showUrl && data.url" class="doc-select-url">
@@ -235,7 +231,7 @@ export default {
       this.loadMenu(spaceId)
     },
     onTriggerStatus(val) {
-      this.setAttr(this.getTriggerStatusKey(), val)
+      this.expandAll = val
       this.reloadMenu()
     },
     getTriggerStatusKey() {
@@ -295,15 +291,11 @@ export default {
 }
 .select-area {
   .space-select {
-    padding: 10px 0 0 10px;
+    padding: 10px 10px 0 10px;
+    width: 100%;
   }
   .el-radio-group {
     vertical-align: bottom;
   }
-}
-
-.doc-select-url {
-  margin-left: 10px;
-  color: #909399;
 }
 </style>

@@ -18,4 +18,7 @@ public class DocFolderAddParam {
 
     @NotBlank(message = "模块id不能为空")
     private String name;
+
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long parentId;
 }

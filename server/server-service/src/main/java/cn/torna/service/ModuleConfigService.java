@@ -10,6 +10,8 @@ import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.ModuleConfigMapper;
 import cn.torna.service.dto.DocParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
@@ -32,20 +34,43 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     @Autowired
     private DocParamService docParamService;
 
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
+
+    @Autowired
+    private ModuleEnvironmentParamService moduleEnvironmentParamService;
+
 
     public List<DocParam> listGlobalHeaders(long moduleId) {
-        return this.listGlobal(moduleId, ModuleConfigTypeEnum.GLOBAL_HEADERS);
+        return this.listGlobal(moduleId, ParamStyleEnum.HEADER);
     }
 
     public List<DocParam> listGlobalParams(long moduleId) {
-        return this.listGlobal(moduleId, ModuleConfigTypeEnum.GLOBAL_PARAMS);
+        return this.listGlobal(moduleId, ParamStyleEnum.REQUEST);
     }
 
     public List<DocParam> listGlobalReturns(long moduleId) {
-        return this.listGlobal(moduleId, ModuleConfigTypeEnum.GLOBAL_RETURNS);
+        return this.listGlobal(moduleId, ParamStyleEnum.RESPONSE);
     }
 
-    public List<DocParam> listGlobal(long moduleId, ModuleConfigTypeEnum moduleConfigTypeEnum) {
+    public List<DocParam> listGlobal(long moduleId, ParamStyleEnum paramStyleEnum) {
+        ModuleEnvironment environment = moduleEnvironmentService.getFirst(moduleId);
+        if (environment == null) {
+            return Collections.emptyList();
+        }
+        List<ModuleEnvironmentParam> moduleEnvironmentParams = moduleEnvironmentParamService.listByEnvironmentAndStyle(environment.getId(), paramStyleEnum.getStyle());
+        // id去重，防止跟doc_param表id重复
+        long offset = System.currentTimeMillis();
+        for (ModuleEnvironmentParam moduleEnvironmentParam : moduleEnvironmentParams) {
+            moduleEnvironmentParam.setId(moduleEnvironmentParam.getId() + offset);
+            if (moduleEnvironmentParam.getParentId() > 0) {
+                moduleEnvironmentParam.setParentId(moduleEnvironmentParam.getParentId() + offset);
+            }
+        }
+        return CopyUtil.copyList(moduleEnvironmentParams, DocParam::new);
+    }
+
+    public List<DocParam> listGlobalOld(long moduleId, ModuleConfigTypeEnum moduleConfigTypeEnum) {
         List<Long> docIdList = this.listByModuleIdAndType(moduleId, moduleConfigTypeEnum)
                 .stream()
                 .map(ModuleConfig::getExtendId)
@@ -145,7 +170,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public static ParamStyleEnum buildStyle(ModuleConfigTypeEnum moduleConfigTypeEnum) {
-        ParamStyleEnum paramStyleEnum = ParamStyleEnum.REQUEST;
+        ParamStyleEnum paramStyleEnum;
         switch (moduleConfigTypeEnum) {
             case GLOBAL_HEADERS:
                 paramStyleEnum = ParamStyleEnum.HEADER;
@@ -159,49 +184,16 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
             case GLOBAL_ERROR_CODES:
                 paramStyleEnum = ParamStyleEnum.ERROR_CODE;
                 break;
-            default:
+            default: {
+                paramStyleEnum = ParamStyleEnum.REQUEST;
+            }
         }
         return paramStyleEnum;
     }
 
-    /**
-     * 设置调试环境
-     * @param moduleId 模块id
-     * @param name 名称
-     * @param url url
-     * @param isPublic 是否公开
-     */
-    public void setDebugEnv(long moduleId, String name, String url, boolean isPublic) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
-                .eq("config_key", name);
-        ModuleConfig commonConfig = this.get(query);
-        if (commonConfig == null) {
-            commonConfig = new ModuleConfig();
-            commonConfig.setModuleId(moduleId);
-            commonConfig.setType(ModuleConfigTypeEnum.DEBUG_HOST.getType());
-            commonConfig.setConfigKey(name);
-            commonConfig.setConfigValue(url);
-            commonConfig.setExtendId(isPublic ? 1L : 0L);
-            save(commonConfig);
-        } else {
-            commonConfig.setConfigValue(url);
-            commonConfig.setExtendId(isPublic ? 1L : 0L);
-            update(commonConfig);
-        }
-    }
 
-    /**
-     * 设置模块调试环境
-     *
-     * @param moduleId 模块id
-     * @param name     环境名称
-     * @param url      调试路径
-     */
-    public void setDebugEnv(long moduleId, String name, String url) {
-        this.setDebugEnv(moduleId, name, url, false);
-    }
+
+
 
     /**
      * 删除模块调试环境
@@ -231,10 +223,16 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return this.listByModuleIdAndType(moduleId, ModuleConfigTypeEnum.DEBUG_HOST);
     }
 
+    public List<ModuleConfig> listDebugHost() {
+        return this.listByModuleIdAndType(0, ModuleConfigTypeEnum.DEBUG_HOST);
+    }
+
     public List<ModuleConfig> listByModuleIdAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", typeEnum.getType());
+        Query query = new Query();
+        if (moduleId > 0) {
+            query.eq("module_id", moduleId);
+        }
+        query.eq("type", typeEnum.getType());
         return this.listAll(query);
     }
 

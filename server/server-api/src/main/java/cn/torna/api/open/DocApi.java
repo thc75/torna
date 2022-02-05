@@ -29,6 +29,7 @@ import cn.torna.dao.entity.DocParam;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
+import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
@@ -81,6 +82,9 @@ public class DocApi {
 
     @Autowired
     private ModuleConfigService moduleConfigService;
+
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
 
     @Autowired
     private TornaTransactionManager tornaTransactionManager;
@@ -176,12 +180,11 @@ public class DocApi {
                     if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
                         continue;
                     }
-                    moduleConfigService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
+                    moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 替换文档
                 if (Booleans.isTrue(param.getIsReplace(), true)) {
                     // 先删除之前的文档
-                    User user = context.getApiUser();
                     this.deleteOpenAPIModuleDocs(moduleId);
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
@@ -357,42 +360,6 @@ public class DocApi {
         return SPLIT + StringUtils.trimLeadingCharacter(url, SPLIT);
     }
 
-    @Api(name = "doc.list")
-    @ApiDocMethod(description = "获取文档列表"
-            , order = 1
-            , wrapperClass = NoResultWrapper.class
-            , results = {
-            @ApiDocField(name = "code", description = "状态值，\"0\"表示成功，其它都是失败", example = "0"),
-            @ApiDocField(name = "msg", description = "错误信息，出错时显示"),
-            @ApiDocField(name = "data", description = "文档数组", elementClass = DocInfoResult.class)
-    })
-    public List<DocInfoResult> list() {
-        long moduleId = RequestContext.getCurrentContext().getModuleId();
-        List<DocInfo> docInfos = docInfoService.list("module_id", moduleId);
-        return CopyUtil.copyList(docInfos, DocInfoResult::new);
-    }
-
-    @Api(name = "doc.get")
-    @ApiDocMethod(description = "获取文档详情", order = 2)
-    public DocInfoDetailResult getDoc(IdParam param) {
-        DocInfoDTO docDetail = docInfoService.getDocDetail(param.getId());
-        return CopyUtil.copyBean(docDetail, DocInfoDetailResult::new);
-    }
-
-    @Api(name = "doc.category.list")
-    @ApiDocMethod(description = "获取分类"
-            , order = 3
-            , wrapperClass = NoResultWrapper.class
-            , results = {
-            @ApiDocField(name = "code", description = "状态值，\"0\"表示成功，其它都是失败", example = "0"),
-            @ApiDocField(name = "msg", description = "错误信息，出错时显示"),
-            @ApiDocField(name = "data", description = "分类数组", elementClass = DocInfoResult.class)
-    })
-    public List<DocCategoryResult> listFolders() {
-        long moduleId = RequestContext.getCurrentContext().getModuleId();
-        List<DocInfo> folders = docInfoService.listFolders(moduleId);
-        return CopyUtil.copyList(folders, DocCategoryResult::new);
-    }
 
     @Api(name = "doc.category.create")
     @ApiDocMethod(description = "创建分类", order = 4)

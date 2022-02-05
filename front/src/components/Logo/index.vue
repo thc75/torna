@@ -2,19 +2,17 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse, 'sidebar-logo-container-style': !noStyle}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" to="/" class="sidebar-logo-link">
-        <img src="@/assets/images/logo.png" class="sidebar-logo" :title="version">
+        <img src="@/assets/images/logo.png" class="sidebar-logo" :title="getTornaVersion()">
       </router-link>
       <router-link v-else key="expand" to="/" class="sidebar-logo-link">
         <img src="@/assets/images/logo.png" class="sidebar-logo">
-        <h1 class="sidebar-title">{{ title }} <span class="version">{{ version }}</span> </h1>
+        <h1 class="sidebar-title">{{ title }} <span class="version">{{ getTornaVersion() }}</span> </h1>
       </router-link>
     </transition>
   </div>
 </template>
 
 <script>
-// eslint-disable-next-line
-const VER="1.11.2"
 export default {
   name: 'SidebarLogo',
   props: {
@@ -29,11 +27,8 @@ export default {
   },
   data() {
     return {
-      version: VER,
       title: 'Torna'
     }
-  },
-  created() {
   }
 }
 </script>

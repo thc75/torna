@@ -10,11 +10,11 @@ Torna makes up for the shortcomings of traditional document generation tools suc
 
 ## Current version
 
-| Module | Version |
-| :----: | :----: |
-| Torna | 1.11.2 |
-| sdk-java | ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk) |
-| swagger-plugin | ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin) |
+| Module |                                     Version                                     |
+| :----: |:-------------------------------------------------------------------------------:|
+| Torna |                                     1.13.0                                      |
+| sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
+| swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
 
 
@@ -43,15 +43,32 @@ Override `torna.jar` file and `dist` folder,and startup.
 
 ### Method 2: run in docker
 
+Import database,run [mysql.sql](./mysql.sql)
+
 Download image
 
 `docker pull tanghc2020/torna:latest`
 
-Import database,run [mysql.sql](./mysql.sql)
+Run docker:
 
-Copy `server/boot/src/main/resources/application.properties` to `/opt/torna/config`,modify database config
+```
+docker run --name torna --restart=always \
+  -p 7700:7700 \
+  -e JAVA_OPTS="-Xms256m -Xmx256m" \
+  -e MYSQL_HOST="172.16.60.102:3306" \
+  -e MYSQL_SCHEMA="torna" \
+  -e MYSQL_USERNAME="root" \
+  -e MYSQL_PASSWORD="root" \
+  -d tanghc2020/torna:latest
+```
 
-Run `docker run --name torna -p 7700:7700 -v /opt/torna/config:/torna/config -d <IMAGE ID>`
+Need modify：
+
+- MYSQL_HOST：MySQL host
+- MYSQL_SCHEMA：database name
+- MYSQL_USERNAME：MySQL username
+- MYSQL_PASSWORD：MySQL password
+
 
 Visit:`http://ip:7700`
 
@@ -107,3 +124,6 @@ See:[Development document](http://torna.cn/dev/)
 
 ![Debug API](./front/public/static/images/debug.png "debug.png")
 
+## Acknowledgements
+Thanks to [JetBrains SoftWare](https://www.jetbrains.com) for providing free Open Source license for this open source project.
+<img src="https://raw.githubusercontent.com/shalousun/smart-doc/dev/images/jetbrains-variant-3.png" width="260px" height="220px"/>

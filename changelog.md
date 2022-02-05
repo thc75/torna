@@ -1,5 +1,44 @@
 # 更新日志
 
+## 1.13.0
+
+- 【新增】分享管理新增能否调试接口功能
+- 【新增】浏览页新增【空间维度】和【项目维度】
+- 【新增】文档预览页可复制字段
+- 【修复】修复调试页跳转到登录页问题 [#I4SAJP](https://gitee.com/durcframework/torna/issues/I4SAJP)
+- 【修复】修复调试页面上传文件表单显示错误
+
+## 1.12.2
+
+- 【修复】修复调试环境数据迁移BUG
+- 【修复】从其他模块导入公共参数，子节点没有导过来 [#I4QS67](https://gitee.com/durcframework/torna/issues/I4QS67)
+- 【修复】使用枚举传参，调试选项中无选择项 [#I4QZB2](https://gitee.com/durcframework/torna/issues/I4QZB2)
+- 【修复】修复删除公共参数没有删除子节点问题
+- 【修复】修复文档编辑页无法更改枚举字段问题
+- 【优化】优化枚举字段显示 
+
+## 1.12.1
+
+- 【修复】修复调试无法保存代理勾选状态
+- 【优化】去除非必须依赖减小jar包大小
+
+## 1.12.0
+
+- 【优化】调试环境改造，数据迁移
+- 【优化】调试显示图片
+- 【优化】文档预览页树菜单显示接口数量
+- 【优化】优化参数描述内容过长显示
+- 【优化】优化国际化显示
+- 【优化】优化LDAP登录，登录后同步邮箱
+- 【修复】修复接口调试\n问题 [#I4KODO](https://gitee.com/durcframework/torna/issues/I4KODO)
+- 【升级】fastmybatis升级到1.10.11
+- 【新增】文档表格页可以新增分类
+
+## 1.11.3
+
+- 【修复】修复代理转发content-type错误
+- 【优化】优化调试接口文件导出功能
+
 ## 1.11.2
 
 - 【修复】非代理模式下请求多余header [#I4INZZ](https://gitee.com/durcframework/torna/issues/I4INZZ)

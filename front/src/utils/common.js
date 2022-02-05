@@ -363,6 +363,10 @@ export function init_docInfo_view(data) {
   return data
 }
 
+/**
+ * data requestParams和responseParams传进来的时候是树结构
+ * @param data
+ */
 export function init_docInfo_complete_view(data) {
   sortByIndex(data.headerParams)
   sortByIndex(data.queryParams)
@@ -402,7 +406,6 @@ export function init_docInfo_complete_view(data) {
       dataNode.children = requestParams
       data.requestParams = data.globalParams
     } else {
-      data.globalParams = convert_tree(data.globalParams)
       if (data.httpMethod && data.httpMethod.toLowerCase() === 'get') {
         data.queryParams = data.globalParams.concat(data.queryParams)
       } else {
@@ -414,6 +417,9 @@ export function init_docInfo_complete_view(data) {
     const dataNode = (data.globalReturns || [])
       .filter(row => row.example === DATA_PLACEHOLDER)
       .shift()
+
+    // 将公共参响应转成tree
+    data.globalReturns = convert_tree(data.globalReturns)
     if (dataNode) {
       const pid = dataNode.id
       dataNode.example = ''
@@ -456,6 +462,7 @@ export function StringBuilder(str) {
     this.arr.push(str)
   }
 }
+
 StringBuilder.prototype = {
   append(str) {
     this.arr.push(str)

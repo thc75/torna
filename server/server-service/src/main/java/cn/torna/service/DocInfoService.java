@@ -13,10 +13,12 @@ import cn.torna.common.util.IdGen;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.entity.Module;
-import cn.torna.dao.entity.ModuleConfig;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
 import cn.torna.dao.mapper.DocInfoMapper;
-import cn.torna.service.dto.DebugHostDTO;
+import cn.torna.manager.doc.DataType;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
@@ -24,12 +26,14 @@ import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.DocRefDTO;
 import com.alibaba.fastjson.JSON;
+import cn.torna.service.dto.EnumInfoDTO;
+import cn.torna.service.dto.EnumItemDTO;
+import cn.torna.service.dto.ModuleEnvironmentDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +57,8 @@ import java.util.stream.Collectors;
 @Service
 public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
+    private static final String REGEX_BR = "<br\\s*/*>";
+
     @Autowired
     private DocParamService docParamService;
 
@@ -70,6 +76,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private PropService propService;
+
+    @Autowired
+    private ModuleEnvironmentService moduleEnvironmentService;
+
+    @Autowired
+    private ModuleEnvironmentParamService moduleEnvironmentParamService;
+
+    @Autowired
+    private EnumInfoService enumInfoService;
+
+    @Autowired
+    private EnumService enumService;
 
     /**
      * 查询模块下的所有文档
@@ -144,8 +162,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Module module = moduleService.getById(moduleId);
         docInfoDTO.setProjectId(module.getProjectId());
         docInfoDTO.setModuleType(module.getType());
-        List<ModuleConfig> debugEnvs = moduleConfigService.listDebugHost(moduleId);
-        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, DebugHostDTO::new));
+        List<ModuleEnvironment> debugEnvs = moduleEnvironmentService.listModuleEnvironment(moduleId);
+        docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, ModuleEnvironmentDTO::new));
         List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
         params.sort(Comparator.comparing(DocParam::getOrderIndex));
         Map<Byte, List<DocParam>> paramsMap = params.stream()
@@ -162,7 +180,52 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+        // 绑定枚举信息
+        bindEnumInfo(docInfoDTO.getQueryParams());
+        bindEnumInfo(docInfoDTO.getRequestParams());
         return docInfoDTO;
+    }
+
+    /**
+     * 绑定枚举信息
+     * @param docParamDTOS
+     */
+    private void bindEnumInfo(List<DocParamDTO> docParamDTOS) {
+        for (DocParamDTO docParamDTO : docParamDTOS) {
+            Long enumId = docParamDTO.getEnumId();
+            if (enumId != null && enumId > 0) {
+                EnumInfo enumInfo = enumInfoService.getById(enumId);
+                if (enumInfo == null) {
+                    continue;
+                }
+                EnumInfoDTO enumInfoDTO = CopyUtil.copyBean(enumInfo, EnumInfoDTO::new);
+                List<EnumItemDTO> enumItemDTOS = enumService.listItems(enumId);
+                enumInfoDTO.setItems(enumItemDTOS);
+                docParamDTO.setEnumInfo(enumInfoDTO);
+            } else if (DataType.ENUM.equalsIgnoreCase(docParamDTO.getType()) && StringUtils.hasText(docParamDTO.getDescription())) {
+                String description = docParamDTO.getDescription();
+                EnumInfoDTO enumInfoDTO = new EnumInfoDTO();
+                String[] arr;
+                if (description.contains("<br")) {
+                    arr = description.split(REGEX_BR);
+                } else if (description.contains("、")) {
+                    arr = description.split("、");
+                } else {
+                    arr = new String[]{description};
+                }
+                List<EnumItemDTO> items = Arrays.stream(arr)
+                        .map(val -> {
+                            EnumItemDTO enumItemDTO = new EnumItemDTO();
+                            enumItemDTO.setName(val);
+                            enumItemDTO.setValue(val);
+                            return enumItemDTO;
+                        })
+                        .collect(Collectors.toList());
+                enumInfoDTO.setItems(items);
+                docParamDTO.setEnumInfo(enumInfoDTO);
+            }
+
+        }
     }
 
 
@@ -446,6 +509,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回添加后的文档
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user, Long parentId) {
+        if (parentId == null) {
+            parentId = 0L;
+        }
         DocFolderCreateDTO docFolderCreateDTO = new DocFolderCreateDTO();
         docFolderCreateDTO.setName(folderName);
         docFolderCreateDTO.setModuleId(moduleId);
@@ -516,5 +582,28 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Module module = moduleService.getById(docInfo.getModuleId());
         docRefDTO.setProjectId(module.getProjectId());
         return docRefDTO;
+    }
+
+    /**
+     * 获取指定环境下的header
+     * @param envId 环境id
+     * @param docId 文档id
+     * @return 返回所有的header，全局+文档
+     */
+    public List<DocParamDTO> listDocHeaders(Long envId, Long docId) {
+        ParamStyleEnum header = ParamStyleEnum.HEADER;
+        Query query = new Query()
+                .eq("id", docId)
+                .eq("style", header.getStyle());
+        List<DocParam> docHeaders = docParamService.list(query);
+        List<DocParamDTO> ret = new ArrayList<>();
+        List<DocParamDTO> headers = CopyUtil.copyList(docHeaders, DocParamDTO::new);
+        if (envId != null) {
+            List<ModuleEnvironmentParam> globalHeaders = moduleEnvironmentParamService.listByEnvironmentAndStyle(envId, header.getStyle());
+            List<DocParamDTO> globalHeaderDTOs = CopyUtil.copyList(globalHeaders, DocParamDTO::new);
+            ret.addAll(globalHeaderDTOs);
+        }
+        ret.addAll(headers);
+        return ret;
     }
 }

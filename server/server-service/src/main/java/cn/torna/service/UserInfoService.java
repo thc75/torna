@@ -5,7 +5,6 @@ import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
-import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.exception.BizException;
@@ -35,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -260,6 +260,13 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
             userInfo.setSource(loginResult.getUserInfoSourceEnum().getSource());
             userInfo.setEmail(loginResult.getEmail());
             this.save(userInfo);
+        } else {
+            String email = loginResult.getEmail();
+            // 如果更改了邮箱
+            if (StringUtils.hasLength(email) && !Objects.equals(email, userInfo.getEmail())) {
+                userInfo.setEmail(email);
+                this.update(userInfo);
+            }
         }
         return userInfo;
     }

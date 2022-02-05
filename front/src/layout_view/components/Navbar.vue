@@ -46,8 +46,7 @@ export default {
           this.goProjectHome(projectId)
         })
       } else {
-        const projectInfo = this.getCurrentProject()
-        const projectId = projectInfo && projectInfo.id
+        const projectId = this.getProjectId()
         const uri = projectId ? this.getProjectHomeUrl(projectId) : '/'
         this.goRoute(uri)
       }
