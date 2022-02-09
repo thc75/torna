@@ -31,8 +31,14 @@
     <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
-      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name">
+      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
         {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
+        <el-tag
+          size="small"
+          v-show="hostConfigName === hostConfig.name"
+          effect="plain"
+          class="copyBtn"
+          @click.stop="copy(docInfo.url)">{{ $ts('copy') }}</el-tag>
       </li>
     </ul>
     <span v-else class="debug-url">
@@ -98,6 +104,10 @@
 <style scoped>
 h4 .content {
   margin: 0 10px;
+}
+.debug-url .copyBtn {
+  margin-left: 10px;
+  cursor: pointer;
 }
 </style>
 <script>
@@ -181,7 +191,8 @@ export default {
       requestExample: {},
       responseSuccessExample: {},
       isSubscribe: false,
-      responseHiddenColumns: []
+      responseHiddenColumns: [],
+      hostConfigName: ''
     }
   },
   computed: {
@@ -291,6 +302,15 @@ export default {
           this.isSubscribe = false
         })
       }
+    },
+    onMouseEnter(name) {
+      this.hostConfigName = name
+    },
+    onMouseLeave() {
+      this.hostConfigName = ''
+    },
+    copy(text) {
+      this.copyText(text)
     }
   }
 }
