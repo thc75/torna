@@ -12,6 +12,8 @@
   height: auto !important;
   padding: 0 4px !important;
   line-height: 20px !important;
+  width: 57px !important;
+  text-align: center !important;
 }
 </style>
 <script>
