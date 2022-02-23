@@ -79,13 +79,29 @@
     </div>
     <div v-show="isShowRequestExample">
       <h4>{{ $ts('requestExample') }}</h4>
-      <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+      <div class="code-box" @mouseenter="isShowRequestExampleCopy=true" @mouseleave="isShowRequestExampleCopy=false">
+        <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+        <el-tag
+          v-show="isShowRequestExampleCopy"
+          size="small"
+          effect="plain"
+          class="code-copy"
+          @click.stop="copy(formatJson(requestExample))">{{ $ts('copy') }}</el-tag>
+      </div>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
     <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
     <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <h4>{{ $ts('responseExample') }}</h4>
-    <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
+    <div class="code-box" @mouseenter="isShowResponseSuccessExample=true" @mouseleave="isShowResponseSuccessExample=false">
+      <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
+      <el-tag
+        v-show="isShowResponseSuccessExample"
+        size="small"
+        effect="plain"
+        class="code-copy"
+        @click.stop="copy(formatJson(responseSuccessExample))">{{ $ts('copy') }}</el-tag>
+    </div>
     <h4>{{ $ts('errorCode') }}</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
@@ -107,6 +123,17 @@ h4 .content {
 }
 .debug-url .copyBtn {
   margin-left: 10px;
+  cursor: pointer;
+}
+.code-box{
+  position: relative
+}
+.code-box .code-copy{
+  display: block;
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  margin: 8px;
   cursor: pointer;
 }
 </style>
@@ -192,7 +219,9 @@ export default {
       responseSuccessExample: {},
       isSubscribe: false,
       responseHiddenColumns: [],
-      hostConfigName: ''
+      hostConfigName: '',
+      isShowRequestExampleCopy: false,
+      isShowResponseSuccessExample: false
     }
   },
   computed: {
