@@ -1,5 +1,117 @@
 # 更新日志
 
+## 1.13.1
+
+- 【优化】调整HttpMethod组件Tag样式
+- 【优化】文档预览页可复制接口URL
+
+## 1.13.0
+
+- 【新增】分享管理新增能否调试接口功能
+- 【新增】浏览页新增【空间维度】和【项目维度】
+- 【新增】文档预览页可复制字段
+- 【修复】修复调试页跳转到登录页问题 [#I4SAJP](https://gitee.com/durcframework/torna/issues/I4SAJP)
+- 【修复】修复调试页面上传文件表单显示错误
+
+## 1.12.2
+
+- 【修复】修复调试环境数据迁移BUG
+- 【修复】从其他模块导入公共参数，子节点没有导过来 [#I4QS67](https://gitee.com/durcframework/torna/issues/I4QS67)
+- 【修复】使用枚举传参，调试选项中无选择项 [#I4QZB2](https://gitee.com/durcframework/torna/issues/I4QZB2)
+- 【修复】修复删除公共参数没有删除子节点问题
+- 【修复】修复文档编辑页无法更改枚举字段问题
+- 【优化】优化枚举字段显示 
+
+## 1.12.1
+
+- 【修复】修复调试无法保存代理勾选状态
+- 【优化】去除非必须依赖减小jar包大小
+
+## 1.12.0
+
+- 【优化】调试环境改造，数据迁移
+- 【优化】调试显示图片
+- 【优化】文档预览页树菜单显示接口数量
+- 【优化】优化参数描述内容过长显示
+- 【优化】优化国际化显示
+- 【优化】优化LDAP登录，登录后同步邮箱
+- 【修复】修复接口调试\n问题 [#I4KODO](https://gitee.com/durcframework/torna/issues/I4KODO)
+- 【升级】fastmybatis升级到1.10.11
+- 【新增】文档表格页可以新增分类
+
+## 1.11.3
+
+- 【修复】修复代理转发content-type错误
+- 【优化】优化调试接口文件导出功能
+
+## 1.11.2
+
+- 【修复】非代理模式下请求多余header [#I4INZZ](https://gitee.com/durcframework/torna/issues/I4INZZ)
+- 【修复】聚合接口分享输入密码跳转登录问题
+
+## 1.11.1
+
+- 【修复】修复枚举信息不显示问题 [#I4I7DZ](https://gitee.com/durcframework/torna/issues/I4I7DZ)
+- 【修复】修复保存mock脚本js错误
+
+## 1.11.0
+
+- 【新增】支持LDAP登录 [doc](http://torna.cn/dev/third-party-login.html#ldap%E7%99%BB%E5%BD%95)
+- 【优化】优化第三方接入返回结果嵌套对象问题
+- 【优化】优化登录、注册页面国际化显示
+- 【优化】简化文档推送
+
+## 1.10.6
+
+- 【修复】DELETE请求无法传递body问题 [#I4GAAU](https://gitee.com/durcframework/torna/issues/I4GAAU)
+
+## 1.10.5
+
+- 【优化】优化字典展示
+- 【优化】请求参数可以选择字典项
+
+## 1.10.4
+
+- 【修复】修复推送删除了自定义错误码问题
+
+## 1.10.3
+
+- 【修复】修复聚合浏览页面点击调试需要登录问题
+
+## 1.10.2
+
+- 【修复】修复下载二进制文件错误
+- 【修复】修复无法格式化json问题
+
+## 1.10.1
+
+- 【修复】修复聚合项目预览页登录失败BUG
+- 【优化】优化swagger插件 [PR](https://gitee.com/durcframework/torna/pulls/15)
+- 【优化】优化聚合项目预览页左侧树展示
+- 【优化】优化聚合项目公共参数展示
+- 【优化】优化文档预览页展示
+
+## 1.10.0
+
+- 【修复】模块无法删除问题 [I3I2B1](https://gitee.com/durcframework/torna/issues/I3I2B1) [I3ZG1Q](https://gitee.com/durcframework/torna/issues/I3ZG1Q)
+- 【修复】请求支持PATCH方法 [I46MAP](https://gitee.com/durcframework/torna/issues/I46MAP)
+- 【优化】用户管理的优化 [I424OB](https://gitee.com/durcframework/torna/issues/I424OB )
+- 【优化】有重复header优先使用公共的 [I3ZO8R](https://gitee.com/durcframework/torna/issues/I3ZO8R)
+- 【优化】不记住公共请求头 
+- 【优化】根据环境保存Debug配置
+- 【新增】增加接口更新锁定 [I465C7](https://gitee.com/durcframework/torna/issues/I465C7)
+- 【新增】页左侧树自动打开
+
+## 1.9.4
+
+- 【修复】修复mock，移除请求参数部分
+
+## 1.9.3
+
+- 【优化】优化Postman导入
+- 【优化】成员选择控件
+- 【增强】增强聚合文档展示，支持自定义页面
+
 ## 1.9.2
 
 - 【修复】简单数组类型显示方式错误 [#I3ZFCU](https://gitee.com/durcframework/torna/issues/I3ZFCU)

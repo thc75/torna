@@ -30,18 +30,9 @@ public class TornaConfig {
      */
     private String url;
     /**
-     * appKey
-     */
-    private String appKey;
-    /**
-     * secret
-     */
-    private String secret;
-    /**
      * 模块token
      */
     private String token;
-
     /**
      * 调试环境，格式：环境名称,调试路径，多个用"|"隔开
      */

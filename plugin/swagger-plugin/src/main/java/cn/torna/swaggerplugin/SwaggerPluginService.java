@@ -83,7 +83,7 @@ public class SwaggerPluginService {
 
     public SwaggerPluginService(TornaConfig tornaConfig) {
         this.tornaConfig = tornaConfig;
-        client = new OpenClient(tornaConfig.getUrl(), tornaConfig.getAppKey(), tornaConfig.getSecret());
+        client = new OpenClient(tornaConfig.getUrl());
     }
 
     public void pushDoc() {
