@@ -9,6 +9,22 @@
       auto-complete="on"
       @submit.native.prevent
     >
+      <el-row type="flex" justify="end">
+        <el-select
+          v-model="systemSettingData.language"
+          style="width: 100px;"
+          size="mini"
+          placeholder="请选择"
+          @change="languageChange"
+        >
+          <el-option
+            v-for="item in languageOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-row>
       <div class="title-container">
         <h3 class="title">{{ $ts('userLogin') }}</h3>
       </div>
@@ -58,6 +74,7 @@ import md5 from 'js-md5'
 import { Enums } from '@/utils/enums'
 import { setToken, removeToken } from '@/utils/auth'
 import Logo from '@/components/Logo'
+import { get_lang, set_lang } from '@/utils/i18n/common'
 
 export default {
   name: 'Login',
@@ -97,7 +114,14 @@ export default {
       },
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      systemSettingData: {
+        language: ''
+      },
+      languageOptions: [
+        { label: '简体中文', value: 'zh' },
+        { label: 'English', value: 'en' }
+      ]
     }
   },
   computed: {
@@ -118,6 +142,9 @@ export default {
     this.pmsConfig().then(config => {
       Object.assign(this.serverConfig, config)
     })
+  },
+  mounted() {
+    this.systemSettingData.language = get_lang()
   },
   methods: {
     onReg: function() {
@@ -174,6 +201,10 @@ export default {
     },
     useVerify() {
       this.$refs.verify.show()
+    },
+    languageChange(value) {
+      set_lang(this.systemSettingData.language)
+      location.reload()
     }
   }
 }
