@@ -8,6 +8,7 @@
 - 【优化】推送完毕打印日志
 - 【优化】优化文档浏览页调整页面大小左边菜单显示问题 [#I4U3ZT](https://gitee.com/durcframework/torna/issues/I4U3ZT)
 - 【移除】swagger url导入功能改用插件推送
+- 【升级】fastmybatis升级到2.0.0
 
 ## 1.13.1
 
