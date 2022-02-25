@@ -2,12 +2,12 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：module_config
@@ -15,13 +15,11 @@ import javax.persistence.Table;
  *
  * @author tanghc
  */
-@Table(name = "module_config")
+@Table(name = "module_config", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class ModuleConfig {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**  数据库字段：module_id */
@@ -36,14 +34,14 @@ public class ModuleConfig {
     /** 配置值, 数据库字段：config_value */
     private String configValue;
 
-    /** 扩展ID, 数据库字段：extend_id */
+    /**  数据库字段：extend_id */
     private Long extendId;
 
     /** 描述, 数据库字段：description */
     private String description;
 
     /**  数据库字段：is_deleted */
-    @com.gitee.fastmybatis.core.annotation.LogicDelete
+    @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
     /**  数据库字段：gmt_create */

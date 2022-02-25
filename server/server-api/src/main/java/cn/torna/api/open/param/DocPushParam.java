@@ -1,6 +1,5 @@
 package cn.torna.api.open.param;
 
-import cn.torna.common.bean.Booleans;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Getter;
 import lombok.Setter;

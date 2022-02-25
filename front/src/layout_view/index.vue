@@ -1,6 +1,5 @@
 <template>
   <div :class="classObj" class="app-wrapper">
-    <div v-if="device==='mobile'&&sidebarView.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar id="leftPanel" class="sidebar-container-view" />
     <div id="rightPanel" class="main-container-view">
       <div id="resizeBar" class="resize-bar"></div>

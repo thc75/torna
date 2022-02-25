@@ -1,8 +1,8 @@
 package cn.torna.manager.doc.postman;
 
+import cn.torna.manager.doc.IParam;
 import lombok.Getter;
 import lombok.Setter;
-import cn.torna.manager.doc.IParam;
 
 import java.util.List;
 

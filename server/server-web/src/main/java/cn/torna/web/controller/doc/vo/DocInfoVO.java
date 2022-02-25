@@ -33,6 +33,8 @@ public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
     /** contentType, 数据库字段：content_type */
     private String contentType;
 
+    private String deprecated;
+
     /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */
     private Byte isFolder;
 

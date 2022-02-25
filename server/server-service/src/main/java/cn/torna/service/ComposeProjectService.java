@@ -1,8 +1,8 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.User;
-import cn.torna.common.enums.RoleEnum;
 import cn.torna.common.enums.ComposeProjectTypeEnum;
+import cn.torna.common.enums.RoleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.PasswordUtil;

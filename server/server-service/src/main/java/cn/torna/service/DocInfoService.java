@@ -374,6 +374,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
+        if (docInfo.getDeprecated() == null) {
+            docInfo.setDeprecated("$false$");
+        }
         return docInfo;
     }
 

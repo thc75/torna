@@ -4,46 +4,17 @@
     :visible.sync="importJsonDlgShow"
     @close="onHide"
   >
-    <el-tabs v-model="active" type="card">
-      <el-tab-pane label="插件导入[推荐]" name="first">
-        <div style="max-height: 400px;overflow-y: auto">
-          <mavon-editor
-            v-model="content"
-            :boxShadow="false"
-            :subfield="false"
-            defaultOpen="preview"
-            :editable="false"
-            :toolbarsFlag="false"
-          />
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="URL导入" name="second">
-        <el-form
-          ref="importJsonForm"
-          :model="importJsonFormData"
-          :rules="importJsonRule"
-          size="mini"
-          label-width="100px"
-        >
-          <el-form-item label="URL" prop="importUrl">
-            <el-input
-              v-model="importJsonFormData.importUrl"
-              :placeholder="$ts('importSwaggerPlaceholder')"
-              show-word-limit
-              maxlength="100"
-            />
-          </el-form-item>
-          <el-form-item :label="$ts('basicAuth')">
-            <el-col :span="12" style="padding-right: 10px;">
-              <el-input v-model="importJsonFormData.basicAuthUsername" :placeholder="$ts('optionalUsername')" style="width: 100%;" />
-            </el-col>
-            <el-col :span="12">
-              <el-input v-model="importJsonFormData.basicAuthPassword" :placeholder="$ts('optionalPassword')" style="width: 100%;" />
-            </el-col>
-          </el-form-item>
-        </el-form>
-      </el-tab-pane>
-    </el-tabs>
+    <h3>使用插件导入</h3>
+    <div style="max-height: 400px;overflow-y: auto">
+      <mavon-editor
+        v-model="content"
+        :boxShadow="false"
+        :subfield="false"
+        defaultOpen="preview"
+        :editable="false"
+        :toolbarsFlag="false"
+      />
+    </div>
     <div v-if="active === 'second'" slot="footer" class="dialog-footer">
       <el-button @click="importJsonDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
       <el-button :loading="importJsonLoading" type="primary" @click="onImportSwaggerSave">{{ $ts('dlgImport') }}</el-button>

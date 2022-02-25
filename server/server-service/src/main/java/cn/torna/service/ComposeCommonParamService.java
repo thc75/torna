@@ -8,7 +8,6 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.ComposeCommonParam;
-import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.mapper.ComposeCommonParamMapper;
 import cn.torna.service.dto.DocParamDTO;
 import com.gitee.fastmybatis.core.query.Query;

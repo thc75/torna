@@ -30,6 +30,8 @@ public class TreeVO implements TreeAware<TreeVO, String> {
 
     private Byte docType;
 
+    private String deprecated;
+
     private String origin;
 
     /** 接口数量 */

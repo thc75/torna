@@ -4,11 +4,11 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.service.PermissionService;
+import cn.torna.service.dto.UserPermDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.service.dto.UserPermDTO;
 
 /**
  * @author tanghc

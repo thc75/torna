@@ -123,6 +123,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
                 .stream()
                 .map(moduleConfig -> {
                     DocParam docParam = new DocParam();
+                    docParam.setId(moduleConfig.getId());
                     docParam.setName(moduleConfig.getConfigKey());
                     docParam.setExample(moduleConfig.getConfigValue());
                     docParam.setDescription(moduleConfig.getDescription());

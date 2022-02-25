@@ -1,7 +1,7 @@
 package cn.torna.manager.doc.swagger;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import cn.torna.manager.doc.IParam;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

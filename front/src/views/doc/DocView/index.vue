@@ -2,7 +2,8 @@
   <div class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
+        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
+        <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <div v-show="showOptBar" style="float: right">
           <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
             <el-button
@@ -27,6 +28,10 @@
         {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
         {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
+    </div>
+    <div v-show="isDeprecated" style="margin-top: 10px">
+      <el-tag type="warning" class="el-tag-method">{{ $ts('deprecated') }}</el-tag>
+      <span class="tip">{{ docInfo.deprecated }}</span>
     </div>
     <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
@@ -192,6 +197,7 @@ export default {
         description: '',
         author: '',
         httpMethod: 'GET',
+        deprecated: '',
         parentId: '',
         moduleId: '',
         isShow: 1,
@@ -239,6 +245,9 @@ export default {
     responseParamHiddenColumns() {
       const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
       return isRawArray ? ['name', 'required', 'maxLength'] : this.responseHiddenColumns
+    },
+    isDeprecated() {
+      return this.docInfo.deprecated !== '$false$'
     }
   },
   watch: {

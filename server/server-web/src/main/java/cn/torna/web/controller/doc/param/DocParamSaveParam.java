@@ -1,7 +1,6 @@
 package cn.torna.web.controller.doc.param;
 
 import cn.torna.common.support.IdCodec;
-import cn.torna.service.dto.EnumInfoDTO;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 

@@ -132,6 +132,7 @@ CREATE TABLE `doc_info`
     `url`                   varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '访问URL',
     `http_method`           varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL DEFAULT '' COMMENT 'http方法',
     `content_type`          varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'contentType',
+    `deprecated`            varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  DEFAULT '$false$' COMMENT '废弃信息',
     `is_folder`             tinyint(4)                                                    NOT NULL DEFAULT 0 COMMENT '是否是分类，0：不是，1：是',
     `parent_id`             bigint(20) UNSIGNED                                           NOT NULL DEFAULT 0 COMMENT '父节点',
     `module_id`             bigint(20) UNSIGNED                                           NOT NULL DEFAULT 0 COMMENT '模块id，module.id',

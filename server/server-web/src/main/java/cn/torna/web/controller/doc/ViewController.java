@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author tanghc
@@ -96,6 +95,11 @@ public class ViewController {
                                 module.getName()
                                 );
                         docInfoVO.setOrigin(String.join("/", originInfo));
+                        String deprecated = docInfo.getDeprecated();
+                        if (deprecated == null) {
+                            deprecated = "$false$";
+                        }
+                        docInfoVO.setDeprecated(deprecated);
                     }
                     list.add(docInfoVO);
                 }
@@ -133,6 +137,11 @@ public class ViewController {
                             projectDTO.getName(),
                             module.getName()
                     );
+                    String deprecated = docInfo.getDeprecated();
+                    if (deprecated == null) {
+                        deprecated = "$false$";
+                    }
+                    docInfoVO.setDeprecated(deprecated);
                     docInfoVO.setOrigin(String.join("/", originInfo));
                 }
                 list.add(docInfoVO);

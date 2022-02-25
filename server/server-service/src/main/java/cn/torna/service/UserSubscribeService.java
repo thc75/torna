@@ -1,11 +1,11 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.dao.entity.UserSubscribe;
 import cn.torna.dao.mapper.UserSubscribeMapper;
 import com.gitee.fastmybatis.core.query.Query;
-import cn.torna.common.enums.UserSubscribeTypeEnum;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

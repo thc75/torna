@@ -6,6 +6,8 @@ import cn.torna.common.context.UserContext;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserMessage;
 import cn.torna.service.UserMessageService;
+import cn.torna.web.controller.system.param.IdParam;
+import cn.torna.web.controller.user.vo.UserMessageVO;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.web.controller.system.param.IdParam;
-import cn.torna.web.controller.user.vo.UserMessageVO;
 
 import java.util.List;
 

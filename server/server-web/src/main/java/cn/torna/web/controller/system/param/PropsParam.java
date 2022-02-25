@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Map;
-
 /**
  * @author tanghc
  */

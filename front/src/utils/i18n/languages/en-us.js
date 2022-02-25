@@ -386,7 +386,8 @@ const MAPPING = {
   'thirdpartyLogin': 'Third-party Login',
   'useSmartDoc': 'Use smart-doc push documents',
   'moreOperation': 'More Operations',
-  'copySuccess': 'Copy Success'
+  'copySuccess': 'Copy Success',
+  'deprecated': 'Deprecated'
 
 }
 

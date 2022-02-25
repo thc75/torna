@@ -4,8 +4,6 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author tanghc
  */

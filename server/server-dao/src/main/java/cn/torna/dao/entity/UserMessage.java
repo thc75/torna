@@ -2,12 +2,12 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：user_message
@@ -15,13 +15,11 @@ import javax.persistence.Table;
  *
  * @author tanghc
  */
-@Table(name = "user_message")
+@Table(name = "user_message", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class UserMessage {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** user_info.id, 数据库字段：user_id */

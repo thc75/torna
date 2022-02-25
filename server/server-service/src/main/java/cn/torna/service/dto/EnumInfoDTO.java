@@ -1,9 +1,9 @@
 package cn.torna.service.dto;
 
 import cn.torna.common.support.IdCodec;
+import cn.torna.service.dataid.EnumInfoDataId;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
-import cn.torna.service.dataid.EnumInfoDataId;
 
 import java.util.List;
 

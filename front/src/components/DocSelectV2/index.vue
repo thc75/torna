@@ -37,7 +37,9 @@
         <span slot-scope="{ node, data }">
           <span>
             <i :class="getClassName(data)"></i>
-            <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }} <span v-if="data.type !== types.TYPE_DOC" class="tip">({{ data.apiCount }})</span>
+            <http-method v-if="data.httpMethod" :method="data.httpMethod" />
+            <span :class="{ 'deprecated': data.type === types.TYPE_DOC && data.deprecated !== '$false$' }">{{ node.label }}</span>
+            <span v-if="data.type !== types.TYPE_DOC" class="tip">({{ data.apiCount }})</span>
             <dubbo-service-tip v-if="data.type === types.TYPE_FOLDER && data.docType === getEnums().DOC_TYPE.DUBBO" :doc-id="data.docId" />
           </span>
           <span v-if="showUrl && data.url" class="doc-select-url">

@@ -1,5 +1,14 @@
 # 更新日志
 
+## 1.14.0
+
+- 【新增】推送文档新增`deprecated`指定废弃信息
+- 【优化】文档浏览页可复制`请求示例`和`返回示例` 感谢`liuxm提供pr`
+- 【优化】登录页可选择语言 感谢`liuxm提供pr`
+- 【优化】推送完毕打印日志
+- 【优化】优化文档浏览页调整页面大小左边菜单显示问题 [#I4U3ZT](https://gitee.com/durcframework/torna/issues/I4U3ZT)
+- 【移除】swagger url导入功能改用插件推送
+
 ## 1.13.1
 
 - 【优化】调整HttpMethod组件Tag样式

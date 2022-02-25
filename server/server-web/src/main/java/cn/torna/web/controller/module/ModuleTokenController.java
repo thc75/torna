@@ -1,5 +1,6 @@
 package cn.torna.web.controller.module;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.ModuleService;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
 
 /**
  * @author tanghc

@@ -37,6 +37,9 @@ public class DocPushTest extends BaseTest {
         // 创建三个文档
         for (int i = 0; i < 3; i++) {
             DocItem docItem = buildDocItem(i);
+            if (i == 1) {
+                docItem.setDeprecated("该接口已废弃");
+            }
             items.add(docItem);
         }
         // 创建调试环境

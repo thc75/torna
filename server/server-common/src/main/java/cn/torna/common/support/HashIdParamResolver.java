@@ -1,12 +1,12 @@
 package cn.torna.common.support;
 
+import cn.torna.common.annotation.HashId;
+import cn.torna.common.util.IdUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import cn.torna.common.annotation.HashId;
-import cn.torna.common.util.IdUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

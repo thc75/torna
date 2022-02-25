@@ -387,7 +387,8 @@ const MAPPING = {
   'thirdpartyLogin': '第三方登录',
   'useSmartDoc': '使用smart-doc推送',
   'moreOperation': '更多操作',
-  'copySuccess': '复制成功'
+  'copySuccess': '复制成功',
+  'deprecated': '已废弃'
 
 }
 

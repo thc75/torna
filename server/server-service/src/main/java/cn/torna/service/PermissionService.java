@@ -3,13 +3,13 @@ package cn.torna.service;
 import cn.torna.common.bean.User;
 import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.SpaceUser;
-import org.apache.commons.lang.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.RightDTO;
 import cn.torna.service.dto.RoleDTO;
 import cn.torna.service.dto.UserPermDTO;
+import org.apache.commons.lang.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;

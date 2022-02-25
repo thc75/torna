@@ -1,9 +1,9 @@
 package cn.torna.manager.doc.postman;
 
-import com.alibaba.fastjson.JSON;
-import org.springframework.stereotype.Service;
 import cn.torna.manager.doc.DocParser;
 import cn.torna.manager.doc.ParseConfig;
+import com.alibaba.fastjson.JSON;
+import org.springframework.stereotype.Service;
 
 /**
  * @author tanghc

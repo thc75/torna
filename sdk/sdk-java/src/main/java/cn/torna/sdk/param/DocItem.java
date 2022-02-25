@@ -24,6 +24,9 @@ public class DocItem {
     /** 访问URL */
     private String url;
 
+    /** 废弃信息 */
+    private String deprecated;
+
     /** 方法定义 */
     private String definition;
 
