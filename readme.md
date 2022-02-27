@@ -77,9 +77,8 @@ Visit:`http://ip:7700`
 Test accounts:
 
 ```
-All password is 123456
-
-Super admin:admin@torna.cn
+username:admin
+password:123456
 ```
 
 ### docker-compose deploy
