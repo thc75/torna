@@ -37,6 +37,10 @@ Run`sh startup.sh` to startup.(Windows run `startup.bat`)
 
 Visit:`http://ip:7700`
 
+- Login account:
+
+username:`admin`，password:`123456`
+
 - About upgrade
 
 Override `torna.jar` file and `dist` folder,and startup.
@@ -72,14 +76,6 @@ Need modify：
 
 Visit:`http://ip:7700`
 
----
-
-Test accounts:
-
-```
-username:admin
-password:123456
-```
 
 ### docker-compose deploy
 [docker-compose deploy](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)

@@ -37,9 +37,14 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 访问：`http://ip:7700`
 
+- 登录账号：
+
+用户名：`admin`，密码：`123456`
+
 - 后续升级
 
 无特殊说明，只需要覆盖`torna.jar文件`和`dist文件夹`，然后重启即可
+
 
 ### 方式2：docker运行
 
@@ -71,11 +76,6 @@ docker run --name torna --restart=always \
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
 
----
-
-体验账号：
-
-用户名：`admin`，密码：`123456`
 
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
