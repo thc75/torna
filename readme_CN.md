@@ -75,23 +75,7 @@ docker run --name torna --restart=always \
 
 体验账号：
 
-```
-密码均为：123456
-
-超级管理员：admin@torna.cn
-
-研发一部空间管理员：dev1admin@torna.cn
-研发一部-商城项目（公开）-项目管理员：dev1shop_admin@torna.cn
-研发一部-商城项目（公开）-开发者张三：dev1shop_zhangsan@torna.cn
-研发一部-访客王五：dev1guest_wangwu@torna.cn
-
-
-研发二部空间管理员：dev2admin@torna.cn
-研发二部-后台项目（私有）-项目管理员：dev2back_admin@torna.cn
-研发二部-后台项目（私有）-开发者李四：dev2back_lisi@torna.cn
-研发二部-后台项目（私有）-访客：dev2back_guest@torna.cn
-研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
-```
+用户名：`admin`，密码：`123456`
 
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)

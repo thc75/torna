@@ -65,12 +65,14 @@ public class UserInfoController {
     @PostMapping("/search")
     public Result<List<UserInfoDTO>> pageUser(@RequestBody UserInfoSearchParam param) {
         String username = param.getUsername();
+        List<UserInfo> list;
         if (StringUtils.isEmpty(username)) {
-            return Result.ok(Collections.emptyList());
+            list = Collections.emptyList();
+        } else {
+            Query query = new Query();
+            query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
+            list = userInfoService.list(query);
         }
-        Query query = new Query();
-        query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
-        List<UserInfo> list = userInfoService.list(query);
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
         return Result.ok(userInfoDTOS);
     }
