@@ -15,6 +15,7 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
     private static final String MODULE_KEY = "api-module-obj";
     private static final String API_USER_KEY = "api-user-obj";
     private static final String TOKEN_KEY = "api-token";
+    private static final String IP_KEY = "api-client-ip";
 
     /**
      * Get the current RequestContext
@@ -55,5 +56,13 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
 
     public void reset() {
         THREAD_LOCAL.remove();
+    }
+
+    public void setIp(String ip) {
+        put(IP_KEY, ip);
+    }
+
+    public String getIp() {
+        return (String) get(IP_KEY);
     }
 }

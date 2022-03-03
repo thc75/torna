@@ -20,7 +20,6 @@ import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.RequestUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
@@ -37,7 +36,6 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.MessageDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
-import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.annotation.Api;
 import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
@@ -106,14 +104,13 @@ public class DocApi {
         } else {
             this.checkSameFolder(param);
         }
-        ApiParam apiParam = ApiContext.getApiParam();
         RequestContext context = RequestContext.getCurrentContext();
         String author = param.getAuthor();
         if (StringUtils.hasText(author)) {
             ApiUser user = (ApiUser) context.getApiUser();
             user.setNickname(author);
         }
-        ThreadPoolUtil.execute(() -> doPush(param, apiParam, context));
+        ThreadPoolUtil.execute(() -> doPush(param, context));
     }
 
     private void checkSameFolder(DocPushParam param) {
@@ -163,11 +160,11 @@ public class DocApi {
         param.setApis(new ArrayList<>(folderItems.keySet()));
     }
 
-    private void doPush(DocPushParam param, ApiParam apiParam, RequestContext context) {
+    private void doPush(DocPushParam param, RequestContext context) {
         String token = context.getToken();
         Module module = context.getModule();
         long moduleId = module.getId();
-        String ip = RequestUtil.getIP(ApiContext.getRequest());
+        String ip = context.getIp();
         log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
