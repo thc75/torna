@@ -71,7 +71,7 @@ docker run --name torna --restart=always \
 
 - MYSQL_HOST：MySQL服务器地址
 - MYSQL_SCHEMA：数据库名称，默认不用改
-- MYSQL_USERNAME：MySQL用户名
+- MYSQL_USERNAME：MySQL用户名，要求账号能运行DDL/DML/ALTER语句
 - MYSQL_PASSWORD：MySQL密码
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip

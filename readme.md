@@ -70,7 +70,7 @@ Need modify：
 
 - MYSQL_HOST：MySQL host
 - MYSQL_SCHEMA：database name
-- MYSQL_USERNAME：MySQL username
+- MYSQL_USERNAME：MySQL username,make sure the account can run CREATE/ALTER sql.
 - MYSQL_PASSWORD：MySQL password
 
 
