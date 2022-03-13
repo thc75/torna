@@ -56,7 +56,9 @@ export default {
     // 树点击事件
     onNodeClick(data, node, tree) {
       if (data.type === this.types.TYPE_DOC) {
-        this.goRoute(`/view/${data.docId}`)
+        // 目前没想到好的办法传输文档名称到标签路由中
+        // this.goRoute(`/view/${data.docId}`)
+        this.$router.push({ path: `/view/${data.docId}`, query: { meta_title: data.label }})
       }
     },
     onSpaceChange(spaceId) {
