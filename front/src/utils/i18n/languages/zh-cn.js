@@ -347,6 +347,7 @@ const MAPPING = {
   'document': '文档',
   'systemSetting': '系统设置',
   'language': '语言',
+  'docTabView': '标签导航',
   'nickEmail': '昵称/邮箱',
   'visitStyle': '访问方式',
   'updateName': '修改名称',

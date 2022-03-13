@@ -18,6 +18,12 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item :label="$ts('docTabView')">
+        <el-radio-group v-model="systemSettingData.docViewTabs">
+          <el-radio :label="true">{{ $ts('enable') }}</el-radio>
+          <el-radio :label="false">{{ $ts('disable') }}</el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click.native.prevent="handleUpdate">{{ $ts('dlgSave') }}</el-button>
       </el-form-item>
@@ -31,7 +37,8 @@ export default {
   data() {
     return {
       systemSettingData: {
-        language: ''
+        language: '',
+        docViewTabs: false
       },
       systemSettingRules: {
       },
@@ -43,15 +50,23 @@ export default {
   },
   mounted() {
     this.systemSettingData.language = get_lang()
+    this.systemSettingData.docViewTabs = this.$store.state.settings.docViewTabSwitch
   },
   methods: {
     handleUpdate() {
       this.$refs.systemSettingForm.validate(valid => {
         if (valid) {
           set_lang(this.systemSettingData.language)
+          this.onDocViewTabSwitch(this.systemSettingData.docViewTabs)
           location.reload()
         }
       })
+    },
+    getDocViewTabSwitchKey() {
+      return `torna.doc.view.tab.switch`
+    },
+    onDocViewTabSwitch(val) {
+      this.setAttr(this.getDocViewTabSwitchKey(), val)
     }
   }
 }

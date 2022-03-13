@@ -1,11 +1,11 @@
 <template>
   <div :class="classObj" class="app-wrapper">
     <sidebar id="leftPanel" class="sidebar-container-view" />
-    <div id="rightPanel" :class="{hasDocViewTabs:docViewTabShow}" class="main-container-view">
+    <div id="rightPanel" :class="{hasDocViewTabs:docViewTabs}" class="main-container-view">
       <div id="resizeBar" class="resize-bar"></div>
       <div id="navBar" :class="{'fixed-header':fixedHeader}">
         <navbar />
-        <tabs-router v-show="docViewTabShow" />
+        <tabs-router v-show="docViewTabShow" v-if="docViewTabSwitch" />
       </div>
       <view-main />
     </div>
@@ -46,6 +46,12 @@ export default {
     },
     docViewTabShow() {
       return this.$store.state.tabsRouter.showTabsView
+    },
+    docViewTabSwitch() {
+      return this.$store.state.settings.docViewTabSwitch
+    },
+    docViewTabs() {
+      return this.docViewTabSwitch && this.docViewTabShow
     }
   },
   mounted() {

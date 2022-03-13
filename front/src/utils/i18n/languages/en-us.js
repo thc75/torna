@@ -346,6 +346,7 @@ const MAPPING = {
   'document': 'Document',
   'systemSetting': 'System Setting',
   'language': 'Language',
+  'docTabView': 'Tabs View',
   'nickEmail': 'Nickname/Email',
   'visitStyle': 'Visit Style',
   'updateName': 'Update Name',
