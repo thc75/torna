@@ -11,6 +11,7 @@ public enum EnvironmentKeys {
     LOGIN_THIRD_PARTY_ENABLE("torna.login.third-party.enable"),
     /** LDAP url */
     TORNA_LDAP_URL("torna.ldap.url"),
+    TORNA_LDAP_CUSTOM_URL("torna.ladp.custom-url"),
     /** 第三方登录形式,form/oauth二选一 */
     LOGIN_THIRD_PARTY_TYPE("torna.login.third-party.type"),
     /** 第三方登录url，torna.login.third-party.type=form时有效 */

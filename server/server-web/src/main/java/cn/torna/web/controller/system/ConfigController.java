@@ -88,6 +88,8 @@ public class ConfigController implements InitializingBean {
         configVO.setOauthButtonText(oauthButtonText);
         configVO.setIgnoreParam(Boolean.parseBoolean(EnvironmentContext.getValue("torna.mock.ignore-param", "false")));
         CopyUtil.copyProperties(configVO, tornaViewProperties);
-        tornaViewProperties.setEnableLdap(StringUtils.hasText(EnvironmentKeys.TORNA_LDAP_URL.getValue()));
+        boolean hasLdapUrl = StringUtils.hasText(EnvironmentKeys.TORNA_LDAP_URL.getValue());
+        boolean hasLdapCustomUrl = StringUtils.hasText(EnvironmentKeys.TORNA_LDAP_CUSTOM_URL.getValue());
+        tornaViewProperties.setEnableLdap(hasLdapUrl || hasLdapCustomUrl);
     }
 }
