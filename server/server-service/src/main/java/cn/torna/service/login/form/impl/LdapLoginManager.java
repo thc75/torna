@@ -5,6 +5,7 @@ import cn.torna.common.exception.BizException;
 import cn.torna.service.login.form.LoginForm;
 import cn.torna.service.login.form.LoginResult;
 import cn.torna.service.login.form.ThirdPartyLoginManager;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,14 +161,12 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     @Override
     public void afterPropertiesSet() throws Exception {
         if (StringUtils.hasText(customBaseDn)) {
-            log.info("LDAP配置，url:{}, baseDN:{}, username:{}", customUrl, customBaseDn, customUsername);
             Hashtable<String, String> env = new Hashtable<>();
-
             env.put(Context.INITIAL_CONTEXT_FACTORY, factory);
-            // ldap://192.168.153.129:389/dc=contoso,dc=com
             env.put(Context.PROVIDER_URL, customUrl);
             env.put(Context.SECURITY_PRINCIPAL, customUsername);
             env.put(Context.SECURITY_CREDENTIALS, customPassword);
+            log.info("LDAP配置，env={}", JSON.toJSONString(env));
             try {
                 ldapContext = new InitialLdapContext(env, null);
             } catch (Exception e) {
