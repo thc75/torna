@@ -15,6 +15,7 @@
       @dragend="dragend($event)"
       @mouseenter="isTabMayClick = true"
       @mouseleave="isTabMayClick = false"
+      @contextmenu.prevent="openContextMenu(tab,$event)"
     >
       <router-link
         tag="div"
@@ -25,6 +26,12 @@
       </router-link>
       <div class="el-icon-close" @click.prevent.stop="closeTab(tab)" />
     </div>
+    <ul v-show="showContextMenu" class="contextMenu" :style="contextMenuStyle">
+      <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeOthers') }}</li>
+      <li v-show="!isFirstTab()" @click="closeLeftTabs"><i class="el-icon-back" /> {{ $ts('closeLeft') }}</li>
+      <li v-show="!isLastTab()" @click="closeRightTabs"><i class="el-icon-right" /> {{ $ts('closeRight') }}</li>
+      <li @click="closeAllTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeAll') }}</li>
+    </ul>
   </div>
 </template>
 
@@ -34,7 +41,13 @@ export default {
     return {
       dragStartIndex: '',
       dragEnterIndex: '',
-      isTabMayClick: false
+      isTabMayClick: false,
+      showContextMenu: false,
+      contextMenuStyle: {
+        top: 0,
+        left: 0
+      },
+      selectedTab: {}
     }
   },
   computed: {
@@ -45,6 +58,16 @@ export default {
   watch: {
     $route() {
       this.addTabs()
+      this.closeContextMenu()
+    },
+    showContextMenu(value) {
+      if (value) {
+        document.body.addEventListener('click', this.closeContextMenu)
+        document.addEventListener('scroll', this.closeContextMenu)
+      } else {
+        document.body.removeEventListener('click', this.closeContextMenu)
+        document.removeEventListener('scroll', this.closeContextMenu)
+      }
     }
   },
   mounted() {
@@ -54,6 +77,18 @@ export default {
     // 是否选中
     isActive(route) {
       return route.path === this.$route.path
+    },
+    isFirstTab() {
+      if (this.selectedTab && this.tabsList && this.tabsList.length > 0) {
+        return this.selectedTab.path === this.tabsList[0].path
+      }
+      return false
+    },
+    isLastTab() {
+      if (this.selectedTab && this.tabsList && this.tabsList.length > 0) {
+        return this.selectedTab.path === this.tabsList[this.tabsList.length - 1].path
+      }
+      return false
     },
     addTabs() {
       const { name, path } = this.$route
@@ -125,6 +160,61 @@ export default {
     mouseWheelScroll(event) {
       this.$refs.tabs_router.scrollLeft += event.deltaY ? event.deltaY
         : event.detail && event.detail !== 0 ? event.detail : -event.wheelDelta
+      this.closeContextMenu()
+    },
+    // 右键菜单
+    openContextMenu(tab, event) {
+      const menuMinWidth = 105
+      const offsetLeft = this.$el.getBoundingClientRect().left
+      const offsetWidth = this.$el.offsetWidth
+      const maxLeft = offsetWidth - menuMinWidth
+      const left = event.clientX - offsetLeft + 15
+
+      if (left > maxLeft) {
+        this.left = maxLeft
+      } else {
+        this.left = left
+      }
+      this.contextMenuStyle = {
+        top: `${event.clientY}px`,
+        left: `${this.left}px`
+      }
+      this.selectedTab = tab
+      this.showContextMenu = true
+    },
+    // 关闭其他
+    closeOthersTabs() {
+      this.$router.push(this.selectedTab)
+      this.$store.dispatch('tabsRouter/deleteOthersVisitedTabs', this.selectedTab)
+    },
+    // 关闭左侧
+    closeLeftTabs() {
+      this.$store.dispatch('tabsRouter/deleteLeftTabs', this.selectedTab)
+        .then(visitedTabs => {
+          if (!visitedTabs.find(i => i.path === this.$route.path)) {
+            this.toLastView(visitedTabs, visitedTabs.length)
+          }
+        })
+    },
+    // 关闭右侧
+    closeRightTabs() {
+      this.$store.dispatch('tabsRouter/deleteRightTabs', this.selectedTab)
+        .then(visitedTabs => {
+          if (!visitedTabs.find(i => i.path === this.$route.path)) {
+            this.toLastView(visitedTabs, visitedTabs.length)
+          }
+        })
+    },
+    // 关闭全部
+    closeAllTabs() {
+      this.$store.dispatch('tabsRouter/deleteAllVisitedTabs').then(() => {
+        this.$router.replace({ path: '/view' })
+      })
+    },
+    // 关闭菜单
+    closeContextMenu() {
+      this.showContextMenu = false
+      this.selectedTab = {}
     }
   }
 }
@@ -206,6 +296,27 @@ export default {
   &::-webkit-scrollbar-thumb {
     border-radius: 6px;
     background: RGBA(0, 0, 0, 0.1);
+  }
+
+  .contextMenu {
+    position: absolute;
+    background-color: #FFF;
+    box-shadow: 2px 2px 3px 0 RGBA(0, 0, 0, .3);
+    padding: 5px 0;
+    list-style-type: none;
+    border-radius: 4px;
+    font-size: 13px;
+    margin: 0;
+    color: #333;
+
+    li {
+      padding: 7px 16px;
+      cursor: pointer;
+
+      &:hover {
+        background: #EEE;
+      }
+    }
   }
 }
 </style>

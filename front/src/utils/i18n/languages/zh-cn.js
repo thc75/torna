@@ -389,7 +389,11 @@ const MAPPING = {
   'useSmartDoc': '使用smart-doc推送',
   'moreOperation': '更多操作',
   'copySuccess': '复制成功',
-  'deprecated': '已废弃'
+  'deprecated': '已废弃',
+  'closeOthers': '关闭其他',
+  'closeAll': '关闭全部',
+  'closeLeft': '关闭左侧',
+  'closeRight': '关闭右侧'
 
 }
 

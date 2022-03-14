@@ -34,6 +34,31 @@ const actions = {
       }
     })
   },
+  deleteOthersVisitedTabs({ commit, state }, view) {
+    return new Promise(resolve => {
+      commit('DELETE_OTHERS_VISITED_TABS', view)
+      resolve([...state.visitedTabs])
+    })
+  },
+  deleteAllVisitedTabs({ commit, dispatch, state }) {
+    return new Promise(resolve => {
+      commit('DELETE_ALL_VISITED_TABS')
+      dispatch('setting', false)
+      resolve([...state.visitedTabs])
+    })
+  },
+  deleteLeftTabs({ commit }, view) {
+    return new Promise(resolve => {
+      commit('DELETE_LEFT_TABS', view)
+      resolve([...state.visitedTabs])
+    })
+  },
+  deleteRightTabs({ commit }, view) {
+    return new Promise(resolve => {
+      commit('DELETE_RIGHT_TABS', view)
+      resolve([...state.visitedTabs])
+    })
+  },
   setting: ({ commit }, value) => {
     commit('SETTING', !!value)
   }
@@ -49,6 +74,26 @@ const mutations = {
   },
   DELETE_VISITED_TABS: (state, index) => {
     state.visitedTabs.splice(index, 1)
+  },
+  DELETE_OTHERS_VISITED_TABS: (state, view) => {
+    state.visitedTabs = state.visitedTabs.filter(v => v.path === view.path)
+  },
+  DELETE_ALL_VISITED_TABS: state => {
+    state.visitedTabs = []
+  },
+  DELETE_LEFT_TABS: (state, view) => {
+    const index = state.visitedTabs.findIndex(v => v.path === view.path)
+    if (index === -1) {
+      return
+    }
+    state.visitedTabs = state.visitedTabs.filter((item, idx) => idx >= index)
+  },
+  DELETE_RIGHT_TABS: (state, view) => {
+    const index = state.visitedTabs.findIndex(v => v.path === view.path)
+    if (index === -1) {
+      return
+    }
+    state.visitedTabs = state.visitedTabs.filter((item, idx) => idx <= index)
   },
   SETTING: (state, value) => {
     state.showTabsView = value
