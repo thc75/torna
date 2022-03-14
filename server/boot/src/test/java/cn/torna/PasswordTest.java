@@ -35,7 +35,7 @@ public class PasswordTest extends TornaApplicationTests {
     @Test
     public void testPasswordInDb() {
         // 登录账号
-        String username = "admin@torna.cn";
+        String username = "admin";
         // 密码，明文
         String password = "123456";
         password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
