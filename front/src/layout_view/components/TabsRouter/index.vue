@@ -5,10 +5,14 @@
     @mousewheel.prevent="mouseWheelScroll"
   >
     <div
-      v-for="tab in tabsList"
+      v-for="(tab,index) in tabsList"
       :key="tab.path"
       :class="{'active':isActive(tab)}"
       class="tab-item"
+      draggable="true"
+      @dragstart.stop="dragStartIndex = index"
+      @dragenter.stop="dragEnterIndex = index"
+      @dragend="dragend($event)"
       @mouseenter="isTabMayClick = true"
       @mouseleave="isTabMayClick = false"
     >
@@ -28,6 +32,8 @@
 export default {
   data() {
     return {
+      dragStartIndex: '',
+      dragEnterIndex: '',
       isTabMayClick: false
     }
   },
@@ -93,6 +99,17 @@ export default {
       } else {
         this.$router.replace({ path: '/view' })
       }
+    },
+    dragend(e) {
+      if (this.dragEnterIndex < this.dragStartIndex) { // 拖动到前面
+        this.tabsList.splice(this.dragEnterIndex, 0, this.tabsList[this.dragStartIndex])
+        this.tabsList.splice(Number(this.dragStartIndex) + 1, 1)
+      } else { // 拖动到后面
+        this.tabsList.splice(Number(this.dragEnterIndex) + 1, 0, this.tabsList[this.dragStartIndex])
+        this.tabsList.splice(Number(this.dragStartIndex), 1)
+      }
+      this.dragStartIndex = ''
+      e.preventDefault()
     },
     // 是否有横向滚动条
     canHorizontalScroll(element) {
