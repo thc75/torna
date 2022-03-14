@@ -12,7 +12,7 @@ Torna makes up for the shortcomings of traditional document generation tools suc
 
 | Module |                                     Version                                     |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.14.0                                      |
+| Torna |                                     1.14.1                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
@@ -70,7 +70,7 @@ Need modify：
 
 - MYSQL_HOST：MySQL host
 - MYSQL_SCHEMA：database name
-- MYSQL_USERNAME：MySQL username
+- MYSQL_USERNAME：MySQL username,make sure the account can run CREATE/ALTER sql.
 - MYSQL_PASSWORD：MySQL password
 
 

@@ -12,7 +12,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 | 模块 |                                       版本                                        |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.14.0                                      |
+| Torna |                                     1.14.1                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
@@ -71,7 +71,7 @@ docker run --name torna --restart=always \
 
 - MYSQL_HOST：MySQL服务器地址
 - MYSQL_SCHEMA：数据库名称，默认不用改
-- MYSQL_USERNAME：MySQL用户名
+- MYSQL_USERNAME：MySQL用户名，要求账号能运行DDL/DML/ALTER语句
 - MYSQL_PASSWORD：MySQL密码
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip

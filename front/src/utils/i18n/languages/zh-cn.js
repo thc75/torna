@@ -347,6 +347,7 @@ const MAPPING = {
   'document': '文档',
   'systemSetting': '系统设置',
   'language': '语言',
+  'docTabView': '标签导航',
   'nickEmail': '昵称/邮箱',
   'visitStyle': '访问方式',
   'updateName': '修改名称',
@@ -388,7 +389,11 @@ const MAPPING = {
   'useSmartDoc': '使用smart-doc推送',
   'moreOperation': '更多操作',
   'copySuccess': '复制成功',
-  'deprecated': '已废弃'
+  'deprecated': '已废弃',
+  'closeOthers': '关闭其他',
+  'closeAll': '关闭全部',
+  'closeLeft': '关闭左侧',
+  'closeRight': '关闭右侧'
 
 }
 

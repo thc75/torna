@@ -1,6 +1,7 @@
 import defaultSettings from '@/settings'
 
 const { showSettings, fixedHeader, sidebarLogo } = defaultSettings
+const docViewTab = localStorage.getItem('torna.doc.view.tab.switch')
 
 const state = {
   showSettings: showSettings,
@@ -9,7 +10,8 @@ const state = {
   currentProject: '',
   currentSpace: '',
   moduleId: '',
-  projectId: ''
+  projectId: '',
+  docViewTabSwitch: (docViewTab || 'false') === 'true'
 }
 
 const mutations = {
