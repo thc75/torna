@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -64,7 +65,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     public LoginResult login(LoginForm loginForm) throws Exception {
         String username = loginForm.getUsername();
         String password = loginForm.getPassword();
-        LdapUser ldapUser = authNormal(username, password);
+        LdapUser ldapUser = ldapLogin(username, password);
         // 正常流程登录失败，再使用spring封装的登录
         if (ldapUser == null) {
             ldapUser = ldapAuth(username, password);
@@ -109,7 +110,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         }
     }
 
-    public LdapUser authNormal(String uid, String password) {
+    public LdapUser ldapLogin(String uid, String password) {
         if (ldapContext == null) {
             return null;
         }
@@ -123,24 +124,32 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
             ldapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
             ldapContext.reconnect(null);
             // 成功表示用户名密码正确
-            return buildLdapUser(searchResult);
+            return buildLdapUser(uid, searchResult);
         } catch (Exception e) {
-            log.error("LDAP认证失败, uid={}", uid, e);
+            log.error("LDAP认证失败, url={}, uid={}", customUrl, uid, e);
             return null;
         }
     }
 
-    private LdapUser buildLdapUser(SearchResult searchResult) throws NamingException {
+    private LdapUser buildLdapUser(String uid, SearchResult searchResult) {
         Attributes attributes = searchResult.getAttributes();
-        String uid = String.valueOf(attributes.get("uid").get());
-        String displayName = String.valueOf(attributes.get("displayName").get());
-        String mail = String.valueOf(attributes.get("mail").get());
+        log.info("LDAP登录信息：{}", attributes);
+        String displayName = getAttributeValue(attributes.get("displayName"), uid);
+        String mail = getAttributeValue(attributes.get("mail"), "");
         LdapUser ldapUser = new LdapUser();
         ldapUser.setUid(uid);
         ldapUser.setDisplayName(displayName);
         ldapUser.setMail(mail);
-        log.debug("LDAP自定义配置登录成功，ldapUser={}", ldapUser);
         return ldapUser;
+    }
+
+    private static String getAttributeValue(Attribute attribute, String defaultValue) {
+        try {
+            return attribute == null ? defaultValue : String.valueOf(attribute.get());
+        } catch (NamingException e) {
+            log.error("获取attribute失败, attribute={}", attribute, e);
+            return defaultValue;
+        }
     }
 
     private SearchResult getUserInfo(String uid) {
