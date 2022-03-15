@@ -239,7 +239,6 @@ export default {
     width: 110px;
     min-width: 110px;
     background: #FFF;
-    padding: 0 8px;
     margin-left: 5px;
     cursor: pointer;
     display: flex;
@@ -265,11 +264,13 @@ export default {
     }
 
     .tab-title {
-      margin-top: 4px;
-      max-width: 80px;
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
+      width: 100%;
+      height: 100%;
+      vertical-align: center;
+      padding: 7px 8px;
     }
 
     .el-icon-close {
