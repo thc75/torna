@@ -116,7 +116,7 @@ CREATE TABLE `doc_info` (
                             `description` text NOT NULL COMMENT '文档描述',
                             `author` varchar(64) NOT NULL DEFAULT '' COMMENT '维护人',
                             `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0:http,1:dubbo',
-                            `url` varchar(128) NOT NULL DEFAULT '' COMMENT '访问URL',
+                            `url` varchar(256) NOT NULL DEFAULT '' COMMENT '访问URL',
                             `http_method` varchar(12) NOT NULL DEFAULT '' COMMENT 'http方法',
                             `content_type` varchar(128) NOT NULL DEFAULT '' COMMENT 'contentType',
                             `deprecated` varchar(128) DEFAULT '$false$' COMMENT '废弃信息',
