@@ -13,6 +13,7 @@ import cn.torna.dao.mapper.UserMessageMapper;
 import cn.torna.service.dto.MessageDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,10 +96,9 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         return this.list(query);
     }
 
-    public PageEasyui<UserMessage> pageMessage(long userId, SchPageableParam pageableParam) {
-        Query query = new Query()
+    public PageEasyui<UserMessage> pageMessage(long userId, PageParam pageableParam) {
+        Query query = pageableParam.toQuery()
                 .eq("user_id", userId)
-                .limit(pageableParam.getStart(), pageableParam.getLimit())
                 .orderby("is_read", Sort.ASC)
                 .orderby("id", Sort.DESC);
 

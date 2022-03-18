@@ -29,6 +29,7 @@ import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
@@ -103,13 +104,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .collect(Collectors.toList());
     }
 
-    public PageEasyui<DocInfo> pageDocByIds(List<Long> docIds, SchPageableParam pageParam) {
+    public PageEasyui<DocInfo> pageDocByIds(List<Long> docIds, PageParam pageParam) {
         if (CollectionUtils.isEmpty(docIds)) {
             return new PageEasyui<>();
         }
-        Query query = new Query()
+        Query query = pageParam.toQuery()
                 .in("id", docIds)
-                .limit(pageParam.getStart(), pageParam.getLimit())
                 .orderby("order_index", Sort.ASC);
         return MapperUtil.queryForEasyuiDatagrid(this.getMapper(), query);
     }
