@@ -26,11 +26,13 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
+import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -343,10 +345,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
-        DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
-        // 发送站内信
-        userMessageService.sendMessageByModifyDoc(docInfo);
-        return docInfo;
+        return this.insertDocInfo(docInfoDTO, user);
     }
 
     private DocInfo insertDocInfo(DocInfoDTO docInfoDTO, User user) {
@@ -356,9 +355,86 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     private DocInfo modifyDocInfo(DocInfoDTO docInfoDTO, User user) {
-        DocInfo docInfo = buildDocInfo(docInfoDTO, user);
+        DocInfo docInfo = this.getById(docInfoDTO.getId());
+        String oldMd5 = docInfo.getMd5();
+        String newMd5 = getDocMd5(docInfoDTO);
+        CopyUtil.copyPropertiesIgnoreNull(docInfoDTO, docInfo);
+        docInfo.setMd5(newMd5);
+        // 手动赋值
+        docInfo.setCreateMode(user.getOperationModel());
+        docInfo.setModifyMode(user.getOperationModel());
+        docInfo.setCreatorId(user.getUserId());
+        docInfo.setCreatorName(user.getNickname());
+        docInfo.setModifierId(user.getUserId());
+        docInfo.setModifierName(user.getNickname());
+        docInfo.setDataId(docInfoDTO.buildDataId());
+        if (docInfo.getDescription() == null) {
+            docInfo.setDescription("");
+        }
+        if (docInfo.getDeprecated() == null) {
+            docInfo.setDeprecated("$false$");
+        }
         this.update(docInfo);
+        if (StringUtils.hasText(oldMd5) && !Objects.equals(oldMd5, newMd5)) {
+            // 发送站内信
+            userMessageService.sendMessageByModifyDoc(docInfo);
+        }
         return docInfo;
+    }
+
+    public static String getDocMd5(DocInfoDTO docInfoDTO) {
+        NotNullStringBuilder content = new NotNullStringBuilder()
+                .append(docInfoDTO.getName())
+                .append(docInfoDTO.getDescription())
+                .append(docInfoDTO.getAuthor())
+                .append(docInfoDTO.getUrl())
+                .append(docInfoDTO.getHttpMethod())
+                .append(docInfoDTO.getParentId())
+                .append(docInfoDTO.getModuleId())
+                .append(docInfoDTO.getProjectId())
+                .append(docInfoDTO.getIsUseGlobalHeaders())
+                .append(docInfoDTO.getIsUseGlobalParams())
+                .append(docInfoDTO.getIsUseGlobalReturns())
+                .append(docInfoDTO.getIsRequestArray())
+                .append(docInfoDTO.getIsResponseArray())
+                .append(docInfoDTO.getRemark())
+                .append(getDocParamsMd5(docInfoDTO))
+                ;
+        return DigestUtils.md5Hex(content.toString());
+    }
+
+    private static String getDocParamsMd5(DocInfoDTO docInfoDTO) {
+        StringBuilder content = new StringBuilder()
+                .append(getParamsContent(docInfoDTO.getPathParams()))
+                .append(getParamsContent(docInfoDTO.getHeaderParams()))
+                .append(getParamsContent(docInfoDTO.getQueryParams()))
+                .append(getParamsContent(docInfoDTO.getRequestParams()))
+                .append(getParamsContent(docInfoDTO.getResponseParams()))
+                .append(getParamsContent(docInfoDTO.getErrorCodeParams()))
+                ;
+        return DigestUtils.md5Hex(content.toString());
+    }
+
+    private static String getParamsContent(List<DocParamDTO> docParamDTOS) {
+        if (CollectionUtils.isEmpty(docParamDTOS)) {
+            return "";
+        }
+        return docParamDTOS.stream()
+                .filter(docParamDTO -> Objects.equals(docParamDTO.getIsDeleted(), Booleans.FALSE))
+                .map(docParamDTO -> {
+                    NotNullStringBuilder stringBuilder = new NotNullStringBuilder()
+                            .append(docParamDTO.getName())
+                            .append(docParamDTO.getType())
+                            .append(docParamDTO.getRequired())
+                            .append(docParamDTO.getExample())
+                            .append(docParamDTO.getDescription())
+                            .append(docParamDTO.getEnumId())
+                            .append(docParamDTO.getIsDeleted())
+                            .append(getParamsContent(docParamDTO.getChildren()))
+                            ;
+                    return stringBuilder.toString();
+                })
+                .collect(Collectors.joining());
     }
 
     private DocInfo buildDocInfo(DocInfoDTO docInfoDTO, User user) {
