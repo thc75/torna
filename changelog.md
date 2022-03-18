@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.14.3
+
+- 【优化】优化消息推送 [#I4XGER](https://gitee.com/durcframework/torna/issues/I4XGER)
+- 【升级】升级fastmybatis到2.1.0
+
 ## 1.14.2
 
 - 【新增】文档浏览页新增tab标签。默认未启用，启用方式：个人中心-系统设置
