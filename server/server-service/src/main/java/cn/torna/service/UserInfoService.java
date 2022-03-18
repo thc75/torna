@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.LoginUser;
-import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
@@ -80,7 +79,8 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     public static boolean isThirdPartyUser(UserInfo userInfo) {
         String source = userInfo.getSource();
         return Objects.equals(source, UserInfoSourceEnum.FORM.getSource())
-                || Objects.equals(source, UserInfoSourceEnum.OAUTH.getSource());
+                || Objects.equals(source, UserInfoSourceEnum.OAUTH.getSource())
+                || Objects.equals(source, UserInfoSourceEnum.LDAP.getSource());
     }
 
     /**
@@ -112,19 +112,6 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         Assert.isNull(userInfo, () -> "账号已被注册");
     }
 
-
-    public User getLoginUser(long id) {
-        UserInfo userInfo = getById(id);
-        if (userInfo == null) {
-            log.warn("登录用户不存在，userId：{}", id);
-            return null;
-        }
-        if (userInfo.getStatus() == UserStatusEnum.DISABLED.getStatus()) {
-            log.warn("用户被禁用, userId:{}, username:{}, nickname:{}", userInfo.getId(), userInfo.getUsername(), userInfo.getNickname());
-            return null;
-        }
-        return CopyUtil.copyBean(userInfo, LoginUser::new);
-    }
 
     public String getDbPassword(String username, String password) {
         return GenerateUtil.getUserPassword(username, password, salt);
@@ -171,7 +158,10 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
                 userInfo = this.doDatabaseLogin(username, password);
             }
         }
-        return buildLoginUser(userInfo);
+        LoginUser loginUser = buildLoginUser(userInfo);
+        // 保存到缓存
+        userCacheManager.saveUser(loginUser);
+        return loginUser;
     }
 
     private LoginUser buildLoginUser(UserInfo userInfo) {
@@ -183,7 +173,6 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         // 创建token
         String token = this.createToken(userInfo.getId());
         loginUser.setToken(token);
-        userCacheManager.saveUser(loginUser);
         return loginUser;
     }
 
