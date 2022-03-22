@@ -73,6 +73,7 @@ public class UserInfoController {
         } else {
             Query query = new Query();
             query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
+            query.orderby("id", Sort.DESC);
             list = userInfoService.list(query);
         }
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
