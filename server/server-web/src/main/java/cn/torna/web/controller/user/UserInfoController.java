@@ -13,6 +13,7 @@ import cn.torna.web.controller.user.param.UpdatePasswordParam;
 import cn.torna.web.controller.user.param.UserIdParam;
 import cn.torna.web.controller.user.param.UserInfoSearchParam;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,7 @@ public class UserInfoController {
     @PostMapping("/list")
     public Result<List<UserInfoDTO>> pageUser(@RequestBody UserIdParam param) {
         Query query = Query.build(param);
+        query.orderby("id", Sort.DESC);
         List<UserInfo> list = userInfoService.list(query);
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
         return Result.ok(userInfoDTOS);
