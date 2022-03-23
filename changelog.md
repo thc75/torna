@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.14.4
+
+- 【修复】修复分享整个模块只显示部分文档问题
+- 【修复】修复调试返回非200状态不显示错误信息问题 [#I4Y25X](https://gitee.com/durcframework/torna/issues/I4Y25X)
+
 ## 1.14.3
 
 - 【优化】优化消息推送 [#I4XGER](https://gitee.com/durcframework/torna/issues/I4XGER)
