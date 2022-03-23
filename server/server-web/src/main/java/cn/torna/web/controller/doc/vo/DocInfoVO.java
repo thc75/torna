@@ -62,6 +62,7 @@ public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
 
     private Date gmtModified;
 
+    @JSONField(serialize = false)
     private DocInfoVO parent;
 
     private int apiCount;
