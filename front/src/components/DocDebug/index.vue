@@ -243,7 +243,7 @@
       </el-col>
       <el-col :span="rightSpanSize" style="border-left: 1px #E4E7ED solid;">
         <div class="result-status">
-          Status: <el-tag :type="result.status === 200 ? 'success' : 'danger'">{{ result.status }}</el-tag>
+          Status: <el-tag :type="result.status >= 200 && result.status < 300 ? 'success' : 'danger'">{{ result.status }}</el-tag>
         </div>
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$ts('returnResult')" name="body">
@@ -524,10 +524,14 @@ export default {
         realHeaders = headers
       }
       request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, error => {
-        console.error(error)
-        this.sendLoading = false
-        this.result.content = $ts('sendErrorTip')
-        this.openRightPanel()
+        const resp = error.response
+        if (resp) {
+          this.doProxyResponse(resp)
+        } else {
+          this.sendLoading = false
+          this.result.content = $ts('sendErrorTip')
+          this.openRightPanel()
+        }
       })
       this.setProps()
     },
