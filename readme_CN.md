@@ -54,6 +54,8 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 `docker pull tanghc2020/torna:latest`
 
+或者使用阿里云docker仓库：`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest`
+
 下载完成后，执行docker命令：
 
 ```
@@ -65,6 +67,19 @@ docker run --name torna --restart=always \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
   -d tanghc2020/torna:latest
+```
+
+阿里云镜像执行：
+
+```
+docker run --name torna --restart=always \
+  -p 7700:7700 \
+  -e JAVA_OPTS="-Xms256m -Xmx256m" \
+  -e MYSQL_HOST="172.16.60.102:3306" \
+  -e MYSQL_SCHEMA="torna" \
+  -e MYSQL_USERNAME="root" \
+  -e MYSQL_PASSWORD="root" \
+  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest
 ```
 
 需改更改的部分：
