@@ -54,7 +54,9 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 `docker pull tanghc2020/torna:latest`
 
-或者使用阿里云docker仓库：`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest`
+或者使用阿里云docker仓库：
+
+`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest`
 
 下载完成后，执行docker命令：
 
