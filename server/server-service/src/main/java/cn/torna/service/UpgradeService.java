@@ -38,7 +38,7 @@ public class UpgradeService {
 
     private static final int PRO_VERSION = 10;
 
-    private static final int VERSION = 1130;
+    private static final int VERSION = 1132;
 
 
     private static final String TORNA_PRO_VERSION_KEY = "tornapro.version";
@@ -118,6 +118,16 @@ public class UpgradeService {
         v1_9_5(oldVersion);
         v1_12_0(oldVersion);
         v1_13_0(oldVersion);
+        v1_13_2(oldVersion);
+    }
+
+    private void v1_13_2(int oldVersion) {
+        if (oldVersion < 1132) {
+            addColumn("doc_info",
+                    "deprecated",
+                    "ALTER TABLE `doc_info` ADD COLUMN `deprecated` VARCHAR(128) DEFAULT '$false$'  COMMENT '废弃信息' AFTER `content_type`"
+            );
+        }
     }
 
     private void v1_13_0(int oldVersion) {

@@ -2,12 +2,12 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：enum_info
@@ -15,13 +15,11 @@ import javax.persistence.Table;
  *
  * @author tanghc
  */
-@Table(name = "enum_info")
+@Table(name = "enum_info", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class EnumInfo {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 唯一id，md5(module_id:name), 数据库字段：data_id */
@@ -37,7 +35,7 @@ public class EnumInfo {
     private Long moduleId;
 
     /**  数据库字段：is_deleted */
-    @com.gitee.fastmybatis.core.annotation.LogicDelete
+    @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
     /**  数据库字段：gmt_create */

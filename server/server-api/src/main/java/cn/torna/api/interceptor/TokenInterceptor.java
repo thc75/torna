@@ -3,6 +3,7 @@ package cn.torna.api.interceptor;
 import cn.torna.api.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.common.context.SpringContext;
+import cn.torna.common.util.RequestUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.ModuleService;
 import com.gitee.easyopen.ApiContext;
@@ -34,8 +35,10 @@ public class TokenInterceptor extends ApiInterceptorAdapter {
         if (module == null) {
             throw Errors.ERROR_ACCESS_TOKEN.getException();
         }
+        String ip = RequestUtil.getIP(request);
         RequestContext currentContext = RequestContext.getCurrentContext();
-        currentContext.setModuleId(module.getId());
+        currentContext.setIp(ip);
+        currentContext.setModule(module);
         currentContext.setToken(accessToken);
         currentContext.setApiUser(DEFAULT_USER);
         return true;

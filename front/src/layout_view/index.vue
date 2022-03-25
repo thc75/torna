@@ -1,11 +1,11 @@
 <template>
   <div :class="classObj" class="app-wrapper">
-    <div v-if="device==='mobile'&&sidebarView.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar id="leftPanel" class="sidebar-container-view" />
-    <div id="rightPanel" class="main-container-view">
+    <div id="rightPanel" :class="{hasDocViewTabs:docViewTabs}" class="main-container-view">
       <div id="resizeBar" class="resize-bar"></div>
       <div id="navBar" :class="{'fixed-header':fixedHeader}">
         <navbar />
+        <tabs-router v-show="docViewTabShow" v-if="docViewTabSwitch" />
       </div>
       <view-main />
     </div>
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { Navbar, Sidebar, ViewMain } from './components'
+import { Navbar, Sidebar, ViewMain, TabsRouter } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { ResizeBar } from '@/utils/resizebar'
 
@@ -22,7 +22,8 @@ export default {
   components: {
     Navbar,
     Sidebar,
-    ViewMain
+    ViewMain,
+    TabsRouter
   },
   mixins: [ResizeMixin],
   computed: {
@@ -42,6 +43,15 @@ export default {
         withoutAnimation: this.sidebarView.withoutAnimation,
         mobile: this.device === 'mobile'
       }
+    },
+    docViewTabShow() {
+      return this.$store.state.tabsRouter.showTabsView
+    },
+    docViewTabSwitch() {
+      return this.$store.state.settings.docViewTabSwitch
+    },
+    docViewTabs() {
+      return this.docViewTabSwitch && this.docViewTabShow
     }
   },
   mounted() {

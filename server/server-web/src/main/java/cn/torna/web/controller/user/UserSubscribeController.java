@@ -1,5 +1,6 @@
 package cn.torna.web.controller.user;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
@@ -9,23 +10,20 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserSubscribe;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.UserSubscribeService;
+import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.user.param.UserSubscribeParam;
+import cn.torna.web.controller.user.vo.UserSubscribeVO;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import cn.torna.common.annotation.HashId;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.torna.web.controller.doc.vo.DocInfoVO;
-import cn.torna.web.controller.user.vo.UserSubscribeVO;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc

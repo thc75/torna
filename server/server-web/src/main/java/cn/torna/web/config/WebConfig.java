@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,6 +41,8 @@ import java.util.List;
  */
 @Configuration
 @Slf4j
+// 开启异步调用
+@EnableAsync
 public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, InitializingBean {
 
     @Value("${torna.front-location:}")

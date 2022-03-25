@@ -2,12 +2,12 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：doc_param
@@ -15,13 +15,11 @@ import javax.persistence.Table;
  *
  * @author tanghc
  */
-@Table(name = "doc_param")
+@Table(name = "doc_param", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class DocParam {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 唯一id，md5(doc_id:parent_id:style:name), 数据库字段：data_id */
@@ -54,7 +52,7 @@ public class DocParam {
     /**  数据库字段：parent_id */
     private Long parentId;
 
-    /** 0：header, 1：请求参数，2：返回参数，3：错误码, 数据库字段：style */
+    /** 0：path, 1：header， 2：请求参数，3：返回参数，4：错误码, 数据库字段：style */
     private Byte style;
 
     /** 新增操作方式，0：人工操作，1：开放平台推送, 数据库字段：create_mode */
@@ -79,7 +77,7 @@ public class DocParam {
     private Integer orderIndex;
 
     /**  数据库字段：is_deleted */
-    @com.gitee.fastmybatis.core.annotation.LogicDelete
+    @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
     /**  数据库字段：gmt_create */

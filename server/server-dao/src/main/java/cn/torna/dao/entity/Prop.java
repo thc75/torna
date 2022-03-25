@@ -1,12 +1,13 @@
 package cn.torna.dao.entity;
 
+import java.util.Date;
+
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Date;
 
 /**
  * 表名：prop
@@ -14,13 +15,11 @@ import java.util.Date;
  *
  * @author tanghc
  */
-@Table(name = "prop")
+@Table(name = "prop", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class Prop {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 关联id, 数据库字段：ref_id */

@@ -2,8 +2,6 @@ package cn.torna.service.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author tanghc
  */

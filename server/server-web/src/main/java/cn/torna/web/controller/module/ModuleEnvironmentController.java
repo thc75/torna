@@ -7,13 +7,9 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.GenerateUtil;
 import cn.torna.common.util.IdGen;
-import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleEnvironment;
-import cn.torna.dao.entity.Project;
-import cn.torna.dao.entity.ProjectUser;
 import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
@@ -22,10 +18,7 @@ import cn.torna.service.dto.ModuleEnvironmentCopyDTO;
 import cn.torna.service.dto.ModuleEnvironmentImportDTO;
 import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.SpaceDTO;
-import cn.torna.web.controller.doc.vo.TreeVO;
-import cn.torna.web.controller.module.param.ModuleEnvironmentImportParam;
 import cn.torna.web.controller.module.param.ModuleEnvironmentSettingAddParam;
-import cn.torna.web.controller.module.param.ModuleEnvironmentSettingParam;
 import cn.torna.web.controller.module.param.ModuleEnvironmentSettingUpdateParam;
 import cn.torna.web.controller.module.vo.ModuleEnvironmentVO;
 import cn.torna.web.controller.module.vo.TreeEnvVO;
@@ -41,7 +34,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 模块配置-环境

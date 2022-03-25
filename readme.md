@@ -12,7 +12,7 @@ Torna makes up for the shortcomings of traditional document generation tools suc
 
 | Module |                                     Version                                     |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.13.0                                      |
+| Torna |                                     1.14.4                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
@@ -36,6 +36,10 @@ Open`application.properties`,modify database config
 Run`sh startup.sh` to startup.(Windows run `startup.bat`)
 
 Visit:`http://ip:7700`
+
+- Login account:
+
+username:`admin`，password:`123456`
 
 - About upgrade
 
@@ -66,21 +70,12 @@ Need modify：
 
 - MYSQL_HOST：MySQL host
 - MYSQL_SCHEMA：database name
-- MYSQL_USERNAME：MySQL username
+- MYSQL_USERNAME：MySQL username,make sure the account can run CREATE/ALTER sql.
 - MYSQL_PASSWORD：MySQL password
 
 
 Visit:`http://ip:7700`
 
----
-
-Test accounts:
-
-```
-All password is 123456
-
-Super admin:admin@torna.cn
-```
 
 ### docker-compose deploy
 [docker-compose deploy](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)

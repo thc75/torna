@@ -357,6 +357,7 @@ const MAPPING = {
   'document': 'Document',
   'systemSetting': 'System Setting',
   'language': 'Language',
+  'docTabView': 'Tabs View',
   'nickEmail': 'Nickname/Email',
   'visitStyle': 'Visit Style',
   'updateName': 'Update Name',
@@ -393,7 +394,12 @@ const MAPPING = {
   'thirdpartyLogin': 'Third-party Login',
   'useSmartDoc': 'Use smart-doc push documents',
   'moreOperation': 'More Operations',
-  'copySuccess': 'Copy Success'
+  'copySuccess': 'Copy Success',
+  'deprecated': 'Deprecated',
+  'closeOthers': 'Close Others',
+  'closeAll': 'Close All',
+  'closeLeft': 'Close Left',
+  'closeRight': 'Close Right'
 
 }
 

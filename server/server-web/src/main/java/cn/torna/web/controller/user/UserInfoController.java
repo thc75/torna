@@ -13,6 +13,7 @@ import cn.torna.web.controller.user.param.UpdatePasswordParam;
 import cn.torna.web.controller.user.param.UserIdParam;
 import cn.torna.web.controller.user.param.UserInfoSearchParam;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,7 @@ public class UserInfoController {
     @PostMapping("/list")
     public Result<List<UserInfoDTO>> pageUser(@RequestBody UserIdParam param) {
         Query query = Query.build(param);
+        query.orderby("id", Sort.DESC);
         List<UserInfo> list = userInfoService.list(query);
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
         return Result.ok(userInfoDTOS);
@@ -65,12 +67,15 @@ public class UserInfoController {
     @PostMapping("/search")
     public Result<List<UserInfoDTO>> pageUser(@RequestBody UserInfoSearchParam param) {
         String username = param.getUsername();
+        List<UserInfo> list;
         if (StringUtils.isEmpty(username)) {
-            return Result.ok(Collections.emptyList());
+            list = Collections.emptyList();
+        } else {
+            Query query = new Query();
+            query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
+            query.orderby("id", Sort.DESC);
+            list = userInfoService.list(query);
         }
-        Query query = new Query();
-        query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
-        List<UserInfo> list = userInfoService.list(query);
         List<UserInfoDTO> userInfoDTOS = CopyUtil.copyList(list, UserInfoDTO::new);
         return Result.ok(userInfoDTOS);
     }

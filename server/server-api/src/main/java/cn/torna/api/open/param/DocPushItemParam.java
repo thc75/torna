@@ -1,7 +1,6 @@
 package cn.torna.api.open.param;
 
 import com.gitee.easyopen.doc.annotation.ApiDocField;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -30,6 +29,10 @@ public class DocPushItemParam {
 
     @ApiDocField(description = "接口维护人", example = "李四")
     private String author;
+
+    @ApiDocField(description = "废弃描述，没有不传，传了值就代表废弃", example = "该接口已废弃，改成:/user/list")
+    @Length(max = 128, message = "'deprecated' 长度不能超过128")
+    private String deprecated;
 
     /** 0:http,1:dubbo */
     private Byte type;

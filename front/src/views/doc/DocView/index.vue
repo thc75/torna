@@ -2,7 +2,8 @@
   <div class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
+        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
+        <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <div v-show="showOptBar" style="float: right">
           <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
             <el-button
@@ -29,11 +30,21 @@
         {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
+    <div v-show="isDeprecated" style="margin-top: 10px">
+      <el-tag type="warning" class="el-tag-method">{{ $ts('deprecated') }}</el-tag>
+      <span class="tip">{{ docInfo.deprecated }}</span>
+    </div>
     <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
-      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name">
+      <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
         {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
+        <el-tag
+          size="small"
+          v-show="hostConfigName === hostConfig.name"
+          effect="plain"
+          class="copyBtn"
+          @click.stop="copy(docInfo.url)">{{ $ts('copy') }}</el-tag>
       </li>
     </ul>
     <span v-else class="debug-url">
@@ -74,13 +85,29 @@
     </div>
     <div v-show="isShowRequestExample">
       <h4>{{ $ts('requestExample') }}</h4>
-      <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+      <div class="code-box" @mouseenter="isShowRequestExampleCopy=true" @mouseleave="isShowRequestExampleCopy=false">
+        <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+        <el-tag
+          v-show="isShowRequestExampleCopy"
+          size="small"
+          effect="plain"
+          class="code-copy"
+          @click.stop="copy(formatJson(requestExample))">{{ $ts('copy') }}</el-tag>
+      </div>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
     <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
     <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <h4>{{ $ts('responseExample') }}</h4>
-    <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
+    <div class="code-box" @mouseenter="isShowResponseSuccessExample=true" @mouseleave="isShowResponseSuccessExample=false">
+      <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
+      <el-tag
+        v-show="isShowResponseSuccessExample"
+        size="small"
+        effect="plain"
+        class="code-copy"
+        @click.stop="copy(formatJson(responseSuccessExample))">{{ $ts('copy') }}</el-tag>
+    </div>
     <h4>{{ $ts('errorCode') }}</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
@@ -107,6 +134,21 @@
 <style scoped>
 h4 .content {
   margin: 0 10px;
+}
+.debug-url .copyBtn {
+  margin-left: 10px;
+  cursor: pointer;
+}
+.code-box{
+  position: relative
+}
+.code-box .code-copy{
+  display: block;
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  margin: 8px;
+  cursor: pointer;
 }
 </style>
 <script>
@@ -166,6 +208,7 @@ export default {
         description: '',
         author: '',
         httpMethod: 'GET',
+        deprecated: '',
         parentId: '',
         moduleId: '',
         isShow: 1,
@@ -194,7 +237,10 @@ export default {
       historyShow: false,
       historyDocId: '',
       isSubscribe: false,
-      responseHiddenColumns: []
+      responseHiddenColumns: [],
+      hostConfigName: '',
+      isShowRequestExampleCopy: false,
+      isShowResponseSuccessExample: false
     }
   },
   computed: {
@@ -212,6 +258,9 @@ export default {
     responseParamHiddenColumns() {
       const isRawArray = this.docInfo.isResponseArray && this.docInfo.responseArrayType !== 'object'
       return isRawArray ? ['name', 'required', 'maxLength'] : this.responseHiddenColumns
+    },
+    isDeprecated() {
+      return this.docInfo.deprecated !== '$false$'
     }
   },
   watch: {
@@ -311,6 +360,15 @@ export default {
           this.isSubscribe = false
         })
       }
+    },
+    onMouseEnter(name) {
+      this.hostConfigName = name
+    },
+    onMouseLeave() {
+      this.hostConfigName = ''
+    },
+    copy(text) {
+      this.copyText(text)
     }
   }
 }

@@ -1,5 +1,6 @@
 package cn.torna.web.controller.space;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
@@ -8,6 +9,9 @@ import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.SpaceService;
+import cn.torna.service.dto.SpaceAddDTO;
+import cn.torna.service.dto.SpaceDTO;
+import cn.torna.service.dto.SpaceInfoDTO;
 import cn.torna.web.controller.space.param.SpaceParam;
 import cn.torna.web.controller.space.param.SpaceUpdateParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.SpaceAddDTO;
-import cn.torna.service.dto.SpaceInfoDTO;
-import cn.torna.service.dto.SpaceDTO;
 
 import javax.validation.Valid;
 import java.util.Collections;

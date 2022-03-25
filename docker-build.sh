@@ -6,5 +6,6 @@ git pull
 
 sh release.sh
 
-echo "开始创建docker镜像"
+echo "开始创建docker hub镜像"
 docker build -t tanghc2020/torna .
+

@@ -10,10 +10,7 @@ import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
-import cn.torna.api.open.param.IdParam;
 import cn.torna.api.open.result.DocCategoryResult;
-import cn.torna.api.open.result.DocInfoDetailResult;
-import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
@@ -26,6 +23,7 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.Module;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
@@ -38,12 +36,9 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.MessageDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
-import com.gitee.easyopen.ApiParam;
 import com.gitee.easyopen.annotation.Api;
 import com.gitee.easyopen.annotation.ApiService;
-import com.gitee.easyopen.doc.NoResultWrapper;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
-import com.gitee.easyopen.doc.annotation.ApiDocField;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
@@ -109,14 +104,13 @@ public class DocApi {
         } else {
             this.checkSameFolder(param);
         }
-        ApiParam apiParam = ApiContext.getApiParam();
         RequestContext context = RequestContext.getCurrentContext();
         String author = param.getAuthor();
         if (StringUtils.hasText(author)) {
             ApiUser user = (ApiUser) context.getApiUser();
             user.setNickname(author);
         }
-        ThreadPoolUtil.execute(() -> doPush(param, apiParam, context));
+        ThreadPoolUtil.execute(() -> doPush(param, context));
     }
 
     private void checkSameFolder(DocPushParam param) {
@@ -166,11 +160,13 @@ public class DocApi {
         param.setApis(new ArrayList<>(folderItems.keySet()));
     }
 
-    private void doPush(DocPushParam param, ApiParam apiParam, RequestContext context) {
-        String appKey = apiParam.fatchAppKey();
+    private void doPush(DocPushParam param, RequestContext context) {
         String token = context.getToken();
-        long moduleId = context.getModuleId();
-        log.info("收到文档推送，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId);
+        Module module = context.getModule();
+        long moduleId = module.getId();
+        String ip = context.getIp();
+        log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
+        long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>());
         synchronized (lock) {
@@ -197,9 +193,11 @@ public class DocApi {
                 //processModifiedDocs(pushContext);
                 return null;
             }, e -> {
-                log.error("保存文档失败，appKey:{}, token:{}, moduleId:{}", appKey, token, moduleId, e);
+                log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token, e);
                 this.sendMessage(e.getMessage());
             });
+            log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
+                    module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);
         }
     }
 

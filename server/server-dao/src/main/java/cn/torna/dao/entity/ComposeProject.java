@@ -2,12 +2,12 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：compose_project
@@ -15,13 +15,11 @@ import javax.persistence.Table;
  *
  * @author tanghc
  */
-@Table(name = "compose_project")
+@Table(name = "compose_project", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class ComposeProject {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 项目名称, 数据库字段：name */
@@ -51,20 +49,20 @@ public class ComposeProject {
     /**  数据库字段：modifier_name */
     private String modifierName;
 
-    /** 网关地址, 数据库字段：gateway_url */
-    private String gatewayUrl;
-
     /** 排序索引, 数据库字段：order_index */
     private Integer orderIndex;
 
     /** 是否显示调试, 数据库字段：show_debug */
     private Byte showDebug;
 
+    /** 网关url, 数据库字段：gateway_url */
+    private String gatewayUrl;
+
     /** 1：有效，0：无效, 数据库字段：status */
     private Byte status;
 
     /**  数据库字段：is_deleted */
-    @com.gitee.fastmybatis.core.annotation.LogicDelete
+    @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
     /**  数据库字段：gmt_create */

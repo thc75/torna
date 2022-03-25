@@ -2,12 +2,12 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
+
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：doc_info
@@ -15,18 +15,17 @@ import javax.persistence.Table;
  *
  * @author tanghc
  */
-@Table(name = "doc_info")
+@Table(name = "doc_info", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class DocInfo {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name), 数据库字段：data_id */
     private String dataId;
 
+    /** 文档内容的md5值, 数据库字段：md5 */
     private String md5;
 
     /** 文档名称, 数据库字段：name */
@@ -49,6 +48,9 @@ public class DocInfo {
 
     /** contentType, 数据库字段：content_type */
     private String contentType;
+
+    /** 废弃信息, 数据库字段：deprecated */
+    private String deprecated;
 
     /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */
     private Byte isFolder;
@@ -108,10 +110,10 @@ public class DocInfo {
     private Byte isShow;
 
     /**  数据库字段：is_deleted */
-    @com.gitee.fastmybatis.core.annotation.LogicDelete
+    @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
-    /** 是否锁住 */
+    /** 是否锁住, 数据库字段：is_locked */
     private Byte isLocked;
 
     /**  数据库字段：gmt_create */

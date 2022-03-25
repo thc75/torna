@@ -27,7 +27,9 @@
           <span slot-scope="{ node, data }">
             <span>
               <i :class="{ 'el-icon-folder': data.isFolder }"></i>
-              <http-method v-if="data.httpMethod" :method="data.httpMethod" /> {{ node.label }} <span v-if="data.isFolder" class="tip">({{ data.apiCount }})</span>
+              <http-method v-if="data.httpMethod" :method="data.httpMethod" />
+              <span :class="{ 'deprecated': !data.isFolder && data.deprecated !== '$false$' }">{{ node.label }}</span>
+              <span v-if="data.isFolder" class="tip">({{ data.apiCount }})</span>
             </span>
           </span>
         </el-tree>
@@ -57,7 +59,8 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'name'
-      }
+      },
+      types: this.getEnums().FOLDER_TYPE
     }
   },
   computed: {

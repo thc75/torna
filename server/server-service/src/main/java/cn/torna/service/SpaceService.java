@@ -124,7 +124,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Query query = new Query();
         query.in("id", userIdMap.keySet());
         if (StringUtils.hasText(username)) {
-            query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
+            query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
         }
         List<UserInfo> userInfos = userInfoService.list(query);
         List<SpaceUserInfoDTO> spaceUserInfoDTOS = CopyUtil.copyList(userInfos, SpaceUserInfoDTO::new);
@@ -154,7 +154,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
         Query query = new Query();
         query.in("id", userIdMap.keySet());
-        query.sql("nickname LIKE '%?%' OR email LIKE '%?%'", username, username);
+        query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
 
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);
@@ -170,7 +170,8 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
         Query query = new Query();
-        query.in("id", userIdMap.keySet());
+        query.in("id", userIdMap.keySet())
+                .orderby("id", Sort.DESC);
 
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);

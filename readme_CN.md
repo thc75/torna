@@ -12,7 +12,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 | 模块 |                                       版本                                        |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.13.0                                      |
+| Torna |                                     1.14.4                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
@@ -37,9 +37,14 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 访问：`http://ip:7700`
 
+- 登录账号：
+
+用户名：`admin`，密码：`123456`
+
 - 后续升级
 
 无特殊说明，只需要覆盖`torna.jar文件`和`dist文件夹`，然后重启即可
+
 
 ### 方式2：docker运行
 
@@ -66,32 +71,11 @@ docker run --name torna --restart=always \
 
 - MYSQL_HOST：MySQL服务器地址
 - MYSQL_SCHEMA：数据库名称，默认不用改
-- MYSQL_USERNAME：MySQL用户名
+- MYSQL_USERNAME：MySQL用户名，要求账号能运行DDL/DML/ALTER语句
 - MYSQL_PASSWORD：MySQL密码
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
 
----
-
-体验账号：
-
-```
-密码均为：123456
-
-超级管理员：admin@torna.cn
-
-研发一部空间管理员：dev1admin@torna.cn
-研发一部-商城项目（公开）-项目管理员：dev1shop_admin@torna.cn
-研发一部-商城项目（公开）-开发者张三：dev1shop_zhangsan@torna.cn
-研发一部-访客王五：dev1guest_wangwu@torna.cn
-
-
-研发二部空间管理员：dev2admin@torna.cn
-研发二部-后台项目（私有）-项目管理员：dev2back_admin@torna.cn
-研发二部-后台项目（私有）-开发者李四：dev2back_lisi@torna.cn
-研发二部-后台项目（私有）-访客：dev2back_guest@torna.cn
-研发二部-访客赵六：dev2guest_zhaoliu@torna.cn
-```
 
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)

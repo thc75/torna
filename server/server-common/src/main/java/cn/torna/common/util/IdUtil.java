@@ -3,8 +3,6 @@ package cn.torna.common.util;
 import lombok.extern.slf4j.Slf4j;
 import org.hashids.Hashids;
 
-import java.util.UUID;
-
 /**
  * @author tanghc
  */

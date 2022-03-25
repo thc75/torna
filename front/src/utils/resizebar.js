@@ -7,6 +7,7 @@ const OPACITY_1 = '1'
 const OPACITY_0 = '0'
 const MIN_WIDTH = 50
 const MAX_WIDTH = 800
+const WIN_MIN_WIDTH = 1000
 
 export function ResizeBar(vueScope, opts) {
   document.body.style.overflowY = 'scroll'
@@ -19,11 +20,40 @@ export function ResizeBar(vueScope, opts) {
   this.navBar.onclick = function() {
     that.resizeNavBarWidth()
   }
+  window.onresize = function() {
+    that.watchChangeSize()
+  }
   this.initDragAside()
   this.initLeftWidth()
+  that.watchChangeSize()
 }
 
+let currentWidth
+
 ResizeBar.prototype = {
+  watchChangeSize() {
+    // 可视区的宽
+    const offsetWid = document.documentElement.clientWidth
+    if (offsetWid < WIN_MIN_WIDTH) {
+      // 最小宽度且左菜单打开状态
+      if (this.vueScope.sidebarView.opened) {
+        this.vueScope.sidebarView.opened = false
+        currentWidth = this.getLeftWidth()
+        // 关闭左边菜单
+        this.setLeftWidth(0)
+      }
+    } else {
+      // 超过最小宽度且菜单打开状态，重置导航宽度
+      if (this.vueScope.sidebarView.opened) {
+        this.resizeNavBarWidth()
+      } else {
+        // 菜单关闭状态，重新打开
+        this.vueScope.sidebarView.opened = true
+        const width = currentWidth || this.getLeftWidth()
+        this.setLeftWidth(width)
+      }
+    }
+  },
   initDragAside() {
     const resizeBar = this.resizeBar
     const that = this
@@ -60,12 +90,22 @@ ResizeBar.prototype = {
     return this.getAttr(LEFT_WIDTH_KEY) || variables.sideBarViewWidth
   },
   setLeftWidth(width) {
-    this.leftPanel.style.width = width
-    this.rightPanel.style.marginLeft = width
-    this.resizeBar.style.opacity = OPACITY_0
-    this.resizeBar.style.marginLeft = RESIZE_BAR_MARGIN_LEFT
-    this.resizeNavBarWidth()
-    this.setAttr(LEFT_WIDTH_KEY, width)
+    if (width <= 0) {
+      this.leftPanel.style.display = 'none'
+      // this.leftPanel.style.width = width
+      // this.rightPanel.style.marginLeft = width
+      // this.resizeBar.style.opacity = OPACITY_0
+      // this.resizeBar.style.marginLeft = '0px'
+      this.resizeNavBarWidth()
+    } else {
+      this.leftPanel.style.display = 'block'
+      this.leftPanel.style.width = width
+      this.rightPanel.style.marginLeft = width
+      this.resizeBar.style.opacity = OPACITY_0
+      this.resizeBar.style.marginLeft = RESIZE_BAR_MARGIN_LEFT
+      this.resizeNavBarWidth()
+      this.setAttr(LEFT_WIDTH_KEY, width)
+    }
   },
   resizeNavBarWidth() {
     // 如果是打开状态

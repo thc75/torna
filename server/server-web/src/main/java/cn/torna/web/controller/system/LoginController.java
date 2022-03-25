@@ -1,5 +1,6 @@
 package cn.torna.web.controller.system;
 
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
@@ -12,14 +13,13 @@ import cn.torna.dao.entity.UserInfo;
 import cn.torna.service.UserInfoService;
 import cn.torna.service.dto.LoginDTO;
 import cn.torna.web.controller.system.param.LoginForm;
-import cn.torna.web.controller.system.vo.LoginResult;
 import cn.torna.web.controller.system.param.UpdatePasswordByFirstLoginParam;
+import cn.torna.web.controller.system.vo.LoginResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.NoLogin;
 
 import javax.validation.Valid;
 

@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.DataIdUtil;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.entity.EnumItem;
 import cn.torna.service.dto.EnumInfoDTO;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

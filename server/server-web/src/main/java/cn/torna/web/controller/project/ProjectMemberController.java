@@ -1,8 +1,10 @@
 package cn.torna.web.controller.project;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.RoleEnum;
 import cn.torna.service.ProjectService;
+import cn.torna.service.dto.ProjectUserDTO;
 import cn.torna.web.controller.project.param.ProjectMemberAddParam;
 import cn.torna.web.controller.project.param.ProjectMemberRemoveParam;
 import cn.torna.web.controller.project.param.ProjectMemberUpdateParam;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import cn.torna.common.annotation.HashId;
-import cn.torna.service.dto.ProjectUserDTO;
 
 import javax.validation.Valid;
 import java.util.List;

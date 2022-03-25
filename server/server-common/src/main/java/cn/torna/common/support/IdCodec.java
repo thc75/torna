@@ -1,5 +1,6 @@
 package cn.torna.common.support;
 
+import cn.torna.common.util.IdUtil;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -11,7 +12,6 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.TypeUtils;
 import org.springframework.util.CollectionUtils;
-import cn.torna.common.util.IdUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

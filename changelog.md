@@ -1,5 +1,39 @@
 # 更新日志
 
+## 1.14.4
+
+- 【修复】修复分享整个模块只显示部分文档问题
+- 【修复】修复调试返回非200状态不显示错误信息问题 [#I4Y25X](https://gitee.com/durcframework/torna/issues/I4Y25X)
+
+## 1.14.3
+
+- 【优化】优化消息推送 [#I4XGER](https://gitee.com/durcframework/torna/issues/I4XGER)
+- 【升级】升级fastmybatis到2.1.0
+
+## 1.14.2
+
+- 【新增】文档浏览页新增tab标签。默认未启用，启用方式：个人中心-系统设置
+- 【优化】优化LDAP登录
+
+## 1.14.1
+
+- 【修复】推送报空指针异常问题
+
+## 1.14.0
+
+- 【新增】推送文档新增`deprecated`指定废弃信息
+- 【优化】文档浏览页可复制`请求示例`和`返回示例` 感谢`liuxm提供pr`
+- 【优化】登录页可选择语言 感谢`liuxm提供pr`
+- 【优化】推送完毕打印日志
+- 【优化】优化文档浏览页调整页面大小左边菜单显示问题 [#I4U3ZT](https://gitee.com/durcframework/torna/issues/I4U3ZT)
+- 【移除】swagger url导入功能改用插件推送
+- 【升级】fastmybatis升级到2.0.0
+
+## 1.13.1
+
+- 【优化】调整HttpMethod组件Tag样式
+- 【优化】文档预览页可复制接口URL
+
 ## 1.13.0
 
 - 【新增】分享管理新增能否调试接口功能

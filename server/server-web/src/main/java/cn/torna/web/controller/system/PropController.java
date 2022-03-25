@@ -7,7 +7,6 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Prop;
 import cn.torna.service.PropService;
 import cn.torna.web.controller.system.param.PropParam;
-import cn.torna.web.controller.system.param.PropSearchParam;
 import cn.torna.web.controller.system.param.PropsListParam;
 import cn.torna.web.controller.system.param.PropsParam;
 import cn.torna.web.controller.system.vo.PropVO;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
