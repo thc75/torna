@@ -1,26 +1,22 @@
 package cn.torna.dao.entity;
 
-import java.util.Date;
-
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * 表名：debug_script
  *
  * @author tanghc
  */
-@Table(name = "debug_script")
+@Table(name = "debug_script", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class DebugScript {
 
     /**  数据库字段：id */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 名称, 数据库字段：name */

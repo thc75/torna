@@ -2,25 +2,21 @@ package cn.torna.dao.entity;
 
 import java.util.Date;
 
+import com.gitee.fastmybatis.annotation.Pk;
+import com.gitee.fastmybatis.annotation.PkStrategy;
+import com.gitee.fastmybatis.annotation.Table;
 import lombok.Data;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 表名：attachment 备注：附件表
  * 
  * @author tanghc
  */
-@Table(name = "attachment")
+@Table(name = "attachment", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
 public class Attachment {
 
     /**  */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** doc_id */
