@@ -1,6 +1,8 @@
-
+${AnsiColor.BRIGHT_YELLOW}
  /__  ___/
    / /   ___      __       __      ___
   / /  //   ) ) //  ) ) //   ) ) //   ) )
  / /  //   / / //      //   / / //   / /
 / /  ((___/ / //      //   / / ((___( (
+${AnsiColor.BRIGHT_GREEN}${application.title} ${application.formatted-version}
+Powered by Spring Boot ${spring-boot.formatted-version}${AnsiStyle.NORMAL}
