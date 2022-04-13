@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.torna</groupId>
 	<artifactId>torna-sdk</artifactId>
-	<version>1.0.13</version>
+	<version>1.0.14</version>
 	<packaging>jar</packaging>
 
 	<name>torna-sdk</name>
