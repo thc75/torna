@@ -139,9 +139,9 @@ const HtmlUtil = {
       if (debugEnvs.length > 0) {
         const ul = new StringBuilder('<ul>')
         docInfo.debugEnvs.forEach(hostConfig => {
-          const baseUrl = hostConfig.configValue
+          const baseUrl = hostConfig.url
           const url = get_effective_url(baseUrl, docInfo.url)
-          ul.append(`<li>${hostConfig.configKey}: ${docInfo.httpMethod} ${url}</li>`)
+          ul.append(`<li>${hostConfig.name}: ${docInfo.httpMethod} ${url}</li>`)
         })
         ul.append('</ul>')
         sb.append(ul.toString())
