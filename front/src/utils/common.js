@@ -358,6 +358,7 @@ export function init_docInfo_view(data) {
     }
     data.responseParams = data.globalReturns.concat(data.responseParams)
   }
+  data.queryParams = convert_tree(data.queryParams)
   data.requestParams = convert_tree(data.requestParams)
   data.responseParams = convert_tree(data.responseParams)
   return data
