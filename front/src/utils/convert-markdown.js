@@ -138,7 +138,6 @@ const MarkdownUtil = {
     }
     if (isHttp(docInfo)) {
       append(`#### URL`)
-      debugger
       const debugEnvs = docInfo.debugEnvs || []
       if (debugEnvs.length > 0) {
         const ul = new StringBuilder()
