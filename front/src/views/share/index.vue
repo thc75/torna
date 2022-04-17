@@ -2,11 +2,11 @@
   <div class="app-container">
     <el-tabs v-show="load" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
+        <span slot="label"><i class="el-icon-document" /> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="infoItem" />
       </el-tab-pane>
-      <el-tab-pane v-if="isShowDebug" name="debug">
-        <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
+      <el-tab-pane v-if="isShowDebug && infoItem.debugEnvs.length > 0" name="debug">
+        <span slot="label"><i class="el-icon-s-promotion" /> {{ $ts('debugApi') }}</span>
         <doc-debug :item="debugItem" />
       </el-tab-pane>
     </el-tabs>
@@ -31,9 +31,10 @@ export default {
   },
   created() {
     const docId = this.$route.params.docId
+    const shareId = this.$route.params.shareId
     this.$nextTick(() => {
       if (docId) {
-        this.get('/doc/view', { id: docId }, function(resp) {
+        this.get('/doc/share/view', { docId: docId, shareConfigId: shareId }, function(resp) {
           this.load = true
           const data = resp.data
           this.initDocInfoView(data)

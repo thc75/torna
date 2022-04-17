@@ -23,6 +23,17 @@ public class ShareConfigDTO {
     /** 是否显示调试 */
     private Byte isShowDebug;
 
+    /**
+     * 调试环境是否全选， 1-全选， 0-不选
+     */
+    private Byte isAllSelectedDebug;
+
+    /**
+     * 模块环境id
+     */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private List<Long> moduleEnvironmentIdList;
+
     @Data
     public static class Content {
         @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

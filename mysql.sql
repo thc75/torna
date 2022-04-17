@@ -483,6 +483,7 @@ CREATE TABLE `share_config` (
                                 `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
                                 `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
                                 `is_show_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示调试',
+                                `is_all_selected_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '调试环境是否全选， 1-全选， 0-不选',
                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                 PRIMARY KEY (`id`) USING BTREE,
@@ -507,6 +508,20 @@ CREATE TABLE `share_content` (
                                  PRIMARY KEY (`id`) USING BTREE,
                                  KEY `idx_shareconfigid_docid` (`share_config_id`,`doc_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='分享详情';
+
+
+DROP TABLE IF EXISTS `share_environment`;
+create table `share_environment`
+(
+    `id`                    bigint(20) unsigned auto_increment
+        primary key,
+    `share_config_id`       bigint(20) unsigned default 0 null comment '分享配置id',
+    `module_environment_id` bigint(20) unsigned default 0 null comment '模块环境id',
+    KEY `share_environment_share_config_id_index` (`share_config_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  ROW_FORMAT = DYNAMIC COMMENT = '分享环境关联表';
+
 
 /*Data for the table `share_content` */
 
