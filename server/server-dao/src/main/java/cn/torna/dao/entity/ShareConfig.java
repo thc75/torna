@@ -41,6 +41,11 @@ public class ShareConfig {
     @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
+    /**
+     * 调试环境是否全选， 1-全选， 0-不选
+     */
+    private Byte isAllSelectedDebug;
+
     /** 备注, 数据库字段：remark */
     private String remark;
 
