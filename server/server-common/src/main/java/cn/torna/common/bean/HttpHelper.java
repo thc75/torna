@@ -2,11 +2,7 @@ package cn.torna.common.bean;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.Consts;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -20,6 +16,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -29,23 +26,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * HTTP请求辅助类
@@ -64,7 +52,17 @@ import java.util.Objects;
  */
 public class HttpHelper {
 
-    private static final CloseableHttpClient CLOSEABLE_HTTP_CLIENT = HttpClients.createDefault();
+    private static final CloseableHttpClient CLOSEABLE_HTTP_CLIENT;
+
+    static {
+        try {
+            CLOSEABLE_HTTP_CLIENT = HttpClients.custom()
+                    .setSSLSocketFactory(new SSLConnectionSocketFactory(new SSLContextBuilder()
+                            .loadTrustMaterial(null, (chain, authType) -> true).build())).build();
+        } catch (Exception e) {
+            throw new RuntimeException("init http client ssl error");
+        }
+    }
 
     private RequestConfig requestConfig = RequestConfig
             .custom()
@@ -148,7 +146,8 @@ public class HttpHelper {
 
     /**
      * 设置URL后面的参数，如：url?id=1&name=jim
-     * @param name 参数名
+     *
+     * @param name  参数名
      * @param value 参数值
      * @return 返回HttpHelper
      */
@@ -199,6 +198,7 @@ public class HttpHelper {
 
     /**
      * 设置entity
+     *
      * @param entity entity
      * @return 返回HttpHelper
      */
