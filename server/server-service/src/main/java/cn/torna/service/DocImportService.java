@@ -197,6 +197,9 @@ public class DocImportService {
 
     private List<Param> parseBody(Body body) {
         String mode = body.getMode();
+        if(mode == null){
+            return Collections.emptyList();
+        }
         switch (mode) {
             case "raw":
                 String json = body.getRaw();
@@ -406,6 +409,9 @@ public class DocImportService {
             return "";
         }
         String mode = body.getMode();
+        if(mode == null){
+            return "";
+        }
         switch (mode) {
             case "raw":
                 JSONObject options = body.getOptions();
