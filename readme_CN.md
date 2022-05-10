@@ -12,7 +12,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 | 模块 |                                       版本                                        |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.14.1                                      |
+| Torna |                                     1.14.5                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
@@ -127,4 +127,20 @@ docker run --name torna --restart=always \
 
 ## 沟通交流
 
-<img src="./front/public/static/images/group.jpg" width="50%" height="50%" />
+<table>
+  <tr>
+    <td>一群(满)</td>
+    <td>二群</td>
+  </tr>
+  <tr>
+    <td><img src="./front/public/static/images/group.jpg" width="50%" height="50%" /></td>
+    <td><img src="./front/public/static/images/group2.jpg" width="50%" height="50%" /></td>
+  </tr>
+</table>
+
+
+
+
+
+
+

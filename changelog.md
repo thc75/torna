@@ -1,5 +1,24 @@
 # 更新日志
 
+## 1.14.5
+
+- 【修复】修复导出和query参数展示bug
+
+## 1.14.4
+
+- 【修复】修复分享整个模块只显示部分文档问题
+- 【修复】修复调试返回非200状态不显示错误信息问题 [#I4Y25X](https://gitee.com/durcframework/torna/issues/I4Y25X)
+
+## 1.14.3
+
+- 【优化】优化消息推送 [#I4XGER](https://gitee.com/durcframework/torna/issues/I4XGER)
+- 【升级】升级fastmybatis到2.1.0
+
+## 1.14.2
+
+- 【新增】文档浏览页新增tab标签。默认未启用，启用方式：个人中心-系统设置
+- 【优化】优化LDAP登录
+
 ## 1.14.1
 
 - 【修复】推送报空指针异常问题
