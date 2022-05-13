@@ -169,6 +169,7 @@ public class DocApi {
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>());
+        ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal = new ThreadLocal<>();
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
                 // 设置调试环境
@@ -184,6 +185,7 @@ public class DocApi {
                     this.deleteOpenAPIModuleDocs(moduleId);
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
+                    docPushItemParamThreadLocal.set(detailPushParam);
                     this.pushDocItem(detailPushParam, context, 0L, pushContext);
                 }
                 // 设置公共错误码
@@ -193,7 +195,9 @@ public class DocApi {
                 //processModifiedDocs(pushContext);
                 return null;
             }, e -> {
-                log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token, e);
+                DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
+                String paramInfo = JSON.toJSONString(docPushItemParam);
+                log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), ip, token, paramInfo, e);
                 this.sendMessage(e.getMessage());
             });
             log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
