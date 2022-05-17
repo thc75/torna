@@ -17,7 +17,7 @@
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
           <el-form-item prop="description" :label="$ts('docDesc')">
-            <el-input v-model="docInfo.description" type="textarea" :rows="4" :placeholder="$ts('supportHtml')" show-word-limit />
+            <custom-editor :value="docInfo.description" :editable="true" @input="editorInput" />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
@@ -239,9 +239,10 @@ import DocView from '../DocView'
 import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
 import {init_docInfo_complete_view} from "@/utils/common";
+import CustomEditor from '@/components/CustomEditor'
 
 export default {
-  components: { DocView, EditTable, RootArrayTable },
+  components: { CustomEditor, DocView, EditTable, RootArrayTable },
   data() {
     return {
       params: {},
@@ -688,6 +689,9 @@ name3:value3`,
         '2': 'json'
       }
       return map[this.importParamTemplateModel + ''] || ''
+    },
+    editorInput(content) {
+      this.docInfo.description = content
     }
   }
 }
