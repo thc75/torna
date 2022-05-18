@@ -5,7 +5,10 @@
       v-model="content"
       :ishljs="true"
       :editable="editable"
-      :subfield="showInfo.subfield"
+      :placeholder="placeholder"
+      :box-shadow="false"
+      :subfield="false"
+      :tab-size="2"
       :toolbars-flag="showInfo.toolbarsFlag"
       :default-open="showInfo.defaultOpen"
       code-style="atom-one-dark"
@@ -21,7 +24,7 @@ import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 
 export default {
-  name: 'CustomEditor',
+  name: 'RichTextEditor',
   components: {
     mavonEditor
   },
@@ -35,15 +38,20 @@ export default {
       required: false,
       default: true
     },
+    placeholder: {
+      type: String,
+      required: false,
+      default: ''
+    },
     height: {
       type: [Number, String],
       required: false,
-      default: 450
+      default: 250
     },
     minHeight: {
       type: [Number, String],
       required: false,
-      default: 450
+      default: 250
     },
     fontSize: {
       type: [Number, String],
@@ -56,8 +64,7 @@ export default {
       content: '',
       showInfo: {
         defaultOpen: null,
-        toolbarsFlag: true,
-        subfield: true
+        toolbarsFlag: true
       },
       toolbars: {
         bold: true, // 粗体
@@ -101,8 +108,7 @@ export default {
     if (!this.editable) {
       this.showInfo = {
         defaultOpen: 'preview',
-        toolbarsFlag: false,
-        subfield: false
+        toolbarsFlag: false
       }
     }
   },

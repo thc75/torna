@@ -17,7 +17,7 @@
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
           <el-form-item prop="description" :label="$ts('docDesc')">
-            <custom-editor :value="docInfo.description" :editable="true" @input="editorInput" />
+            <rich-text-editor :value="docInfo.description" :editable="true" @input="editorInput" />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
@@ -178,8 +178,9 @@
         />
       </el-tab-pane>
     </el-tabs>
-    <div style="margin: 20px;">
-      <el-input v-model="remark" size="mini" :placeholder="$ts('currentUpdateRemark')" show-word-limit maxlength="100" />
+    <div style="margin: 20px; max-width: 45%">
+      <h3>{{ $ts('remark') }}： </h3>
+      <rich-text-editor :value="remark" :placeholder="$ts('currentUpdateRemark')" :editable="true" @input="remarkEditorInput" />
     </div>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>
@@ -239,10 +240,10 @@ import DocView from '../DocView'
 import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
 import {init_docInfo_complete_view} from "@/utils/common";
-import CustomEditor from '@/components/CustomEditor'
+import RichTextEditor from '@/components/RichTextEditor'
 
 export default {
-  components: { CustomEditor, DocView, EditTable, RootArrayTable },
+  components: { RichTextEditor, DocView, EditTable, RootArrayTable },
   data() {
     return {
       params: {},
@@ -692,6 +693,9 @@ name3:value3`,
     },
     editorInput(content) {
       this.docInfo.description = content
+    },
+    remarkEditorInput(content) {
+      this.remark = content
     }
   }
 }
