@@ -1,6 +1,7 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -106,6 +107,7 @@ public class ShareConfigController {
      * @return 返回记录，没有返回null
      */
     @GetMapping("view")
+    @NoLogin
     public Result<DocInfoDTO> view(@HashId Long docId, @HashId Long shareConfigId) {
         DocInfoDTO docInfoDTO = shareConfigService.getShareDocDetail(docId, shareConfigId);
         return Result.ok(docInfoDTO);

@@ -17,7 +17,7 @@
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
           <el-form-item prop="description" :label="$ts('docDesc')">
-            <rich-text-editor :value="docInfo.description" :editable="true" @input="editorInput" />
+            <rich-text-editor :value="docInfo.description" :placeholder="$ts('supportMarkdownAndHtml')" :editable="true" @input="editorInput" />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
@@ -178,9 +178,9 @@
         />
       </el-tab-pane>
     </el-tabs>
-    <div style="margin: 20px; max-width: 45%">
+    <div style="margin: 20px;">
       <h3>{{ $ts('remark') }}： </h3>
-      <rich-text-editor :value="remark" :placeholder="$ts('currentUpdateRemark')" :editable="true" @input="remarkEditorInput" />
+      <rich-text-editor :value="docInfo.remark" :placeholder="$ts('supportMarkdownAndHtml')" :editable="true" @input="remarkEditorInput" />
     </div>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>
@@ -239,7 +239,7 @@
 import DocView from '../DocView'
 import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
-import {init_docInfo_complete_view} from "@/utils/common";
+import { init_docInfo_complete_view } from '@/utils/common'
 import RichTextEditor from '@/components/RichTextEditor'
 
 export default {
@@ -277,7 +277,8 @@ export default {
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
-        orderIndex: this.getEnums().INIT_ORDER_INDEX
+        orderIndex: this.getEnums().INIT_ORDER_INDEX,
+        remark: ''
       },
       paramsActive: 'tabQueryParams',
       remark: '',
@@ -473,8 +474,7 @@ export default {
               queryParams: this.formatData(queryParams),
               requestParams: this.formatData(requestParams),
               responseParams: this.formatData(responseParams),
-              errorCodeParams: this.formatData(errorCodeParams),
-              remark: this.remark
+              errorCodeParams: this.formatData(errorCodeParams)
             })
             this.post('/doc/save', data, resp => {
               this.tipSuccess('保存成功')
@@ -695,7 +695,7 @@ name3:value3`,
       this.docInfo.description = content
     },
     remarkEditorInput(content) {
-      this.remark = content
+      this.docInfo.remark = content
     }
   }
 }

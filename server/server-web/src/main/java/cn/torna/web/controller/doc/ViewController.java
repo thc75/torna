@@ -22,6 +22,7 @@ import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.SpaceProjectDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -157,7 +159,11 @@ public class ViewController {
         User user = UserContext.getUser();
         List<Project> projects = projectService.listUserProject(user);
         Map<Long, List<Project>> spaceIdMap = projects.stream().collect(Collectors.groupingBy(Project::getSpaceId));
-        List<Space> spaces = spaceService.listByCollection("id", spaceIdMap.keySet());
+        Set<Long> spaceIdList = spaceIdMap.keySet();
+        if (CollectionUtils.isEmpty(spaceIdList)) {
+            return Result.ok(Collections.emptyList());
+        }
+        List<Space> spaces = spaceService.listByCollection("id", spaceIdList);
 
         List<SpaceProjectDTO> list = spaces.stream()
                 .map(space -> {

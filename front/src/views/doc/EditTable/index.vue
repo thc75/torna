@@ -26,6 +26,7 @@
           size="mini"
           style="display: inline-block;width: 220px;"
           :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''"
+          @submit.native.prevent
         >
           <el-form-item
             prop="name"
@@ -93,7 +94,7 @@
       :label="descriptionLabel"
     >
       <template slot-scope="scope">
-        <el-form :ref="`form_description_${scope.row.id}`" :model="scope.row" :rules="paramRowRule" size="mini">
+        <el-form :ref="`form_description_${scope.row.id}`" :model="scope.row" :rules="paramRowRule" size="mini" @submit.native.prevent>
           <el-form-item
             prop="description"
             label-width="0"

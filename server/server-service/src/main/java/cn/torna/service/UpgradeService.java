@@ -36,7 +36,7 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 1132;
+    private static final int VERSION = 1150;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -94,6 +94,17 @@ public class UpgradeService {
         v1_12_0(oldVersion);
         v1_13_0(oldVersion);
         v1_13_2(oldVersion);
+        v1_15_0(oldVersion);
+    }
+
+    private void v1_15_0(int oldVersion) {
+        if (oldVersion < 1150) {
+            addColumn("share_config",
+                    "is_all_selected_debug",
+                    "ALTER TABLE `share_config` ADD COLUMN `is_all_selected_debug` tinyint(4) NOT NULL DEFAULT '1'  COMMENT '调试环境是否全选， 1-全选， 0-不选' AFTER is_show_debug"
+            );
+            createTable("share_environment", "upgrade/1.15.0_ddl.txt");
+        }
     }
 
     private void v1_13_2(int oldVersion) {

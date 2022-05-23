@@ -11,6 +11,7 @@
       :tab-size="2"
       :toolbars-flag="showInfo.toolbarsFlag"
       :default-open="showInfo.defaultOpen"
+      preview-background="#ffffff"
       code-style="atom-one-dark"
       :toolbars="toolbars"
       :style="{'font-size': fontSize + 'px', 'min-height': minHeight + 'px'}"

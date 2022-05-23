@@ -39,8 +39,8 @@
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
         {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
         <el-tag
-          size="small"
           v-show="hostConfigName === hostConfig.name"
+          size="small"
           effect="plain"
           class="copyBtn"
           @click.stop="copy(docInfo.url)">{{ $ts('copy') }}</el-tag>
@@ -52,7 +52,7 @@
     <h4 v-if="docInfo.description" class="doc-descr">
       {{ $ts('description') }}
     </h4>
-    <rich-text-editor :value="docInfo.description" :editable="false" />
+    <rich-text-editor :value="docInfo.description" :min-height="0" :editable="false" />
     <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
@@ -116,9 +116,9 @@
       :description-label="$ts('errorDesc')"
       :example-label="$ts('solution')"
     />
-    <div v-if="docInfo.remark" class="doc-info-remark">
+    <div v-show="docInfo.remark" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
-      <span>{{ docInfo.remark }}</span>
+      <rich-text-editor :value="docInfo.remark" :min-height="0" :editable="false" />
     </div>
   </div>
 </template>
@@ -220,7 +220,8 @@ export default {
         isRequestArray: 0,
         isResponseArray: 0,
         requestArrayType: 'object',
-        responseArrayType: 'object'
+        responseArrayType: 'object',
+        remark: ''
       },
       requestExample: {},
       responseSuccessExample: {},

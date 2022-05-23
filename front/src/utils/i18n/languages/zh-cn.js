@@ -393,7 +393,8 @@ const MAPPING = {
   'closeOthers': '关闭其他',
   'closeAll': '关闭全部',
   'closeLeft': '关闭左侧',
-  'closeRight': '关闭右侧'
+  'closeRight': '关闭右侧',
+  'supportMarkdownAndHtml': '支持markdown和html'
 
 }
 

@@ -392,7 +392,8 @@ const MAPPING = {
   'closeOthers': 'Close Others',
   'closeAll': 'Close All',
   'closeLeft': 'Close Left',
-  'closeRight': 'Close Right'
+  'closeRight': 'Close Right',
+  'supportMarkdownAndHtml': 'Support markdown and html'
 
 }
 

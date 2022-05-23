@@ -515,14 +515,11 @@ CREATE TABLE `share_content` (
 DROP TABLE IF EXISTS `share_environment`;
 create table `share_environment`
 (
-    `id`                    bigint(20) unsigned auto_increment
-        primary key,
+    `id`                    bigint(20) unsigned auto_increment primary key,
     `share_config_id`       bigint(20) unsigned default 0 null comment '分享配置id',
     `module_environment_id` bigint(20) unsigned default 0 null comment '模块环境id',
     KEY `share_environment_share_config_id_index` (`share_config_id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  ROW_FORMAT = DYNAMIC COMMENT = '分享环境关联表';
+) ENGINE = InnoDB DEFAULT COMMENT = '分享环境关联表';
 
 
 
