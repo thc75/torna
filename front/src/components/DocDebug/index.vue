@@ -453,9 +453,9 @@ export default {
       this.hasBody = item.requestParams.length > 0
       this.contentType = item.contentType || ''
       this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
+      this.initActive()
       this.bindRequestParam(item)
       this.initDebugHost()
-      this.initActive()
       this.setTableCheck()
     },
     initDebugHost() {
@@ -783,10 +783,20 @@ export default {
       })
     },
     setTableCheck() {
-      this.$refs.headerDataRef.toggleAllSelection()
-      this.$refs.queryDataRef.toggleAllSelection()
-      this.$refs.formDataRef.toggleAllSelection()
-      this.$refs.multipartDataRef.toggleAllSelection()
+      this.$nextTick(() => {
+        this.tableCheckAll('headerDataRef', this.headerData)
+        this.tableCheckAll('queryDataRef', this.queryData)
+        this.tableCheckAll('formDataRef', this.formData)
+        this.tableCheckAll('multipartDataRef', this.multipartData)
+      })
+    },
+    tableCheckAll(ref, params) {
+      const refObj = this.$refs[ref]
+      if (refObj) {
+        for (const row of params) {
+          refObj.toggleRowSelection(row, true)
+        }
+      }
     },
     handleHeaderSelectionChange(val) {
       this.headerDataChecked = val
