@@ -69,6 +69,7 @@ public class DocApi {
     private static final String HTTPS = "https:";
     private static final char SPLIT = '/';
     private static final String PREFIX = "://";
+    private static final String PUSH_ERROR_MSG = "【%s】推送失败，请查看日志";
 
     private final Object lock = new Object();
 
@@ -198,7 +199,7 @@ public class DocApi {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
                 String paramInfo = JSON.toJSONString(docPushItemParam);
                 log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), ip, token, paramInfo, e);
-                this.sendMessage(e.getMessage());
+                this.sendMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
             });
             log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
                     module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);

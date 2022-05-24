@@ -52,7 +52,7 @@
     <h4 v-if="docInfo.description" class="doc-descr">
       {{ $ts('description') }}
     </h4>
-    <rich-text-editor :value="docInfo.description" :min-height="0" :editable="false" />
+    <rich-text-editor v-show="docInfo.description && docInfo.description.length > 0" :value="docInfo.description" :min-height="0" :editable="false" />
     <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
