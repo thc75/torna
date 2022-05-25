@@ -91,7 +91,10 @@
   background: oldlace;
 }
 .el-table .copyBtn {
-  margin-left: 10px;cursor: pointer;
+  margin-left: 10px;
+  cursor: pointer;
+  position: absolute;
+  right: 5px;
 }
 </style>
 <script>
