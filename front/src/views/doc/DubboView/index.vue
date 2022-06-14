@@ -19,6 +19,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
               <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -177,6 +178,9 @@ export default {
     },
     onExportHtml() {
       ExportUtil.exportHtmlSinglePage(this.docInfo)
+    },
+    onExportWord() {
+      ExportUtil.exportWordSinglePage(this.docInfo)
     },
     onSubscribe() {
       if (!this.isSubscribe) {
