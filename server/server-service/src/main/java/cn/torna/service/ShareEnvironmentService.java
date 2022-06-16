@@ -1,9 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.support.BaseService;
-import cn.torna.dao.entity.ShareContent;
 import cn.torna.dao.entity.ShareEnvironment;
-import cn.torna.dao.mapper.ShareContentMapper;
 import cn.torna.dao.mapper.ShareEnvironmentMapper;
 import org.springframework.stereotype.Service;
 

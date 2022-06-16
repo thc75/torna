@@ -4,8 +4,12 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
+import cn.torna.common.exception.ErrorCode;
+import cn.torna.dao.entity.SpaceUser;
 import cn.torna.service.ComposeProjectService;
 import cn.torna.service.ProjectService;
+import cn.torna.service.SpaceService;
 import cn.torna.service.dto.ComposeProjectDTO;
 import cn.torna.service.dto.ProjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +34,9 @@ public class SpaceProjectController {
     @Autowired
     private ComposeProjectService composeProjectService;
 
+    @Autowired
+    private SpaceService spaceService;
+
     /**
      * 返回空间中的项目
      * @param spaceId 空间id
@@ -37,6 +45,10 @@ public class SpaceProjectController {
     @GetMapping("/list")
     public Result<List<ProjectDTO>> listSpaceProject(@HashId Long spaceId) {
         User user = UserContext.getUser();
+        SpaceUser spaceUser = spaceService.getSpaceUser(spaceId, user.getUserId());
+        if (spaceUser == null) {
+            return Result.ok(Collections.emptyList());
+        }
         List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceId, user);
         return Result.ok(projectDTOS);
     }

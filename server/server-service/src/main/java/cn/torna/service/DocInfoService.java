@@ -30,7 +30,6 @@ import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -85,6 +84,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private EnumService enumService;
+
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * 查询模块下的所有文档
@@ -152,6 +154,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
         Long moduleId = docInfo.getModuleId();
         Module module = moduleService.getById(moduleId);
+        docInfoDTO.setSpaceId(projectService.getSpaceId(module.getProjectId()));
         docInfoDTO.setProjectId(module.getProjectId());
         docInfoDTO.setModuleType(module.getType());
         List<ModuleEnvironment> debugEnvs = moduleEnvironmentService.listModuleEnvironment(moduleId);

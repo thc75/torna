@@ -14,7 +14,6 @@ import cn.torna.service.dto.MessageDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

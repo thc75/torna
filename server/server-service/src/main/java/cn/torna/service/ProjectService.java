@@ -18,6 +18,7 @@ import cn.torna.service.dto.ProjectUserDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +38,10 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ProjectService extends BaseService<Project, ProjectMapper> {
+public class ProjectService extends BaseService<Project, ProjectMapper> implements InitializingBean {
+
+    // key: projectId, value:spaceId
+    private static final Map<Long, Long> projectIdSpaceIdMap = new HashMap<>(8);
 
     @Autowired
     private ProjectUserMapper projectUserMapper;
@@ -173,7 +177,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
                 .in("id", userIdMap.keySet())
                 .orderby("id", Sort.DESC);
         if (StringUtils.hasLength(username)) {
-            query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
+            query.and(q -> q.like("username", username)
+                    .orLike("nickname", username)
+                    .orLike("email", username)
+            );
         }
         List<UserInfo> userInfos = userInfoService.listAll(query);
         List<ProjectUserDTO> projectUserDTOList = CopyUtil.copyList(userInfos, ProjectUserDTO::new);
@@ -293,5 +300,21 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
     private List<Project> listSpaceProject(long spaceId) {
         return this.list("space_id", spaceId);
     }
-   
+
+    /**
+     * 获取spaceId
+     * @param projectId
+     * @return
+     */
+    public Long getSpaceId(Long projectId) {
+        return projectIdSpaceIdMap.get(projectId);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<Long, Long> map = this.list(new Query())
+                .stream()
+                .collect(Collectors.toMap(Project::getId, Project::getSpaceId));
+        projectIdSpaceIdMap.putAll(map);
+    }
 }

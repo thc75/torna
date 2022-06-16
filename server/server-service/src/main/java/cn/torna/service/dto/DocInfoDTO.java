@@ -108,6 +108,10 @@ public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serialize = false)
     private String md5;
 
+    /** 空间id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long spaceId;
+
     private List<DocParamDTO> pathParams;
     private List<DocParamDTO> headerParams;
     private List<DocParamDTO> queryParams;

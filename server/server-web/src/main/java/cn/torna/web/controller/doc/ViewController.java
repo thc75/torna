@@ -5,6 +5,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.IdUtil;
@@ -13,6 +14,7 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
+import cn.torna.dao.entity.SpaceUser;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
@@ -231,6 +233,11 @@ public class ViewController {
     @GetMapping("detail")
     public Result<DocInfoDTO> detail(@HashId Long id) {
         DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
+        User user = UserContext.getUser();
+        SpaceUser spaceUser = spaceService.getSpaceUser(docInfoDTO.getSpaceId(), user.getUserId());
+        if (spaceUser == null) {
+            throw new BizException("无权限访问");
+        }
         return Result.ok(docInfoDTO);
     }
 

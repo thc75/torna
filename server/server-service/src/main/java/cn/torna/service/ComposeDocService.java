@@ -5,8 +5,8 @@ import cn.torna.dao.entity.ComposeDoc;
 import cn.torna.dao.mapper.ComposeDocMapper;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
