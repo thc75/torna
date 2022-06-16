@@ -1,5 +1,16 @@
 # 更新日志
 
+## 1.15.0
+
+- 【新增】新增分享配置时可选调试环境 [pr](https://gitee.com/durcframework/torna/pulls/28)
+- 【新增】接口文档编辑和查看描述以及备注的地方使用富文本编辑器 [pr](https://gitee.com/durcframework/torna/pulls/32)
+- 【新增】调试页面新增自定义修改请求类型或者参数 [#I545M6](https://gitee.com/durcframework/torna/issues/I545M6)
+- 【优化】推送失败打印具体文档信息
+- 【优化】代理调试新增对https的支持 [pr](https://gitee.com/durcframework/torna/pulls/30)
+- 【修复】postman上传get请求类型失败 [pr](https://gitee.com/durcframework/torna/pulls/31)
+- 【修复】编辑文档响应参数的时候敲回车会报错 [#I57TQ3](https://gitee.com/durcframework/torna/issues/I57TQ3)
+- 【修复】用户为空间成员，非项目成员；浏览模式下访问公开项目显示以上异常 [#I57UMS](https://gitee.com/durcframework/torna/issues/I57UMS)
+
 ## 1.14.5
 
 - 【修复】修复导出和query参数展示bug

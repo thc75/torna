@@ -1,6 +1,7 @@
 import JSZip from 'jszip'
 import HtmlUtil from '@/utils/convert-html'
 import MarkdownUtil from '@/utils/convert-markdown'
+import WordUtil, { word_wrapper } from '@/utils/convert-word'
 import { convert_tree, download_text, format_string, init_docInfo } from '@/utils/common'
 import { saveAs } from 'file-saver'
 
@@ -142,6 +143,21 @@ const ExportUtil = {
     })
   },
   /**
+   * 导出一个页面为word
+   * @param docInfo
+   */
+  exportWordSinglePage(docInfo) {
+    export_single_page(docInfo, docInfo => {
+      return `${docInfo.name}-${new Date().getTime()}.doc`
+    }, docInfo => {
+      const content = WordUtil.toWord(docInfo)
+      return format_string(word_wrapper, {
+        title: docInfo.name,
+        body: content
+      })
+    })
+  },
+  /**
    * 导出全部markdown为单页
    * @param docInfoList docInfoList
    */
@@ -157,6 +173,32 @@ const ExportUtil = {
     do_export_multi_docs(docInfoList, (docInfo) => {
       return `${docInfo.name}.md`
     }, MarkdownUtil.toMarkdown)
+  },
+  /**
+   * 导出全部 word 为单页
+   * @param docInfoList docInfoList
+   */
+  exportWordAllInOne(docInfoList) {
+    const content = WordUtil.toWordByData(docInfoList)
+    const html = format_string(word_wrapper, {
+      body: content
+    })
+    download_text(`export-${new Date().getTime()}.doc`, html)
+  },
+  /**
+   * 导出全部 word 为多页
+   * @param docInfoList docInfoList
+   */
+  exportWordMultiPages(docInfoList) {
+    do_export_multi_docs(docInfoList, docInfo => {
+      return `${docInfo.name}.doc`
+    }, docInfo => {
+      const content = WordUtil.toWord(docInfo)
+      return format_string(word_wrapper, {
+        title: docInfo.name,
+        body: content
+      })
+    })
   },
   /**
    * 导出全部Html为单页

@@ -288,6 +288,7 @@ const MAPPING = {
   'clickSubscribe': 'Click Subscribe',
   'exportMarkdown': 'As markdown',
   'exportHtml': 'As html',
+  'exportWord': 'As word',
   'createdOn': 'Created on',
   'lastModifiedBy': 'last modified on',
   'noHeader': 'No header',

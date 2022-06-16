@@ -289,6 +289,7 @@ const MAPPING = {
   'clickSubscribe': '点击关注',
   'exportMarkdown': '导出markdown',
   'exportHtml': '导出html',
+  'exportWord': '导出word',
   'createdOn': '创建于',
   'lastModifiedBy': '最后修改于',
   'noHeader': '无Header',
