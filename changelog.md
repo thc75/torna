@@ -1,5 +1,14 @@
 # 更新日志
 
+## 1.15.1
+
+- 【新增】文档可导出为word
+- 【升级】fastmybatis升级到2.3.2
+- 【优化】优化用户查询SQL
+- 【优化】增大axios超时时间，方便调试
+- 【优化】添加部分权限校验
+- 【优化】富文本编辑器使用wangeditor
+
 ## 1.15.0
 
 - 【新增】新增分享配置时可选调试环境 [pr](https://gitee.com/durcframework/torna/pulls/28)
