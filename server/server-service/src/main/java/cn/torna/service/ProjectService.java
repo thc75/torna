@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -307,7 +308,11 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
      * @return
      */
     public Long getSpaceId(Long projectId) {
-        return projectIdSpaceIdMap.get(projectId);
+        return projectIdSpaceIdMap.computeIfAbsent(projectId, k -> {
+            Project project = getById(projectId);
+            return Optional.ofNullable(project).map(Project::getSpaceId).orElse(null);
+        });
+
     }
 
     @Override

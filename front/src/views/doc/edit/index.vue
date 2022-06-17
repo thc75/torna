@@ -17,7 +17,7 @@
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
           <el-form-item prop="description" :label="$ts('docDesc')">
-            <rich-text-editor :value="docInfo.description" :placeholder="$ts('supportMarkdownAndHtml')" :editable="true" @input="editorInput" />
+            <rich-text-editor :value="docInfo.description" :placeholder="$ts('inputContent')" :editable="true" @input="editorInput" />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
@@ -180,7 +180,7 @@
     </el-tabs>
     <div style="margin: 20px;">
       <h3>{{ $ts('remark') }}： </h3>
-      <rich-text-editor :value="docInfo.remark" :placeholder="$ts('supportMarkdownAndHtml')" :editable="true" @input="remarkEditorInput" />
+      <rich-text-editor :value="docInfo.remark" :placeholder="$ts('inputContent')" :editable="true" @input="remarkEditorInput" />
     </div>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>

@@ -53,7 +53,7 @@
     <h4 v-if="docInfo.description" class="doc-descr">
       {{ $ts('description') }}
     </h4>
-    <rich-text-editor v-show="docInfo.description && docInfo.description.length > 0" :value="docInfo.description" :min-height="0" :editable="false" />
+    <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
     <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
@@ -119,7 +119,7 @@
     />
     <div v-show="docInfo.remark" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
-      <rich-text-editor :value="docInfo.remark" :min-height="0" :editable="false" />
+      <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
     </div>
   </div>
 </template>
@@ -148,11 +148,11 @@ import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
-import RichTextEditor from '@/components/RichTextEditor'
+import '@wangeditor/editor/dist/css/style.css'
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, RichTextEditor },
+  components: { ParameterTable, HttpMethod },
   props: {
     docId: {
       type: String,

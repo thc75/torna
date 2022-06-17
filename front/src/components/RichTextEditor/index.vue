@@ -1,38 +1,40 @@
 <template>
   <div>
-    <mavon-editor
-      ref="md"
-      v-model="content"
-      :ishljs="true"
-      :editable="editable"
-      :placeholder="placeholder"
-      :box-shadow="false"
-      :subfield="false"
-      :tab-size="2"
-      :toolbars-flag="showInfo.toolbarsFlag"
-      :default-open="showInfo.defaultOpen"
-      preview-background="#ffffff"
-      code-style="atom-one-dark"
-      :toolbars="toolbars"
-      :style="{'font-size': fontSize + 'px', 'min-height': minHeight + 'px'}"
-    >
-    </mavon-editor>
+    <div :style="`border: 1px solid #DCDFE6;`">
+      <Toolbar
+        style="border-bottom: 1px solid #DCDFE6"
+        :editor="editor"
+        :defaultConfig="toolbarConfig"
+        :mode="editMode"
+      />
+      <Editor
+        v-model="content"
+        :style="`height: ${height}px; overflow-y: hidden;`"
+        :defaultConfig="editorConfig"
+        :mode="editMode"
+        @onCreated="onCreated"
+      />
+    </div>
   </div>
 </template>
 <script>
-
-import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
+// https://www.wangeditor.com/
+import '@wangeditor/editor/dist/css/style.css'
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 export default {
   name: 'RichTextEditor',
   components: {
-    mavonEditor
+    Editor, Toolbar
   },
   props: {
     value: {
       type: String,
       default: ''
+    },
+    mode: {
+      type: String,
+      default: 'simple'
     },
     editable: {
       type: Boolean,
@@ -47,7 +49,7 @@ export default {
     height: {
       type: [Number, String],
       required: false,
-      default: 250
+      default: 200
     },
     minHeight: {
       type: [Number, String],
@@ -63,36 +65,24 @@ export default {
   data() {
     return {
       content: '',
-      showInfo: {
-        defaultOpen: null,
-        toolbarsFlag: true
+      editor: null,
+      html: '',
+      toolbarConfig: {
+        // 排除
+        excludeKeys: [
+          'group-image',
+          'group-video',
+          'insertVideo',
+          'fullScreen'
+        ]
       },
-      toolbars: {
-        bold: true, // 粗体
-        italic: true, // 斜体
-        header: true, // 标题
-        underline: true, // 下划线
-        strikethrough: true, // 中划线
-        mark: false, // 标记
-        superscript: true, // 上角标
-        subscript: true, // 下角标
-        quote: true, // 引用
-        ol: true, // 有序列表
-        ul: true, // 无序列表
-        imagelink: false, // 图片链接
-        code: true, // code
-        fullscreen: false, // 全屏编辑
-        readmodel: false, // 沉浸式阅读
-        help: true, // 帮助
-        undo: false, // 上一步
-        redo: false, // 下一步
-        trash: true, // 清空
-        navigation: false, // 导航目录
-        preview: true
-      }
+      editorConfig: {
+        placeholder: this.placeholder || '请输入内容',
+        height: '200px'
+      },
+      editMode: this.mode // 'default' or 'simple'
     }
   },
-  computed: {},
   watch: {
     value: {
       handler: function(n, o) {
@@ -105,19 +95,15 @@ export default {
       }
     }
   },
-  created() {
-    if (!this.editable) {
-      this.showInfo = {
-        defaultOpen: 'preview',
-        toolbarsFlag: false
-      }
+  beforeDestroy() {
+    const editor = this.editor
+    if (editor == null) return
+    editor.destroy() // 组件销毁时，及时销毁编辑器
+  },
+  methods: {
+    onCreated(editor) {
+      this.editor = Object.seal(editor) // 一定要用 Object.seal() ，否则会报错
     }
-  },
-  mounted() {
-  },
-  methods: {}
+  }
 }
 </script>
-
-<style scoped>
-</style>

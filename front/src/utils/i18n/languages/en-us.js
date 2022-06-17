@@ -394,7 +394,7 @@ const MAPPING = {
   'closeAll': 'Close All',
   'closeLeft': 'Close Left',
   'closeRight': 'Close Right',
-  'supportMarkdownAndHtml': 'Support markdown and html'
+  'inputContent': 'Input content'
 
 }
 
