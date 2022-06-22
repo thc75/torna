@@ -9,3 +9,10 @@ sh release.sh
 echo "开始创建docker hub镜像"
 docker build -t tanghc2020/torna .
 
+if [ -n "${1}" ];then
+  echo "开始创建docker hub镜像:${1}"
+  docker build -t tanghc2020/torna:${1} .
+fi
+
+
+
