@@ -235,7 +235,7 @@ public class ViewController {
         DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
         User user = UserContext.getUser();
         SpaceUser spaceUser = spaceService.getSpaceUser(docInfoDTO.getSpaceId(), user.getUserId());
-        if (spaceUser == null) {
+        if (!user.isSuperAdmin() && spaceUser == null) {
             throw new BizException("无权限访问");
         }
         return Result.ok(docInfoDTO);
