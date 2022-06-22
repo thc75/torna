@@ -2,7 +2,7 @@
 
 ## 1.15.1
 
-- 【新增】文档可导出为word
+- 【新增】文档可导出为word [pr](https://gitee.com/durcframework/torna/pulls/34)
 - 【升级】fastmybatis升级到2.3.2
 - 【优化】优化用户查询SQL
 - 【优化】增大axios超时时间，方便调试
