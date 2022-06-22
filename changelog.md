@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.15.2
+
+- 【修复】超级管理员无法查看空间下的项目
+
 ## 1.15.1
 
 - 【新增】文档可导出为word [pr](https://gitee.com/durcframework/torna/pulls/34)
