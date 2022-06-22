@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# 打包并运行docker镜像
+# 执行方式：sh docker-build-push.sh <版本号>
+# 如：sh docker-build-push.sh 1.15.2
 
 git pull
 
