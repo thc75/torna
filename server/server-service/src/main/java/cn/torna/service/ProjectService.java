@@ -7,6 +7,7 @@ import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.ProjectUser;
+import cn.torna.dao.entity.SpaceUser;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.ProjectMapper;
 import cn.torna.dao.mapper.ProjectUserMapper;
@@ -259,6 +260,11 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
      * @return 返回项目列表
      */
     public List<ProjectDTO> listSpaceUserProject(long spaceId, User user) {
+        SpaceUser spaceUser = spaceService.getSpaceUser(spaceId, user.getUserId());
+        // 不是超级管理员且不在空间里面，无法访问项目
+        if (!user.isSuperAdmin() && spaceUser == null) {
+            return Collections.emptyList();
+        }
         // 返回空间下所有的项目
         List<Project> spaceAllProjects = this.listSpaceProject(spaceId);
         // 如果是超级管理员，可查看所有
