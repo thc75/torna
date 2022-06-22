@@ -199,7 +199,7 @@ export default {
         description: '',
         author: '',
         httpMethod: 'GET',
-        deprecated: '',
+        deprecated: '$false$',
         parentId: '',
         moduleId: '',
         isShow: 1,
