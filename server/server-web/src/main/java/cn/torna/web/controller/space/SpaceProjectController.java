@@ -46,7 +46,7 @@ public class SpaceProjectController {
     public Result<List<ProjectDTO>> listSpaceProject(@HashId Long spaceId) {
         User user = UserContext.getUser();
         SpaceUser spaceUser = spaceService.getSpaceUser(spaceId, user.getUserId());
-        if (spaceUser == null) {
+        if (spaceUser == null && !user.isSuperAdmin()) {
             return Result.ok(Collections.emptyList());
         }
         List<ProjectDTO> projectDTOS = projectService.listSpaceUserProject(spaceId, user);
