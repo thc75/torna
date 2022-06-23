@@ -10,6 +10,7 @@ import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
+import cn.torna.common.util.Markdown2HtmlUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
@@ -632,5 +633,31 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         ret.addAll(headers);
         return ret;
+    }
+
+    /**
+     * 将markdown内容转化成html
+     */
+    @Transactional
+    public void convertMarkdown2Html() {
+        List<DocInfo> docInfos = this.listAll();
+        for (DocInfo docInfo : docInfos) {
+            boolean doUpdate = false;
+            String description = docInfo.getDescription();
+            if (StringUtils.hasText(description)) {
+                doUpdate = true;
+                String descriptionHtml = Markdown2HtmlUtil.markdown2Html(description);
+                docInfo.setDescription(descriptionHtml);
+            }
+            String remark = docInfo.getRemark();
+            if (StringUtils.hasText(remark)) {
+                doUpdate = true;
+                String remarkHtml = Markdown2HtmlUtil.markdown2Html(remark);
+                docInfo.setRemark(remarkHtml);
+            }
+            if (doUpdate) {
+                this.update(docInfo);
+            }
+        }
     }
 }

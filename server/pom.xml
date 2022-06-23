@@ -17,6 +17,7 @@
     <properties>
         <java.version>1.8</java.version>
         <fastmybatis.version>2.3.2</fastmybatis.version>
+        <flexmark.version>0.18.4</flexmark.version>
     </properties>
 
     <modules>
@@ -110,6 +111,23 @@
                 <groupId>org.springframework.ldap</groupId>
                 <artifactId>spring-ldap-core</artifactId>
                 <version>2.3.3.RELEASE</version>
+            </dependency>
+            <!--markdown to html-->
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-util</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
+            <!--表格渲染插件-->
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-ext-tables</artifactId>
+                <version>${flexmark.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

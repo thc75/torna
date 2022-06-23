@@ -36,7 +36,7 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 1150;
+    private static final int VERSION = 1153;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -51,6 +51,9 @@ public class UpgradeService {
 
     @Autowired
     private ModuleEnvironmentService moduleEnvironmentService;
+
+    @Autowired
+    private DocInfoService docInfoService;
 
 
     @Value("${spring.datasource.driver-class-name}")
@@ -95,6 +98,13 @@ public class UpgradeService {
         v1_13_0(oldVersion);
         v1_13_2(oldVersion);
         v1_15_0(oldVersion);
+        v1_15_3(oldVersion);
+    }
+
+    private void v1_15_3(int oldVersion) {
+        if (oldVersion < 1153) {
+            docInfoService.convertMarkdown2Html();
+        }
     }
 
     private void v1_15_0(int oldVersion) {
