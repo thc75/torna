@@ -103,6 +103,7 @@ public class UpgradeService {
 
     private void v1_15_3(int oldVersion) {
         if (oldVersion < 1153) {
+            runSql("ALTER TABLE `doc_info` MODIFY COLUMN `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '备注' AFTER `order_index`");
             docInfoService.convertMarkdown2Html();
         }
     }
