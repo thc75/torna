@@ -12,7 +12,7 @@ docker build -t tanghc2020/torna:latest .
 
 sleep 1
 
-echo "推送镜像到docker hub:latest"
+echo "推送镜像到docker hub:latest，执行命令：docker push tanghc2020/torna:latest"
 docker push tanghc2020/torna:latest
 
 sleep 1
@@ -24,6 +24,6 @@ if [ -n "${1}" ];then
 
   sleep 1
 
-  echo "推送镜像到docker hub:${1}"
+  echo "推送镜像到docker hub:${1}，执行命令：docker push tanghc2020/torna:${1}"
   docker push tanghc2020/torna:${1}
 fi
