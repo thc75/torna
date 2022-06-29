@@ -150,6 +150,7 @@
 </template>
 <script>
 import DocTree from '@/components/DocTree'
+import { get_baseUrl } from '@/utils/http'
 
 $addI18n({
   'allowDebug': { 'zh': '允许调试', 'en': 'Allow Debug' }
@@ -386,7 +387,7 @@ export default {
       this.$refs.docTreeViewRef.load(this.moduleId, beforeFun, afterFun)
     },
     buildUrl(row) {
-      return `${window.location.origin}/#/share/${row.id}`
+      return `${get_baseUrl()}/#/share/${row.id}`
     },
     viewDoc(row) {
       this.dialogViewVisible = true
