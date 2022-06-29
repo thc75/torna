@@ -16,7 +16,7 @@
 
     <properties>
         <!-- Project revision -->
-        <revision>1.15.3</revision>
+        <revision>1.15.4</revision>
         <java.version>1.8</java.version>
     </properties>
 

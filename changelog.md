@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.15.4
+
+- 【修复】指定context-path分享链接错误 [#I5EA4H](https://gitee.com/durcframework/torna/issues/I5EA4H)
+
 ## 1.15.3
 
 - 【修复】markdown内容无法编辑问题

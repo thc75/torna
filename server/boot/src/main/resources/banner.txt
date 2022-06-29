@@ -4,5 +4,5 @@ ${AnsiColor.BRIGHT_YELLOW}
   / /  //   ) ) //  ) ) //   ) ) //   ) )
  / /  //   / / //      //   / / //   / /
 / /  ((___/ / //      //   / / ((___( (
-${AnsiColor.BRIGHT_GREEN}${application.title} ${application.formatted-version}
+${AnsiColor.BRIGHT_GREEN}Torna-${application.formatted-version}
 Powered by Spring Boot ${spring-boot.formatted-version}${AnsiStyle.NORMAL}
