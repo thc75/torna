@@ -12,14 +12,16 @@ import java.util.Collections;
 
 public class Markdown2HtmlUtil {
 
+    private static final String RICH_EDITOR_EMPTY_CONTENT = "<p><br></p>";
+
      /**
       * markdown to html
       * @param content markdown contents
       * @return parse html contents
       */
      public static String markdown2Html(String content) {
-         if (StringUtils.isEmpty(content)) {
-             return "";
+         if (!StringUtils.hasText(content)) {
+             return RICH_EDITOR_EMPTY_CONTENT;
          }
          MutableDataSet options = new MutableDataSet();
          options.setFrom(ParserEmulationProfile.MARKDOWN);

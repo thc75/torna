@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -638,26 +639,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     /**
      * 将markdown内容转化成html
      */
-    @Transactional
     public void convertMarkdown2Html() {
         List<DocInfo> docInfos = this.listAll();
+        Map<String, Object> set = new HashMap<>();
         for (DocInfo docInfo : docInfos) {
-            boolean doUpdate = false;
-            String description = docInfo.getDescription();
-            if (StringUtils.hasText(description)) {
-                doUpdate = true;
-                String descriptionHtml = Markdown2HtmlUtil.markdown2Html(description);
-                docInfo.setDescription(descriptionHtml);
-            }
-            String remark = docInfo.getRemark();
-            if (StringUtils.hasText(remark)) {
-                doUpdate = true;
-                String remarkHtml = Markdown2HtmlUtil.markdown2Html(remark);
-                docInfo.setRemark(remarkHtml);
-            }
-            if (doUpdate) {
-                this.update(docInfo);
-            }
+            set.put("description", Markdown2HtmlUtil.markdown2Html(docInfo.getDescription()));
+            set.put("remark", Markdown2HtmlUtil.markdown2Html(docInfo.getRemark()));
+            this.getMapper().updateByMap(set, new Query().eq("id", docInfo.getId()));
         }
     }
 }
