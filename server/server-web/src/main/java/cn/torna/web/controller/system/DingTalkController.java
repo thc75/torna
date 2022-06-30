@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -35,7 +34,7 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequestMapping("system/dingtalk")
-public class DingTalkController implements InitializingBean {
+public class DingTalkController {
 
     private static final String LOGIN_TEMPLATE = "%s?appid=%s&response_type=code&scope=snsapi_auth&redirect_uri=%s";
     public static final String DINGTALK_ACCESS_TOKEN_KEY = "dingtalk.access_token";
@@ -72,8 +71,6 @@ public class DingTalkController implements InitializingBean {
 
     @Autowired
     private SystemConfigService systemConfigService;
-
-    private static volatile TokenBean tokenBean;
 
     /**
      * 应用登录，此链接处理成功后，会重定向跳转到指定的redirect_uri，并向url追加临时授权码code及state两个参数。
@@ -147,6 +144,11 @@ public class DingTalkController implements InitializingBean {
      * @throws IOException
      */
     private TokenBean getToken() throws IOException {
+        TokenBean tokenBean = null;
+        String configValue = systemConfigService.getConfigValue(DINGTALK_ACCESS_TOKEN_KEY, null);
+        if (configValue != null) {
+            tokenBean = JSON.parseObject(configValue, TokenBean.class);
+        }
         // token不存在或过期
         if (tokenBean == null || tokenBean.getExpireTime() < System.currentTimeMillis()) {
             String result = HttpHelper.get(gettokenUrl)
@@ -164,7 +166,6 @@ public class DingTalkController implements InitializingBean {
             tokenBean.setExpireTime(expireTime);
             // token保存到数据库
             systemConfigService.setConfig(DINGTALK_ACCESS_TOKEN_KEY, JSON.toJSONString(tokenBean));
-            return tokenBean;
         }
         return tokenBean;
     }
@@ -216,13 +217,6 @@ public class DingTalkController implements InitializingBean {
                 "请求失败, errmsg：" + jsonObject.getString("errmsg"));
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        String configValue = systemConfigService.getConfigValue(DINGTALK_ACCESS_TOKEN_KEY, null);
-        if (configValue != null) {
-            tokenBean = JSON.parseObject(configValue, TokenBean.class);
-        }
-    }
 
     @Data
     private static class TokenBean {
