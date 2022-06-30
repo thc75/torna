@@ -129,6 +129,16 @@
     >
       <doc-diff :doc-info="currentDocInfo" />
     </el-dialog>
+    <div class="doc-comment">
+      <el-divider content-position="left">{{ $ts('comment') }}</el-divider>
+      <comment
+        :commentList="commentList"
+        :commentNum="commentNum"
+        :authorId="getUserId()"
+        :label="$ts('me')"
+        :placeholder="$ts('commentPlaceholder')"
+      ></comment>
+    </div>
   </div>
 </template>
 <style scoped>
@@ -157,10 +167,17 @@ import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
+import comment from 'bright-comment'
+
+$addI18n({
+  'comment': { 'zh': '评论', 'en': 'Comment' },
+  'me': { 'zh': '我', 'en': 'Me' },
+  'commentPlaceholder': { 'zh': '在此输入评论内容...', 'en': 'Input comment here...' }
+})
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, DocDiff },
+  components: { ParameterTable, HttpMethod, DocDiff, comment },
   props: {
     docId: {
       type: String,
@@ -198,6 +215,8 @@ export default {
       },
       commonParams: [],
       commonResult: [],
+      commentList: [],
+      commentNum: 0,
       docBaseInfoData: [],
       currentDocInfo: {},
       docInfo: {
@@ -276,6 +295,15 @@ export default {
     this.initResponseHiddenColumns()
   },
   methods: {
+    initDocComment(docId) {
+      if (docId) {
+        this.get('/doc/comment/list', { docId: docId }, resp => {
+          const pageInfo = resp.data
+          this.commentList = pageInfo.list
+          this.commentNum = pageInfo.total
+        })
+      }
+    },
     loadData: function(docId) {
       if (docId) {
         this.get(this.url, { id: docId }, function(resp) {
@@ -316,6 +344,7 @@ export default {
           this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
         }
       }
+      this.initDocComment(data.id)
     },
     initResponseHiddenColumns() {
       this.pmsConfig().then(config => {
