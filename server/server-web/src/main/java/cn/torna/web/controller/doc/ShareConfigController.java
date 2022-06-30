@@ -1,6 +1,7 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -8,11 +9,15 @@ import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ShareConfig;
 import cn.torna.dao.entity.ShareContent;
+import cn.torna.dao.entity.ShareEnvironment;
 import cn.torna.service.ShareConfigService;
+import cn.torna.service.ShareEnvironmentService;
+import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ShareConfigDTO;
 import cn.torna.web.controller.doc.param.ShareConfigParam;
 import cn.torna.web.controller.doc.vo.ShareConfigVO;
 import cn.torna.web.controller.doc.vo.ShareContentVO;
+import cn.torna.web.controller.doc.vo.ShareEnvironmentVO;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
@@ -69,6 +74,12 @@ public class ShareConfigController {
         List<ShareContentVO> list = CopyUtil.copyList(shareContents, ShareContentVO::new);
         return Result.ok(list);
     }
+    @GetMapping("listEnvironment")
+    public Result<List<ShareEnvironmentVO>> listEnvironment(@HashId Long id) {
+        List<ShareEnvironment> shareEnvironments = shareConfigService.listEnvironment(id);
+        List<ShareEnvironmentVO> list = CopyUtil.copyList(shareEnvironments, ShareEnvironmentVO::new);
+        return Result.ok(list);
+    }
 
 
     @PostMapping("enable")
@@ -86,5 +97,21 @@ public class ShareConfigController {
         shareConfigService.update(shareConfig);
         return Result.ok();
     }
-    
+
+
+    /**
+     * 查询分享文档详细信息
+     *
+     * @param docId 主键
+     * @param shareConfigId 主键
+     * @return 返回记录，没有返回null
+     */
+    @GetMapping("view")
+    @NoLogin
+    public Result<DocInfoDTO> view(@HashId Long docId, @HashId Long shareConfigId) {
+        DocInfoDTO docInfoDTO = shareConfigService.getShareDocDetail(docId, shareConfigId);
+        return Result.ok(docInfoDTO);
+    }
+
+
 }

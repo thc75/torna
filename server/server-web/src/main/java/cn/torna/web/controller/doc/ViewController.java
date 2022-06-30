@@ -5,6 +5,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.IdUtil;
@@ -13,6 +14,7 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
+import cn.torna.dao.entity.SpaceUser;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ProjectService;
@@ -22,6 +24,7 @@ import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.SpaceProjectDTO;
 import cn.torna.web.controller.doc.vo.TreeVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -157,7 +161,11 @@ public class ViewController {
         User user = UserContext.getUser();
         List<Project> projects = projectService.listUserProject(user);
         Map<Long, List<Project>> spaceIdMap = projects.stream().collect(Collectors.groupingBy(Project::getSpaceId));
-        List<Space> spaces = spaceService.listByCollection("id", spaceIdMap.keySet());
+        Set<Long> spaceIdList = spaceIdMap.keySet();
+        if (CollectionUtils.isEmpty(spaceIdList)) {
+            return Result.ok(Collections.emptyList());
+        }
+        List<Space> spaces = spaceService.listByCollection("id", spaceIdList);
 
         List<SpaceProjectDTO> list = spaces.stream()
                 .map(space -> {
@@ -225,6 +233,11 @@ public class ViewController {
     @GetMapping("detail")
     public Result<DocInfoDTO> detail(@HashId Long id) {
         DocInfoDTO docInfoDTO = docInfoService.getDocDetailView(id);
+        User user = UserContext.getUser();
+        SpaceUser spaceUser = spaceService.getSpaceUser(docInfoDTO.getSpaceId(), user.getUserId());
+        if (!user.isSuperAdmin() && spaceUser == null) {
+            throw new BizException("无权限访问");
+        }
         return Result.ok(docInfoDTO);
     }
 

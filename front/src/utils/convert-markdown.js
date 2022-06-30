@@ -142,9 +142,9 @@ const MarkdownUtil = {
       if (debugEnvs.length > 0) {
         const ul = new StringBuilder()
         docInfo.debugEnvs.forEach(hostConfig => {
-          const baseUrl = hostConfig.configValue
+          const baseUrl = hostConfig.url
           const url = get_effective_url(baseUrl, docInfo.url)
-          ul.append(`- ${hostConfig.configKey}: \`${docInfo.httpMethod}\` ${url}\n`)
+          ul.append(`- ${hostConfig.name}: \`${docInfo.httpMethod}\` ${url}\n`)
         })
         append(ul.toString())
       } else {

@@ -7,6 +7,7 @@ import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.ProjectUser;
+import cn.torna.dao.entity.SpaceUser;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.ProjectMapper;
 import cn.torna.dao.mapper.ProjectUserMapper;
@@ -18,6 +19,7 @@ import cn.torna.service.dto.ProjectUserDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,7 +40,10 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ProjectService extends BaseService<Project, ProjectMapper> {
+public class ProjectService extends BaseService<Project, ProjectMapper> implements InitializingBean {
+
+    // key: projectId, value:spaceId
+    private static final Map<Long, Long> projectIdSpaceIdMap = new HashMap<>(8);
 
     @Autowired
     private ProjectUserMapper projectUserMapper;
@@ -173,7 +179,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
                 .in("id", userIdMap.keySet())
                 .orderby("id", Sort.DESC);
         if (StringUtils.hasLength(username)) {
-            query.sql("username LIKE '%?%' OR nickname LIKE '%?%' OR email LIKE '%?%'", username, username, username);
+            query.and(q -> q.like("username", username)
+                    .orLike("nickname", username)
+                    .orLike("email", username)
+            );
         }
         List<UserInfo> userInfos = userInfoService.listAll(query);
         List<ProjectUserDTO> projectUserDTOList = CopyUtil.copyList(userInfos, ProjectUserDTO::new);
@@ -251,6 +260,11 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
      * @return 返回项目列表
      */
     public List<ProjectDTO> listSpaceUserProject(long spaceId, User user) {
+        SpaceUser spaceUser = spaceService.getSpaceUser(spaceId, user.getUserId());
+        // 不是超级管理员且不在空间里面，无法访问项目
+        if (!user.isSuperAdmin() && spaceUser == null) {
+            return Collections.emptyList();
+        }
         // 返回空间下所有的项目
         List<Project> spaceAllProjects = this.listSpaceProject(spaceId);
         // 如果是超级管理员，可查看所有
@@ -292,6 +306,27 @@ public class ProjectService extends BaseService<Project, ProjectMapper> {
      */
     private List<Project> listSpaceProject(long spaceId) {
         return this.list("space_id", spaceId);
+    }
+
+    /**
+     * 获取spaceId
+     * @param projectId
+     * @return
+     */
+    public Long getSpaceId(Long projectId) {
+        return projectIdSpaceIdMap.computeIfAbsent(projectId, k -> {
+            Project project = getById(projectId);
+            return Optional.ofNullable(project).map(Project::getSpaceId).orElse(null);
+        });
+
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<Long, Long> map = this.list(new Query())
+                .stream()
+                .collect(Collectors.toMap(Project::getId, Project::getSpaceId));
+        projectIdSpaceIdMap.putAll(map);
     }
 
     /**

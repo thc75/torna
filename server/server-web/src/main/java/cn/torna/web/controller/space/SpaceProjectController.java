@@ -6,6 +6,7 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.service.ComposeProjectService;
 import cn.torna.service.ProjectService;
+import cn.torna.service.SpaceService;
 import cn.torna.service.dto.ComposeProjectDTO;
 import cn.torna.service.dto.ProjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class SpaceProjectController {
 
     @Autowired
     private ComposeProjectService composeProjectService;
+
+    @Autowired
+    private SpaceService spaceService;
 
     /**
      * 返回空间中的项目

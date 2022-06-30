@@ -10,7 +10,7 @@ import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.JwtUtil;
 import com.auth0.jwt.interfaces.Claim;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;

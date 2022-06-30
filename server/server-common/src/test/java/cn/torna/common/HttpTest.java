@@ -195,4 +195,18 @@ public class HttpTest {
         System.out.println(s2);
     }
 
+    /**
+     * 测试https
+     * @throws Exception
+     */
+    @Test
+    public void httpsGet() throws Exception {
+
+        String https = "https://localhost:8080/https/test";
+        String s = HttpHelper.create().url(https)
+                .method("GET")
+                .execute().asString();
+        System.out.println(s);
+    }
+
 }

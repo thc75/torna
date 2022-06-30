@@ -17,7 +17,7 @@ import cn.torna.web.controller.doc.param.ShareCheckPasswordParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.ShareConfigVO;
 import com.gitee.fastmybatis.core.query.Query;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;

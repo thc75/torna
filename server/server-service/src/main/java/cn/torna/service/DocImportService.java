@@ -30,8 +30,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -197,6 +197,9 @@ public class DocImportService {
 
     private List<Param> parseBody(Body body) {
         String mode = body.getMode();
+        if(mode == null){
+            return Collections.emptyList();
+        }
         switch (mode) {
             case "raw":
                 String json = body.getRaw();
@@ -406,6 +409,9 @@ public class DocImportService {
             return "";
         }
         String mode = body.getMode();
+        if(mode == null){
+            return "";
+        }
         switch (mode) {
             case "raw":
                 JSONObject options = body.getOptions();

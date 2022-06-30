@@ -16,7 +16,7 @@ const baseURL = process.env.VUE_APP_BASE_API || getBaseUrl()
 // 创建axios实例
 const client = axios.create({
   baseURL: baseURL, // api 的 base_url
-  timeout: 60000, // 请求超时时间,60秒
+  timeout: 600000, // 请求超时时间,600秒
   headers: {
     post: {
       'Content-Type': 'application/json'

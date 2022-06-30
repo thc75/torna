@@ -6,8 +6,8 @@ import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.Prop;
 import cn.torna.dao.mapper.PropMapper;
 import com.gitee.fastmybatis.core.query.Query;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +44,7 @@ public class PropService extends BaseService<Prop, PropMapper> {
 
     public void save(List<Prop> tobeSave) {
         ThreadPoolUtil.execute(() -> {
-            if (CollectionUtils.isNotEmpty(tobeSave)) {
+            if (!CollectionUtils.isEmpty(tobeSave)) {
                 this.getMapper().saveProps(tobeSave);
             }
         });

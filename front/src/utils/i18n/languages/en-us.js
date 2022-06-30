@@ -299,6 +299,7 @@ const MAPPING = {
   'clickSubscribe': 'Click Subscribe',
   'exportMarkdown': 'As markdown',
   'exportHtml': 'As html',
+  'exportWord': 'As word',
   'createdOn': 'Created on',
   'lastModifiedBy': 'last modified on',
   'noHeader': 'No header',
@@ -399,7 +400,8 @@ const MAPPING = {
   'closeOthers': 'Close Others',
   'closeAll': 'Close All',
   'closeLeft': 'Close Left',
-  'closeRight': 'Close Right'
+  'closeRight': 'Close Right',
+  'inputContent': 'Input content'
 
 }
 

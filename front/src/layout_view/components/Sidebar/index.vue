@@ -34,7 +34,8 @@ export default {
     return {
       types: this.getEnums().FOLDER_TYPE,
       dimension: 2,
-      expandAll: false
+      expandAll: false,
+      docViewTabs: false
     }
   },
   computed: {
@@ -51,6 +52,7 @@ export default {
     this.$nextTick(() => {
       this.onTriggerStatus(this.expandAll)
     })
+    this.docViewTabs = this.$store.state.settings.docViewTabSwitch
   },
   methods: {
     // 树点击事件
@@ -58,7 +60,11 @@ export default {
       if (data.type === this.types.TYPE_DOC) {
         // 目前没想到好的办法传输文档名称到标签路由中
         // this.goRoute(`/view/${data.docId}`)
-        this.$router.push({ path: `/view/${data.docId}`, query: { meta_title: data.label }})
+        const location = { path: `/view/${data.docId}` }
+        if (this.docViewTabs) {
+          location.query = { meta_title: data.label }
+        }
+        this.$router.push(location)
       }
     },
     onSpaceChange(spaceId) {

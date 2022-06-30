@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-tabs v-show="item.type === getEnums().DOC_TYPE.HTTP && load" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-if="item.type === getEnums().DOC_TYPE.HTTP" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :item="infoItem" />
@@ -14,7 +14,7 @@
         <mock :item="mockItem" />
       </el-tab-pane>
     </el-tabs>
-    <el-tabs v-show="item.type === getEnums().DOC_TYPE.DUBBO && load" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-else-if="item.type === getEnums().DOC_TYPE.DUBBO" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <dubbo-view ref="docView" :item="infoItem" />
@@ -33,8 +33,9 @@ export default {
   data() {
     return {
       active: 'info',
-      load: false,
-      item: {},
+      item: {
+        type: 0
+      },
       infoItem: {},
       debugItem: {},
       mockItem: {}
@@ -45,7 +46,6 @@ export default {
     this.$nextTick(() => {
       if (docId) {
         this.get('/doc/view/detail', { id: docId }, function(resp) {
-          this.load = true
           const data = resp.data
           this.setProjectId(data.projectId)
           this.initDocInfoView(data)

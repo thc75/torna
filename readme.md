@@ -12,7 +12,6 @@ Torna makes up for the shortcomings of traditional document generation tools suc
 
 | Module |                                     Version                                     |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.14.4                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |

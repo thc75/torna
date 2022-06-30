@@ -12,7 +12,6 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 | 模块 |                                       版本                                        |
 | :----: |:-------------------------------------------------------------------------------:|
-| Torna |                                     1.14.4                                      |
 | sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
 | swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
 | smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
@@ -52,7 +51,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:latest`
+`docker pull tanghc2020/torna:1.15.4`
 
 下载完成后，执行docker命令：
 
@@ -60,11 +59,11 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-Xms256m -Xmx256m" \
-  -e MYSQL_HOST="172.16.60.102:3306" \
+  -e MYSQL_HOST="11.11.11.11:3306" \
   -e MYSQL_SCHEMA="torna" \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:latest
+  -d tanghc2020/torna:1.15.4
 ```
 
 需改更改的部分：
@@ -127,4 +126,20 @@ docker run --name torna --restart=always \
 
 ## 沟通交流
 
-<img src="./front/public/static/images/group.jpg" width="50%" height="50%" />
+<table>
+  <tr>
+    <td>一群(满)</td>
+    <td>二群</td>
+  </tr>
+  <tr>
+    <td><img src="./front/public/static/images/group.jpg" width="50%" height="50%" /></td>
+    <td><img src="./front/public/static/images/group2.jpg" width="50%" height="50%" /></td>
+  </tr>
+</table>
+
+
+
+
+
+
+

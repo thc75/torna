@@ -79,6 +79,7 @@
               <span>Headers <span class="param-count">({{ headerData.length }})</span></span>
             </span>
             <div>
+              <el-link type="primary" :underline="false" @click="onTempHeaderAdd">{{ $ts('add') + 'Header' }}</el-link>
               <el-table
                 ref="headerDataRef"
                 :data="headerData"
@@ -87,7 +88,16 @@
                 @selection-change="handleHeaderSelectionChange"
               >
                 <el-table-column type="selection" width="50" />
-                <el-table-column label="Name" prop="name" width="300px" />
+                <el-table-column label="Name" prop="name" width="300px">
+                  <template slot-scope="scope">
+                    <el-form v-if="scope.row.temp === 1" :model="scope.row" size="mini">
+                      <el-form-item label-width="0">
+                        <el-input v-model="scope.row.name" />
+                      </el-form-item>
+                    </el-form>
+                    <span v-else>{{ scope.row.name }}</span>
+                  </template>
+                </el-table-column>
                 <el-table-column label="Value">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
@@ -95,6 +105,16 @@
                         <el-input v-model="scope.row.example" />
                       </el-form-item>
                     </el-form>
+                  </template>
+                </el-table-column>
+                <el-table-column :label="$ts('operation')" width="100">
+                  <template slot-scope="scope">
+                    <el-link
+                      v-show="scope.row.temp === 1"
+                      type="danger"
+                      icon="el-icon-delete"
+                      @click="removeTableRow(headerData, scope.row)"
+                    />
                   </template>
                 </el-table-column>
               </el-table>
@@ -106,6 +126,7 @@
             <span slot="label" class="result-header-label">
               <span>Query Parameter <span class="param-count">({{ queryData.length }})</span></span>
             </span>
+            <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempQueryAdd">{{ $ts('add') + $ts('param') }}</el-link>
             <el-table
               ref="queryDataRef"
               :data="queryData"
@@ -117,7 +138,16 @@
                 prop="name"
                 :label="$ts('paramName')"
                 width="300"
-              />
+              >
+                <template slot-scope="scope">
+                  <el-form v-if="scope.row.temp === 1" :model="scope.row" size="mini">
+                    <el-form-item label-width="0">
+                      <el-input v-model="scope.row.name" />
+                    </el-form-item>
+                  </el-form>
+                  <span v-else>{{ scope.row.name }}</span>
+                </template>
+              </el-table-column>
               <el-table-column :label="$ts('value')">
                 <template slot-scope="scope">
                   <el-form :model="scope.row" size="mini">
@@ -130,6 +160,16 @@
                       </div>
                     </el-form-item>
                   </el-form>
+                </template>
+              </el-table-column>
+              <el-table-column :label="$ts('operation')" width="100">
+                <template slot-scope="scope">
+                  <el-link
+                    v-show="scope.row.temp === 1"
+                    type="danger"
+                    icon="el-icon-delete"
+                    @click="removeTableRow(queryData, scope.row)"
+                  />
                 </template>
               </el-table-column>
             </el-table>
@@ -160,6 +200,7 @@
               </el-form>
             </div>
             <div v-show="showBody('form')">
+              <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempFormAdd">{{ $ts('add') + $ts('param') }}</el-link>
               <el-table
                 ref="formDataRef"
                 :data="formData"
@@ -171,7 +212,16 @@
                   prop="name"
                   :label="$ts('paramName')"
                   width="300"
-                />
+                >
+                  <template slot-scope="scope">
+                    <el-form v-if="scope.row.temp === 1" :model="scope.row" size="mini">
+                      <el-form-item label-width="0">
+                        <el-input v-model="scope.row.name" />
+                      </el-form-item>
+                    </el-form>
+                    <span v-else>{{ scope.row.name }}</span>
+                  </template>
+                </el-table-column>
                 <el-table-column :label="$ts('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
@@ -184,6 +234,16 @@
                         </div>
                       </el-form-item>
                     </el-form>
+                  </template>
+                </el-table-column>
+                <el-table-column :label="$ts('operation')" width="100">
+                  <template slot-scope="scope">
+                    <el-link
+                      v-show="scope.row.temp === 1"
+                      type="danger"
+                      icon="el-icon-delete"
+                      @click="removeTableRow(formData, scope.row)"
+                    />
                   </template>
                 </el-table-column>
               </el-table>
@@ -199,6 +259,7 @@
               >
                 <el-button slot="trigger" type="primary" size="mini">{{ $ts('uploadMultiFiles') }}</el-button>
               </el-upload>
+              <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempMultipartAdd">{{ $ts('add') + $ts('param') }}</el-link>
               <el-table
                 v-show="showBody('multipart')"
                 ref="multipartDataRef"
@@ -211,7 +272,16 @@
                   prop="name"
                   :label="$ts('paramName')"
                   width="300"
-                />
+                >
+                  <template slot-scope="scope">
+                    <el-form v-if="scope.row.temp === 1" :model="scope.row" size="mini">
+                      <el-form-item label-width="0">
+                        <el-input v-model="scope.row.name" />
+                      </el-form-item>
+                    </el-form>
+                    <span v-else>{{ scope.row.name }}</span>
+                  </template>
+                </el-table-column>
                 <el-table-column :label="$ts('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
@@ -234,6 +304,16 @@
                         </div>
                       </el-form-item>
                     </el-form>
+                  </template>
+                </el-table-column>
+                <el-table-column :label="$ts('operation')" width="100">
+                  <template slot-scope="scope">
+                    <el-link
+                      v-show="scope.row.temp === 1"
+                      type="danger"
+                      icon="el-icon-delete"
+                      @click="removeTableRow(multipartData, scope.row)"
+                    />
                   </template>
                 </el-table-column>
               </el-table>
@@ -388,9 +468,9 @@ export default {
       this.hasBody = item.requestParams.length > 0
       this.contentType = item.contentType || ''
       this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
-      this.initDebugHost()
-      this.bindRequestParam(item)
       this.initActive()
+      this.bindRequestParam(item)
+      this.initDebugHost()
       this.setTableCheck()
     },
     initDebugHost() {
@@ -582,6 +662,9 @@ export default {
     getQueryParams(paramsArr) {
       const data = {}
       for (const row of paramsArr) {
+        if (!row.name) {
+          continue
+        }
         let value = row.example || ''
         const type = row.type || 'string'
         // 如果是数组
@@ -623,10 +706,15 @@ export default {
       const arr = []
       const formatData = (arr) => {
         const data = {}
+        const temps = []
+        data.temps = temps
         arr.forEach(row => {
           // 全局属性不加入
-          if (!row.global) {
+          if (!row.global && row.name) {
             data[row.name] = row.example
+            if (row.temp) {
+              temps.push(row.name)
+            }
           }
         })
         return data
@@ -704,8 +792,23 @@ export default {
           return
         }
         const props = JSON.parse(debugData)
-        const setProp = (params, data) => {
+        const setProp = (params, data, ref) => {
           if (data && Object.keys(data).length > 0 && params) {
+            // 临时添加的
+            const temps = data.temps
+            for (const tempName of temps) {
+              const val = data[tempName]
+              if (ref && val) {
+                const row = {
+                  id: this.nextId() + '',
+                  name: tempName,
+                  example: val,
+                  temp: 1,
+                  description: ''
+                }
+                params.push(row)
+              }
+            }
             params.forEach(row => {
               const val = data[row.name]
               if (val !== undefined) {
@@ -714,24 +817,35 @@ export default {
             })
           }
         }
-        setProp(this.headerData, props.headerData)
+        setProp(this.headerData, props.headerData, 'headerDataRef')
         setProp(this.pathData, props.pathData)
-        setProp(this.queryData, props.queryData)
-        setProp(this.multipartData, props.multipartData)
-        setProp(this.formData, props.formData)
+        setProp(this.queryData, props.queryData, 'queryDataRef')
+        setProp(this.multipartData, props.multipartData, 'multipartDataRef')
+        setProp(this.formData, props.formData, 'formDataRef')
         if (props.bodyText !== undefined) {
           this.bodyText = props.bodyText
         }
         this.preCheckedId = props.preCheckedId
         this.afterCheckedId = props.afterCheckedId
         this.$refs.debugScriptRef.load(this.preCheckedId, this.afterCheckedId)
+        this.setTableCheck()
       })
     },
     setTableCheck() {
-      this.$refs.headerDataRef.toggleAllSelection()
-      this.$refs.queryDataRef.toggleAllSelection()
-      this.$refs.formDataRef.toggleAllSelection()
-      this.$refs.multipartDataRef.toggleAllSelection()
+      this.$nextTick(() => {
+        this.tableCheckAll('headerDataRef', this.headerData)
+        this.tableCheckAll('queryDataRef', this.queryData)
+        this.tableCheckAll('formDataRef', this.formData)
+        this.tableCheckAll('multipartDataRef', this.multipartData)
+      })
+    },
+    tableCheckAll(ref, params) {
+      const refObj = this.$refs[ref]
+      if (refObj) {
+        for (const row of params) {
+          refObj.toggleRowSelection(row, true)
+        }
+      }
     },
     handleHeaderSelectionChange(val) {
       this.headerDataChecked = val
@@ -747,7 +861,7 @@ export default {
     },
     buildRequestHeaders() {
       const headers = {}
-      this.headerDataChecked.forEach(row => {
+      this.headerDataChecked.filter(row => row.name && row.name.length > 0).forEach(row => {
         headers[row.name] = row.example || ''
       })
       return headers
@@ -934,6 +1048,62 @@ export default {
     },
     getDebugScript() {
       return this.$refs.debugScriptRef
+    },
+    onTempHeaderAdd() {
+      const row = {
+        id: this.nextId() + '',
+        name: '',
+        example: '',
+        temp: 1,
+        description: '',
+        children: []
+      }
+      this.addTempParam('headerDataRef', this.headerData, row)
+    },
+    onTempQueryAdd() {
+      const row = {
+        id: this.nextId() + '',
+        name: '',
+        example: '',
+        temp: 1,
+        description: '',
+        children: []
+      }
+      this.addTempParam('queryDataRef', this.queryData, row)
+    },
+    onTempMultipartAdd() {
+      const row = {
+        id: this.nextId() + '',
+        name: '',
+        example: '',
+        temp: 1,
+        description: '',
+        children: []
+      }
+      this.addTempParam('multipartDataRef', this.multipartData, row)
+    },
+    onTempFormAdd() {
+      const row = {
+        id: this.nextId() + '',
+        name: '',
+        example: '',
+        temp: 1,
+        description: '',
+        children: []
+      }
+      this.addTempParam('formDataRef', this.formData, row)
+    },
+    addTempParam(ref, params, row) {
+      params.push(row)
+      this.$nextTick(() => {
+        const refObj = this.$refs[ref]
+        if (refObj) {
+          refObj.toggleRowSelection(row, true)
+        }
+      })
+    },
+    removeTableRow(rows, row) {
+      this.removeRow(rows, row.id)
     }
   }
 }

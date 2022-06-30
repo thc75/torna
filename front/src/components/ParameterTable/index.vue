@@ -17,7 +17,7 @@
       v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"
-      width="250"
+      width="260"
     >
       <template slot-scope="scope">
         <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''" style="white-space: nowrap">
@@ -91,7 +91,10 @@
   background: oldlace;
 }
 .el-table .copyBtn {
-  margin-left: 10px;cursor: pointer;
+  margin-left: 10px;
+  cursor: pointer;
+  position: absolute;
+  right: 5px;
 }
 </style>
 <script>

@@ -91,6 +91,7 @@
       @close="() => {
         resetForm('dialogForm')
         $refs.docTreeRef.setCheckedKeys([])
+        clearDialogForm()
       }"
     >
       <el-form
@@ -123,6 +124,12 @@
             :inactive-value="0"
           />
         </el-form-item>
+        <el-form-item v-show="dialogFormData.isShowDebug" :label="$ts('debugEnv')">
+          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">全选</el-checkbox>
+          <el-checkbox-group v-model="dialogFormData.moduleEnvironmentIdList">
+            <el-checkbox v-for="(env, index) in moduleEnvironmentList" :key="index" :label="env.id">{{ env.name }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item v-show="dialogFormData.isAll === 0">
           <doc-tree ref="docTreeRef" />
         </el-form-item>
@@ -143,6 +150,7 @@
 </template>
 <script>
 import DocTree from '@/components/DocTree'
+import { get_baseUrl } from '@/utils/http'
 
 $addI18n({
   'allowDebug': { 'zh': '允许调试', 'en': 'Allow Debug' }
@@ -175,11 +183,36 @@ export default {
         moduleId: '',
         isAll: 0,
         remark: '',
-        isShowDebug: 1
+        isShowDebug: 1,
+        moduleEnvironmentIdList: []
       },
       autoAppend: 1,
+      moduleEnvironmentList: [],
       dialogFormRules: {
       }
+    }
+  },
+  computed: {
+    isIndeterminate() {
+      const checkedCount = this.dialogFormData.moduleEnvironmentIdList.length
+      return checkedCount > 0 && checkedCount < this.moduleEnvironmentList.length
+    },
+    checkAll: {
+      get() {
+        return this.dialogFormData.moduleEnvironmentIdList.length === this.moduleEnvironmentList.length
+      },
+      set(val) {
+        this.$set(this.dialogFormData, 'moduleEnvironmentIdList', val ? this.moduleEnvironmentList.map(item => item.id) : [])
+      }
+    }
+  },
+  watch: {
+    'dialogFormData.isShowDebug': {
+      handler(newVal, oldVal) {
+        console.log(newVal)
+        console.log(oldVal)
+      },
+      deep: true
     }
   },
   methods: {
@@ -200,22 +233,49 @@ export default {
     onAdd() {
       this.dialogTitle = this.$ts('newShare')
       this.dialogVisible = true
+      this.loadDebugEnvs(this.moduleId)
       this.dialogFormData = {
         id: '',
         type: 1,
+        isShowDebug: 0,
         moduleId: '',
         isAll: 0,
-        remark: ''
+        remark: '',
+        moduleEnvironmentList: [],
+        moduleEnvironmentIdList: []
       }
       this.$nextTick(() => {
         this.reloadDocTree()
       })
+    },
+    loadDebugEnvs(moduleId, shareConfigId) {
+      this.get('/module/environment/list', { moduleId: moduleId }, resp => {
+        this.moduleEnvironmentList = resp.data
+      })
+      if (!shareConfigId) {
+        return
+      }
+      this.get('/doc/share/listEnvironment', { id: shareConfigId }, resp => {
+        this.$set(this.dialogFormData, 'moduleEnvironmentIdList', resp.data.map(item => item.moduleEnvironmentId))
+      })
+    },
+
+    clearDialogForm() {
+      if (!this.dialogFormData) {
+        return
+      }
+      this.dialogFormData = this.$data.dialogFormData
     },
     onTableUpdate(row) {
       this.dialogTitle = this.$ts('updateShare')
       this.dialogVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogFormData, row)
+
+        if (row.isShowDebug) {
+          this.loadDebugEnvs(row.moduleId, row.id)
+        }
+
         if (!row.isAll) {
           this.get('/doc/share/listContent', { id: row.id }, resp => {
             const contentList = resp.data
@@ -301,7 +361,11 @@ export default {
         append(node, node.isShareFolder)
       }
       data.content = content
+      data.isAllSelectedDebug = this.checkAll
       const uri = this.dialogFormData.id ? '/doc/share/update' : '/doc/share/add'
+      if (this.checkAll) {
+        this.dialogFormData.moduleEnvironmentIdList = []
+      }
       this.post(uri, this.dialogFormData, () => {
         this.dialogVisible = false
         this.reload()
@@ -323,7 +387,7 @@ export default {
       this.$refs.docTreeViewRef.load(this.moduleId, beforeFun, afterFun)
     },
     buildUrl(row) {
-      return `${this.getBaseUrl()}/#/share/${row.id}`
+      return `${get_baseUrl()}/#/share/${row.id}`
     },
     viewDoc(row) {
       this.dialogViewVisible = true

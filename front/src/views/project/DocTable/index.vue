@@ -213,7 +213,8 @@ export default {
       tableData: [],
       tableSearch: '',
       loading: false,
-      triggerStatus: '1'
+      triggerStatus: '1',
+      docViewTabs: false
     }
   },
   computed: {
@@ -234,6 +235,7 @@ export default {
     if (this.projectId) {
       this.setProjectId(this.projectId)
     }
+    this.docViewTabs = this.$store.state.settings.docViewTabSwitch
   },
   destroyed() {
     window.removeEventListener('resize', this.initHeight)
@@ -394,7 +396,7 @@ export default {
       this.$refs.exportDialog.show(this.tableData)
     },
     getViewUrl(row) {
-      return `/view/${row.id}?meta_title=${row.name}`
+      return this.docViewTabs ? `/view/${row.id}?meta_title=${row.name}` : `/view/${row.id}`
     }
   }
 }

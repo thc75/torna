@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <el-form :inline="true" :model="searchFormData" size="mini">
+    <el-form :inline="true" :model="searchFormData" size="mini" @submit.native.prevent>
       <el-form-item :label="$ts('nickEmail')">
         <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="loadTable">{{ $ts('search') }}</el-button>
+        <el-button type="primary" icon="el-icon-search" native-type="submit" @click="onSearch">{{ $ts('search') }}</el-button>
       </el-form-item>
     </el-form>
     <el-button
@@ -171,6 +171,10 @@ export default {
       this.post('/space/member/page', this.searchFormData, resp => {
         this.pageInfo = resp.data
       })
+    },
+    onSearch() {
+      this.searchFormData.pageIndex = 1
+      this.loadTable()
     },
     onMemberRemove(row) {
       const data = {

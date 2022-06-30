@@ -10,6 +10,7 @@ import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
+import cn.torna.common.util.Markdown2HtmlUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
@@ -33,7 +34,6 @@ import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.query.param.SchPageableParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -91,6 +91,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private EnumService enumService;
+
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * 查询模块下的所有文档
@@ -162,6 +165,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
         Long moduleId = docInfo.getModuleId();
         Module module = moduleService.getById(moduleId);
+        docInfoDTO.setSpaceId(projectService.getSpaceId(module.getProjectId()));
         docInfoDTO.setProjectId(module.getProjectId());
         docInfoDTO.setModuleType(module.getType());
         List<ModuleEnvironment> debugEnvs = moduleEnvironmentService.listModuleEnvironment(moduleId);
@@ -684,5 +688,31 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         ret.addAll(headers);
         return ret;
+    }
+
+    /**
+     * 将markdown内容转化成html
+     */
+    @Transactional
+    public void convertMarkdown2Html() {
+        List<DocInfo> docInfos = this.listAll();
+        for (DocInfo docInfo : docInfos) {
+            boolean doUpdate = false;
+            String description = docInfo.getDescription();
+            if (StringUtils.hasText(description)) {
+                doUpdate = true;
+                String descriptionHtml = Markdown2HtmlUtil.markdown2Html(description);
+                docInfo.setDescription(descriptionHtml);
+            }
+            String remark = docInfo.getRemark();
+            if (StringUtils.hasText(remark)) {
+                doUpdate = true;
+                String remarkHtml = Markdown2HtmlUtil.markdown2Html(remark);
+                docInfo.setRemark(remarkHtml);
+            }
+            if (doUpdate) {
+                this.update(docInfo);
+            }
+        }
     }
 }

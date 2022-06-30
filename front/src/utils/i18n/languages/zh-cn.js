@@ -296,6 +296,7 @@ const MAPPING = {
   'clickSubscribe': '点击关注',
   'exportMarkdown': '导出markdown',
   'exportHtml': '导出html',
+  'exportWord': '导出word',
   'createdOn': '创建于',
   'lastModifiedBy': '最后修改于',
   'noHeader': '无Header',
@@ -400,7 +401,8 @@ const MAPPING = {
   'closeOthers': '关闭其他',
   'closeAll': '关闭全部',
   'closeLeft': '关闭左侧',
-  'closeRight': '关闭右侧'
+  'closeRight': '关闭右侧',
+  'inputContent': '输入内容'
 
 }
 

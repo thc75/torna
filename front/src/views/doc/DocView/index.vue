@@ -21,6 +21,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
               <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -40,8 +41,8 @@
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
         {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
         <el-tag
-          size="small"
           v-show="hostConfigName === hostConfig.name"
+          size="small"
           effect="plain"
           class="copyBtn"
           @click.stop="copy(docInfo.url)">{{ $ts('copy') }}</el-tag>
@@ -51,9 +52,9 @@
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
     <h4 v-if="docInfo.description" class="doc-descr">
-      <div>{{ $ts('description') }}</div>
-      <span class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></span>
+      {{ $ts('description') }}
     </h4>
+    <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
     <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
@@ -117,8 +118,9 @@
       :description-label="$ts('errorDesc')"
       :example-label="$ts('solution')"
     />
-    <div v-if="docInfo.remark" class="doc-info-remark">
+    <div v-show="docInfo.remark" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
+      <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
       <span>{{ docInfo.remark }}</span>
     </div>
     <el-dialog
@@ -167,6 +169,7 @@ import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
+import '@wangeditor/editor/dist/css/style.css'
 import comment from 'bright-comment'
 
 $addI18n({
@@ -227,7 +230,7 @@ export default {
         description: '',
         author: '',
         httpMethod: 'GET',
-        deprecated: '',
+        deprecated: '$false$',
         parentId: '',
         moduleId: '',
         isShow: 1,
@@ -249,7 +252,8 @@ export default {
         isRequestArray: 0,
         isResponseArray: 0,
         requestArrayType: 'object',
-        responseArrayType: 'object'
+        responseArrayType: 'object',
+        remark: ''
       },
       requestExample: {},
       responseSuccessExample: {},
@@ -369,6 +373,9 @@ export default {
     },
     onExportHtml() {
       ExportUtil.exportHtmlSinglePage(this.docInfo)
+    },
+    onExportWord() {
+      ExportUtil.exportWordSinglePage(this.docInfo)
     },
     onShowHistory() {
       this.historyShow = true

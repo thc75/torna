@@ -25,6 +25,7 @@ public class ShareConfigVO {
     private Byte status;
 
     /** module.id, 数据库字段：module_id */
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
     /** 是否为全部文档, 数据库字段：is_all */
@@ -32,6 +33,11 @@ public class ShareConfigVO {
 
     /** 备注, 数据库字段：remark */
     private String remark;
+
+    /**
+     * 调试环境是否全选， 1-全选， 0-不选
+     */
+    private Byte isAllSelectedDebug;
 
     /** 是否显示调试 */
     private Byte isShowDebug;

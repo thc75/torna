@@ -23,6 +23,7 @@
             <el-radio-group v-model="dialogFormData.type">
               <el-radio label="html">html</el-radio>
               <el-radio label="md">markdown</el-radio>
+              <el-radio label="word">word</el-radio>
             </el-radio-group>
           </template>
         </el-form-item>
@@ -52,7 +53,8 @@ const EXPORT_STYLE = {
 }
 const EXPORT_TYPE = {
   HTML: 'html',
-  MARKDOWN: 'md'
+  MARKDOWN: 'md',
+  WORD: 'word'
 }
 export default {
   components: { DocTree },
@@ -111,6 +113,13 @@ export default {
             ExportUtil.exportMarkdownAllInOne(docInfoList)
           } else {
             ExportUtil.exportMarkdownMultiPages(docInfoList)
+          }
+          break
+        case EXPORT_TYPE.WORD:
+          if (style === EXPORT_STYLE.ALL_IN_ONE) {
+            ExportUtil.exportWordAllInOne(docInfoList)
+          } else {
+            ExportUtil.exportWordMultiPages(docInfoList)
           }
           break
         default:

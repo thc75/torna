@@ -38,10 +38,9 @@ public class UpgradeService {
 
     private static final int PRO_VERSION = 10;
 
-    private static final int VERSION = 1132;
+    private static final int VERSION = 1153;
 
 
-    private static final String TORNA_PRO_VERSION_KEY = "tornapro.version";
     private static final String TORNA_VERSION_KEY = "torna.version";
 
     @Autowired
@@ -55,6 +54,9 @@ public class UpgradeService {
 
     @Autowired
     private ModuleEnvironmentService moduleEnvironmentService;
+
+    @Autowired
+    private DocInfoService docInfoService;
 
 
     @Value("${spring.datasource.driver-class-name}")
@@ -119,6 +121,25 @@ public class UpgradeService {
         v1_12_0(oldVersion);
         v1_13_0(oldVersion);
         v1_13_2(oldVersion);
+        v1_15_0(oldVersion);
+        v1_15_3(oldVersion);
+    }
+
+    private void v1_15_3(int oldVersion) {
+        if (oldVersion < 1153) {
+            runSql("ALTER TABLE `doc_info` MODIFY COLUMN `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '备注' AFTER `order_index`");
+            docInfoService.convertMarkdown2Html();
+        }
+    }
+
+    private void v1_15_0(int oldVersion) {
+        if (oldVersion < 1150) {
+            addColumn("share_config",
+                    "is_all_selected_debug",
+                    "ALTER TABLE `share_config` ADD COLUMN `is_all_selected_debug` tinyint(4) NOT NULL DEFAULT '1'  COMMENT '调试环境是否全选， 1-全选， 0-不选' AFTER is_show_debug"
+            );
+            createTable("share_environment", "upgrade/1.15.0_ddl.txt");
+        }
     }
 
     private void v1_13_2(int oldVersion) {
