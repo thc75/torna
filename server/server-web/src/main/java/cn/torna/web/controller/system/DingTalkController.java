@@ -37,7 +37,7 @@ import java.util.Map;
 public class DingTalkController {
 
     private static final String LOGIN_TEMPLATE = "%s?appid=%s&response_type=code&scope=snsapi_auth&redirect_uri=%s";
-    public static final String DINGTALK_ACCESS_TOKEN_KEY = "dingtalk.access_token";
+    private static final String DINGTALK_ACCESS_TOKEN_KEY = "dingtalk.access_token";
 
     @Value("${torna.dingtalk.app-key}")
     private String appKey;
