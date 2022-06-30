@@ -42,6 +42,7 @@ public class UpgradeService {
 
 
     private static final String TORNA_VERSION_KEY = "torna.version";
+    private static final String TORNA_PRO_VERSION_KEY = "tornapro.version";
 
     @Autowired
     private UpgradeMapper upgradeMapper;

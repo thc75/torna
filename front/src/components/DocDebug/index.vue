@@ -628,6 +628,7 @@ export default {
       try {
         req = this.getDebugScript().runPre(req)
       } catch (e) {
+        console.error(e)
         this.tipError('Run pre-request script error, ' + e)
         this.sendLoading = false
         return
@@ -783,52 +784,48 @@ export default {
         name: this.debugId
       }
       this.get('/prop/find', data, resp => {
-        const respData = resp.data
-        if (!respData) {
-          return
-        }
+        const respData = resp.data || {}
         const debugData = respData.val
-        if (!debugData) {
-          return
-        }
-        const props = JSON.parse(debugData)
-        const setProp = (params, data, ref) => {
-          if (data && Object.keys(data).length > 0 && params) {
-            // 临时添加的
-            const temps = data.temps
-            for (const tempName of temps) {
-              const val = data[tempName]
-              if (ref && val) {
-                const row = {
-                  id: this.nextId() + '',
-                  name: tempName,
-                  example: val,
-                  temp: 1,
-                  description: ''
+        if (debugData) {
+          const props = JSON.parse(debugData)
+          const setProp = (params, data, ref) => {
+            if (data && Object.keys(data).length > 0 && params) {
+              // 临时添加的
+              const temps = data.temps
+              for (const tempName of temps) {
+                const val = data[tempName]
+                if (ref && val) {
+                  const row = {
+                    id: this.nextId() + '',
+                    name: tempName,
+                    example: val,
+                    temp: 1,
+                    description: ''
+                  }
+                  params.push(row)
                 }
-                params.push(row)
               }
+              params.forEach(row => {
+                const val = data[row.name]
+                if (val !== undefined) {
+                  row.example = val
+                }
+              })
             }
-            params.forEach(row => {
-              const val = data[row.name]
-              if (val !== undefined) {
-                row.example = val
-              }
-            })
           }
+          setProp(this.headerData, props.headerData, 'headerDataRef')
+          setProp(this.pathData, props.pathData)
+          setProp(this.queryData, props.queryData, 'queryDataRef')
+          setProp(this.multipartData, props.multipartData, 'multipartDataRef')
+          setProp(this.formData, props.formData, 'formDataRef')
+          if (props.bodyText !== undefined) {
+            this.bodyText = props.bodyText
+          }
+          this.preCheckedId = props.preCheckedId
+          this.afterCheckedId = props.afterCheckedId
+          this.setTableCheck()
         }
-        setProp(this.headerData, props.headerData, 'headerDataRef')
-        setProp(this.pathData, props.pathData)
-        setProp(this.queryData, props.queryData, 'queryDataRef')
-        setProp(this.multipartData, props.multipartData, 'multipartDataRef')
-        setProp(this.formData, props.formData, 'formDataRef')
-        if (props.bodyText !== undefined) {
-          this.bodyText = props.bodyText
-        }
-        this.preCheckedId = props.preCheckedId
-        this.afterCheckedId = props.afterCheckedId
-        this.$refs.debugScriptRef.load(this.preCheckedId, this.afterCheckedId)
-        this.setTableCheck()
+        this.getDebugScript().load(this.preCheckedId, this.afterCheckedId)
       })
     },
     setTableCheck() {
@@ -895,11 +892,6 @@ export default {
     },
     doProxyResponse(response, req) {
       this.sendLoading = false
-      try {
-        response = this.getDebugScript().runAfter(response, req)
-      } catch (e) {
-        this.tipError('Run after response script error, ' + e)
-      }
       this.result = {
         headerData: [],
         content: '',
@@ -908,12 +900,12 @@ export default {
       }
       this.buildResultHeaders(response)
       this.buildResultStatus(response)
-      this.buildResultContent(response)
+      this.buildResultContent(response, req)
     },
     buildResultStatus(response) {
       this.result.status = response.status
     },
-    buildResultContent(response) {
+    buildResultContent(response, req) {
       const headers = response.targetHeaders
       const contentType = this.getHeaderValue(headers, 'Content-Type') || ''
       const contentDisposition = this.getHeaderValue(headers, 'Content-Disposition') || ''
@@ -928,6 +920,7 @@ export default {
         let content = ''
         let json
         const arrayBuffer = response.data
+        response.buffer = arrayBuffer
         // 如果是ArrayBuffer
         if (arrayBuffer && arrayBuffer.toString() === '[object ArrayBuffer]') {
           if (arrayBuffer.byteLength > 0) {
@@ -937,10 +930,23 @@ export default {
           // 否则认为是json
           json = arrayBuffer
         }
+        let resp = {
+          headers: headers,
+          buffer: arrayBuffer,
+          status: response.status,
+          data: this.isString(json) ? JSON.parse(json) : json,
+          raw_response: response
+        }
+        try {
+          resp = this.getDebugScript().runAfter(resp, req)
+        } catch (e) {
+          this.tipError('Run after response script error, ' + e)
+        }
+        const finalData = resp.data
         // 格式化json
         try {
-          if (json) {
-            content = this.formatResponse(contentType, json)
+          if (finalData) {
+            content = this.formatResponse(contentType, finalData)
           }
         } catch (e) {
           console.error($ts('parseError'), e)
@@ -1022,6 +1028,7 @@ export default {
           headersData.push({ name: key, value: targetHeaders[key] })
         }
       }
+      response.headers = targetHeaders
       this.result.headerData = headersData
     },
     getTargetHeaders(response) {

@@ -136,7 +136,7 @@
       <comment
         :commentList="commentList"
         :commentNum="commentNum"
-        :authorId="getUserId()"
+        :authorId="0"
         :label="$ts('me')"
         :placeholder="$ts('commentPlaceholder')"
       ></comment>

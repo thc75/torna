@@ -90,7 +90,9 @@ console.log(req)
 var data = req.data
 var password = data.password
 // 将密码进行MD5
-var hash = lib.CryptoJS.MD5(password)
+var CryptoJS = lib.CryptoJS
+
+var hash = CryptoJS.MD5(password)
 data.password = hash.toString(CryptoJS.enc.Hex)
 console.log('data', data)
 ```
@@ -159,15 +161,14 @@ req.data = allParams
 
 - `resp`对象：存放了返回信息
 
-| 参数 | 类型 | 说明 |
-| ---- | ---- | ---- |
+| 参数 | 类型 | 说明                |
+| ---- | ---- |-------------------|
 | resp.status | number | http status，如：200 |
-| resp.data | object | 返回内容 |
-| resp.targetHeaders | object | 服务器响应头(勾选代理) |
-| resp.headers | object | 服务器响应头(未勾选代理) |
+| resp.data | object | 返回内容              |
+| resp.headers | object | 服务器响应头            |
 
 
-`resp`实际上是axios返回的对象，可通过`console.log(resp)`查看更多内容
+可通过`console.log(resp)`查看更多内容
 
 - `lib`对象
 
