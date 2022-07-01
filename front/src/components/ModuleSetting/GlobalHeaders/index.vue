@@ -15,6 +15,15 @@
     >
       <el-table-column label="Name" prop="name" width="300px" />
       <el-table-column label="Value" prop="example" />
+      <el-table-column
+        prop="required"
+        :label="$ts('require')"
+        :width="$width(60, { 'en': 75 })"
+      >
+        <template slot-scope="scope">
+          <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$ts('description')" prop="description" />
       <el-table-column
         :label="$ts('operation')"
@@ -58,6 +67,18 @@
           <el-input v-model="dialogHeaderFormData.example" placeholder="value" clearable />
         </el-form-item>
         <el-form-item
+          prop="required"
+          :label="$ts('required')"
+        >
+          <el-switch
+            v-model="dialogHeaderFormData.required"
+            :active-value="1"
+            :inactive-value="0"
+            :active-text="$ts('yes')"
+            :inactive-text="$ts('no')"
+          />
+        </el-form-item>
+        <el-form-item
           prop="description"
           :label="$ts('description')"
         >
@@ -84,6 +105,7 @@ export default {
         environmentId: '',
         name: '',
         example: '',
+        required: 1,
         description: ''
       },
       dialogHeaderFormRules: {

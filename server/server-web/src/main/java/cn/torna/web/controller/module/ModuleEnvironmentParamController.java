@@ -1,6 +1,7 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
@@ -40,6 +41,9 @@ public class ModuleEnvironmentParamController {
         ModuleEnvironmentParam record = moduleEnvironmentParamService.getByDataId(dataId);
         if (record != null) {
             throw new BizException(param.getName() + "已存在");
+        }
+        if (param.getRequired() == null) {
+            param.setRequired(Booleans.TRUE);
         }
         ModuleEnvironmentParam moduleEnvironmentParam = CopyUtil.copyBean(param, ModuleEnvironmentParam::new);
         moduleEnvironmentParam.setCreatorId(user.getUserId());
