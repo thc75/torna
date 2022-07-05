@@ -20,6 +20,7 @@ import cn.torna.swaggerplugin.bean.CodeInfo;
 import cn.torna.swaggerplugin.bean.CodeItem;
 import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.DocParamInfo;
+import cn.torna.swaggerplugin.bean.ModeEnum;
 import cn.torna.swaggerplugin.bean.PluginConstants;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.builder.ApiDocBuilder;
@@ -591,13 +592,14 @@ public class SwaggerPluginService {
                 if (containsName(docParamReqs, name) || !isBodyParameter(parameter, httpMethod) || isIgnoreParameter(parameter)) {
                     continue;
                 }
+                int mode = tornaConfig.getMode();
                 RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
                 Class<?> type = parameter.getType();
                 Type parameterizedType = parameter.getParameterizedType();
                 ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
                 array = PluginUtil.isCollectionOrArray(type);
                 Map<String, Class<?>> genericParamMap = buildParamsByGeneric(parameterizedType);
-                if (requestBody != null) {
+                if (requestBody != null || mode == ModeEnum.DUBBO.getValue()) {
                     List<DocParamReq> docParamReqList;
                     if (array) {
                         // 获取数元素类型
@@ -647,6 +649,9 @@ public class SwaggerPluginService {
         if (PluginUtil.isFileParameter(parameter)) {
             return true;
         }
+        if (this.tornaConfig.getMode() == ModeEnum.DUBBO.getValue()) {
+            return true;
+        }
         Annotation[] annotations = parameter.getAnnotations();
         for (Annotation annotation : annotations) {
             Class<? extends Annotation> aClass = annotation.annotationType();
@@ -688,7 +693,16 @@ public class SwaggerPluginService {
                 docParamRespList = Collections.singletonList(docParamResp);
             }
         } else {
-            docParamRespList = buildRespClassParams(genericParamMap, type);
+            if (ClassUtil.isPrimitive(type.getName())) {
+                // 否则元素类型是基本类型
+                DocParamResp docParamResp = new DocParamResp();
+                docParamResp.setType(type.getSimpleName());
+                docParamResp.setDescription(apiParamWrapper.getDescription());
+                docParamResp.setExample(apiParamWrapper.getExample());
+                docParamRespList = Collections.singletonList(docParamResp);
+            } else {
+                docParamRespList = buildRespClassParams(genericParamMap, type);
+            }
         }
         return new DocParamRespWrapper(Booleans.toValue(array), arrayElementDataType, docParamRespList);
     }

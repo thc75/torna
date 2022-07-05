@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-tabs v-if="item.type === getEnums().DOC_TYPE.HTTP" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-show="showDoc" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :item="infoItem" />
@@ -14,7 +14,7 @@
         <mock :item="mockItem" />
       </el-tab-pane>
     </el-tabs>
-    <el-tabs v-else-if="item.type === getEnums().DOC_TYPE.DUBBO" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-show="showDubbo" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <dubbo-view ref="docView" :item="infoItem" />
@@ -34,11 +34,19 @@ export default {
     return {
       active: 'info',
       item: {
-        type: 0
+        type: 1
       },
       infoItem: {},
       debugItem: {},
       mockItem: {}
+    }
+  },
+  computed: {
+    showDoc() {
+      return this.item.type === this.getEnums().DOC_TYPE.HTTP
+    },
+    showDubbo() {
+      return this.item.type === this.getEnums().DOC_TYPE.DUBBO
     }
   },
   created() {

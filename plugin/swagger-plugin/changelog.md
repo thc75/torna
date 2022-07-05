@@ -1,5 +1,6 @@
 # 更新日志
 
+- 1.2.13：优化dubbo推送
 - 1.2.12：优化枚举展示
 - 1.2.11：修复推送显示request类；修复第三方JSONOject显示对象内容问题 https://gitee.com/durcframework/torna/issues/I4JNSX
 - 1.2.10：可推送错误码
