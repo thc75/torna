@@ -63,6 +63,11 @@ public class TornaConfig {
     private Boolean isReplace = true;
 
     /**
+     * 0:springmvc, 1:dubbo
+     */
+    private int mode;
+
+    /**
      * 全局的contentType
      */
     private String globalContentType = "application/x-www-form-urlencoded";

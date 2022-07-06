@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -84,6 +85,57 @@ public class ClassUtil {
                         Writer.class.isAssignableFrom(paramType)
         );
         return paramType.getName().startsWith("javax") || special;
+    }
+
+    /**
+     * Check if it is the basic data type of json data
+     *
+     * @param type0 java class name
+     * @return boolean
+     */
+    public static boolean isPrimitive(String type0) {
+        if (Objects.isNull(type0)) {
+            return true;
+        }
+        String type = type0.contains("java.lang") ? type0.substring(type0.lastIndexOf(".") + 1, type0.length()) : type0;
+        type = type.toLowerCase();
+        switch (type) {
+            case "string":
+            case "integer":
+            case "int":
+            case "object":
+            case "void":
+            case "long":
+            case "double":
+            case "float":
+            case "short":
+            case "bigdecimal":
+            case "char":
+            case "character":
+            case "number":
+            case "boolean":
+            case "byte":
+            case "uuid":
+            case "biginteger":
+            case "java.sql.timestamp":
+            case "java.util.date":
+            case "java.time.localdatetime":
+            case "java.time.localtime":
+            case "localtime":
+            case "date":
+            case "localdatetime":
+            case "localdate":
+            case "zoneddatetime":
+            case "java.time.localdate":
+            case "java.time.zoneddatetime":
+            case "java.math.bigdecimal":
+            case "java.math.biginteger":
+            case "java.util.uuid":
+            case "java.io.serializable":
+                return true;
+            default:
+                return false;
+        }
     }
 
 //    public static void main(String[] args) {

@@ -6,7 +6,7 @@ dist_dir="dist"
 # 执行文件名称
 app_name="torna"
 
-version="1.15.4"
+version="1.15.6"
 
 build_folder="${app_name}-${version}"
 

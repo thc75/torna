@@ -1,5 +1,13 @@
 # 更新日志
 
+## 1.15.6
+
+- 【修复】dubbo文档不显示问题
+
+## 1.15.5
+
+- 【优化】公共请求头、公共请求参数可以指定是否必填
+
 ## 1.15.4
 
 - 【修复】指定context-path分享链接错误 [#I5EA4H](https://gitee.com/durcframework/torna/issues/I5EA4H)
