@@ -1,8 +1,8 @@
 <template>
   <section class="app-main">
-    <transition name="fade-transform" mode="out-in">
+    <keep-alive>
       <router-view :key="key" />
-    </transition>
+    </keep-alive>
   </section>
 </template>
 
@@ -17,7 +17,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .app-main {
   /*50 = navbar  */
   min-height: calc(100vh - 50px);
@@ -27,5 +27,15 @@ export default {
 }
 .fixed-header+.app-main {
   padding-top: 50px;
+}
+.hasDocViewTabs {
+  .app-main {
+    /* 84 = navbar + tabs-view = 50 + 34 */
+    min-height: calc(100vh - 84px);
+  }
+
+  .fixed-header + .app-main {
+    padding-top: 84px;
+  }
 }
 </style>

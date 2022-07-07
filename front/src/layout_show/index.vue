@@ -2,10 +2,11 @@
   <div :class="classObj" class="app-wrapper">
     <div v-if="canVisit">
       <sidebar id="leftPanel" class="sidebar-container-view" />
-      <div id="rightPanel" class="main-container-view">
+      <div id="rightPanel" :class="{hasDocViewTabs:docViewTabs}" class="main-container-view">
         <div id="resizeBar" class="resize-bar"></div>
         <div id="navBar" :class="{'fixed-header':fixedHeader}">
           <navbar />
+          <tabs-router />
         </div>
         <view-main />
       </div>
@@ -39,6 +40,7 @@
 
 <script>
 import { Navbar, Sidebar, ViewMain } from './components'
+import TabsRouter from '@/components/TabsRouter'
 import ResizeMixin from './mixin/ResizeHandler'
 import md5 from 'js-md5'
 import { ResizeBar } from '@/utils/resizebar'
@@ -48,7 +50,8 @@ export default {
   components: {
     Navbar,
     Sidebar,
-    ViewMain
+    ViewMain,
+    TabsRouter
   },
   mixins: [ResizeMixin],
   data() {
@@ -95,6 +98,15 @@ export default {
     showPassword() {
       const config = this.composeProject
       return (config.type === this.getEnums().SHARE_TYPE.ENCRYPT && !this.rightEncrypt) && config.status === this.getEnums().STATUS.ENABLE
+    },
+    docViewTabShow() {
+      return this.$store.state.tabsRouter.showTabsView
+    },
+    docViewTabSwitch() {
+      return this.$store.state.settings.docViewTabSwitch
+    },
+    docViewTabs() {
+      return this.docViewTabSwitch && this.docViewTabShow
     }
   },
   created() {

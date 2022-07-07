@@ -11,7 +11,8 @@ const state = {
   currentSpace: '',
   moduleId: '',
   projectId: '',
-  docViewTabSwitch: (docViewTab || 'false') === 'true'
+  docViewTabSwitch: (docViewTab || 'true') === 'true',
+  docTitle: ''
 }
 
 const mutations = {

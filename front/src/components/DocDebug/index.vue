@@ -195,7 +195,18 @@
               </el-radio-group>
               <el-form>
                 <el-form-item label-width="0">
-                  <el-input v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" @blur="onBodyBlur" />
+                  <editor
+                    v-if="textRadio === 'application/json'"
+                    ref="requestEditor"
+                    v-model="bodyText"
+                    lang="json"
+                    theme="chrome"
+                    height="240"
+                    class="normal-boarder"
+                    :options="requestEditorConfig"
+                    @init="requestEditorInit"
+                  />
+                  <el-input v-else v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" @blur="onBodyBlur" />
                 </el-form-item>
               </el-form>
             </div>
@@ -328,6 +339,16 @@
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$ts('returnResult')" name="body">
             <img v-if="result.image.length > 0" :src="result.image" />
+            <editor
+              v-else-if="isResponseJson"
+              v-model="result.content"
+              lang="json"
+              theme="chrome"
+              height="420"
+              class="normal-boarder"
+              :options="resultEditorConfig"
+              @init="resultEditorInit"
+            />
             <el-input v-else v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
@@ -370,7 +391,7 @@ const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
-  components: { EnumSelect },
+  components: { EnumSelect, editor: require('vue2-ace-editor') },
   props: {
     item: {
       type: Object,
@@ -424,6 +445,15 @@ export default {
         content: '',
         status: 200,
         image: ''
+      },
+      resultEditorConfig: {
+        // 去除编辑器里的竖线
+        showPrintMargin: false,
+        readOnly: true
+      },
+      requestEditorConfig: {
+        // 去除编辑器里的竖线
+        showPrintMargin: false
       }
     }
   },
@@ -439,6 +469,9 @@ export default {
       set(val) {
         this.requestUrl = val
       }
+    },
+    isResponseJson() {
+      return this.isJsonString(this.result.content)
     }
   },
   watch: {
@@ -904,7 +937,7 @@ export default {
       return null
     },
     onBodyBlur() {
-      if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
+      if (this.bodyText && this.textRadio === 'application/json') {
         try {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
@@ -1047,6 +1080,25 @@ export default {
     },
     removeTableRow(rows, row) {
       this.removeRow(rows, row.id)
+    },
+    requestEditorInit: function(editor) {
+      // language extension prerequsite...
+      require('brace/ext/language_tools')
+      // language
+      require('brace/mode/json')
+      require('brace/theme/chrome')
+      // 监听值的变化
+      const that = this
+      editor.on('blur', event => {
+        that.onBodyBlur()
+      })
+    },
+    resultEditorInit: function() {
+      // language extension prerequsite...
+      require('brace/ext/language_tools')
+      // language
+      require('brace/mode/json')
+      require('brace/theme/chrome')
     }
   }
 }

@@ -246,6 +246,7 @@ Object.assign(Vue.prototype, {
     return init_docInfo(data)
   },
   initDocInfoView(data) {
+    this.$store.state.settings.docTitle = data.name
     return init_docInfo_view(data)
   },
   initDocInfoCompleteView(data) {
@@ -598,6 +599,17 @@ Object.assign(Vue.prototype, {
       errorCallback.call(this)
     }
   },
+  isJsonString: function(str) {
+    if (typeof str === 'string') {
+      try {
+        JSON.parse(str)
+        return true
+      } catch (e) {
+        return false
+      }
+    }
+    return false
+  },
   handleCommand: function(command) {
     command && command()
   },
@@ -737,6 +749,10 @@ Object.assign(Vue.prototype, {
   },
   formatHtmlText(text) {
     return text.replace(REGEX_BR, '\n')
+  },
+  toRoute(location, title) {
+    this.$router.push(location)
+    this.$store.state.settings.docTitle = title || 'Torna'
   }
 
 })

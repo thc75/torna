@@ -396,7 +396,7 @@ export default {
       this.$refs.exportDialog.show(this.tableData)
     },
     getViewUrl(row) {
-      return this.docViewTabs ? `/view/${row.id}?meta_title=${row.name}` : `/view/${row.id}`
+      return `/view/${row.id}`
     }
   }
 }

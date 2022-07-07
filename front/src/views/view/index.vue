@@ -51,8 +51,8 @@ export default {
   },
   created() {
     const docId = this.$route.params.docId
-    this.$nextTick(() => {
-      if (docId) {
+    if (docId) {
+      this.$nextTick(() => {
         this.get('/doc/view/detail', { id: docId }, function(resp) {
           const data = resp.data
           this.setProjectId(data.projectId)
@@ -61,8 +61,10 @@ export default {
           this.selectTab('info')
           this.setTitle(data.name)
         })
-      }
-    })
+      })
+    } else {
+      this.item.type = -9
+    }
   },
   methods: {
     onTabSelect(tab) {

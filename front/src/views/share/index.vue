@@ -32,8 +32,8 @@ export default {
   created() {
     const docId = this.$route.params.docId
     const shareId = this.$route.params.shareId
-    this.$nextTick(() => {
-      if (docId) {
+    if (docId) {
+      this.$nextTick(() => {
         this.get('/doc/share/view', { docId: docId, shareConfigId: shareId }, function(resp) {
           this.load = true
           const data = resp.data
@@ -41,10 +41,10 @@ export default {
           this.item = data
           this.infoItem = data
           this.setTitle(data.name)
+          this.showDebug()
         })
-      }
-    })
-    this.showDebug()
+      })
+    }
   },
   methods: {
     onTabSelect(tab) {

@@ -1,5 +1,6 @@
 <template>
   <div
+    v-show="tabsList.length > 0"
     id="tabs-router"
     ref="tabs_router"
     @mousewheel.prevent="mouseWheelScroll"
@@ -16,6 +17,7 @@
       @mouseenter="isTabMayClick = true"
       @mouseleave="isTabMayClick = false"
       @contextmenu.prevent="openContextMenu(tab,$event)"
+      @click="setTitle(tab.title)"
     >
       <router-link
         tag="div"
@@ -24,7 +26,7 @@
         :title="tab.title"
       >{{ tab.title }}
       </router-link>
-      <div class="el-icon-close" @click.prevent.stop="closeTab(tab)" />
+      <div v-show="tabsList.length > 1" class="el-icon-close" @click.prevent.stop="closeTab(tab)" />
     </div>
     <ul v-show="showContextMenu" class="contextMenu" :style="contextMenuStyle">
       <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeOthers') }}</li>
@@ -36,7 +38,11 @@
 </template>
 
 <script>
+const ALLOW_PATH_PREFIX = [
+  '/view', '/share', '/show'
+]
 export default {
+  name: 'TabsRouter',
   data() {
     return {
       dragStartIndex: '',
@@ -53,11 +59,13 @@ export default {
   computed: {
     tabsList() {
       return this.$store.state.tabsRouter.visitedTabs
+    },
+    docTitle() {
+      return this.$store.state.settings.docTitle
     }
   },
   watch: {
     $route() {
-      this.addTabs()
       this.closeContextMenu()
     },
     showContextMenu(value) {
@@ -68,15 +76,15 @@ export default {
         document.body.removeEventListener('click', this.closeContextMenu)
         document.removeEventListener('scroll', this.closeContextMenu)
       }
+    },
+    docTitle(title) {
+      this.addTabs(title)
     }
-  },
-  mounted() {
-    this.addTabs()
   },
   methods: {
     // 是否选中
-    isActive(route) {
-      return route.path === this.$route.path
+    isActive(tab) {
+      return tab.path === this.$route.path
     },
     isFirstTab() {
       if (this.selectedTab && this.tabsList && this.tabsList.length > 0) {
@@ -90,12 +98,13 @@ export default {
       }
       return false
     },
-    addTabs() {
+    addTabs(title) {
       const { name, path } = this.$route
-      if (name && path.indexOf('/view/') === -1) {
+      if (name && !this.isAllowPath(path)) {
         return
       }
-      this.$store.dispatch('tabsRouter/addVisitedTabs', this.$route)
+      const tabInfo = { path: path, title: title || 'Torna' }
+      this.$store.dispatch('tabsRouter/addVisitedTabs', tabInfo)
         .then(({ position, length }) => {
           if (this.isTabMayClick) {
             return
@@ -118,6 +127,14 @@ export default {
           }
         })
     },
+    isAllowPath(path) {
+      for (const prefix of ALLOW_PATH_PREFIX) {
+        if (path.startsWith(prefix)) {
+          return true
+        }
+      }
+      return false
+    },
     // 关闭点击选中标签
     closeTab(tab) {
       this.$store.dispatch('tabsRouter/deleteVisitedTabs', tab).then(({ visitedTabs, index }) => {
@@ -130,9 +147,8 @@ export default {
     toLastView(visitedTabs, index) {
       const latestView = visitedTabs.slice(index - 1)[0]
       if (latestView) {
-        this.$router.push(latestView.fullPath)
-      } else {
-        this.$router.replace({ path: '/view' })
+        const location = { path: latestView.path }
+        this.toRoute(location, visitedTabs.title)
       }
     },
     dragend(e) {
@@ -246,11 +262,11 @@ export default {
     justify-content: space-between;
 
     &:first-of-type {
-      margin-left: 15px;
+      margin-left: 10px;
     }
 
     &:last-of-type {
-      margin-right: 15px;
+      margin-right: 10px;
     }
 
     &.active {
@@ -270,11 +286,10 @@ export default {
       width: 100%;
       height: 100%;
       vertical-align: center;
-      padding: 7px 8px;
+      padding: 5px 5px;
     }
 
     .el-icon-close {
-      margin-top: 2px;
       padding: 2px;
       border-radius: 50%;
       transition: all .3s cubic-bezier(.645, .045, .355, 1);

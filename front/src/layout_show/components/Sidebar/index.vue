@@ -128,7 +128,8 @@ export default {
     onNodeClick(data, node, tree) {
       if (!data.isFolder) {
         const showId = this.$route.params.showId
-        this.goRoute(`/show/${showId}/${data.docId}`)
+        this.toRoute({ path: `/show/${showId}/${data.docId}` }, data.name)
+        this.setTitle(data.name)
       }
     },
     onTriggerStatus(val) {

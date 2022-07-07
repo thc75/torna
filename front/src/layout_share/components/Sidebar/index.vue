@@ -121,7 +121,8 @@ export default {
     onNodeClick(data, node, tree) {
       if (!data.isFolder) {
         const shareId = this.$route.params.shareId
-        this.goRoute(`/share/${shareId}/${data.id}`)
+        this.toRoute({ path: `/share/${shareId}/${data.id}` }, data.name)
+        this.setTitle(data.name)
       }
     }
   }
