@@ -752,7 +752,12 @@ Object.assign(Vue.prototype, {
   },
   toRoute(location, title) {
     this.$router.push(location)
-    this.$store.state.settings.docTitle = title || 'Torna'
+    if (title) {
+      if (this.$store.state.settings.docTitle) {
+        this.$store.state.settings.docTitle = title
+      }
+      this.setTitle(title)
+    }
   }
 
 })

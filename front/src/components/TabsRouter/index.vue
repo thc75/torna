@@ -67,6 +67,10 @@ export default {
   watch: {
     $route() {
       this.closeContextMenu()
+      const docId = this.$route.params.docId
+      if (!docId) {
+        this.$store.state.settings.docTitle = ''
+      }
     },
     showContextMenu(value) {
       if (value) {
@@ -99,6 +103,10 @@ export default {
       return false
     },
     addTabs(title) {
+      if (title === '') {
+        this.closeAllTabs()
+        return
+      }
       const { name, path } = this.$route
       if (name && !this.isAllowPath(path)) {
         return

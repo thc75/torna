@@ -2,7 +2,7 @@
   <div class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        {{ docInfo.name }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
+        {{ docInfo.name }} <dubbo-service-tip :doc-id-getter="() => docInfo.parentId" placement="bottom" /> <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <div v-show="showOptBar" style="float: right">
           <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
             <el-button
@@ -29,8 +29,10 @@
         {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4>{{ $ts('method') }}：<span>{{ buildDefinition(docInfo) }}</span></h4>
-    <h4 v-if="docInfo.description">{{ $ts('description') }}：<span>{{ docInfo.description }}</span></h4>
+    <h4 v-show="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
+    <h4>{{ $ts('interface') }}<span>{{ docInfo.dubboInfo.interfaceName }}</span></h4>
+    <h4>{{ $ts('method') }}<span>{{ buildDefinition(docInfo) }}</span></h4>
+    <h4 v-if="docInfo.description">{{ $ts('description') }}<span>{{ docInfo.description }}</span></h4>
     <h4>{{ $ts('invokeParam') }}</h4>
     <parameter-table :data="docInfo.requestParams" />
     <h4>{{ $ts('returnResult') }}</h4>
@@ -53,11 +55,12 @@
 
 <script>
 import ParameterTable from '@/components/ParameterTable'
+import DubboServiceTip from '@/components/DubboServiceTip'
 import ExportUtil from '@/utils/export'
 
 export default {
   name: 'DubboView',
-  components: { ParameterTable },
+  components: { ParameterTable, DubboServiceTip },
   props: {
     docId: {
       type: String,
@@ -100,6 +103,7 @@ export default {
         id: '',
         name: '',
         url: '',
+        author: '',
         contentType: '',
         description: '',
         httpMethod: 'GET',
@@ -119,7 +123,10 @@ export default {
         globalParams: [],
         globalReturns: [],
         debugEnvs: [],
-        folders: []
+        folders: [],
+        dubboInfo: {
+          interfaceName: ''
+        }
       },
       requestExample: {},
       responseSuccessExample: {},
@@ -198,4 +205,8 @@ export default {
   }
 }
 </script>
-
+<style scoped>
+h4 span {
+  margin: 0 10px;
+}
+</style>

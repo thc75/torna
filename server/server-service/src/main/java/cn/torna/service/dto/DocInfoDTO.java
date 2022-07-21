@@ -5,8 +5,10 @@ import cn.torna.service.dataid.DocInfoDataId;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tanghc
@@ -122,4 +124,6 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> globalHeaders;
     private List<DocParamDTO> globalParams;
     private List<DocParamDTO> globalReturns;
+
+    private DubboInfoDTO dubboInfo;
 }

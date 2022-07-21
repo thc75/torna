@@ -201,7 +201,7 @@
                     v-model="bodyText"
                     lang="json"
                     theme="chrome"
-                    height="240"
+                    :height="requestEditorConfig.height"
                     class="normal-boarder"
                     :options="requestEditorConfig"
                     @init="requestEditorInit"
@@ -344,7 +344,7 @@
               v-model="result.content"
               lang="json"
               theme="chrome"
-              height="420"
+              :height="resultEditorConfig.height"
               class="normal-boarder"
               :options="resultEditorConfig"
               @init="resultEditorInit"
@@ -449,11 +449,13 @@ export default {
       resultEditorConfig: {
         // 去除编辑器里的竖线
         showPrintMargin: false,
-        readOnly: true
+        readOnly: true,
+        height: 420
       },
       requestEditorConfig: {
         // 去除编辑器里的竖线
-        showPrintMargin: false
+        showPrintMargin: false,
+        height: 240
       }
     }
   },
@@ -478,6 +480,10 @@ export default {
     item(newVal) {
       this.loadItem(newVal)
     }
+  },
+  created() {
+    this.requestEditorConfig.height = window.innerHeight - 480
+    this.resultEditorConfig.height = window.innerHeight - 305
   },
   methods: {
     loadItem(item) {

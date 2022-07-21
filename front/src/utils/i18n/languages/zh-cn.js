@@ -395,7 +395,12 @@ const MAPPING = {
   'closeAll': '关闭全部',
   'closeLeft': '关闭左侧',
   'closeRight': '关闭右侧',
-  'inputContent': '输入内容'
+  'inputContent': '输入内容',
+  'interface': '接口',
+  'version': '版本',
+  'protocol': '协议',
+  'author': '作者',
+  'dependency': '依赖'
 
 }
 

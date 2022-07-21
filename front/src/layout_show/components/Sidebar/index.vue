@@ -129,7 +129,6 @@ export default {
       if (!data.isFolder) {
         const showId = this.$route.params.showId
         this.toRoute({ path: `/show/${showId}/${data.docId}` }, data.name)
-        this.setTitle(data.name)
       }
     },
     onTriggerStatus(val) {

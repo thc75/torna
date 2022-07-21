@@ -17,11 +17,6 @@
             <artifactId>server-web</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>cn.torna</groupId>
-            <artifactId>server-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
