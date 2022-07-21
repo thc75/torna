@@ -394,7 +394,12 @@ const MAPPING = {
   'closeAll': 'Close All',
   'closeLeft': 'Close Left',
   'closeRight': 'Close Right',
-  'inputContent': 'Input content'
+  'inputContent': 'Input content',
+  'interface': 'Interface',
+  'version': 'Version',
+  'protocol': 'Protocol',
+  'author': 'Author',
+  'dependency': 'Dependency'
 
 }
 

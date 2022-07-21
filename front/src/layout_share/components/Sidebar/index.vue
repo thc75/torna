@@ -122,7 +122,6 @@ export default {
       if (!data.isFolder) {
         const shareId = this.$route.params.shareId
         this.toRoute({ path: `/share/${shareId}/${data.id}` }, data.name)
-        this.setTitle(data.name)
       }
     }
   }

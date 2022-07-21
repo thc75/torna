@@ -24,6 +24,7 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.DubboInfoDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
@@ -180,7 +181,22 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 绑定枚举信息
         bindEnumInfo(docInfoDTO.getQueryParams());
         bindEnumInfo(docInfoDTO.getRequestParams());
+        DubboInfoDTO dubboInfoDTO = buildDubboInfoDTO(docInfo);
+        docInfoDTO.setDubboInfo(dubboInfoDTO);
         return docInfoDTO;
+    }
+
+    private DubboInfoDTO buildDubboInfoDTO(DocInfo docInfo) {
+        if (docInfo.getType() == DocTypeEnum.DUBBO.getType()) {
+            Map<String, String> docProps = propService.getDocProps(docInfo.getParentId());
+            DubboInfoDTO dubboInfoDTO = new DubboInfoDTO();
+            dubboInfoDTO.setProtocol(docProps.get("protocol"));
+            dubboInfoDTO.setDependency(docProps.get("dependency"));
+            dubboInfoDTO.setAuthor(docProps.get("author"));
+            dubboInfoDTO.setInterfaceName(docProps.get("interfaceName"));
+            return dubboInfoDTO;
+        }
+        return null;
     }
 
     /**

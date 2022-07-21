@@ -22,6 +22,11 @@
             <artifactId>server-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.torna</groupId>
+            <artifactId>server-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- starter -->
         <dependency>

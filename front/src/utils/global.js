@@ -18,7 +18,7 @@ import { Enums } from './enums'
 import { add_init } from './init'
 
 // eslint-disable-next-line
-const VERSION="1.15.7"
+const VERSION="1.15.8"
 const SPACE_ID_KEY = 'torna.spaceid'
 const PROJECT_ID_KEY = 'torna.projectid'
 const TORNA_FROM = 'torna.from'
@@ -752,7 +752,12 @@ Object.assign(Vue.prototype, {
   },
   toRoute(location, title) {
     this.$router.push(location)
-    this.$store.state.settings.docTitle = title || 'Torna'
+    if (title) {
+      if (this.$store.state.settings.docTitle) {
+        this.$store.state.settings.docTitle = title
+      }
+      this.setTitle(title)
+    }
   }
 
 })
