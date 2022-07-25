@@ -1,21 +1,26 @@
 package cn.torna.api.open;
 
+import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocParamPushParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.HeaderParamPushParam;
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.HttpHelper;
+import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.exception.BizException;
+import cn.torna.dao.entity.Module;
+import cn.torna.service.ModuleService;
+import cn.torna.service.dto.ImportSwaggerV2DTO;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -27,11 +32,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,29 +54,39 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class SwaggerParserApi {
+public class SwaggerApi {
 
     private static final ThreadLocal<AtomicInteger> threadLocal = new ThreadLocal<>();
 
     @Autowired
     private DocApi docApi;
 
+    @Autowired
+    private ModuleService moduleService;
+
     /**
-     * 解析swagger文档
-     * @param content swagger文档内容，json或yaml格式
+     * 导入swagger文档
+     * @param importSwaggerV2DTO importSwaggerV2DTO
      */
-    public void parse(String content) {
-        threadLocal.set(new AtomicInteger());
+    public Module importSwagger(ImportSwaggerV2DTO importSwaggerV2DTO) {
+        String content = buildSwaggerDocContent(importSwaggerV2DTO);
+        User user = importSwaggerV2DTO.getUser();
+        String nickname = user.getNickname();
+        OpenAPI openAPI = getOpenAPI(content);
+        DocPushParam docPushParam = buildDocPushParam(nickname, openAPI);
+        Module module = createModule(importSwaggerV2DTO, getTitle(openAPI));
+        RequestContext.getCurrentContext().setModule(module);
+        RequestContext.getCurrentContext().setIp(importSwaggerV2DTO.getIp());
+        RequestContext.getCurrentContext().setApiUser(user);
+        // 推送文档
+        docApi.pushDoc(docPushParam);
+        return module;
+    }
+
+    public static DocPushParam buildDocPushParam(String pushUser, OpenAPI openAPI) {
         try {
-            SwaggerParseResult result = new OpenAPIParser().readContents(content, null, null);
-            OpenAPI openAPI = result.getOpenAPI();
-            if (result.getMessages() != null) {
-                for (String message : result.getMessages()) {
-                    log.error("解析Swagger文档, msg={}", message);
-                }
-            }
-            DocPushParam docPushParam = this.convertDocInfo(openAPI);
-            docApi.pushDoc(docPushParam);
+            threadLocal.set(new AtomicInteger());
+            return convertDocInfo(pushUser, openAPI);
         } catch (Exception e) {
             log.error("解析Swagger文档失败", e);
             throw new BizException("解析Swagger文档失败");
@@ -78,23 +95,84 @@ public class SwaggerParserApi {
         }
     }
 
-    private DocPushParam convertDocInfo(OpenAPI openAPI) {
-        if (openAPI == null) {
-            return null;
+
+    public static OpenAPI getOpenAPI(String content) {
+        SwaggerParseResult result = new OpenAPIParser().readContents(content, null, null);
+        OpenAPI openAPI = result.getOpenAPI();
+        if (result.getMessages() != null) {
+            for (String message : result.getMessages()) {
+                log.error("解析Swagger文档, msg={}", message);
+            }
         }
-        DocPushParam docPushParam = new DocPushParam();
+        checkOpenAPI(openAPI);
+        return openAPI;
+    }
+
+    private static void checkOpenAPI(OpenAPI openAPI) {
+        if (openAPI == null) {
+            throw new BizException("swagger文档格式错误");
+        }
         Info info = openAPI.getInfo();
-        String defaultAuthor = Configs.getValue("swagger.default-author", "swagger");
-        String author = Optional.ofNullable(info).map(Info::getContact).map(Contact::getName).orElse(defaultAuthor);
+        String title = info.getTitle();
+        if (StringUtils.isEmpty(title)) {
+            throw new BizException("swagger title 属性不能为空");
+        }
+    }
+
+    private static String getTitle(OpenAPI openAPI) {
+        Info info = openAPI.getInfo();
+        return info.getTitle();
+    }
+
+    private static String buildSwaggerDocContent(ImportSwaggerV2DTO importSwaggerV2DTO) {
+        String url = importSwaggerV2DTO.getUrl();
+        if (StringUtils.hasText(url)) {
+            try {
+                HttpHelper.ResponseResult responseResult = HttpHelper
+                        .create()
+                        .basicAuth(importSwaggerV2DTO.getAuthUsername(), importSwaggerV2DTO.getAuthPassword())
+                        .url(url)
+                        .method("get")
+                        .execute();
+                String body = responseResult.asString();
+                int status = responseResult.getStatus();
+                if (status == HttpStatus.UNAUTHORIZED.value()) {
+                    throw new BizException("认证失败");
+                }
+                if (status != HttpStatus.OK.value()) {
+                    log.error("导入swagger错误，url:{}, \n{}", url, body);
+                    throw new BizException("导入错误，请查看日志");
+                }
+                return body;
+            } catch (IOException e) {
+                log.error("导入swagger异常, url:{}", url, e);
+                throw new BizException("导入异常, msg:" + e.getMessage());
+            }
+        } else {
+            String content = importSwaggerV2DTO.getContent();
+            if (StringUtils.isEmpty(content)) {
+                throw new BizException("swagger文档内容不能为空");
+            }
+            return content;
+        }
+    }
+
+    private Module createModule(ImportSwaggerV2DTO importSwaggerV2DTO, String title) {
+        // 创建模块
+        return moduleService.createSwaggerModule(importSwaggerV2DTO, title);
+    }
+
+    private static DocPushParam convertDocInfo(String pushUser, OpenAPI openAPI) {
+        DocPushParam docPushParam = new DocPushParam();
         List<DebugEnvParam> debugEnvParams = buildDebugEnvParams(openAPI);
         List<DocPushItemParam> apis = buildDocPushItemParams(openAPI);
-        docPushParam.setAuthor(author);
+        docPushParam.setAuthor(pushUser);
         docPushParam.setDebugEnvs(debugEnvParams);
         docPushParam.setApis(apis);
         return docPushParam;
     }
 
-    private List<DebugEnvParam> buildDebugEnvParams(OpenAPI openAPI) {
+    private static List<DebugEnvParam> buildDebugEnvParams(OpenAPI openAPI) {
         List<Server> servers = openAPI.getServers();
         if (CollectionUtils.isEmpty(servers)) {
             return Collections.emptyList();
@@ -110,8 +188,7 @@ public class SwaggerParserApi {
                 .collect(Collectors.toList());
     }
 
-    private List<DocPushItemParam> buildDocPushItemParams(OpenAPI openAPI) {
-
+    private static List<DocPushItemParam> buildDocPushItemParams(OpenAPI openAPI) {
         // 生成目录
         List<DocPushItemParam> folders = buildFolders(openAPI);
         // 生成文档
@@ -134,37 +211,37 @@ public class SwaggerParserApi {
         return folders;
     }
 
-    private List<DocPushItemParam> buildFolders(OpenAPI openAPI) {
+    private static List<DocPushItemParam> buildFolders(OpenAPI openAPI) {
         List<Tag> tags = openAPI.getTags();
         if (CollectionUtils.isEmpty(tags)) {
             return Collections.emptyList();
         }
         return tags.stream()
                 .map(tag -> {
-                    DocPushItemParam docPushItemParam = new DocPushItemParam();
-                    docPushItemParam.setName(tag.getName());
-                    docPushItemParam.setDescription(tag.getDescription());
-                    docPushItemParam.setIsFolder(Booleans.TRUE);
-                    docPushItemParam.setItems(new ArrayList<>());
-                    docPushItemParam.setOrderIndex(threadLocal.get().getAndIncrement());
-                    return docPushItemParam;
+                    return DocPushItemParam.builder()
+                            .name(tag.getName())
+                            .description(tag.getDescription())
+                            .isFolder(Booleans.TRUE)
+                            .items(new ArrayList<>())
+                            .orderIndex(threadLocal.get().getAndIncrement())
+                            .build();
                 })
                 .collect(Collectors.toList());
     }
 
-    private List<DocPushItemParam> buildItems(OpenAPI openAPI) {
+    private static List<DocPushItemParam> buildItems(OpenAPI openAPI) {
         Paths paths = openAPI.getPaths();
         if (CollectionUtils.isEmpty(paths)) {
             return Collections.emptyList();
         }
         return paths.entrySet()
                 .stream()
-                .flatMap(entry-> this.buildItems(entry, openAPI).stream())
+                .flatMap(entry-> buildItems(entry, openAPI).stream())
                 .collect(Collectors.toList());
     }
 
-    private List<DocPushItemParam> buildItems(Map.Entry<String, PathItem> entry, OpenAPI openAPI) {
-        List<DocPushItemParam> items = new ArrayList<>();
+    private static List<DocPushItemParam> buildItems(Map.Entry<String, PathItem> entry, OpenAPI openAPI) {
+         List<DocPushItemParam> items = new ArrayList<>();
         String path = entry.getKey();
         PathItem pathItem = entry.getValue();
         Map<PathItem.HttpMethod, Operation> operationMap = pathItem.readOperationsMap();
@@ -178,21 +255,23 @@ public class SwaggerParserApi {
                     .type(DocTypeEnum.HTTP.getType())
                     .url(path)
                     .isFolder(Booleans.FALSE)
-                    .deprecated(operation.getDeprecated() ? "deprecated" : null)
+                    .deprecated(Optional.ofNullable(operation.getDeprecated()).orElse(false) ? "" : null)
                     .orderIndex(threadLocal.get().getAndIncrement())
                     .headerParams(buildHeaderParamPushParams(operation))
                     .pathParams(buildDocParamPushParams(operation, parameter -> Objects.equals("path", parameter.getIn())))
                     .queryParams(buildDocParamPushParams(operation, parameter -> Objects.equals("query", parameter.getIn())))
-                    .requestParams(buildRequestParams(operation, openAPI))
                     .tag(CollectionUtils.isEmpty(operation.getTags()) ? "" : operation.getTags().get(0))
                     .build();
 
+            RequestParamsWrapper requestParamsWrapper = buildRequestParams(operation, openAPI);
+            docPushItemParam.setRequestParams(requestParamsWrapper.getDocParamPushParams());
+            docPushItemParam.setIsRequestArray(Booleans.toValue(requestParamsWrapper.isRequestArray()));
             items.add(docPushItemParam);
         }
         return items;
     }
 
-    private List<HeaderParamPushParam> buildHeaderParamPushParams(Operation operation) {
+    private static List<HeaderParamPushParam> buildHeaderParamPushParams(Operation operation) {
         List<Parameter> parameters = operation.getParameters();
         if (CollectionUtils.isEmpty(parameters)) {
             return null;
@@ -209,21 +288,45 @@ public class SwaggerParserApi {
                 .collect(Collectors.toList());
     }
 
-    private List<DocParamPushParam> buildRequestParams(Operation operation, OpenAPI openAPI) {
+    private static RequestParamsWrapper buildRequestParams(Operation operation, OpenAPI openAPI) {
         RequestBody requestBody = operation.getRequestBody();
+        boolean isRequestArray = false;
+        List<DocParamPushParam> docParamPushParams = Collections.emptyList();
+        // 如果是json请求
         if (requestBody != null) {
-            Collection<MediaType> values = requestBody.getContent().values();
-            MediaType mediaType = values.iterator().next();
-            Schema<?> schema = mediaType.getSchema();
-            String $ref = schema.get$ref();
-            return buildObjectParam($ref, openAPI);
+            Content content = requestBody.getContent();
+            for (Map.Entry<String, MediaType> entry : content.entrySet()) {
+                String key = entry.getKey();
+                if (key.contains("json") || "*/*".equals(key)) {
+                    MediaType mediaType = entry.getValue();
+                    Schema<?> schema = mediaType.getSchema();
+                    String $ref = schema.get$ref();
+                    String type = schema.getType();
+                    // 如果是数组参数
+                    if ("array".equals(type)) {
+                        isRequestArray = true;
+                        Schema<?> items = schema.getItems();
+                        $ref = items.get$ref();
+                        docParamPushParams = buildObjectParam($ref, openAPI);
+                    } else if ($ref != null) {
+                        docParamPushParams = buildObjectParam($ref, openAPI);
+                    }
+                } else if (key.contains("form")) {
+                    MediaType mediaType = entry.getValue();
+                    Schema<?> schema = mediaType.getSchema();
+                    Map<String, Schema> properties = schema.getProperties();
+                    docParamPushParams = buildDocParamPushParams(operation, properties);
+                }
+            }
         } else {
-            return buildDocParamPushParams(operation, parameter -> "formData".equals(parameter.getIn()));
+            // 表单结构
+            docParamPushParams = buildDocParamPushParams(operation, parameter -> "formData".equals(parameter.getIn()));
         }
+        return new RequestParamsWrapper(docParamPushParams, isRequestArray);
     }
 
 
-    private List<DocParamPushParam> buildObjectParam(String $ref, OpenAPI openAPI) {
+    private static List<DocParamPushParam> buildObjectParam(String $ref, OpenAPI openAPI) {
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
         Map<String, Object> properties = jsonSchema.getProperties();
         return properties.entrySet()
@@ -233,15 +336,14 @@ public class SwaggerParserApi {
                     Map<String, Object> value = (Map<String, Object>) entry.getValue();
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(name)
-                            .type(String.valueOf(value.get("type")))
                             .required(Booleans.toValue(Objects.equals("true", String.valueOf(value.getOrDefault("required", "false")))))
                             .description(String.valueOf(value.getOrDefault("description", "")))
                             .build();
-                    String type = String.valueOf(value.get("type"));
+                    String type = String.valueOf(value.getOrDefault("type", "Object"));
                     List<DocParamPushParam> children = null;
                     // 如果有子对象
                     if (value.containsKey("$ref")) {
-                        type = "Object";
+                        type = String.valueOf(value.getOrDefault("type", "Object"));
                         children = buildObjectParam(String.valueOf(value.get("$ref")), openAPI);
                     }
                     param.setChildren(children);
@@ -251,7 +353,7 @@ public class SwaggerParserApi {
                 .collect(Collectors.toList());
     }
 
-    private List<DocParamPushParam> buildDocParamPushParams(Operation operation, Predicate<Parameter> predicate) {
+    private static List<DocParamPushParam> buildDocParamPushParams(Operation operation, Predicate<Parameter> predicate) {
         List<Parameter> parameters = operation.getParameters();
         if (CollectionUtils.isEmpty(parameters)) {
             return null;
@@ -270,13 +372,36 @@ public class SwaggerParserApi {
                 .collect(Collectors.toList());
     }
 
-    private String getType(Parameter parameter) {
+    private static List<DocParamPushParam> buildDocParamPushParams(Operation operation, Map<String, Schema> properties) {
+        if (CollectionUtils.isEmpty(properties)) {
+            return null;
+        }
+        return properties.entrySet().stream()
+                .map(stringSchemaEntry -> {
+                    Schema schema = stringSchemaEntry.getValue();
+                    String type = schema.getType();
+                    String format = schema.getFormat();
+                    if ("binary".equals(format)) {
+                        type = "file";
+                    }
+                    return DocParamPushParam.builder()
+                            .name(schema.getName())
+                            .type(type)
+                            .description(schema.getDescription())
+//                            .required()
+//                            .maxLength(getMaxLength(parameter))
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static String getType(Parameter parameter) {
         Schema<?> schema = Optional.ofNullable(parameter)
                 .map(Parameter::getSchema).orElse(null);
         return getType(schema);
     }
 
-    private String getType(Schema<?> schema) {
+    private static String getType(Schema<?> schema) {
         return Optional.ofNullable(schema)
                 .map(Schema::getType)
                 .orElse("String");
@@ -284,7 +409,7 @@ public class SwaggerParserApi {
 
 
 
-    private String getMaxLength(Parameter parameter) {
+    private static String getMaxLength(Parameter parameter) {
         Integer maxLength = Optional.ofNullable(parameter)
                 .map(Parameter::getSchema)
                 .map(Schema::getMaxLength)
@@ -298,7 +423,7 @@ public class SwaggerParserApi {
      * @param openAPI
      * @return
      */
-    private JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
+    private static JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
         String refName = getRefName($ref);
         Schema<?> schema = openAPI.getComponents().getSchemas().get(refName);
         Map<String, Object> objectProperties = schema.getJsonSchema();
@@ -318,6 +443,7 @@ public class SwaggerParserApi {
         return ref;
     }
 
+
     @AllArgsConstructor
     @Data
     static class JsonSchema {
@@ -325,4 +451,11 @@ public class SwaggerParserApi {
         private Map<String, Object> properties;
     }
 
+
+    @AllArgsConstructor
+    @Data
+    static class RequestParamsWrapper {
+        private List<DocParamPushParam> docParamPushParams;
+        private boolean isRequestArray;
+    }
 }

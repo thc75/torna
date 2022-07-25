@@ -42,10 +42,13 @@ public class HeaderParamPushParam {
     @Length(max = 256, message = "描述长度不能超过256")
     private String description;
 
+    @Builder.Default
     private Byte createMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte modifyMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte isDeleted = Booleans.FALSE;
 
 }

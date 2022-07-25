@@ -68,10 +68,13 @@ public class DocParamPushParam {
     @ApiDocField(description = "子节点，内容同父节点")
     private List<DocParamPushParam> children;
 
+    @Builder.Default
     private Byte createMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte modifyMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte isDeleted = Booleans.FALSE;
 
     /** 排序 */

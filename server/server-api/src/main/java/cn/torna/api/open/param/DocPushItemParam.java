@@ -81,9 +81,11 @@ public class DocPushItemParam {
     private Byte isResponseArray = 0;
 
     @ApiDocField(description = "请求数组时元素类型, object/number/string/boolean", example = "object")
+    @Builder.Default
     private String requestArrayType = "object";
 
     @ApiDocField(description = "返回数组时元素类型, object/number/string/boolean", example = "object")
+    @Builder.Default
     private String responseArrayType = "object";
 
     // dubbo
