@@ -266,6 +266,7 @@ public class SwaggerApi {
             RequestParamsWrapper requestParamsWrapper = buildRequestParams(operation, openAPI);
             docPushItemParam.setRequestParams(requestParamsWrapper.getDocParamPushParams());
             docPushItemParam.setIsRequestArray(Booleans.toValue(requestParamsWrapper.isRequestArray()));
+            docPushItemParam.setContentType(requestParamsWrapper.getContentType());
             items.add(docPushItemParam);
         }
         return items;
@@ -292,12 +293,14 @@ public class SwaggerApi {
         RequestBody requestBody = operation.getRequestBody();
         boolean isRequestArray = false;
         List<DocParamPushParam> docParamPushParams = Collections.emptyList();
+        String contentType = "";
         // 如果是json请求
         if (requestBody != null) {
             Content content = requestBody.getContent();
             for (Map.Entry<String, MediaType> entry : content.entrySet()) {
                 String key = entry.getKey();
                 if (key.contains("json") || "*/*".equals(key)) {
+                    contentType = "application/json";
                     MediaType mediaType = entry.getValue();
                     Schema<?> schema = mediaType.getSchema();
                     String $ref = schema.get$ref();
@@ -312,6 +315,7 @@ public class SwaggerApi {
                         docParamPushParams = buildObjectParam($ref, openAPI);
                     }
                 } else if (key.contains("form")) {
+                    contentType = "application/x-www-form-urlencoded";
                     MediaType mediaType = entry.getValue();
                     Schema<?> schema = mediaType.getSchema();
                     Map<String, Schema> properties = schema.getProperties();
@@ -322,7 +326,7 @@ public class SwaggerApi {
             // 表单结构
             docParamPushParams = buildDocParamPushParams(operation, parameter -> "formData".equals(parameter.getIn()));
         }
-        return new RequestParamsWrapper(docParamPushParams, isRequestArray);
+        return new RequestParamsWrapper(docParamPushParams, isRequestArray, contentType);
     }
 
 
@@ -457,5 +461,6 @@ public class SwaggerApi {
     static class RequestParamsWrapper {
         private List<DocParamPushParam> docParamPushParams;
         private boolean isRequestArray;
+        private String contentType;
     }
 }
