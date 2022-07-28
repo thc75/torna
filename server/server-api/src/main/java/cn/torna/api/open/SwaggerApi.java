@@ -307,7 +307,7 @@ public class SwaggerApi {
                 .map(parameter -> {
                     return HeaderParamPushParam.builder()
                             .name(parameter.getName())
-                            .required(Booleans.toValue(parameter.getRequired()))
+                            .required(Booleans.toValue(isRequired(parameter)))
                             .description(parameter.getDescription())
                             .example(toString(parameter.getExample()))
                             .build();
@@ -393,9 +393,10 @@ public class SwaggerApi {
                     Map<String, Object> value = (Map<String, Object>) entry.getValue();
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(name)
-                            .required(Booleans.toValue(Objects.equals("true", String.valueOf(value.getOrDefault("required", "false")))))
+                            .required(Booleans.toValue(jsonSchema.getRequired(name) || Objects.equals("true", String.valueOf(value.getOrDefault("required", "false")))))
                             .description(String.valueOf(value.getOrDefault("description", "")))
                             .example(toString(value.get("example")))
+                            .maxLength(getMaxLength(jsonSchema.getSchema()))
                             .build();
                     String type = String.valueOf(value.getOrDefault("type", TYPE_OBJECT));
                     List<DocParamPushParam> children = null;
@@ -406,9 +407,21 @@ public class SwaggerApi {
                     }
                     // 如果是枚举字段
                     if (value.containsKey(TYPE_ENUM)) {
-                        List list = (List) value.get(TYPE_ENUM);
-                        String description = buildEnumString(param.getDescription(), list, "枚举值: ");
-                        param.setDescription(description);
+                        List<?> list = (List<?>) value.get(TYPE_ENUM);
+                        setEnumDescription(list, param);
+                    }
+                    // list对象，List<XX>
+                    if ("array".equals(type) && value.containsKey("items")) {
+                        Map<String, ?> items = (Map<String, ?>)value.get("items");
+                        Object itemRef = items.get("$ref");
+                        if (itemRef != null) {
+                            children = buildObjectParam(String.valueOf(itemRef), openAPI);
+                            type = "array[object]";
+                        }
+                        Object itemType = items.get("type");
+                        if (itemType != null) {
+                            type = "array[" + itemType + "]";
+                        }
                     }
                     param.setChildren(children);
                     param.setType(type);
@@ -460,12 +473,12 @@ public class SwaggerApi {
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(parameter.getName())
                             .type(getType(parameter))
-                            .required(Booleans.toValue(parameter.getRequired()))
+                            .required(Booleans.toValue(isRequired(parameter)))
                             .description(parameter.getDescription())
                             .maxLength(getMaxLength(parameter))
                             .example(toString(parameter.getExample()))
                             .build();
-                    Schema schema = parameter.getSchema();
+                    Schema<?> schema = parameter.getSchema();
                     if (schema != null) {
                         // 如果是数组参数
                         if ("array".equals(param.getType())) {
@@ -473,13 +486,22 @@ public class SwaggerApi {
                             String itemsType = items.getType();
                             param.setType("array["+itemsType+"]");
                             List<?> list = items.getEnum();
-                            String description = buildEnumString(param.getDescription(), list, "枚举值: ");
-                            param.setDescription(description);
+                            setEnumDescription(list, param);
                         }
                     }
                     return param;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private static void setEnumDescription(List<?> list, DocParamPushParam param) {
+        if (!CollectionUtils.isEmpty(list)) {
+            String description = buildEnumString(param.getDescription(), list, "枚举值: ");
+            param.setDescription(description);
+            if (StringUtils.isEmpty(param.getExample())) {
+                param.setExample(toString(list.get(0)));
+            }
+        }
     }
 
     private static List<DocParamPushParam> buildDocParamPushParams(Operation operation, Map<String, Schema> properties) {
@@ -499,8 +521,8 @@ public class SwaggerApi {
                             .type(type)
                             .description(schema.getDescription())
                             .example(toString(schema.getExample()))
-//                            .required()
-//                            .maxLength(getMaxLength(parameter))
+                            .required(Booleans.toValue(isRequired(schema, schema.getName())))
+                            .maxLength(getMaxLength(schema))
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -521,8 +543,14 @@ public class SwaggerApi {
 
 
     private static String getMaxLength(Parameter parameter) {
-        Integer maxLength = Optional.ofNullable(parameter)
+        return Optional.ofNullable(parameter)
                 .map(Parameter::getSchema)
+                .map(SwaggerApi::getMaxLength)
+                .orElse("-");
+    }
+
+    private static String getMaxLength(Schema<?> schema) {
+        Integer maxLength = Optional.ofNullable(schema)
                 .map(Schema::getMaxLength)
                 .orElse(null);
         return maxLength == null ? "-" : maxLength.toString();
@@ -540,7 +568,7 @@ public class SwaggerApi {
         Map<String, Object> objectProperties = schema.getJsonSchema();
         String type = String.valueOf(objectProperties.getOrDefault("type", TYPE_OBJECT));
         Map<String, Object> properties = (Map<String, Object>) objectProperties.get("properties");
-        return new JsonSchema(type, properties);
+        return new JsonSchema(type, properties, schema);
     }
 
     private static String getRefName(String ref) {
@@ -558,12 +586,33 @@ public class SwaggerApi {
         return o == null ? "" : String.valueOf(o);
     }
 
+    private static boolean isRequired(Schema<?> schema, String name) {
+        if (schema == null) {
+            return false;
+        }
+        List<String> required = schema.getRequired();
+        if (CollectionUtils.isEmpty(required)) {
+            return false;
+        }
+        return required.contains(name);
+    }
+
+    private static boolean isRequired(Parameter parameter) {
+        Schema<?> schema = parameter.getSchema();
+        return isRequired(schema, parameter.getName()) || Objects.equals(parameter.getRequired(), true);
+    }
+
 
     @AllArgsConstructor
     @Data
     static class JsonSchema {
         private String type;
         private Map<String, Object> properties;
+        private Schema<?> schema;
+
+        public boolean getRequired(String name) {
+            return isRequired(this.schema, name);
+        }
     }
 
 
