@@ -35,6 +35,9 @@ public class ImportSwaggerV2DTO {
     /** 认证密码, 数据库字段：auth_password */
     private String authPassword;
 
+    /** 刷新状态，1：启用，0：禁用 */
+    private Byte refreshStatus;
+
     private User user;
 
     private String ip;

@@ -15,6 +15,7 @@ import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.ModuleService;
+import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -73,6 +74,9 @@ public class SwaggerApi {
     @Autowired
     private ModuleService moduleService;
 
+    @Autowired
+    private ModuleSwaggerConfigService moduleSwaggerConfigService;
+
     /**
      * 导入swagger文档
      * @param importSwaggerV2DTO importSwaggerV2DTO
@@ -87,6 +91,8 @@ public class SwaggerApi {
         RequestContext.getCurrentContext().setModule(module);
         RequestContext.getCurrentContext().setIp(importSwaggerV2DTO.getIp());
         RequestContext.getCurrentContext().setApiUser(user);
+        // 保存配置
+        moduleSwaggerConfigService.create(importSwaggerV2DTO, content, module);
         // 推送文档
         docApi.pushDoc(docPushParam);
         return module;
