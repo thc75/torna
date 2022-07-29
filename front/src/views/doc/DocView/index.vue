@@ -97,7 +97,8 @@
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
     <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
-    <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
+    <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
+    <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
     <h4>{{ $ts('responseExample') }}</h4>
     <div class="code-box" @mouseenter="isShowResponseSuccessExample=true" @mouseleave="isShowResponseSuccessExample=false">
       <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
@@ -251,6 +252,22 @@ export default {
     },
     isDeprecated() {
       return this.docInfo.deprecated !== '$false$'
+    },
+    isResponseSingleValue() {
+      const responseParams = this.docInfo.responseParams
+      if (responseParams && responseParams.length === 1) {
+        const responseParam = responseParams[0]
+        return !responseParam.name
+      }
+      return false
+    },
+    responseSingleValue() {
+      const responseParams = this.docInfo.responseParams
+      if (responseParams && responseParams.length === 1) {
+        const responseParam = responseParams[0]
+        return responseParam.type
+      }
+      return ''
     }
   },
   watch: {
@@ -305,6 +322,10 @@ export default {
           const filterRow = data.responseParams.filter(el => el.isDeleted === 0)
           this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
         }
+      }
+      // 如果返回单个参数
+      if (this.isResponseSingleValue) {
+        this.responseSuccessExample = this.responseSingleValue
       }
     },
     initResponseHiddenColumns() {
