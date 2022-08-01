@@ -17,7 +17,7 @@
       v-if="isColumnShow('name')"
       prop="name"
       :label="nameLabel"
-      width="260"
+      width="300"
     >
       <template slot-scope="scope">
         <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''" style="white-space: nowrap">

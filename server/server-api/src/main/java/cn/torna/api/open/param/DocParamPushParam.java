@@ -6,7 +6,10 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.easyopen.doc.DataType;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -16,6 +19,9 @@ import java.util.List;
 /**
  * @author tanghc
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Data
 public class DocParamPushParam {
 
@@ -62,10 +68,13 @@ public class DocParamPushParam {
     @ApiDocField(description = "子节点，内容同父节点")
     private List<DocParamPushParam> children;
 
+    @Builder.Default
     private Byte createMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte modifyMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte isDeleted = Booleans.FALSE;
 
     /** 排序 */
