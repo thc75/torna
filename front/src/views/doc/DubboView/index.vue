@@ -30,13 +30,14 @@
       </span>
     </div>
     <h4 v-show="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
-    <h4>{{ $ts('interface') }}<span>{{ docInfo.dubboInfo.interfaceName }}</span></h4>
+    <h4>{{ $ts('interface') }}<span>{{ docInfo.dubboInfo && docInfo.dubboInfo.interfaceName }}</span></h4>
     <h4>{{ $ts('method') }}<span>{{ buildDefinition(docInfo) }}</span></h4>
     <h4 v-if="docInfo.description">{{ $ts('description') }}<span>{{ docInfo.description }}</span></h4>
     <h4>{{ $ts('invokeParam') }}</h4>
     <parameter-table :data="docInfo.requestParams" />
     <h4>{{ $ts('returnResult') }}</h4>
-    <parameter-table :data="docInfo.responseParams" />
+    <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" />
+    <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
     <h4>{{ $ts('errorCode') }}</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
@@ -136,6 +137,22 @@ export default {
   computed: {
     isRequestJson() {
       return this.docInfo.contentType && this.docInfo.contentType.toLowerCase().indexOf('json') > -1
+    },
+    isResponseSingleValue() {
+      const responseParams = this.docInfo.responseParams
+      if (responseParams && responseParams.length === 1) {
+        const responseParam = responseParams[0]
+        return !responseParam.name
+      }
+      return false
+    },
+    responseSingleValue() {
+      const responseParams = this.docInfo.responseParams
+      if (responseParams && responseParams.length === 1) {
+        const responseParam = responseParams[0]
+        return responseParam.type
+      }
+      return ''
     }
   },
   watch: {

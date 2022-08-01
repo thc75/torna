@@ -1,0 +1,12 @@
+CREATE TABLE `module_swagger_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
+  `module_id` bigint(20) NOT NULL COMMENT 'module.id',
+  `url` varchar(128) NOT NULL DEFAULT '' COMMENT 'swagger文档url',
+  `content` text NOT NULL COMMENT 'swagger文档内容',
+  `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '认证用户名',
+  `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '认证密码',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_moduleid` (`module_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模块swagger配置'

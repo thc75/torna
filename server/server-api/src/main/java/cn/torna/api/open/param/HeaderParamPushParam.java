@@ -3,7 +3,10 @@ package cn.torna.api.open.param;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.OperationMode;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -12,6 +15,9 @@ import javax.validation.constraints.NotNull;
 /**
  * @author tanghc
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Data
 public class HeaderParamPushParam {
 
@@ -36,10 +42,13 @@ public class HeaderParamPushParam {
     @Length(max = 256, message = "描述长度不能超过256")
     private String description;
 
+    @Builder.Default
     private Byte createMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte modifyMode = OperationMode.OPEN.getType();
 
+    @Builder.Default
     private Byte isDeleted = Booleans.FALSE;
 
 }
