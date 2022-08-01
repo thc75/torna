@@ -31,12 +31,6 @@ public class ModuleSwaggerConfig {
     /** swagger文档内容, 数据库字段：content */
     private String content;
 
-    /** 刷新时间间隔, 数据库字段：refresh_minutes */
-    private Integer refreshMinutes;
-
-    /** 刷新状态，1：启用，0：禁用 */
-    private Byte refreshStatus;
-
     /** 认证用户名, 数据库字段：auth_username */
     private String authUsername;
 

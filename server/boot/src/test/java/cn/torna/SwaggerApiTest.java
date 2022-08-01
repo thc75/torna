@@ -3,7 +3,6 @@ package cn.torna;
 import cn.torna.api.bean.ApiUser;
 import cn.torna.api.open.SwaggerApi;
 import cn.torna.api.open.param.DocPushParam;
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
@@ -42,7 +41,6 @@ public class SwaggerApiTest extends TornaApplicationTests {
                 .projectId(4L)
                 .content(content)
                 .user(user)
-                .refreshStatus(Booleans.TRUE)
                 .ip("127.0.0.1")
                 .build();
 

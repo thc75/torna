@@ -8,13 +8,17 @@ import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
+import cn.torna.dao.entity.ModuleSwaggerConfig;
 import cn.torna.service.ModuleConfigService;
+import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
+import cn.torna.web.controller.module.param.ModuleSwaggerConfigParam;
 import cn.torna.web.controller.module.vo.DebugEnvVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalVO;
+import cn.torna.web.controller.module.vo.ModuleSwaggerConfigVO;
 import cn.torna.web.controller.module.vo.SwaggerSettingVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +38,9 @@ public class ModuleSettingController {
 
     @Autowired
     private ModuleConfigService moduleConfigService;
+
+    @Autowired
+    private ModuleSwaggerConfigService moduleSwaggerConfigService;
 
     @Deprecated
     @GetMapping("/debugEnv/list")
@@ -198,6 +205,27 @@ public class ModuleSettingController {
             commonConfig.setConfigValue(method);
             moduleConfigService.update(commonConfig);
         }
+        return Result.ok();
+    }
+
+    @GetMapping("/swaggerSetting/config/get")
+    public Result<ModuleSwaggerConfigVO> getSwaggerConfig(@HashId Long moduleId) {
+        ModuleSwaggerConfig moduleSwaggerConfig = moduleSwaggerConfigService.getByModuleId(moduleId);
+        if (moduleSwaggerConfig == null) {
+            return Result.ok();
+        }
+        ModuleSwaggerConfigVO moduleSwaggerConfigVO = CopyUtil.copyBean(moduleSwaggerConfig, ModuleSwaggerConfigVO::new);
+        return Result.ok(moduleSwaggerConfigVO);
+    }
+
+    @PostMapping("/swaggerSetting/config/update")
+    public Result updateSwaggerConfig(@RequestBody ModuleSwaggerConfigParam param) {
+        ModuleSwaggerConfig moduleSwaggerConfig = moduleSwaggerConfigService.getById(param.getId());
+        if (moduleSwaggerConfig == null) {
+            return Result.ok();
+        }
+        CopyUtil.copyPropertiesIgnoreNull(param, moduleSwaggerConfig);
+        moduleSwaggerConfigService.updateIgnoreNull(moduleSwaggerConfig);
         return Result.ok();
     }
 }

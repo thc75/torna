@@ -1,24 +1,25 @@
-package cn.torna.service.dto;
+package cn.torna.web.controller.module.vo;
 
-import cn.torna.common.bean.User;
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
+
 
 /**
+ * 表名：module_swagger_config
+ * 备注：模块swagger配置
+ *
  * @author tanghc
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Data
-public class ImportSwaggerV2DTO {
+public class ModuleSwaggerConfigVO {
 
+    /** 主键id, 数据库字段：id */
+    @NotNull
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private Long projectId;
+    private Long id;
 
     /** swagger文档url, 数据库字段：url */
     private String url;
@@ -32,8 +33,5 @@ public class ImportSwaggerV2DTO {
     /** 认证密码, 数据库字段：auth_password */
     private String authPassword;
 
-    private User user;
-
-    private String ip;
 
 }

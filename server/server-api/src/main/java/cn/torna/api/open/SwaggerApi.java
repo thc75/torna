@@ -1,5 +1,6 @@
 package cn.torna.api.open;
 
+import cn.torna.api.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocParamPushParam;
@@ -31,12 +32,10 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.tags.Tag;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -46,10 +45,12 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -85,12 +86,15 @@ public class SwaggerApi {
         String content = buildSwaggerDocContent(importSwaggerV2DTO);
         User user = importSwaggerV2DTO.getUser();
         String nickname = user.getNickname();
+        ApiUser apiUser = new ApiUser();
+        apiUser.setId(user.getUserId());
+        apiUser.setNickname(user.getNickname());
         OpenAPI openAPI = getOpenAPI(content);
         DocPushParam docPushParam = buildDocPushParam(nickname, openAPI);
         Module module = createModule(importSwaggerV2DTO, getTitle(openAPI));
         RequestContext.getCurrentContext().setModule(module);
         RequestContext.getCurrentContext().setIp(importSwaggerV2DTO.getIp());
-        RequestContext.getCurrentContext().setApiUser(user);
+        RequestContext.getCurrentContext().setApiUser(apiUser);
         // 保存配置
         moduleSwaggerConfigService.create(importSwaggerV2DTO, content, module);
         // 推送文档
@@ -208,17 +212,21 @@ public class SwaggerApi {
                 .map(server -> {
                     DebugEnvParam debugEnvParam = new DebugEnvParam();
                     debugEnvParam.setName(Optional.ofNullable(server.getDescription()).orElse("test" + i.incrementAndGet()));
-                    debugEnvParam.setUrl(server.getUrl());
+                    String url = server.getUrl();
+                    if (url.startsWith("//")) {
+                        url = "http:" + url;
+                    }
+                    debugEnvParam.setUrl(url);
                     return debugEnvParam;
                 })
                 .collect(Collectors.toList());
     }
 
     private static List<DocPushItemParam> buildDocPushItemParams(OpenAPI openAPI) {
-        // 生成目录
-        List<DocPushItemParam> folders = buildFolders(openAPI);
         // 生成文档
         List<DocPushItemParam> items = buildItems(openAPI);
+        // 生成目录
+        List<DocPushItemParam> folders = buildFolders(items);
         // 如果没有目录，直接返回文档
         if (folders.isEmpty()) {
             return items;
@@ -237,16 +245,23 @@ public class SwaggerApi {
         return folders;
     }
 
-    private static List<DocPushItemParam> buildFolders(OpenAPI openAPI) {
-        List<Tag> tags = openAPI.getTags();
+    private static List<DocPushItemParam> buildFolders(List<DocPushItemParam> items) {
+        if (CollectionUtils.isEmpty(items)) {
+            return new ArrayList<>();
+        }
+        Set<String> tags = items.stream()
+                .map(DocPushItemParam::getTag)
+                .filter(StringUtils::hasText)
+                .sorted()
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         if (CollectionUtils.isEmpty(tags)) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         return tags.stream()
                 .map(tag -> {
                     return DocPushItemParam.builder()
-                            .name(tag.getName())
-                            .description(tag.getDescription())
+                            .name(tag)
+                            .description(tag)
                             .isFolder(Booleans.TRUE)
                             .items(new ArrayList<>())
                             .orderIndex(threadLocal.get().getAndIncrement())
@@ -392,7 +407,8 @@ public class SwaggerApi {
     private static List<DocParamPushParam> buildObjectParam(String $ref, OpenAPI openAPI) {
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
         Map<String, Object> properties = jsonSchema.getProperties();
-        return properties.entrySet()
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyMap()).entrySet()
                 .stream()
                 .map(entry -> {
                     String name = entry.getKey();

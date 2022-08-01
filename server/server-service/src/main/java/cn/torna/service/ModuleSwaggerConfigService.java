@@ -20,10 +20,8 @@ public class ModuleSwaggerConfigService implements IService<ModuleSwaggerConfig,
         moduleSwaggerConfig.setModuleId(module.getId());
         moduleSwaggerConfig.setUrl(importSwaggerV2DTO.getUrl());
         moduleSwaggerConfig.setContent(content);
-        moduleSwaggerConfig.setRefreshMinutes(importSwaggerV2DTO.getRefreshMinutes());
         moduleSwaggerConfig.setAuthUsername(importSwaggerV2DTO.getAuthUsername());
         moduleSwaggerConfig.setAuthPassword(importSwaggerV2DTO.getAuthPassword());
-        moduleSwaggerConfig.setRefreshStatus(importSwaggerV2DTO.getRefreshStatus());
         if (moduleSwaggerConfig.getId() == null) {
             this.saveIgnoreNull(moduleSwaggerConfig);
         } else {
@@ -32,7 +30,7 @@ public class ModuleSwaggerConfigService implements IService<ModuleSwaggerConfig,
 
     }
 
-    public ModuleSwaggerConfig getByModuleId(long moduleId) {
+    public ModuleSwaggerConfig getByModuleId(Long moduleId) {
         return getByColumn("module_id", moduleId);
     }
 
