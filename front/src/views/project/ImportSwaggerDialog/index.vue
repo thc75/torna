@@ -165,7 +165,7 @@ export default {
             this.importJsonFormData.projectId = this.projectId
             this.formatHost(this.importJsonFormData)
             this.post('/module/import/swaggerV2', this.importJsonFormData, resp => {
-              this.fireSuccess(loading)
+              this.fireSuccess(loading, resp)
             }, () => { loading.close() })
           }
         })
@@ -176,7 +176,7 @@ export default {
             const loading = this.loadImporting()
             this.importContentFormData.projectId = this.projectId
             this.post('/module/import/swaggerV2', this.importContentFormData, resp => {
-              this.fireSuccess(loading)
+              this.fireSuccess(loading, resp)
             })
           }
         }, () => { loading.close() })
@@ -190,11 +190,12 @@ export default {
         background: 'rgba(0, 0, 0, 0.7)'
       })
     },
-    fireSuccess(loading) {
+    fireSuccess(loading, resp) {
       setTimeout(() => {
         this.importJsonDlgShow = false
         loading.close()
         this.tipSuccess(this.$ts('importSuccess'))
+        this.success && this.success(resp)
       }, 1500)
     }
   }
