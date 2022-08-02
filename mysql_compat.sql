@@ -1,7 +1,3 @@
--- 适用于MySQL5.6.5+
--- 备注：5.5.3开始支持utf8mb4，5.6.5开始支持CURRENT_TIMESTAMP(datetime)
-
-
 /*!40101 SET NAMES utf8 */;
 
 /*!40101 SET SQL_MODE=''*/;
@@ -52,8 +48,8 @@ CREATE TABLE `compose_common_param` (
                                         `style` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0：path, 1：header， 2：请求参数，3：返回参数，4：错误码',
                                         `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
                                         `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                        `gmt_create` datetime ,
-                                        `gmt_modified` datetime  ,
+                                        `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                        `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                         PRIMARY KEY (`id`) USING BTREE,
                                         UNIQUE KEY `uk_dataid` (`data_id`) USING BTREE,
                                         KEY `idx_compose_project_id` (`compose_project_id`) USING BTREE
@@ -76,8 +72,8 @@ CREATE TABLE `compose_doc` (
                                `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
                                `creator` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
                                `order_index` int(10) unsigned NOT NULL DEFAULT '0',
-                               `gmt_create` datetime ,
-                               `gmt_modified` datetime  ,
+                               `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                               `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                PRIMARY KEY (`id`) USING BTREE,
                                KEY `idx_projectid` (`project_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='文档引用';
@@ -104,8 +100,8 @@ CREATE TABLE `compose_project` (
                                    `gateway_url` varchar(128) NOT NULL DEFAULT '' COMMENT '网关url',
                                    `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1：有效，0：无效',
                                    `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                   `gmt_create` datetime ,
-                                   `gmt_modified` datetime  ,
+                                   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                    PRIMARY KEY (`id`) USING BTREE,
                                    KEY `idx_spaceid` (`space_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='组合项目表';
@@ -145,12 +141,12 @@ CREATE TABLE `doc_info` (
                             `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '修改人',
                             `modifier_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建者昵称user_info.realname',
                             `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
-                            `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
+                            `remark` text COMMENT '备注',
                             `is_show` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示',
                             `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
                             `is_locked` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否锁住',
-                            `gmt_create` datetime ,
-                            `gmt_modified` datetime  ,
+                            `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                            `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                             PRIMARY KEY (`id`) USING BTREE,
                             UNIQUE KEY `uk_data_id` (`data_id`) USING BTREE,
                             KEY `idx_moduleid` (`module_id`) USING BTREE
@@ -158,7 +154,7 @@ CREATE TABLE `doc_info` (
 
 /*Data for the table `doc_info` */
 
-insert  into `doc_info`(`id`,`data_id`,`md5`,`name`,`description`,`author`,`type`,`url`,`http_method`,`content_type`,`deprecated`,`is_folder`,`parent_id`,`module_id`,`is_use_global_headers`,`is_use_global_params`,`is_use_global_returns`,`is_request_array`,`is_response_array`,`request_array_type`,`response_array_type`,`create_mode`,`modify_mode`,`creator_id`,`creator_name`,`modifier_id`,`modifier_name`,`order_index`,`remark`,`is_show`,`is_deleted`,`is_locked`,`gmt_create`,`gmt_modified`) values (40,'0762df7ae4a3adbd6db1d3f7e066d0a4','','商城产品','','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:22','2022-02-27 15:09:22'),(41,'edc09831d127452509526348b17e245e','b75627f978dc6648d4919cc5f7b90b12','查询产品','','',0,'/shop/product','GET','application/x-www-form-urlencoded','$false$',0,40,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:22','2022-02-27 15:09:22'),(42,'742a336acb1fd0f18574b4fd71b7e966','1b164a8d01428aceecd1b364fca5ecbc','修改产品','','',0,'/shop/product','PUT','application/json','$false$',0,40,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:22','2022-02-27 15:09:22'),(43,'16efeddc8b66ba84435b4d527c833cd4','14165f091ae8f9955989a7852d18744d','新增产品','','',0,'/shop/product','POST','application/json','$false$',0,40,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:22','2022-02-27 15:09:22'),(44,'593246d119b946366686ab99072d641a','','测试用例202111','','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',-1,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(45,'fb1e118d7be63ee40894cae7b185c0c5','988c505b72fe712c204e5b11925300ae','继承第三方类','','',0,'/extendThirdClass','POST','application/json','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(46,'b2c6cf679409187bafda42d85f61eae1','9b5e47fc3e2cc355c2ff20401a6907d0','普通字符串','','',0,'/string','GET','','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(47,'aa8ed5e969c75a035f904cb1c27d6608','ddec5709bd5f6d258730648465237fc7','参数内容很长','','',0,'/longParam','GET','application/x-www-form-urlencoded','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(48,'d32477fda51550e0acb2ee16d684f773','9c6d56d9f39dc062b0fc5711288649d8','示例hutool JSONObject','','',0,'/hutoolJSONObject','GET','application/x-www-form-urlencoded','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(49,'020595711e965df1917c9dfc063f307e','','测试用例','','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',-1,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(50,'54ef223cf9624b153956fc060cbb17d4','778e39add6225729aa2b07237c78c868','delete method with body','','',0,'/2021111/delete','DELETE','application/x-www-form-urlencoded','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(51,'9e2fe0f861e4606412feb02d6b3611b5','688341faca98439f1e4eef59d41c495e','example2021922','','',0,'/example2021922','POST','application/json','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(52,'a5aff543d0aba6028a956b6e392c0f55','56c45a940a046cfc10e9ee7fc550e806','泛型3','','',0,'/test/item/{id}','GET','application/x-www-form-urlencoded','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(53,'ed8c1799f14160e49e7181778c2a2e56','5311b2a6d9a6ef0cc06f87f12d96ef76','泛型','','',0,'/example72021923','GET','','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(54,'ed52f0e76673593ff1e2b80d9bb45d49','c45409553677090e985aeb36e23f562e','泛型2','','',0,'/example6220219232','GET','','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(55,'bf21a13fa7964a457286e5852b1a7fe5','14ccd1140bd9a84b9abcdd5e466159c3','问号泛型','','',0,'/test/generic/q','GET','application/x-www-form-urlencoded','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(56,'3de1d74e77f918bbd3e30a26dc5fa34f','','订单模块','','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(57,'aca639ea880bd2e8b90cb64fd979195a','9089347bdd4bd483d664aca280c67362','获取某个产品下的订单','<strong>注意：</strong>html演示。。','',0,'/order/get2/{productNo}','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(58,'376d45d2aa7f0451f59ccbc4ffa17c97','16982252ca137f60d0e4f92067c743fc','嵌套泛型，2层泛型','','',0,'/order/moreGeneric','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(59,'82085820d98bf1ea9af2e7aeb31f9eed','43c945adbc19c3896d95175baf69e686','只1层泛型','','',0,'/order/moreGeneric2','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(60,'f059106b7f7f4952e31648ced3ca8676','85e53af1000c94db3369d3fa5fce2716','没有泛型','','',0,'/order/moreGeneric3','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(61,'d9d558676742ec01828e0d4899a2fcb2','d1b2d0decb4058bc2c51495536a2ff6f','演示query参数,不加@RequestParam','演示query参数,不加@RequestParam','',0,'/order/get','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(62,'7de95802c704f9e9c21f83085da55879','e391d3651dbc0be505541cb71404cc71','提交订单信息，application/json','提交订单信息，application/json','Tom',0,'/order/create','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(63,'c17fd68995214a79ff9fb7548051a418','b43612e4e0b996fcb9dd7ad34db0fb65','演示path参数+query参数+body参数+header','提交订单信息说明。。','',0,'/order/submit/{productNo}','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(64,'1e8636f22682ebf654592c9e13c583b4','084c8687764d38b0efc8ba97dc48432f','演示query参数,加@RequestParam','演示query参数,加@RequestParam','',0,'/order/get2','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(65,'470dd942878f5bab1a5ad12aad8d4e5c','669466e302f4030b2531e3b9905ac08a','演示query参数,放在对象里面','','',0,'/order/get4','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(66,'98fe231300e6e6864c4a973fb7642a68','a42284159e9daa0108b1fc48393d8e4d','提交订单信息，application/x-www-form-urlencoded','提交订单信息，application/x-www-form-urlencoded','',0,'/order/create2','POST','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(67,'aee3ee906c576fe1c1b4a02713f5db5e','83ea9dd4adec0387aa63dc2523e53ee4','演示path参数','演示path参数','',0,'/order/get/{orderNo}','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(68,'b8b62abb78b49b80e4df377488699d61','32bdc14ab3b6502e565a4bde680465a2','演示query参数,放在对象里面+外面一个','','',0,'/order/get5','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(69,'4992d04305f0874f0f37708629e5b4b9','0f93adc67bcc7771bf2cb1929d08cd4c','全部参数form，全部由@ApiImplicitParams实现','全部由@ApiImplicitParams实现','',0,'/order/submit3/{productNo}','POST','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(70,'451c2f27e852ebe50de4ef67aee8af95','32d200e5e13c2310644deff366fa1983','全部参数upload，全部由@ApiImplicitParams实现','全部由@ApiImplicitParams实现','',0,'/order/submit4/{productNo}','POST','multipart/form-data','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(71,'5d12627081670014e321c86b39a69fe1','9e278f9777880b6c6eb605e3c680b446','全部参数json，全部由@ApiImplicitParams实现','全部由@ApiImplicitParams实现','',0,'/order/submit2/{productNo}','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(72,'0019cac17c98c23a1dbb176642993605','9344778e21d782ec69c08ecc34144324','返回树','','',0,'/order/cycle2','GET','','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(73,'78b1174d012d2f3aa9e596ca71223b2a','1f7ff36fc81f84fcb26f7ed419e48775','循环属性','','',0,'/order/cycle','GET','','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:23','2022-02-27 15:09:23'),(74,'02be37808d57b221dcfa25a31b759a33','82a08cef5045a07ab886b54da4f2fb1b','参数/返回都是List<OrderDTO>','List方式','',0,'/order/postArr4','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','object',1,1,99999,'Tom',99999,'Tom',100,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(75,'02caa73195d72baa6b5ce43cf9c473da','3bd0fdc03e30c7d3de1721da68b66932','参数/返回都是OrderDTO[]','参数/返回都是OrderDTO[]','',0,'/order/postArr','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','object',1,1,99999,'Tom',99999,'Tom',101,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(76,'6b3cc6a9b2be32fe3e1d3d27bdffa779','09ec797f5469b37733ecfd01a850230a','参数Integer[],返回OrderDTO[]','参数Integer[],返回OrderDTO[]','',0,'/order/postArr2','POST','application/json','$false$',0,56,4,1,1,1,1,1,'integer','object',1,1,99999,'Tom',99999,'Tom',102,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(77,'961c71f676583968440858586b70ad84','6895f74bd1b53cfc96a3beffdb729fc4','参数OrderDTO[],返回Integer[]','','',0,'/order/postArr3','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','integer',1,1,99999,'Tom',99999,'Tom',103,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(78,'457778b845342f45f914a92dcbc9bb80','a01416eb95af4c2552f95b39f2656cc9','参数/返回都是List<Integer>','List方式','',0,'/order/postArr5','POST','application/json','$false$',0,56,4,1,1,1,1,1,'integer','integer',1,1,99999,'Tom',99999,'Tom',104,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(79,'de4e4c5c71d0dfb1974b09ad8fc90820','3d0d65236667c69de3ab6d90d5c4748d','参数/返回都是List<OrderDTO>2','List方式','',0,'/order/postArr6','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','object',1,1,99999,'Tom',99999,'Tom',105,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(80,'a5a2da7089fdb4f48044199b15d94613','','产品模块','','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',-1,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(81,'32090c2b9fc2c24ac3716330880177d3','06695b07d80aaee6eb9d9b5150c52939','返回树','','',0,'/product/getTree','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(82,'f415ed3eb5ecc4ec028a7a9bb68807b8','6f312643ac4faaefa7ed6a808d8db7b2','获取产品','获取产品说明。。','Tom,Jim',0,'/product/get/{productNo}','GET','application/x-www-form-urlencoded','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(83,'f71959131c0d5123c030efffb02ba590','318f15e2dfd4adbad5fafc9a325c1c49','导出excel2','','',0,'/exportExcel2','GET','application/x-www-form-urlencoded','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(84,'98debf34dd736b1bd1ccd7ae7cbcfb24','bcf59f70c3a7c6d7ae514d64c14893d3','导出zip','','',0,'/exportZip','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(85,'00f3f43b7293208a1157a0c2a54c2c12','1fa082957e200dfd279c70fb761d3d3a','导出','','',0,'/export','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(86,'8c9b1dcee1d2d46363cbc152d89a2fbc','a63c02296b43263aec562fc7195960f1','导出excel','','',0,'/exportExcel','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(87,'4ec90f5e27c3fd03da4d1adf220c0f70','1b23d1d108f679b9af39991a238c0796','获取图片','返回一个图片流，页面展示图片','',0,'/getImage','GET','application/x-www-form-urlencoded','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(88,'366a646e90404243ffe12e1502794a7f','499bbfc6fb0d3a5e0376537263aeb46f','导出图片','','',0,'/exportPng','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(89,'cf2d8816bcc110f486812833fd775115','6277b9d30a61ac058f2d77f179962270','上传文件','','',0,'/product/upload','POST','multipart/form-data','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',11,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(90,'9d698e13de92b03b38dd7fcdd481a235','05c0cc077e006401e4103945dd98bbc6','上传文件2','','',0,'/product/upload2','POST','multipart/form-data','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',12,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(91,'42dd5856602b0aed4c06c1e5d20c74bf','3caa2949447a922934b6b984dc63e142','上传文件3','','',0,'/product/upload3','POST','multipart/form-data','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',13,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(92,'8c8cd8072318ca2bc842b5006e2f3a99','','登录模块','','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',2,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24'),(93,'03883fbd1846daa152a8e3fbcf06dc38','bd69f2a4bc68985fa922f6be0fa5c135','登录','登录','',0,'/login/login','POST','application/json','$false$',0,92,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'',1,0,0,'2022-02-27 15:09:24','2022-02-27 15:09:24');
+insert  into `doc_info`(`id`,`data_id`,`md5`,`name`,`description`,`author`,`type`,`url`,`http_method`,`content_type`,`deprecated`,`is_folder`,`parent_id`,`module_id`,`is_use_global_headers`,`is_use_global_params`,`is_use_global_returns`,`is_request_array`,`is_response_array`,`request_array_type`,`response_array_type`,`create_mode`,`modify_mode`,`creator_id`,`creator_name`,`modifier_id`,`modifier_name`,`order_index`,`remark`,`is_show`,`is_deleted`,`is_locked`,`gmt_create`,`gmt_modified`) values (40,'0762df7ae4a3adbd6db1d3f7e066d0a4','','商城产品','<p><br></p>','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:22','2022-08-02 18:07:18'),(41,'edc09831d127452509526348b17e245e','b75627f978dc6648d4919cc5f7b90b12','查询产品','<p><br></p>','',0,'/shop/product','GET','application/x-www-form-urlencoded','$false$',0,40,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:22','2022-08-02 18:07:18'),(42,'742a336acb1fd0f18574b4fd71b7e966','1b164a8d01428aceecd1b364fca5ecbc','修改产品','<p><br></p>','',0,'/shop/product','PUT','application/json','$false$',0,40,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:22','2022-08-02 18:07:18'),(43,'16efeddc8b66ba84435b4d527c833cd4','14165f091ae8f9955989a7852d18744d','新增产品','<p><br></p>','',0,'/shop/product','POST','application/json','$false$',0,40,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:22','2022-08-02 18:07:18'),(44,'593246d119b946366686ab99072d641a','','测试用例202111','<p><br></p>','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',-1,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(45,'fb1e118d7be63ee40894cae7b185c0c5','988c505b72fe712c204e5b11925300ae','继承第三方类','<p><br></p>','',0,'/extendThirdClass','POST','application/json','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(46,'b2c6cf679409187bafda42d85f61eae1','9b5e47fc3e2cc355c2ff20401a6907d0','普通字符串','<p><br></p>','',0,'/string','GET','','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(47,'aa8ed5e969c75a035f904cb1c27d6608','ddec5709bd5f6d258730648465237fc7','参数内容很长','<p><br></p>','',0,'/longParam','GET','application/x-www-form-urlencoded','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(48,'d32477fda51550e0acb2ee16d684f773','9c6d56d9f39dc062b0fc5711288649d8','示例hutool JSONObject','<p><br></p>','',0,'/hutoolJSONObject','GET','application/x-www-form-urlencoded','$false$',0,44,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(49,'020595711e965df1917c9dfc063f307e','','测试用例','<p><br></p>','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',-1,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(50,'54ef223cf9624b153956fc060cbb17d4','778e39add6225729aa2b07237c78c868','delete method with body','<p><br></p>','',0,'/2021111/delete','DELETE','application/x-www-form-urlencoded','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(51,'9e2fe0f861e4606412feb02d6b3611b5','688341faca98439f1e4eef59d41c495e','example2021922','<p><br></p>','',0,'/example2021922','POST','application/json','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(52,'a5aff543d0aba6028a956b6e392c0f55','56c45a940a046cfc10e9ee7fc550e806','泛型3','<p><br></p>','',0,'/test/item/{id}','GET','application/x-www-form-urlencoded','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(53,'ed8c1799f14160e49e7181778c2a2e56','5311b2a6d9a6ef0cc06f87f12d96ef76','泛型','<p><br></p>','',0,'/example72021923','GET','','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(54,'ed52f0e76673593ff1e2b80d9bb45d49','c45409553677090e985aeb36e23f562e','泛型2','<p><br></p>','',0,'/example6220219232','GET','','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(55,'bf21a13fa7964a457286e5852b1a7fe5','14ccd1140bd9a84b9abcdd5e466159c3','问号泛型','<p><br></p>','',0,'/test/generic/q','GET','application/x-www-form-urlencoded','$false$',0,49,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(56,'3de1d74e77f918bbd3e30a26dc5fa34f','','订单模块','<p><br></p>','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(57,'aca639ea880bd2e8b90cb64fd979195a','9089347bdd4bd483d664aca280c67362','获取某个产品下的订单','<p><strong>注意：</strong>html演示。。</p>\n','',0,'/order/get2/{productNo}','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(58,'376d45d2aa7f0451f59ccbc4ffa17c97','16982252ca137f60d0e4f92067c743fc','嵌套泛型，2层泛型','<p><br></p>','',0,'/order/moreGeneric','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(59,'82085820d98bf1ea9af2e7aeb31f9eed','43c945adbc19c3896d95175baf69e686','只1层泛型','<p><br></p>','',0,'/order/moreGeneric2','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(60,'f059106b7f7f4952e31648ced3ca8676','85e53af1000c94db3369d3fa5fce2716','没有泛型','<p><br></p>','',0,'/order/moreGeneric3','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(61,'d9d558676742ec01828e0d4899a2fcb2','d1b2d0decb4058bc2c51495536a2ff6f','演示query参数,不加@RequestParam','<p>演示query参数,不加@RequestParam</p>\n','',0,'/order/get','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(62,'7de95802c704f9e9c21f83085da55879','e391d3651dbc0be505541cb71404cc71','提交订单信息，application/json','<p>提交订单信息，application/json</p>\n','Tom',0,'/order/create','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(63,'c17fd68995214a79ff9fb7548051a418','b43612e4e0b996fcb9dd7ad34db0fb65','演示path参数+query参数+body参数+header','<p>提交订单信息说明。。</p>\n','',0,'/order/submit/{productNo}','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(64,'1e8636f22682ebf654592c9e13c583b4','084c8687764d38b0efc8ba97dc48432f','演示query参数,加@RequestParam','<p>演示query参数,加@RequestParam</p>\n','',0,'/order/get2','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(65,'470dd942878f5bab1a5ad12aad8d4e5c','669466e302f4030b2531e3b9905ac08a','演示query参数,放在对象里面','<p><br></p>','',0,'/order/get4','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(66,'98fe231300e6e6864c4a973fb7642a68','a42284159e9daa0108b1fc48393d8e4d','提交订单信息，application/x-www-form-urlencoded','<p>提交订单信息，application/x-www-form-urlencoded</p>\n','',0,'/order/create2','POST','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(67,'aee3ee906c576fe1c1b4a02713f5db5e','83ea9dd4adec0387aa63dc2523e53ee4','演示path参数','<p>演示path参数</p>\n','',0,'/order/get/{orderNo}','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(68,'b8b62abb78b49b80e4df377488699d61','32bdc14ab3b6502e565a4bde680465a2','演示query参数,放在对象里面+外面一个','<p><br></p>','',0,'/order/get5','GET','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(69,'4992d04305f0874f0f37708629e5b4b9','0f93adc67bcc7771bf2cb1929d08cd4c','全部参数form，全部由@ApiImplicitParams实现','<p>全部由@ApiImplicitParams实现</p>\n','',0,'/order/submit3/{productNo}','POST','application/x-www-form-urlencoded','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(70,'451c2f27e852ebe50de4ef67aee8af95','32d200e5e13c2310644deff366fa1983','全部参数upload，全部由@ApiImplicitParams实现','<p>全部由@ApiImplicitParams实现</p>\n','',0,'/order/submit4/{productNo}','POST','multipart/form-data','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(71,'5d12627081670014e321c86b39a69fe1','9e278f9777880b6c6eb605e3c680b446','全部参数json，全部由@ApiImplicitParams实现','<p>全部由@ApiImplicitParams实现</p>\n','',0,'/order/submit2/{productNo}','POST','application/json','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(72,'0019cac17c98c23a1dbb176642993605','9344778e21d782ec69c08ecc34144324','返回树','<p><br></p>','',0,'/order/cycle2','GET','','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(73,'78b1174d012d2f3aa9e596ca71223b2a','1f7ff36fc81f84fcb26f7ed419e48775','循环属性','<p><br></p>','',0,'/order/cycle','GET','','$false$',0,56,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:23','2022-08-02 18:07:18'),(74,'02be37808d57b221dcfa25a31b759a33','82a08cef5045a07ab886b54da4f2fb1b','参数/返回都是List<OrderDTO>','<p>List方式</p>\n','',0,'/order/postArr4','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','object',1,1,99999,'Tom',99999,'Tom',100,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(75,'02caa73195d72baa6b5ce43cf9c473da','3bd0fdc03e30c7d3de1721da68b66932','参数/返回都是OrderDTO[]','<p>参数/返回都是OrderDTO[]</p>\n','',0,'/order/postArr','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','object',1,1,99999,'Tom',99999,'Tom',101,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(76,'6b3cc6a9b2be32fe3e1d3d27bdffa779','09ec797f5469b37733ecfd01a850230a','参数Integer[],返回OrderDTO[]','<p>参数Integer[],返回OrderDTO[]</p>\n','',0,'/order/postArr2','POST','application/json','$false$',0,56,4,1,1,1,1,1,'integer','object',1,1,99999,'Tom',99999,'Tom',102,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(77,'961c71f676583968440858586b70ad84','6895f74bd1b53cfc96a3beffdb729fc4','参数OrderDTO[],返回Integer[]','<p><br></p>','',0,'/order/postArr3','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','integer',1,1,99999,'Tom',99999,'Tom',103,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(78,'457778b845342f45f914a92dcbc9bb80','a01416eb95af4c2552f95b39f2656cc9','参数/返回都是List<Integer>','<p>List方式</p>\n','',0,'/order/postArr5','POST','application/json','$false$',0,56,4,1,1,1,1,1,'integer','integer',1,1,99999,'Tom',99999,'Tom',104,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(79,'de4e4c5c71d0dfb1974b09ad8fc90820','3d0d65236667c69de3ab6d90d5c4748d','参数/返回都是List<OrderDTO>2','<p>List方式</p>\n','',0,'/order/postArr6','POST','application/json','$false$',0,56,4,1,1,1,1,1,'object','object',1,1,99999,'Tom',99999,'Tom',105,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(80,'a5a2da7089fdb4f48044199b15d94613','','产品模块','<p><br></p>','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',-1,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(81,'32090c2b9fc2c24ac3716330880177d3','06695b07d80aaee6eb9d9b5150c52939','返回树','<p><br></p>','',0,'/product/getTree','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(82,'f415ed3eb5ecc4ec028a7a9bb68807b8','6f312643ac4faaefa7ed6a808d8db7b2','获取产品','<p>获取产品说明。。</p>\n','Tom,Jim',0,'/product/get/{productNo}','GET','application/x-www-form-urlencoded','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(83,'f71959131c0d5123c030efffb02ba590','318f15e2dfd4adbad5fafc9a325c1c49','导出excel2','<p><br></p>','',0,'/exportExcel2','GET','application/x-www-form-urlencoded','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(84,'98debf34dd736b1bd1ccd7ae7cbcfb24','bcf59f70c3a7c6d7ae514d64c14893d3','导出zip','<p><br></p>','',0,'/exportZip','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(85,'00f3f43b7293208a1157a0c2a54c2c12','1fa082957e200dfd279c70fb761d3d3a','导出','<p><br></p>','',0,'/export','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(86,'8c9b1dcee1d2d46363cbc152d89a2fbc','a63c02296b43263aec562fc7195960f1','导出excel','<p><br></p>','',0,'/exportExcel','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(87,'4ec90f5e27c3fd03da4d1adf220c0f70','1b23d1d108f679b9af39991a238c0796','获取图片','<p>返回一个图片流，页面展示图片</p>\n','',0,'/getImage','GET','application/x-www-form-urlencoded','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(88,'366a646e90404243ffe12e1502794a7f','499bbfc6fb0d3a5e0376537263aeb46f','导出图片','<p><br></p>','',0,'/exportPng','GET','','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(89,'cf2d8816bcc110f486812833fd775115','6277b9d30a61ac058f2d77f179962270','上传文件','<p><br></p>','',0,'/product/upload','POST','multipart/form-data','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',11,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(90,'9d698e13de92b03b38dd7fcdd481a235','05c0cc077e006401e4103945dd98bbc6','上传文件2','<p><br></p>','',0,'/product/upload2','POST','multipart/form-data','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',12,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(91,'42dd5856602b0aed4c06c1e5d20c74bf','3caa2949447a922934b6b984dc63e142','上传文件3','<p><br></p>','',0,'/product/upload3','POST','multipart/form-data','$false$',0,80,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',13,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(92,'8c8cd8072318ca2bc842b5006e2f3a99','','登录模块','<p><br></p>','',0,'','','','$false$',1,0,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',2,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18'),(93,'03883fbd1846daa152a8e3fbcf06dc38','bd69f2a4bc68985fa922f6be0fa5c135','登录','<p>登录</p>\n','',0,'/login/login','POST','application/json','$false$',0,92,4,1,1,1,0,0,'object','object',1,1,99999,'Tom',99999,'Tom',0,'<p><br></p>',1,0,0,'2022-02-27 15:09:24','2022-08-02 18:07:18');
 
 /*Table structure for table `doc_param` */
 
@@ -185,8 +181,8 @@ CREATE TABLE `doc_param` (
                              `modifier_name` varchar(64) NOT NULL DEFAULT '',
                              `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
                              `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                             `gmt_create` datetime ,
-                             `gmt_modified` datetime  ,
+                             `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                              PRIMARY KEY (`id`) USING BTREE,
                              UNIQUE KEY `uk_dataid` (`data_id`) USING BTREE,
                              KEY `idx_docid` (`doc_id`) USING BTREE
@@ -207,8 +203,8 @@ CREATE TABLE `enum_info` (
                              `description` varchar(128) NOT NULL DEFAULT '' COMMENT '枚举说明',
                              `module_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'module.id',
                              `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                             `gmt_create` datetime ,
-                             `gmt_modified` datetime  ,
+                             `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                              PRIMARY KEY (`id`) USING BTREE,
                              KEY `idx_moduleid` (`module_id`) USING BTREE,
                              KEY `idx_dataid` (`data_id`) USING BTREE
@@ -231,8 +227,8 @@ CREATE TABLE `enum_item` (
                              `description` varchar(128) NOT NULL DEFAULT '' COMMENT '枚举描述',
                              `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
                              `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                             `gmt_create` datetime ,
-                             `gmt_modified` datetime  ,
+                             `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                              PRIMARY KEY (`id`) USING BTREE,
                              KEY `idx_enumid` (`enum_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='枚举详情';
@@ -267,8 +263,8 @@ CREATE TABLE `mock_config` (
                                `modifier_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '修改人id',
                                `modifier_name` varchar(64) DEFAULT NULL COMMENT '修改人',
                                `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                               `gmt_create` datetime ,
-                               `gmt_modified` datetime  ,
+                               `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                               `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                PRIMARY KEY (`id`) USING BTREE,
                                KEY `idx_docid` (`doc_id`) USING BTREE,
                                KEY `idx_dataid` (`data_id`) USING BTREE
@@ -295,8 +291,8 @@ CREATE TABLE `module` (
                           `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
                           `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
                           `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                          `gmt_create` datetime ,
-                          `gmt_modified` datetime  ,
+                          `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                          `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                           PRIMARY KEY (`id`) USING BTREE,
                           UNIQUE KEY `uk_token` (`token`) USING BTREE,
                           KEY `idx_projectid` (`project_id`) USING BTREE
@@ -319,8 +315,8 @@ CREATE TABLE `module_config` (
                                  `extend_id` bigint(20) unsigned NOT NULL DEFAULT '0',
                                  `description` varchar(256) NOT NULL DEFAULT '' COMMENT '描述',
                                  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                 `gmt_create` datetime ,
-                                 `gmt_modified` datetime  ,
+                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                  PRIMARY KEY (`id`) USING BTREE,
                                  KEY `idx_moduleid_type` (`module_id`,`type`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='系统配置';
@@ -373,14 +369,33 @@ CREATE TABLE `module_environment_param` (
                                             `modifier_name` varchar(64) NOT NULL DEFAULT '',
                                             `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
                                             `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                            `gmt_create` datetime ,
-                                            `gmt_modified` datetime  ,
+                                            `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                            `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                             PRIMARY KEY (`id`) USING BTREE,
                                             UNIQUE KEY `uk_dataid` (`data_id`) USING BTREE,
                                             KEY `idx_environmentid` (`environment_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='模块公共参数';
 
 /*Data for the table `module_environment_param` */
+
+/*Table structure for table `module_swagger_config` */
+
+DROP TABLE IF EXISTS `module_swagger_config`;
+
+CREATE TABLE `module_swagger_config` (
+                                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '涓婚敭id',
+                                         `module_id` bigint(20) NOT NULL COMMENT 'module.id',
+                                         `url` varchar(128) NOT NULL DEFAULT '' COMMENT 'swagger鏂囨。url',
+                                         `content` text NOT NULL COMMENT 'swagger鏂囨。鍐呭',
+                                         `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉鐢ㄦ埛鍚�',
+                                         `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉瀵嗙爜',
+                                         `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                         `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
+                                         PRIMARY KEY (`id`),
+                                         KEY `idx_moduleid` (`module_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='妯″潡swagger閰嶇疆';
+
+/*Data for the table `module_swagger_config` */
 
 /*Table structure for table `open_user` */
 
@@ -394,8 +409,8 @@ CREATE TABLE `open_user` (
                              `applicant` varchar(64) NOT NULL DEFAULT '',
                              `space_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'space.id',
                              `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                             `gmt_create` datetime ,
-                             `gmt_modified` datetime  ,
+                             `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                              PRIMARY KEY (`id`) USING BTREE,
                              UNIQUE KEY `uk_app_key` (`app_key`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='开放用户';
@@ -418,8 +433,8 @@ CREATE TABLE `project` (
                            `modifier_name` varchar(64) NOT NULL DEFAULT '',
                            `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
                            `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                           `gmt_create` datetime ,
-                           `gmt_modified` datetime  ,
+                           `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                           `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                            PRIMARY KEY (`id`) USING BTREE,
                            KEY `uk_name` (`creator_id`,`name`) USING BTREE,
                            KEY `idx_spaceid` (`space_id`) USING BTREE
@@ -439,8 +454,8 @@ CREATE TABLE `project_user` (
                                 `user_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'user_info.id',
                                 `role_code` varchar(64) NOT NULL DEFAULT '0' COMMENT '角色，guest：访客，dev：开发者，admin：项目管理员',
                                 `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                `gmt_create` datetime ,
-                                `gmt_modified` datetime  ,
+                                `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                 PRIMARY KEY (`id`) USING BTREE,
                                 UNIQUE KEY `uk_projectid_userid` (`project_id`,`user_id`) USING BTREE,
                                 KEY `idx_userid` (`user_id`) USING BTREE
@@ -460,8 +475,8 @@ CREATE TABLE `prop` (
                         `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，0：doc_info属性',
                         `name` varchar(64) NOT NULL DEFAULT '',
                         `val` text NOT NULL,
-                        `gmt_create` datetime ,
-                        `gmt_modified` datetime  ,
+                        `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                        `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                         PRIMARY KEY (`id`) USING BTREE,
                         UNIQUE KEY `uk_docid_name` (`ref_id`,`type`,`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='属性表';
@@ -484,8 +499,8 @@ CREATE TABLE `share_config` (
                                 `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人',
                                 `is_show_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示调试',
                                 `is_all_selected_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '调试环境是否全选， 1-全选， 0-不选',
-                                `gmt_create` datetime ,
-                                `gmt_modified` datetime  ,
+                                `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                 PRIMARY KEY (`id`) USING BTREE,
                                 KEY `idx_moduleid` (`module_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='分享配置表';
@@ -503,25 +518,27 @@ CREATE TABLE `share_content` (
                                  `parent_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '父id',
                                  `is_share_folder` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否分享整个分类',
                                  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                 `gmt_create` datetime ,
-                                 `gmt_modified` datetime  ,
+                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                  PRIMARY KEY (`id`) USING BTREE,
                                  KEY `idx_shareconfigid_docid` (`share_config_id`,`doc_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='分享详情';
 
 /*Data for the table `share_content` */
 
+/*Table structure for table `share_environment` */
 
 DROP TABLE IF EXISTS `share_environment`;
-create table `share_environment`
-(
-    `id`                    bigint(20) unsigned auto_increment primary key,
-    `share_config_id`       bigint(20) unsigned default 0 null comment '分享配置id',
-    `module_environment_id` bigint(20) unsigned default 0 null comment '模块环境id',
-    KEY `share_environment_share_config_id_index` (`share_config_id`) USING BTREE
-) ENGINE = InnoDB DEFAULT COMMENT = '分享环境关联表';
 
+CREATE TABLE `share_environment` (
+                                     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                                     `share_config_id` bigint(20) unsigned DEFAULT '0' COMMENT '分享配置id',
+                                     `module_environment_id` bigint(20) unsigned DEFAULT '0' COMMENT '模块环境id',
+                                     PRIMARY KEY (`id`),
+                                     KEY `share_environment_share_config_id_index` (`share_config_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='分享环境关联表';
 
+/*Data for the table `share_environment` */
 
 /*Table structure for table `space` */
 
@@ -536,8 +553,8 @@ CREATE TABLE `space` (
                          `modifier_name` varchar(64) NOT NULL DEFAULT '',
                          `is_compose` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否组合空间',
                          `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                         `gmt_create` datetime ,
-                         `gmt_modified` datetime  ,
+                         `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                         `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                          PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='分组表';
 
@@ -555,8 +572,8 @@ CREATE TABLE `space_user` (
                               `space_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'space.id',
                               `role_code` varchar(64) NOT NULL DEFAULT '' COMMENT '角色，guest：访客，dev：开发者，admin：空间管理员',
                               `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                              `gmt_create` datetime ,
-                              `gmt_modified` datetime  ,
+                              `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                              `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                               PRIMARY KEY (`id`) USING BTREE,
                               UNIQUE KEY `uk_groupid_userid` (`space_id`,`user_id`) USING BTREE,
                               KEY `idx_userid` (`user_id`) USING BTREE
@@ -576,15 +593,15 @@ CREATE TABLE `system_config` (
                                  `config_value` varchar(256) NOT NULL DEFAULT '',
                                  `remark` varchar(128) NOT NULL DEFAULT '',
                                  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                 `gmt_create` datetime ,
-                                 `gmt_modified` datetime  ,
+                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                  PRIMARY KEY (`id`) USING BTREE,
                                  UNIQUE KEY `uk_configkey` (`config_key`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='系统配置表';
 
 /*Data for the table `system_config` */
 
-insert  into `system_config`(`id`,`config_key`,`config_value`,`remark`,`is_deleted`,`gmt_create`,`gmt_modified`) values (2,'torna.version','1132','当前内部版本号。不要删除这条记录！！',0,'2022-02-27 14:56:51','2022-02-27 14:56:51');
+insert  into `system_config`(`id`,`config_key`,`config_value`,`remark`,`is_deleted`,`gmt_create`,`gmt_modified`) values (2,'torna.version','1160','当前内部版本号。不要删除这条记录！！',0,'2022-02-27 14:56:51','2022-08-02 18:07:19');
 
 /*Table structure for table `user_dingtalk_info` */
 
@@ -599,8 +616,8 @@ CREATE TABLE `user_dingtalk_info` (
                                       `unionid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用所属企业的唯一标识。',
                                       `openid` varchar(128) NOT NULL DEFAULT '' COMMENT '用户在当前开放应用内的唯一标识。',
                                       `user_info_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'user_info.id',
-                                      `gmt_create` datetime ,
-                                      `gmt_modified` datetime  ,
+                                      `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                      `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                       PRIMARY KEY (`id`) USING BTREE,
                                       UNIQUE KEY `uk_unionid` (`unionid`) USING BTREE,
                                       KEY `idx_openid` (`openid`) USING BTREE,
@@ -623,8 +640,8 @@ CREATE TABLE `user_info` (
                              `email` varchar(128) NOT NULL DEFAULT '',
                              `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '0：禁用，1：启用，2：重设密码',
                              `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                             `gmt_create` datetime ,
-                             `gmt_modified` datetime  ,
+                             `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                              PRIMARY KEY (`id`) USING BTREE,
                              UNIQUE KEY `uk_username` (`username`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='用户表';
@@ -644,8 +661,8 @@ CREATE TABLE `user_message` (
                                 `is_read` tinyint(4) NOT NULL DEFAULT '0',
                                 `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '同user_subscribe.type',
                                 `source_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '同user_subscribe.source_id',
-                                `gmt_create` datetime ,
-                                `gmt_modified` datetime  ,
+                                `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                 PRIMARY KEY (`id`) USING BTREE,
                                 KEY `idx_userid` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='站内消息';
@@ -662,8 +679,8 @@ CREATE TABLE `user_subscribe` (
                                   `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，1：订阅接口，2：订阅项目',
                                   `source_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '关联id，当type=1对应doc_info.id；type=2对应project.id',
                                   `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
-                                  `gmt_create` datetime ,
-                                  `gmt_modified` datetime  ,
+                                  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                   PRIMARY KEY (`id`) USING BTREE,
                                   UNIQUE KEY `uk_userid_type_sourceid` (`user_id`,`type`,`source_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='用户订阅表';

@@ -2,6 +2,7 @@
 -- 备注：5.5.3开始支持utf8mb4，5.6.5开始支持CURRENT_TIMESTAMP(datetime)
 -- 干净的数据
 
+
 /*!40101 SET NAMES utf8 */;
 
 /*!40101 SET SQL_MODE=''*/;
@@ -137,7 +138,7 @@ CREATE TABLE `doc_info` (
                             `modifier_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '修改人',
                             `modifier_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建者昵称user_info.realname',
                             `order_index` int(11) NOT NULL DEFAULT '0' COMMENT '排序索引',
-                            `remark` varchar(128) NOT NULL DEFAULT '' COMMENT '备注',
+                            `remark` text COMMENT '备注',
                             `is_show` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示',
                             `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
                             `is_locked` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否锁住',
@@ -344,6 +345,23 @@ CREATE TABLE `module_environment_param` (
                                             KEY `idx_environmentid` (`environment_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='模块公共参数';
 
+/*Table structure for table `module_swagger_config` */
+
+DROP TABLE IF EXISTS `module_swagger_config`;
+
+CREATE TABLE `module_swagger_config` (
+                                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '涓婚敭id',
+                                         `module_id` bigint(20) NOT NULL COMMENT 'module.id',
+                                         `url` varchar(128) NOT NULL DEFAULT '' COMMENT 'swagger鏂囨。url',
+                                         `content` text NOT NULL COMMENT 'swagger鏂囨。鍐呭',
+                                         `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉鐢ㄦ埛鍚�',
+                                         `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉瀵嗙爜',
+                                         `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                         `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                         PRIMARY KEY (`id`),
+                                         KEY `idx_moduleid` (`module_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='妯″潡swagger閰嶇疆';
+
 /*Table structure for table `open_user` */
 
 DROP TABLE IF EXISTS `open_user`;
@@ -457,19 +475,17 @@ CREATE TABLE `share_content` (
                                  KEY `idx_shareconfigid_docid` (`share_config_id`,`doc_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='分享详情';
 
+/*Table structure for table `share_environment` */
 
 DROP TABLE IF EXISTS `share_environment`;
-create table `share_environment`
-(
-    `id`                    bigint(20) unsigned auto_increment
-        primary key,
-    `share_config_id`       bigint(20) unsigned default 0 null comment '分享配置id',
-    `module_environment_id` bigint(20) unsigned default 0 null comment '模块环境id',
-    KEY `share_environment_share_config_id_index` (`share_config_id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  ROW_FORMAT = DYNAMIC COMMENT = '分享环境关联表';
 
+CREATE TABLE `share_environment` (
+                                     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                                     `share_config_id` bigint(20) unsigned DEFAULT '0' COMMENT '分享配置id',
+                                     `module_environment_id` bigint(20) unsigned DEFAULT '0' COMMENT '模块环境id',
+                                     PRIMARY KEY (`id`),
+                                     KEY `share_environment_share_config_id_index` (`share_config_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='分享环境关联表';
 
 /*Table structure for table `space` */
 
@@ -604,7 +620,7 @@ CREATE TABLE `user_subscribe` (
 -- INSERT DATA
 
 INSERT INTO `system_config` (`config_key`, `config_value`, `remark`, `is_deleted`)
-VALUES ('torna.version', '1132', '当前内部版本号。不要删除这条记录！！', 0);
+VALUES ('torna.version', '1160', '当前内部版本号。不要删除这条记录！！', 0);
 
 INSERT INTO `user_info` ( `username`, `password`, `nickname`, `is_super_admin`) VALUES
     ('admin','f9560048604e55186198a4a02ba1b9a9','超级管理员',1);
