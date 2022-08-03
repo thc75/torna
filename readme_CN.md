@@ -63,7 +63,7 @@ docker run --name torna --restart=always \
   -e MYSQL_SCHEMA="torna" \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:1.15.4
+  -d tanghc2020/torna:1.16.0
 ```
 
 需改更改的部分：
