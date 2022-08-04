@@ -40,31 +40,30 @@ export const word_wrapper = `
     <body>{body}</body></html>`
 
 const WordUtil = {
-  toWordByData(docInfoList, title) {
-    // title = title || $ts('document')
-    const treeData = convert_tree(docInfoList, '')
-    const content = new StringBuilder()
-    const appendHtml = (doc_info) => {
+  handleWordData(treeData, content, level = 1) {
+    const appendHtml = (doc_info, level) => {
       init_docInfo(doc_info)
-      content.append(WordUtil.toWord(doc_info))
+      content.append(WordUtil.toWord(doc_info, level))
     }
     treeData.forEach(docInfo => {
       const children = docInfo.children
       if (children && children.length > 0) {
-        // 一级标题
-        content.append(`<h1>${docInfo.name}</h1>`)
-        children.forEach(child => {
-          appendHtml(child)
-        })
+        content.append(`<h${level}>${docInfo.name}</h${level}>`)
+        this.handleWordData(children, content, level + 1)
       } else {
-        appendHtml(docInfo)
+        appendHtml(docInfo, level)
       }
     })
+  },
+  toWordByData(docInfoList) {
+    const treeData = convert_tree(docInfoList, '')
+    const content = new StringBuilder()
+    this.handleWordData(treeData, content)
     return content.toString()
   },
-  toWord(docInfo) {
+  toWord(docInfo, level = 2) {
     const sb = new StringBuilder()
-    sb.append(`<h2>${docInfo.name}</h2>`)
+    sb.append(`<h${level}>${docInfo.name}</h${level}>`)
     const appendCode = (str) => {
       sb.append('<table width="100%" class="code-style">')
       sb.append(`\n<pre><code class="language-json">\n${str}\n</code></pre>\n`)
