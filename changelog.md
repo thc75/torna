@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.16.1
+
+- 【修复】文档导出多层级无数据的问题 [pr](https://gitee.com/durcframework/torna/pulls/37)
+
 ## 1.16.0
 
 - 【优化】优化swagger文档导入，提供三种导入方式（插件导入，URL导入，json/yaml导入）
