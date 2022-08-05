@@ -50,7 +50,7 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-show="docInfo.description && docInfo.description !== '<p><br></p>'" class="doc-descr">
+    <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
       {{ $ts('description') }}
     </h4>
     <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
@@ -118,7 +118,7 @@
       :description-label="$ts('errorDesc')"
       :example-label="$ts('solution')"
     />
-    <div v-show="docInfo.remark && docInfo.remark !== '<p><br></p>'" class="doc-info-remark">
+    <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
     </div>
@@ -231,7 +231,8 @@ export default {
       responseHiddenColumns: [],
       hostConfigName: '',
       isShowRequestExampleCopy: false,
-      isShowResponseSuccessExample: false
+      isShowResponseSuccessExample: false,
+      emptyContent: '<p><br></p>'
     }
   },
   computed: {
