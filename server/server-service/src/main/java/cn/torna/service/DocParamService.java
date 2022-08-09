@@ -143,6 +143,12 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     private Long buildEnumId(long moduleId, DocParamDTO docParamDTO) {
         EnumInfoDTO enumInfoDTO = docParamDTO.getEnumInfo();
         if (enumInfoDTO != null) {
+            // 如果枚举名称为空则使用字段描述
+            if (StringUtils.isEmpty(enumInfoDTO.getName())) {
+                String paramDescription = docParamDTO.getDescription();
+                String name = StringUtils.isEmpty(paramDescription) ? docParamDTO.getName() : paramDescription;
+                enumInfoDTO.setName(name);
+            }
             enumInfoDTO.setModuleId(moduleId);
             EnumInfo enumInfo = enumService.saveEnumInfo(enumInfoDTO);
             return enumInfo.getId();

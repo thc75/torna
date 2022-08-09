@@ -339,17 +339,7 @@
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$ts('returnResult')" name="body">
             <img v-if="result.image.length > 0" :src="result.image" />
-            <editor
-              v-else-if="isResponseJson"
-              v-model="result.content"
-              lang="json"
-              theme="chrome"
-              :height="resultEditorConfig.height"
-              class="normal-boarder"
-              :options="resultEditorConfig"
-              @init="resultEditorInit"
-            />
-            <el-input v-else v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
+            <el-input v-else v-model="result.content" type="textarea" :readonly="true" style="font-size: 13px;" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
             <span slot="label" class="result-header-label">

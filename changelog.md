@@ -3,6 +3,9 @@
 ## 1.16.1
 
 - 【修复】文档导出多层级无数据的问题 [pr](https://gitee.com/durcframework/torna/pulls/37)
+- 【修复】推送枚举展示错误问题 [#I5L310](https://gitee.com/durcframework/torna/issues/I5L310)
+- 【修复】postman导入数据报错 [#I5KZ4Z](https://gitee.com/durcframework/torna/issues/I5KZ4Z)
+- 【优化】优化文档浏览页tab样式
 
 ## 1.16.0
 

@@ -12,6 +12,7 @@ import cn.torna.dao.entity.Module;
 import cn.torna.manager.doc.DocParser;
 import cn.torna.manager.doc.IParam;
 import cn.torna.manager.doc.postman.Body;
+import cn.torna.manager.doc.postman.Header;
 import cn.torna.manager.doc.postman.Item;
 import cn.torna.manager.doc.postman.Param;
 import cn.torna.manager.doc.postman.Postman;
@@ -28,7 +29,10 @@ import cn.torna.service.dto.ImportSwaggerDTO;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
 import com.alibaba.fastjson.parser.Feature;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -176,48 +180,73 @@ public class DocImportService {
                     return ParamStyleEnum.QUERY;
                 }, user);
                 // body参数
-                List<Param> params = this.buildPostmanParams(item);
+                BodyWrapper bodyWrapper = this.buildPostmanParams(item);
+                List<Param> params = bodyWrapper.getParams();
+                boolean arrayBody = bodyWrapper.isArrayBody();
+                docItem.setIsRequestArray(Booleans.toValue(arrayBody));
                 this.savePostmanParams(params, docItem, docParameter -> {
                     return ParamStyleEnum.REQUEST;
                 }, user);
+
+                docInfoService.update(docItem);
             }
         }
     }
 
-    private List<Param> buildPostmanParams(Item item) {
-        List<Param> list = new ArrayList<>();
+    private BodyWrapper buildPostmanParams(Item item) {
         Request request = item.getRequest();
         Body body = request.getBody();
         if (body != null) {
-            List<Param> params = this.parseBody(body);
-            list.addAll(params);
+            return this.parseBody(body);
         }
-        return list;
+        return new BodyWrapper(false, Collections.emptyList());
     }
 
-    private List<Param> parseBody(Body body) {
+    private BodyWrapper parseBody(Body body) {
+        List<Param> list = new ArrayList<>();
         String mode = body.getMode();
+        boolean isArrayBody = false;
         if(mode == null){
-            return Collections.emptyList();
+            return new BodyWrapper(isArrayBody, list);
         }
         switch (mode) {
             case "raw":
                 String json = body.getRaw();
                 if (StringUtils.isEmpty(json)) {
-                    return Collections.emptyList();
+                    return new BodyWrapper(isArrayBody, list);
                 }
-                JSONObject jsonObject = JSON.parseObject(json);
-                return this.parseParams(jsonObject);
+                JSON jsonObj;
+                if (JSONValidator.from(json).getType() == JSONValidator.Type.Array) {
+                    isArrayBody = true;
+                    jsonObj = JSON.parseArray(json);
+                } else {
+                    jsonObj = JSON.parseObject(json);
+                }
+                List<Param> params = this.parseParams(jsonObj);
+                list.addAll(params);
+                break;
             case "urlencoded":
-                return body.getUrlencoded();
-            default:
-                return Collections.emptyList();
+                List<Param> urlencodedParams = body.getUrlencoded();
+                list.addAll(urlencodedParams);
+                break;
+            default: {}
         }
+        return new BodyWrapper(isArrayBody, list);
     }
 
-    private List<Param> parseParams(JSONObject jsonObject) {
+    private List<Param> parseParams(JSON json) {
         try {
             List<Param> list = new ArrayList<>();
+            JSONObject jsonObject;
+            if (json instanceof JSONArray) {
+                JSONArray jsonArray = (JSONArray) json;
+                if (jsonArray.isEmpty()) {
+                    return Collections.emptyList();
+                }
+                jsonObject = jsonArray.getJSONObject(0);
+            } else {
+                jsonObject = (JSONObject) json;
+            }
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 Param param = new Param();
                 list.add(param);
@@ -248,8 +277,7 @@ public class DocImportService {
             }
             return list;
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(jsonObject.toJSONString());
+            log.error("解析json出错, json={}", json);
             throw new RuntimeException(e);
         }
     }
@@ -404,6 +432,15 @@ public class DocImportService {
     }
 
     private String buildContentType(Request request) {
+        List<Header> headerList = request.getHeader();
+        List<Header> headers = Optional.ofNullable(headerList).orElse(Collections.emptyList());
+        Optional<String> headerOptional = headers.stream()
+                .filter(header -> "Content-Type".equals(header.getKey()))
+                .map(Header::getValue)
+                .findFirst();
+        if (headerOptional.isPresent()) {
+            return headerOptional.get();
+        }
         Body body = request.getBody();
         if (body == null) {
             return "";
@@ -443,6 +480,13 @@ public class DocImportService {
             default:
                 return ParamStyleEnum.REQUEST;
         }
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class BodyWrapper {
+        private boolean isArrayBody;
+        private List<Param> params;
     }
 
 }

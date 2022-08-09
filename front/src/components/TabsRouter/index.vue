@@ -248,33 +248,33 @@ export default {
 #tabs-router {
   width: 100%;
   background: #FDFCFC;
-  padding: 5px 0;
+  //padding: 5px 0;
   box-shadow: 0 1px 3px 0 RGBA(0, 0, 0, .12), 0 0 3px 0 RGBA(0, 0, 0, .04);
   display: flex;
   align-items: center;
   overflow-x: auto;
 
   .tab-item {
-    border: 1px solid #D8DCE5;
+    border-right: 1px solid #D8DCE5;
     color: #495060;
     font-size: 12px;
-    border-radius: 4px;
-    height: 26px;
-    width: 110px;
+    //border-radius: 4px;
+    height: 32px;
+    width: 120px;
     min-width: 110px;
     background: #FFF;
-    margin-left: 5px;
+    //margin-left: 5px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     &:first-of-type {
-      margin-left: 10px;
+      //margin-left: 10px;
     }
 
     &:last-of-type {
-      margin-right: 10px;
+      //margin-right: 10px;
     }
 
     &.active {
@@ -294,7 +294,7 @@ export default {
       width: 100%;
       height: 100%;
       vertical-align: center;
-      padding: 5px 5px;
+      padding: 10px 8px;
     }
 
     .el-icon-close {
