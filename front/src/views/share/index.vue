@@ -1,6 +1,6 @@
 <template>
-  <div class="app-container">
-    <el-tabs v-show="load" v-model="active" type="card" @tab-click="onTabSelect">
+  <div class="doc-view-container">
+    <el-tabs v-show="load" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document" /> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="infoItem" />
