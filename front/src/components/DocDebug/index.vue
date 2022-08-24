@@ -765,6 +765,13 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG,
         name: this.debugId
       }
+      // 删除临时参数
+      const eqFun = (item) => item.temp === 1
+      this.removeArray(this.headerData, eqFun)
+      this.removeArray(this.pathData, eqFun)
+      this.removeArray(this.queryData, eqFun)
+      this.removeArray(this.multipartData, eqFun)
+      this.removeArray(this.formData, eqFun)
       this.get('/prop/find', data, resp => {
         const respData = resp.data
         if (!respData) {

@@ -535,6 +535,20 @@ Object.assign(Vue.prototype, {
       obj.url = url
     }
   },
+  removeArray(arr, eqFun) {
+    const ids = []
+    for (let i = 0; i < arr.length; i++) {
+      const el = arr[i]
+      if (eqFun(el)) {
+        ids.push(el.id)
+      }
+    }
+    if (ids.length > 0) {
+      for (const id of ids) {
+        this.removeRow(arr, id)
+      }
+    }
+  },
   removeRow: function(arr, id) {
     let index = -1
     for (let i = 0; i < arr.length; i++) {
