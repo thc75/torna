@@ -50,7 +50,7 @@ Import database,run [mysql.sql](./mysql.sql)
 
 Download image
 
-`docker pull tanghc2020/torna:1.16.1`
+`docker pull tanghc2020/torna:1.16.2`
 
 Run docker:
 
