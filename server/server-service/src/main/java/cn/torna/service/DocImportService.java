@@ -31,6 +31,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
 import com.alibaba.fastjson.parser.Feature;
+import com.gitee.fastmybatis.core.util.ClassUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -183,6 +184,9 @@ public class DocImportService {
                 BodyWrapper bodyWrapper = this.buildPostmanParams(item);
                 List<Param> params = bodyWrapper.getParams();
                 boolean arrayBody = bodyWrapper.isArrayBody();
+                if (arrayBody) {
+                    docItem.setRequestArrayType(params.get(0).getType());
+                }
                 docItem.setIsRequestArray(Booleans.toValue(arrayBody));
                 this.savePostmanParams(params, docItem, docParameter -> {
                     return ParamStyleEnum.REQUEST;
@@ -207,13 +211,13 @@ public class DocImportService {
         String mode = body.getMode();
         boolean isArrayBody = false;
         if(mode == null){
-            return new BodyWrapper(isArrayBody, list);
+            return new BodyWrapper(list);
         }
         switch (mode) {
             case "raw":
                 String json = body.getRaw();
                 if (StringUtils.isEmpty(json)) {
-                    return new BodyWrapper(isArrayBody, list);
+                    return new BodyWrapper(list);
                 }
                 JSON jsonObj;
                 if (JSONValidator.from(json).getType() == JSONValidator.Type.Array) {
@@ -234,6 +238,14 @@ public class DocImportService {
         return new BodyWrapper(isArrayBody, list);
     }
 
+    private static boolean isSingleValueArray(JSONArray jsonArray) {
+        if (CollectionUtils.isEmpty(jsonArray)) {
+            return false;
+        }
+        Object o = jsonArray.get(0);
+        return ClassUtil.isPrimitive(o.getClass().getName());
+    }
+
     private List<Param> parseParams(JSON json) {
         try {
             List<Param> list = new ArrayList<>();
@@ -243,7 +255,12 @@ public class DocImportService {
                 if (jsonArray.isEmpty()) {
                     return Collections.emptyList();
                 }
-                jsonObject = jsonArray.getJSONObject(0);
+                // 是否单值数组，如：[1,2,3]
+                if (isSingleValueArray(jsonArray)) {
+                    return parsePrueValueParam(jsonArray);
+                } else {
+                    jsonObject = jsonArray.getJSONObject(0);
+                }
             } else {
                 jsonObject = (JSONObject) json;
             }
@@ -280,6 +297,14 @@ public class DocImportService {
             log.error("解析json出错, json={}", json);
             throw new RuntimeException(e);
         }
+    }
+
+    private List<Param> parsePrueValueParam(JSONArray jsonArray) {
+        Object o = jsonArray.get(0);
+        Param param = new Param();
+        param.setType(o.getClass().getSimpleName().toLowerCase());
+        param.setValue(String.valueOf(o));
+        return Collections.singletonList(param);
     }
 
     private boolean isPureArray(JSONArray array) {
@@ -487,6 +512,10 @@ public class DocImportService {
     private static class BodyWrapper {
         private boolean isArrayBody;
         private List<Param> params;
+
+        public BodyWrapper(List<Param> params) {
+            this.params = params;
+        }
     }
 
 }

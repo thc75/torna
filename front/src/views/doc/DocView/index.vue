@@ -80,7 +80,7 @@
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
-      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayReqTip')" />
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" show-icon :title="$ts('objectArrayReqTip')" />
       <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isShowRequestExample">
@@ -96,7 +96,7 @@
       </div>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
-    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" show-icon :title="$ts('objectArrayRespTip')" />
     <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
     <h4>{{ $ts('responseExample') }}</h4>
@@ -256,7 +256,7 @@ export default {
     },
     isResponseSingleValue() {
       const responseParams = this.docInfo.responseParams
-      if (responseParams && responseParams.length === 1) {
+      if (responseParams && responseParams.length === 1 && !this.docInfo.isResponseArray) {
         const responseParam = responseParams[0]
         return !responseParam.name
       }
@@ -264,7 +264,7 @@ export default {
     },
     responseSingleValue() {
       const responseParams = this.docInfo.responseParams
-      if (responseParams && responseParams.length === 1) {
+      if (responseParams && responseParams.length === 1 && !this.docInfo.isResponseArray) {
         const responseParam = responseParams[0]
         return responseParam.type
       }
