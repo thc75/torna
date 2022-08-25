@@ -51,7 +51,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.16.1`
+`docker pull tanghc2020/torna:1.16.2`
 
 下载完成后，执行docker命令：
 
