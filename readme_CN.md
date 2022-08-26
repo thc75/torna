@@ -88,6 +88,8 @@ docker run --name torna --restart=always \
 
 如果您使用Java语言，推荐使用`smart-doc + Torna`
 
+[Torna整合smart-doc教程](http://torna.cn/dev/smart-doc.html)
+
 [smart-doc](https://gitee.com/smart-doc-team/smart-doc) + Torna 组成行业领先的文档生成和管理解决方案，使用smart-doc无侵入完成Java源代码和注释提取生成API文档，自动将文档推送到Torna企业级接口文档管理平台。
 
 通过这套组合您可以实现：只需要写完Java注释就能把接口信息推送到Torna平台，从而实现接口预览、接口调试。
@@ -103,6 +105,7 @@ docker run --name torna --restart=always \
 ## 其它资源
 
 - [Torna对应的示例工程](https://gitee.com/durcframework/torna-example) ，演示swagger插件的用法
+- [Torna整合smart-doc示例](https://gitee.com/durcframework/torna-and-smart-doc)
 
 ## 更新日志
 
