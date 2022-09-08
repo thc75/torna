@@ -3,7 +3,6 @@
     :data="data"
     border
     highlight-current-row
-    max-height="200"
   >
     <el-table-column :label="$ts('value')" prop="value">
       <template slot-scope="scope">
@@ -15,7 +14,7 @@
         </span>
       </template>
     </el-table-column>
-    <el-table-column :label="$ts('type')" prop="type" />
+    <el-table-column :label="$ts('type')" prop="type" width="100" />
     <el-table-column :label="$ts('description')" prop="description" />
   </el-table>
 </template>
@@ -30,6 +29,10 @@ export default {
     mountedLoad: {
       type: Boolean,
       default: false
+    },
+    list: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -45,6 +48,9 @@ export default {
   mounted() {
     if (this.mountedLoad) {
       this.loadData(this.enumId)
+    }
+    if (this.list.length > 0) {
+      this.data = this.list
     }
   },
   methods: {

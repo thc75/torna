@@ -4,25 +4,34 @@
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
-        <div v-show="showOptBar" style="float: right">
-          <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
-            <el-button
-              type="text"
-              :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
-              style="font-size: 16px"
-              @click="onSubscribe"
-            />
-          </el-tooltip>
-          <el-dropdown trigger="click" @command="handleCommand">
-            <el-button type="primary" size="mini">
-              {{ $ts('export') }} <i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
-              <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+        <div v-show="showOptBar" class="show-opt-bar" style="float: right">
+          <div class="item">
+            <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+              <el-button
+                type="text"
+                :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
+                style="font-size: 16px"
+                @click="onSubscribe"
+              />
+            </el-tooltip>
+          </div>
+          <div class="item">
+            <el-dropdown trigger="click" @command="handleCommand">
+              <el-tooltip placement="top" :content="$ts('export')">
+                <el-button type="text" icon="el-icon-download" />
+              </el-tooltip>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+          <div class="item">
+            <el-tooltip placement="top" :content="$ts('viewDict')">
+              <el-button type="text" icon="el-icon-notebook-2" @click="showDict" />
+            </el-tooltip>
+          </div>
         </div>
       </h2>
       <span v-show="showOptBar" class="doc-modify-info">
@@ -54,7 +63,7 @@
       {{ $ts('description') }}
     </h4>
     <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
-    <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
+    <h4 v-show="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
       <parameter-table
@@ -122,6 +131,7 @@
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
     </div>
+    <dict-view ref="dictView" />
   </div>
 </template>
 <style scoped>
@@ -143,17 +153,22 @@ h4 .content {
   margin: 8px;
   cursor: pointer;
 }
+.show-opt-bar .item {
+  margin-left: 10px;
+  display: inline-block;
+}
 </style>
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
+import DictView from '@/components/DictView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 import '@wangeditor/editor/dist/css/style.css'
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod },
+  components: { ParameterTable, HttpMethod, DictView },
   props: {
     docId: {
       type: String,
@@ -377,6 +392,9 @@ export default {
     },
     copy(text) {
       this.copyText(text)
+    },
+    showDict() {
+      this.$refs.dictView.show(this.docInfo.moduleId)
     }
   }
 }

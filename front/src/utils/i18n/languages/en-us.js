@@ -399,7 +399,12 @@ const MAPPING = {
   'version': 'Version',
   'protocol': 'Protocol',
   'author': 'Author',
-  'dependency': 'Dependency'
+  'dependency': 'Dependency',
+  'viewDict': 'View Dictionary',
+  'dictInfo': 'Dictionary Information',
+  'emptyDictData': 'Empty dictionary data',
+  'grid': 'Grid',
+  'card': 'Card'
 
 }
 
