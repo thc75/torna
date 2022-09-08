@@ -400,7 +400,12 @@ const MAPPING = {
   'version': '版本',
   'protocol': '协议',
   'author': '作者',
-  'dependency': '依赖'
+  'dependency': '依赖',
+  'viewDict': '查看字典',
+  'dictInfo': '字典信息',
+  'emptyDictData': '无字典信息',
+  'grid': '列表',
+  'card': '卡片'
 
 }
 
