@@ -10,7 +10,7 @@ import cn.torna.common.interfaces.IConfig;
 public class Configs {
 
     /**
-     * 获取配置参数
+     * 获取配置参数，读取顺序：配置表 -> Environment
      * @param key 配置key
      * @return 返回配参数，没有则返回null
      */

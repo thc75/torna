@@ -27,6 +27,13 @@ public class EnumController {
     @Autowired
     private EnumService enumService;
 
+    @GetMapping("info/all")
+    @NoLogin
+    public Result<List<EnumInfoDTO>> all(@HashId Long moduleId) {
+        List<EnumInfoDTO> enumInfoDTOS = enumService.listAll(moduleId);
+        return Result.ok(enumInfoDTOS);
+    }
+
     @GetMapping("info/baselist")
     public Result<List<EnumInfoDTO>> listBase(@HashId Long moduleId) {
         List<EnumInfoDTO> enumInfoDTOS = enumService.listBase(moduleId);

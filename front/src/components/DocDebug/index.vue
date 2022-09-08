@@ -483,16 +483,19 @@ export default {
       this.contentType = item.contentType || ''
       this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
       this.initActive()
-      this.bindRequestParam(item)
       this.initDebugHost()
-      this.setTableCheck()
     },
     initDebugHost() {
-      const debugEnv = this.getAttr(HOST_KEY) || ''
-      this.changeHostEnv(debugEnv)
+      const debugId = this.getAttr(this.getHostKey()) || ''
+      this.changeHostEnv(debugId)
+    },
+    getHostKey() {
+      return HOST_KEY
     },
     changeHostEnv(debugId) {
       const item = this.currentItem
+      this.bindRequestParam(item)
+      this.setTableCheck()
       const debugEnvs = item.debugEnvs
       if (debugEnvs.length === 0) {
         this.requestUrl = item.url
@@ -504,7 +507,7 @@ export default {
       this.requestUrl = get_effective_url(baseUrl, item.url)
       this.debugEnv = debugConfig.name
       this.debugId = debugConfig.id
-      this.setAttr(HOST_KEY, this.debugId)
+      this.setAttr(this.getHostKey(), this.debugId)
       this.loadGlobalHeader(debugId)
       this.loadProxySelect()
       this.loadProps()
@@ -539,9 +542,9 @@ export default {
           }
         })
       }
-      this.pathData = item.pathParams
-      this.headerData = item.headerParams
-      this.queryData = item.queryParams
+      this.pathData = this.deepCopy(item.pathParams)
+      this.headerData = this.deepCopy(item.headerParams)
+      this.queryData = this.deepCopy(item.queryParams)
       this.formData = formData
       this.multipartData = multipartData
     },
@@ -606,7 +609,7 @@ export default {
       let data = {}
       let isMultipart = false
       // 如果请求body
-      if (this.hasBody) {
+      if (this.hasBody || this.bodyText.length > 0) {
         headers['Content-Type'] = this.contentType
         const contentType = (this.contentType || '').toLowerCase()
         if (contentType.indexOf('json') > -1) {
@@ -765,13 +768,6 @@ export default {
         type: this.getEnums().PROP_TYPE.DEBUG,
         name: this.debugId
       }
-      // 删除临时参数
-      const eqFun = (item) => item.temp === 1
-      this.removeArray(this.headerData, eqFun)
-      this.removeArray(this.pathData, eqFun)
-      this.removeArray(this.queryData, eqFun)
-      this.removeArray(this.multipartData, eqFun)
-      this.removeArray(this.formData, eqFun)
       this.get('/prop/find', data, resp => {
         const respData = resp.data
         if (!respData) {

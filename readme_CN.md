@@ -8,14 +8,6 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 <img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
 
-## 当前版本号
-
-| 模块 |                                       版本                                        |
-| :----: |:-------------------------------------------------------------------------------:|
-| sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
-| swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
-| smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
-
 
 ## 使用步骤
 
