@@ -28,6 +28,19 @@ public class EnumService {
     @Autowired
     private EnumItemService enumItemService;
 
+    public List<EnumInfoDTO> listAll(long moduleId) {
+        Query query = new Query()
+                .eq("module_id", moduleId);
+        List<EnumInfo> enumInfoList = enumInfoService.list(query);
+        List<EnumInfoDTO> enumInfoDTOS = CopyUtil.copyList(enumInfoList, EnumInfoDTO::new);
+        for (EnumInfoDTO enumInfoDTO : enumInfoDTOS) {
+            Long enumId = enumInfoDTO.getId();
+            List<EnumItemDTO> items = this.listItems(enumId);
+            enumInfoDTO.setItems(items);
+        }
+        return enumInfoDTOS;
+    }
+
     public List<EnumInfoDTO> listBase(long moduleId) {
         Query query = new Query()
                 .eq("module_id", moduleId);
