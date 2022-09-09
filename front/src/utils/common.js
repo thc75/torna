@@ -69,6 +69,9 @@ function get_default_example(type) {
   }
   let example = ''
   switch (typeLower) {
+    case 'string':
+      example = 'string'
+      break
     case 'map':
     case 'hashmap':
     case 'dict':
@@ -84,6 +87,26 @@ function get_default_example(type) {
     case 'arr':
     case 'array':
       example = []
+      break
+    case 'array[string]':
+      example = ['string']
+      break
+    case 'array[byte]':
+    case 'array[short]':
+    case 'array[integer]':
+    case 'array[long]':
+    case 'array[decimal]':
+      example = [0]
+      break
+    case 'array[float]':
+    case 'array[double]':
+      example = [0.0]
+      break
+    case 'array[boolean]':
+      example = [false]
+      break
+    case 'array[object]':
+      example = [{}]
       break
     default:
   }
@@ -224,7 +247,7 @@ function is_array_type(type) {
   }
   type = type.toLowerCase()
   for (const t of COLLECT_TYPE_LIST) {
-    if (t === type) {
+    if (type.indexOf(t) > -1) {
       return true
     }
   }

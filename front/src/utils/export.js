@@ -10,15 +10,7 @@ function export_single_page(docInfo, filenameHandler, contentHandler) {
   download_text(`${filenameHandler(docInfo)}`, content)
 }
 
-/**
- * 导出多页面
- * @param docInfoList docInfoList 没有转换tree
- * @param filenameHandler 构建文件名回调，参数：docInfo
- * @param contentHandler 构建内容回调，参数：docInfo
- */
-function do_export_multi_docs(docInfoList, filenameHandler, contentHandler) {
-  const zip = new JSZip()
-  const treeData = convert_tree(docInfoList)
+function handleData(zip, treeData, filenameHandler, contentHandler) {
   const appendFile = (zip, doc_info) => {
     init_docInfo(doc_info)
     const markdown = contentHandler(doc_info)
@@ -30,14 +22,23 @@ function do_export_multi_docs(docInfoList, filenameHandler, contentHandler) {
     if (isFolder) {
       // 创建文件夹
       const folderZip = zip.folder(docInfo.name)
-      children.forEach(child => {
-        // 文件放入文件夹中
-        appendFile(folderZip, child)
-      })
+      handleData(folderZip, children, filenameHandler, contentHandler)
     } else {
       appendFile(zip, docInfo)
     }
   })
+}
+
+/**
+ * 导出多页面
+ * @param docInfoList docInfoList 没有转换tree
+ * @param filenameHandler 构建文件名回调，参数：docInfo
+ * @param contentHandler 构建内容回调，参数：docInfo
+ */
+function do_export_multi_docs(docInfoList, filenameHandler, contentHandler) {
+  const zip = new JSZip()
+  const treeData = convert_tree(docInfoList, '')
+  handleData(zip, treeData, filenameHandler, contentHandler)
   // 下载
   zip.generateAsync({ type: 'blob' }).then(function(content) {
     const zipFile = `export-${new Date().getTime()}.zip`

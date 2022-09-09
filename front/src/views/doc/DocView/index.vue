@@ -24,6 +24,34 @@
               <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+        <div v-show="showOptBar" class="show-opt-bar" style="float: right">
+          <div class="item">
+            <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+              <el-button
+                type="text"
+                :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
+                style="font-size: 16px"
+                @click="onSubscribe"
+              />
+            </el-tooltip>
+          </div>
+          <div class="item">
+            <el-dropdown trigger="click" @command="handleCommand">
+              <el-tooltip placement="top" :content="$ts('export')">
+                <el-button type="text" icon="el-icon-download" />
+              </el-tooltip>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+          <div class="item">
+            <el-tooltip placement="top" :content="$ts('viewDict')">
+              <el-button type="text" icon="el-icon-notebook-2" @click="showDict" />
+            </el-tooltip>
+          </div>
         </div>
       </h2>
       <span v-show="showOptBar" class="doc-modify-info">
@@ -51,11 +79,11 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-if="docInfo.description" class="doc-descr">
+    <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
       {{ $ts('description') }}
     </h4>
     <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
-    <h4 v-if="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
+    <h4 v-show="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
       <parameter-table
@@ -81,7 +109,7 @@
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
-      <el-alert v-if="docInfo.isRequestArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayReqTip')" />
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" show-icon :title="$ts('objectArrayReqTip')" />
       <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isShowRequestExample">
@@ -97,8 +125,9 @@
       </div>
     </div>
     <h4>{{ $ts('responseParam') }}</h4>
-    <el-alert v-if="docInfo.isResponseArray" :closable="false" :title="$ts('tip')" :description="$ts('objectArrayRespTip')" />
-    <parameter-table :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" show-icon :title="$ts('objectArrayRespTip')" />
+    <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
+    <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
     <h4>{{ $ts('responseExample') }}</h4>
     <div class="code-box" @mouseenter="isShowResponseSuccessExample=true" @mouseleave="isShowResponseSuccessExample=false">
       <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
@@ -118,7 +147,7 @@
       :description-label="$ts('errorDesc')"
       :example-label="$ts('solution')"
     />
-    <div v-show="docInfo.remark" class="doc-info-remark">
+    <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
       <span>{{ docInfo.remark }}</span>
@@ -141,6 +170,7 @@
         :placeholder="$ts('commentPlaceholder')"
       ></comment>
     </div>
+    <dict-view ref="dictView" />
   </div>
 </template>
 <style scoped>
@@ -162,11 +192,16 @@ h4 .content {
   margin: 8px;
   cursor: pointer;
 }
+.show-opt-bar .item {
+  margin-left: 10px;
+  display: inline-block;
+}
 </style>
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
+import DictView from '@/components/DictView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 import '@wangeditor/editor/dist/css/style.css'
@@ -180,7 +215,7 @@ $addI18n({
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, DocDiff, comment },
+  components: { ParameterTable, HttpMethod, DocDiff, comment, DictView },
   props: {
     docId: {
       type: String,
@@ -263,7 +298,8 @@ export default {
       responseHiddenColumns: [],
       hostConfigName: '',
       isShowRequestExampleCopy: false,
-      isShowResponseSuccessExample: false
+      isShowResponseSuccessExample: false,
+      emptyContent: '<p><br></p>'
     }
   },
   computed: {
@@ -284,6 +320,22 @@ export default {
     },
     isDeprecated() {
       return this.docInfo.deprecated !== '$false$'
+    },
+    isResponseSingleValue() {
+      const responseParams = this.docInfo.responseParams
+      if (responseParams && responseParams.length === 1 && !this.docInfo.isResponseArray) {
+        const responseParam = responseParams[0]
+        return !responseParam.name
+      }
+      return false
+    },
+    responseSingleValue() {
+      const responseParams = this.docInfo.responseParams
+      if (responseParams && responseParams.length === 1 && !this.docInfo.isResponseArray) {
+        const responseParam = responseParams[0]
+        return responseParam.type
+      }
+      return ''
     }
   },
   watch: {
@@ -348,6 +400,10 @@ export default {
           this.responseSuccessExample = filterRow.length > 0 ? parse_root_array(arrayType, filterRow[0].example) : []
         }
       }
+      // 如果返回单个参数
+      if (this.isResponseSingleValue) {
+        this.responseSuccessExample = this.responseSingleValue
+      }
       this.initDocComment(data.id)
     },
     initResponseHiddenColumns() {
@@ -405,6 +461,9 @@ export default {
     },
     copy(text) {
       this.copyText(text)
+    },
+    showDict() {
+      this.$refs.dictView.show(this.docInfo.moduleId)
     }
   }
 }

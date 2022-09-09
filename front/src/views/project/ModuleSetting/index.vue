@@ -79,7 +79,7 @@
           <global-returns ref="globalReturns" />
         </el-tab-pane>
       </el-tabs>
-      <div v-if="moduleVO.type === 1">
+      <div v-show="moduleVO.type === 1">
         <h3>{{ $ts('swaggerSetting') }}</h3>
         <swagger-setting ref="swaggerSetting" />
       </div>
@@ -290,6 +290,7 @@ export default {
         this.activeNameEnv = ''
       }
       this.loadModuleInfo(this.moduleId)
+      this.loadSwaggerConfig(this.moduleId)
       this.loadEnvs(this.moduleId)
       this.activeName = 'globalHeaders'
     },
@@ -316,6 +317,10 @@ export default {
       this.get('/module/info', { moduleId: moduleId }, resp => {
         this.moduleVO = resp.data
       })
+    },
+    loadSwaggerConfig(moduleId) {
+      const $ref = this.$refs.swaggerSetting
+      $ref && $ref.reload(moduleId)
     },
     loadEnvs(moduleId) {
       this.get('/module/environment/list', { moduleId: moduleId }, resp => {

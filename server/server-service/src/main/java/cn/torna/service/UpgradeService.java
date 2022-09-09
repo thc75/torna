@@ -38,7 +38,7 @@ public class UpgradeService {
 
     private static final int PRO_VERSION = 10;
 
-    private static final int VERSION = 1154;
+    private static final int VERSION = 1160;
 
 
     private static final String TORNA_VERSION_KEY = "torna.version";
@@ -125,6 +125,13 @@ public class UpgradeService {
         v1_15_0(oldVersion);
         v1_15_3(oldVersion);
         v1_15_4(oldVersion);
+        v1_16_0(oldVersion);
+    }
+
+    private void v1_16_0(int oldVersion) {
+        if (oldVersion < 1160) {
+            createTable("module_swagger_config", "upgrade/1.16.0_ddl.txt");
+        }
     }
 
     private void v1_15_4(int oldVersion) {

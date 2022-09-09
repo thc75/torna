@@ -18,7 +18,7 @@ import { Enums } from './enums'
 import { add_init } from './init'
 
 // eslint-disable-next-line
-const VERSION="1.15.6"
+const VERSION="1.16.3"
 const SPACE_ID_KEY = 'torna.spaceid'
 const PROJECT_ID_KEY = 'torna.projectid'
 const TORNA_FROM = 'torna.from'
@@ -246,6 +246,7 @@ Object.assign(Vue.prototype, {
     return init_docInfo(data)
   },
   initDocInfoView(data) {
+    this.$store.state.settings.docTitle = data.name
     return init_docInfo_view(data)
   },
   initDocInfoCompleteView(data) {
@@ -534,6 +535,20 @@ Object.assign(Vue.prototype, {
       obj.url = url
     }
   },
+  removeArray(arr, eqFun) {
+    const ids = []
+    for (let i = 0; i < arr.length; i++) {
+      const el = arr[i]
+      if (eqFun(el)) {
+        ids.push(el.id)
+      }
+    }
+    if (ids.length > 0) {
+      for (const id of ids) {
+        this.removeRow(arr, id)
+      }
+    }
+  },
   removeRow: function(arr, id) {
     let index = -1
     for (let i = 0; i < arr.length; i++) {
@@ -597,6 +612,17 @@ Object.assign(Vue.prototype, {
     if (!isJson) {
       errorCallback.call(this)
     }
+  },
+  isJsonString: function(str) {
+    if (typeof str === 'string') {
+      try {
+        JSON.parse(str)
+        return true
+      } catch (e) {
+        return false
+      }
+    }
+    return false
   },
   handleCommand: function(command) {
     command && command()
@@ -737,6 +763,15 @@ Object.assign(Vue.prototype, {
   },
   formatHtmlText(text) {
     return text.replace(REGEX_BR, '\n')
+  },
+  toRoute(location, title) {
+    this.$router.push(location)
+    if (title) {
+      if (this.$store.state.settings.docTitle) {
+        this.$store.state.settings.docTitle = title
+      }
+      this.setTitle(title)
+    }
   }
 
 })

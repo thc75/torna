@@ -13,7 +13,8 @@
 </template>
 
 <script>
-import { Navbar, Sidebar, ViewMain, TabsRouter } from './components'
+import { Navbar, Sidebar, ViewMain } from './components'
+import TabsRouter from '@/components/TabsRouter'
 import ResizeMixin from './mixin/ResizeHandler'
 import { ResizeBar } from '@/utils/resizebar'
 

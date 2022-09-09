@@ -12,6 +12,7 @@ import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
@@ -45,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -88,19 +88,18 @@ public class DocApi {
     @Autowired
     private UserMessageService userMessageService;
 
-    @Value("${torna.push.allow-same-folder}")
-    private boolean allowSameFolder;
-
-    @Value("${torna.push.print-content}")
-    private boolean watchPushContent;
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
-        if (watchPushContent) {
+        // 是否打印推送内容
+        String isPrint = Configs.getValue("torna.push.print-content", "false");
+        if (Boolean.parseBoolean(isPrint)) {
             log.info("推送内容：\n{}", JSON.toJSONString(param));
         }
-        if (allowSameFolder) {
+        // 允许有相同的目录
+        String allowSameFolder = Configs.getValue("torna.push.allow-same-folder", "true");
+        if (Boolean.parseBoolean(allowSameFolder)) {
             this.mergeSameFolder(param);
         } else {
             this.checkSameFolder(param);

@@ -4,10 +4,10 @@ import cn.torna.swaggerplugin.builder.DataType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 import sun.reflect.generics.repository.ClassRepository;
 
 import java.beans.PropertyDescriptor;
@@ -102,7 +102,21 @@ public class PluginUtil {
         if (params.length == 0) {
             return Object.class;
         }
-        return params[0];
+        Type param = params[0];
+        // List<? extends Pojo>,
+        if (param instanceof WildcardTypeImpl) {
+            WildcardTypeImpl wildcardType = (WildcardTypeImpl) param;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            if (upperBounds != null && upperBounds.length > 0) {
+                // Pojo.class
+                return upperBounds[0];
+            }
+            Type[] lowerBounds = wildcardType.getLowerBounds();
+            if (lowerBounds != null && lowerBounds.length > 0) {
+                return lowerBounds[0];
+            }
+        }
+        return param;
     }
 
     /**

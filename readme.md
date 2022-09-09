@@ -8,14 +8,6 @@ Torna makes up for the shortcomings of traditional document generation tools suc
 
 <img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
 
-## Current version
-
-| Module |                                     Version                                     |
-| :----: |:-------------------------------------------------------------------------------:|
-| sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
-| swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
-| smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
-
 
 ## Usage
 
@@ -50,7 +42,7 @@ Import database,run [mysql.sql](./mysql.sql)
 
 Download image
 
-`docker pull tanghc2020/torna:latest`
+`docker pull tanghc2020/torna:1.16.2`
 
 Run docker:
 
@@ -62,7 +54,7 @@ docker run --name torna --restart=always \
   -e MYSQL_SCHEMA="torna" \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:latest
+  -d tanghc2020/torna:1.16.1
 ```
 
 Need modify：

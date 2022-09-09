@@ -1,7 +1,10 @@
 package cn.torna.api.open.param;
 
 import com.gitee.easyopen.doc.annotation.ApiDocField;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
@@ -12,6 +15,9 @@ import java.util.Objects;
 /**
  * @author tanghc
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Getter
 @Setter
 public class DocPushItemParam {
@@ -75,9 +81,11 @@ public class DocPushItemParam {
     private Byte isResponseArray = 0;
 
     @ApiDocField(description = "请求数组时元素类型, object/number/string/boolean", example = "object")
+    @Builder.Default
     private String requestArrayType = "object";
 
     @ApiDocField(description = "返回数组时元素类型, object/number/string/boolean", example = "object")
+    @Builder.Default
     private String responseArrayType = "object";
 
     // dubbo
@@ -104,6 +112,8 @@ public class DocPushItemParam {
 
     @ApiDocField(description = "文档项")
     private List<DocPushItemParam> items;
+
+    private String tag;
 
     @Override
     public boolean equals(Object o) {

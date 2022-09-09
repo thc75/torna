@@ -370,8 +370,8 @@ const MAPPING = {
   'rootArrayTip': 'Body is an array, such as',
   'mustArray': 'Must array',
   'arrayMustHasElement': 'Array need element',
-  'objectArrayReqTip': 'Array object, the element in below table',
-  'objectArrayRespTip': 'Array object, the element in below table',
+  'objectArrayReqTip': 'Request array, the element in below table',
+  'objectArrayRespTip': 'Response array, the element in below table',
   'supportHtml': 'html supported',
   'newParam': 'New Param',
   'importParam': 'Import Param',
@@ -401,7 +401,17 @@ const MAPPING = {
   'closeAll': 'Close All',
   'closeLeft': 'Close Left',
   'closeRight': 'Close Right',
-  'inputContent': 'Input content'
+  'inputContent': 'Input content',
+  'interface': 'Interface',
+  'version': 'Version',
+  'protocol': 'Protocol',
+  'author': 'Author',
+  'dependency': 'Dependency',
+  'viewDict': 'View Dictionary',
+  'dictInfo': 'Dictionary Information',
+  'emptyDictData': 'Empty dictionary data',
+  'grid': 'Grid',
+  'card': 'Card'
 
 }
 

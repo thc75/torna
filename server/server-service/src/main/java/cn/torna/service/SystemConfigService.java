@@ -1,5 +1,6 @@
 package cn.torna.service;
 
+import cn.torna.common.context.EnvironmentContext;
 import cn.torna.common.interfaces.IConfig;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -26,11 +27,11 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
     private final LoadingCache<String, Optional<String>> configCache = CacheBuilder.newBuilder()
             .expireAfterAccess(15, TimeUnit.MINUTES)
             .build(new CacheLoader<String, Optional<String>>() {
-        @Override
-        public Optional<String> load(String key) throws Exception {
-            return Optional.ofNullable(getConfigValue(key, null));
-        }
-    });
+                @Override
+                public Optional<String> load(String key) throws Exception {
+                    return Optional.ofNullable(getConfigValue(key, null));
+                }
+            });
 
     public void setConfig(String key, String value) {
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
@@ -53,12 +54,19 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
         configCache.invalidate(systemConfigDTO.getConfigKey());
     }
 
+    /**
+     * 获取配置信息，优先从数据库中读取，再从Environment中读取
+     *
+     * @param key          配置key
+     * @param defaultValue 没有获取到返回的默认值
+     * @return 返回配置信息，如果没有获取到值，则返回默认值
+     */
     public String getConfigValue(String key, String defaultValue) {
         Objects.requireNonNull(key, "need key");
         SystemConfig systemConfig = get("config_key", key);
         return Optional.ofNullable(systemConfig)
                 .map(SystemConfig::getConfigValue)
-                .orElse(defaultValue);
+                .orElse(EnvironmentContext.getValue(key, defaultValue));
     }
 
     @Override

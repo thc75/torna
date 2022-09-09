@@ -1,5 +1,39 @@
 # 更新日志
 
+## 1.16.3
+
+- 【修复】请求头参数异常 [#I5Q5HD](https://gitee.com/durcframework/torna/issues/I5Q5HD)
+- 【新增】文档预览页新增字典查看按钮
+- 【新增】项目列表新增列表展示
+
+## 1.16.2
+
+- 【优化】导入Postman支持单值数组参数（`[123,456]`）
+- 【修复】切换调试环境导致临时请求参数增多问题
+
+## 1.16.1
+
+- 【修复】文档导出多层级无数据的问题 [pr](https://gitee.com/durcframework/torna/pulls/37)
+- 【修复】推送枚举展示错误问题 [#I5L310](https://gitee.com/durcframework/torna/issues/I5L310)
+- 【修复】postman导入数据报错 [#I5KZ4Z](https://gitee.com/durcframework/torna/issues/I5KZ4Z)
+- 【优化】优化文档浏览页tab样式
+
+## 1.16.0
+
+- 【优化】优化swagger文档导入，提供三种导入方式（插件导入，URL导入，json/yaml导入）
+- 【修复】单值返回参数显示问题 [#I5JGPH](https://gitee.com/durcframework/torna/issues/I5JGPH)
+
+## 1.15.8
+
+- 【修复】文档预览页tab切换出现空白页面问题
+- 【优化】调试页json编辑器高度
+- 【优化】dubbo页面，显示接口名称、作者
+
+## 1.15.7
+
+- 【优化】文档浏览tab页展示
+- 【优化】调试页面新增json编辑器
+
 ## 1.15.6
 
 - 【修复】dubbo文档不显示问题

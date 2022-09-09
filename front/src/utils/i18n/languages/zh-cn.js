@@ -367,8 +367,8 @@ const MAPPING = {
   'rootArrayTip': 'Body是一个数组对象，如',
   'mustArray': '必须是数组',
   'arrayMustHasElement': '数组必须有元素',
-  'objectArrayReqTip': '接收数组对象，元素内容见表格定义',
-  'objectArrayRespTip': '返回数组对象，元素内容见表格定义',
+  'objectArrayReqTip': '接收数组，内容见表格定义',
+  'objectArrayRespTip': '返回数组，内容见表格定义',
   'supportHtml': '支持html',
   'newParam': '添加参数',
   'importParam': '导入参数',
@@ -402,7 +402,17 @@ const MAPPING = {
   'closeAll': '关闭全部',
   'closeLeft': '关闭左侧',
   'closeRight': '关闭右侧',
-  'inputContent': '输入内容'
+  'inputContent': '输入内容',
+  'interface': '接口',
+  'version': '版本',
+  'protocol': '协议',
+  'author': '作者',
+  'dependency': '依赖',
+  'viewDict': '查看字典',
+  'dictInfo': '字典信息',
+  'emptyDictData': '无字典信息',
+  'grid': '列表',
+  'card': '卡片'
 
 }
 

@@ -1,5 +1,7 @@
 package cn.torna.web.controller.module;
 
+import cn.torna.api.open.SwaggerApi;
+import cn.torna.api.open.SwaggerRefreshApi;
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
@@ -9,6 +11,7 @@ import cn.torna.common.enums.ModuleTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdUtil;
+import cn.torna.common.util.RequestUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.DocImportService;
@@ -16,7 +19,9 @@ import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.dto.ImportPostmanDTO;
 import cn.torna.service.dto.ImportSwaggerDTO;
+import cn.torna.service.dto.ImportSwaggerV2DTO;
 import cn.torna.web.controller.module.param.ImportSwaggerParam;
+import cn.torna.web.controller.module.param.ImportSwaggerV2Param;
 import cn.torna.web.controller.module.param.ModuleAddParam;
 import cn.torna.web.controller.module.param.ModuleDeleteParam;
 import cn.torna.web.controller.module.param.ModuleUpdateNameParam;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -51,6 +57,12 @@ public class ModuleController {
 
     @Autowired
     private DocInfoService docInfoService;
+
+    @Autowired
+    private SwaggerApi swaggerApi;
+
+    @Autowired
+    private SwaggerRefreshApi swaggerRefreshApi;
 
     @GetMapping("info")
     public Result<ModuleVO> info(@HashId Long moduleId) {
@@ -138,6 +150,23 @@ public class ModuleController {
     }
 
     /**
+     * 导入swagger
+     * @param param
+     * @return
+     */
+    @PostMapping("import/swaggerV2")
+    public Result<ModuleVO> importSwaggerDocV2(@RequestBody @Valid ImportSwaggerV2Param param, HttpServletRequest request) {
+        ImportSwaggerV2DTO importSwaggerV2DTO = CopyUtil.copyBean(param, ImportSwaggerV2DTO::new);
+        User user = UserContext.getUser();
+        String ip = RequestUtil.getIP(request);
+        importSwaggerV2DTO.setUser(user);
+        importSwaggerV2DTO.setIp(ip);
+        Module module = swaggerApi.importSwagger(importSwaggerV2DTO);
+        ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
+        return Result.ok(moduleVO);
+    }
+
+    /**
      * 导入postman
      * @param file postman导出文件
      * @param projectId 项目id
@@ -175,6 +204,17 @@ public class ModuleController {
             importSwaggerDTO.setUser(user);
             docImportService.importSwagger(importSwaggerDTO);
         }
+        return Result.ok();
+    }
+
+    /**
+     * 刷新swagger
+     * @param moduleId
+     * @return
+     */
+    @GetMapping("refresh/swaggerV2")
+    public Result refreshSwaggerDocV2(@HashId Long moduleId, HttpServletRequest request) {
+        swaggerRefreshApi.refresh(moduleId, RequestUtil.getIP(request));
         return Result.ok();
     }
 

@@ -4,13 +4,13 @@ const state = {
 }
 
 const actions = {
-  addVisitedTabs({ commit, dispatch }, view) {
+  addVisitedTabs({ commit, dispatch }, tabInfo) {
     return new Promise(resolve => {
-      const index = state.visitedTabs.findIndex(tab => tab.path === view.path)
+      const index = state.visitedTabs.findIndex(tab => tab.path === tabInfo.path)
       if (index !== -1) {
         resolve({ position: index, length: state.visitedTabs.length })
       } else {
-        commit('ADD_VISITED_TABS', view)
+        commit('ADD_VISITED_TABS', tabInfo)
         resolve({ position: state.visitedTabs.length - 1, length: state.visitedTabs.length })
       }
       if (state.visitedTabs.length === 1) {
@@ -65,10 +65,10 @@ const actions = {
 }
 
 const mutations = {
-  ADD_VISITED_TABS: (state, view) => {
+  ADD_VISITED_TABS: (state, tabInfo) => {
     state.visitedTabs.push(
-      Object.assign({}, view, {
-        title: view.meta.title || view.query.meta_title || ''
+      Object.assign({}, tabInfo, {
+        title: tabInfo.title
       })
     )
   },

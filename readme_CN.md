@@ -2,19 +2,11 @@
 
 [English](readme.md) | 简体中文
 
-企业接口文档解决方案，目标是让文档管理变得更加方便、快捷。Torna采用团队协作的方式管理和维护项目API文档，将不同形式的文档纳入进来，形成一个统一的维护方式。
+接口文档解决方案，目标是让接口文档管理变得更加方便、快捷。Torna采用团队协作的方式管理和维护接口文档，将不同形式的文档纳入进来统一维护。
 
 Torna弥补了传统文档生成工具（如swagger）的不如之处，在保持原有功能的前提下丰富并增强了一些实用的功能。
 
 <img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
-
-## 当前版本号
-
-| 模块 |                                       版本                                        |
-| :----: |:-------------------------------------------------------------------------------:|
-| sdk-java |       ![maven](https://img.shields.io/maven-central/v/cn.torna/torna-sdk)       |
-| swagger-plugin |    ![maven](https://img.shields.io/maven-central/v/cn.torna/swagger-plugin)     |
-| smart-doc | ![maven](https://img.shields.io/maven-central/v/com.github.shalousun/smart-doc) |
 
 
 ## 使用步骤
@@ -51,7 +43,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.15.4`
+`docker pull tanghc2020/torna:1.16.2`
 
 下载完成后，执行docker命令：
 
@@ -63,7 +55,7 @@ docker run --name torna --restart=always \
   -e MYSQL_SCHEMA="torna" \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:1.15.4
+  -d tanghc2020/torna:1.16.2
 ```
 
 需改更改的部分：
@@ -88,6 +80,8 @@ docker run --name torna --restart=always \
 
 如果您使用Java语言，推荐使用`smart-doc + Torna`
 
+[Torna整合smart-doc教程](http://torna.cn/dev/smart-doc.html)
+
 [smart-doc](https://gitee.com/smart-doc-team/smart-doc) + Torna 组成行业领先的文档生成和管理解决方案，使用smart-doc无侵入完成Java源代码和注释提取生成API文档，自动将文档推送到Torna企业级接口文档管理平台。
 
 通过这套组合您可以实现：只需要写完Java注释就能把接口信息推送到Torna平台，从而实现接口预览、接口调试。
@@ -103,6 +97,7 @@ docker run --name torna --restart=always \
 ## 其它资源
 
 - [Torna对应的示例工程](https://gitee.com/durcframework/torna-example) ，演示swagger插件的用法
+- [Torna整合smart-doc示例](https://gitee.com/durcframework/torna-and-smart-doc)
 
 ## 更新日志
 

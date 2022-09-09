@@ -60,11 +60,7 @@ export default {
       if (data.type === this.types.TYPE_DOC) {
         // 目前没想到好的办法传输文档名称到标签路由中
         // this.goRoute(`/view/${data.docId}`)
-        const location = { path: `/view/${data.docId}` }
-        if (this.docViewTabs) {
-          location.query = { meta_title: data.label }
-        }
-        this.$router.push(location)
+        this.toRoute({ path: `/view/${data.docId}` }, data.label)
       }
     },
     onSpaceChange(spaceId) {

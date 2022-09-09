@@ -231,14 +231,19 @@ export default {
       })
     },
     onRefreshSwagger(item) {
-      this.refreshSwaggerLoading = true
-      this.get('/module/refresh/swagger', { moduleId: item.id }, () => {
-        this.refreshSwaggerLoading = false
-        this.tipSuccess(this.$ts('syncSuccess'))
-        this.$refs.docInfo.reload()
-      }, () => {
-        this.refreshSwaggerLoading = false
+      const loading = this.$loading({
+        lock: true,
+        text: $ts('synchronizing'),
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
       })
+      this.get('/module/refresh/swaggerV2', { moduleId: item.id }, () => {
+        setTimeout(() => {
+          loading.close()
+          this.tipSuccess(this.$ts('syncSuccess'))
+          this.$refs.docInfo.reload()
+        }, 1500)
+      }, () => loading.close())
     },
     onImportSwagger() {
       this.$refs.importSwaggerDlg.show()

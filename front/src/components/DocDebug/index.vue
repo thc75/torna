@@ -195,7 +195,18 @@
               </el-radio-group>
               <el-form>
                 <el-form-item label-width="0">
-                  <el-input v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" @blur="onBodyBlur" />
+                  <editor
+                    v-if="textRadio === 'application/json'"
+                    ref="requestEditor"
+                    v-model="bodyText"
+                    lang="json"
+                    theme="chrome"
+                    :height="requestEditorConfig.height"
+                    class="normal-boarder"
+                    :options="requestEditorConfig"
+                    @init="requestEditorInit"
+                  />
+                  <el-input v-else v-model="bodyText" type="textarea" :autosize="{ minRows: 2, maxRows: 100}" @blur="onBodyBlur" />
                 </el-form-item>
               </el-form>
             </div>
@@ -336,7 +347,7 @@
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$ts('returnResult')" name="body">
             <img v-if="result.image.length > 0" :src="result.image" />
-            <el-input v-else v-model="result.content" type="textarea" :readonly="true" :autosize="{ minRows: 2, maxRows: 200}" />
+            <el-input v-else v-model="result.content" type="textarea" :readonly="true" style="font-size: 13px;" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
             <span slot="label" class="result-header-label">
@@ -380,7 +391,7 @@ const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
-  components: { EnumSelect, DebugScript },
+  components: { EnumSelect, DebugScript, editor: require('vue2-ace-editor') },
   props: {
     item: {
       type: Object,
@@ -435,6 +446,17 @@ export default {
         status: 200,
         image: ''
       },
+      resultEditorConfig: {
+        // 去除编辑器里的竖线
+        showPrintMargin: false,
+        readOnly: true,
+        height: 420
+      },
+      requestEditorConfig: {
+        // 去除编辑器里的竖线
+        showPrintMargin: false,
+        height: 240
+      },
       preCheckedId: '',
       afterCheckedId: ''
     }
@@ -452,6 +474,9 @@ export default {
         this.requestUrl = val
       }
     },
+    isResponseJson() {
+      return this.isJsonString(this.result.content)
+    },
     enableScript() {
       return (this.preCheckedId !== undefined && this.preCheckedId.length > 0) || (this.afterCheckedId !== undefined && this.afterCheckedId.length > 0)
     }
@@ -461,6 +486,10 @@ export default {
       this.loadItem(newVal)
     }
   },
+  created() {
+    this.requestEditorConfig.height = window.innerHeight - 480
+    this.resultEditorConfig.height = window.innerHeight - 305
+  },
   methods: {
     loadItem(item) {
       this.currentItem = item
@@ -469,16 +498,19 @@ export default {
       this.contentType = item.contentType || ''
       this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
       this.initActive()
-      this.bindRequestParam(item)
       this.initDebugHost()
-      this.setTableCheck()
     },
     initDebugHost() {
-      const debugEnv = this.getAttr(HOST_KEY) || ''
-      this.changeHostEnv(debugEnv)
+      const debugId = this.getAttr(this.getHostKey()) || ''
+      this.changeHostEnv(debugId)
+    },
+    getHostKey() {
+      return HOST_KEY
     },
     changeHostEnv(debugId) {
       const item = this.currentItem
+      this.bindRequestParam(item)
+      this.setTableCheck()
       const debugEnvs = item.debugEnvs
       if (debugEnvs.length === 0) {
         this.requestUrl = item.url
@@ -490,10 +522,10 @@ export default {
       this.requestUrl = get_effective_url(baseUrl, item.url)
       this.debugEnv = debugConfig.name
       this.debugId = debugConfig.id
-      this.setAttr(HOST_KEY, this.debugId)
-      this.loadProps()
+      this.setAttr(this.getHostKey(), this.debugId)
       this.loadGlobalHeader(debugId)
       this.loadProxySelect()
+      this.loadProps()
     },
     loadGlobalHeader(debugId) {
       this.get('/doc/headers/global', { environmentId: debugId }, resp => {
@@ -525,9 +557,9 @@ export default {
           }
         })
       }
-      this.pathData = item.pathParams
-      this.headerData = item.headerParams
-      this.queryData = item.queryParams
+      this.pathData = this.deepCopy(item.pathParams)
+      this.headerData = this.deepCopy(item.headerParams)
+      this.queryData = this.deepCopy(item.queryParams)
       this.formData = formData
       this.multipartData = multipartData
     },
@@ -592,7 +624,7 @@ export default {
       let data = {}
       let isMultipart = false
       // 如果请求body
-      if (this.hasBody) {
+      if (this.hasBody || this.bodyText.length > 0) {
         headers['Content-Type'] = this.contentType
         const contentType = (this.contentType || '').toLowerCase()
         if (contentType.indexOf('json') > -1) {
@@ -964,7 +996,7 @@ export default {
       return null
     },
     onBodyBlur() {
-      if (this.bodyText && this.contentType && this.contentType.toLowerCase().indexOf('json') > -1) {
+      if (this.bodyText && this.textRadio === 'application/json') {
         try {
           this.bodyText = this.formatJson(JSON.parse(this.bodyText))
           // eslint-disable-next-line no-empty
@@ -1111,6 +1143,25 @@ export default {
     },
     removeTableRow(rows, row) {
       this.removeRow(rows, row.id)
+    },
+    requestEditorInit: function(editor) {
+      // language extension prerequsite...
+      require('brace/ext/language_tools')
+      // language
+      require('brace/mode/json')
+      require('brace/theme/chrome')
+      // 监听值的变化
+      const that = this
+      editor.on('blur', event => {
+        that.onBodyBlur()
+      })
+    },
+    resultEditorInit: function() {
+      // language extension prerequsite...
+      require('brace/ext/language_tools')
+      // language
+      require('brace/mode/json')
+      require('brace/theme/chrome')
     }
   }
 }
