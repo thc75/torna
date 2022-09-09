@@ -92,8 +92,8 @@ public class UpgradeService {
         if (oldVersion < 10) {
             createTable("doc_snapshot", "upgrade/pro/1.0_ddl_1.txt");
             createTable("debug_script", "upgrade/pro/1.0_ddl_2.txt");
-            createTable("doc_comment", "upgrade/pro/1.0_ddl_3.txt");
-            createTable("attachment", "upgrade/pro/1.0_ddl_4.txt");
+//            createTable("doc_comment", "upgrade/pro/1.0_ddl_3.txt");
+//            createTable("attachment", "upgrade/pro/1.0_ddl_4.txt");
         }
     }
 
