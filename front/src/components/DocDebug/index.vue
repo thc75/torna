@@ -639,23 +639,13 @@ export default {
         }
       }
       this.sendLoading = true
-      let realHeaders
       let url = this.url
-      // 代理转发
-      if (this.isProxy) {
-        realHeaders = {}
-        realHeaders['target-headers'] = JSON.stringify(headers)
-        realHeaders['target-url'] = this.url
-        url = this.getProxyUrl('/doc/debug/v1')
-      } else {
-        realHeaders = headers
-      }
       let req = {
         url: url,
         method: item.httpMethod,
         params: params,
         data: data,
-        headers: realHeaders
+        headers: headers
       }
       try {
         req = this.getDebugScript().runPre(req)
@@ -665,13 +655,23 @@ export default {
         this.sendLoading = false
         return
       }
+      let realHeaders
+      // 代理转发
+      if (this.isProxy) {
+        realHeaders = {}
+        realHeaders['target-headers'] = JSON.stringify(headers)
+        realHeaders['target-url'] = this.url
+        url = this.getProxyUrl('/doc/debug/v1')
+      } else {
+        realHeaders = headers
+      }
       request.call(
         this,
         req.method,
         req.url,
         req.params,
         req.data,
-        req.headers,
+        realHeaders,
         isMultipart,
         (response) => {
           this.doProxyResponse(response, req)

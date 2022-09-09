@@ -327,6 +327,12 @@ export default {
     this.initData()
   },
   methods: {
+    unwrapContent(content) {
+      if (content === '<p><br></p>') {
+        return ''
+      }
+      return content
+    },
     initFolders(moduleId) {
       if (moduleId) {
         this.get('/doc/folder/list', { moduleId: moduleId }, resp => {
@@ -477,6 +483,8 @@ export default {
               responseParams: this.formatData(responseParams),
               errorCodeParams: this.formatData(errorCodeParams)
             })
+            data.description = this.unwrapContent(data.description)
+            data.remark = this.unwrapContent(data.remark)
             this.post('/doc/save', data, resp => {
               this.tipSuccess('保存成功')
               const id = resp.data.id

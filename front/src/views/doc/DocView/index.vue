@@ -4,27 +4,12 @@
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
-        <div v-show="showOptBar" style="float: right">
-          <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
-            <el-button
-              type="text"
-              :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
-              style="font-size: 16px"
-              @click="onSubscribe"
-            />
-          </el-tooltip>
-          <el-button type="primary" size="mini" @click="onShowHistory">变更历史</el-button>
-          <el-dropdown trigger="click" @command="handleCommand">
-            <el-button type="primary" size="mini">
-              {{ $ts('export') }} <i class="el-icon-arrow-down el-icon--right"></i>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
-              <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
         <div v-show="showOptBar" class="show-opt-bar" style="float: right">
+          <div class="item">
+            <el-tooltip placement="top" :content="$ts('changeHistory')">
+              <el-button type="text" icon="el-icon-files" @click="onShowHistory"></el-button>
+            </el-tooltip>
+          </div>
           <div class="item">
             <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
               <el-button
@@ -79,10 +64,7 @@
     <span v-else class="debug-url">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
     </span>
-    <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
-      {{ $ts('description') }}
-    </h4>
-    <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
+    <div v-show="docInfo.description && docInfo.description !== emptyContent" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
     <h4 v-show="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
@@ -150,7 +132,6 @@
     <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
-      <span>{{ docInfo.remark }}</span>
     </div>
     <el-dialog
       ref="historyDlg"
@@ -160,16 +141,6 @@
     >
       <doc-diff :doc-info="currentDocInfo" />
     </el-dialog>
-    <div class="doc-comment">
-      <el-divider content-position="left">{{ $ts('comment') }}</el-divider>
-      <comment
-        :commentList="commentList"
-        :commentNum="commentNum"
-        :authorId="0"
-        :label="$ts('me')"
-        :placeholder="$ts('commentPlaceholder')"
-      ></comment>
-    </div>
     <dict-view ref="dictView" />
   </div>
 </template>
@@ -205,7 +176,6 @@ import DictView from '@/components/DictView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 import '@wangeditor/editor/dist/css/style.css'
-import comment from 'bright-comment'
 
 $addI18n({
   'comment': { 'zh': '评论', 'en': 'Comment' },
@@ -215,7 +185,7 @@ $addI18n({
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, DocDiff, comment, DictView },
+  components: { ParameterTable, HttpMethod, DocDiff, DictView },
   props: {
     docId: {
       type: String,

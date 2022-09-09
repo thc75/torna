@@ -2,6 +2,7 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'changeHistory': 'Change History',
   'canUseScope': 'Use Scope',
   'dlgClose': 'Close',
   'preRequestScript': 'Pre-request Script',

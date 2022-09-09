@@ -1,11 +1,8 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.common.annotation.HashId;
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
-import cn.torna.common.bean.User;
 import cn.torna.common.context.ModuleConfigKeys;
-import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.CopyUtil;
@@ -13,13 +10,11 @@ import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleSwaggerConfig;
 import cn.torna.service.ModuleConfigService;
-import cn.torna.service.TransferService;
 import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
-import cn.torna.web.controller.module.param.ModuleTransferParam;
 import cn.torna.web.controller.module.param.ModuleSwaggerConfigParam;
 import cn.torna.web.controller.module.vo.DebugEnvVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalVO;
@@ -46,9 +41,6 @@ public class ModuleSettingController {
 
     @Autowired
     private ModuleSwaggerConfigService moduleSwaggerConfigService;
-
-    @Autowired
-    private TransferService transferService;
 
     @PostMapping("/debugEnv/set")
     public Result setDebugEnv(@RequestBody DebugEnvParam param) {
@@ -218,13 +210,6 @@ public class ModuleSettingController {
             commonConfig.setConfigValue(method);
             moduleConfigService.update(commonConfig);
         }
-        return Result.ok();
-    }
-
-    @PostMapping("/copy")
-    public Result transfer(@RequestBody ModuleTransferParam param) {
-        User user = UserContext.getUser();
-        transferService.transferModule(user, param.getModuleId(), param.getProjectId());
         return Result.ok();
     }
 

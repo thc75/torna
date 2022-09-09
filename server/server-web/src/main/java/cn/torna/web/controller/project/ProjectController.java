@@ -8,15 +8,10 @@ import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.ProjectService;
 import cn.torna.service.SpaceService;
-import cn.torna.service.TransferService;
-import cn.torna.service.dto.ProjectAddDTO;
-import cn.torna.service.dto.ProjectInfoDTO;
-import cn.torna.service.dto.ProjectUpdateDTO;
 import cn.torna.service.dto.ProjectAddDTO;
 import cn.torna.service.dto.ProjectInfoDTO;
 import cn.torna.service.dto.ProjectUpdateDTO;
 import cn.torna.web.controller.project.param.ProjectParam;
-import cn.torna.web.controller.project.param.ProjectTransferParam;
 import cn.torna.web.controller.project.vo.ProjectSpaceVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -42,9 +37,6 @@ public class ProjectController {
 
     @Autowired
     private SpaceService spaceService;
-
-    @Autowired
-    private TransferService transferService;
 
     /**
      * 项目信息
@@ -109,18 +101,6 @@ public class ProjectController {
             projectAddDTO.setAdminIds(Collections.singletonList(user.getUserId()));
         }
         projectService.addProject(projectAddDTO);
-        return Result.ok();
-    }
-
-    /**
-     * 转移项目
-     * @param param
-     * @return
-     */
-    @PostMapping("/transfer")
-    public Result transfer(@RequestBody ProjectTransferParam param) {
-        User user = UserContext.getUser();
-        transferService.transferProject(user, param.getProjectId(), param.getSpaceId());
         return Result.ok();
     }
 

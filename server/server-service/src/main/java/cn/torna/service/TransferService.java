@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 负责项目、模块复制
+ * 负责项目、模块复制(暂不实现)
  * @author tanghc
  */
-@Service
+//@Service
 public class TransferService {
 
     @Autowired
