@@ -13,9 +13,6 @@ import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Configs;
-import cn.torna.common.bean.DingdingWebHookBody;
-import cn.torna.common.bean.EnvironmentKeys;
-import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
@@ -43,7 +40,6 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -55,7 +51,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -138,7 +133,7 @@ public class DocApi {
     /**
      * 将相同的目录进行合并
      *
-     * @param param
+     * @param param 推送参数
      */
     private void mergeSameFolder(DocPushParam param) {
         List<DocPushItemParam> apis = param.getApis();
@@ -191,8 +186,6 @@ public class DocApi {
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
                 // 处理修改过的文档
-                // TODO: 完善钉钉推送
-                //processModifiedDocs(pushContext);
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
@@ -269,39 +262,7 @@ public class DocApi {
             if (DocInfoService.isLocked(docInfoDTO.buildDataId(), docMetas)) {
                 return;
             }
-            doDocModifyProcess(docInfoDTO, pushContext);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user);
-        }
-    }
-
-    protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        String md5 = DigestUtils.md5Hex(JSON.toJSONString(docInfoDTO));
-        docInfoDTO.setMd5(md5);
-        boolean contentChanged = DocInfoService.isContentChanged(docInfoDTO.buildDataId(), md5, pushContext.getDocMetas());
-        // 文档内容被修改，做相关处理
-        if (contentChanged) {
-            pushContext.addChangedDoc(docInfoDTO);
-        }
-    }
-
-    private void processModifiedDocs(PushContext pushContext) {
-        String url = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_URL.getValue();
-        List<DocInfoDTO> contentChangedDocs = pushContext.getContentChangedDocs();
-        if (StringUtils.hasText(url) && !CollectionUtils.isEmpty(contentChangedDocs)) {
-            String names = contentChangedDocs.stream()
-                    .map(DocInfoDTO::getName)
-                    .collect(Collectors.joining("、"));
-            String content = String.format(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue(), names);
-            DingdingWebHookBody dingdingWebHookBody = DingdingWebHookBody.create(content);
-            try {
-                // 推送钉钉机器人
-                String result = HttpHelper.postJson(url, JSON.toJSONString(dingdingWebHookBody))
-                        .execute()
-                        .asString();
-                log.info("文档变更，推送钉钉机器人, url:{}, content:{}, 推送结果:{}", url, content, result);
-            } catch (Exception e) {
-                log.error("推送钉钉失败, url:{}", url, e);
-            }
         }
     }
 
