@@ -12,7 +12,6 @@ import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
@@ -26,10 +25,13 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
 import cn.torna.manager.tx.TornaTransactionManager;
+import cn.torna.service.DocDiffContext;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.DocSnapshotService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.UserMessageService;
+import cn.torna.service.dto.DocDiffDTO;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocMeta;
@@ -43,7 +45,6 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -54,6 +55,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -72,6 +75,9 @@ public class DocApi {
     private static final String PUSH_ERROR_MSG = "【%s】推送失败，请查看日志";
 
     private final Object lock = new Object();
+
+    @Autowired
+    private DocSnapshotService docSnapshotService;
 
     @Autowired
     private DocInfoService docInfoService;
@@ -93,12 +99,12 @@ public class DocApi {
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
         // 是否打印推送内容
-        String isPrint = Configs.getValue("torna.push.print-content", "false");
+        String isPrint = EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getValue();
         if (Boolean.parseBoolean(isPrint)) {
             log.info("推送内容：\n{}", JSON.toJSONString(param));
         }
         // 允许有相同的目录
-        String allowSameFolder = Configs.getValue("torna.push.allow-same-folder", "true");
+        String allowSameFolder = EnvironmentKeys.TORNA_PUSH_ALLOW_SAME_FOLDER.getValue();
         if (Boolean.parseBoolean(allowSameFolder)) {
             this.mergeSameFolder(param);
         } else {
@@ -191,8 +197,7 @@ public class DocApi {
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
                 // 处理修改过的文档
-                // TODO: 完善钉钉推送
-                //processModifiedDocs(pushContext);
+                processModifiedDocs(pushContext);
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
@@ -274,13 +279,22 @@ public class DocApi {
         }
     }
 
+    /**
+     * 处理变更情况
+     * @param docInfoDTO 最新的文档内容
+     * @param pushContext 推送上下文
+     */
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        String md5 = DocInfoService.buildMd5(docInfoDTO);
-        docInfoDTO.setMd5(md5);
-        boolean contentChanged = DocInfoService.isContentChanged(docInfoDTO.buildDataId(), md5, pushContext.getDocMetas());
+        Optional<String> md5Opt = DocInfoService.getOldMd5(docInfoDTO.buildDataId(), pushContext.getDocMetas());
+        if (!md5Opt.isPresent()) {
+            return;
+        }
+        String oldMd5 = md5Opt.get();
+        String newMd5 = docInfoDTO.getMd5();
+        boolean contentChanged = Objects.equals(oldMd5, newMd5);
         // 文档内容被修改，做相关处理
         if (contentChanged) {
-            pushContext.addChangedDoc(docInfoDTO);
+            DocDiffContext.addQueue(new DocDiffDTO(oldMd5, docInfoDTO));
         }
     }
 
@@ -324,6 +338,8 @@ public class DocApi {
         if (StringUtils.hasText(param.getDefinition())) {
             docInfoDTO.setUrl(param.getDefinition());
         }
+        String md5 = DocInfoService.getDocMd5(docInfoDTO);
+        docInfoDTO.setMd5(md5);
         return docInfoDTO;
     }
 

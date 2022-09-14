@@ -1,5 +1,7 @@
 package cn.torna.service.dto;
 
+import cn.torna.common.annotation.Diff;
+import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
 import cn.torna.service.dataid.DocInfoDataId;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -19,9 +21,11 @@ public class DocInfoDTO implements DocInfoDataId {
     private Long id;
 
     /** 文档名称, 数据库字段：name */
+    @Diff(positionType = PositionType.DOC_NAME)
     private String name;
 
     /** 文档概述, 数据库字段：description */
+    @Diff(positionType = PositionType.DOC_DESCRIPTION)
     private String description;
 
     /** 维护人, 数据库字段：author */
@@ -37,9 +41,11 @@ public class DocInfoDTO implements DocInfoDataId {
     private String httpMethod;
 
     /** contentType, 数据库字段：content_type */
+    @Diff(positionType = PositionType.CONTENT_TYPE)
     private String contentType;
 
     /** 废弃信息 */
+    @Diff(positionType = PositionType.DEPRECATED)
     private String deprecated;
 
     /** 是否是分类，0：不是，1：是, 数据库字段：is_folder */

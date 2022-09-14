@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -335,6 +336,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return false;
     }
 
+    /**
+     * 文档内容是否变更
+     * @param dataId 文档dataId
+     * @param newMd5 新的MD5
+     * @param docMetas 文档数据
+     * @return true：已变更
+     */
     public static boolean isContentChanged(String dataId, String newMd5, List<DocMeta> docMetas) {
         if (CollectionUtils.isEmpty(docMetas)) {
             return false;
@@ -351,8 +359,17 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return false;
     }
 
+    public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {
+        if (CollectionUtils.isEmpty(docMetas)) {
+            return Optional.empty();
+        }
+        return docMetas.stream()
+                .filter(docMeta -> Objects.equals(dataId, docMeta.getDataId()))
+                .findFirst()
+                .map(DocMeta::getMd5);
+    }
+
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
-        docInfoDTO.setMd5(buildMd5(docInfoDTO));
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
@@ -360,14 +377,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
-    public static String buildMd5(DocInfoDTO docInfoDTO) {
-        return DigestUtils.md5Hex(JSON.toJSONString(docInfoDTO));
-    }
-
     public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
         DocInfo docInfoExist = getById(docInfoDTO.getId());
         String oldMd5 = docInfoExist.getMd5();
-        String newMd5 = buildMd5(docInfoDTO);
+        String newMd5 = getDocMd5(docInfoDTO);
         if (!Objects.equals(oldMd5, newMd5)) {
             // 保存上一次的快照
             this.saveOldSnapshot(docInfoDTO);
@@ -449,7 +462,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         NotNullStringBuilder content = new NotNullStringBuilder()
                 .append(docInfoDTO.getName())
                 .append(docInfoDTO.getDescription())
-                .append(docInfoDTO.getAuthor())
                 .append(docInfoDTO.getUrl())
                 .append(docInfoDTO.getHttpMethod())
                 .append(docInfoDTO.getParentId())

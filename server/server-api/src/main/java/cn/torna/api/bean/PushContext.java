@@ -14,8 +14,5 @@ public class PushContext {
     private List<DocMeta> docMetas;
     private List<DocInfoDTO> contentChangedDocs;
 
-    public void addChangedDoc(DocInfoDTO docInfoDTO) {
-        this.contentChangedDocs.add(docInfoDTO);
-    }
 
 }

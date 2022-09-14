@@ -23,6 +23,9 @@ public class DocSnapshot {
     /** doc_info.id, 数据库字段：doc_id */
     private Long docId;
 
+    /** 文档md5 */
+    private String md5;
+
     /** 修改人, 数据库字段：modifier_name */
     private String modifierName;
 

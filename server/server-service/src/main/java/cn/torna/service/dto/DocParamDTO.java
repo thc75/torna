@@ -1,5 +1,7 @@
 package cn.torna.service.dto;
 
+import cn.torna.common.annotation.Diff;
+import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
@@ -16,21 +18,27 @@ public class DocParamDTO {
     private Long id;
 
     /** 字段名称, 数据库字段：name */
+    @Diff(positionType = PositionType.PARAM_NAME)
     private String name;
 
     /** 字段类型, 数据库字段：type */
+    @Diff(positionType = PositionType.PARAM_TYPE)
     private String type;
 
     /** 是否必须，1：是，0：否, 数据库字段：required */
+    @Diff(positionType = PositionType.PARAM_REQUIRED)
     private Byte required;
 
     /** 最大长度, 数据库字段：max_length */
+    @Diff(positionType = PositionType.PARAM_MAXLENGTH)
     private String maxLength;
 
     /** 示例值, 数据库字段：example */
+    @Diff(positionType = PositionType.PARAM_EXAMPLE)
     private String example;
 
     /** 描述, 数据库字段：description */
+    @Diff(positionType = PositionType.PARAM_DESCRIPTION)
     private String description;
 
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

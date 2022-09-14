@@ -1,5 +1,7 @@
 package cn.torna.web.controller.system;
 
+import cn.torna.common.annotation.NoLogin;
+import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.context.EnvironmentContext;
@@ -45,6 +47,12 @@ public class ConfigController implements InitializingBean {
     @GetMapping("/config")
     public Result<ConfigVO> config() {
         return Result.ok(configVO);
+    }
+
+    @GetMapping("/config/get")
+    @NoLogin
+    public Result<String> getConfig(String key) {
+        return Result.ok(Configs.getValue(key));
     }
 
 

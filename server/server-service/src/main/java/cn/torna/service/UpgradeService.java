@@ -36,7 +36,7 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
-    private static final int PRO_VERSION = 10;
+    private static final int PRO_VERSION = 20000;
 
     private static final int VERSION = 1160;
 
@@ -90,10 +90,9 @@ public class UpgradeService {
 
     private void doUpgradePro(int oldVersion) {
         if (oldVersion < 10) {
-            createTable("doc_snapshot", "upgrade/pro/1.0_ddl_1.txt");
-            createTable("debug_script", "upgrade/pro/1.0_ddl_2.txt");
-//            createTable("doc_comment", "upgrade/pro/1.0_ddl_3.txt");
-//            createTable("attachment", "upgrade/pro/1.0_ddl_4.txt");
+            createTable("doc_snapshot", "upgrade/pro/2.0_ddl_doc_snapshot.txt");
+            createTable("debug_script", "upgrade/pro/2.0_ddl_debug_script.txt");
+            createTable("doc_diff_record", "upgrade/pro/2.0_ddl_doc_diff_record.txt");
         }
     }
 
