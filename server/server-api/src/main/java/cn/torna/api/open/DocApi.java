@@ -12,7 +12,7 @@ import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
@@ -88,12 +88,12 @@ public class DocApi {
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
         // 是否打印推送内容
-        String isPrint = Configs.getValue("torna.push.print-content", "false");
+        String isPrint = EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getValue();
         if (Boolean.parseBoolean(isPrint)) {
             log.info("推送内容：\n{}", JSON.toJSONString(param));
         }
         // 允许有相同的目录
-        String allowSameFolder = Configs.getValue("torna.push.allow-same-folder", "true");
+        String allowSameFolder = EnvironmentKeys.TORNA_PUSH_ALLOW_SAME_FOLDER.getValue();
         if (Boolean.parseBoolean(allowSameFolder)) {
             this.mergeSameFolder(param);
         } else {
@@ -133,7 +133,7 @@ public class DocApi {
     /**
      * 将相同的目录进行合并
      *
-     * @param param 推送参数
+     * @param param
      */
     private void mergeSameFolder(DocPushParam param) {
         List<DocPushItemParam> apis = param.getApis();
@@ -185,7 +185,6 @@ public class DocApi {
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
-                // 处理修改过的文档
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
@@ -285,6 +284,8 @@ public class DocApi {
         if (StringUtils.hasText(param.getDefinition())) {
             docInfoDTO.setUrl(param.getDefinition());
         }
+        String md5 = DocInfoService.getDocMd5(docInfoDTO);
+        docInfoDTO.setMd5(md5);
         return docInfoDTO;
     }
 

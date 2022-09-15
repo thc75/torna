@@ -1,9 +1,8 @@
 package cn.torna.common.bean;
 
-import cn.torna.common.context.EnvironmentContext;
-import cn.torna.common.context.SpringContext;
-import cn.torna.common.interfaces.IConfig;
-
+/**
+ * 获取环境配置信息，读取顺序：缓存>数据库>Spring Environment
+ */
 public enum EnvironmentKeys {
     /** 是否开启注册 */
     REGISTER_ENABLE("torna.register.enable"),
@@ -46,7 +45,13 @@ public enum EnvironmentKeys {
     /** 推送钉钉webhook */
     PUSH_DINGDING_WEBHOOK_URL("torna.push.dingding-webhook-url"),
     /** 变更文档内容模板 */
-    PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "文档[%s]内容已变更")
+    PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "文档[%s]内容已变更"),
+    /** 是否打印推送内容，默认false */
+    TORNA_PUSH_PRINT_CONTENT("torna.push.print-content", "false"),
+    /** 是否允许相同的文件夹，默认：true */
+    TORNA_PUSH_ALLOW_SAME_FOLDER("torna.push.allow-same-folder", "true"),
+    /** 保存不同文档处理数量 */
+    TORNA_SCHEDULE_SAVE_DOC_DIFF_POLL_SIZE("torna.schedule.save-doc-diff.poll-size", "20"),
     ;
 
     private final String key;
@@ -66,11 +71,6 @@ public enum EnvironmentKeys {
     }
 
     public String getValue() {
-        IConfig iConfig = SpringContext.getBean(IConfig.class);
-        String config = iConfig.getConfig(this.key);
-        if (config != null) {
-            return config;
-        }
         return getValue(defaultValue);
     }
 
@@ -78,7 +78,7 @@ public enum EnvironmentKeys {
         return key;
     }
 
-    public String getValue(String defaultValue) {
-        return EnvironmentContext.getValue(key, defaultValue);
+    private String getValue(String defaultValue) {
+        return Configs.getValue(key, defaultValue);
     }
 }
