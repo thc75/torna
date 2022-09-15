@@ -141,7 +141,7 @@ export default {
         if (valid) {
           this.post('/share/checkPassword', {
             id: this.shareConfig.id,
-            password: md5(this.encryptFormData.password)
+            password: md5(this.encryptFormData.password.trim())
           }, resp => {
             this.setAttr(this.getStoreKey(this.shareConfig), 'true')
             location.reload()
