@@ -43,7 +43,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.16.2`
+`docker pull tanghc2020/torna:1.17.0`
 
 下载完成后，执行docker命令：
 
@@ -55,7 +55,7 @@ docker run --name torna --restart=always \
   -e MYSQL_SCHEMA="torna" \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:1.16.2
+  -d tanghc2020/torna:1.17.0
 ```
 
 需改更改的部分：
