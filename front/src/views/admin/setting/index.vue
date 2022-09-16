@@ -12,21 +12,12 @@
           @change="onConfigChange(config.regEnable)"
         />
       </el-form-item>
-      <el-form-item label="文档变更钉钉推送" style="display: none;">
-        <el-input v-model="config.dingdingWebhookUrl.value" placeholder="输入钉钉机器人Webhook地址" clearable @change="onConfigChange(config.dingdingWebhookUrl)" />
-        <el-link type="primary" href="https://developers.dingtalk.com/document/robots/custom-robot-access" target="_blank">机器人设置</el-link>
-        <span class="info-tip">
-          设置自定义关键字，添加：文档
-          <el-popover
-            placement="bottom"
-            title="示意图"
-            width="500"
-            trigger="hover"
-          >
-            <img src="/static/images/dingding_webhook.png" width="450px" />
-            <i slot="reference" class="el-icon-question"></i>
-          </el-popover>
-        </span>
+      <el-form-item label="文档排序规则">
+        <el-radio-group v-model="config.docSortType.value" @change="onDocSortTypeChange">
+          <el-radio-button label="by_order">根据排序字段排序</el-radio-button>
+          <el-radio-button label="by_name">根据文档名称排序</el-radio-button>
+          <el-radio-button label="by_url">根据URL排序</el-radio-button>
+        </el-radio-group>
       </el-form-item>
     </el-form>
   </div>
@@ -39,7 +30,12 @@ export default {
     return {
       config: {
         regEnable: { key: 'torna.register.enable', value: 'false' },
-        dingdingWebhookUrl: { key: 'torna.push.dingding-webhook-url', value: '' }
+        docSortType: { key: 'torna.doc-sort-type', value: 'by_order', remark: '文档排序规则' }
+      },
+      docSortTypeMap: {
+        'by_order': '根据排序字段排序',
+        'by_name': '根据文档名称排序',
+        'by_url': '根据URL排序'
       }
     }
   },
@@ -48,14 +44,30 @@ export default {
   },
   methods: {
     loadConfig() {
-      this.get('/system/config/adminsetting', {}, resp => {
-        this.config = resp.data
+      const keys = []
+      for (const configKey in this.config) {
+        keys.push(this.config[configKey].key)
+      }
+      this.get('/system/config/adminsetting', { keys: keys.join(',') }, resp => {
+        const configs = resp.data.configs
+        for (const config of configs) {
+          for (const configKey in this.config) {
+            if (this.config[configKey].key === config.key) {
+              this.config[configKey].value = config.value
+              break
+            }
+          }
+        }
       })
     },
     onConfigChange(config) {
       this.post('/system/config/update', config, () => {
         this.tipSuccess($ts('updateSuccess'))
       })
+    },
+    onDocSortTypeChange(val) {
+      this.config.docSortType.remark = '文档排序规则，' + this.docSortTypeMap[val]
+      this.onConfigChange(this.config.docSortType)
     }
   }
 }

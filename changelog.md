@@ -1,5 +1,12 @@
 # 更新日志
 
+## 1.17.0
+
+- 【修复】Postman导入异常 [#I5R939](https://gitee.com/durcframework/torna/issues/I5R939)
+- 【升级】springboot升级到2.6.11，支持Java17 [#I5R2RA](https://gitee.com/durcframework/torna/issues/I5R2RA)
+- 【升级】spring-ldap升级到2.4.1（解决Java17启动`cannot access class com.sun.jndi.ldap.LdapCtxFactory`问题）
+- 【新增】可自定义文档排序规则（后台管理-系统设置-文档排序设置）
+
 ## 1.16.3
 
 - 【修复】请求头参数异常 [#I5Q5HD](https://gitee.com/durcframework/torna/issues/I5Q5HD)

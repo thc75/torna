@@ -1,5 +1,7 @@
 package cn.torna.common.bean;
 
+import cn.torna.common.enums.DocSortType;
+
 /**
  * 获取环境配置信息，读取顺序：缓存>数据库>Spring Environment
  */
@@ -52,6 +54,8 @@ public enum EnvironmentKeys {
     TORNA_PUSH_ALLOW_SAME_FOLDER("torna.push.allow-same-folder", "true"),
     /** 保存不同文档处理数量 */
     TORNA_SCHEDULE_SAVE_DOC_DIFF_POLL_SIZE("torna.schedule.save-doc-diff.poll-size", "20"),
+    /** 文档排序规则 */
+    TORNA_DOC_SORT_TYPE("torna.doc-sort-type", DocSortType.BY_ORDER.getType()),
     ;
 
     private final String key;

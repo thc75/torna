@@ -83,7 +83,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
+        // SpringBoot升级2.4.0之后，跨域配置中的.allowedOrigins不再可用,改成addAllowedOriginPattern
+        corsConfiguration.addAllowedOriginPattern("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addExposedHeader(DebugController.TARGET_RESPONSE_HEADERS_NAME);
