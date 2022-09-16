@@ -145,7 +145,7 @@ export default {
         if (valid) {
           this.post('/compose/project/checkPassword', {
             id: this.composeProject.id,
-            password: md5(this.encryptFormData.password)
+            password: md5(this.encryptFormData.password.trim())
           }, resp => {
             this.setAttr(this.getStoreKey(this.composeProject), 'true')
             location.reload()

@@ -56,9 +56,16 @@
           @click.stop="copy(docInfo.url)">{{ $ts('copy') }}</el-tag>
       </li>
     </ul>
-    <span v-else class="debug-url">
+    <div v-else class="debug-url" @mouseenter="isShowDebugUrlCopy=true" @mouseleave="isShowDebugUrlCopy=false">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
-    </span>
+      <el-tag
+        v-show="isShowDebugUrlCopy"
+        size="small"
+        effect="plain"
+        class="copyBtn"
+        @click.stop="copy(docInfo.url)"
+      >{{ $ts('copy') }}</el-tag>
+    </div>
     <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
       {{ $ts('description') }}
     </h4>
@@ -245,6 +252,7 @@ export default {
       isSubscribe: false,
       responseHiddenColumns: [],
       hostConfigName: '',
+      isShowDebugUrlCopy: false,
       isShowRequestExampleCopy: false,
       isShowResponseSuccessExample: false,
       emptyContent: '<p><br></p>'
