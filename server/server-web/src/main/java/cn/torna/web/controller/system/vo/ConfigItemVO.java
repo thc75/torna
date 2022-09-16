@@ -9,4 +9,5 @@ import lombok.Data;
 public class ConfigItemVO {
     private String key;
     private String value;
+    private String remark;
 }

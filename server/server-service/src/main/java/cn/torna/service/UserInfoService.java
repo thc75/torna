@@ -252,7 +252,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         } else {
             String email = loginResult.getEmail();
             // 如果更改了邮箱
-            if (StringUtils.hasLength(email) && !Objects.equals(email, userInfo.getEmail())) {
+            if (StringUtils.hasText(email) && !Objects.equals(email, userInfo.getEmail())) {
                 userInfo.setEmail(email);
                 this.update(userInfo);
             }

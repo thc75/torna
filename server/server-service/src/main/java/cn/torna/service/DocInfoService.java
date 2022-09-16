@@ -1,7 +1,9 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
@@ -51,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -98,7 +101,20 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public List<DocInfo> listModuleDoc(long moduleId) {
         List<DocInfo> docInfoList = list("module_id", moduleId);
-        docInfoList.sort(Comparator.comparing(DocInfo::getOrderIndex));
+        String value = EnvironmentKeys.TORNA_DOC_SORT_TYPE.getValue();
+        Comparator<DocInfo> comparator;
+        switch (DocSortType.of(value)) {
+            case BY_URL:
+                comparator = Comparator.comparing(DocInfo::getUrl);
+                break;
+            case BY_NAME:
+                comparator = Comparator.comparing(DocInfo::getName);
+                break;
+            default:{
+                comparator = Comparator.comparing(DocInfo::getOrderIndex);
+            }
+        }
+        docInfoList.sort(comparator);
         return docInfoList;
     }
 

@@ -65,6 +65,11 @@ public class ViewController {
     @Autowired
     private DocInfoService docInfoService;
 
+    /**
+     * 文档预览页左侧树，空间维度
+     * @param spaceId 空间id
+     * @return 返回树状菜单
+     */
     @GetMapping("data")
     public Result<List<TreeVO>> data(@HashId Long spaceId) {
         // 获取空间下的项目
@@ -113,6 +118,11 @@ public class ViewController {
         return Result.ok(list);
     }
 
+    /**
+     * 文档预览页左侧树，项目维度
+     * @param projectId 项目id
+     * @return 返回树状菜单
+     */
     @GetMapping("dataByProject")
     public Result<List<TreeVO>> dataByProject(@HashId Long projectId) {
         Project project = projectService.getById(projectId);

@@ -5,10 +5,12 @@ import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
+import cn.torna.common.message.MessageFactory;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
+import cn.torna.manager.doc.DataType;
 import cn.torna.manager.doc.DocParser;
 import cn.torna.manager.doc.IParam;
 import cn.torna.manager.doc.postman.Body;
@@ -29,20 +31,19 @@ import cn.torna.service.dto.ImportSwaggerDTO;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONValidator;
 import com.alibaba.fastjson.parser.Feature;
 import com.gitee.fastmybatis.core.util.ClassUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,7 +186,14 @@ public class DocImportService {
                 List<Param> params = bodyWrapper.getParams();
                 boolean arrayBody = bodyWrapper.isArrayBody();
                 if (arrayBody) {
-                    docItem.setRequestArrayType(params.get(0).getType());
+                    String requestArrayType;
+                    if (params.size() > 1) {
+                        requestArrayType = DataType.OBJECT;
+                    } else {
+                        Param param = params.get(0);
+                        requestArrayType = StringUtils.hasText(param.getKey()) ? "object" : param.getType();
+                    }
+                    docItem.setRequestArrayType(requestArrayType);
                 }
                 docItem.setIsRequestArray(Booleans.toValue(arrayBody));
                 this.savePostmanParams(params, docItem, docParameter -> {
@@ -220,11 +228,14 @@ public class DocImportService {
                     return new BodyWrapper(list);
                 }
                 JSON jsonObj;
-                if (JSONValidator.from(json).getType() == JSONValidator.Type.Array) {
+                Object parseObj = JSON.parse(json);
+                if (parseObj instanceof JSONArray) {
                     isArrayBody = true;
-                    jsonObj = JSON.parseArray(json);
+                    jsonObj = (JSONArray) parseObj;
+                } else if (parseObj instanceof JSONObject) {
+                    jsonObj = (JSONObject) parseObj;
                 } else {
-                    jsonObj = JSON.parseObject(json);
+                    throw new IllegalArgumentException("error json type:" + parseObj);
                 }
                 List<Param> params = this.parseParams(jsonObj);
                 list.addAll(params);
@@ -259,6 +270,7 @@ public class DocImportService {
                 if (isSingleValueArray(jsonArray)) {
                     return parsePrueValueParam(jsonArray);
                 } else {
+                    // 数组类型默认取第一个对象
                     jsonObject = jsonArray.getJSONObject(0);
                 }
             } else {
@@ -429,7 +441,7 @@ public class DocImportService {
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
         docItemCreateDTO.setName(item.getSummary());
         docItemCreateDTO.setUrl(item.getPath());
-        docItemCreateDTO.setContentType(StringUtils.join(item.getConsumes(), ','));
+        docItemCreateDTO.setContentType(String.join( ",", item.getConsumes()));
         docItemCreateDTO.setHttpMethod(item.getMethod());
         docItemCreateDTO.setDescription(item.getDescription());
         docItemCreateDTO.setModuleId(parent.getModuleId());

@@ -11,7 +11,6 @@ import cn.torna.service.dto.ImportPostmanDTO;
 import cn.torna.service.dto.ImportSwaggerDTO;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
 import com.gitee.fastmybatis.core.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -22,9 +21,6 @@ import java.util.List;
  */
 @Service
 public class ModuleService extends BaseService<Module, ModuleMapper> {
-
-    @Autowired
-    private DocInfoService docInfoService;
 
     public List<Module> listProjectModules(long projectId) {
         return list("project_id", projectId);

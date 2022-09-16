@@ -49,7 +49,7 @@ public class DebugController {
         Headers headers = this.getHeaders(request);
         String contentType = headers.getValue("Content-Type");
         String queryString = request.getQueryString();
-        if (StringUtils.hasLength(queryString)) {
+        if (StringUtils.hasText(queryString)) {
             url = url + "?" + queryString;
         }
 

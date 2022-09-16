@@ -1,7 +1,7 @@
 package cn.torna;
 
 import cn.torna.common.bean.Configs;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author thc

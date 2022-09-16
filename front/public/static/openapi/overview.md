@@ -246,7 +246,7 @@ OpenAPI定义了4个公共参数，用json接收
 ```java
 import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URLEncoder;
