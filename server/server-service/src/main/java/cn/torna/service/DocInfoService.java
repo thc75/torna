@@ -105,10 +105,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Comparator<DocInfo> comparator;
         switch (DocSortType.of(value)) {
             case BY_URL:
-                comparator = Comparator.comparing(DocInfo::getUrl);
+                comparator = Comparator.comparing(DocInfo::getUrl).thenComparing(DocInfo::getOrderIndex);
                 break;
             case BY_NAME:
-                comparator = Comparator.comparing(DocInfo::getName);
+                comparator = Comparator.comparing(DocInfo::getName).thenComparing(DocInfo::getOrderIndex);
                 break;
             default:{
                 comparator = Comparator.comparing(DocInfo::getOrderIndex);
