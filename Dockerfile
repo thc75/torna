@@ -6,7 +6,7 @@ WORKDIR /static/front
 # 复制前端文件到app下
 COPY front /static/front
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 RUN npm run build:prod
 
