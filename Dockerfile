@@ -34,6 +34,9 @@ RUN mvn -s /torna/settings.xml -f /torna/pom.xml clean package
 FROM openjdk:8
 
 VOLUME /tmp
+# 创建文件夹，读取配置文件，可将此目录挂载映射到宿主机目录
+# 表示读取宿主机/etc/torna/application.properties文件
+# 启动docker加参数：-v /etc/torna:/torna/config
 RUN mkdir -p /torna/config
 
 # 指定运行时的工作目录
