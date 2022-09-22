@@ -1,6 +1,5 @@
 package cn.torna.service;
 
-import cn.torna.common.context.EnvironmentContext;
 import cn.torna.common.interfaces.IConfig;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -60,7 +59,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
     }
 
     /**
-     * 获取配置信息，优先从数据库中读取，再从Environment中读取
+     * 获取配置信息，优先从数据库中读取
      *
      * @param key          配置key
      * @param defaultValue 没有获取到返回的默认值
@@ -71,7 +70,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
         SystemConfig systemConfig = get("config_key", key);
         return Optional.ofNullable(systemConfig)
                 .map(SystemConfig::getConfigValue)
-                .orElse(EnvironmentContext.getValue(key, defaultValue));
+                .orElse(defaultValue);
     }
 
     @Override
