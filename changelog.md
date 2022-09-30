@@ -1,5 +1,12 @@
 # 更新日志
 
+## 1.17.1
+
+- 【修复】字典删除无法再次添加问题 [#I5SB89](https://gitee.com/durcframework/torna/issues/I5SB89)
+- 【修复】升级jar版本，修复安全漏洞 [#I5T656](https://gitee.com/durcframework/torna/issues/I5T656)
+- 【修复】分享链接里面的接口没有进行排序 [#I5TF2N](https://gitee.com/durcframework/torna/issues/I5TF2N)
+- 【优化】优化docker构建，更好的适配云端构建
+
 ## 1.17.0
 
 - 【修复】Postman导入异常 [#I5R939](https://gitee.com/durcframework/torna/issues/I5R939)
