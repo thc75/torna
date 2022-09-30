@@ -101,6 +101,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public List<DocInfo> listModuleDoc(long moduleId) {
         List<DocInfo> docInfoList = list("module_id", moduleId);
+        sortDocInfo(docInfoList);
+        return docInfoList;
+    }
+
+    public static void sortDocInfo(List<DocInfo> docInfoList) {
+        if (CollectionUtils.isEmpty(docInfoList)) {
+            return;
+        }
         String value = EnvironmentKeys.TORNA_DOC_SORT_TYPE.getValue();
         Comparator<DocInfo> comparator;
         switch (DocSortType.of(value)) {
@@ -115,7 +123,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             }
         }
         docInfoList.sort(comparator);
-        return docInfoList;
     }
 
     public List<DocInfo> listDocMenuView(long moduleId) {
@@ -262,11 +269,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (CollectionUtils.isEmpty(docIdList)) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .in("id", docIdList);
-        List<DocInfo> docInfos = this.list(query);
+        List<DocInfo> docInfos = this.listDocByIds(docIdList);
         return docInfos.stream()
-                .sorted(Comparator.comparing(DocInfo::getOrderIndex))
                 .map(this::getDocDetail)
                 .collect(Collectors.toList());
     }
@@ -277,7 +281,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         Query query = new Query()
                 .in("id", docIdList);
-        return this.list(query);
+        List<DocInfo> list = this.list(query);
+        sortDocInfo(list);
+        return list;
     }
 
 

@@ -40,8 +40,8 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -277,7 +277,7 @@ public class DocApi {
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
         List<CodeParamPushParam> errorCodeParams = param.getErrorCodeParams();
-        if (CollectionUtils.isNotEmpty(errorCodeParams)) {
+        if (!CollectionUtils.isEmpty(errorCodeParams)) {
             List<DocParamDTO> errorParams = CopyUtil.copyList(errorCodeParams, DocParamDTO::new);
             docInfoDTO.setErrorCodeParams(errorParams);
         }

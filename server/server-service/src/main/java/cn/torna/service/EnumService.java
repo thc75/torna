@@ -163,6 +163,6 @@ public class EnumService {
 
     public void deleteEnumItem(long id) {
         EnumItem item = enumItemService.getById(id);
-        enumItemService.delete(item);
+        enumItemService.getMapper().forceDelete(item);
     }
 }
