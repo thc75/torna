@@ -4,7 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author tanghc
@@ -44,5 +44,5 @@ public class ShareConfigVO {
 
     private String creatorName;
 
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 }

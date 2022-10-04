@@ -6,7 +6,7 @@ import com.gitee.easyopen.doc.DataType;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author tanghc
@@ -65,10 +65,10 @@ public class DocParamResult {
 
     /**  数据库字段：gmt_create */
     @ApiDocField(description = "创建时间")
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  数据库字段：gmt_modified */
     @ApiDocField(description = "最后修改时间")
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 }

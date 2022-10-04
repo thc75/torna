@@ -4,7 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author tanghc
@@ -21,5 +21,5 @@ public class SpaceDTO {
 
     private Byte isCompose;
 
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 }

@@ -4,7 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author tanghc
@@ -37,7 +37,7 @@ public class ComposeDocVO {
     private String creator;
 
     /**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /** 文件夹名称, 数据库字段：folder_name */
     private String name;

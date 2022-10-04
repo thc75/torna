@@ -5,7 +5,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -58,9 +58,9 @@ public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
 
     private Integer orderIndex;
 
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     @JSONField(serialize = false)
     private DocInfoVO parent;

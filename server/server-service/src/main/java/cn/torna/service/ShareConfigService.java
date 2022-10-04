@@ -22,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -149,7 +149,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         if (shareConfigDTO.getIsAll() == Booleans.TRUE) {
             return;
         }
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         List<ShareContent> tobeSave = shareConfigDTO.getContent()
                 .stream()
                 .map(content -> {

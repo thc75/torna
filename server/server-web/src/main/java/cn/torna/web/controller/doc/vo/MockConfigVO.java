@@ -5,7 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -57,8 +57,8 @@ public class MockConfigVO extends MockBaseVO {
     private String modifierName;
 
     /**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  数据库字段：gmt_modified */
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 }

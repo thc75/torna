@@ -4,7 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 表名：open_user
@@ -31,10 +31,10 @@ public class OpenUserVO {
     private String applicant;
 
     /**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  数据库字段：gmt_modified */
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }
