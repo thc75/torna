@@ -17,7 +17,7 @@ public class GenerateUtil {
     }
 
     public static String getUUID() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return IdGen.uuid();
     }
 
 }

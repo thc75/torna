@@ -9,6 +9,17 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 <img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
 
 
+## 解决文档管理痛点
+
+- 不满足swagger文档预览页面和调试页面的展现方式
+- 不喜欢swagger这种侵入式注解
+- 希望使用javadoc注释生成文档，并进行接口调试
+- 希望把公司所有项目接口文档进行统一管理
+- 希望把项目中的若干文档提供给第三方调用者查看
+- 希望可以统一管理项目中的字典枚举
+
+如果您有以上几个需求和痛点，或许可以尝试一下使用Torna
+
 ## 使用步骤
 
 ### 方式1：下载zip本地运行
@@ -86,16 +97,12 @@ docker run --name torna --restart=always \
 
 通过这套组合您可以实现：只需要写完Java注释就能把接口信息推送到Torna平台，从而实现接口预览、接口调试。
 
-推送的内容有：`接口名称/author/Path参数/Header/请求参数/返回参数/字典列表/公共错误码`
-
 如果您是非Java语言，可以使用表单页面编辑以上内容，完成后同样可以进行接口预览、调试。
-
-## 开发部署
-
-参见：[开发文档](http://torna.cn/dev/)
 
 ## 其它资源
 
+- [开发文档](http://torna.cn/dev/)
+- [Torna整合smart-doc教程](http://torna.cn/dev/smart-doc.html)
 - [Torna对应的示例工程](https://gitee.com/durcframework/torna-example) ，演示swagger插件的用法
 - [Torna整合smart-doc示例](https://gitee.com/durcframework/torna-and-smart-doc)
 
