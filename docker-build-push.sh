@@ -8,7 +8,7 @@ git pull
 sh release.sh
 
 echo "开始创建docker hub镜像:latest"
-docker build -t tanghc2020/torna:latest .
+docker build -f Dockerfile.local -t tanghc2020/torna:latest .
 
 sleep 1
 
@@ -20,7 +20,7 @@ sleep 1
 # 如果有参数
 if [ -n "${1}" ];then
   echo "开始创建docker hub镜像:${1}"
-  docker build -t tanghc2020/torna:${1} .
+  docker build -f Dockerfile.local -t tanghc2020/torna:${1} .
 
   sleep 1
 
