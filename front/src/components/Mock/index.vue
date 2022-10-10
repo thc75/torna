@@ -123,6 +123,16 @@
             <span class="info-tip">
               {{ $ts('baseOnMockjs') }}，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">{{ $ts('helpDoc') }}</el-link>
             </span>
+            <div v-show="!formData.isNew">
+              <el-form label-position="left" label-width="120px" size="mini" class="text-form">
+                <el-form-item :label="$ts('backMockScript')">
+                  <el-link type="primary" :underline="false" :href="backMockScriptUrl" target="_blank">{{ backMockScriptUrl }}</el-link>
+                </el-form-item>
+                <el-form-item :label="$ts('backMockResult')">
+                  <el-link type="primary" :underline="false" :href="backMockResultUrl" target="_blank">{{ backMockResultUrl }}</el-link>
+                </el-form-item>
+              </el-form>
+            </div>
             <editor
               v-model="formData.mockScript"
               lang="javascript"
@@ -160,6 +170,11 @@ import NameValueTable from '@/components/NameValueTable'
 import { header_names, header_values } from '@/utils/headers'
 const Mock = require('mockjs')
 const Random = require('mockjs')
+
+$addI18n({
+  'backMockScript': { 'zh': '获取脚本内容', 'en': 'Response mock script' },
+  'backMockResult': { 'zh': '获取mock结果', 'en': 'Response mock result' }
+})
 
 const FORM_DATA = {
   dataKv: [],
@@ -230,6 +245,12 @@ export default {
     },
     mockBaseUrl() {
       return `${this.getBaseUrl()}/mock/`
+    },
+    backMockScriptUrl() {
+      return `${this.getBaseUrl()}/mockjs/script/${this.activeMock}`
+    },
+    backMockResultUrl() {
+      return `${this.getBaseUrl()}/mockjs/result/${this.activeMock}`
     }
   },
   watch: {

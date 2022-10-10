@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -383,20 +384,24 @@ public class SwaggerApi {
         if (responses != null && responses.containsKey(STATUS_200)) {
             ApiResponse apiResponse = responses.get(STATUS_200);
             Content content = apiResponse.getContent();
-            String contentType = "application/json";
-            MediaType mediaType = content.get(contentType);
-            if (mediaType != null) {
-                Schema<?> schema = mediaType.getSchema();
-                String $ref = schema.get$ref();
-                String type = schema.getType();
-                // 如果是数组参数
-                if ("array".equals(type)) {
-                    isResponseArray = true;
-                    Schema<?> items = schema.getItems();
-                    $ref = items.get$ref();
-                    docParamPushParams = buildObjectParam($ref, openAPI);
-                } else if ($ref != null) {
-                    docParamPushParams = buildObjectParam($ref, openAPI);
+            if (content != null) {
+                for (Map.Entry<String, MediaType> entry : content.entrySet()) {
+                    String key = entry.getKey();
+                    if (key.contains("json") || "*/*".equals(key)) {
+                        MediaType mediaType = entry.getValue();
+                        Schema<?> schema = mediaType.getSchema();
+                        String $ref = schema.get$ref();
+                        String type = schema.getType();
+                        // 如果是数组参数
+                        if ("array".equals(type)) {
+                            isResponseArray = true;
+                            Schema<?> items = schema.getItems();
+                            $ref = items.get$ref();
+                            docParamPushParams = buildObjectParam($ref, openAPI);
+                        } else if ($ref != null) {
+                            docParamPushParams = buildObjectParam($ref, openAPI);
+                        }
+                    }
                 }
             }
         }
@@ -587,10 +592,42 @@ public class SwaggerApi {
     private static JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
         String refName = getRefName($ref);
         Schema<?> schema = openAPI.getComponents().getSchemas().get(refName);
-        Map<String, Object> objectProperties = schema.getJsonSchema();
-        String type = String.valueOf(objectProperties.getOrDefault("type", TYPE_OBJECT));
-        Map<String, Object> properties = (Map<String, Object>) objectProperties.get("properties");
+        String type = schema.getType();
+        if (type == null) {
+            Map<String, Object> objectProperties = Optional.ofNullable(schema.getJsonSchema()).orElse(Collections.emptyMap());
+            type =  String.valueOf(objectProperties.getOrDefault("type", TYPE_OBJECT));
+        }
+        Map<String, Object> properties = getProperties(schema);
         return new JsonSchema(type, properties, schema);
+    }
+
+    private static Map<String, Object> getProperties(Schema<?> schema) {
+        Map<String, Schema> properties = schema.getProperties();
+        Map<String, Object> props = new LinkedHashMap<>(8);
+        if (properties != null) {
+            for (Map.Entry<String, Schema> entry : properties.entrySet()) {
+                Schema value = entry.getValue();
+                Map<String, Object> val = new LinkedHashMap<>(8);
+                putVal(val,"required", value.getRequired());
+                putVal(val, "format", value.getFormat());
+                putVal(val, "type", value.getType());
+                putVal(val, "description", value.getDescription());
+                putVal(val, "example", value.getExample());
+                putVal(val, "maxLength", value.getMaxLength());
+                putVal(val, "$ref", value.get$ref());
+                props.put(entry.getKey(), val);
+            }
+            return props;
+        } else {
+            Map<String, Object> objectProperties = Optional.ofNullable(schema.getJsonSchema()).orElse(Collections.emptyMap());
+            return (Map<String, Object>) objectProperties.get("properties");
+        }
+    }
+
+    private static void putVal(Map<String, Object> val, String key, Object value) {
+        if (value != null) {
+            val.put(key, value);
+        }
     }
 
     private static String getRefName(String ref) {

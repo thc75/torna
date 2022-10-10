@@ -88,6 +88,11 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-ext-tables</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+        </dependency>
+
 
         <!-- test -->
         <dependency>

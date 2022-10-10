@@ -177,9 +177,9 @@ export default {
             this.importContentFormData.projectId = this.projectId
             this.post('/module/import/swaggerV2', this.importContentFormData, resp => {
               this.fireSuccess(loading, resp)
-            })
+            }, () => { loading.close() })
           }
-        }, () => { loading.close() })
+        })
       }
     },
     loadImporting() {

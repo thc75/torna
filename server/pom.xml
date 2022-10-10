@@ -144,6 +144,11 @@
                 <artifactId>flexmark-ext-tables</artifactId>
                 <version>${flexmark.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.openjdk.nashorn</groupId>
+                <artifactId>nashorn-core</artifactId>
+                <version>15.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

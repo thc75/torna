@@ -110,7 +110,7 @@ public class UserController {
     @PostMapping("delete")
     public Result delete(@RequestBody UserInfoParam param) {
         Long id = param.getId();
-        userInfoService.deleteById(id);
+        userInfoService.getMapper().forceDeleteById(id);
         return Result.ok();
     }
 
