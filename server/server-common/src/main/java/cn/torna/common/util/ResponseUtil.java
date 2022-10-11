@@ -8,20 +8,23 @@ import java.io.PrintWriter;
 
 public class ResponseUtil {
 
+    public static final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json;charset=UTF-8";
+    public static final String UTF_8 = "UTF-8";
+
     public static void writeText(HttpServletResponse response, String content) {
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(UTF_8);
         response.setContentType(MediaType.TEXT_PLAIN_VALUE);
         write(response, content);
     }
 
     public static void writeHtml(HttpServletResponse response, String content) {
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(UTF_8);
         response.setContentType(MediaType.TEXT_HTML_VALUE);
         write(response, content);
     }
 
     public static void writeJson(HttpServletResponse response, String content) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(APPLICATION_JSON_CHARSET_UTF_8);
         write(response, content);
     }
 

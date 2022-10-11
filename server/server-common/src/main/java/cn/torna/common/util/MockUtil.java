@@ -43,7 +43,10 @@ public class MockUtil {
         } catch (Exception e) {
             log.error("Init ScriptEngine error", e);
         }
-        engine = scriptEngineManager.getEngineByName("javascript");
+        engine = scriptEngineManager.getEngineByName("js");
+        if (null == engine) {
+            engine = scriptEngineManager.getEngineByMimeType("js");
+        }
     }
 
     private static final String FUN = "(function(){\n %s \n})()";

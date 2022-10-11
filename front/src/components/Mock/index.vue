@@ -128,9 +128,6 @@
                 <el-form-item :label="$ts('backMockScript')">
                   <el-link type="primary" :underline="false" :href="backMockScriptUrl" target="_blank">{{ backMockScriptUrl }}</el-link>
                 </el-form-item>
-                <el-form-item :label="$ts('backMockResult')">
-                  <el-link type="primary" :underline="false" :href="backMockResultUrl" target="_blank">{{ backMockResultUrl }}</el-link>
-                </el-form-item>
               </el-form>
             </div>
             <editor
@@ -170,6 +167,7 @@ import NameValueTable from '@/components/NameValueTable'
 import { header_names, header_values } from '@/utils/headers'
 const Mock = require('mockjs')
 const Random = require('mockjs')
+import moment from 'moment'
 
 $addI18n({
   'backMockScript': { 'zh': '获取脚本内容', 'en': 'Response mock script' },
@@ -247,7 +245,7 @@ export default {
       return `${this.getBaseUrl()}/mock/`
     },
     backMockScriptUrl() {
-      return `${this.getBaseUrl()}/mockjs/script/${this.activeMock}`
+      return `${this.getBaseUrl()}/mockjs/script/${this.formData.path}`
     },
     backMockResultUrl() {
       return `${this.getBaseUrl()}/mockjs/result/${this.activeMock}`
@@ -319,8 +317,8 @@ export default {
         }())`
         // eslint-disable-next-line no-eval
         // const data = eval(fn)
-        const fn = new Function('$params', '$body', 'Mock', 'Random', `return ${code}`)
-        const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random)
+        const fn = new Function('$params', '$body', 'Mock', 'Random', 'moment', `return ${code}`)
+        const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random, moment)
         if (data === undefined) {
           throw new Error($ts('noResultTip'))
         }
