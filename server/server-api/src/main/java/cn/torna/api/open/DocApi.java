@@ -40,6 +40,7 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -175,13 +176,13 @@ public class DocApi {
                     moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 替换文档
-                if (Booleans.isTrue(param.getIsReplace(), true)) {
+                if (Booleans.isTrue(param.getIsReplace(), true) && !BooleanUtils.toBoolean(param.getIsOverride())) {
                     // 先删除之前的文档
                     this.deleteOpenAPIModuleDocs(moduleId);
                 }
                 for (DocPushItemParam detailPushParam : param.getApis()) {
                     docPushItemParamThreadLocal.set(detailPushParam);
-                    this.pushDocItem(detailPushParam, context, 0L, pushContext);
+                    this.pushDocItem(detailPushParam, context, 0L, pushContext, param);
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
@@ -215,7 +216,7 @@ public class DocApi {
         userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
-    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext) {
+    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext, DocPushParam docPushParam) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
         List<DocMeta> docMetas = pushContext.getDocMetas();
@@ -249,7 +250,7 @@ public class DocApi {
                     if (StringUtils.isEmpty(item.getAuthor())) {
                         item.setAuthor(folder.getAuthor());
                     }
-                    this.pushDocItem(item, context, pid, pushContext);
+                    this.pushDocItem(item, context, pid, pushContext, docPushParam);
                 }
             }
         } else {
@@ -261,7 +262,7 @@ public class DocApi {
             if (DocInfoService.isLocked(docInfoDTO.buildDataId(), docMetas)) {
                 return;
             }
-            docInfoService.doPushSaveDocInfo(docInfoDTO, user);
+            docInfoService.doPushSaveDocInfo(docInfoDTO, user, BooleanUtils.toBoolean(docPushParam.getIsOverride()));
         }
     }
 

@@ -26,7 +26,7 @@
 
 Mock脚本基于 [mockjs](http://mockjs.com/) ，可书写js代码，[示例](http://mockjs.com/examples.html)
 
-> 约定：最后一行需要`return`数据
+**约定：最后一行需要`return`数据**
 
 - 例子1：直接返回
 
@@ -49,6 +49,15 @@ return data;
 
 <img src="/static/help/images/mock5.png" style="height: 400px" />
 
+> 1.17.2开始加入了moment日期库
+
+```js
+var data = {
+    "d": moment().format()
+}
+// 最后一行返回数据
+return data;
+```
 
 再来一个复杂点的
 
@@ -263,7 +272,59 @@ return menuSource;
     }
 ]
 ```
+### 获取脚本内容
 
+可以通过请求接口`http://<ip>:<port>/mockjs/script/<path>`获取mock脚本内容
+
+如当前mock接口为：`http://localhost:7700/mock/goods/get`
+
+那么请求`http://localhost:7700/mockjs/script/goods/get`可返回当前mock对应的脚本内容
+
+前端开发可以根据这个地址自行执行脚本，执行方式参考如下代码：
+
+```js
+import axios from 'axios'
+import moment from 'moment'
+const Mock = require('mockjs')
+const Random = require('mockjs')
+
+/**
+ * 执行脚本
+ * @param script 脚本内容
+ * @param successCall 成功回调
+ * @param errorCall 失败回调
+ */
+function runScript(script, successCall, errorCall) {
+  try {
+    const code = `(function() {
+          ${script}
+        }())`
+    // eslint-disable-next-line no-eval
+    // const data = eval(fn)
+    const fn = new Function('Mock', 'Random', 'moment', `return ${code}`)
+    const data = fn(Mock, Random, moment)
+    if (data === undefined) {
+      throw new Error('没有结果')
+    }
+    successCall.call(this, data)
+  } catch (e) {
+    errorCall.call(this, e)
+  }
+}
+
+const url = 'http://localhost:7700/mockjs/script/goods/get'
+// 获取脚本内容并执行
+axios.get(url).then(response => {
+  const script = response.data
+  // 执行脚本
+  runScript(script, data => {
+    // 打印结果
+    console.log(data)
+  }, e => console.log(e))
+}).catch(error => {
+  console.error(error)
+})
+```
 
 ## 忽略参数
 

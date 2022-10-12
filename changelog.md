@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.17.2
+
+- 【新增】新增接口可返回mock脚本
+- 【新增】推送接口新增`isOverride`参数，可推送修改部分接口
+- 【修复】修复导入swagger文档报错问题
+
 ## 1.17.1
 
 - 【修复】字典删除无法再次添加问题 [#I5SB89](https://gitee.com/durcframework/torna/issues/I5SB89)

@@ -321,9 +321,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return doUpdateDocInfo(docInfoDTO, user);
     }
 
-    public DocInfo doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
+    public DocInfo doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user, boolean isOverride) {
         // 修改基本信息
         DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
+        if (isOverride) {
+            // 删除文档对应的参数
+            docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
+        }
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         return docInfo;
@@ -373,6 +377,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
+
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         return docInfo;
@@ -632,23 +637,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .eq("create_mode", OperationMode.OPEN.getType())
                 .eq("is_locked", Booleans.FALSE);
         // 查询出文档id
-        List<Long> idList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
-        if (CollectionUtils.isEmpty(idList)) {
+        List<Long> docIdList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
+        if (CollectionUtils.isEmpty(docIdList)) {
             return;
         }
         // 删除文档
         Query delQuery = new Query()
-                .in("id", idList);
+                .in("id", docIdList);
         // DELETE FROM doc_info WHERE id in (..)
         this.getMapper().deleteByQuery(delQuery);
 
         // 删除文档对应的参数
-        Query paramDelQuery = new Query()
-                .in("doc_id", idList)
-                .eq("create_mode", OperationMode.OPEN.getType())
-                ;
-        // DELETE FROM doc_param WHERE doc_id in (..)
-        docParamService.getMapper().deleteByQuery(paramDelQuery);
+        docParamService.deletePushParam(docIdList);
     }
 
     /**
