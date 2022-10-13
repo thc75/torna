@@ -69,7 +69,7 @@ docker run --name torna --restart=always \
   -d tanghc2020/torna:1.17.2
 ```
 
-[运维脚本](http://localhost:8080/dev/common-script.html#docker%E9%87%8D%E5%90%AFtorna%E8%84%9A%E6%9C%AC)
+[运维脚本](http://torna.cn/dev/common-script.html#docker%E9%87%8D%E5%90%AFtorna%E8%84%9A%E6%9C%AC)
 
 需改更改的部分：
 
