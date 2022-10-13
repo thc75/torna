@@ -6,4 +6,4 @@ app_name="torna"
 # 先关闭服务
 sh shutdown.sh
 
-nohup java -Duser.timezone=Asia/Shanghai -jar -Xms512m -Xmx512m $app_name.jar >/dev/null 2>&1 &
+nohup java -server -Duser.timezone=Asia/Shanghai -jar -Xms512m -Xmx512m $app_name.jar >/dev/null 2>&1 &

@@ -54,20 +54,22 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.17.0`
+`docker pull tanghc2020/torna:1.17.2`
 
 下载完成后，执行docker命令：
 
 ```
 docker run --name torna --restart=always \
   -p 7700:7700 \
-  -e JAVA_OPTS="-Xms256m -Xmx256m" \
+  -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -e MYSQL_HOST="11.11.11.11:3306" \
   -e MYSQL_SCHEMA="torna" \
   -e MYSQL_USERNAME="root" \
   -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:1.17.0
+  -d tanghc2020/torna:1.17.2
 ```
+
+[运维脚本](http://localhost:8080/dev/common-script.html#docker%E9%87%8D%E5%90%AFtorna%E8%84%9A%E6%9C%AC)
 
 需改更改的部分：
 
@@ -78,6 +80,7 @@ docker run --name torna --restart=always \
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
 
+如果要增加其它配置项，参考：[docker添加配置](http://torna.cn/dev/config.html#docker%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE)
 
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
