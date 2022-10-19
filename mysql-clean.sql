@@ -350,12 +350,12 @@ CREATE TABLE `module_environment_param` (
 DROP TABLE IF EXISTS `module_swagger_config`;
 
 CREATE TABLE `module_swagger_config` (
-                                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '涓婚敭id',
+                                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
                                          `module_id` bigint(20) NOT NULL COMMENT 'module.id',
-                                         `url` varchar(128) NOT NULL DEFAULT '' COMMENT 'swagger鏂囨。url',
-                                         `content` text NOT NULL COMMENT 'swagger鏂囨。鍐呭',
-                                         `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉鐢ㄦ埛鍚�',
-                                         `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉瀵嗙爜',
+                                         `url` varchar(256) NOT NULL DEFAULT '' COMMENT 'swagger url',
+                                         `content` longtext NOT NULL COMMENT 'swagger内容',
+                                         `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '认证用户名',
+                                         `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '认证密码',
                                          `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                                          `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                          PRIMARY KEY (`id`),

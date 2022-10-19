@@ -385,8 +385,8 @@ DROP TABLE IF EXISTS `module_swagger_config`;
 CREATE TABLE `module_swagger_config` (
                                          `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
                                          `module_id` bigint(20) NOT NULL COMMENT 'module.id',
-                                         `url` varchar(128) NOT NULL DEFAULT '' COMMENT 'swagger url',
-                                         `content` text NOT NULL COMMENT 'swagger内容',
+                                         `url` varchar(256) NOT NULL DEFAULT '' COMMENT 'swagger url',
+                                         `content` longtext NOT NULL COMMENT 'swagger内容',
                                          `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '认证用户名',
                                          `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '认证密码',
                                          `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
