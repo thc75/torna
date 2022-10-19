@@ -360,7 +360,7 @@ CREATE TABLE `module_swagger_config` (
                                          `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                          PRIMARY KEY (`id`),
                                          KEY `idx_moduleid` (`module_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='妯″潡swagger閰嶇疆';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='swagger配置表';
 
 /*Table structure for table `open_user` */
 
