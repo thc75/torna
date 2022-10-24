@@ -1,0 +1,13 @@
+CREATE TABLE `error_code_info` (
+	`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+   `project_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'project.id',
+	`module_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'module.id',
+   `doc_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+	`content` text NOT NULL COMMENT '错误码内容',
+	`gmt_create` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+	`gmt_modified` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`) USING BTREE,
+	INDEX `idx_projectid` (`project_id`) USING BTREE,
+   INDEX `idx_moduleid` (`module_id`) USING BTREE,
+   INDEX `idx_docid` (`doc_id`) USING BTREE
+) COMMENT='错误码' ENGINE=InnoDB;

@@ -27,7 +27,7 @@
 import DocView from '../doc/DocView'
 import DocDebug from '@/components/DocDebug'
 import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
+
 export default {
   components: { DocView, DocDebug, mavonEditor },
   data() {

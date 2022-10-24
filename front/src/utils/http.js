@@ -2,6 +2,8 @@ import axios from 'axios'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
 
+axios.defaults.withCredentials = true
+
 function getBaseUrl() {
   const url = location.href.toString()
   let baseUrl = url.split('#')[0]

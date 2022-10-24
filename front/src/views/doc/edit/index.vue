@@ -20,7 +20,7 @@
             <rich-text-editor :value="docInfo.description" :placeholder="$ts('inputContent')" :editable="true" @input="editorInput" />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
-            <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
+            <el-input v-model="docInfo.url" class="input-with-select" maxlength="200" show-word-limit @input="onUrlInput">
               <el-select slot="prepend" v-model="docInfo.httpMethod" :placeholder="$ts('pleaseSelect')" style="width: 100px;">
                 <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
                   {{ method }}

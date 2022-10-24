@@ -2,12 +2,17 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
+import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.MarkdownTableBuilder;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.ErrorCodeInfo;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.mapper.DocParamMapper;
+import cn.torna.dao.mapper.ErrorCodeInfoMapper;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentParamDTO;
@@ -22,11 +27,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 升级
@@ -36,7 +44,7 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 1160;
+    private static final int VERSION = 1180;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -54,6 +62,12 @@ public class UpgradeService {
 
     @Autowired
     private DocInfoService docInfoService;
+
+    @Resource
+    private DocParamMapper docParamMapper;
+
+    @Resource
+    private ErrorCodeInfoMapper errorCodeInfoMapper;
 
 
     @Value("${spring.datasource.driver-class-name}")
@@ -101,7 +115,96 @@ public class UpgradeService {
         v1_15_3(oldVersion);
         v1_15_4(oldVersion);
         v1_16_0(oldVersion);
+        v1_18_0(oldVersion);
     }
+
+    private void v1_18_0(int oldVersion) {
+        if (oldVersion < 1180) {
+            log.info("Upgrade version to 1.18.0");
+            createTable("error_code_info", "upgrade/1.18.0_ddl.txt");
+            moveErrorCodeToMarkdown();
+            log.info("Upgrade 1.18.0 finished.");
+        }
+    }
+
+    /**
+     * 将错误码转移到markdown
+     */
+    private void moveErrorCodeToMarkdown() {
+        moveDocErrorCode();
+        moveModuleErrorCode();
+    }
+
+    private void moveDocErrorCode() {
+        Query query = new Query()
+                .eq("style", ParamStyleEnum.ERROR_CODE.getStyle());
+        List<DocParam> params = docParamMapper.list(query);
+        Map<Long, List<DocParam>> map = params.stream()
+                .collect(Collectors.groupingBy(DocParam::getDocId));
+        List<ErrorCodeInfo> tobeSave = map.entrySet()
+                .stream()
+                .map(entry -> {
+                    Long docId = entry.getKey();
+                    List<DocParam> errorCodes = entry.getValue();
+                    ErrorCodeInfo errorCodeInfo = new ErrorCodeInfo();
+                    errorCodeInfo.setDocId(docId);
+                    String content = buildDocMarkdownTable(errorCodes);
+                    errorCodeInfo.setContent(content);
+                    return errorCodeInfo;
+                })
+                .collect(Collectors.toList());
+
+        if (!tobeSave.isEmpty()) {
+            errorCodeInfoMapper.saveBatchIgnoreNull(tobeSave);
+        }
+    }
+
+    private void moveModuleErrorCode() {
+        Query query = new Query()
+                .eq("type", ModuleConfigTypeEnum.GLOBAL_ERROR_CODES.getType());
+        List<ModuleConfig> list = moduleConfigService.list(query);
+        Map<Long, List<ModuleConfig>> map = list.stream()
+                .collect(Collectors.groupingBy(ModuleConfig::getModuleId));
+        List<ErrorCodeInfo> tobeSaveList = map.entrySet()
+                .stream()
+                .map(entry -> {
+                    Long moduleId = entry.getKey();
+                    List<ModuleConfig> errorCode = entry.getValue();
+                    ErrorCodeInfo errorCodeInfo = new ErrorCodeInfo();
+                    errorCodeInfo.setModuleId(moduleId);
+                    String content = buildModuleMarkdownTable(errorCode);
+                    errorCodeInfo.setContent(content);
+                    return errorCodeInfo;
+                })
+                .collect(Collectors.toList());
+
+        if (!tobeSaveList.isEmpty()) {
+            errorCodeInfoMapper.saveBatchIgnoreNull(tobeSaveList);
+        }
+    }
+
+    private String buildDocMarkdownTable(List<DocParam> params) {
+        MarkdownTableBuilder markdownTableBuilder = new MarkdownTableBuilder();
+        markdownTableBuilder.heads("错误码", "错误描述", "解决方案");
+        for (DocParam param : params) {
+            markdownTableBuilder.addRow(Arrays.asList(param.getName(), param.getDescription(), param.getExample()));
+        }
+        return markdownTableBuilder.toString();
+    }
+
+    private String buildModuleMarkdownTable(List<ModuleConfig> moduleConfigs) {
+        MarkdownTableBuilder markdownTableBuilder = new MarkdownTableBuilder();
+        markdownTableBuilder.heads("错误码", "错误描述", "解决方案");
+        for (ModuleConfig moduleConfig : moduleConfigs) {
+            markdownTableBuilder.addRow(
+                    Arrays.asList(moduleConfig.getConfigKey(),
+                    moduleConfig.getConfigValue(),
+                    moduleConfig.getDescription())
+            );
+        }
+        return markdownTableBuilder.toString();
+    }
+
 
     private void v1_16_0(int oldVersion) {
         if (oldVersion < 1160) {
