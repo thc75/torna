@@ -1,82 +1,75 @@
 <template>
   <div>
-    <el-tabs type="card">
-      <el-tab-pane :label="$ts('dictionaryManagement')">
-        <h3>
-          <el-button
+    <h3>
+      <el-button
+        v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+        type="primary"
+        size="mini"
+        @click="onItemInfoAdd"
+      >
+        {{ $ts('newDict') }}
+      </el-button>
+    </h3>
+    <el-tabs v-show="baseData.length > 0" v-model="activeName" type="border-card" @tab-click="onTabClick">
+      <el-tab-pane v-for="info in baseData" :key="info.id" :label="info.name" :name="info.id">
+        <span slot="label">
+          {{ info.name }}
+          <el-dropdown
             v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-            type="primary"
-            size="mini"
-            @click="onItemInfoAdd"
+            v-show="info.id === enumInfo.id"
+            trigger="click"
+            style="margin-left: 5px;"
+            @command="handleCommand"
           >
-            {{ $ts('newDict') }}
-          </el-button>
-        </h3>
-        <el-tabs v-show="baseData.length > 0" v-model="activeName" type="border-card" @tab-click="onTabClick">
-          <el-tab-pane v-for="info in baseData" :key="info.id" :label="info.name" :name="info.id">
-            <span slot="label">
-              {{ info.name }}
-              <el-dropdown
-                v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-                v-show="info.id === enumInfo.id"
-                trigger="click"
-                style="margin-left: 5px;"
-                @command="handleCommand"
-              >
-                <span class="el-dropdown-link">
-                  <el-tooltip placement="top" content="更多操作" :open-delay="500">
-                    <a class="el-icon-setting el-icon--right"></a>
-                  </el-tooltip>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item icon="el-icon-edit" :command="onEnumInfoUpdate">{{ $ts('update')}}</el-dropdown-item>
-                  <el-dropdown-item icon="el-icon-delete" class="danger" :command="onEnumInfoDelete">{{ $ts('delete') }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+            <span class="el-dropdown-link">
+              <el-tooltip placement="top" content="更多操作" :open-delay="500">
+                <a class="el-icon-setting el-icon--right"></a>
+              </el-tooltip>
             </span>
-          </el-tab-pane>
-          <div>
-            <el-alert v-if="enumInfo.description" :closable="false" :title="enumInfo.description" style="margin-bottom: 10px;" />
-            <el-button
-              v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-              type="text"
-              @click="onEnumItemAdd"
-            >
-              {{ $ts('newItem') }}
-            </el-button>
-            <el-table
-              :data="enumData"
-              border
-              highlight-current-row
-            >
-              <el-table-column :label="$ts('name')" prop="name" />
-              <el-table-column :label="$ts('type')" prop="type" />
-              <el-table-column :label="$ts('value')" prop="value" />
-              <el-table-column :label="$ts('description')" prop="description" />
-              <el-table-column
-                v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-                :label="$ts('operation')"
-                width="150"
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-edit" :command="onEnumInfoUpdate">{{ $ts('update')}}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-delete" class="danger" :command="onEnumInfoDelete">{{ $ts('delete') }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </span>
+      </el-tab-pane>
+      <div>
+        <el-alert v-if="enumInfo.description" :closable="false" :title="enumInfo.description" style="margin-bottom: 10px;" />
+        <el-button
+          v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+          type="text"
+          @click="onEnumItemAdd"
+        >
+          {{ $ts('newItem') }}
+        </el-button>
+        <el-table
+          :data="enumData"
+          border
+          highlight-current-row
+        >
+          <el-table-column :label="$ts('name')" prop="name" />
+          <el-table-column :label="$ts('type')" prop="type" />
+          <el-table-column :label="$ts('value')" prop="value" />
+          <el-table-column :label="$ts('description')" prop="description" />
+          <el-table-column
+            v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+            :label="$ts('operation')"
+            width="150"
+          >
+            <template slot-scope="scope">
+              <el-link type="primary" @click="onEnumItemUpdate(scope.row)">{{ $ts('update') }}</el-link>
+              <el-popconfirm
+                :title="$ts('deleteConfirm', scope.row.name)"
+                @confirm="onEnumItemDelete(scope.row)"
               >
-                <template slot-scope="scope">
-                  <el-link type="primary" @click="onEnumItemUpdate(scope.row)">{{ $ts('update') }}</el-link>
-                  <el-popconfirm
-                    :title="$ts('deleteConfirm', scope.row.name)"
-                    @confirm="onEnumItemDelete(scope.row)"
-                  >
-                    <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">
-                      {{ $ts('delete') }}
-                    </el-link>
-                  </el-popconfirm>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </el-tabs>
-      </el-tab-pane>
-      <el-tab-pane :label="$ts('errorCodeManagement')">
-        
-      </el-tab-pane>
+                <el-link v-if="hasRole(`project:${projectId}`, [Role.admin])" slot="reference" type="danger" size="mini">
+                  {{ $ts('delete') }}
+                </el-link>
+              </el-popconfirm>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-tabs>
 
     <!--dialog-->
