@@ -4,6 +4,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.HtmlTableBuilder;
 import cn.torna.common.util.MarkdownTableBuilder;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
@@ -184,25 +185,25 @@ public class UpgradeService {
     }
 
     private String buildDocMarkdownTable(List<DocParam> params) {
-        MarkdownTableBuilder markdownTableBuilder = new MarkdownTableBuilder();
-        markdownTableBuilder.heads("错误码", "错误描述", "解决方案");
+        HtmlTableBuilder htmlTableBuilder = new HtmlTableBuilder();
+        htmlTableBuilder.heads("错误码", "错误描述", "解决方案");
         for (DocParam param : params) {
-            markdownTableBuilder.addRow(Arrays.asList(param.getName(), param.getDescription(), param.getExample()));
+            htmlTableBuilder.addRow(Arrays.asList(param.getName(), param.getDescription(), param.getExample()));
         }
-        return markdownTableBuilder.toString();
+        return htmlTableBuilder.toString();
     }
 
     private String buildModuleMarkdownTable(List<ModuleConfig> moduleConfigs) {
-        MarkdownTableBuilder markdownTableBuilder = new MarkdownTableBuilder();
-        markdownTableBuilder.heads("错误码", "错误描述", "解决方案");
+        HtmlTableBuilder htmlTableBuilder = new HtmlTableBuilder();
+        htmlTableBuilder.heads("错误码", "错误描述", "解决方案");
         for (ModuleConfig moduleConfig : moduleConfigs) {
-            markdownTableBuilder.addRow(
+            htmlTableBuilder.addRow(
                     Arrays.asList(moduleConfig.getConfigKey(),
                     moduleConfig.getConfigValue(),
                     moduleConfig.getDescription())
             );
         }
-        return markdownTableBuilder.toString();
+        return htmlTableBuilder.toString();
     }
 
 

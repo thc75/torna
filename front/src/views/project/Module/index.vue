@@ -149,7 +149,7 @@ export default {
     return {
       module: '',
       moduleData: [],
-      sidebarOpen: true,
+      sidebarOpen: false,
       refreshSwaggerLoading: false
     }
   },

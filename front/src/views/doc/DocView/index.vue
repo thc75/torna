@@ -125,15 +125,10 @@
         class="code-copy"
         @click.stop="copy(formatJson(responseSuccessExample))">{{ $ts('copy') }}</el-tag>
     </div>
-    <h4>{{ $ts('errorCode') }}</h4>
-    <parameter-table
-      :data="docInfo.errorCodeParams"
-      :empty-text="$ts('emptyErrorCode')"
-      :hidden-columns="['required', 'maxLength', 'type']"
-      :name-label="$ts('errorCode')"
-      :description-label="$ts('errorDesc')"
-      :example-label="$ts('solution')"
-    />
+    <div v-show="docInfo.errorCodeInfo && docInfo.errorCodeInfo.length > 0">
+      <h4>{{ $ts('errorCode') }}</h4>
+      <div class="content" v-html="docInfo.errorCodeInfo.replace(/\n/g,'<br />')"></div>
+    </div>
     <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
       <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
@@ -236,6 +231,7 @@ export default {
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
+        errorCodeInfo: '',
         globalHeaders: [],
         globalParams: [],
         globalReturns: [],
