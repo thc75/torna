@@ -147,6 +147,11 @@ export const constantRoutes = [
         path: 'member/:projectId(\\w+)',
         name: 'ProjectMember',
         component: () => import('@/views/project/index_member')
+      },
+      {
+        path: 'code/:projectId(\\w+)',
+        name: 'ErrorCode',
+        component: () => import('@/views/project/index_code')
       }
     ]
   },

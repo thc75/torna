@@ -125,9 +125,16 @@
         class="code-copy"
         @click.stop="copy(formatJson(responseSuccessExample))">{{ $ts('copy') }}</el-tag>
     </div>
-    <div v-show="docInfo.errorCodeInfo && docInfo.errorCodeInfo.length > 0">
+    <div v-show="docInfo.errorCodeParams && docInfo.errorCodeParams.length > 0">
       <h4>{{ $ts('errorCode') }}</h4>
-      <div class="content" v-html="docInfo.errorCodeInfo.replace(/\n/g,'<br />')"></div>
+      <parameter-table
+        :data="docInfo.errorCodeParams"
+        :empty-text="$ts('emptyErrorCode')"
+        :hidden-columns="['required', 'maxLength', 'type']"
+        :name-label="$ts('errorCode')"
+        :description-label="$ts('errorDesc')"
+        :example-label="$ts('solution')"
+      />
     </div>
     <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
@@ -166,7 +173,6 @@ import HttpMethod from '@/components/HttpMethod'
 import DictView from '@/components/DictView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
-import '@wangeditor/editor/dist/css/style.css'
 
 export default {
   name: 'DocView',

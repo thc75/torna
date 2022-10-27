@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 1180;
+    private static final int VERSION = 11800;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -120,43 +120,11 @@ public class UpgradeService {
     }
 
     private void v1_18_0(int oldVersion) {
-        if (oldVersion < 1180) {
+        if (oldVersion < 11800) {
             log.info("Upgrade version to 1.18.0");
             createTable("error_code_info", "upgrade/1.18.0_ddl.txt");
-            moveErrorCodeToMarkdown();
+            moveModuleErrorCode();
             log.info("Upgrade 1.18.0 finished.");
-        }
-    }
-
-    /**
-     * 将错误码转移到markdown
-     */
-    private void moveErrorCodeToMarkdown() {
-        moveDocErrorCode();
-        moveModuleErrorCode();
-    }
-
-    private void moveDocErrorCode() {
-        Query query = new Query()
-                .eq("style", ParamStyleEnum.ERROR_CODE.getStyle());
-        List<DocParam> params = docParamMapper.list(query);
-        Map<Long, List<DocParam>> map = params.stream()
-                .collect(Collectors.groupingBy(DocParam::getDocId));
-        List<ErrorCodeInfo> tobeSave = map.entrySet()
-                .stream()
-                .map(entry -> {
-                    Long docId = entry.getKey();
-                    List<DocParam> errorCodes = entry.getValue();
-                    ErrorCodeInfo errorCodeInfo = new ErrorCodeInfo();
-                    errorCodeInfo.setDocId(docId);
-                    String content = buildDocMarkdownTable(errorCodes);
-                    errorCodeInfo.setContent(content);
-                    return errorCodeInfo;
-                })
-                .collect(Collectors.toList());
-
-        if (!tobeSave.isEmpty()) {
-            errorCodeInfoMapper.saveBatchIgnoreNull(tobeSave);
         }
     }
 
@@ -182,15 +150,6 @@ public class UpgradeService {
         if (!tobeSaveList.isEmpty()) {
             errorCodeInfoMapper.saveBatchIgnoreNull(tobeSaveList);
         }
-    }
-
-    private String buildDocMarkdownTable(List<DocParam> params) {
-        HtmlTableBuilder htmlTableBuilder = new HtmlTableBuilder();
-        htmlTableBuilder.heads("错误码", "错误描述", "解决方案");
-        for (DocParam param : params) {
-            htmlTableBuilder.addRow(Arrays.asList(param.getName(), param.getDescription(), param.getExample()));
-        }
-        return htmlTableBuilder.toString();
     }
 
     private String buildModuleMarkdownTable(List<ModuleConfig> moduleConfigs) {

@@ -94,9 +94,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private ErrorCodeInfoService errorCodeInfoService;
-
     /**
      * 查询模块下的所有文档
      * @param moduleId 模块id
@@ -197,16 +194,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocParam> queryParams = paramsMap.getOrDefault(ParamStyleEnum.QUERY.getStyle(), Collections.emptyList());
         List<DocParam> requestParams = paramsMap.getOrDefault(ParamStyleEnum.REQUEST.getStyle(), Collections.emptyList());
         List<DocParam> responseParams = paramsMap.getOrDefault(ParamStyleEnum.RESPONSE.getStyle(), Collections.emptyList());
-//        List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), new ArrayList<>(0));
-        String docErrorCode = errorCodeInfoService.getDocErrorCode(docInfoDTO.getId());
-
+        List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), new ArrayList<>(0));
         docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
         docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
         docInfoDTO.setQueryParams(CopyUtil.copyList(queryParams, DocParamDTO::new));
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
-        docInfoDTO.setErrorCodeInfo(docErrorCode);
-//        docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
+        docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
         // 绑定枚举信息
         bindEnumInfo(docInfoDTO.getQueryParams());
         bindEnumInfo(docInfoDTO.getRequestParams());
@@ -306,6 +300,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfoDTO;
     }
 
+    /**
+     * 查询模块全局错误码
+     * @param moduleId 模块id
+     * @return 返回全局错误码
+     */
     private List<DocParam> listCommonErrorCodes(long moduleId) {
         return moduleConfigService.listCommonErrorCodes(moduleId);
     }
