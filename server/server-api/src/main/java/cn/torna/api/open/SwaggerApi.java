@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author thc
@@ -300,8 +301,8 @@ public class SwaggerApi {
                     .deprecated(Optional.ofNullable(operation.getDeprecated()).orElse(false) ? "" : null)
                     .orderIndex(threadLocal.get().getAndIncrement())
                     .headerParams(buildHeaderParamPushParams(operation))
-                    .pathParams(buildDocParamPushParams(operation, parameter -> Objects.equals("path", parameter.getIn())))
-                    .queryParams(buildDocParamPushParams(operation, parameter -> Objects.equals("query", parameter.getIn())))
+                    .pathParams(buildDocParamPushParams(openAPI, operation, parameter -> Objects.equals("path", parameter.getIn())))
+                    .queryParams(buildDocParamPushParams(openAPI, operation, parameter -> Objects.equals("query", parameter.getIn())))
                     .tag(CollectionUtils.isEmpty(operation.getTags()) ? "" : operation.getTags().get(0))
                     .build();
 
@@ -372,7 +373,7 @@ public class SwaggerApi {
             }
         } else {
             // 表单结构
-            docParamPushParams = buildDocParamPushParams(operation, parameter -> "formData".equals(parameter.getIn()));
+            docParamPushParams = buildDocParamPushParams(openAPI, operation, parameter -> "formData".equals(parameter.getIn()));
         }
         return new RequestParamsWrapper(docParamPushParams, isRequestArray, contentType);
     }
@@ -489,14 +490,14 @@ public class SwaggerApi {
         return enumInfoCreateParam;
     }
 
-    private static List<DocParamPushParam> buildDocParamPushParams(Operation operation, Predicate<Parameter> predicate) {
+    private static List<DocParamPushParam> buildDocParamPushParams(OpenAPI openAPI, Operation operation, Predicate<Parameter> predicate) {
         List<Parameter> parameters = operation.getParameters();
         if (CollectionUtils.isEmpty(parameters)) {
             return null;
         }
         return parameters.stream()
                 .filter(predicate)
-                .map(parameter -> {
+                .flatMap(parameter -> {
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(parameter.getName())
                             .type(getType(parameter))
@@ -507,16 +508,20 @@ public class SwaggerApi {
                             .build();
                     Schema<?> schema = parameter.getSchema();
                     if (schema != null) {
+                        String $ref = schema.get$ref();
+                        String type = schema.getType();
                         // 如果是数组参数
-                        if ("array".equals(param.getType())) {
+                        if ("array".equals(type)) {
                             Schema<?> items = schema.getItems();
                             String itemsType = items.getType();
-                            param.setType("array["+itemsType+"]");
+                            param.setType("array[" + itemsType + "]");
                             List<?> list = items.getEnum();
                             setEnumDescription(list, param);
+                        } else if ($ref != null) {
+                            return buildObjectParam($ref, openAPI).stream();
                         }
                     }
-                    return param;
+                    return Stream.of(param);
                 })
                 .collect(Collectors.toList());
     }
