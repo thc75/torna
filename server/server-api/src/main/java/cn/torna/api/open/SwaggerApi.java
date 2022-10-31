@@ -32,6 +32,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,15 +44,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -359,9 +352,9 @@ public class SwaggerApi {
                         isRequestArray = true;
                         Schema<?> items = schema.getItems();
                         $ref = items.get$ref();
-                        docParamPushParams = buildObjectParam($ref, openAPI);
+                        docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                     } else if ($ref != null) {
-                        docParamPushParams = buildObjectParam($ref, openAPI);
+                        docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                     }
                 } else if (key.contains("form")) {
                     contentType = key.contains("multipart") ? "multipart/form-data" : "application/x-www-form-urlencoded";
@@ -398,9 +391,9 @@ public class SwaggerApi {
                             isResponseArray = true;
                             Schema<?> items = schema.getItems();
                             $ref = items.get$ref();
-                            docParamPushParams = buildObjectParam($ref, openAPI);
+                            docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         } else if ($ref != null) {
-                            docParamPushParams = buildObjectParam($ref, openAPI);
+                            docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         }
                     }
                 }
@@ -409,8 +402,23 @@ public class SwaggerApi {
         return new ResponseParamsWrapper(docParamPushParams, isResponseArray);
     }
 
+    private static class BuildObjectParamContext {
+        private Set<String> $refSets;
 
-    private static List<DocParamPushParam> buildObjectParam(String $ref, OpenAPI openAPI) {
+        public BuildObjectParamContext() {
+            $refSets = new HashSet<>();
+        }
+
+        public boolean add$ref(String $ref) {
+            return $refSets.add($ref);
+        }
+    }
+
+    private static List<DocParamPushParam> buildObjectParam(String $ref, OpenAPI openAPI, BuildObjectParamContext context) {
+        // 防止树形对象死循环
+        if (!context.add$ref($ref)) {
+            return null;
+        }
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
         Map<String, Object> properties = jsonSchema.getProperties();
         return Optional.ofNullable(properties)
@@ -431,7 +439,8 @@ public class SwaggerApi {
                     // 如果有子对象
                     if (value.containsKey("$ref")) {
                         type = String.valueOf(value.getOrDefault("type", TYPE_OBJECT));
-                        children = buildObjectParam(String.valueOf(value.get("$ref")), openAPI);
+                        final String child$ref = String.valueOf(value.get("$ref"));
+                        children = buildObjectParam(child$ref, openAPI, context);
                     }
                     // 如果是枚举字段
                     if (value.containsKey(TYPE_ENUM)) {
@@ -443,7 +452,8 @@ public class SwaggerApi {
                         Map<String, ?> items = (Map<String, ?>)value.get("items");
                         Object itemRef = items.get("$ref");
                         if (itemRef != null) {
-                            children = buildObjectParam(String.valueOf(itemRef), openAPI);
+                            final String child$ref = String.valueOf(itemRef);
+                            children = buildObjectParam(child$ref, openAPI, context);
                             type = "array[object]";
                         }
                         Object itemType = items.get("type");
@@ -518,7 +528,7 @@ public class SwaggerApi {
                             List<?> list = items.getEnum();
                             setEnumDescription(list, param);
                         } else if ($ref != null) {
-                            return buildObjectParam($ref, openAPI).stream();
+                            return buildObjectParam($ref, openAPI, new BuildObjectParamContext()).stream();
                         }
                     }
                     return Stream.of(param);
