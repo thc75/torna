@@ -72,6 +72,7 @@ public class SwaggerApi {
     private static final String TYPE_ENUM = "enum";
     private static final String TYPE_OBJECT = "object";
     public static final String TYPE_STRING = "string";
+    public static final String TYPE_ARRAY = "array";
 
     @Autowired
     private DocApi docApi;
@@ -429,43 +430,44 @@ public class SwaggerApi {
             return null;
         }
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
-        Map<String, Object> properties = jsonSchema.getProperties();
+        final Map<String, Schema> properties = jsonSchema.getSchema().getProperties();
         return Optional.ofNullable(properties)
                 .orElse(Collections.emptyMap()).entrySet()
                 .stream()
                 .map(entry -> {
                     String name = entry.getKey();
-                    Map<String, Object> value = (Map<String, Object>) entry.getValue();
+                    Schema value = entry.getValue();
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(name)
-                            .required(Booleans.toValue(jsonSchema.getRequired(name) || Objects.equals("true", String.valueOf(value.getOrDefault("required", "false")))))
-                            .description(String.valueOf(value.getOrDefault("description", "")))
-                            .example(toString(value.get("example")))
+                            .required(Booleans.toValue(jsonSchema.getRequired(name) || Objects.equals("true", String.valueOf(value.getRequired()))))
+                            .description(value.getDescription())
+                            .example(toString(value.getExample()))
                             .maxLength(getMaxLength(jsonSchema.getSchema()))
                             .build();
-                    String type = String.valueOf(value.getOrDefault("type", TYPE_OBJECT));
+                    String type = value.getType();
                     List<DocParamPushParam> children = null;
                     // 如果有子对象
-                    if (value.containsKey("$ref")) {
-                        type = String.valueOf(value.getOrDefault("type", TYPE_OBJECT));
-                        final String child$ref = String.valueOf(value.get("$ref"));
+                    if (value.get$ref() != null) {
+                        type = TYPE_OBJECT;
+                        final String child$ref = value.get$ref();
                         children = buildObjectParam(child$ref, openAPI, context);
                     }
                     // 如果是枚举字段
-                    if (value.containsKey(TYPE_ENUM)) {
-                        List<?> list = (List<?>) value.get(TYPE_ENUM);
+                    if (value.getEnum() != null) {
+                        type = TYPE_ENUM;
+                        List<?> list = value.getEnum();
                         setEnumDescription(list, param);
                     }
                     // list对象，List<XX>
-                    if ("array".equals(type) && value.containsKey("items")) {
-                        Map<String, ?> items = (Map<String, ?>)value.get("items");
-                        Object itemRef = items.get("$ref");
+                    if (TYPE_ARRAY.equals(type) && value.getItems() != null) {
+                        Schema items = value.getItems();
+                        String itemRef = items.get$ref();
                         if (itemRef != null) {
-                            final String child$ref = String.valueOf(itemRef);
+                            final String child$ref = itemRef;
                             children = buildObjectParam(child$ref, openAPI, context);
                             type = "array[object]";
                         }
-                        Object itemType = items.get("type");
+                        String itemType = items.getType();
                         if (itemType != null) {
                             type = "array[" + itemType + "]";
                         }
