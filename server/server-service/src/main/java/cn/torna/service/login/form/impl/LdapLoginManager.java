@@ -7,7 +7,6 @@ import cn.torna.service.login.form.LoginResult;
 import cn.torna.service.login.form.ThirdPartyLoginManager;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.LdapTemplate;
@@ -31,7 +30,7 @@ import java.util.Hashtable;
  */
 @Slf4j
 @Service
-public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBean {
+public class LdapLoginManager implements ThirdPartyLoginManager {
 
 
     @Autowired
@@ -58,8 +57,6 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     @Value("${torna.ldap.custom-context-factory:com.sun.jndi.ldap.LdapCtxFactory}")
     private String factory;
 
-
-    private LdapContext ldapContext;
 
     @Override
     public LoginResult login(LoginForm loginForm) throws Exception {
@@ -111,10 +108,11 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     }
 
     public LdapUser ldapLogin(String uid, String password) {
+        LdapContext ldapContext = getLdapContext();
         if (ldapContext == null) {
             return null;
         }
-        SearchResult searchResult = getUserInfo(uid);
+        SearchResult searchResult = getUserInfo(ldapContext, uid);
         if (searchResult == null) {
             return null;
         }
@@ -128,6 +126,12 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         } catch (Exception e) {
             log.error("LDAP认证失败, url={}, uid={}", customUrl, uid, e);
             return null;
+        } finally {
+            try {
+                ldapContext.close();
+            } catch (NamingException e) {
+                // ignore
+            }
         }
     }
 
@@ -152,7 +156,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         }
     }
 
-    private SearchResult getUserInfo(String uid) {
+    private SearchResult getUserInfo(LdapContext ldapContext, String uid) {
         try {
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -167,8 +171,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         }
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    private LdapContext getLdapContext() {
         if (StringUtils.hasText(customBaseDn)) {
             Hashtable<String, String> env = new Hashtable<>();
             env.put(Context.INITIAL_CONTEXT_FACTORY, factory);
@@ -177,10 +180,14 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
             env.put(Context.SECURITY_CREDENTIALS, customPassword);
             log.info("LDAP配置，env={}", JSON.toJSONString(env));
             try {
-                ldapContext = new InitialLdapContext(env, null);
+                return new InitialLdapContext(env, null);
             } catch (Exception e) {
-                log.error("初始化LDAP失败", e);
+                log.error("初始化LDAP失败, customBaseDn={}",customBaseDn, e);
+                return null;
             }
+        } else {
+            log.info("未配置customBaseDn");
+            return null;
         }
     }
 

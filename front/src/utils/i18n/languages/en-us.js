@@ -405,7 +405,11 @@ const MAPPING = {
   'dictInfo': 'Dictionary Information',
   'emptyDictData': 'Empty dictionary data',
   'grid': 'Grid',
-  'card': 'Card'
+  'card': 'Card',
+  'constManager': 'Constant Management',
+  'projectConstant': 'Project Constant',
+  'applicationConstant': 'Application Constant',
+  'viewConst': 'View Constant'
 
 }
 

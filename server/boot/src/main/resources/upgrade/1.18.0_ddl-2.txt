@@ -1,0 +1,10 @@
+CREATE TABLE `push_ignore_field` (
+	`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`module_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'module.id',
+	`data_id` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'doc_info.data_id' COLLATE 'utf8mb4_general_ci',
+	`field_name` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'doc_info.name' COLLATE 'utf8mb4_general_ci',
+	`field_description` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '字段描述' COLLATE 'utf8mb4_general_ci',
+	`gmt_create` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `uk_moduleid_dataid_fieldname` (`module_id`, `data_id`, `field_name`) USING BTREE
+) COMMENT='推送忽略字段';

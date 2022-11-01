@@ -1,31 +1,31 @@
 <template>
   <div class="app-container">
     <el-tabs>
-      <el-tab-pane :label="$ts('projectErrorCode')">
+      <el-tab-pane :label="$ts('projectConstant')">
         <el-alert type="info" :closable="false">
-          <span slot="title">{{ $ts('projectErrorCodeTip') }}</span>
+          <span slot="title">{{ $ts('projectConstantTip') }}</span>
         </el-alert>
         <br>
         <rich-text-editor
-          :value="projectErrorCode"
+          :value="projectConstantInfo"
           :editable="true"
           :height="editorHeight"
-          @input="projectErrorCodeEditorInput"
+          @input="projectConstantInfoEditorInput"
         />
-        <el-button type="primary" style="margin-top: 20px" @click="onProjectErrorCodeSave">{{ $ts('save') }}</el-button>
+        <el-button type="primary" style="margin-top: 20px" @click="onProjectConstantInfoSave">{{ $ts('save') }}</el-button>
       </el-tab-pane>
-      <el-tab-pane :label="$ts('applicationErrorCode')">
-        <el-alert type="info" :title="$ts('applicationErrorCodeTip')" :closable="false" />
+      <el-tab-pane :label="$ts('applicationConstant')">
+        <el-alert type="info" :title="$ts('applicationConstantTip')" :closable="false" />
         <br/>
         <el-tabs tab-position="left" type="card" @tab-click="onTabSelect">
           <el-tab-pane v-for="item in moduleData" :key="item.id" :label="item.name"></el-tab-pane>
           <rich-text-editor
-            :value="moduleErrorCode"
+            :value="moduleConstantInfo"
             :editable="true"
             :height="editorHeight"
-            @input="moduleErrorCodeEditorInput"
+            @input="moduleConstantInfoEditorInput"
           />
-          <el-button type="primary" style="margin-top: 20px" @click="onModuleErrorCodeSave">{{ $ts('save') }}</el-button>
+          <el-button type="primary" style="margin-top: 20px" @click="onModuleConstantInfoSave">{{ $ts('save') }}</el-button>
         </el-tabs>
       </el-tab-pane>
     </el-tabs>
@@ -34,16 +34,14 @@
 <script>
 import RichTextEditor from '@/components/RichTextEditor'
 $addI18n({
-  'projectErrorCode': { 'zh': '项目错误码', 'en': 'Project Error Code' },
-  'projectErrorCodeTip': { 'zh': '定义项目级别错误码，能被下面各个应用访问', 'en': 'The project error codes that can be visited by the following applications' },
-  'applicationErrorCode': { 'zh': '应用错误码', 'en': 'Application Error Code' },
-  'applicationErrorCodeTip': { 'zh': '定义每个应用单独的错误码', 'en': 'Define a separate error code for each application' }
+  'projectConstantTip': { 'zh': '定义项目级别常量（错误码、枚举），能被下面各个应用访问', 'en': 'The project constant that can be visited by the following applications' },
+  'applicationConstantTip': { 'zh': '定义每个应用单独的常量', 'en': 'Define a separate constant for each application' }
 })
 
 const clientHeight = document.body.clientHeight
 const editor_height = (clientHeight - 310)
 export default {
-  name: 'ErrorCode',
+  name: 'ConstantInfo',
   components: { RichTextEditor },
   props: {
     projectId: {
@@ -53,8 +51,8 @@ export default {
   },
   data() {
     return {
-      projectErrorCode: '',
-      moduleErrorCode: '',
+      projectConstantInfo: '',
+      moduleConstantInfo: '',
       currentModule: '',
       editorHeight: editor_height,
       moduleData: [],
@@ -72,8 +70,8 @@ export default {
   },
   methods: {
     loadData(projectId) {
-      this.get('/code/project/get', { projectId: projectId }, resp => {
-        this.projectErrorCode = resp.data
+      this.get('/constant/project/get', { projectId: projectId }, resp => {
+        this.projectConstantInfo = resp.data
       })
       this.loadProjectModule(projectId)
     },
@@ -85,24 +83,24 @@ export default {
         }
       })
     },
-    projectErrorCodeEditorInput(content) {
-      this.projectErrorCode = content
+    projectConstantInfoEditorInput(content) {
+      this.projectConstantInfo = content
     },
-    moduleErrorCodeEditorInput(content) {
-      this.moduleErrorCode = content
+    moduleConstantInfoEditorInput(content) {
+      this.moduleConstantInfo = content
     },
-    onProjectErrorCodeSave() {
-      this.post('/code/project/save', {
+    onProjectConstantInfoSave() {
+      this.post('/constant/project/save', {
         id: this.projectId,
-        content: this.projectErrorCode
+        content: this.projectConstantInfo
       }, resp => {
         this.tipSuccess($ts('saveSuccess'))
       })
     },
-    onModuleErrorCodeSave() {
-      this.post('/code/module/save', {
+    onModuleConstantInfoSave() {
+      this.post('/constant/module/save', {
         id: this.currentModule.id,
-        content: this.moduleErrorCode
+        content: this.moduleConstantInfo
       }, resp => {
         this.tipSuccess($ts('saveSuccess'))
       })
@@ -114,11 +112,11 @@ export default {
     },
     selectNode(node) {
       this.currentModule = node
-      this.loadModuleErrorCode(node.id)
+      this.loadModuleConstantInfo(node.id)
     },
-    loadModuleErrorCode(moduleId) {
-      this.get('/code/module/get', { moduleId: moduleId }, resp => {
-        this.moduleErrorCode = resp.data
+    loadModuleConstantInfo(moduleId) {
+      this.get('/constant/module/get', { moduleId: moduleId }, resp => {
+        this.moduleConstantInfo = resp.data
       })
     }
   }

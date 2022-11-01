@@ -94,6 +94,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private PushIgnoreFieldService pushIgnoreFieldService;
+
     /**
      * 查询模块下的所有文档
      * @param moduleId 模块id
@@ -407,6 +410,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     private DocInfo modifyDocInfo(DocInfoDTO docInfoDTO, User user) {
         DocInfo docInfo = this.getById(docInfoDTO.getId());
+        String descriptionOld = docInfo.getDescription();
+        String descriptionNew = docInfoDTO.getDescription();
         String oldMd5 = docInfo.getMd5();
         String newMd5 = getDocMd5(docInfoDTO);
         CopyUtil.copyPropertiesIgnoreNull(docInfoDTO, docInfo);
@@ -429,6 +434,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (StringUtils.hasText(oldMd5) && !Objects.equals(oldMd5, newMd5)) {
             // 发送站内信
             userMessageService.sendMessageByModifyDoc(docInfo);
+        }
+        // 如果描述内容不一样，以手动修改的为准
+        if (!Objects.equals(descriptionNew, descriptionOld)) {
+            pushIgnoreFieldService.addField(docInfo, "description", "文档信息.描述");
         }
         return docInfo;
     }
@@ -503,6 +512,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         if (docInfo.getDeprecated() == null) {
             docInfo.setDeprecated("$false$");
+        }
+        // 描述字段忽略
+        if (pushIgnoreFieldService.isPushIgnore(docInfoDTO.getModuleId(), docInfoDTO.buildDataId(), "description")) {
+            docInfo.setDescription(null);
         }
         return docInfo;
     }

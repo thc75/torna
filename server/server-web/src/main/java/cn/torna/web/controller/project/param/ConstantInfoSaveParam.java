@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
  * @author thc
  */
 @Data
-public class ErrorCodeSaveParam {
+public class ConstantInfoSaveParam {
 
     @NotNull(message = "id不能为空")
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

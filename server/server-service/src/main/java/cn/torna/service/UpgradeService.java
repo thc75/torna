@@ -2,18 +2,16 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
-import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.HtmlTableBuilder;
-import cn.torna.common.util.MarkdownTableBuilder;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.entity.DocParam;
-import cn.torna.dao.entity.ErrorCodeInfo;
+import cn.torna.dao.entity.ConstantInfo;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.mapper.DocParamMapper;
-import cn.torna.dao.mapper.ErrorCodeInfoMapper;
+import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentParamDTO;
@@ -68,7 +66,7 @@ public class UpgradeService {
     private DocParamMapper docParamMapper;
 
     @Resource
-    private ErrorCodeInfoMapper errorCodeInfoMapper;
+    private ConstantInfoMapper errorCodeInfoMapper;
 
 
     @Value("${spring.datasource.driver-class-name}")
@@ -122,7 +120,9 @@ public class UpgradeService {
     private void v1_18_0(int oldVersion) {
         if (oldVersion < 11800) {
             log.info("Upgrade version to 1.18.0");
-            createTable("error_code_info", "upgrade/1.18.0_ddl.txt");
+            createTable("constant_info", "upgrade/1.18.0_ddl.txt");
+            createTable("push_ignore_field", "upgrade/1.18.0_ddl-2.txt");
+            this.runSql("ALTER TABLE `doc_info` CHANGE COLUMN `description` `description` TEXT NULL COMMENT '文档描述' COLLATE 'utf8mb4_general_ci' AFTER `name`");
             moveModuleErrorCode();
             log.info("Upgrade 1.18.0 finished.");
         }
@@ -134,12 +134,12 @@ public class UpgradeService {
         List<ModuleConfig> list = moduleConfigService.list(query);
         Map<Long, List<ModuleConfig>> map = list.stream()
                 .collect(Collectors.groupingBy(ModuleConfig::getModuleId));
-        List<ErrorCodeInfo> tobeSaveList = map.entrySet()
+        List<ConstantInfo> tobeSaveList = map.entrySet()
                 .stream()
                 .map(entry -> {
                     Long moduleId = entry.getKey();
                     List<ModuleConfig> errorCode = entry.getValue();
-                    ErrorCodeInfo errorCodeInfo = new ErrorCodeInfo();
+                    ConstantInfo errorCodeInfo = new ConstantInfo();
                     errorCodeInfo.setModuleId(moduleId);
                     String content = buildModuleMarkdownTable(errorCode);
                     errorCodeInfo.setContent(content);
@@ -449,6 +449,9 @@ public class UpgradeService {
     }
 
     private void runSql(String sql) {
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
+        }
         upgradeMapper.runSql(sql);
     }
 

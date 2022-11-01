@@ -406,7 +406,11 @@ const MAPPING = {
   'dictInfo': '字典信息',
   'emptyDictData': '无字典信息',
   'grid': '列表',
-  'card': '卡片'
+  'card': '卡片',
+  'constManager': '常量管理',
+  'projectConstant': '项目常量',
+  'applicationConstant': '应用常量',
+  'viewConst': '查看常量'
 
 }
 

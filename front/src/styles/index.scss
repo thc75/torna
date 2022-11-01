@@ -456,3 +456,83 @@ span.deprecated {
 .doc-view-container {
   padding: 5px 20px 0 20px;
 }
+
+.rich-editor p {
+  line-height: 0.8;
+}
+
+.rich-editor {
+
+  table{
+    /*设置表格的宽度*/
+    width: auto;
+    /*设置居中*/
+    //margin: 0 auto;
+    /*设置边框*/
+    /*border: 1px solid black;*/
+    /**
+     *     table的td之间默认有一个距离，通过border-spacing属性可以设置这个像素
+     */
+    /*border-spacing: 0px;*/
+    /**
+     *     border-collapse可以用来设置表格的边框合并，如果设置了该属性，border-spacing会自动失效
+     */
+    border-collapse: collapse;
+  }
+
+  /**
+   *     伪类nth-child的even参数可以选中偶数行，而odd则可以选中奇数行。
+   *
+   *     温馨提示:
+   *         nth-child属性IE8及以下版本并不支持，若非要达到相同的效果则需要引入JS来搞事情。
+   */
+  //tr:nth-child(even){
+  //  background-color: #ccc;
+  //}
+
+  /**
+   *     当鼠标移入到tr标签后，会改变颜色
+   */
+  //tr:hover{
+  //  background-color: #eeeeee;
+  //}
+
+  /*为td标签设置样式*/
+  td,th{
+    /*设置边框*/
+    border: 1px solid #b3b3b3;
+    padding: .4em;
+  }
+  th {
+    background: rgba(0,0,0,.05);
+    font-weight: 700;
+  }
+
+  pre {
+    background: hsla(0,0%,78%,.3);
+    border: 1px solid #c4c4c4;
+    border-radius: 2px;
+    color: #353535;
+    direction: ltr;
+    font-style: normal;
+    min-width: 200px;
+    padding: 1em;
+    tab-size: 4;
+    text-align: left;
+    white-space: pre-wrap;
+  }
+}
+
+.ck-content p {
+  line-height: 0.8;
+}
+
+.ck-content .table,
+figure.table {
+  margin: 0 !important;
+}
+
+.icon-button {
+  font-size: 16px;
+  padding: 0;
+}

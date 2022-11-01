@@ -14,9 +14,9 @@ import lombok.Data;
  *
  * @author tanghc
  */
-@Table(name = "error_code_info", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
+@Table(name = "constant_info", pk = @Pk(name = "id", strategy = PkStrategy.INCREMENT))
 @Data
-public class ErrorCodeInfo {
+public class ConstantInfo {
 
     private Long id;
 

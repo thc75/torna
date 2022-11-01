@@ -1,11 +1,11 @@
 <template>
-  <error-code :project-id="projectId" />
+  <constant-info :project-id="projectId" />
 </template>
 <script>
-import ErrorCode from './ErrorCode'
+import ConstantInfo from './ConstantInfo'
 
 export default {
-  components: { ErrorCode },
+  components: { ConstantInfo },
   data() {
     return {
       projectId: ''

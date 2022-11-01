@@ -1,6 +1,6 @@
 package cn.torna;
 
-import cn.torna.service.ErrorCodeInfoService;
+import cn.torna.service.ConstantInfoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ErrorCodeInfoServiceTest extends TornaApplicationTests{
 
     @Autowired
-    ErrorCodeInfoService errorCodeInfoService;
+    ConstantInfoService errorCodeInfoService;
 
     @Test
     public void test() {
-        String content = errorCodeInfoService.getDocErrorCode(82);
+        String content = errorCodeInfoService.getDocConstantInfo(82);
         System.out.println(content);
     }
 

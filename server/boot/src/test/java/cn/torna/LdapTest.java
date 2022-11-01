@@ -13,7 +13,7 @@ import org.springframework.ldap.query.LdapQueryBuilder;
 /**
  * application.properties:
  * <pre>
- * torna.ldap.url=ldap://172.16.6.64:389
+ * torna.ldap.url=ldap://ip:port
  * # ldap域名信息，如：dc=your_domain,dc=com
  * torna.ldap.base=dc=your_domain,dc=com
  * # 管理员账号，如：cn=Manager,dc=your_domain,dc=com
@@ -24,7 +24,7 @@ import org.springframework.ldap.query.LdapQueryBuilder;
  *
  */
 @SpringBootTest(classes = TornaApplication.class, properties = {
-        "torna.ldap.url=ldap://10.0.1.184:389",
+        "torna.ldap.url=ldap://10.0.1.179:389",
         "torna.ldap.base=dc=torna,dc=cn",
         "torna.ldap.username=cn=Manager,dc=torna,dc=cn",
         "torna.ldap.password=123456"

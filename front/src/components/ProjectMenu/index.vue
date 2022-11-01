@@ -18,9 +18,9 @@
         <i class="el-icon-user"></i>
         <span class="title">{{ $ts('projectMember') }}</span>
       </el-menu-item>
-      <el-menu-item :index="`/project/code/${projectId}`">
-        <i class="el-icon-paperclip"></i>
-        <span class="title" style="left: 12px;">{{ $ts('errorCode') }}</span>
+      <el-menu-item v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" :index="`/project/code/${projectId}`">
+        <i class="el-icon-collection"></i>
+        <span class="title">{{ $ts('constManager') }}</span>
       </el-menu-item>
     </el-menu>
   </div>
