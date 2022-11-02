@@ -51,20 +51,9 @@ export default {
     return {
       content: '',
       editor: ClassicEditor,
-      html: '',
-      toolbarConfig: {
-        // 排除
-        excludeKeys: [
-          'group-image',
-          'group-video',
-          'insertVideo',
-          'fullScreen'
-        ]
-      },
       editorConfig: {
         placeholder: this.placeholder || '请输入内容'
-      },
-      editMode: this.mode // 'default' or 'simple'
+      }
     }
   },
   watch: {
@@ -74,6 +63,17 @@ export default {
     content(val) {
       this.$emit('input', val)
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const els = document.getElementsByClassName('ck-editor__main');
+      console.log(els)
+      console.log(els.length)
+      if (els != null && els.length > 0) {
+        console.log(this.height)
+        els[0].style.height = this.height + 'px'
+      }
+    })
   }
 }
 </script>

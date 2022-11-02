@@ -113,6 +113,7 @@ const MAPPING = {
   'multiPage': 'Multi Pages',
   'fileType': 'File Type',
   'selectDoc': 'Choose Doc',
+  'selectEnv': 'Select Environment',
   'allDocs': 'All Docs',
   'partDocs': 'Parts Docs',
   'dlgExport': 'Export',
@@ -409,7 +410,9 @@ const MAPPING = {
   'constManager': 'Constant Management',
   'projectConstant': 'Project Constant',
   'applicationConstant': 'Application Constant',
-  'viewConst': 'View Constant'
+  'viewConst': 'View Constant',
+  'applicationManagement': 'Application Management',
+  'selectAll': 'Select All'
 
 }
 

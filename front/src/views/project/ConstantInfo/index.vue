@@ -17,7 +17,7 @@
       <el-tab-pane :label="$ts('applicationConstant')">
         <el-alert type="info" :title="$ts('applicationConstantTip')" :closable="false" />
         <br/>
-        <el-tabs tab-position="left" type="card" @tab-click="onTabSelect">
+        <el-tabs type="card" @tab-click="onTabSelect">
           <el-tab-pane v-for="item in moduleData" :key="item.id" :label="item.name"></el-tab-pane>
           <rich-text-editor
             :value="moduleConstantInfo"

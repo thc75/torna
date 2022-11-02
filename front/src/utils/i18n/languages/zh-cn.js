@@ -114,6 +114,7 @@ const MAPPING = {
   'multiPage': '多页',
   'fileType': '格式',
   'selectDoc': '选择文档',
+  'selectEnv': '选择环境',
   'allDocs': '全部文档',
   'partDocs': '部分文档',
   'dlgExport': '导 出',
@@ -410,7 +411,9 @@ const MAPPING = {
   'constManager': '常量管理',
   'projectConstant': '项目常量',
   'applicationConstant': '应用常量',
-  'viewConst': '查看常量'
+  'viewConst': '查看常量',
+  'applicationManagement': '应用管理',
+  'selectAll': '全选'
 
 }
 

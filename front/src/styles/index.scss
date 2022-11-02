@@ -457,10 +457,6 @@ span.deprecated {
   padding: 5px 20px 0 20px;
 }
 
-.rich-editor p {
-  line-height: 0.8;
-}
-
 .rich-editor {
 
   table{
@@ -523,16 +519,44 @@ span.deprecated {
   }
 }
 
-.ck-content p {
+.ck-content p, .rich-editor p {
   line-height: 0.8;
 }
 
 .ck-content .table,
 figure.table {
-  margin: 0 !important;
+  display: table !important;
+  margin: .9em !important;
 }
 
 .icon-button {
   font-size: 16px;
   padding: 0;
 }
+
+.sidebar-container,
+.torna-menu,
+// view page
+.sidebar-container-view,
+.menu-tree
+, .select-area input
+, .menu-tree input
+, .menu-tree .el-tree
+{
+  background-color: #fcfdff;
+  //background-color: #F5F7FA;
+}
+
+.menu-tree {
+  .el-tree-node__content{
+    &:hover{
+      background-color: #ebf3ff;
+    }
+  }
+
+  .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content {
+    background-color: #ebf3ff;
+  }
+}
+
+
