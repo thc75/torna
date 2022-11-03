@@ -28,7 +28,6 @@
         {{ tab.title }}
         <span v-show="tabsList.length > 1" class="el-icon-close" @click.prevent.stop="closeTab(tab)" />
       </router-link>
-<!--      <div v-show="tabsList.length > 1" class="el-icon-close" @click.prevent.stop="closeTab(tab)" />-->
     </div>
     <ul v-show="showContextMenu" class="contextMenu" :style="contextMenuStyle">
       <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeOthers') }}</li>
@@ -308,7 +307,7 @@ export default {
       width: 100%;
       height: 100%;
       vertical-align: center;
-      margin: 5px;
+      padding: 5px;
     }
 
     .el-icon-close {

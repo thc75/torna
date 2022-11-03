@@ -15,9 +15,7 @@
 
 - 创建应用
 
-进入项目，点击模块列表右边`＋`，创建应用，也可以导入文档
-
-<img src="/static/help/images/create_module.png" style="height: 300px" title="创建应用" />
+进入项目，点击`＋`，创建应用，也可以导入文档
 
 - 新建接口
 
