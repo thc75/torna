@@ -559,4 +559,13 @@ figure.table {
   }
 }
 
+.hasDocViewTabs {
+  .app-main {
+    /* 84 = navbar + tabs-view = 50 + 34 */
+    min-height: calc(100vh - 70px);
+  }
 
+  .fixed-header + .app-main {
+    padding-top: 70px;
+  }
+}

@@ -77,6 +77,10 @@
   .el-tabs__content {
     padding: 0;
   }
+  // tabs换行显示
+  .el-tabs__nav {
+    white-space: normal;
+  }
 }
 </style>
 <script>
