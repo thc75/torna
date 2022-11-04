@@ -1,5 +1,6 @@
 package cn.torna.service;
 
+import cn.torna.common.context.EnvironmentContext;
 import cn.torna.common.interfaces.IConfig;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -70,7 +71,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
         SystemConfig systemConfig = get("config_key", key);
         return Optional.ofNullable(systemConfig)
                 .map(SystemConfig::getConfigValue)
-                .orElse(defaultValue);
+                .orElse(EnvironmentContext.getValue(key, defaultValue));
     }
 
     @Override
