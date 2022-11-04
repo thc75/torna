@@ -3,7 +3,9 @@
     <el-tabs>
       <el-tab-pane :label="$ts('projectConstant')">
         <el-alert type="info" :closable="false">
-          <span slot="title">{{ $ts('projectConstantTip') }}</span>
+          <span slot="title">{{ $ts('projectConstantTip') }}
+            <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/constant.md')" />
+          </span>
         </el-alert>
         <br>
         <rich-text-editor
@@ -29,20 +31,22 @@
         </el-tabs>
       </el-tab-pane>
     </el-tabs>
+    <help ref="help" />
   </div>
 </template>
 <script>
-import RichTextEditor from '@/components/RichTextEditor'
 $addI18n({
   'projectConstantTip': { 'zh': '定义项目级别常量（错误码、枚举），能被下面各个应用访问', 'en': 'The project constant that can be visited by the following applications' },
   'applicationConstantTip': { 'zh': '定义每个应用单独的常量', 'en': 'Define a separate constant for each application' }
 })
+import RichTextEditor from '@/components/RichTextEditor'
+import Help from '@/components/Help'
 
 const clientHeight = document.body.clientHeight
 const editor_height = (clientHeight - 310)
 export default {
   name: 'ConstantInfo',
-  components: { RichTextEditor },
+  components: { RichTextEditor, Help },
   props: {
     projectId: {
       type: String,

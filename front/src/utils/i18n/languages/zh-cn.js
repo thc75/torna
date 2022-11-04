@@ -8,6 +8,7 @@ const MAPPING = {
   'adminManage': '后台管理',
   'previewModel': '浏览模式',
   'helpCenter': '帮助中心',
+  'help': '帮助',
   'userMsgReadAll': '全部标记已读',
   'userMsgCenter': '消息中心',
   'userMsgNoMsg': '暂没有新消息',

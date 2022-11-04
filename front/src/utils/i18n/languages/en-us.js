@@ -8,6 +8,7 @@ const MAPPING = {
   'adminManage': 'Backend Management',
   'previewModel': 'Preview Model',
   'helpCenter': 'Help Center',
+  'help': 'Help',
   'userMsgReadAll': 'Set all read',
   'userMsgCenter': 'Message Center',
   'userMsgNoMsg': 'No Message',
