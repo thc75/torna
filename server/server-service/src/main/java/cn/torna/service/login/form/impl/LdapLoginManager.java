@@ -40,7 +40,10 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     @Value("${torna.email-domain:}")
     private String emailDomain;
 
-    @Value("${torna.ldap.custom-search-filter:(&(objectClass=inetOrgPerson)(uid=%s))}")
+    @Value("${torna.id-name:uid}")
+    private String idName;
+
+    @Value("${torna.ldap.custom-search-filter:(&(objectClass=inetOrgPerson)(%s=%s))}")
     private String ldapSearchFilter;
 
     @Value("${torna.ladp.custom-url:${torna.ldap.url:}/${torna.ldap.base:}}")
@@ -100,10 +103,10 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     public LdapUser ldapAuth(String uid, String password) {
         try {
             return ldapTemplate.authenticate(
-                    LdapQueryBuilder.query().where("uid").is(uid),
+                    LdapQueryBuilder.query().where(idName).is(uid),
                     password,
                     (dirContext, ldapEntryIdentification) ->
-                            ldapTemplate.findOne(LdapQueryBuilder.query().where("uid").is(uid), LdapUser.class));
+                            ldapTemplate.findOne(LdapQueryBuilder.query().where(idName).is(uid), LdapUser.class));
         } catch (Exception e) {
             log.error("LDAP登录失败，username={}", uid, e);
             return null;
@@ -156,7 +159,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         try {
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> results = ldapContext.search("", String.format(ldapSearchFilter, uid), controls);
+            NamingEnumeration<SearchResult> results = ldapContext.search("", String.format(ldapSearchFilter, idName,uid), controls);
             if (results == null || !results.hasMoreElements()) {
                 return null;
             }
