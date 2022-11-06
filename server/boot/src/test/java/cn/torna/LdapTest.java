@@ -24,7 +24,7 @@ import org.springframework.ldap.query.LdapQueryBuilder;
  *
  */
 @SpringBootTest(classes = TornaApplication.class, properties = {
-        "torna.ldap.url=ldap://10.0.1.184:389",
+        "torna.ldap.url=ldap://192.168.1.110:389",
         "torna.ldap.base=dc=torna,dc=cn",
         "torna.ldap.username=cn=Manager,dc=torna,dc=cn",
         "torna.ldap.password=123456"

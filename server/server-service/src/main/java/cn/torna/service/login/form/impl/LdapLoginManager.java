@@ -40,13 +40,18 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     @Value("${torna.email-domain:}")
     private String emailDomain;
 
-    @Value("${torna.id-name:uid}")
+    @Value("${torna.ldap.id-name:${torna.id-name:uid}}")
     private String idName;
 
-    @Value("${torna.ldap.custom-search-filter:(&(objectClass=inetOrgPerson)(%s=%s))}")
-    private String ldapSearchFilter;
+    @Value("${torna.ldap.object-class:*}")
+    private String objectClass;
 
-    @Value("${torna.ladp.custom-url:${torna.ldap.url:}/${torna.ldap.base:}}")
+    // 过滤器，默认：(&(objectClass=*)(uid=%s))
+    // %s表示用户名
+    @Value("${torna.ldap.filter:${torna.ldap.custom-search-filter:(&(objectClass=${torna.ldap.object-class:*})(${torna.ldap.id-name:uid}=%s))}}")
+    private String filter;
+
+    @Value("${torna.ladp.custom-url:${torna.ldap.url:}}")
     private String customUrl;
 
     @Value("${torna.ldap.custom-base-dn:${torna.ldap.base:}}")
@@ -119,9 +124,11 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         }
         SearchResult searchResult = getUserInfo(uid);
         if (searchResult == null) {
+            log.warn("没有找到用户,uid={}", uid);
             return null;
         }
         String userDN = searchResult.getName() + "," + customBaseDn;
+        log.info("用户登录，customUrl={}, userDN={}", customUrl, userDN);
         try {
             ldapContext.addToEnvironment(Context.SECURITY_PRINCIPAL, userDN);
             ldapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
@@ -159,7 +166,8 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         try {
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> results = ldapContext.search("", String.format(ldapSearchFilter, idName,uid), controls);
+            String filter = String.format(this.filter, uid);
+            NamingEnumeration<SearchResult> results = ldapContext.search(customBaseDn, filter, controls);
             if (results == null || !results.hasMoreElements()) {
                 return null;
             }
@@ -172,8 +180,9 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (StringUtils.hasText(customBaseDn)) {
+         if (StringUtils.hasText(customBaseDn)) {
             Hashtable<String, String> env = new Hashtable<>();
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
             env.put(Context.INITIAL_CONTEXT_FACTORY, factory);
             env.put(Context.PROVIDER_URL, customUrl);
             env.put(Context.SECURITY_PRINCIPAL, customUsername);
