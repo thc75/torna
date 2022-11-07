@@ -141,6 +141,9 @@ export default {
     removeToken()
     this.pmsConfig().then(config => {
       Object.assign(this.serverConfig, config)
+      if (this.serverConfig.enableLdap) {
+        this.loginForm.source = 'ldap'
+      }
     })
   },
   mounted() {
