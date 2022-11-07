@@ -33,7 +33,7 @@ public class CodeParamPushParam {
     @ApiDocField(name = "solution", description = "解决方案", required = true, example = "请填写token")
     @JSONField(name = "solution")
     @Length(max = 100, message = "描述长度不能超过100")
-    private String example;
+    private String example = "";
 
     private Byte createMode = OperationMode.OPEN.getType();
 

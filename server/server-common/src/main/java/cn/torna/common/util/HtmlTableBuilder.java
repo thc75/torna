@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
  */
 public class HtmlTableBuilder {
 
-    private static final String TABLE = "<div class=\"el-table el-table--fit el-table--border el-table--enable-row-hover\"><table cellspacing=0 cellpadding=0 border=0 class=\"el-table__body\">%s</table></div>";
-    private static final String TR = "<tr class=\"el-table__row\">%s</tr>";
-    private static final String TH = "<th style=\"padding: 2px 4px;\"><div class=\"cell\">%s</div></th>";
-    private static final String TD = "<td style=\"padding: 2px 4px;\"><div class=\"cell\">%s</div></td>";
+    private static final String TABLE = "<div class=\"rich-editor\"><figure class=\"table\"><table>%s</table></figure></div>";
+    private static final String TR = "<tr>%s</tr>";
+    private static final String TH = "<th>%s</th>";
+    private static final String TD = "<td>%s</td>";
+    public static final String THEAD = "<thead>%s</thead>";
+    public static final String TBODY = "<tbody>%s</tbody>";
     private String[] heads;
     private List<List<String>> rows;
 
@@ -35,8 +37,9 @@ public class HtmlTableBuilder {
         List<String> htmlHeads = Arrays.stream(heads)
                 .map(v -> String.format(TH, v))
                 .collect(Collectors.toList());
-
-        content.append(String.format(TR, String.join("", htmlHeads)));
+        String headTrs = String.format(TR, String.join("", htmlHeads));
+        String thead = String.format(THEAD, headTrs);
+        content.append(thead);
         List<List<String>> htmlRows = this.rows.stream()
                 .map(cells -> {
                     return cells.stream()
@@ -44,9 +47,15 @@ public class HtmlTableBuilder {
                             .collect(Collectors.toList());
                 })
                 .collect(Collectors.toList());
+
+        List<String> trs = new ArrayList<>(htmlRows.size());
+
         for (List<String> row : htmlRows) {
-            content.append(String.format(TR, String.join("", row)));
+            trs.add(String.format(TR, String.join("", row)));
         }
+
+        String tbody = String.format(TBODY, String.join("", trs));
+        content.append(tbody);
 
         return String.format(TABLE, content);
     }

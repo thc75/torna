@@ -3,14 +3,12 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.HtmlTableBuilder;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
-import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ConstantInfo;
+import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
-import cn.torna.dao.mapper.DocParamMapper;
 import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
@@ -28,7 +26,6 @@ import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,9 +58,6 @@ public class UpgradeService {
 
     @Autowired
     private DocInfoService docInfoService;
-
-    @Resource
-    private DocParamMapper docParamMapper;
 
     @Resource
     private ConstantInfoMapper errorCodeInfoMapper;
@@ -138,12 +132,8 @@ public class UpgradeService {
                 .stream()
                 .map(entry -> {
                     Long moduleId = entry.getKey();
-                    List<ModuleConfig> errorCode = entry.getValue();
-                    ConstantInfo errorCodeInfo = new ConstantInfo();
-                    errorCodeInfo.setModuleId(moduleId);
-                    String content = buildModuleMarkdownTable(errorCode);
-                    errorCodeInfo.setContent(content);
-                    return errorCodeInfo;
+                    List<ModuleConfig> moduleConfigs = entry.getValue();
+                    return moduleConfigService.buildConstantInfo(moduleId, moduleConfigs);
                 })
                 .collect(Collectors.toList());
 
@@ -151,20 +141,6 @@ public class UpgradeService {
             errorCodeInfoMapper.saveBatchIgnoreNull(tobeSaveList);
         }
     }
-
-    private String buildModuleMarkdownTable(List<ModuleConfig> moduleConfigs) {
-        HtmlTableBuilder htmlTableBuilder = new HtmlTableBuilder();
-        htmlTableBuilder.heads("错误码", "错误描述", "解决方案");
-        for (ModuleConfig moduleConfig : moduleConfigs) {
-            htmlTableBuilder.addRow(
-                    Arrays.asList(moduleConfig.getConfigKey(),
-                    moduleConfig.getConfigValue(),
-                    moduleConfig.getDescription())
-            );
-        }
-        return htmlTableBuilder.toString();
-    }
-
 
     private void v1_16_0(int oldVersion) {
         if (oldVersion < 1160) {

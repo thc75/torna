@@ -185,8 +185,7 @@ public class DocApi {
                     this.pushDocItem(detailPushParam, context, 0L, pushContext, param);
                 }
                 // 设置公共错误码
-                // 1.18.0开始取消，改为手动维护
-                //this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
+                this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
@@ -273,7 +272,7 @@ public class DocApi {
             return;
         }
         List<DocParam> errorCodeParams = CopyUtil.copyList(commonErrorCodes, DocParam::new);
-        moduleConfigService.setCommonErrorCodes(errorCodeParams, moduleId);
+        moduleConfigService.setCommonErrorCodeList(errorCodeParams, moduleId);
     }
 
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
