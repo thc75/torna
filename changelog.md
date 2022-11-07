@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.18.0
+
+- 【新增】新增常量管理，可管理项目中的错误码、枚举信息
+- 【新增】导出文档的时候希望能够选择相应的环境 [#I5SOET](https://gitee.com/durcframework/torna/issues/I5SOET);
+- 【修复】swagger query对象参数不显示；导入swagger树状类无限递归问题  [pr](https://gitee.com/durcframework/torna/pulls/42)
+- 【优化】优化LDAP登录
+- 【优化】优化部分UI
+- 【优化】手动修改文档描述后，再次推送不受影响，以手动调整为准
+- 【调整】之前的`模块`称呼调整为`应用`
+
 ## 1.17.3
 
 - 【修复】修复LDAP登录界面不显示问题
