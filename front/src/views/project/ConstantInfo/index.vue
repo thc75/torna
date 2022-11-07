@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-tabs>
       <el-tab-pane :label="$ts('projectConstant')">
         <el-alert type="info" :closable="false">

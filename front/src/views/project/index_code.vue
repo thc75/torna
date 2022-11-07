@@ -1,5 +1,7 @@
 <template>
-  <constant-info :project-id="projectId" />
+  <div style="padding: 0 20px;">
+    <constant-info :project-id="projectId" />
+  </div>
 </template>
 <script>
 import ConstantInfo from './ConstantInfo'

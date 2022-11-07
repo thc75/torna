@@ -7,7 +7,6 @@ import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.ModuleMapper;
 import cn.torna.service.dto.ModuleConstantInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,7 +34,11 @@ public class ConstantInfoService extends BaseService<ConstantInfo, ConstantInfoM
 
     public String getModuleConstantInfo(long moduleId) {
         Query query = new Query().eq("module_id", moduleId);
-        return this.getMapper().getBySpecifiedColumns(Collections.singletonList("content"), query, String.class);
+        String content = this.getMapper().getBySpecifiedColumns(Collections.singletonList("content"), query, String.class);
+        if (content == null) {
+            content = "";
+        }
+        return content;
     }
 
     public ModuleConstantInfoDTO getModuleAndProjectConstant(long moduleId) {

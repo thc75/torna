@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-drawer
       :title="$ts('help')"
       :visible.sync="drawer"
