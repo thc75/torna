@@ -42,9 +42,6 @@ public class LdapLoginManager implements ThirdPartyLoginManager {
     @Value("${torna.ldap.id-name:${torna.id-name:uid}}")
     private String idName;
 
-    @Value("${torna.ldap.object-class:*}")
-    private String objectClass;
-
     // 过滤器，默认：(&(objectClass=*)(uid=%s))
     // %s表示用户名
     @Value("${torna.ldap.filter:${torna.ldap.custom-search-filter:(&(objectClass=${torna.ldap.object-class:*})(${torna.ldap.id-name:uid}=%s))}}")
