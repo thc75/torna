@@ -81,11 +81,15 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
      * 跨域设置
      */
     @Bean
-    public CorsFilter corsFilter() {
+    public CorsFilter corsFilter(
+            @Value("${torna.cors.allowed-origin-pattern:*}") String allowedOriginPattern,
+            @Value("${torna.cors.allowed-header:*}") String allowedHeader
+    ) {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.addAllowedMethod("*");
+        // SpringBoot升级2.4.0之后，跨域配置中的.allowedOrigins不再可用,改成addAllowedOriginPattern
+        corsConfiguration.addAllowedOriginPattern(allowedOriginPattern);
+        corsConfiguration.addAllowedHeader(allowedHeader);
+        corsConfiguration.addAllowedMethod(CorsConfiguration.ALL);
         corsConfiguration.addExposedHeader(DebugController.TARGET_RESPONSE_HEADERS_NAME);
         corsConfiguration.addExposedHeader("Content-Disposition");
         corsConfiguration.setAllowCredentials(true);

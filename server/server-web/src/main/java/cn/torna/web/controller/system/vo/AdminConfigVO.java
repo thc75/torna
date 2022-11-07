@@ -3,11 +3,17 @@ package cn.torna.web.controller.system.vo;
 import cn.torna.common.bean.EnvironmentKeys;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 public class AdminConfigVO {
 
-    private ConfigItemVO regEnable;
-    private ConfigItemVO dingdingWebhookUrl;
+    private List<ConfigItemVO> configs = new ArrayList<>(8);
+
+    public void addConfig(ConfigItemVO configItemVO) {
+        configs.add(configItemVO);
+    }
 
     public static ConfigItemVO buildItem(EnvironmentKeys environmentKeys) {
         return buildItem(environmentKeys.getKey(), environmentKeys.getValue());

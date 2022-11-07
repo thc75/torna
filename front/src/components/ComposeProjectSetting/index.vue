@@ -168,7 +168,7 @@
 import TimeTooltip from '@/components/TimeTooltip'
 import CommonParam from './CommonParam'
 import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
+
 export default {
   components: { CommonParam, mavonEditor, TimeTooltip },
   props: {

@@ -96,9 +96,7 @@ public class ShareController {
         } else {
             List<ShareContent> shareContents = shareConfigService.listContent(id);
             List<Long> docIdList = listDocId(shareContents);
-            Query query = new Query()
-                    .in("id", docIdList);
-            docInfos = docInfoService.list(query);
+            docInfos = docInfoService.listDocByIds(docIdList);
         }
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         calcDocCount(docInfoVOS);

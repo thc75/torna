@@ -1,5 +1,41 @@
 # 更新日志
 
+## 1.18.0
+
+- 【新增】新增常量管理，可管理项目中的错误码、枚举信息
+- 【新增】导出文档的时候希望能够选择相应的环境 [#I5SOET](https://gitee.com/durcframework/torna/issues/I5SOET);
+- 【修复】swagger query对象参数不显示；导入swagger树状类无限递归问题  [pr](https://gitee.com/durcframework/torna/pulls/42)
+- 【优化】优化LDAP登录
+- 【优化】优化部分UI
+- 【优化】手动修改文档描述后，再次推送不受影响，以手动调整为准
+- 【调整】之前的`模块`称呼调整为`应用`
+
+## 1.17.3
+
+- 【修复】修复LDAP登录界面不显示问题
+
+## 1.17.2
+
+- 【新增】新增接口可返回mock脚本
+- 【新增】推送接口新增`isOverride`参数，可推送修改部分接口
+- 【修复】修复导入swagger文档报错问题
+
+## 1.17.1
+
+- 【修复】字典删除无法再次添加问题 [#I5SB89](https://gitee.com/durcframework/torna/issues/I5SB89)
+- 【修复】升级jar版本，修复安全漏洞 [#I5T656](https://gitee.com/durcframework/torna/issues/I5T656)
+- 【修复】分享链接里面的接口没有进行排序 [#I5TF2N](https://gitee.com/durcframework/torna/issues/I5TF2N)
+- 【优化】优化docker构建，更好的适配云端构建
+
+## 1.17.0
+
+- 【修复】Postman导入异常 [#I5R939](https://gitee.com/durcframework/torna/issues/I5R939)
+- 【修复】分享页面修改配置无法显示调试环境问题
+- 【升级】springboot升级到2.6.11，支持Java17 [#I5R2RA](https://gitee.com/durcframework/torna/issues/I5R2RA)
+- 【升级】spring-ldap升级到2.4.1（解决Java17启动`cannot access class com.sun.jndi.ldap.LdapCtxFactory`问题）
+- 【新增】可自定义文档排序规则（后台管理-系统设置-文档排序设置）
+- 【优化】分享文档可复制URL
+
 ## 1.16.3
 
 - 【修复】请求头参数异常 [#I5Q5HD](https://gitee.com/durcframework/torna/issues/I5Q5HD)

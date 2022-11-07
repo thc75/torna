@@ -34,6 +34,9 @@ public class DocPushRequest extends BaseRequest<DocPushResponse> {
     /** 是否替换文档，1：替换，0：不替换（追加）。默认：1 */
     private Byte isReplace = Booleans.TRUE;
 
+    /** 是否覆盖文档，1：覆盖，0：不覆盖。缺省：0。如果只想修改部分接口传1 */
+    private Byte isOverride = Booleans.FALSE;
+
     /**
      * @param token OpenAPI对应的token
      */

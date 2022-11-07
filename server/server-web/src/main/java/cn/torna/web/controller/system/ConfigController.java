@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 /**
@@ -57,17 +58,20 @@ public class ConfigController implements InitializingBean {
 
 
     @GetMapping("/config/adminsetting")
-    public Result<AdminConfigVO> getAdminConfig() {
+    public Result<AdminConfigVO> getAdminConfig(String[] keys) {
         AdminConfigVO adminConfigVO = new AdminConfigVO();
-        adminConfigVO.setRegEnable(AdminConfigVO.buildItem(EnvironmentKeys.REGISTER_ENABLE));
-        adminConfigVO.setDingdingWebhookUrl(AdminConfigVO.buildItem(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_URL));
+        adminConfigVO.addConfig(AdminConfigVO.buildItem(EnvironmentKeys.REGISTER_ENABLE));
+        for (String key : keys) {
+            String value = Configs.getValue(key, null);
+            adminConfigVO.addConfig(AdminConfigVO.buildItem(key, value));
+        }
         return Result.ok(adminConfigVO);
     }
 
 
     @PostMapping("/config/update")
-    public Result<ConfigVO> configUpdate(@RequestBody ConfigUpdateParam param) {
-        systemConfigService.setConfig(param.getKey(), param.getValue());
+    public Result<ConfigVO> configUpdate(@RequestBody @Valid ConfigUpdateParam param) {
+        systemConfigService.setConfig(param.getKey(), param.getValue(), param.getRemark());
         return Result.ok(configVO);
     }
 

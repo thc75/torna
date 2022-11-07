@@ -34,9 +34,14 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
             });
 
     public void setConfig(String key, String value) {
+        setConfig(key, value, "");
+    }
+
+    public void setConfig(String key, String value, String remark) {
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
         systemConfigDTO.setConfigKey(key);
         systemConfigDTO.setConfigValue(value);
+        systemConfigDTO.setRemark(remark);
         setConfig(systemConfigDTO);
     }
 
@@ -55,7 +60,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
     }
 
     /**
-     * 获取配置信息，优先从数据库中读取，再从Environment中读取
+     * 获取配置信息，优先从数据库中读取
      *
      * @param key          配置key
      * @param defaultValue 没有获取到返回的默认值

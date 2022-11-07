@@ -24,9 +24,10 @@
         :to="{path: tab.path, query: tab.query, fullPath: tab.fullPath}"
         class="tab-title"
         :title="tab.title"
-      >{{ tab.title }}
+      >
+        {{ tab.title }}
+        <span v-show="tabsList.length > 1" class="el-icon-close" @click.prevent.stop="closeTab(tab)" />
       </router-link>
-      <div v-show="tabsList.length > 1" class="el-icon-close" @click.prevent.stop="closeTab(tab)" />
     </div>
     <ul v-show="showContextMenu" class="contextMenu" :style="contextMenuStyle">
       <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeOthers') }}</li>
@@ -41,6 +42,9 @@
 const ALLOW_PATH_PREFIX = [
   '/view', '/share', '/show'
 ]
+
+const BASE_PADDING_TOP = 44
+
 export default {
   name: 'TabsRouter',
   data() {
@@ -71,6 +75,15 @@ export default {
       if (!docId) {
         this.$store.state.settings.docTitle = ''
       }
+      this.$nextTick(() => {
+        const height = this.$refs.tabs_router.offsetHeight
+        const els = document.getElementsByClassName('app-main ')
+        if (els) {
+          for (const el of els) {
+            el.style.paddingTop = BASE_PADDING_TOP + height + 'px'
+          }
+        }
+      })
     },
     showContextMenu(value) {
       if (value) {
@@ -250,22 +263,23 @@ export default {
   background: #FDFCFC;
   //padding: 5px 0;
   box-shadow: 0 1px 3px 0 RGBA(0, 0, 0, .12), 0 0 3px 0 RGBA(0, 0, 0, .04);
-  display: flex;
+  display: inline-block;
   align-items: center;
-  overflow-x: auto;
+  overflow-x: hidden;
 
   .tab-item {
-    border-right: 1px solid #D8DCE5;
+    border-right: 1px solid #DCDFE6;
+    border-bottom: 1px solid #DCDFE6;
     color: #495060;
     font-size: 12px;
     //border-radius: 4px;
-    height: 32px;
-    width: 120px;
-    min-width: 110px;
+    min-height: 25px;
+    //width: 120px;
+    //min-width: 110px;
     background: #FFF;
     //margin-left: 5px;
     cursor: pointer;
-    display: flex;
+    display: inline-block;
     align-items: center;
     justify-content: space-between;
 
@@ -290,15 +304,15 @@ export default {
     .tab-title {
       white-space: nowrap;
       text-overflow: ellipsis;
-      overflow: hidden;
       width: 100%;
       height: 100%;
       vertical-align: center;
-      padding: 10px 8px;
+      padding: 5px;
     }
 
     .el-icon-close {
-      padding: 2px;
+      padding: 1px;
+      font-size: 13px;
       border-radius: 50%;
       transition: all .3s cubic-bezier(.645, .045, .355, 1);
       transform-origin: 100% 50%;

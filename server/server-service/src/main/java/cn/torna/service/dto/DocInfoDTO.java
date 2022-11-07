@@ -7,10 +7,9 @@ import cn.torna.service.dataid.DocInfoDataId;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author tanghc
@@ -102,10 +101,10 @@ public class DocInfoDTO implements DocInfoDataId {
     private Integer orderIndex;
 
     /**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  数据库字段：gmt_modified */
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     private String baseUrl;
 
@@ -125,11 +124,13 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> queryParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
-    private List<DocParamDTO> errorCodeParams;
+    private List<DocParamDTO> errorCodeParams = Collections.emptyList();
 
     private List<DocParamDTO> globalHeaders;
     private List<DocParamDTO> globalParams;
     private List<DocParamDTO> globalReturns;
 
     private DubboInfoDTO dubboInfo;
+
+    private String errorCodeInfo;
 }

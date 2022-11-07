@@ -1,7 +1,9 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
@@ -54,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -98,6 +101,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private PushIgnoreFieldService pushIgnoreFieldService;
+
     /**
      * 查询模块下的所有文档
      *
@@ -106,8 +112,28 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public List<DocInfo> listModuleDoc(long moduleId) {
         List<DocInfo> docInfoList = list("module_id", moduleId);
-        docInfoList.sort(Comparator.comparing(DocInfo::getOrderIndex));
+        sortDocInfo(docInfoList);
         return docInfoList;
+    }
+
+    public static void sortDocInfo(List<DocInfo> docInfoList) {
+        if (CollectionUtils.isEmpty(docInfoList)) {
+            return;
+        }
+        String value = EnvironmentKeys.TORNA_DOC_SORT_TYPE.getValue();
+        Comparator<DocInfo> comparator;
+        switch (DocSortType.of(value)) {
+            case BY_URL:
+                comparator = Comparator.comparing(DocInfo::getUrl).thenComparing(DocInfo::getOrderIndex);
+                break;
+            case BY_NAME:
+                comparator = Comparator.comparing(DocInfo::getName).thenComparing(DocInfo::getOrderIndex);
+                break;
+            default:{
+                comparator = Comparator.comparing(DocInfo::getOrderIndex);
+            }
+        }
+        docInfoList.sort(comparator);
     }
 
     public List<DocInfo> listDocMenuView(long moduleId) {
@@ -257,11 +283,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (CollectionUtils.isEmpty(docIdList)) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .in("id", docIdList);
-        List<DocInfo> docInfos = this.list(query);
+        List<DocInfo> docInfos = this.listDocByIds(docIdList);
         return docInfos.stream()
-                .sorted(Comparator.comparing(DocInfo::getOrderIndex))
                 .map(this::getDocDetail)
                 .collect(Collectors.toList());
     }
@@ -272,7 +295,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         Query query = new Query()
                 .in("id", docIdList);
-        return this.list(query);
+        List<DocInfo> list = this.list(query);
+        sortDocInfo(list);
+        return list;
     }
 
 
@@ -282,15 +307,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
         List<DocParam> globalParams = moduleConfigService.listGlobalParams(moduleId);
         List<DocParam> globalReturns = moduleConfigService.listGlobalReturns(moduleId);
-        List<DocParam> globalErrorCodes = listCommonErrorCodes(moduleId);
         docInfoDTO.setGlobalHeaders(CopyUtil.copyList(globalHeaders, DocParamDTO::new));
         docInfoDTO.setGlobalParams(CopyUtil.copyList(globalParams, DocParamDTO::new));
         docInfoDTO.setGlobalReturns(CopyUtil.copyList(globalReturns, DocParamDTO::new));
-        docInfoDTO.getErrorCodeParams().addAll(CopyUtil.copyList(globalErrorCodes, DocParamDTO::new));
         docInfoDTO.getGlobalHeaders().forEach(docParamDTO -> docParamDTO.setGlobal(true));
         return docInfoDTO;
     }
 
+    /**
+     * 查询模块全局错误码
+     * @param moduleId 模块id
+     * @return 返回全局错误码
+     */
     private List<DocParam> listCommonErrorCodes(long moduleId) {
         return moduleConfigService.listCommonErrorCodes(moduleId);
     }
@@ -311,9 +339,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return doUpdateDocInfo(docInfoDTO, user);
     }
 
-    public DocInfo doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
+    public DocInfo doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user, boolean isOverride) {
         // 修改基本信息
         DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
+        if (isOverride) {
+            // 删除文档对应的参数
+            docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
+        }
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         return docInfo;
@@ -388,6 +420,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setMd5(newMd5);
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
+
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         return docInfo;
@@ -432,6 +465,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     private DocInfo modifyDocInfo(DocInfoDTO docInfoDTO, User user) {
         DocInfo docInfo = this.getById(docInfoDTO.getId());
+        String descriptionOld = docInfo.getDescription();
+        String descriptionNew = docInfoDTO.getDescription();
         String oldMd5 = docInfo.getMd5();
         String newMd5 = getDocMd5(docInfoDTO);
         CopyUtil.copyPropertiesIgnoreNull(docInfoDTO, docInfo);
@@ -454,6 +489,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (StringUtils.hasText(oldMd5) && !Objects.equals(oldMd5, newMd5)) {
             // 发送站内信
             userMessageService.sendMessageByModifyDoc(docInfo);
+        }
+        // 如果描述内容不一样，以手动修改的为准
+        if (!Objects.equals(descriptionNew, descriptionOld)) {
+            pushIgnoreFieldService.addField(docInfo, "description", "文档信息.描述");
         }
         return docInfo;
     }
@@ -527,6 +566,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         if (docInfo.getDeprecated() == null) {
             docInfo.setDeprecated("$false$");
+        }
+        // 描述字段忽略
+        if (pushIgnoreFieldService.isPushIgnore(docInfoDTO.getModuleId(), docInfoDTO.buildDataId(), "description")) {
+            docInfo.setDescription(null);
         }
         return docInfo;
     }
@@ -668,17 +711,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 .eq("create_mode", OperationMode.OPEN.getType())
                 .eq("is_locked", Booleans.FALSE);
         // 查询出文档id
-        List<Long> idList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
-        if (CollectionUtils.isEmpty(idList)) {
+        List<Long> docIdList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
+        if (CollectionUtils.isEmpty(docIdList)) {
             return;
         }
         // 删除文档
         Query delQuery = new Query()
-                .in("id", idList);
+                .in("id", docIdList);
         // DELETE FROM doc_info WHERE id in (..)
         this.getMapper().deleteByQuery(delQuery);
 
         // 删除文档对应的参数
+        docParamService.deletePushParam(docIdList);
         Query paramDelQuery = new Query()
                 .in("doc_id", idList)
                 .eq("create_mode", OperationMode.OPEN.getType());

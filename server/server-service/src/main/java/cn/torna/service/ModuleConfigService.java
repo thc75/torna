@@ -7,11 +7,14 @@ import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.DataIdUtil;
+import cn.torna.common.util.HtmlTableBuilder;
 import cn.torna.common.util.IdGen;
+import cn.torna.dao.entity.ConstantInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ModuleEnvironmentParam;
+import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.ModuleConfigMapper;
 import cn.torna.service.dto.DocParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +43,9 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     @Autowired
     private ModuleEnvironmentParamService moduleEnvironmentParamService;
+
+    @Autowired
+    private ConstantInfoService constantInfoService;
 
 
     public List<DocParam> listGlobalHeaders(long moduleId) {
@@ -116,6 +123,51 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
                 this.update(config);
             }
         }
+    }
+
+    /**
+     * 保存应用全局错误码
+     * @param docParamList
+     * @param moduleId
+     */
+    public void setCommonErrorCodeList(List<DocParam> docParamList, long moduleId) {
+        if (CollectionUtils.isEmpty(docParamList)) {
+            return;
+        }
+        List<ModuleConfig> moduleConfigs = docParamList.stream()
+                .map(docParam -> {
+                    ModuleConfig config = new ModuleConfig();
+                    config.setModuleId(moduleId);
+                    config.setConfigKey(docParam.getName());
+                    config.setConfigValue(docParam.getExample());
+                    config.setDescription(docParam.getDescription());
+                    return config;
+                })
+                .collect(Collectors.toList());
+        ConstantInfo constantInfo = this.buildConstantInfo(moduleId, moduleConfigs);
+        constantInfoService.saveModuleConstantInfo(moduleId, constantInfo.getContent());
+    }
+
+    public ConstantInfo buildConstantInfo(long moduleId, List<ModuleConfig> moduleConfigs) {
+        ConstantInfo errorCodeInfo = new ConstantInfo();
+        errorCodeInfo.setModuleId(moduleId);
+        String content = buildModuleHtmlTable(moduleConfigs);
+        errorCodeInfo.setContent(content);
+        return errorCodeInfo;
+    }
+
+    private String buildModuleHtmlTable(List<ModuleConfig> moduleConfigs) {
+        HtmlTableBuilder htmlTableBuilder = new HtmlTableBuilder();
+        htmlTableBuilder.heads("错误码", "错误描述", "解决方案");
+        for (ModuleConfig moduleConfig : moduleConfigs) {
+            htmlTableBuilder.addRow(
+                    Arrays.asList(moduleConfig.getConfigKey(),
+                            moduleConfig.getDescription(),
+                            moduleConfig.getConfigValue()
+                            )
+            );
+        }
+        return htmlTableBuilder.toString();
     }
 
     public List<DocParam> listCommonErrorCodes(long moduleId) {

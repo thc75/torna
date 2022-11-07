@@ -1,24 +1,50 @@
 package cn.torna;
 
+import cn.torna.service.login.form.LoginForm;
+import cn.torna.service.login.form.LoginResult;
+import cn.torna.service.login.form.impl.LdapLoginManager;
 import cn.torna.service.login.form.impl.LdapUser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQueryBuilder;
 
 /**
  * application.properties:
- *
- * spring.ldap.urls=ldap://172.16.6.64:389
- * spring.ldap.base=dc=torna,dc=cn
- * spring.ldap.username=cn=Manager,${spring.ldap.base}
- * spring.ldap.password=123456
+ * <pre>
+ * torna.ldap.url=ldap://ip:port
+ * # ldap域名信息，如：dc=your_domain,dc=com
+ * torna.ldap.base=dc=your_domain,dc=com
+ * # 管理员账号，如：cn=Manager,dc=your_domain,dc=com
+ * torna.ldap.username=cn=Manager,dc=your_domain,dc=com
+ * # 管理员密码
+ * torna.ldap.password=xxx
+ * </pre>
  *
  */
-public class LdapTest extends TornaApplicationTests {
+@SpringBootTest(classes = TornaApplication.class, properties = {
+        "torna.ldap.url=ldap://10.0.1.178:389",
+        "torna.ldap.base=dc=torna,dc=cn",
+        "torna.ldap.username=cn=Manager,dc=torna,dc=cn",
+        "torna.ldap.password=123456"
+})
+public class LdapTest {
 
     @Autowired
     private LdapTemplate ldapTemplate;
+
+    @Autowired
+    private LdapLoginManager ldapLoginManager;
+
+    @Test
+    public void login() throws Exception {
+        LoginForm loginForm = new LoginForm();
+        loginForm.setUsername("zhangsan");
+        loginForm.setPassword("123456");
+        LoginResult loginResult = ldapLoginManager.login(loginForm);
+        System.out.println(loginResult);
+    }
 
     @Test
     public void authenticationTest() {

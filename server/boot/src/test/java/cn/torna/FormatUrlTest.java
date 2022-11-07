@@ -1,13 +1,12 @@
 package cn.torna;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.util.StringUtils;
 
 /**
  * @author tanghc
  */
-public class FormatUrlTest extends TestCase {
+public class FormatUrlTest {
 
     public void testA() {
         String[] arr = {
@@ -38,7 +37,7 @@ public class FormatUrlTest extends TestCase {
             if (index > 0) {
                 url = url.substring(index);
             }
-            Assert.assertEquals("/App/list", url);
+            Assertions.assertEquals("/App/list", url);
         }
     }
 }

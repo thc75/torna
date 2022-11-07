@@ -54,6 +54,10 @@
                     <groupId>com.itextpdf</groupId>
                     <artifactId>itext-asian</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.velocity</groupId>
+                    <artifactId>velocity</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

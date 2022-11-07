@@ -125,7 +125,7 @@
           />
         </el-form-item>
         <el-form-item v-show="dialogFormData.isShowDebug" :label="$ts('debugEnv')">
-          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">全选</el-checkbox>
+          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $ts('selectAll') }}</el-checkbox>
           <el-checkbox-group v-model="dialogFormData.moduleEnvironmentIdList">
             <el-checkbox v-for="(env, index) in moduleEnvironmentList" :key="index" :label="env.id">{{ env.name }}</el-checkbox>
           </el-checkbox-group>
@@ -206,21 +206,13 @@ export default {
       }
     }
   },
-  watch: {
-    'dialogFormData.isShowDebug': {
-      handler(newVal, oldVal) {
-        console.log(newVal)
-        console.log(oldVal)
-      },
-      deep: true
-    }
-  },
   methods: {
     reload(moduleId) {
       if (moduleId) {
         this.moduleId = moduleId
       }
       this.loadTable(this.moduleId)
+      this.loadDebugEnvs(this.moduleId)
     },
     loadTable(moduleId) {
       if (moduleId) {
@@ -233,7 +225,6 @@ export default {
     onAdd() {
       this.dialogTitle = this.$ts('newShare')
       this.dialogVisible = true
-      this.loadDebugEnvs(this.moduleId)
       this.dialogFormData = {
         id: '',
         type: 1,

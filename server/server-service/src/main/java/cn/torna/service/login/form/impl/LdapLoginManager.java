@@ -7,7 +7,6 @@ import cn.torna.service.login.form.LoginResult;
 import cn.torna.service.login.form.ThirdPartyLoginManager;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.LdapTemplate;
@@ -31,7 +30,7 @@ import java.util.Hashtable;
  */
 @Slf4j
 @Service
-public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBean {
+public class LdapLoginManager implements ThirdPartyLoginManager {
 
 
     @Autowired
@@ -40,10 +39,15 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     @Value("${torna.email-domain:}")
     private String emailDomain;
 
-    @Value("${torna.ldap.custom-search-filter:(&(objectClass=inetOrgPerson)(uid=%s))}")
-    private String ldapSearchFilter;
+    @Value("${torna.ldap.id-name:${torna.id-name:uid}}")
+    private String idName;
 
-    @Value("${torna.ladp.custom-url:${torna.ldap.url:}/${torna.ldap.base:}}")
+    // 过滤器，默认：(&(objectClass=*)(uid=%s))
+    // %s表示用户名
+    @Value("${torna.ldap.filter:${torna.ldap.custom-search-filter:(&(objectClass=${torna.ldap.object-class:*})(${torna.ldap.id-name:uid}=%s))}}")
+    private String filter;
+
+    @Value("${torna.ladp.custom-url:${torna.ldap.url:}}")
     private String customUrl;
 
     @Value("${torna.ldap.custom-base-dn:${torna.ldap.base:}}")
@@ -58,8 +62,6 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     @Value("${torna.ldap.custom-context-factory:com.sun.jndi.ldap.LdapCtxFactory}")
     private String factory;
 
-
-    private LdapContext ldapContext;
 
     @Override
     public LoginResult login(LoginForm loginForm) throws Exception {
@@ -100,10 +102,10 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     public LdapUser ldapAuth(String uid, String password) {
         try {
             return ldapTemplate.authenticate(
-                    LdapQueryBuilder.query().where("uid").is(uid),
+                    LdapQueryBuilder.query().where(idName).is(uid),
                     password,
                     (dirContext, ldapEntryIdentification) ->
-                            ldapTemplate.findOne(LdapQueryBuilder.query().where("uid").is(uid), LdapUser.class));
+                            ldapTemplate.findOne(LdapQueryBuilder.query().where(idName).is(uid), LdapUser.class));
         } catch (Exception e) {
             log.error("LDAP登录失败，username={}", uid, e);
             return null;
@@ -111,14 +113,17 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
     }
 
     public LdapUser ldapLogin(String uid, String password) {
+        LdapContext ldapContext = getLdapContext();
         if (ldapContext == null) {
             return null;
         }
-        SearchResult searchResult = getUserInfo(uid);
+        SearchResult searchResult = getUserInfo(ldapContext, uid);
         if (searchResult == null) {
+            log.warn("没有找到用户,uid={}", uid);
             return null;
         }
         String userDN = searchResult.getName() + "," + customBaseDn;
+        log.info("用户登录，customUrl={}, userDN={}", customUrl, userDN);
         try {
             ldapContext.addToEnvironment(Context.SECURITY_PRINCIPAL, userDN);
             ldapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
@@ -128,6 +133,12 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         } catch (Exception e) {
             log.error("LDAP认证失败, url={}, uid={}", customUrl, uid, e);
             return null;
+        } finally {
+            try {
+                ldapContext.close();
+            } catch (NamingException e) {
+                // ignore
+            }
         }
     }
 
@@ -152,11 +163,12 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         }
     }
 
-    private SearchResult getUserInfo(String uid) {
+    private SearchResult getUserInfo(LdapContext ldapContext, String uid) {
         try {
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> results = ldapContext.search("", String.format(ldapSearchFilter, uid), controls);
+            String filter = String.format(this.filter, uid);
+            NamingEnumeration<SearchResult> results = ldapContext.search(customBaseDn, filter, controls);
             if (results == null || !results.hasMoreElements()) {
                 return null;
             }
@@ -167,20 +179,24 @@ public class LdapLoginManager implements ThirdPartyLoginManager, InitializingBea
         }
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    private LdapContext getLdapContext() {
         if (StringUtils.hasText(customBaseDn)) {
             Hashtable<String, String> env = new Hashtable<>();
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
             env.put(Context.INITIAL_CONTEXT_FACTORY, factory);
             env.put(Context.PROVIDER_URL, customUrl);
             env.put(Context.SECURITY_PRINCIPAL, customUsername);
             env.put(Context.SECURITY_CREDENTIALS, customPassword);
             log.info("LDAP配置，env={}", JSON.toJSONString(env));
             try {
-                ldapContext = new InitialLdapContext(env, null);
+                return new InitialLdapContext(env, null);
             } catch (Exception e) {
-                log.error("初始化LDAP失败", e);
+                log.error("初始化LDAP失败, customBaseDn={}",customBaseDn, e);
+                return null;
             }
+        } else {
+            log.info("未配置customBaseDn");
+            return null;
         }
     }
 

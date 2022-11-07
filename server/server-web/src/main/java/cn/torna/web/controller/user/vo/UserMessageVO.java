@@ -4,7 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 备注：站内消息
@@ -45,7 +45,7 @@ public class UserMessageVO {
     /**
      * 数据库字段：gmt_create
      */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
 
 }

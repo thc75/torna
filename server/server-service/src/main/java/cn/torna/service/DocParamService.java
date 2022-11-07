@@ -2,6 +2,7 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.DataIdUtil;
@@ -169,6 +170,15 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         }
         this.getMapper().saveParam(docParam);
         return docParam;
+    }
+
+    public void deletePushParam(List<Long> docIdList) {
+        // 删除文档对应的参数
+        Query paramDelQuery = new Query()
+                .in("doc_id", docIdList)
+                .eq("create_mode", OperationMode.OPEN.getType())
+                ;
+        getMapper().deleteByQuery(paramDelQuery);
     }
 
 

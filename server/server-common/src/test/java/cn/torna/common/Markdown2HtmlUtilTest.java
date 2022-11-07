@@ -1,8 +1,7 @@
 package cn.torna.common;
 
 import cn.torna.common.util.Markdown2HtmlUtil;
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
 /**
  * @author thc
  */
-public class Markdown2HtmlUtilTest extends TestCase {
+public class Markdown2HtmlUtilTest {
 
     @Test
     public void test() {

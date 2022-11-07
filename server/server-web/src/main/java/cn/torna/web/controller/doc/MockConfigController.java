@@ -55,7 +55,7 @@ public class MockConfigController {
     private MockConfigVO convert(MockConfig mockConfig) {
         MockConfigVO mockConfigVO = CopyUtil.copyBean(mockConfig, MockConfigVO::new);
         mockConfigVO.setResponseHeaders(JSON.parseArray(mockConfig.getResponseHeaders(), NameValueVO.class));
-        MockResultTypeEnum mockResponseBodyTypeEnum = StringUtils.hasLength(mockConfig.getMockScript()) ?
+        MockResultTypeEnum mockResponseBodyTypeEnum = StringUtils.hasText(mockConfig.getMockScript()) ?
                 MockResultTypeEnum.SCRIPT : MockResultTypeEnum.CUSTOM;
         mockConfigVO.setResponseBodyType(mockResponseBodyTypeEnum.getType());
         return mockConfigVO;

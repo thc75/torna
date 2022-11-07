@@ -1,12 +1,11 @@
 package cn.torna.dao.entity;
 
-import java.util.Date;
-
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
-
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 
 /**
@@ -66,10 +65,10 @@ public class ComposeProject {
     private Byte isDeleted;
 
     /**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  数据库字段：gmt_modified */
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }

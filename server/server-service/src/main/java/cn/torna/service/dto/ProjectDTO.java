@@ -4,7 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author tanghc
@@ -33,7 +33,7 @@ public class ProjectDTO {
 
     private String roleCode;
 
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /** 是否私有项目，1：是，0：否, 数据库字段：is_private */
     private Byte isPrivate;

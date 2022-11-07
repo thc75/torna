@@ -1,144 +1,99 @@
 <template>
-  <div>
-    <el-container>
-      <el-aside :width="sidebarOpen ? '200px' : '40px'">
-        <hamburger :is-active="sidebarOpen" :padding="0" class="hamburger-container" style="margin-bottom: 5px" @toggleClick="toggleSideBar" />
-        <ul v-show="sidebarOpen" class="module-menu el-menu">
-          <li class="el-submenu is-active is-opened">
-            <div class="el-submenu__title" style="padding-left: 20px;">
-              <span slot="title">
-                {{ $ts('moduleList') }}
-                <el-dropdown
-                  v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
-                  trigger="click"
-                  style="margin-bottom: 5px;float: right"
-                  @command="handleCommand"
-                >
-                  <el-button type="text" size="mini" icon="el-icon-circle-plus-outline"></el-button>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </span>
-            </div>
-            <ul role="menu" class="el-menu el-menu--inline">
-              <li
-                v-for="item in moduleData"
-                :key="item.id"
-                :class="{'is-active': isActive(item)}"
-                class="el-menu-item"
-                style="padding-left: 40px;"
-                @click="onModuleSelect(item)"
-              >
-                <span>
-                  {{ item.name }}
-                </span>
-                <el-tooltip effect="dark" :content="$ts('syncSwaggerDoc')" placement="bottom">
-                  <el-button
-                    v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
-                    v-show="module.id === item.id && item.type === 1"
-                    :loading="refreshSwaggerLoading"
-                    type="text"
-                    icon="el-icon-refresh"
-                    @click.stop="onRefreshSwagger(item)"
-                  />
-                </el-tooltip>
-              </li>
-            </ul>
-          </li>
-        </ul>
-        <ul v-show="!sidebarOpen" class="el-menu small-menu">
-          <li class="small-menu-item">
-            <el-dropdown
+  <div style="padding: 10px;">
+    <el-empty v-if="moduleData.length === 0" :description="$ts('noAppDescription')">
+      <el-dropdown
+        trigger="hover"
+        @command="handleCommand"
+      >
+        <el-button type="primary" icon="el-icon-circle-plus" style="padding: 10px; font-size: 16px"></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </el-empty>
+    <el-tabs
+      v-if="moduleData.length > 0"
+      v-model="active"
+      type="border-card"
+      :before-leave="beforeLeave"
+      class="module-tabs"
+      @tab-click="onTabClick"
+    >
+      <el-tab-pane
+        v-for="item in moduleData"
+        :key="item.id"
+        :label="item.name"
+        :name="item.name"
+        :title="item.name"
+      >
+        <span slot="label">
+          {{ item.name }}
+          <el-tooltip effect="dark" :content="$ts('syncSwaggerDoc')" placement="top">
+            <el-button
               v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
-              trigger="click"
-              style="margin-bottom: 5px;"
-              @command="handleCommand"
-            >
-              <el-button type="text" icon="el-icon-circle-plus-outline"></el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </li>
-          <li
-            v-for="item in moduleData"
-            :key="item.id"
-            class="small-menu-item"
-            :class="{'is-active': isActive(item)}"
-            @click="onModuleSelect(item)"
+              v-show="module.id === item.id && item.type === 1"
+              :loading="refreshSwaggerLoading"
+              type="text"
+              icon="el-icon-refresh el-icon--right"
+              @click.stop="onRefreshSwagger(item)"
+            />
+          </el-tooltip>
+        </span>
+      </el-tab-pane>
+      <!-- 新增应用 -->
+      <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="_new_">
+        <span slot="label">
+          <el-dropdown
+            trigger="hover"
+            @command="handleCommand"
           >
-            <el-tooltip placement="right" :content="item.name">
-              <div>{{ item.name.substring(0, 1).toUpperCase() }}</div>
-            </el-tooltip>
-          </li>
-        </ul>
-      </el-aside>
-      <el-main style="padding-top: 0">
-        <doc-info v-show="module" ref="docInfo" :project-id="projectId" :module-id="module.id" />
-      </el-main>
-    </el-container>
+            <el-button type="text" icon="el-icon-circle-plus" style="padding: 10px; color: #303133;font-size: 16px"></el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </span>
+      </el-tab-pane>
+    </el-tabs>
+    <doc-info v-show="module" ref="docInfo" :project-id="projectId" :module-id="module.id" />
     <!-- 导入json -->
     <import-swagger-dialog ref="importSwaggerDlg" :project-id="projectId" :success="reload" />
     <import-postman-dialog ref="importPostmanDlg" :project-id="projectId" :success="reload" />
   </div>
 </template>
 <style lang="scss">
-.hamburger-container {
-  cursor: pointer;
-}
-.module-menu .el-submenu__title {
-  height: 36px;
-  line-height: 36px;
-}
-.module-menu .el-menu button {
-  position: absolute;
-  right: 10px;
-  padding-top: 8px;
-  padding-bottom: 0;
-}
-.module-menu .el-menu .is-active {
-  outline: 0;
-  background-color: #ecf5ff;
-}
-.module-menu .el-menu-item {
-  height: 36px;
-  line-height: 36px;
-}
+.module-tabs {
+  background: #FFF;
+  border: 1px solid #DCDFE6;
+  border-bottom: 0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  margin-bottom: 10px;
 
-.small-menu {
-  .small-menu-item {
-    list-style: none;
-    cursor: pointer;
-    padding: 10px;
-    width: 40px;
-    height: 40px;
-  }
-  .is-active {
-    outline: 0;
-    background-color: #ecf5ff;
-    color: #409EFF;
-  }
-  button {
-    color: #909399;
+  .el-tabs__content {
     padding: 0;
-    font-size: 16px;
+  }
+  // tabs换行显示
+  .el-tabs__nav {
+    white-space: normal;
   }
 }
 </style>
 <script>
-import Hamburger from '@/components/Hamburger'
+$addI18n({
+  'noAppDescription': { 'zh': '当前没有应用', 'en': 'No application' }
+})
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
 import ImportPostmanDialog from '@/views/project/ImportPostmanDialog/index'
 
 export default {
   name: 'Module',
-  components: { ImportPostmanDialog, Hamburger, DocInfo, ImportSwaggerDialog },
+  components: { ImportPostmanDialog, DocInfo, ImportSwaggerDialog },
   props: {
     projectId: {
       type: String,
@@ -149,8 +104,12 @@ export default {
     return {
       module: '',
       moduleData: [],
-      sidebarOpen: true,
-      refreshSwaggerLoading: false
+      sidebarOpen: false,
+      refreshSwaggerLoading: false,
+      beforeLeave: function(activeName, oldActiveName) {
+        return activeName !== '_new_'
+      },
+      active: ''
     }
   },
   watch: {
@@ -206,6 +165,7 @@ export default {
     },
     setCurrentModule(item) {
       this.module = item
+      this.active = item.name
       this.setProjectConfig(this.projectId, { moduleId: item.id })
     },
     getCacheModuleId() {
@@ -250,6 +210,15 @@ export default {
     },
     onImportPostman() {
       this.$refs.importPostmanDlg.show()
+    },
+    onTabClick(tab) {
+      const label = tab.label
+      for (const module of this.moduleData) {
+        if (label === module.name) {
+          this.onModuleSelect(module)
+          break
+        }
+      }
     }
   }
 }

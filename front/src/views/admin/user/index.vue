@@ -139,7 +139,7 @@
           prop="username"
           :label="$ts('loginAccount')"
         >
-          <el-input v-model="dialogFormData.username" :placeholder="$ts('suggestUseEmail')" />
+          <el-input v-model="dialogFormData.username" :placeholder="$ts('loginAccount')" />
         </el-form-item>
         <el-form-item
           prop="nickname"

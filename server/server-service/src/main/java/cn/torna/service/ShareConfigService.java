@@ -16,14 +16,14 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.ShareConfigDTO;
 import com.gitee.fastmybatis.core.query.Query;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,7 +76,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         shareConfig.setIsShowDebug(shareConfigDTO.getIsShowDebug());
         shareConfig.setIsAllSelectedDebug(shareConfigDTO.getIsAllSelectedDebug());
         if (shareConfigDTO.getType() == ShareConfigTypeEnum.ENCRYPT.getType()) {
-            if (StringUtils.isBlank(shareConfig.getPassword())) {
+            if (StringUtils.isEmpty(shareConfig.getPassword())) {
                 String pwd = PasswordUtil.getRandomSimplePassword(4);
                 shareConfig.setPassword(pwd);
             }
@@ -149,7 +149,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         if (shareConfigDTO.getIsAll() == Booleans.TRUE) {
             return;
         }
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         List<ShareContent> tobeSave = shareConfigDTO.getContent()
                 .stream()
                 .map(content -> {

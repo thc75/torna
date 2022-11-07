@@ -1,10 +1,5 @@
 /*!40101 SET NAMES utf8 */;
 
-/*!40101 SET SQL_MODE=''*/;
-
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`torna` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 USE `torna`;
@@ -383,17 +378,17 @@ CREATE TABLE `module_environment_param` (
 DROP TABLE IF EXISTS `module_swagger_config`;
 
 CREATE TABLE `module_swagger_config` (
-                                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '涓婚敭id',
+                                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
                                          `module_id` bigint(20) NOT NULL COMMENT 'module.id',
-                                         `url` varchar(128) NOT NULL DEFAULT '' COMMENT 'swagger鏂囨。url',
-                                         `content` text NOT NULL COMMENT 'swagger鏂囨。鍐呭',
-                                         `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉鐢ㄦ埛鍚�',
-                                         `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '璁よ瘉瀵嗙爜',
+                                         `url` varchar(256) NOT NULL DEFAULT '' COMMENT 'swagger url',
+                                         `content` longtext NOT NULL COMMENT 'swagger内容',
+                                         `auth_username` varchar(128) NOT NULL DEFAULT '' COMMENT '认证用户名',
+                                         `auth_password` varchar(128) NOT NULL DEFAULT '' COMMENT '认证密码',
                                          `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                                          `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
                                          PRIMARY KEY (`id`),
                                          KEY `idx_moduleid` (`module_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='妯″潡swagger閰嶇疆';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='swagger配置表';
 
 /*Data for the table `module_swagger_config` */
 
@@ -686,7 +681,3 @@ CREATE TABLE `user_subscribe` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='用户订阅表';
 
 /*Data for the table `user_subscribe` */
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;

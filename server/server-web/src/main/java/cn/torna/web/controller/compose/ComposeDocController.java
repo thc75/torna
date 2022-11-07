@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -89,7 +89,7 @@ public class ComposeDocController {
 
     private static ComposeDoc buildComposeDoc(ComposeDocAddParam.Doc doc, ComposeDocAddParam param, User user) {
         ComposeDoc composeDoc = new ComposeDoc();
-        Date date = new Date();
+        LocalDateTime date = LocalDateTime.now();
         Long parentId = param.getParentId();
         if (parentId == null) {
             parentId = 0L;

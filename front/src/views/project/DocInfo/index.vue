@@ -1,28 +1,32 @@
 <template>
-  <el-tabs v-model="activeName" @tab-click="handleClick">
+  <el-tabs v-model="activeName" tab-position="left" class="doc-info-tabs" @tab-click="handleClick">
     <el-tab-pane name="DocList">
-      <span slot="label"><i class="el-icon-s-grid"></i> {{ $ts('apiList') }}</span>
+      <span slot="label"><i class="el-icon-s-grid"> {{ $ts('apiList') }}</i></span>
       <doc-table ref="moduleIdDocList" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane name="EnumInfo">
       <span slot="label"><i class="el-icon-tickets"></i> {{ $ts('dictionaryManagement') }}</span>
       <enum-info ref="moduleIdEnumInfo" :project-id="projectId" />
     </el-tab-pane>
-    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ModuleSetting">
-      <span slot="label"><i class="el-icon-setting"></i> {{ $ts('moduleSetting') }}</span>
-      <module-setting ref="moduleIdModuleSetting" :project-id="projectId" />
+    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ShareConfig">
+      <span slot="label"><i class="el-icon-share"></i> {{ $ts('shareManagement') }}</span>
+      <share-config ref="moduleIdShareConfig" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="OpenApi">
       <span slot="label"><i class="el-icon-collection-tag"></i> OpenAPI</span>
       <module-open-api ref="moduleIdOpenApi" />
     </el-tab-pane>
-    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ShareConfig">
-      <span slot="label"><i class="el-icon-share"></i> {{ $ts('shareManagement') }}</span>
-      <share-config ref="moduleIdShareConfig" />
+    <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ModuleSetting">
+      <span slot="label"><i class="el-icon-setting"></i> {{ $ts('moduleSetting') }}</span>
+      <module-setting ref="moduleIdModuleSetting" :project-id="projectId" />
     </el-tab-pane>
   </el-tabs>
 </template>
-
+<style>
+.doc-info-tabs .el-tabs__item.is-left {
+  padding: 0 20px 0 0 !important;
+}
+</style>
 <script>
 import DocTable from '../DocTable'
 import ModuleSetting from '../ModuleSetting'

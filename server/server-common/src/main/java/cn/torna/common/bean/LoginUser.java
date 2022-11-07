@@ -3,7 +3,7 @@ package cn.torna.common.bean;
 import cn.torna.common.enums.OperationMode;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 表名：user_info
@@ -29,7 +29,7 @@ public class LoginUser implements User {
     private Byte isDeleted;
     
 	/**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     private Byte status;
 

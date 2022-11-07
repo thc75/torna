@@ -75,7 +75,7 @@
 </template>
 <script>
 import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
+
 $addI18n({
   'pluginImport': { 'zh': '插件导入', 'en': 'Plugin Import' },
   'pluginImportTip': { 'zh': '如果是Java项目且用Maven管理可使用此方式，优点：无需启动项目即可推送文档',
@@ -177,9 +177,9 @@ export default {
             this.importContentFormData.projectId = this.projectId
             this.post('/module/import/swaggerV2', this.importContentFormData, resp => {
               this.fireSuccess(loading, resp)
-            })
+            }, () => { loading.close() })
           }
-        }, () => { loading.close() })
+        })
       }
     },
     loadImporting() {

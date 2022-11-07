@@ -9,7 +9,7 @@ import cn.torna.service.dto.ImportSwaggerV2DTO;
 import com.alibaba.fastjson.JSON;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;

@@ -1,14 +1,14 @@
 package cn.torna.common.util;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author tanghc
  */
 public class AppKeyUtil {
     public static String createAppKey() {
-        return new SimpleDateFormat("yyyyMMdd").format(new Date()) + IdGen.nextId();
+        LocalDateTime now = LocalDateTime.now();
+        return String.valueOf(now.getYear()) + now.getMonth() + now.getDayOfMonth() + IdGen.nextId();
     }
 
 }

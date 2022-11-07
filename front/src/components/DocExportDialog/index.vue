@@ -33,6 +33,12 @@
             <el-radio :label="0">{{ $ts('partDocs') }}</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item :label="$ts('selectEnv')">
+          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $ts('selectAll') }}</el-checkbox>
+          <el-checkbox-group v-model="dialogFormData.envIds">
+            <el-checkbox v-for="env in envs" :key="env.id" :label="env.id">{{ env.name }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item v-show="dialogFormData.isAll === 0">
           <doc-tree ref="docTreeRef" readonly />
         </el-form-item>
@@ -47,6 +53,7 @@
 <script>
 import DocTree from '@/components/DocTree'
 import ExportUtil from '@/utils/export'
+
 const EXPORT_STYLE = {
   ALL_IN_ONE: 1,
   MULTI_PAGE: 2
@@ -64,16 +71,39 @@ export default {
       dialogFormData: {
         style: EXPORT_STYLE.ALL_IN_ONE,
         type: EXPORT_TYPE.HTML,
-        isAll: 1
+        isAll: 1,
+        envIds: []
       },
+      envs: [],
       loading: false
     }
   },
+  computed: {
+    isIndeterminate() {
+      const checkedCount = this.dialogFormData.envIds.length
+      return checkedCount > 0 && checkedCount < this.envs.length
+    },
+    checkAll: {
+      get() {
+        return this.dialogFormData.envIds.length === this.envs.length
+      },
+      set(val) {
+        this.$set(this.dialogFormData, 'envIds', val ? this.envs.map(item => item.id) : [])
+      }
+    }
+  },
   methods: {
-    show(data) {
+    show(data, moduleId) {
+      this.loadEnv(moduleId)
       this.dialogVisible = true
       this.$nextTick(() => {
         this.$refs.docTreeRef.setData(data)
+      })
+    },
+    loadEnv(moduleId) {
+      this.get('module/environment/list', { moduleId: moduleId }, resp => {
+        this.envs = resp.data
+        this.dialogFormData.envIds = this.envs.map(item => item.id)
       })
     },
     onDialogSave() {
@@ -93,9 +123,30 @@ export default {
       this.loading = true
       this.post('/doc/detail/search', { docIdList: keys }, resp => {
         const docInfoList = resp.data
+        this.formatEnv(docInfoList)
         this.doExport(docInfoList)
         this.loading = false
       })
+    },
+    formatEnv(docInfoList) {
+      const envIds = this.dialogFormData.envIds
+      if (envIds.length === 0) {
+        for (const item of docInfoList) {
+          item.debugEnvs = []
+        }
+      } else {
+        const debugEnvs = []
+        for (const envId of envIds) {
+          for (const env of this.envs) {
+            if (env.id === envId) {
+              debugEnvs.push(env)
+            }
+          }
+        }
+        for (const item of docInfoList) {
+          item.debugEnvs = debugEnvs
+        }
+      }
     },
     doExport(docInfoList) {
       const type = this.dialogFormData.type

@@ -123,6 +123,13 @@
             <span class="info-tip">
               {{ $ts('baseOnMockjs') }}，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">{{ $ts('helpDoc') }}</el-link>
             </span>
+            <div v-show="!formData.isNew">
+              <el-form label-position="left" label-width="120px" size="mini" class="text-form">
+                <el-form-item :label="$ts('backMockScript')">
+                  <el-link type="primary" :underline="false" :href="backMockScriptUrl" target="_blank">{{ backMockScriptUrl }}</el-link>
+                </el-form-item>
+              </el-form>
+            </div>
             <editor
               v-model="formData.mockScript"
               lang="javascript"
@@ -160,6 +167,12 @@ import NameValueTable from '@/components/NameValueTable'
 import { header_names, header_values } from '@/utils/headers'
 const Mock = require('mockjs')
 const Random = require('mockjs')
+import moment from 'moment'
+
+$addI18n({
+  'backMockScript': { 'zh': '获取脚本内容', 'en': 'Response mock script' },
+  'backMockResult': { 'zh': '获取mock结果', 'en': 'Response mock result' }
+})
 
 const FORM_DATA = {
   dataKv: [],
@@ -230,6 +243,12 @@ export default {
     },
     mockBaseUrl() {
       return `${this.getBaseUrl()}/mock/`
+    },
+    backMockScriptUrl() {
+      return `${this.getBaseUrl()}/mockjs/script/${this.formData.path}`
+    },
+    backMockResultUrl() {
+      return `${this.getBaseUrl()}/mockjs/result/${this.activeMock}`
     }
   },
   watch: {
@@ -298,8 +317,8 @@ export default {
         }())`
         // eslint-disable-next-line no-eval
         // const data = eval(fn)
-        const fn = new Function('$params', '$body', 'Mock', 'Random', `return ${code}`)
-        const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random)
+        const fn = new Function('$params', '$body', 'Mock', 'Random', 'moment', `return ${code}`)
+        const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random, moment)
         if (data === undefined) {
           throw new Error($ts('noResultTip'))
         }

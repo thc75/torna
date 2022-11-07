@@ -178,7 +178,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
         Query query = new Query()
                 .in("id", userIdMap.keySet())
                 .orderby("id", Sort.DESC);
-        if (StringUtils.hasLength(username)) {
+        if (StringUtils.hasText(username)) {
             query.and(q -> q.like("username", username)
                     .orLike("nickname", username)
                     .orLike("email", username)

@@ -262,7 +262,7 @@ export default {
       })
     },
     initHeight() {
-      this.tableHeight = window.innerHeight - 165
+      this.tableHeight = window.innerHeight - 185
     },
     onSaveOrderIndex(id, orderIndex, callback) {
       callback()
@@ -393,7 +393,7 @@ export default {
       this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
     },
     onExport() {
-      this.$refs.exportDialog.show(this.tableData)
+      this.$refs.exportDialog.show(this.tableData, this.moduleId)
     },
     getViewUrl(row) {
       return `/view/${row.id}`

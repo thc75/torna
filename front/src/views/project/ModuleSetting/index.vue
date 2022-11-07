@@ -4,7 +4,7 @@
       <el-button type="danger" size="mini" @click="onModuleDelete">{{ $ts('deleteModule') }}</el-button>
     </div>
     <h3>
-      {{ $ts('moduleName') }}：
+      {{ $ts('appName') }}：
       <span style="font-weight: normal">
         {{ moduleVO.name }}
         <popover-update
