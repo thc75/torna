@@ -137,9 +137,7 @@ public class UpgradeService {
                 })
                 .collect(Collectors.toList());
 
-        if (!tobeSaveList.isEmpty()) {
-            errorCodeInfoMapper.saveBatchIgnoreNull(tobeSaveList);
-        }
+        errorCodeInfoMapper.saveBatchIgnoreNull(tobeSaveList, 100);
     }
 
     private void v1_16_0(int oldVersion) {
