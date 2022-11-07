@@ -14,8 +14,8 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
-    "@wangeditor/editor": "5.1.1",
-    "@wangeditor/editor-for-vue": "1.0.1",
+    "@ckeditor/ckeditor5-vue2": "3.0.1",
+    "@torna/ckeditor5": "1.0.0",
     "axios": "0.18.1",
     "diff-match-patch": "1.0.5",
     "element-ui": "2.15.4",

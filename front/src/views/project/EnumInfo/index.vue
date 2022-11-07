@@ -71,6 +71,7 @@
         </el-table>
       </div>
     </el-tabs>
+
     <!--dialog-->
     <el-dialog
       :title="dialogEnumInfoTitle"

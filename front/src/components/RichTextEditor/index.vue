@@ -1,31 +1,16 @@
 <template>
   <div>
-    <div :style="`border: 1px solid #DCDFE6;`">
-      <Toolbar
-        style="border-bottom: 1px solid #DCDFE6"
-        :editor="editor"
-        :defaultConfig="toolbarConfig"
-        :mode="editMode"
-      />
-      <Editor
-        v-model="content"
-        :style="`height: ${height}px; overflow-y: hidden;`"
-        :defaultConfig="editorConfig"
-        :mode="editMode"
-        @onCreated="onCreated"
-      />
-    </div>
+    <ckeditor v-model="content" :editor="editor" :config="editorConfig" />
   </div>
 </template>
 <script>
-// https://www.wangeditor.com/
-import '@wangeditor/editor/dist/css/style.css'
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import CKEditor from '@ckeditor/ckeditor5-vue2'
+import ClassicEditor from '@torna/ckeditor5'
 
 export default {
   name: 'RichTextEditor',
   components: {
-    Editor, Toolbar
+    ckeditor: CKEditor.component
   },
   props: {
     value: {
@@ -65,45 +50,30 @@ export default {
   data() {
     return {
       content: '',
-      editor: null,
-      html: '',
-      toolbarConfig: {
-        // 排除
-        excludeKeys: [
-          'group-image',
-          'group-video',
-          'insertVideo',
-          'fullScreen'
-        ]
-      },
+      editor: ClassicEditor,
       editorConfig: {
-        placeholder: this.placeholder || '请输入内容',
-        height: '200px'
-      },
-      editMode: this.mode // 'default' or 'simple'
+        placeholder: this.placeholder || '请输入内容'
+      }
     }
   },
   watch: {
-    value: {
-      handler: function(n, o) {
-        this.content = this.value
-      }
+    value(val) {
+      this.content = val
     },
-    content: {
-      handler: function(n, o) {
-        this.$emit('input', n)
+    content(val) {
+      this.$emit('input', val)
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const els = document.getElementsByClassName('ck-editor__main');
+      console.log(els)
+      console.log(els.length)
+      if (els != null && els.length > 0) {
+        console.log(this.height)
+        els[0].style.height = this.height + 'px'
       }
-    }
-  },
-  beforeDestroy() {
-    const editor = this.editor
-    if (editor == null) return
-    editor.destroy() // 组件销毁时，及时销毁编辑器
-  },
-  methods: {
-    onCreated(editor) {
-      this.editor = Object.seal(editor) // 一定要用 Object.seal() ，否则会报错
-    }
+    })
   }
 }
 </script>

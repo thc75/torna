@@ -6,6 +6,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -117,11 +118,13 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> queryParams;
     private List<DocParamDTO> requestParams;
     private List<DocParamDTO> responseParams;
-    private List<DocParamDTO> errorCodeParams;
+    private List<DocParamDTO> errorCodeParams = Collections.emptyList();
 
     private List<DocParamDTO> globalHeaders;
     private List<DocParamDTO> globalParams;
     private List<DocParamDTO> globalReturns;
 
     private DubboInfoDTO dubboInfo;
+
+    private String errorCodeInfo;
 }

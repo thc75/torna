@@ -124,7 +124,6 @@
 import HelpMenu from '@/components/HelpMenu'
 import ApiParamTable from '@/components/ApiParamTable'
 import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
 
 let idGen = 1
 

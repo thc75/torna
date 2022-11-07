@@ -34,7 +34,7 @@
 <script>
 import HelpMenu from '@/components/HelpMenu'
 import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
+
 export default {
   components: { HelpMenu, mavonEditor },
   data() {

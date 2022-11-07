@@ -20,6 +20,7 @@ import '@/utils/global' // 自定义全局js
 import '@/utils/routeUtil'
 import '@/utils/role-code'
 import '@/utils/perm'
+import 'mavon-editor/dist/css/index.css'
 
 import UmyUi from 'umy-ui'
 import '@/styles/umy-ui.scss'

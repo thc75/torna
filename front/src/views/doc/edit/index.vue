@@ -20,7 +20,7 @@
             <rich-text-editor :value="docInfo.description" :placeholder="$ts('inputContent')" :editable="true" @input="editorInput" />
           </el-form-item>
           <el-form-item prop="url" :label="$ts('requestUrl')">
-            <el-input v-model="docInfo.url" class="input-with-select" maxlength="100" show-word-limit @input="onUrlInput">
+            <el-input v-model="docInfo.url" class="input-with-select" maxlength="200" show-word-limit @input="onUrlInput">
               <el-select slot="prepend" v-model="docInfo.httpMethod" :placeholder="$ts('pleaseSelect')" style="width: 100px;">
                 <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
                   {{ method }}
@@ -348,7 +348,6 @@ export default {
       if (finalId) {
         this.get('/doc/detail', { id: finalId }, function(resp) {
           const data = resp.data
-          this.formatResponseData(data)
           this.initDocInfo(data)
           Object.assign(this.docInfo, data)
           this.$store.state.settings.projectId = data.projectId
@@ -697,18 +696,6 @@ name3:value3`,
     },
     remarkEditorInput(content) {
       this.docInfo.remark = content
-    },
-    formatResponseData(data) {
-      data.description = this.wrapContent(data.description)
-      data.remark = this.wrapContent(data.remark)
-    },
-    // 富文本编辑器有个BUG，接收空字符会报错
-    // 需要转换下
-    wrapContent(content) {
-      if (content === null || content === undefined || content === '') {
-        return '<p><br></p>'
-      }
-      return content
     }
   }
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -108,9 +109,10 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
      */
     public List<ModuleEnvironment> listModuleEnvironment(long moduleId) {
         Query query = new Query()
-                .eq("module_id", moduleId)
-                .orderby("id", Sort.ASC);
-        return list(query);
+                .eq("module_id", moduleId);
+        List<ModuleEnvironment> list = list(query);
+        list.sort(Comparator.comparing(ModuleEnvironment::getGmtCreate));
+        return list;
     }
 
     /**

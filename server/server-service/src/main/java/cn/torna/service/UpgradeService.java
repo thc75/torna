@@ -3,11 +3,15 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.HtmlTableBuilder;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.ConstantInfo;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.mapper.DocParamMapper;
+import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentParamDTO;
@@ -22,11 +26,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 升级
@@ -36,7 +43,7 @@ import java.util.Optional;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 1160;
+    private static final int VERSION = 11800;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -54,6 +61,12 @@ public class UpgradeService {
 
     @Autowired
     private DocInfoService docInfoService;
+
+    @Resource
+    private DocParamMapper docParamMapper;
+
+    @Resource
+    private ConstantInfoMapper errorCodeInfoMapper;
 
 
     @Value("${spring.datasource.driver-class-name}")
@@ -101,7 +114,57 @@ public class UpgradeService {
         v1_15_3(oldVersion);
         v1_15_4(oldVersion);
         v1_16_0(oldVersion);
+        v1_18_0(oldVersion);
     }
+
+    private void v1_18_0(int oldVersion) {
+        if (oldVersion < 11800) {
+            log.info("Upgrade version to 1.18.0");
+            createTable("constant_info", "upgrade/1.18.0_ddl.txt");
+            createTable("push_ignore_field", "upgrade/1.18.0_ddl-2.txt");
+            this.runSql("ALTER TABLE `doc_info` CHANGE COLUMN `description` `description` TEXT NULL COMMENT '文档描述' COLLATE 'utf8mb4_general_ci' AFTER `name`");
+            moveModuleErrorCode();
+            log.info("Upgrade 1.18.0 finished.");
+        }
+    }
+
+    private void moveModuleErrorCode() {
+        Query query = new Query()
+                .eq("type", ModuleConfigTypeEnum.GLOBAL_ERROR_CODES.getType());
+        List<ModuleConfig> list = moduleConfigService.list(query);
+        Map<Long, List<ModuleConfig>> map = list.stream()
+                .collect(Collectors.groupingBy(ModuleConfig::getModuleId));
+        List<ConstantInfo> tobeSaveList = map.entrySet()
+                .stream()
+                .map(entry -> {
+                    Long moduleId = entry.getKey();
+                    List<ModuleConfig> errorCode = entry.getValue();
+                    ConstantInfo errorCodeInfo = new ConstantInfo();
+                    errorCodeInfo.setModuleId(moduleId);
+                    String content = buildModuleMarkdownTable(errorCode);
+                    errorCodeInfo.setContent(content);
+                    return errorCodeInfo;
+                })
+                .collect(Collectors.toList());
+
+        if (!tobeSaveList.isEmpty()) {
+            errorCodeInfoMapper.saveBatchIgnoreNull(tobeSaveList);
+        }
+    }
+
+    private String buildModuleMarkdownTable(List<ModuleConfig> moduleConfigs) {
+        HtmlTableBuilder htmlTableBuilder = new HtmlTableBuilder();
+        htmlTableBuilder.heads("错误码", "错误描述", "解决方案");
+        for (ModuleConfig moduleConfig : moduleConfigs) {
+            htmlTableBuilder.addRow(
+                    Arrays.asList(moduleConfig.getConfigKey(),
+                    moduleConfig.getConfigValue(),
+                    moduleConfig.getDescription())
+            );
+        }
+        return htmlTableBuilder.toString();
+    }
+
 
     private void v1_16_0(int oldVersion) {
         if (oldVersion < 1160) {
@@ -386,6 +449,9 @@ public class UpgradeService {
     }
 
     private void runSql(String sql) {
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
+        }
         upgradeMapper.runSql(sql);
     }
 

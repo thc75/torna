@@ -10,6 +10,7 @@ tests/**/coverage/
 # Editor directories and files
 .idea
 .vscode
+.fleet
 *.suo
 *.ntvs*
 *.njsproj

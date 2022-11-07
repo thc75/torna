@@ -4,21 +4,20 @@
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
-        <div v-show="showOptBar" class="show-opt-bar" style="float: right">
-          <div class="item">
-            <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
-              <el-button
-                type="text"
-                :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
-                style="font-size: 16px"
-                @click="onSubscribe"
-              />
-            </el-tooltip>
-          </div>
+        <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+          <el-button
+            type="text"
+            class="icon-button"
+            :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
+            style="font-size: 16px"
+            @click="onSubscribe"
+          />
+        </el-tooltip>
+        <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
           <div class="item">
             <el-dropdown trigger="click" @command="handleCommand">
               <el-tooltip placement="top" :content="$ts('export')">
-                <el-button type="text" icon="el-icon-download" />
+                <el-button type="text" class="icon-button" icon="el-icon-download" />
               </el-tooltip>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
@@ -28,8 +27,8 @@
             </el-dropdown>
           </div>
           <div class="item">
-            <el-tooltip placement="top" :content="$ts('viewDict')">
-              <el-button type="text" icon="el-icon-notebook-2" @click="showDict" />
+            <el-tooltip placement="top" :content="$ts('viewConst')">
+              <el-button type="text" class="icon-button" icon="el-icon-collection" @click="showConst" />
             </el-tooltip>
           </div>
         </div>
@@ -69,7 +68,7 @@
     <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
       {{ $ts('description') }}
     </h4>
-    <div v-show="docInfo.description" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
+    <div v-show="docInfo.description" class="rich-editor" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
     <h4 v-show="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $ts('pathVariable') }}</h4>
@@ -125,20 +124,23 @@
         class="code-copy"
         @click.stop="copy(formatJson(responseSuccessExample))">{{ $ts('copy') }}</el-tag>
     </div>
-    <h4>{{ $ts('errorCode') }}</h4>
-    <parameter-table
-      :data="docInfo.errorCodeParams"
-      :empty-text="$ts('emptyErrorCode')"
-      :hidden-columns="['required', 'maxLength', 'type']"
-      :name-label="$ts('errorCode')"
-      :description-label="$ts('errorDesc')"
-      :example-label="$ts('solution')"
-    />
+    <div v-show="docInfo.errorCodeParams && docInfo.errorCodeParams.length > 0">
+      <h4>{{ $ts('errorCode') }}</h4>
+      <parameter-table
+        :data="docInfo.errorCodeParams"
+        :empty-text="$ts('emptyErrorCode')"
+        :hidden-columns="['required', 'maxLength', 'type']"
+        :name-label="$ts('errorCode')"
+        :description-label="$ts('errorDesc')"
+        :example-label="$ts('solution')"
+      />
+    </div>
     <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
       <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
-      <div class="content" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
+      <div class="rich-editor" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
     </div>
-    <dict-view ref="dictView" />
+    <p></p>
+    <const-view ref="constView" />
   </div>
 </template>
 <style scoped>
@@ -168,14 +170,13 @@ h4 .content {
 <script>
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
-import DictView from '@/components/DictView'
+import ConstView from '@/components/ConstView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
-import '@wangeditor/editor/dist/css/style.css'
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, DictView },
+  components: { ParameterTable, HttpMethod, ConstView },
   props: {
     docId: {
       type: String,
@@ -236,6 +237,7 @@ export default {
         requestParams: [],
         responseParams: [],
         errorCodeParams: [],
+        errorCodeInfo: '',
         globalHeaders: [],
         globalParams: [],
         globalReturns: [],
@@ -401,8 +403,8 @@ export default {
     copy(text) {
       this.copyText(text)
     },
-    showDict() {
-      this.$refs.dictView.show(this.docInfo.moduleId)
+    showConst() {
+      this.$refs.constView.show(this.docInfo.moduleId)
     }
   }
 }
