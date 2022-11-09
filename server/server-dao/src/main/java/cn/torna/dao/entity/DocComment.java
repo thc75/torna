@@ -1,11 +1,11 @@
 package cn.torna.dao.entity;
 
-import java.util.Date;
-
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 
 /**
@@ -48,9 +48,9 @@ public class DocComment {
     @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
     private Byte isDeleted;
 
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }

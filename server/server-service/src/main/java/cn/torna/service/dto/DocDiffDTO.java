@@ -1,19 +1,22 @@
 package cn.torna.service.dto;
 
+import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocDiffModifySourceEnum;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @author thc
  */
 @Data
+@AllArgsConstructor
 public class DocDiffDTO {
 
     private String md5Old;
+    private String md5New;
 
-    private DocInfoDTO docInfoDTO;
+    private User user;
 
-    public DocDiffDTO(String md5Old, DocInfoDTO docInfoDTO) {
-        this.md5Old = md5Old;
-        this.docInfoDTO = docInfoDTO;
-    }
+    private DocDiffModifySourceEnum modifySource;
+
 }

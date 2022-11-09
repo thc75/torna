@@ -1,8 +1,5 @@
 package cn.torna.common.bean;
 
-/**
- * 获取环境配置信息，读取顺序：缓存>数据库>Spring Environment
- */
 import cn.torna.common.enums.DocSortType;
 
 /**
@@ -50,13 +47,6 @@ public enum EnvironmentKeys {
     /** 推送钉钉webhook */
     PUSH_DINGDING_WEBHOOK_URL("torna.push.dingding-webhook-url"),
     /** 变更文档内容模板 */
-    PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "文档[%s]内容已变更"),
-    /** 是否打印推送内容，默认false */
-    TORNA_PUSH_PRINT_CONTENT("torna.push.print-content", "false"),
-    /** 是否允许相同的文件夹，默认：true */
-    TORNA_PUSH_ALLOW_SAME_FOLDER("torna.push.allow-same-folder", "true"),
-    /** 保存不同文档处理数量 */
-    TORNA_SCHEDULE_SAVE_DOC_DIFF_POLL_SIZE("torna.schedule.save-doc-diff.poll-size", "20"),
     PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "文档[%s]内容已变更"),
     /** 是否打印推送内容，默认false */
     TORNA_PUSH_PRINT_CONTENT("torna.push.print-content", "false"),

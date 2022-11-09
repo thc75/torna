@@ -5,7 +5,7 @@ import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 表名：doc_snapshoot
@@ -30,16 +30,16 @@ public class DocSnapshot {
     private String modifierName;
 
     /** 修改时间, 数据库字段：modifier_time */
-    private Date modifierTime;
+    private LocalDateTime modifierTime;
 
     /** 修改内容, 数据库字段：content */
     private String content;
 
     /**  数据库字段：gmt_create */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  数据库字段：gmt_modified */
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }

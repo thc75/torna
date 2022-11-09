@@ -1,11 +1,11 @@
 package cn.torna.dao.entity;
 
-import java.util.Date;
-
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * 表名：attachment 备注：附件表
@@ -42,10 +42,10 @@ public class Attachment {
     private Byte isDeleted;
 
     /**  */
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
     /**  */
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
 
 }

@@ -22,4 +22,8 @@ public enum PositionType {
     PARAM_EXAMPLE((byte) 15),
     ;
     private final byte type;
+
+    public String getTypeName() {
+        return name();
+    }
 }

@@ -413,8 +413,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfoExist = getById(docInfoDTO.getId());
         String oldMd5 = docInfoExist.getMd5();
         String newMd5 = getDocMd5(docInfoDTO);
+        // 如果内容不一样，保存上一次的快照
         if (!Objects.equals(oldMd5, newMd5)) {
-            // 保存上一次的快照
             this.saveOldSnapshot(docInfoDTO);
         }
         docInfoDTO.setMd5(newMd5);
@@ -723,11 +723,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
         // 删除文档对应的参数
         docParamService.deletePushParam(docIdList);
-        Query paramDelQuery = new Query()
-                .in("doc_id", idList)
-                .eq("create_mode", OperationMode.OPEN.getType());
-        // DELETE FROM doc_param WHERE doc_id in (..)
-        docParamService.getMapper().deleteByQuery(paramDelQuery);
     }
 
     public DocRefDTO getDocRefInfo(long docId) {

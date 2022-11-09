@@ -4,22 +4,6 @@
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
-        <div v-show="showOptBar" class="show-opt-bar" style="float: right">
-          <div class="item">
-            <el-tooltip placement="top" :content="$ts('changeHistory')">
-              <el-button type="text" icon="el-icon-files" @click="onShowHistory"></el-button>
-            </el-tooltip>
-          </div>
-          <div class="item">
-            <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
-              <el-button
-                type="text"
-                :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
-                style="font-size: 16px"
-                @click="onSubscribe"
-              />
-            </el-tooltip>
-          </div>
         <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
           <el-button
             type="text"
@@ -30,6 +14,11 @@
           />
         </el-tooltip>
         <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
+          <div class="item">
+            <el-tooltip placement="top" :content="$ts('changeHistory')">
+              <el-button type="text" icon="el-icon-files" @click="onShowHistory"></el-button>
+            </el-tooltip>
+          </div>
           <div class="item">
             <el-dropdown trigger="click" @command="handleCommand">
               <el-tooltip placement="top" :content="$ts('export')">
@@ -73,8 +62,6 @@
     </ul>
     <div v-else class="debug-url" @mouseenter="isShowDebugUrlCopy=true" @mouseleave="isShowDebugUrlCopy=false">
       <http-method :method="docInfo.httpMethod" /> {{ docInfo.url }}
-    </span>
-    <div v-show="docInfo.description && docInfo.description !== emptyContent" class="content" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
       <el-tag
         v-show="isShowDebugUrlCopy"
         size="small"
@@ -165,7 +152,6 @@
     >
       <doc-diff :doc-info="currentDocInfo" />
     </el-dialog>
-    <dict-view ref="dictView" />
     <p></p>
     <const-view ref="constView" />
   </div>
@@ -198,7 +184,6 @@ h4 .content {
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
-import DictView from '@/components/DictView'
 import ConstView from '@/components/ConstView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
@@ -211,8 +196,7 @@ $addI18n({
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, ConstView },
-  components: { ParameterTable, HttpMethod, DocDiff, DictView },
+  components: { ParameterTable, HttpMethod, DocDiff, ConstView },
   props: {
     docId: {
       type: String,
@@ -403,7 +387,6 @@ export default {
       if (this.isResponseSingleValue) {
         this.responseSuccessExample = this.responseSingleValue
       }
-      this.initDocComment(data.id)
     },
     initResponseHiddenColumns() {
       this.pmsConfig().then(config => {

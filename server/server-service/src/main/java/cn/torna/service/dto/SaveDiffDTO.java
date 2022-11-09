@@ -14,9 +14,7 @@ import lombok.Setter;
 @Setter
 public class SaveDiffDTO {
 
-    private Long operateKey;
-
-    private String dataId;
+    private Long recordId;
 
     private PositionType positionType;
 
@@ -27,5 +25,10 @@ public class SaveDiffDTO {
     private String oldValue;
 
     private String newValue;
+
+    /**
+     * 修改人
+     */
+    private String modifyNickname;
 
 }

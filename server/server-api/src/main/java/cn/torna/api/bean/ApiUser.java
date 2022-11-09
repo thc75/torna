@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ApiUser implements User {
 
-    private Long id;
+    private Long id = 99999L;
 
     private String nickname = "OpenAPI";
 

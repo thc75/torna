@@ -40,13 +40,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int PRO_VERSION = 20000;
-
     private static final int VERSION = 11800;
 
-
     private static final String TORNA_VERSION_KEY = "torna.version";
-    private static final String TORNA_PRO_VERSION_KEY = "tornapro.version";
 
     @Autowired
     private UpgradeMapper upgradeMapper;
@@ -81,26 +77,6 @@ public class UpgradeService {
         doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
         saveVersion(oldVersion);
-
-        upgradePro();
-    }
-
-    /**
-     * 企业版升级
-     */
-    private void upgradePro() {
-        int oldVersion = getProVersion();
-        doUpgradePro(oldVersion);
-        // 最后更新当前版本到数据库
-        saveProVersion(oldVersion);
-    }
-
-    private void doUpgradePro(int oldVersion) {
-        if (oldVersion < 10) {
-            createTable("doc_snapshot", "upgrade/pro/2.0_ddl_doc_snapshot.txt");
-            createTable("debug_script", "upgrade/pro/2.0_ddl_debug_script.txt");
-            createTable("doc_diff_record", "upgrade/pro/2.0_ddl_doc_diff_record.txt");
-        }
     }
 
     /**
@@ -246,8 +222,8 @@ public class UpgradeService {
     private void v1_9_5(int oldVersion) {
         if (oldVersion < 13) {
             addColumn("doc_info",
-                "is_locked",
-                "ALTER TABLE `doc_info` ADD COLUMN `is_locked` TINYINT DEFAULT 0  NOT NULL  COMMENT '是否锁住' AFTER `is_deleted`"
+                    "is_locked",
+                    "ALTER TABLE `doc_info` ADD COLUMN `is_locked` TINYINT DEFAULT 0  NOT NULL  COMMENT '是否锁住' AFTER `is_deleted`"
             );
             addColumn("doc_info",
                     "md5",
@@ -344,16 +320,6 @@ public class UpgradeService {
         }
     }
 
-    private void saveProVersion(int oldVersion) {
-        if (oldVersion != PRO_VERSION) {
-            SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
-            systemConfigDTO.setConfigKey(TORNA_PRO_VERSION_KEY);
-            systemConfigDTO.setConfigValue(String.valueOf(PRO_VERSION));
-            systemConfigDTO.setRemark("当前内部版本号。不要删除这条记录！！");
-            systemConfigService.setConfig(systemConfigDTO);
-        }
-    }
-
     private void v1_5_0(int dbVersion) {
         if (dbVersion < 5) {
             this.createTable("prop", "upgrade/1.5.0_ddl.txt", "upgrade/1.5.0_ddl_compatible.txt");
@@ -440,11 +406,6 @@ public class UpgradeService {
         return NumberUtils.toInt(version);
     }
 
-    private int getProVersion() {
-        String version = systemConfigService.getConfigValue(TORNA_PRO_VERSION_KEY, "0");
-        return NumberUtils.toInt(version);
-    }
-
     private Optional<ColumnInfo> findColumn(String tableName, String columnName) {
         return this.upgradeMapper.listColumnInfo(tableName)
                 .stream()
@@ -521,7 +482,7 @@ public class UpgradeService {
      * @param ddlFile DDL文件
      * @return 创建成功返回true
      */
-    private boolean createTable(String tableName, String ddlFile) {
+    protected boolean createTable(String tableName, String ddlFile) {
         if (!isTableExist(tableName)) {
             String sql = this.loadDDL(ddlFile);
             if (isLowerVersion()) {

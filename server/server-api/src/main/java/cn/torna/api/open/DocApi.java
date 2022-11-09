@@ -15,8 +15,8 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
-import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocDiffModifySourceEnum;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
@@ -27,6 +27,7 @@ import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocDiffContext;
+import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.DocSnapshotService;
 import cn.torna.service.ModuleConfigService;
@@ -78,8 +79,9 @@ public class DocApi {
 
     private final Object lock = new Object();
 
+
     @Autowired
-    private DocSnapshotService docSnapshotService;
+    private DocDiffRecordService docDiffRecordService;
 
     @Autowired
     private DocInfoService docInfoService;
@@ -176,7 +178,7 @@ public class DocApi {
         log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
-        PushContext pushContext = new PushContext(docMetas, new ArrayList<>());
+        PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
         ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal = new ThreadLocal<>();
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
@@ -276,8 +278,8 @@ public class DocApi {
             if (DocInfoService.isLocked(docInfoDTO.buildDataId(), docMetas)) {
                 return;
             }
+            docInfoDTO.setModifierName(pushContext.getAuthor());
             doDocModifyProcess(docInfoDTO, pushContext);
-            docInfoService.doPushSaveDocInfo(docInfoDTO, user);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user, BooleanUtils.toBoolean(docPushParam.getIsOverride()));
         }
     }
@@ -292,13 +294,10 @@ public class DocApi {
         if (!md5Opt.isPresent()) {
             return;
         }
+        ApiUser apiUser = new ApiUser();
+        apiUser.setNickname(pushContext.getAuthor());
         String oldMd5 = md5Opt.get();
-        String newMd5 = docInfoDTO.getMd5();
-        boolean contentChanged = Objects.equals(oldMd5, newMd5);
-        // 文档内容被修改，做相关处理
-        if (contentChanged) {
-            DocDiffContext.addQueue(new DocDiffDTO(oldMd5, docInfoDTO));
-        }
+        docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, DocDiffModifySourceEnum.PUSH, apiUser);
     }
 
     private void processModifiedDocs(PushContext pushContext) {

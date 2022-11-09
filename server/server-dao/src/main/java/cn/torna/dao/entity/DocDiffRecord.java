@@ -1,6 +1,6 @@
 package cn.torna.dao.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
@@ -20,44 +20,54 @@ public class DocDiffRecord {
 
     private Long id;
 
-    /**
-     * 操作key，雪花id
-     */
-    private Long operateKey;
 
-    /**
+    /** 
      * doc_info.data_id
      */
     private String dataId;
 
-    /**
-     * 变更位置，0：文档名称，1：文档描述，2：contentType，3：deprecated，10：参数名称，11：参数类型，12：参数必填，13：参数最大长度，14：参数描述，15：参数示例值
-     */
-    private Byte positionType;
 
-    /**
-     * 目标名称
+    /** 
+     * 旧MD5
      */
-    private String targetName;
+    private String md5Old;
 
-    /**
-     * 旧值
+
+    /** 
+     * 新MD5
      */
-    private String oldValue;
+    private String md5New;
 
-    /**
-     * 新值
+
+    /** 
+     * 修改方式，0：推送，1：表单编辑
      */
-    private String newValue;
+    private Byte modifySource;
 
-    /**
+
+    /** 
+     * 修改人id
+     */
+    private Long modifyUserId;
+
+
+    /** 
+     * 修改人
+     */
+    private String modifyNickname;
+
+
+    /** 
      * 变更类型，0：修改，1：新增，2：删除
      */
     private Byte modifyType;
 
-    private Date gmtCreate;
 
-    private Date gmtModified;
+    private LocalDateTime gmtCreate;
+
+
+    private LocalDateTime gmtModified;
+
 
 
 }

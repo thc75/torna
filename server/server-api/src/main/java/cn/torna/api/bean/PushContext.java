@@ -13,6 +13,7 @@ public class PushContext {
 
     private List<DocMeta> docMetas;
     private List<DocInfoDTO> contentChangedDocs;
+    private String author;
 
 
 }
