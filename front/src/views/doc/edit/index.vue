@@ -290,7 +290,7 @@ export default {
         ],
         url: [
           { required: true, message: '请输入URL', trigger: 'blur' },
-          { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+          { min: 1, max: 200, message: '长度在 1 到 200 个字符', trigger: 'blur' }
         ],
         httpMethod: [
           { required: true, message: '不能为空', trigger: 'blur' }
