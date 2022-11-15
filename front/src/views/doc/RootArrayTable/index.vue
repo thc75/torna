@@ -244,6 +244,13 @@ export default {
       this.elementType = elType || 'object'
     }
   },
+  mounted() {
+    if (this.moduleId) {
+      this.loadEnumData(this.moduleId, data => {
+        this.enumData = data
+      })
+    }
+  },
   methods: {
     onParamAdd: function() {
       this.data.push(this.getParamNewRow())

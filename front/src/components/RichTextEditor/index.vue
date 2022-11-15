@@ -67,10 +67,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       const els = document.getElementsByClassName('ck-editor__main');
-      console.log(els)
-      console.log(els.length)
       if (els != null && els.length > 0) {
-        console.log(this.height)
         els[0].style.height = this.height + 'px'
       }
     })

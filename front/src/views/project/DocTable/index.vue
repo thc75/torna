@@ -177,6 +177,35 @@
       </u-table-column>
     </u-table>
     <doc-export-dialog ref="exportDialog" />
+    <!-- dialog -->
+    <el-dialog
+      :title="$ts('updateFolderTitle')"
+      :close-on-click-modal="false"
+      :visible.sync="updateFolderDlgShow"
+    >
+      <el-form
+        ref="updateFolderForm"
+        :model="rowData"
+        :rules="updateFolderFormRules"
+        label-width="120px"
+        style="width: 500px;"
+      >
+        <el-form-item :label="$ts('parentNode')" prop="parentId">
+          <el-select v-model="rowData.parentId">
+            <el-option v-for="item in folders" :key="item.id" :value="item.id" :label="item.name" :disabled="item.disabled">
+              {{ item.name }}
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$ts('categoryName')" prop="name">
+          <el-input v-model="rowData.name" show-word-limit maxlength="100" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="updateFolderDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onFolderSave">{{ $ts('dlgSave') }}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <style lang="scss">
@@ -214,7 +243,20 @@ export default {
       tableSearch: '',
       loading: false,
       triggerStatus: '1',
-      docViewTabs: false
+      docViewTabs: false,
+      rowData: {
+        id: '',
+        name: '',
+        parentId: ''
+      },
+      folders: [],
+      emptyNode: { id: '', name: $ts('empty') },
+      updateFolderDlgShow: false,
+      updateFolderFormRules: {
+        name: [
+          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+        ]
+      }
     }
   },
   computed: {
@@ -274,23 +316,59 @@ export default {
       })
     },
     onFolderUpdate(row) {
-      this.$prompt(this.$ts('inputFolderMsg'), this.$ts('updateFolderTitle'), {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
-        inputValue: row.name,
-        inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
-      }).then(({ value }) => {
-        const data = {
-          id: row.id,
-          name: value
+      Object.assign(this.rowData, row)
+      this.loadFolderData((folders) => {
+        const folderIds = this.getFolderIds(row)
+        for (const folder of folders) {
+          folder.disabled = false
+          for (const folderId of folderIds) {
+            if (folderId === folder.id) {
+              folder.disabled = true
+              break
+            }
+          }
         }
-        this.post('/doc/folder/update', data, () => {
-          this.tipSuccess(this.$ts('updateSuccess'))
-          this.reload()
-        })
-      }).catch(() => {
+        this.folders = folders
+        this.updateFolderDlgShow = true
       })
+    },
+    onFolderSave() {
+      this.$refs.updateFolderForm.validate(valid => {
+        if (valid) {
+          const data = {
+            id: this.rowData.id,
+            name: this.rowData.name,
+            parentId: this.rowData.parentId
+          }
+          this.post('/doc/folder/update', data, () => {
+            this.updateFolderDlgShow = false
+            this.tipSuccess(this.$ts('updateSuccess'))
+            this.reload()
+          })
+        }
+      })
+    },
+    loadFolderData(callback) {
+      this.get('/doc/folder/list', { moduleId: this.moduleId }, resp => {
+        const folders = [this.emptyNode].concat(resp.data)
+        callback && callback.call(this, folders)
+      })
+    },
+    getFolderIds(row) {
+      if (!this.isFolder(row)) {
+        return []
+      }
+      let ids = []
+      ids.push(row.id)
+      // 找出下面的子目录
+      if (row.children && row.children.length > 0) {
+        const folders = row.children.filter(item => item.isFolder === 1)
+        for (const child of folders) {
+          const idArr = this.getFolderIds(child)
+          ids = ids.concat(idArr)
+        }
+      }
+      return ids
     },
     onDocNew() {
       this.goRoute(`/doc/new/${this.moduleId}`)

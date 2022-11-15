@@ -18,6 +18,7 @@ import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
+import cn.torna.service.dto.UpdateDocFolderDTO;
 import cn.torna.web.controller.doc.param.DocFolderAddParam;
 import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.param.DocInfoSaveParam;
@@ -250,7 +251,9 @@ public class DocController {
     public Result updateFolder(@RequestBody @Valid DocFolderUpdateParam param) {
         String name = param.getName();
         User user = UserContext.getUser();
-        docInfoService.updateDocFolderName(param.getId(), name, user);
+        UpdateDocFolderDTO updateDocFolderDTO = CopyUtil.copyBean(param, UpdateDocFolderDTO::new);
+        updateDocFolderDTO.setUser(user);
+        docInfoService.updateDocFolderName(updateDocFolderDTO);
         return Result.ok();
     }
 

@@ -44,4 +44,6 @@ public class ProjectInfoDTO {
     /**  数据库字段：gmt_create */
     private LocalDateTime gmtCreate;
 
+    private SpaceDTO space;
+
 }

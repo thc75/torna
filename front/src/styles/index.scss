@@ -569,3 +569,7 @@ figure.table {
     padding-top: 70px;
   }
 }
+
+.result-header-label .el-badge__content.is-fixed,
+.tab-pane-label .el-badge__content.is-fixed
+{top: 10px;right: 0; }

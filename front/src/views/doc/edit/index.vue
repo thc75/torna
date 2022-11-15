@@ -109,7 +109,12 @@
             </div>
             <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" />
           </el-tab-pane>
-          <el-tab-pane label="Body Parameter" name="tabBodyParams">
+          <el-tab-pane name="tabBodyParams">
+            <span slot="label" class="tab-pane-label">
+              <el-badge :is-dot="docInfo.requestParams.length > 0" type="danger">
+                <span>Body Parameter</span>
+              </el-badge>
+            </span>
             <div class="table-opt-btn">
               <el-switch
                 v-model="docInfo.isRequestArray"
@@ -133,7 +138,7 @@
                 />
               </div>
             </div>
-            <root-array-table v-show="isEnableRequestRootArray" ref="requestArrayTable" :data="docInfo.requestParams" :el-type="docInfo.requestArrayType" />
+            <root-array-table v-show="isEnableRequestRootArray" ref="requestArrayTable" :data="docInfo.requestParams" :el-type="docInfo.requestArrayType" :module-id="moduleId" />
             <edit-table v-show="!isEnableRequestRootArray" ref="requestParamTable" :data="docInfo.requestParams" :module-id="moduleId" />
           </el-tab-pane>
         </el-tabs>
@@ -162,7 +167,7 @@
             />
           </div>
         </div>
-        <root-array-table v-show="isEnableResponseRootArray" ref="responseArrayTable" :data="docInfo.responseParams" :el-type="docInfo.responseArrayType" />
+        <root-array-table v-show="isEnableResponseRootArray" ref="responseArrayTable" :data="docInfo.responseParams" :el-type="docInfo.responseArrayType" :module-id="moduleId" />
         <edit-table v-show="!isEnableResponseRootArray" ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="responseHiddenColumns" />
       </el-tab-pane>
       <el-tab-pane :label="$ts('errorCode')" name="errorCode">
@@ -585,8 +590,8 @@ export default {
       return ret
     },
     goBack: function() {
-      const projectInfo = this.getCurrentProject()
-      this.goProjectHome(projectInfo.id)
+      const projectId = this.docInfo.projectId || this.getCurrentProject().id
+      this.goProjectHome(projectId)
     },
     onImportHeaderParamAdd: function() {
       this.importParamTemplateDlgShow = true

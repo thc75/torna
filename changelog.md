@@ -1,5 +1,13 @@
 # 更新日志
 
+## 1.18.1
+
+- 【优化】支持接口管理目录移动 [#I60RQ5](https://gitee.com/durcframework/torna/issues/I60RQ5)
+- 【优化】支持项目移动至不同的空间 [#I60IET](https://gitee.com/durcframework/torna/issues/I60IET)
+- 【修复】设置了contextPath后图片无法加载问题 [#I60QLT](https://gitee.com/durcframework/torna/issues/I60QLT)
+- 【修复】当参数选择了根数据后，没有办法选择关联字典 [#I5ZR0O](https://gitee.com/durcframework/torna/issues/I5ZR0O)
+- 【修复】dubbo接口太长无法保存问题 [#I5Y8GO](https://gitee.com/durcframework/torna/issues/I5Y8GO)
+
 ## 1.18.0
 
 - 【新增】新增常量管理，可管理项目中的错误码、枚举信息

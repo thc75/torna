@@ -7,6 +7,7 @@ import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.ProjectUser;
+import cn.torna.dao.entity.Space;
 import cn.torna.dao.entity.SpaceUser;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.ProjectMapper;
@@ -16,6 +17,8 @@ import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.ProjectInfoDTO;
 import cn.torna.service.dto.ProjectUpdateDTO;
 import cn.torna.service.dto.ProjectUserDTO;
+import cn.torna.service.dto.SpaceDTO;
+import cn.torna.service.dto.SpaceInfoDTO;
 import cn.torna.service.dto.UserInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
@@ -32,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -116,11 +120,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
      * @param userId
      */
     public void removeProjectUser(long projectId, long userId) {
-        Map<String, Object> set = new HashMap<>(4);
-        set.put("is_deleted", Booleans.TRUE);
-        Query query = new Query().eq("project_id", projectId)
+        Query query = new Query()
+                .eq("project_id", projectId)
                 .eq("user_id", userId);
-        projectUserMapper.updateByMap(set, query);
+        projectUserMapper.forceDeleteByQuery(query);
     }
 
     /**
@@ -154,11 +157,19 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
     @Transactional(rollbackFor = Exception.class)
     public void updateProject(ProjectUpdateDTO projectUpdateDTO) {
         Project project = getById(projectUpdateDTO.getId());
+        Long spaceIdOld = project.getSpaceId();
+        Long spaceIdNew = projectUpdateDTO.getSpaceId();
         CopyUtil.copyProperties(projectUpdateDTO, project);
         this.update(project);
 
         List<Long> adminIds = projectUpdateDTO.getAdminIds();
         this.saveLeader(project.getId(), adminIds);
+        // 如果两个空间id不一样，表示项目转移到另外一个空间
+        // 需要把原项目的用户复制到新空间
+        if (!Objects.equals(spaceIdOld, spaceIdNew)) {
+            List<ProjectUser> projectUsers = this.listProjectUser(project.getId(), null);
+            spaceService.transformSpaceUser(projectUsers, spaceIdNew);
+        }
     }
 
     /**
@@ -202,9 +213,11 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
      */
     public ProjectInfoDTO getProjectInfo(long projectId) {
         Project project = this.getById(projectId);
+        Space space = spaceService.getById(project.getSpaceId());
         ProjectInfoDTO projectInfoDTO = CopyUtil.copyBean(project, ProjectInfoDTO::new);
         List<UserInfoDTO> userInfoDTOS = this.listProjectLeader(projectId);
         projectInfoDTO.setAdmins(userInfoDTOS);
+        projectInfoDTO.setSpace(CopyUtil.copyBean(space, SpaceDTO::new));
         return projectInfoDTO;
     }
 

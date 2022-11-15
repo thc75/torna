@@ -17,8 +17,7 @@ import { format_json } from '@/utils/format'
 import { Enums } from './enums'
 import { add_init } from './init'
 
-// eslint-disable-next-line
-const VERSION="1.18.0"
+const VERSION = process.env.VERSION || ''
 const SPACE_ID_KEY = 'torna.spaceid'
 const PROJECT_ID_KEY = 'torna.projectid'
 const TORNA_FROM = 'torna.from'
@@ -103,7 +102,7 @@ Object.assign(Vue.prototype, {
    * @param callback 回调函数，函数参数是文件内容
    */
   getFile: function(path, callback) {
-    get_file.call(this, path, callback)
+    get_file.call(this, get_baseUrl() + '/' + path, callback)
   },
   /**
    * tip，使用方式：this.tip('操作成功')，this.tip('错误', 'error')

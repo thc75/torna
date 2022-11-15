@@ -1,10 +1,12 @@
 package cn.torna.service;
+import java.time.LocalDateTime;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.RoleEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.dao.entity.ProjectUser;
 import cn.torna.dao.entity.Space;
 import cn.torna.dao.entity.SpaceUser;
 import cn.torna.dao.entity.UserInfo;
@@ -27,11 +29,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -193,15 +197,14 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 移除空间成员
-     * @param spaceId
-     * @param userId
+     * @param spaceId 空间id
+     * @param userId 空间用户
      */
     public void removeMember(long spaceId, long userId) {
-        Map<String, Object> set = new HashMap<>(4);
-        set.put("is_deleted", Booleans.TRUE);
-        Query query = new Query().eq("space_id", spaceId)
+        Query query = new Query()
+                .eq("space_id", spaceId)
                 .eq("user_id", userId);
-        spaceUserMapper.updateByMap(set, query);
+        spaceUserMapper.forceDeleteByQuery(query);
     }
 
     public SpaceUser getSpaceUser(Long spaceId, Long userId) {
@@ -293,6 +296,45 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .in("id", spaceIds);
         List<Space> spaces = this.listAll(query);
         return CopyUtil.copyList(spaces, SpaceDTO::new);
+    }
+
+    /**
+     * 清理空间已删除的用户
+     * @param spaceId 空间id
+     */
+    public void cleanDeletedUser(long spaceId) {
+        Query query = new Query()
+                .eq("space_id", spaceId)
+                .eq("is_deleted", Booleans.TRUE);
+        spaceUserMapper.forceDeleteByQuery(query);
+    }
+
+    /**
+     * 转移项目成员到新空间
+     * @param projectUsers 项目用户
+     * @param spaceIdNew 目标空间
+     */
+    public void transformSpaceUser(List<ProjectUser> projectUsers, long spaceIdNew) {
+        this.cleanDeletedUser(spaceIdNew);
+        List<SpaceUser> spaceUsersNew = this.listSpaceUser(spaceIdNew);
+        List<Long> destSpaceUserIds = spaceUsersNew.stream()
+                .map(SpaceUser::getUserId)
+                .collect(Collectors.toList());
+
+        List<SpaceUser> tobeSaveList = new ArrayList<>();
+
+        for (ProjectUser projectUser : projectUsers) {
+            Long userId = projectUser.getUserId();
+            // 如果不存在，添加新用户
+            if (!destSpaceUserIds.contains(userId)) {
+                SpaceUser spaceUser = new SpaceUser();
+                spaceUser.setUserId(userId);
+                spaceUser.setSpaceId(spaceIdNew);
+                spaceUser.setRoleCode(projectUser.getRoleCode());
+                tobeSaveList.add(spaceUser);
+            }
+        }
+        spaceUserMapper.saveBatchIgnoreNull(tobeSaveList);
     }
 
 }
