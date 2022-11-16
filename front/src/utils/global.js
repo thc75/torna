@@ -17,7 +17,7 @@ import { format_json } from '@/utils/format'
 import { Enums } from './enums'
 import { add_init } from './init'
 
-const VERSION = process.env.VERSION || ''
+const VERSION = process.env.VUE_APP_VERSION || ''
 const SPACE_ID_KEY = 'torna.spaceid'
 const PROJECT_ID_KEY = 'torna.projectid'
 const TORNA_FROM = 'torna.from'
