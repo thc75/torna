@@ -42,7 +42,7 @@ Import database,run [mysql.sql](./mysql.sql)
 
 Download image
 
-`docker pull tanghc2020/torna:1.18.0`
+`docker pull tanghc2020/torna:1.18.1`
 
 Create an empty file `application.properties` to store config：
 
@@ -72,7 +72,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d tanghc2020/torna:1.18.0
+  -d tanghc2020/torna:1.18.1
 ```
 
 Browser visit:`http://<ip>:7700`

@@ -54,7 +54,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.18.0`
+`docker pull tanghc2020/torna:1.18.1`
 
 在`/etc/torna/`下创建一个空文件`application.properties`用来存放配置，执行命令：
 
@@ -88,7 +88,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d tanghc2020/torna:1.18.0
+  -d tanghc2020/torna:1.18.1
 ```
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
