@@ -69,6 +69,7 @@ Run docker：
 
 ```
 docker run --name torna --restart=always \
+  -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
   -d tanghc2020/torna:1.18.0
