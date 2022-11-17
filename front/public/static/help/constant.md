@@ -6,7 +6,7 @@ Torna的常量管理分为三个等级，从上到下一次为：全局级别 ->
 
 如下图所示：
 
-<img src="/static/help/images/const1.png" />
+<img src="./static/help/images/const1.png" />
 
 举个例子：
 
@@ -18,11 +18,11 @@ Torna的常量管理分为三个等级，从上到下一次为：全局级别 ->
 
 还有一种情况是接口不显示具体的错误码，统一返回一个全局错误码列表，如下图所示：
 
-<img src="/static/help/images/const2.png" />
+<img src="./static/help/images/const2.png" />
 
 最后一种方式是项目中所有应用共用一套错误码，如下图所示
 
-<img src="/static/help/images/const3.png" />
+<img src="./static/help/images/const3.png" />
 
 只需要在`项目常量`中指定所有的错误码即可，这样的好处是错误码维护方便。
 
@@ -30,8 +30,8 @@ Torna的常量管理分为三个等级，从上到下一次为：全局级别 ->
 
 设置完毕后，在文档页面右上角进行查看
 
-<img src="/static/help/images/const4.png" />
+<img src="./static/help/images/const4.png" />
 
 点击后出现错误码定义，方便接口调用者可查看
 
-<img src="/static/help/images/const5.png" />
+<img src="./static/help/images/const5.png" />
