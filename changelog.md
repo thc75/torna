@@ -7,6 +7,7 @@
 - 【修复】设置了contextPath后图片无法加载问题 [#I60QLT](https://gitee.com/durcframework/torna/issues/I60QLT)
 - 【修复】当参数选择了根数据后，没有办法选择关联字典 [#I5ZR0O](https://gitee.com/durcframework/torna/issues/I5ZR0O)
 - 【修复】dubbo接口太长无法保存问题 [#I5Y8GO](https://gitee.com/durcframework/torna/issues/I5Y8GO)
+- 【修复】多级文档目录无法分享问题
 
 ## 1.18.0
 
