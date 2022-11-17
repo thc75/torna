@@ -11,9 +11,9 @@ import cn.torna.dao.entity.ShareConfig;
 import cn.torna.dao.entity.ShareContent;
 import cn.torna.dao.entity.ShareEnvironment;
 import cn.torna.service.ShareConfigService;
-import cn.torna.service.ShareEnvironmentService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ShareConfigDTO;
+import cn.torna.service.dto.ShareDocDTO;
 import cn.torna.web.controller.doc.param.ShareConfigParam;
 import cn.torna.web.controller.doc.vo.ShareConfigVO;
 import cn.torna.web.controller.doc.vo.ShareContentVO;
@@ -74,6 +74,13 @@ public class ShareConfigController {
         List<ShareContentVO> list = CopyUtil.copyList(shareContents, ShareContentVO::new);
         return Result.ok(list);
     }
+
+    @GetMapping("listShareDocIds")
+    public Result<List<ShareDocDTO>> listShareDocIds(@HashId Long id) {
+        List<ShareDocDTO> shareDocIds = shareConfigService.listShareDocIds(id);
+        return Result.ok(shareDocIds);
+    }
+
     @GetMapping("listEnvironment")
     public Result<List<ShareEnvironmentVO>> listEnvironment(@HashId Long id) {
         List<ShareEnvironment> shareEnvironments = shareConfigService.listEnvironment(id);

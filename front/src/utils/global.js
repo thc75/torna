@@ -3,7 +3,7 @@
  */
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
-import { do_get, get, get_baseUrl, get_file, post } from './http'
+import { do_get, get, get_base_url, get_file, post } from './http'
 import {
   convert_tree,
   create_response_example,
@@ -84,7 +84,7 @@ Object.assign(Vue.prototype, {
     return Enums
   },
   getBaseUrl() {
-    return get_baseUrl()
+    return get_base_url()
   },
   getUserId() {
     const token = getToken()
@@ -102,7 +102,7 @@ Object.assign(Vue.prototype, {
    * @param callback 回调函数，函数参数是文件内容
    */
   getFile: function(path, callback) {
-    get_file.call(this, get_baseUrl() + '/' + path, callback)
+    get_file.call(this, this.getBaseUrl() + '/' + path, callback)
   },
   /**
    * tip，使用方式：this.tip('操作成功')，this.tip('错误', 'error')

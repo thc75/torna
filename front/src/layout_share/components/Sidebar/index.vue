@@ -1,39 +1,7 @@
 <template>
   <div :class="{'has-logo':showLogo}">
     <el-scrollbar wrap-class="scrollbar-wrapper">
-      <div class="menu-tree">
-        <el-input
-          v-show="treeData.length > 0"
-          v-model="filterText"
-          prefix-icon="el-icon-search"
-          :placeholder="$ts('apiFilter')"
-          style="margin-bottom: 10px;"
-          size="mini"
-          clearable
-        />
-        <el-tree
-          ref="tree"
-          :data="treeData"
-          :props="defaultProps"
-          :filter-node-method="filterNode"
-          :highlight-current="true"
-          :expand-on-click-node="true"
-          :default-expanded-keys="expandKeys"
-          :empty-text="$ts('noData')"
-          node-key="id"
-          class="filter-tree"
-          @node-click="onNodeClick"
-        >
-          <span slot-scope="{ node, data }">
-            <span>
-              <i :class="{ 'el-icon-folder': data.isFolder }"></i>
-              <http-method v-if="data.httpMethod" :method="data.httpMethod" />
-              <span :class="{ 'deprecated': !data.isFolder && data.deprecated !== '$false$' }">{{ node.label }}</span>
-              <span v-if="data.isFolder" class="tip">({{ data.apiCount }})</span>
-            </span>
-          </span>
-        </el-tree>
-      </div>
+      <doc-select ref="docSelect" :load-init="false" :show-space="false" :node-click="onNodeClick" />
     </el-scrollbar>
   </div>
 </template>
@@ -45,10 +13,10 @@
 </style>
 <script>
 import { mapGetters } from 'vuex'
-import HttpMethod from '@/components/HttpMethod'
+import DocSelect from '@/components/DocSelect'
 
 export default {
-  components: { HttpMethod },
+  components: { DocSelect },
   data() {
     return {
       filterText: '',
@@ -82,12 +50,10 @@ export default {
   methods: {
     loadMenu() {
       const id = this.$route.params.shareId
-      this.get('/share/menu', { id: id }, resp => {
-        const data = resp.data
-        this.treeData = this.convertTree(data)
-        const currentNode = this.getCurrentNode(data)
-        this.$nextTick(() => {
-          this.setCurrentNode(currentNode)
+      this.$nextTick(() => {
+        this.get('/share/menu', { id: id }, resp => {
+          const data = resp.data
+          this.$refs.docSelect.loadData(data)
         })
       })
     },
@@ -119,9 +85,9 @@ export default {
     },
     // 树点击事件
     onNodeClick(data, node, tree) {
-      if (!data.isFolder) {
+      if (data.type === this.types.TYPE_DOC) {
         const shareId = this.$route.params.shareId
-        this.toRoute({ path: `/share/${shareId}/${data.id}` }, data.name)
+        this.toRoute({ path: `/share/${shareId}/${data.id}` }, data.label)
       }
     }
   }

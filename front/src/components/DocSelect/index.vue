@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="select-area">
+    <div v-if="showSpace" class="select-area">
       <el-select v-model="currentSpaceId" size="mini" class="space-select" @change="onSpaceSelect">
         <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
           {{ space.name }}
@@ -73,6 +73,10 @@ export default {
       type: Boolean,
       default: false
     },
+    showSpace: {
+      type: Boolean,
+      default: true
+    },
     loadInit: {
       type: Boolean,
       default: true
@@ -129,17 +133,20 @@ export default {
     reloadMenu() {
       this.loadMenu(this.currentSpaceId)
     },
+    loadData(data) {
+      this.initDocMap(data)
+      const currentNode = this.getCurrentNode(data)
+      this.treeData = this.convertTree(data)
+      this.$nextTick(() => {
+        this.setCurrentNode(currentNode)
+      })
+    },
     loadMenu(spaceId) {
       if (spaceId) {
         this.expandKeys = []
         this.get('/doc/view/data', { spaceId: spaceId }, resp => {
           const data = resp.data
-          this.initDocMap(data)
-          const currentNode = this.getCurrentNode(data)
-          this.treeData = this.convertTree(data)
-          this.$nextTick(() => {
-            this.setCurrentNode(currentNode)
-          })
+          this.loadData(data)
         })
       }
     },

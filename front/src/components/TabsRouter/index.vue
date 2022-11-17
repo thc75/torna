@@ -33,7 +33,6 @@
       <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeOthers') }}</li>
       <li v-show="!isFirstTab()" @click="closeLeftTabs"><i class="el-icon-back" /> {{ $ts('closeLeft') }}</li>
       <li v-show="!isLastTab()" @click="closeRightTabs"><i class="el-icon-right" /> {{ $ts('closeRight') }}</li>
-      <li @click="closeAllTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeAll') }}</li>
     </ul>
   </div>
 </template>
@@ -75,15 +74,6 @@ export default {
       if (!docId) {
         this.$store.state.settings.docTitle = ''
       }
-      this.$nextTick(() => {
-        const height = this.$refs.tabs_router.offsetHeight
-        const els = document.getElementsByClassName('app-main ')
-        if (els) {
-          for (const el of els) {
-            el.style.paddingTop = BASE_PADDING_TOP + height + 'px'
-          }
-        }
-      })
     },
     showContextMenu(value) {
       if (value) {
@@ -97,6 +87,12 @@ export default {
     docTitle(title) {
       this.addTabs(title)
     }
+  },
+  beforeMount() {
+    window.addEventListener('resize', this.onResize)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   },
   methods: {
     // 是否选中
@@ -127,25 +123,7 @@ export default {
       const tabInfo = { path: path, title: title || 'Torna' }
       this.$store.dispatch('tabsRouter/addVisitedTabs', tabInfo)
         .then(({ position, length }) => {
-          if (this.isTabMayClick) {
-            return
-          }
-          const tabsRouter = this.$refs.tabs_router
-          if (!this.canHorizontalScroll(tabsRouter)) {
-            return
-          }
-          const element = tabsRouter.querySelectorAll('.tab-item')
-          const tabClientWidth = element[position] && element[position].clientWidth
-          // Math.ceil(Math.floor(滚动容器宽度/标签元素宽度)/2)
-          const number = Math.ceil(Math.floor(tabsRouter.clientWidth / tabClientWidth) / 2)
-          // 靠前
-          if (position <= number) {
-            tabsRouter.scrollLeft = 0
-          } else if (position >= length - number) { // 靠后
-            tabsRouter.scrollLeft = tabsRouter.scrollWidth
-          } else {
-            tabsRouter.scrollLeft = (position - number) * tabClientWidth
-          }
+          this.onResize()
         })
     },
     isAllowPath(path) {
@@ -162,6 +140,7 @@ export default {
         if (this.isActive(tab)) {
           this.toLastView(visitedTabs, index)
         }
+        this.onResize()
       })
     },
     // 跳转到最近的标签
@@ -223,6 +202,9 @@ export default {
     closeOthersTabs() {
       this.$router.push(this.selectedTab)
       this.$store.dispatch('tabsRouter/deleteOthersVisitedTabs', this.selectedTab)
+        .then(() => {
+          this.onResize()
+        })
     },
     // 关闭左侧
     closeLeftTabs() {
@@ -231,6 +213,7 @@ export default {
           if (!visitedTabs.find(i => i.path === this.$route.path)) {
             this.toLastView(visitedTabs, visitedTabs.length)
           }
+          this.onResize()
         })
     },
     // 关闭右侧
@@ -240,6 +223,7 @@ export default {
           if (!visitedTabs.find(i => i.path === this.$route.path)) {
             this.toLastView(visitedTabs, visitedTabs.length)
           }
+          this.onResize()
         })
     },
     // 关闭全部
@@ -252,6 +236,17 @@ export default {
     closeContextMenu() {
       this.showContextMenu = false
       this.selectedTab = {}
+    },
+    onResize() {
+      this.$nextTick(() => {
+        const height = this.$refs.tabs_router.offsetHeight
+        const els = document.getElementsByClassName('app-main ')
+        if (els) {
+          for (const el of els) {
+            el.style.paddingTop = BASE_PADDING_TOP + height + 'px'
+          }
+        }
+      })
     }
   }
 }
@@ -273,12 +268,12 @@ export default {
     color: #495060;
     font-size: 12px;
     //border-radius: 4px;
-    min-height: 25px;
+    min-height: 26px;
     //width: 120px;
     //min-width: 110px;
     background: #FFF;
     //margin-left: 5px;
-    cursor: pointer;
+    //cursor: pointer;
     display: inline-block;
     align-items: center;
     justify-content: space-between;
@@ -298,7 +293,7 @@ export default {
     }
 
     &:not(.active):hover {
-      background: #F8F8F8;
+      background: #f3f3f3;
     }
 
     .tab-title {
@@ -307,7 +302,7 @@ export default {
       width: 100%;
       height: 100%;
       vertical-align: center;
-      padding: 5px;
+      padding: 5px 6px;
     }
 
     .el-icon-close {

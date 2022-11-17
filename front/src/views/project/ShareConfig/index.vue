@@ -150,7 +150,6 @@
 </template>
 <script>
 import DocTree from '@/components/DocTree'
-import { get_baseUrl } from '@/utils/http'
 
 $addI18n({
   'allowDebug': { 'zh': '允许调试', 'en': 'Allow Debug' }
@@ -268,8 +267,9 @@ export default {
         }
 
         if (!row.isAll) {
-          this.get('/doc/share/listContent', { id: row.id }, resp => {
+          this.get('/doc/share/listShareDocIds', { id: row.id }, resp => {
             const contentList = resp.data
+            // 所有的文档id
             const idList = contentList.map(row => row.docId)
             this.reloadDocTree(treeData => {
               for (const data of treeData) {
@@ -332,6 +332,11 @@ export default {
             isShareFolder: isShareFolder
           })
         } else {
+          content.push({
+            docId: node.id,
+            parentId: node.parentId,
+            isShareFolder: isShareFolder
+          })
           // 保存子文件
           // 如果没有设置追加，需要添加所有文档id
           const children = node.children || []
@@ -339,12 +344,6 @@ export default {
             for (const child of children) {
               append(child, isShareFolder)
             }
-          } else {
-            content.push({
-              docId: node.id,
-              parentId: node.parentId,
-              isShareFolder: isShareFolder
-            })
           }
         }
       }
@@ -378,12 +377,12 @@ export default {
       this.$refs.docTreeViewRef.load(this.moduleId, beforeFun, afterFun)
     },
     buildUrl(row) {
-      return `${get_baseUrl()}/#/share/${row.id}`
+      return `${this.getBaseUrl()}/#/share/${row.id}`
     },
     viewDoc(row) {
       this.dialogViewVisible = true
       this.$nextTick(() => {
-        this.get('/doc/share/listContent', { id: row.id }, resp => {
+        this.get('/doc/share/listShareDocIds', { id: row.id }, resp => {
           const contentList = resp.data
           const idList = contentList.map(row => row.docId)
           this.reloadDocTreeView(treeData => {
