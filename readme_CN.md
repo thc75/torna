@@ -71,7 +71,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 server.port=7700
 
 # MySQL地址
-mysql.host=<mysql_host>:3306
+mysql.host=<mysql_ip>:3306
 # 数据库名称
 mysql.schema=torna
 # 数据库账号，确保能执行DDL语句

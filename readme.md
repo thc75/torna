@@ -57,7 +57,7 @@ entry config below:
 server.port=7700
 
 # MySQL address
-mysql.host=<mysql_host>:3306
+mysql.host=<mysql_ip>:3306
 # Database name
 mysql.schema=torna
 # MySQL account, make sure can run DDL
