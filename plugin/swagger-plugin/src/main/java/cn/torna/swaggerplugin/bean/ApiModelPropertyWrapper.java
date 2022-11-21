@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,6 +76,22 @@ public class ApiModelPropertyWrapper {
             dataType = fieldOptional.map(Field::getType).map(Class::getSimpleName).orElse("");
         }
         return dataType;
+    }
+
+    public String getMaxLength() {
+        if (!fieldOptional.isPresent()) {
+            return "-";
+        }
+        Field field = fieldOptional.get();
+        if (PluginUtil.hasAnyAnnotation(field, Collections.singletonList("Length"))) {
+            org.hibernate.validator.constraints.Length length = field.getAnnotation(org.hibernate.validator.constraints.Length.class);
+            return String.valueOf(length.max());
+        }
+        if (PluginUtil.hasAnyAnnotation(field, Collections.singletonList("Max"))) {
+            javax.validation.constraints.Max max = field.getAnnotation(javax.validation.constraints.Max.class);
+            return String.valueOf(max.value());
+        }
+        return "-";
     }
 
 }

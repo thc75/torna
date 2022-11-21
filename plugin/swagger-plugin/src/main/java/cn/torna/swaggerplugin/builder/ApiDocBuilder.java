@@ -252,6 +252,7 @@ public class ApiDocBuilder {
         fieldDocInfo.setExample(example);
         fieldDocInfo.setDescription(description);
         fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
+        fieldDocInfo.setMaxLength(apiModelPropertyWrapper.getMaxLength());
 
         boolean isList = PluginUtil.isCollectionOrArray(fieldType);
         Type genericType = field.getGenericType();
@@ -319,6 +320,7 @@ public class ApiDocBuilder {
         fieldDocInfo.setExample(example);
         fieldDocInfo.setDescription(description);
         fieldDocInfo.setOrderIndex(apiModelPropertyWrapper.getPosition());
+        fieldDocInfo.setMaxLength(apiModelPropertyWrapper.getMaxLength());
 
         if (PluginUtil.isCollection(clazz)) {
             Class<?> elementClass = this.getCollectionElementClass(clazz);
@@ -351,6 +353,8 @@ public class ApiDocBuilder {
             fieldDocInfo.setExample(examples.get(0));
         }
         fieldDocInfo.setDescription(String.join("、", examples));
+        fieldDocInfo.setMaxLength(apiModelPropertyWrapper.getMaxLength());
+        fieldDocInfo.setMaxLength(apiModelPropertyWrapper.getMaxLength());
         return fieldDocInfo;
     }
 

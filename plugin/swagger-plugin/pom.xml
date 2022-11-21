@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin</artifactId>
-    <version>1.2.14</version>
+    <version>1.2.15</version>
     <packaging>jar</packaging>
 
     <name>swagger-plugin</name>
@@ -42,12 +42,29 @@
             <groupId>cn.torna</groupId>
             <artifactId>torna-sdk</artifactId>
             <version>1.0.12</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.2.4.Final</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

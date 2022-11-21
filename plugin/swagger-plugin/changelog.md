@@ -1,5 +1,6 @@
 # 更新日志
 
+- 1.2.15：支持maxLength，需要配合JSR-303注解，`@Length(max = 55)`, `@Max(55)`
 - 1.2.14：修复泛型参数解析错误问题。`List<? extends TreeVO> children`
 - 1.2.13：优化dubbo推送
 - 1.2.12：优化枚举展示
