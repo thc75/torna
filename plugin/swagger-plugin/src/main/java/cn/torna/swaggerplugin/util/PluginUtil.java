@@ -1,5 +1,7 @@
 package cn.torna.swaggerplugin.util;
 
+import cn.torna.swaggerplugin.bean.PushFeature;
+import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.builder.DataType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
@@ -297,6 +299,19 @@ public class PluginUtil {
                 if (annotationClassName.contains(name)) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isEnableFeature(TornaConfig config, PushFeature feature) {
+        List<String> features = config.getFeatures();
+        if (features == null) {
+            return false;
+        }
+        for (String feat : features) {
+            if (feature.name().equalsIgnoreCase(feat)) {
+                return true;
             }
         }
         return false;

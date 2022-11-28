@@ -22,6 +22,7 @@ import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.DocParamInfo;
 import cn.torna.swaggerplugin.bean.ModeEnum;
 import cn.torna.swaggerplugin.bean.PluginConstants;
+import cn.torna.swaggerplugin.bean.PushFeature;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.builder.ApiDocBuilder;
 import cn.torna.swaggerplugin.builder.DataType;
@@ -850,8 +851,12 @@ public class SwaggerPluginService {
             description = "";
         } else {
             name = api.value();
-            if (StringUtils.isEmpty(name) && api.tags().length > 0) {
-                name = api.tags()[0];
+            List<String> tags = getTags(api);
+            if (StringUtils.isEmpty(name) && tags.size() > 0) {
+                name = tags.get(0);
+            }
+            if (PluginUtil.isEnableFeature(tornaConfig, PushFeature.USE_API_TAGS) && tags.size() > 0) {
+                name = tags.get(0);
             }
             description = api.description();
             position = api.position();
@@ -861,6 +866,15 @@ public class SwaggerPluginService {
         controllerInfo.setDescription(description);
         controllerInfo.setPosition(position);
         return controllerInfo;
+    }
+
+    protected List<String> getTags(Api api) {
+        if (api == null || api.tags() == null) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(api.tags())
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toList());
     }
 
     public TornaConfig getTornaConfig() {
