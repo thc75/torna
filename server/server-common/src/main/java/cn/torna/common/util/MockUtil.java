@@ -97,4 +97,31 @@ public class MockUtil {
         }
     }
 
+    public static String buildMockArrayValue(String type) {
+        if (type == null) {
+            return "";
+        }
+        switch (type.toLowerCase()) {
+            case "bool":
+            case "boolean":
+                return "[true, false]";
+            case "byte":
+            case "short":
+            case "int":
+            case "integer":
+            case "biginteger":
+            case "long":
+                return "[1,2,3]";
+            case "string":
+                return "[\"aa\",\"bb\"]";
+            case "float":
+            case "double":
+            case "bigdecimal":
+                return "[1.11,2.23]";
+            default:{
+                return "[]";
+            }
+        }
+    }
+
 }
