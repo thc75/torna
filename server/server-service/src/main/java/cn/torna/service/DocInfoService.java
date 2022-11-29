@@ -28,7 +28,6 @@ import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.DocRefDTO;
-import com.alibaba.fastjson.JSON;
 import cn.torna.service.dto.DubboInfoDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
@@ -57,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -609,9 +607,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     /**
      * 修改分类名称
      *
-     * @param id   文档id
-     * @param name 文档名称
-     * @param user 操作人
      * @param updateDocFolderDTO
      */
     public void updateDocFolderName(UpdateDocFolderDTO updateDocFolderDTO) {
