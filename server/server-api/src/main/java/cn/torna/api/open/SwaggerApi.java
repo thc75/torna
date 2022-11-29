@@ -34,7 +34,6 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -432,7 +431,7 @@ public class SwaggerApi {
                             Schema<?> items = schema.getItems();
                             $ref = items.get$ref();
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
-                        } else if ($ref != null) {
+                        } else if ($ref != null && !$ref.endsWith("@")/*排除@*/) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         }
                     }
