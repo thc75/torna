@@ -47,6 +47,25 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 无特殊说明，只需要覆盖`torna.jar文件`和`dist文件夹`，然后重启即可
 
+### Linux服务器快速部署
+
+- 前提：导入数据库，执行[mysql.sql](./mysql.sql)
+
+创建配置文件，执行命令：
+
+```bash
+mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/install/application.properties -O /etc/torna/application.properties
+```
+
+`vim /etc/torna/application.properties`修改数据库连接
+
+拉取最新版本并启动，以1.18.2为例
+
+```bash
+wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.18.2
+```
+
+后续更新版本只需执行`sh restart-torna.sh 版本号`
 
 ### 方式2：docker运行
 
