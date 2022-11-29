@@ -57,7 +57,7 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/install/application.properties -O /etc/torna/application.properties
 ```
 
-`vim /etc/torna/application.properties`修改数据库连接
+`vim /etc/torna/application.properties`修改数据库连接配置
 
 拉取最新版本并启动，以1.18.2为例
 
@@ -81,7 +81,7 @@ wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh &
 mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/install/application.properties -O /etc/torna/application.properties
 ```
 
-`vim /etc/torna/application.properties`修改数据库连接
+`vim /etc/torna/application.properties`修改数据库连接配置
 
 执行docker命令：
 
