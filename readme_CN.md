@@ -75,30 +75,13 @@ wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh &
 
 `docker pull tanghc2020/torna:1.18.2`
 
-在`/etc/torna/`下创建一个空文件`application.properties`用来存放配置，执行命令：
+创建配置文件，执行命令：
 
-`mkdir /etc/torna && touch /etc/torna/application.properties`
-
-编辑配置文件
-
-`vim /etc/torna/application.properties`
-
-输入如下配置：
-
-```properties
-# 服务器端口
-server.port=7700
-
-# MySQL地址
-mysql.host=<mysql_ip>:3306
-# 数据库名称
-mysql.schema=torna
-# 数据库账号，确保能执行DDL语句
-mysql.username=<username>
-mysql.password=<password>
+```bash
+mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/install/application.properties -O /etc/torna/application.properties
 ```
 
-修改对应的MySQL地址、账号
+`vim /etc/torna/application.properties`修改数据库连接
 
 执行docker命令：
 
