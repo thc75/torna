@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.18.2
+
+- 【优化】优化swagger导入，支持数组body（`[1,2,3]`）
+
 ## 1.18.1
 
 - 【优化】支持接口管理目录移动 [#I60RQ5](https://gitee.com/durcframework/torna/issues/I60RQ5)
