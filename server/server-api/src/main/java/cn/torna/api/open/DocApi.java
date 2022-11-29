@@ -39,6 +39,7 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.MessageDTO;
+import cn.torna.service.dto.UpdateDocFolderDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.annotation.Api;
@@ -395,7 +396,12 @@ public class DocApi {
     public void updateCategory(CategoryUpdateParam param) {
         String name = param.getName();
         User user = RequestContext.getCurrentContext().getApiUser();
-        docInfoService.updateDocFolderName(param.getId(), name, user);
+        UpdateDocFolderDTO updateDocFolderDTO = new UpdateDocFolderDTO();
+        updateDocFolderDTO.setId(param.getId());
+        updateDocFolderDTO.setName(name);
+        updateDocFolderDTO.setUser(user);
+        updateDocFolderDTO.setParentId(0L);
+        docInfoService.updateDocFolderName(updateDocFolderDTO);
     }
 
 

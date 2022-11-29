@@ -25,7 +25,7 @@
         </el-popconfirm>
       </el-form-item>
     </el-form>
-    <el-link type="primary" :underline="false" href="https://smart-doc-group.github.io/#/zh-cn/torna/tornaIntegration" target="_blank">[推荐]{{ $ts('useSmartDoc') }}</el-link>
+    <el-link type="primary" :underline="false" href="https://smart-doc-group.github.io/#/zh-cn/torna/tornaIntegration" target="_blank">[{{ $ts('recommend') }}]{{ $ts('useSmartDoc') }}</el-link>
     <span class="split">|</span>
     <el-link type="primary" :underline="false" @click="openLink('/openapi')">{{ $ts('openApiLink') }}</el-link>
   </div>

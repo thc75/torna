@@ -54,33 +54,46 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.18.0`
+`docker pull tanghc2020/torna:1.18.2`
 
-下载完成后，执行docker命令：
+在`/etc/torna/`下创建一个空文件`application.properties`用来存放配置，执行命令：
+
+`mkdir /etc/torna && touch /etc/torna/application.properties`
+
+编辑配置文件
+
+`vim /etc/torna/application.properties`
+
+输入如下配置：
+
+```properties
+# 服务器端口
+server.port=7700
+
+# MySQL地址
+mysql.host=<mysql_ip>:3306
+# 数据库名称
+mysql.schema=torna
+# 数据库账号，确保能执行DDL语句
+mysql.username=<username>
+mysql.password=<password>
+```
+
+修改对应的MySQL地址、账号
+
+执行docker命令：
 
 ```
 docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
-  -e MYSQL_HOST="11.11.11.11:3306" \
-  -e MYSQL_SCHEMA="torna" \
-  -e MYSQL_USERNAME="root" \
-  -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:1.18.0
+  -v /etc/torna/application.properties:/torna/config/application.properties \
+  -d tanghc2020/torna:1.18.2
 ```
-
-[运维脚本](http://torna.cn/dev/common-script.html#docker%E9%87%8D%E5%90%AFtorna%E8%84%9A%E6%9C%AC)
-
-需改更改的部分：
-
-- MYSQL_HOST：MySQL服务器地址
-- MYSQL_SCHEMA：数据库名称，默认不用改
-- MYSQL_USERNAME：MySQL用户名，要求账号能运行DDL/DML/ALTER语句
-- MYSQL_PASSWORD：MySQL密码
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
 
-如果要增加其它配置项，参考：[docker添加配置](http://torna.cn/dev/config.html#docker%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE)
+[运维脚本](http://torna.cn/dev/common-script.html#docker%E9%87%8D%E5%90%AFtorna%E8%84%9A%E6%9C%AC)
 
 ### docker-compose部署torna
 [【docker-compose方式部署torna】](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)

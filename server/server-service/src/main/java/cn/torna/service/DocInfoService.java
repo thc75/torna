@@ -33,6 +33,7 @@ import cn.torna.service.dto.DubboInfoDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
+import cn.torna.service.dto.UpdateDocFolderDTO;
 import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
@@ -611,8 +612,17 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param id   文档id
      * @param name 文档名称
      * @param user 操作人
+     * @param updateDocFolderDTO
      */
-    public void updateDocFolderName(long id, String name, User user) {
+    public void updateDocFolderName(UpdateDocFolderDTO updateDocFolderDTO) {
+        Long id = updateDocFolderDTO.getId();
+        String name = updateDocFolderDTO.getName();
+        User user = updateDocFolderDTO.getUser();
+        Long parentId = updateDocFolderDTO.getParentId();
+        if (parentId == null) {
+            parentId = 0L;
+        }
+
         DocInfo folder = getById(id);
         Assert.notNull(folder, name + " 分类不存在");
         Long moduleId = folder.getModuleId();
@@ -623,6 +633,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         folder.setModifyMode(user.getOperationModel());
         folder.setModifierId(user.getUserId());
         folder.setIsDeleted(Booleans.FALSE);
+        folder.setParentId(parentId);
         this.update(folder);
     }
 

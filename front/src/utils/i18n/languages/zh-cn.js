@@ -263,6 +263,7 @@ const MAPPING = {
   'docDesc': '接口描述',
   'pathVariable': 'Path参数',
   'sourceFolder': '所属分类',
+  'parentNode': '父节点',
   'empty': '无',
   'isShow': '是否显示',
   'requestHeader': '请求头',
@@ -422,7 +423,8 @@ const MAPPING = {
   'applicationConstant': '应用常量',
   'viewConst': '查看常量',
   'applicationManagement': '应用管理',
-  'selectAll': '全选'
+  'selectAll': '全选',
+  'recommend': '推荐'
 
 }
 

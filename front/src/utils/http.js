@@ -2,9 +2,11 @@ import axios from 'axios'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
 
-axios.defaults.withCredentials = true
-
-function getBaseUrl() {
+/**
+ * 获取浏览器上面的根地址，到端口，后面没有/
+ * @returns {string} 返回浏览器地址，如：http://xxx:7700
+ */
+function getBrowserUrl() {
   const url = location.href.toString()
   let baseUrl = url.split('#')[0]
   if (baseUrl.endsWith('/')) {
@@ -13,11 +15,12 @@ function getBaseUrl() {
   return baseUrl
 }
 
-const baseURL = process.env.VUE_APP_BASE_API || getBaseUrl()
+const frontURL = getBrowserUrl()
+const serverUrl = process.env.VUE_APP_BASE_API || frontURL
 
 // 创建axios实例
 const client = axios.create({
-  baseURL: baseURL, // api 的 base_url
+  baseURL: serverUrl, // api 的 base_url
   timeout: 600000, // 请求超时时间,600秒
   headers: {
     post: {
@@ -31,15 +34,15 @@ client.interceptors.request.use(config => {
   return config
 })
 
-export function get_baseUrl() {
-  return baseURL
+export function get_base_url() {
+  return frontURL
 }
 
 export function get_full_url(uri) {
   if (!uri.startsWith('/')) {
     uri = '/' + uri
   }
-  return baseURL + uri
+  return serverUrl + uri
 }
 
 /**

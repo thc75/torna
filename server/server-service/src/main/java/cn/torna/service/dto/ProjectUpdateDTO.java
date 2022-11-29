@@ -22,6 +22,9 @@ public class ProjectUpdateDTO {
 
     private Long modifierId;
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long spaceId;
+
     private String modifierName;
 
     /** 是否私有项目，1：是，0：否, 数据库字段：is_private */

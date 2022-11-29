@@ -7,6 +7,7 @@ import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.PasswordUtil;
+import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ShareConfig;
 import cn.torna.dao.entity.ShareContent;
@@ -15,6 +16,7 @@ import cn.torna.dao.mapper.ShareConfigMapper;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.ShareConfigDTO;
+import cn.torna.service.dto.ShareDocDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -128,6 +131,39 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         return shareContentService.list("share_config_id", id);
     }
 
+    public List<ShareDocDTO> listShareDocIds(long id) {
+        List<ShareContent> shareContents = listContent(id);
+        List<ShareDocDTO> list = new ArrayList<>(shareContents.size());
+        // 添加追加分享
+        List<ShareDocDTO> shareFolderDocIds = shareContents.stream().filter(shareContent -> shareContent.getIsShareFolder() == Booleans.TRUE)
+                .map(shareContent -> new ShareDocDTO(shareContent.getDocId(), shareContent.getIsShareFolder()))
+                .collect(Collectors.toList());
+        list.addAll(shareFolderDocIds);
+
+        // 添加其它文档id
+        List<Long> docIdList = listDocId(shareContents);
+        List<ShareDocDTO> docIds = docIdList
+                .stream()
+                .map(docId -> new ShareDocDTO(docId, Booleans.FALSE))
+                .collect(Collectors.toList());
+
+        list.addAll(docIds);
+
+        return list;
+    }
+
+    private List<Long> listDocId(List<ShareContent> shareContents) {
+        List<Long> docIds = shareContents.stream()
+                .filter(shareContent -> shareContent.getIsShareFolder() == Booleans.FALSE)
+                .map(ShareContent::getDocId)
+                .collect(Collectors.toList());
+        return docInfoService.listDocByIds(docIds)
+                .stream()
+                .filter(docInfo -> docInfo.getIsFolder() == Booleans.FALSE)
+                .map(DocInfo::getId)
+                .collect(Collectors.toList());
+    }
+
     public List<ShareEnvironment> listEnvironment(long id) {
 
         ShareConfig config = this.getMapper().getById(id);
@@ -177,7 +213,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
     private void deleteContent(ShareConfig shareConfig) {
         Query query = new Query()
                 .eq("share_config_id", shareConfig.getId());
-        shareContentService.getMapper().deleteByQuery(query);
+        shareContentService.getMapper().forceDeleteByQuery(query);
     }
 
     /**

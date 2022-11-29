@@ -454,7 +454,8 @@ span.deprecated {
 }
 
 .doc-view-container {
-  padding: 5px 20px 0 20px;
+  padding: 0 20px 0 20px;
+  margin-top: 10px;
 }
 
 .rich-editor {
@@ -569,3 +570,7 @@ figure.table {
     padding-top: 70px;
   }
 }
+
+.result-header-label .el-badge__content.is-fixed,
+.tab-pane-label .el-badge__content.is-fixed
+{top: 10px;right: 0; }

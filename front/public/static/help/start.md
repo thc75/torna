@@ -5,13 +5,13 @@
 
 前往首页，点击`创建空间`按钮，输入空间名称
 
-<img src="/static/help/images/create_space.png" style="height: 350px" title="创建空间" />
+<img src="./static/help/images/create_space.png" style="height: 350px" title="创建空间" />
 
 - 创建项目
 
 进入空间，点击`创建项目`，填写表单内容
 
-<img src="/static/help/images/create_project.png" style="height: 400px" title="创建项目" />
+<img src="./static/help/images/create_project.png" style="height: 400px" title="创建项目" />
 
 - 创建应用
 

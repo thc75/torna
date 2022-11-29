@@ -1,6 +1,9 @@
 <template>
   <div class="app-container">
     <el-form ref="form" :model="form" class="text-form" label-width="150px">
+      <el-form-item :label="$ts('ownerSpace')">
+        {{ form.space.name }}
+      </el-form-item>
       <el-form-item :label="$ts('projectName')">
         {{ form.name }}
       </el-form-item>
@@ -25,6 +28,7 @@
       </el-form-item>
     </el-form>
     <el-dialog
+      v-if="hasRole(`project:${projectId}`, [Role.admin])"
       :title="$ts('updateProject')"
       :close-on-click-modal="false"
       :visible.sync="projectDlgShow"
@@ -37,6 +41,13 @@
         label-width="150px"
         style="width: 600px;"
       >
+        <el-form-item :label="$ts('ownerSpace')" prop="spaceId">
+          <el-select v-model="projectFormData.spaceId" size="mini">
+            <el-option v-for="space in spaceData" :key="space.id" :value="space.id" :label="space.name">
+              {{ space.name }}
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$ts('projectName')" prop="name">
           <el-input
             v-model="projectFormData.name"
@@ -71,6 +82,9 @@
   </div>
 </template>
 <script>
+$addI18n({
+  'ownerSpace': { zh: '所属空间', en: 'Space Name' }
+})
 import UserSelectV2 from '@/components/UserSelectV2'
 import QuestionPrivate from '@/components/QuestionPrivate'
 
@@ -91,6 +105,10 @@ export default {
         adminIds: [],
         admin: '',
         spaceId: '',
+        space: {
+          id: '',
+          name: ''
+        },
         description: '',
         isPrivate: 0,
         creator: '',
@@ -100,6 +118,7 @@ export default {
       projectFormData: {
         name: '',
         description: '',
+        spaceId: '',
         adminIds: [],
         isPrivate: 1
       },
@@ -141,6 +160,11 @@ export default {
           this.$refs.userSelect.setData(data)
           this.$refs.userSelect.setValue(this.projectFormData.adminIds)
         })
+        this.loadSpaceData((data, spaceId) => {
+          if (data.length > 0) {
+            this.spaceData = data
+          }
+        })
       })
     },
     onProjectUpdateSave() {
@@ -153,7 +177,7 @@ export default {
           this.projectDlgShow = false
           // 如果空间变了，需要刷新页面
           if (this.projectFormData.spaceId !== this.form.spaceId) {
-            location.reload()
+            this.goRoute(`/space/project/${this.projectFormData.spaceId}`)
           } else {
             this.tipSuccess(this.$ts('updateSuccess'))
             this.loadInfo(this.projectId)

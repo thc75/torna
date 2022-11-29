@@ -266,6 +266,7 @@ const MAPPING = {
   'docDesc': 'Description',
   'pathVariable': 'PathVariable',
   'sourceFolder': 'Folder',
+  'parentNode': 'Parent Node',
   'empty': 'Empty',
   'isShow': 'Show',
   'requestHeader': 'Header',
@@ -421,7 +422,8 @@ const MAPPING = {
   'applicationConstant': 'Application Constant',
   'viewConst': 'View Constant',
   'applicationManagement': 'Application Management',
-  'selectAll': 'Select All'
+  'selectAll': 'Select All',
+  'recommend': 'Recommend'
 
 }
 

@@ -9,7 +9,7 @@
 
 接着填写返回信息
 
-<img src="/static/help/images/mock2.png" style="height: 450px" />
+<img src="./static/help/images/mock2.png" style="height: 450px" />
 
 - Http Status：响应状态值
 - 延迟响应：单位毫秒，延迟多少毫秒返回数据，用来模拟服务端耗时操作
@@ -20,7 +20,7 @@
 
 设置后使用postman请求结果如下：
 
-<img src="/static/help/images/mock3.png" style="height: 500px" />
+<img src="./static/help/images/mock3.png" style="height: 500px" />
 
 ## Mock脚本
 
@@ -43,11 +43,11 @@ var data = Mock.mock({
 return data;
 ```
 
-<img src="/static/help/images/mock4.png" style="height: 250px" />
+<img src="./static/help/images/mock4.png" style="height: 250px" />
 
 可点击`运行`调试是否可行，没有问题后，点击保存，然后使用postman请求结果如下：
 
-<img src="/static/help/images/mock5.png" style="height: 400px" />
+<img src="./static/help/images/mock5.png" style="height: 400px" />
 
 > 1.17.2开始加入了moment日期库
 

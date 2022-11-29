@@ -2,7 +2,7 @@
 
 Torna的页面结构主要分为三大块，空间、项目、应用，如下图所示：
 
-<img src="/static/help/images/arc2.png" style="height: 300px" title="结构" />
+<img src="./static/help/images/arc2.png" style="height: 300px" title="结构" />
 
 
 ## 空间

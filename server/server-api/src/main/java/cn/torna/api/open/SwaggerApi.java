@@ -14,7 +14,9 @@ import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.exception.BizException;
+import cn.torna.common.util.MockUtil;
 import cn.torna.dao.entity.Module;
+import cn.torna.manager.doc.DataType;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
@@ -32,7 +34,6 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -312,6 +313,7 @@ public class SwaggerApi {
             RequestParamsWrapper requestParamsWrapper = buildRequestParamsWrapper(operation, openAPI);
             docPushItemParam.setRequestParams(requestParamsWrapper.getDocParamPushParams());
             docPushItemParam.setIsRequestArray(Booleans.toValue(requestParamsWrapper.isRequestArray()));
+            docPushItemParam.setRequestArrayType(requestParamsWrapper.getRequestArrayType());
             docPushItemParam.setContentType(requestParamsWrapper.getContentType());
 
             ResponseParamsWrapper responseParamsWrapper = buildResponseParamsWrapper(operation, openAPI);
@@ -344,6 +346,7 @@ public class SwaggerApi {
     private static RequestParamsWrapper buildRequestParamsWrapper(Operation operation, OpenAPI openAPI) {
         RequestBody requestBody = operation.getRequestBody();
         boolean isRequestArray = false;
+        String requestArrayType = DataType.OBJECT;
         List<DocParamPushParam> docParamPushParams = Collections.emptyList();
         String contentType = "";
         // 如果是json请求
@@ -362,7 +365,19 @@ public class SwaggerApi {
                         isRequestArray = true;
                         Schema<?> items = schema.getItems();
                         $ref = items.get$ref();
-                        docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                        if ($ref != null) {
+                            docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                        } else {
+                            String itemType = items.getType();
+                            if (StringUtils.hasText(itemType)) {
+                                String format = items.getFormat();
+                                if ("int64".equals(format)) {
+                                    itemType = "long";
+                                }
+                                requestArrayType = itemType;
+                                docParamPushParams = buildSingleArray(itemType, items);
+                            }
+                        }
                     } else if ($ref != null) {
                         docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                     }
@@ -378,7 +393,21 @@ public class SwaggerApi {
             // 表单结构
             docParamPushParams = buildDocParamPushParams(openAPI, operation, parameter -> "formData".equals(parameter.getIn()));
         }
-        return new RequestParamsWrapper(docParamPushParams, isRequestArray, contentType);
+        return new RequestParamsWrapper(docParamPushParams, isRequestArray, requestArrayType, contentType);
+    }
+
+    private static List<DocParamPushParam> buildSingleArray(String type, Schema<?> items) {
+        String example = toString(items.getExample());
+        if (StringUtils.isEmpty(example)) {
+            example = MockUtil.buildMockArrayValue(type);
+        }
+        DocParamPushParam param = DocParamPushParam.builder()
+                .type(type)
+                .required(Booleans.TRUE)
+                .description(items.getDescription())
+                .example(example)
+                .build();
+        return Collections.singletonList(param);
     }
 
     private static ResponseParamsWrapper buildResponseParamsWrapper(Operation operation, OpenAPI openAPI) {
@@ -402,7 +431,7 @@ public class SwaggerApi {
                             Schema<?> items = schema.getItems();
                             $ref = items.get$ref();
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
-                        } else if ($ref != null) {
+                        } else if ($ref != null && !$ref.endsWith("@")/*排除@*/) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         }
                     }
@@ -618,7 +647,12 @@ public class SwaggerApi {
     private static JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
         String refName = getRefName($ref);
         Schema<?> schema = openAPI.getComponents().getSchemas().get(refName);
-        String type = schema.getType();
+        String type= null;
+        try {
+            type = schema.getType();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (type == null) {
             Map<String, Object> objectProperties = Optional.ofNullable(schema.getJsonSchema()).orElse(Collections.emptyMap());
             type =  String.valueOf(objectProperties.getOrDefault("type", TYPE_OBJECT));
@@ -706,6 +740,7 @@ public class SwaggerApi {
     static class RequestParamsWrapper {
         private List<DocParamPushParam> docParamPushParams;
         private boolean isRequestArray;
+        private String requestArrayType;
         private String contentType;
     }
 

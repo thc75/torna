@@ -4,7 +4,7 @@
     row-key="id"
     border
     default-expand-all
-    highlight-current-row
+    :highlight-current-row="false"
     :empty-text="emptyText"
     class="param-table"
   >

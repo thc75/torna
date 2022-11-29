@@ -45,11 +45,11 @@ public class DocPushItemParam {
 
     /** 访问URL, 数据库字段：url */
     @ApiDocField(description = "请求url", example = "/goods/get")
-    @Length(max = 128, message = "'url' 长度不能超过128")
+    @Length(max = 200, message = "'url' 长度不能超过200")
     private String url;
 
     @ApiDocField(description = "dubbo的接口方法定义", example = "Result<Order> getOrder(String orderNo)")
-    @Length(max = 128, message = "'definition' 长度不能超过128")
+    @Length(max = 200, message = "'definition' 长度不能超过200")
     private String definition;
 
     /** http方法, 数据库字段：http_method */

@@ -3,6 +3,7 @@ package cn.torna.swaggerplugin.bean;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -91,5 +92,11 @@ public class TornaConfig {
      * 如：com.alibaba.fastjson.JSONObject
      */
     private List<String> objectClassList;
+
+    /**
+     * 特性
+     * @see PushFeature
+     */
+    private List<String> features = Collections.emptyList();
 
 }

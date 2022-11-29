@@ -26,11 +26,11 @@
 
 最终结果如下图所示：
 
-<img src="/static/help/images/global1.png" style="height: 250px" />
+<img src="./static/help/images/global1.png" style="height: 250px" />
 
 文档页面效果如下：
 
-<img src="/static/help/images/global2.png" style="width: 600px" />
+<img src="./static/help/images/global2.png" style="width: 600px" />
 
 公共返回参数配置方式与此类似。
 
@@ -41,6 +41,6 @@
 
 前往文档编辑页面进行设置，以`公共请求参数`为例，进入文档编辑页面，取消勾选`使用公共请求参数`，这样该文档就不会使用`公共请求参数`。
 
-<img src="/static/help/images/global3.png" style="width: 700px" />
+<img src="./static/help/images/global3.png" style="width: 700px" />
 
 `公共请求头`和`公共返回参数`设置方式与此类似。

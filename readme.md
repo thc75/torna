@@ -42,31 +42,40 @@ Import database,run [mysql.sql](./mysql.sql)
 
 Download image
 
-`docker pull tanghc2020/torna:1.17.0`
+`docker pull tanghc2020/torna:1.18.2`
 
-Run docker:
+Create an empty file `application.properties` to store config：
+
+`mkdir /etc/torna && touch /etc/torna/application.properties`
+
+`vim /etc/torna/application.properties`
+
+entry config below:
+
+```properties
+# server port
+server.port=7700
+
+# MySQL address
+mysql.host=<mysql_ip>:3306
+# Database name
+mysql.schema=torna
+# MySQL account, make sure can run DDL
+mysql.username=<username>
+mysql.password=<password>
+```
+
+Run docker：
 
 ```
 docker run --name torna --restart=always \
   -p 7700:7700 \
-  -e JAVA_OPTS="-Xms256m -Xmx256m" \
-  -e MYSQL_HOST="172.16.60.102:3306" \
-  -e MYSQL_SCHEMA="torna" \
-  -e MYSQL_USERNAME="root" \
-  -e MYSQL_PASSWORD="root" \
-  -d tanghc2020/torna:1.17.1
+  -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
+  -v /etc/torna/application.properties:/torna/config/application.properties \
+  -d tanghc2020/torna:1.18.2
 ```
 
-Need modify：
-
-- MYSQL_HOST：MySQL host
-- MYSQL_SCHEMA：database name
-- MYSQL_USERNAME：MySQL username,make sure the account can run CREATE/ALTER sql.
-- MYSQL_PASSWORD：MySQL password
-
-
-Visit:`http://ip:7700`
-
+Browser visit:`http://<ip>:7700`
 
 ### docker-compose deploy
 [docker-compose deploy](https://gitee.com/durcframework/torna/tree/master/torna-docker-compose)
