@@ -88,8 +88,14 @@ public class ApiModelPropertyWrapper {
             return String.valueOf(length.max());
         }
         if (PluginUtil.hasAnyAnnotation(field, Collections.singletonList("Max"))) {
+            javax.validation.constraints.DecimalMax decimalMax = field.getAnnotation(javax.validation.constraints.DecimalMax.class);
+            if (decimalMax != null) {
+                return decimalMax.value();
+            }
             javax.validation.constraints.Max max = field.getAnnotation(javax.validation.constraints.Max.class);
-            return String.valueOf(max.value());
+            if (max != null) {
+                return String.valueOf(max.value());
+            }
         }
         return "-";
     }
