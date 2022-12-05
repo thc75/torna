@@ -38,6 +38,10 @@ export function get_base_url() {
   return frontURL
 }
 
+export function get_server_url() {
+  return serverUrl
+}
+
 export function get_full_url(uri) {
   if (!uri.startsWith('/')) {
     uri = '/' + uri
@@ -121,7 +125,7 @@ export function get_headers() {
   }
 }
 
-function get_token() {
+export function get_token() {
   const token = getToken() || ''
   return `Bearer ${token}`
 }
