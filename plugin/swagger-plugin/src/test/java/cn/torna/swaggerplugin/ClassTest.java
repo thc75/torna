@@ -1,5 +1,7 @@
 package cn.torna.swaggerplugin;
 
+import cn.torna.swaggerplugin.util.StringUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,6 +17,13 @@ public class ClassTest {
         System.out.println(parents);
         System.out.println(parents2);
         System.out.println(parents3);
+    }
+
+    @Test
+    public void test2() {
+        String s = "CommonPage<Lcn/torna/tornaexample/controller/eg/vo/LockingDto;>";
+        String content = StringUtil.findBetweenChar( s, '<', '>');
+        Assert.assertEquals("Lcn/torna/tornaexample/controller/eg/vo/LockingDto;", content);
     }
 
     private static List<Class<?>> getSuperclass(Class<?> clazz) {

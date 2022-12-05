@@ -1,5 +1,6 @@
 # 更新日志
 
+- 1.2.17：优化泛型参数解析
 - 1.2.16：添加插件特性，支持优先使用@Api.tags属性
 - 1.2.15：支持maxLength，需要配合JSR-303注解，`@Length(max = 55)`, `@Max(55)`
 - 1.2.14：修复泛型参数解析错误问题。`List<? extends TreeVO> children`
