@@ -1,18 +1,29 @@
 <template>
   <div>
+    <el-alert type="info" title="" :closable="false">
+      <div slot="title">
+        {{ $ts('imgUploadInfo') }} <help-link :button-text="$ts('imgHelpBtnText')" style="margin-left: 20px;" to="/help?id=upload" />
+      </div>
+    </el-alert>
     <ckeditor v-model="content" :editor="editor" :config="editorConfig" @ready="onReady" />
   </div>
 </template>
 <script>
+$addI18n({
+  'imgUploadInfo': { 'zh': '支持剪贴板图片上传，本地图片上传，URL图片插入', 'en': 'Support clipboard image upload, URL image insert, local image upload insert' },
+  'imgHelpBtnText': { 'zh': '图片上传设置', 'en': 'Upload image setting' }
+})
 import CKEditor from '@ckeditor/ckeditor5-vue2'
 import ClassicEditor from '@torna/ckeditor5'
 import { get_token, get_server_url } from '@/utils/http'
+import HelpLink from '@/components/HelpLink'
 import axios from 'axios'
 
 class MyUploadAdapter {
-  constructor(loader) {
+  constructor(loader, scope) {
     // Save Loader instance to update upload progress.
     this.loader = loader
+    this.scope = scope
   }
 
   async upload() {
@@ -20,7 +31,7 @@ class MyUploadAdapter {
     data.append('file', await this.loader.file)
     return new Promise((resolve, reject) => {
       axios({
-        url: `${get_server_url()}/upload/image`,
+        url: `${get_server_url()}/uploadFile`,
         method: 'post',
         data,
         headers: {
@@ -29,10 +40,23 @@ class MyUploadAdapter {
         withCredentials: true // true 为不允许带 token, false 为允许，可能会遇到跨域报错：Error: Network Error 弹窗提示（感谢@ big_yellow 指正）
       }).then(res => {
         const resData = res.data
+        if (resData.code !== '0') {
+          this.scope.tipError('上传失败：' + resData.msg)
+          return
+        }
         const data = resData.data
         // 方法返回数据格式： {default: "url"}
+        const returnUrl = data.url || ''
+        let url
+        // 如果是全路径
+        if (returnUrl.startsWith('http://') || returnUrl.startsWith('https://')) {
+          url = returnUrl
+        } else {
+          url = get_server_url() + returnUrl
+        }
+
         const resolveData = {
-          default: get_server_url() + data.url
+          default: url
         }
         resolve(resolveData)
       }).catch(error => {
@@ -45,7 +69,7 @@ class MyUploadAdapter {
 export default {
   name: 'RichTextEditor',
   components: {
-    ckeditor: CKEditor.component
+    ckeditor: CKEditor.component, HelpLink
   },
   props: {
     value: {
@@ -109,10 +133,23 @@ export default {
   },
   methods: {
     onReady(editor) {
+      const scope = this
       // 自定义上传图片插件
       editor.plugins.get('FileRepository').createUploadAdapter = loader => {
-        return new MyUploadAdapter(loader)
+        return new MyUploadAdapter(loader, scope)
       }
+
+      editor.ui.componentFactory.add('timestamp', () => {
+        // The button will be an instance of ButtonView.
+        const button = new ButtonView()
+
+        button.set({
+          label: 'Timestamp',
+          withText: true
+        })
+
+        return button
+      })
     }
   }
 }

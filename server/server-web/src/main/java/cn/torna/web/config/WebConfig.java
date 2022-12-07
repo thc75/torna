@@ -1,7 +1,8 @@
 package cn.torna.web.config;
 
-import cn.torna.common.context.EnvironmentContext;
+import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.context.SpringContext;
+import cn.torna.common.context.UploadContext;
 import cn.torna.common.message.MessageFactory;
 import cn.torna.common.support.HashIdParamResolver;
 import cn.torna.common.thread.TornaAsyncConfigurer;
@@ -48,6 +49,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
     @Value("${torna.front-location:}")
     private String frontLocation;
 
+    @Value("${torna.upload.dir:}")
+    private String uploadDir;
+
     @Autowired
     private Environment environment;
 
@@ -65,7 +69,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
     public void addInterceptors(InterceptorRegistry registry) {
         String[] excludes = {
                 // 排除前端资源
-                "/", "/*.html", "/*.ico", "/static/**",
+                "/", "/*.html", "/*.ico", "/static/**", UploadContext.MAPPING,
                 // 排除服务端请求
                 "/api", "/api/**", "/opendoc/**", "/doc/debug/**", "/system/**", "/captcha/**",
                 "/mock/**", "/error", "/share/**"
@@ -106,11 +110,11 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String homeDir = SystemUtil.getBinPath();
         String frontRoot;
         if (StringUtils.hasText(frontLocation)) {
             frontRoot = StringUtils.trimTrailingCharacter(frontLocation, '/');
         } else {
-            String homeDir = SystemUtil.getBinPath();
             frontRoot = homeDir + "/dist";
         }
         log.info("前端资源目录：{}", frontRoot);

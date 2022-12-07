@@ -29,4 +29,5 @@ public class TornaViewProperties {
     private boolean composeShowDebug = true;
 
     private boolean enableLdap;
+
 }

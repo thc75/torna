@@ -17,8 +17,16 @@ public class SystemUtil {
         ApplicationHome applicationHome = new ApplicationHome(SystemUtil.class);
         File file = applicationHome.getSource();
         if (file == null) {
-            return System.getProperty("user.dir");
+            return getUserDir();
         }
         return file.getParentFile().toString();
+    }
+
+    public static String getUserDir() {
+        return System.getProperty("user.dir");
+    }
+
+    public static String getUserHome() {
+        return System.getProperty("user.home");
     }
 }

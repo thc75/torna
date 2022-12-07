@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author thc
@@ -13,7 +14,7 @@ public class ConfigUpdateParam {
     @NotBlank
     private String key;
 
-    @NotBlank
+    @NotNull
     private String value;
 
     @Length(max = 128)
