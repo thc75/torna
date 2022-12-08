@@ -1,6 +1,6 @@
 # 图片上传配置
 
-图片上传分为两种方式：上传到本地服务器、上传到云服务器（阿里云oss、七牛云kodo）
+图片上传分为两种方式：上传到本地服务器、上传到云服务器（阿里云oss、七牛云kodo、S3）
 
 ## 1. 上传到本地服务器
 
@@ -46,7 +46,7 @@
 
 ## 2. 上传到云服务器
 
-Torna支持将图片上传到云服务器，目前支持`阿里云OSS`和`七牛云kodo`
+Torna支持将图片上传到云服务器，目前支持`阿里云OSS`、`七牛云kodo`、`S3`
 
 ### 2.1 使用阿里云OSS存储
 
@@ -80,3 +80,21 @@ qiniu.kodo.region=autoRegion
 ```
 
 重启Torna
+
+### 2.3 使用s3存储
+
+`application.properties`配置文件新增如下配置：
+
+```
+s3.oss.endpoint=
+s3.oss.access-key=
+s3.oss.access-secret=
+s3.oss.bucket-name=
+# 没有可不填
+s3.oss.region=
+# url格式，<xx>将被替换
+s3.oss.url-pattern=https://s3.<region>.amazonaws.com/<bucketName>/<path>
+# 如果为false（Virtual-hosted–style requests），则s3.oss.url-pattern改成：
+# https://<bucketName>.s3.<region>.amazonaws.com/<path>
+s3.oss.path-style-access=true
+```

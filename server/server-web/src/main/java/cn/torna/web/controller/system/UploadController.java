@@ -4,12 +4,12 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.context.UploadContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.ResponseUtil;
-import cn.torna.manager.file.AliyunOssFileManager;
-import cn.torna.manager.file.AliyunOssPropertiesUtils;
 import cn.torna.manager.file.FileManager;
 import cn.torna.manager.file.LocalFileManager;
 import cn.torna.manager.file.QiNiuKodoFileManager;
 import cn.torna.manager.file.QiNiuKodoPropertiesUtils;
+import cn.torna.manager.file.S3OssFileManager;
+import cn.torna.manager.file.S3OssPropertiesUtils;
 import cn.torna.web.controller.system.vo.UploadVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -37,7 +37,7 @@ public class UploadController {
     private LocalFileManager localFileManager;
 
     @Autowired
-    private AliyunOssFileManager aliyunOssFileManager;
+    private S3OssFileManager s3OssFileManager;
 
     @Autowired
     private QiNiuKodoFileManager qiNiuKodoFileManager;
@@ -51,8 +51,8 @@ public class UploadController {
     @PostMapping("uploadFile")
     public Result<UploadVO> upload(MultipartFile file) {
         FileManager fileManager = localFileManager;
-        if (AliyunOssPropertiesUtils.isUseAliyunOss()) {
-            fileManager = aliyunOssFileManager;
+        if (S3OssPropertiesUtils.isUseS3()) {
+            fileManager = s3OssFileManager;
         }
         if (QiNiuKodoPropertiesUtils.isUseQiNiuKodo()) {
             fileManager = qiNiuKodoFileManager;
@@ -69,6 +69,7 @@ public class UploadController {
 
     /**
      * 代理返回本地图片资源
+     *
      * @param request
      * @param response
      */
