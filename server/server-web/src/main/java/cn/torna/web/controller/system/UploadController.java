@@ -4,7 +4,12 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.context.UploadContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.ResponseUtil;
-import cn.torna.service.UploadService;
+import cn.torna.manager.file.AliyunOssFileManager;
+import cn.torna.manager.file.AliyunOssPropertiesUtils;
+import cn.torna.manager.file.FileManager;
+import cn.torna.manager.file.LocalFileManager;
+import cn.torna.manager.file.QiNiuKodoFileManager;
+import cn.torna.manager.file.QiNiuKodoPropertiesUtils;
 import cn.torna.web.controller.system.vo.UploadVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -29,7 +34,13 @@ import java.io.IOException;
 public class UploadController {
 
     @Autowired
-    private UploadService uploadService;
+    private LocalFileManager localFileManager;
+
+    @Autowired
+    private AliyunOssFileManager aliyunOssFileManager;
+
+    @Autowired
+    private QiNiuKodoFileManager qiNiuKodoFileManager;
 
     /**
      * 文件上传
@@ -39,8 +50,15 @@ public class UploadController {
      */
     @PostMapping("uploadFile")
     public Result<UploadVO> upload(MultipartFile file) {
+        FileManager fileManager = localFileManager;
+        if (AliyunOssPropertiesUtils.isUseAliyunOss()) {
+            fileManager = aliyunOssFileManager;
+        }
+        if (QiNiuKodoPropertiesUtils.isUseQiNiuKodo()) {
+            fileManager = qiNiuKodoFileManager;
+        }
         try {
-            String path = uploadService.saveFile(file);
+            String path = fileManager.save(file);
             UploadVO uploadVO = new UploadVO(path);
             return Result.ok(uploadVO);
         } catch (IOException e) {
@@ -49,10 +67,15 @@ public class UploadController {
         }
     }
 
+    /**
+     * 代理返回本地图片资源
+     * @param request
+     * @param response
+     */
     @RequestMapping(UploadContext.MAPPING)
     public void get(HttpServletRequest request, HttpServletResponse response) {
         String requestURI = request.getRequestURI();
-        File file = uploadService.getFile(requestURI);
+        File file = localFileManager.getFile(requestURI);
         try {
             ResponseUtil.writeImage(response, FileUtils.readFileToByteArray(file));
         } catch (IOException e) {
