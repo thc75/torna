@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -44,14 +45,19 @@ public class S3OssFileManager implements FileManager {
         return getUrl(s3OssPropertiesUtils, path);
     }
 
+    /**
+     * 返回图片访问地址
+     * @param s3OssPropertiesUtils 配置
+     * @param path 短路径，如：2022/12/4/xxx.jpg
+     * @return 返回完整的url
+     */
     public String getUrl(S3OssPropertiesUtils s3OssPropertiesUtils, String path) {
         // https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html?spm=a2c4g.11186623.0.0.6b9d2041QVyFGH
-        String urlPattern = s3OssPropertiesUtils.getUrlPattern();
-        urlPattern = urlPattern.replace("<endpoint>", s3OssPropertiesUtils.getEndpoint());
-        urlPattern = urlPattern.replace("<bucketName>", s3OssPropertiesUtils.getBucketName());
-        urlPattern = urlPattern.replace("<region>", s3OssPropertiesUtils.getRegion());
-        urlPattern = urlPattern.replace("<path>", path);
-        return urlPattern;
+        String domainPattern = s3OssPropertiesUtils.getDomainPattern();
+        domainPattern = domainPattern.replace("<endpoint>", s3OssPropertiesUtils.getEndpoint());
+        domainPattern = domainPattern.replace("<bucketName>", s3OssPropertiesUtils.getBucketName());
+        domainPattern = domainPattern.replace("<region>", s3OssPropertiesUtils.getRegion());
+        return StringUtils.trimTrailingCharacter(domainPattern, '/') + '/' + path;
     }
 
     public PutObjectResult putObject(String bucketName, String objectName, InputStream stream, String contentType) throws IOException {

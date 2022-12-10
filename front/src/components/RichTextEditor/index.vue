@@ -5,7 +5,7 @@
         {{ $ts('imgUploadInfo') }} <help-link :button-text="$ts('imgHelpBtnText')" style="margin-left: 20px;" to="/help?id=upload" />
       </div>
     </el-alert>
-    <ckeditor v-model="content" :editor="editor" :config="editorConfig" @ready="onReady" />
+    <ckeditor ref="ckeditor" v-model="content" :editor="editor" :config="editorConfig" @ready="onReady" />
   </div>
 </template>
 <script>
@@ -117,19 +117,11 @@ export default {
   },
   watch: {
     value(val) {
-      this.content = val
+      this.content = val || ''
     },
     content(val) {
       this.$emit('input', val)
     }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      const els = document.getElementsByClassName('ck-editor__main')
-      if (els != null && els.length > 0) {
-        els[0].style.height = this.height + 'px'
-      }
-    })
   },
   methods: {
     onReady(editor) {
@@ -138,18 +130,6 @@ export default {
       editor.plugins.get('FileRepository').createUploadAdapter = loader => {
         return new MyUploadAdapter(loader, scope)
       }
-
-      editor.ui.componentFactory.add('timestamp', () => {
-        // The button will be an instance of ButtonView.
-        const button = new ButtonView()
-
-        button.set({
-          label: 'Timestamp',
-          withText: true
-        })
-
-        return button
-      })
     }
   }
 }

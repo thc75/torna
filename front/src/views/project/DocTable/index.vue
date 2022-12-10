@@ -464,11 +464,19 @@ export default {
       if (row.isFolder) {
         this.onFolderUpdate(row)
       } else {
-        this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
+        if (row.type === this.getEnums().DOC_TYPE.CUSTOM) {
+          this.goRoute(`/doc/edit_custom/${this.moduleId}/${row.id}`)
+        } else {
+          this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
+        }
       }
     },
     onDocCopy(row) {
-      this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
+      if (row.type === this.getEnums().DOC_TYPE.CUSTOM) {
+        this.goRoute(`/doc/copy_custom/${this.moduleId}/${row.id}`)
+      } else {
+        this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
+      }
     },
     onExport() {
       this.$refs.exportDialog.show(this.tableData, this.moduleId)

@@ -92,9 +92,9 @@ s3.oss.access-secret=
 s3.oss.bucket-name=
 # 没有可不填
 s3.oss.region=
-# url格式，<xx>将被替换
-s3.oss.url-pattern=https://s3.<region>.amazonaws.com/<bucketName>/<path>
-# 如果为false（Virtual-hosted–style requests），则s3.oss.url-pattern改成：
-# https://<bucketName>.s3.<region>.amazonaws.com/<path>
+# domain格式
+s3.oss.domain-pattern=https://s3.<region>.amazonaws.com/<bucketName>
+# bucketName是否放在path中，如果为false（Virtual-hosted–style requests），则s3.oss.domain-pattern改成：
+# https://<bucketName>.s3.<region>.amazonaws.com
 s3.oss.path-style-access=true
 ```

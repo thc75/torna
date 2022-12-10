@@ -206,6 +206,7 @@ const MAPPING = {
   'deleteProjectConfirm': '确认要删除该项目吗？',
   'accountInfo': '账号信息',
   'baseInfo': '基本信息',
+  'overview': '概览',
   'updatePassword': '修改密码',
   'baseSetting': '基本设置',
   'subscription': '关注列表',
@@ -416,7 +417,9 @@ const MAPPING = {
   'viewConst': '查看常量',
   'applicationManagement': '应用管理',
   'selectAll': '全选',
-  'recommend': '推荐'
+  'recommend': '推荐',
+  'standardDocument': '标准文档',
+  'customDocument': '自定义文档'
 
 }
 

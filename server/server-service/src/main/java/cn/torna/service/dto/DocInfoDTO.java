@@ -102,7 +102,7 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private String baseUrl;
 
-    private List<ModuleEnvironmentDTO> debugEnvs;
+    private List<ModuleEnvironmentDTO> debugEnvs = Collections.emptyList();
 
     private Byte moduleType;
 
@@ -113,16 +113,16 @@ public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
-    private List<DocParamDTO> pathParams;
-    private List<DocParamDTO> headerParams;
-    private List<DocParamDTO> queryParams;
-    private List<DocParamDTO> requestParams;
-    private List<DocParamDTO> responseParams;
+    private List<DocParamDTO> pathParams = Collections.emptyList();
+    private List<DocParamDTO> headerParams = Collections.emptyList();
+    private List<DocParamDTO> queryParams = Collections.emptyList();
+    private List<DocParamDTO> requestParams = Collections.emptyList();
+    private List<DocParamDTO> responseParams = Collections.emptyList();
     private List<DocParamDTO> errorCodeParams = Collections.emptyList();
 
-    private List<DocParamDTO> globalHeaders;
-    private List<DocParamDTO> globalParams;
-    private List<DocParamDTO> globalReturns;
+    private List<DocParamDTO> globalHeaders = Collections.emptyList();
+    private List<DocParamDTO> globalParams = Collections.emptyList();
+    private List<DocParamDTO> globalReturns = Collections.emptyList();
 
     private DubboInfoDTO dubboInfo;
 

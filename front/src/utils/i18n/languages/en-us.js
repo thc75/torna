@@ -205,6 +205,7 @@ const MAPPING = {
   'deleteProjectConfirm': 'Delete project?',
   'accountInfo': 'Account Info',
   'baseInfo': 'Base Info',
+  'overview': 'Overview',
   'updatePassword': 'Update Password',
   'baseSetting': 'Base Setting',
   'subscription': 'Subscription',
@@ -415,7 +416,9 @@ const MAPPING = {
   'viewConst': 'View Constant',
   'applicationManagement': 'Application Management',
   'selectAll': 'Select All',
-  'recommend': 'Recommend'
+  'recommend': 'Recommend',
+  'standardDocument': 'Standard Document',
+  'customDocument': 'Custom Document'
 
 }
 

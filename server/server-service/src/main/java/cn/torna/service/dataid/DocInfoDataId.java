@@ -1,9 +1,11 @@
 package cn.torna.service.dataid;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.DocTypeEnum;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * 唯一id，接口规则：md5(module_id:parent_id:url:http_method)。
@@ -20,9 +22,14 @@ public interface DocInfoDataId {
         if (parentId == null) {
             parentId = 0L;
         }
-        String content =  Booleans.isTrue(this.getIsFolder())?
-                String.format(TPL_FOLDER, getModuleId(), parentId, getName()) :
-                String.format(TPL_API, getModuleId(), parentId, getUrl(), getHttpMethod());
+        String content;
+        if (Booleans.isTrue(this.getIsFolder())) {
+            return String.format(TPL_FOLDER, getModuleId(), parentId, getName());
+        } else if (Objects.equals(getType(), DocTypeEnum.CUSTOM.getType())) {
+            content = String.format(TPL_API, getModuleId(), parentId, getName(), DocTypeEnum.CUSTOM);
+        } else {
+            content = String.format(TPL_API, getModuleId(), parentId, getUrl(), getHttpMethod());
+        }
         return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -37,5 +44,9 @@ public interface DocInfoDataId {
     String getUrl();
 
     String getHttpMethod();
+
+    default Byte getType() {
+        return DocTypeEnum.HTTP.getType();
+    }
 
 }

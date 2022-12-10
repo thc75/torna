@@ -30,6 +30,9 @@ public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
     /** http方法, 数据库字段：http_method */
     private String httpMethod;
 
+    /** 0:http,1:dubbo, 数据库字段：type */
+    private Byte type;
+
     /** contentType, 数据库字段：content_type */
     private String contentType;
 

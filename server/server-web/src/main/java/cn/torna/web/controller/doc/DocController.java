@@ -30,6 +30,7 @@ import cn.torna.web.controller.module.vo.ModuleGlobalParamsVO;
 import cn.torna.web.controller.system.param.IdParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -79,6 +80,9 @@ public class DocController {
     public Result<IdVO> save(@RequestBody @Valid DocInfoSaveParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
         User user = UserContext.getUser();
+        if (StringUtils.isEmpty(docInfoDTO.getAuthor())) {
+            docInfoDTO.setAuthor(user.getNickname());
+        }
         Long id = docInfoDTO.getId();
         DocInfo docInfo;
         if (id == null) {

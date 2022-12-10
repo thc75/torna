@@ -33,11 +33,11 @@ public class S3OssPropertiesUtils implements InitializingBean {
     @Value("${s3.oss.region:}")
     private String region;
 
-    // https://s3.<region>.amazonaws.com/<bucketName>/<path>
-    @Value("${s3.oss.url-pattern:${aliyun.oss.url-pattern:https://<bucketName>.<endpoint>/<path>}}")
-    private String urlPattern;
+    // https://s3.<region>.amazonaws.com/<bucketName>
+    @Value("${s3.oss.domain-pattern:${aliyun.oss.url-pattern:https://<bucketName>.<endpoint>}}")
+    private String domainPattern;
 
-    @Value("${s3.oss.path-style-access:false}}")
+    @Value("${s3.oss.path-style-access:false}")
     private boolean pathStyleAccess;
 
     private static volatile boolean inited = false;

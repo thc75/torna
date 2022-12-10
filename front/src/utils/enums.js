@@ -56,7 +56,8 @@ export const Enums = {
    */
   DOC_TYPE: {
     HTTP: 0,
-    DUBBO: 1
+    DUBBO: 1,
+    CUSTOM: 2
   },
   /**
    * 扩展属性

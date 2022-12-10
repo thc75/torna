@@ -11,7 +11,6 @@
         <rich-text-editor
           :value="projectConstantInfo"
           :editable="true"
-          :height="editorHeight"
           @input="projectConstantInfoEditorInput"
         />
         <el-button type="primary" style="margin-top: 20px" @click="onProjectConstantInfoSave">{{ $ts('save') }}</el-button>
@@ -24,7 +23,6 @@
           <rich-text-editor
             :value="moduleConstantInfo"
             :editable="true"
-            :height="editorHeight"
             @input="moduleConstantInfoEditorInput"
           />
           <el-button type="primary" style="margin-top: 20px" @click="onModuleConstantInfoSave">{{ $ts('save') }}</el-button>
@@ -42,8 +40,6 @@ $addI18n({
 import RichTextEditor from '@/components/RichTextEditor'
 import Help from '@/components/Help'
 
-const clientHeight = document.body.clientHeight
-const editor_height = (clientHeight - 310)
 export default {
   name: 'ConstantInfo',
   components: { RichTextEditor, Help },
@@ -58,7 +54,6 @@ export default {
       projectConstantInfo: '',
       moduleConstantInfo: '',
       currentModule: '',
-      editorHeight: editor_height,
       moduleData: [],
       props: {
         label: 'name',
