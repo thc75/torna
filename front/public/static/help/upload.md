@@ -98,3 +98,5 @@ s3.oss.domain-pattern=https://s3.<region>.amazonaws.com/<bucketName>
 # https://<bucketName>.s3.<region>.amazonaws.com
 s3.oss.path-style-access=true
 ```
+
+重启Torna
