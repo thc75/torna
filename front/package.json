@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-vue2": "3.0.1",
-    "@torna/ckeditor5": "1.0.2",
+    "@torna/ckeditor5": "1.0.5",
     "axios": "0.18.1",
     "diff-match-patch": "1.0.5",
     "element-ui": "2.15.4",

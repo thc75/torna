@@ -185,7 +185,7 @@
     </el-tabs>
     <div style="margin: 20px;">
       <h3>{{ $ts('remark') }}： </h3>
-      <rich-text-editor :value="docInfo.remark" :placeholder="$ts('inputContent')" :editable="true" @input="remarkEditorInput" />
+      <rich-text-editor :value="docInfo.remark" :show-tip="false" :placeholder="$ts('inputContent')" :editable="true" @input="remarkEditorInput" />
     </div>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>

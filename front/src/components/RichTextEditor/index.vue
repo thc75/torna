@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-alert type="info" title="" :closable="false">
+    <el-alert v-if="showTip" type="info" title="" :closable="false">
       <div slot="title">
         {{ $ts('imgUploadInfo') }} <help-link :button-text="$ts('imgHelpBtnText')" style="margin-left: 20px;" to="/help?id=upload" />
       </div>
@@ -72,6 +72,10 @@ export default {
     ckeditor: CKEditor.component, HelpLink
   },
   props: {
+    showTip: {
+      type: Boolean,
+      default: true
+    },
     value: {
       type: String,
       default: ''

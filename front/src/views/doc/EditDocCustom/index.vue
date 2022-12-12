@@ -22,13 +22,13 @@
           </td>
           <td>{{ $ts('maintainer') }}</td>
           <td class="text-form-input">
-            <el-form-item>
+            <el-form-item prop="author">
               <el-input v-model="docInfo.author" maxlength="64" show-word-limit />
             </el-form-item>
           </td>
           <td>{{ $ts('isShow') }}</td>
           <td class="text-form-input">
-            <el-form-item>
+            <el-form-item prop="isShow">
               <el-switch
                 v-model="docInfo.isShow"
                 active-color="#13ce66"
@@ -40,7 +40,7 @@
           </td>
           <td>{{ $ts('orderIndex') }}</td>
           <td class="text-form-input">
-            <el-form-item>
+            <el-form-item prop="orderIndex">
               <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
             </el-form-item>
           </td>
@@ -96,6 +96,7 @@ export default {
     return {
       docInfo: {
         name: '',
+        author: '',
         type: this.getEnums().DOC_TYPE.CUSTOM,
         description: '',
         parentId: '',

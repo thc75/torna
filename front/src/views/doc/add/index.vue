@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-radio-group v-if="$route.path.indexOf('new') > -1" v-model="type" size="medium">
+    <el-radio-group v-if="$route.path.indexOf('new') > -1" v-model="type" size="small">
       <el-radio-button :label="0">{{ $ts('standardDocument') }}</el-radio-button>
       <el-radio-button :label="3">{{ $ts('customDocument') }}</el-radio-button>
     </el-radio-group>

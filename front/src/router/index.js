@@ -199,7 +199,7 @@ export const constantRoutes = [
         path: 'new/:moduleId(\\w+)',
         name: 'New2',
         hidden: true,
-        component: () => import('@/views/doc/edit/index'),
+        component: () => import('@/views/doc/add/index'),
         meta: { title: '新建文档' }
       }
     ]

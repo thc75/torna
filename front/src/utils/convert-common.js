@@ -8,6 +8,10 @@ export function isDubbo(docInfo) {
   return docInfo.type === Enums.DOC_TYPE.DUBBO
 }
 
+export function isCustom(docInfo) {
+  return docInfo.type === Enums.DOC_TYPE.CUSTOM
+}
+
 export function isShowRequestExample(docInfo) {
   return isHttp(docInfo) && docInfo.contentType && docInfo.contentType.toLowerCase().indexOf('json') > -1
 }

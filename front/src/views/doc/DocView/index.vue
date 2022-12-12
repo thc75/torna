@@ -6,6 +6,7 @@
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
           <el-button
+            v-show="docInfo.id"
             type="text"
             class="icon-button"
             :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
