@@ -49,14 +49,12 @@
       <el-form-item prop="name" style="margin-bottom: 20px">
         <el-input v-model="docInfo.name" :placeholder="$ts('docTitle')" maxlength="100" show-word-limit />
       </el-form-item>
-      <el-form-item>
-        <rich-text-editor
-          :value="docInfo.description"
-          :placeholder="$ts('inputDocContent')"
-          :editable="true"
-          @input="editorContent"
-        />
-      </el-form-item>
+      <rich-text-editor
+        :value="docInfo.description"
+        :placeholder="$ts('inputDocContent')"
+        :editable="true"
+        @input="editorContent"
+      />
     </el-form>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>
