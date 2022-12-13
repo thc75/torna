@@ -38,7 +38,7 @@ export default {
     return {
       active: 'info',
       item: {
-        type: 1
+        type: 0
       },
       infoItem: {},
       debugItem: {},

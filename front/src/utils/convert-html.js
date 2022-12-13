@@ -8,7 +8,7 @@ import {
   get_style_config
 } from './common'
 
-import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
+import { isCustom, isDubbo, isHttp, isShowRequestExample } from './convert-common'
 
 const BLANK = '&nbsp;'
 
@@ -131,6 +131,10 @@ const HtmlUtil = {
     // 维护人
     if (docInfo.author) {
       sb.append(`<p><strong>${$ts('maintainer')}：</strong>${docInfo.author}</p>`)
+    }
+    if (isCustom(docInfo)) {
+      sb.append(docInfo.description)
+      return sb.toString()
     }
     // URL
     if (isHttp(docInfo)) {
