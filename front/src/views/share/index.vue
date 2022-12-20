@@ -17,7 +17,7 @@
       </el-tab-pane>
     </el-tabs>
     <div v-show="showCustom">
-      <doc-view-custom :doc-info="item" :show-opt-bar="false" :init-subscrib="false" />
+      <doc-view-custom :doc-info="item" :show-opt-bar="false" :init-subscribe="false" />
     </div>
   </div>
 </template>
