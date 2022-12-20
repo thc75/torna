@@ -77,6 +77,9 @@ export default {
       ExportUtil.exportWordSinglePage(this.docInfo)
     },
     loadSubscribe(id) {
+      if (!this.initSubscribe) {
+        return
+      }
       if (id && this.showOptBar) {
         this.get('/user/subscribe/doc/isSubscribe', { sourceId: id }, resp => {
           this.isSubscribe = resp.data
@@ -84,9 +87,6 @@ export default {
       }
     },
     onSubscribe() {
-      if (!this.initSubscribe) {
-        return
-      }
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
           this.tipSuccess($ts('subscribeSuccess'))
