@@ -13,7 +13,7 @@
     <el-tabs v-show="showDubbo" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
-        <dubbo-view ref="docView" :item="infoItem" />
+        <dubbo-view ref="docView" :item="infoItem" :init-subscribe="false" />
       </el-tab-pane>
     </el-tabs>
     <div v-show="showCustom">
