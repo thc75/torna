@@ -50,6 +50,10 @@ export default {
     showOptBar: {
       type: Boolean,
       default: true
+    },
+    initSubscribe: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -80,6 +84,9 @@ export default {
       }
     },
     onSubscribe() {
+      if (!this.initSubscribe) {
+        return
+      }
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
           this.tipSuccess($ts('subscribeSuccess'))
