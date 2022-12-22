@@ -7,7 +7,6 @@ import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,9 +29,9 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
 
     /**
      * 存储快照
+     *
      * @param docInfoDTO 文档
      */
-    @Async
     public void saveDocSnapshot(DocInfoDTO docInfoDTO) {
         String content = JSON.toJSONString(docInfoDTO);
         DocSnapshot docSnapshot = new DocSnapshot();

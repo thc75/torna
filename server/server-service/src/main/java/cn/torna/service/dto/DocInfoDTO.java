@@ -90,8 +90,10 @@ public class DocInfoDTO implements DocInfoDataId {
     private String modifierName;
 
     /** 是否显示, 数据库字段：is_show */
+    @Diff(positionType = PositionType.IS_SHOW)
     private Byte isShow;
 
+    @Diff(positionType = PositionType.ORDER_INDEX)
     private Byte isDeleted;
 
     private Byte isLocked;
@@ -119,10 +121,19 @@ public class DocInfoDTO implements DocInfoDataId {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long spaceId;
 
+    @Diff(positionType = PositionType.PATH_PARAM)
     private List<DocParamDTO> pathParams;
+
+    @Diff(positionType = PositionType.HEADER_PARAM)
     private List<DocParamDTO> headerParams;
+
+    @Diff(positionType = PositionType.QUERY_PARAM)
     private List<DocParamDTO> queryParams;
+
+    @Diff(positionType = PositionType.REQUEST_PARAM)
     private List<DocParamDTO> requestParams;
+
+    @Diff(positionType = PositionType.RESPONSE_PARAM)
     private List<DocParamDTO> responseParams;
     private List<DocParamDTO> errorCodeParams = Collections.emptyList();
 

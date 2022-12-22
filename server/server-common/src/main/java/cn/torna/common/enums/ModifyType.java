@@ -9,6 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ModifyType {
+    NONE((byte) -1),
+
     UPDATE((byte) 0),
     ADD((byte) 1),
     DELETE((byte) 2),

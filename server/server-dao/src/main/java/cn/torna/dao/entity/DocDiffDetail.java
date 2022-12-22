@@ -38,30 +38,16 @@ public class DocDiffDetail {
      */
     private String targetName;
 
-
     /**
-     * 旧值
+     * 对比内容
      */
-    private String oldValue;
-
-
-    /**
-     * 新值
-     */
-    private String newValue;
+    private String content;
 
 
     /**
      * 变更类型，0：修改，1：新增，2：删除
      */
     private Byte modifyType;
-
-
-    /**
-     * 修改人
-     */
-    private String modifyNickname;
-
 
     private LocalDateTime gmtCreate;
 

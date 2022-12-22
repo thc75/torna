@@ -1,40 +1,30 @@
 package cn.torna.service;
-import com.google.common.collect.Lists;
-import cn.torna.service.dto.EnumInfoDTO;
-import java.time.LocalDateTime;
 
 import cn.torna.common.annotation.Diff;
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.BaseService;
-import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocDiffDetail;
 import cn.torna.dao.entity.DocDiffRecord;
 import cn.torna.dao.mapper.DocDiffDetailMapper;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
-import cn.torna.service.dto.SaveDiffDTO;
+import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -44,269 +34,243 @@ import java.util.stream.Collectors;
 @Service
 public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDetailMapper> {
 
-    private static final ThreadLocal<String> modifyNicknameLocal = new ThreadLocal<>();
-
     /**
      * 比较两个文档对象不同的地方
      *
-     * @param docInfoOld     老文档
-     * @param docInfoNew     新文档
-     * @param modifyNickname 修改人
+     * @param docInfoOld 老文档
+     * @param docInfoNew 新文档
      */
-    public void doCompare(DocInfoDTO docInfoOld, DocInfoDTO docInfoNew, DocDiffRecord docDiffRecord, String modifyNickname) {
-        Long recordId = docDiffRecord.getId();
-        modifyNicknameLocal.set(modifyNickname);
-        Map<String, FieldBean> oldDocInfoMap = new LinkedHashMap<>();
-        Map<String, FieldBean> newDocInfoMap = new LinkedHashMap<>();
+    public void doCompare(DocInfoDTO docInfoOld, DocInfoDTO docInfoNew, DocDiffRecord docDiffRecord) {
+        List<DocDiffDetail> docDiffDetails = new ArrayList<>();
 
         ReflectionUtils.doWithFields(docInfoOld.getClass(), field -> {
-            String name = field.getName();
-            FieldBean fieldBeanOld = buildFieldBean(field, docInfoOld);
-            FieldBean fieldBeanNew = buildFieldBean(field, docInfoNew);
-            if (fieldBeanOld != null) {
-                oldDocInfoMap.put(name, fieldBeanOld);
-            }
-            if (fieldBeanNew != null) {
-                newDocInfoMap.put(name, fieldBeanNew);
+            List<DiffBean> diffBeans = buildDocDiffBeans(field, docInfoOld, docInfoNew);
+            for (DiffBean diffBean : diffBeans) {
+                if (diffBean.getModifyType() != ModifyType.NONE) {
+                    DocDiffDetail docDiffDetail = buildDocDiffDetail(docDiffRecord, diffBean);
+                    docDiffDetails.add(docDiffDetail);
+                }
             }
         }, field -> AnnotationUtils.getAnnotation(field, Diff.class) != null);
-        // 修改过的
-        List<String> updateList = new ArrayList<>(oldDocInfoMap.keySet());
-        // 移除的
-        List<String> removeList = new ArrayList<>(oldDocInfoMap.keySet());
-        // 新增的
-        List<String> addList = new ArrayList<>(newDocInfoMap.keySet());
-        // 交集部分就是修改部分
-        updateList.retainAll(newDocInfoMap.keySet());
-        // 老的移除新的，剩下的就是要删除的
-        removeList.removeAll(newDocInfoMap.keySet());
-        // 新的移除老的，剩下就是新增的
-        addList.removeAll(oldDocInfoMap.keySet());
-        // 修改
-        for (String name : updateList) {
-            FieldBean fieldBeanOld = oldDocInfoMap.get(name);
-            FieldBean fieldBeanNew = newDocInfoMap.get(name);
-            this.saveDiff(Objects.equals(fieldBeanOld.getValue(), fieldBeanNew.getValue()), () -> {
-                return SaveDiffDTO.builder()
-                        .recordId(recordId)
-                        .targetName(name)
-                        .modifyType(ModifyType.UPDATE)
-                        .positionType(fieldBeanNew.getPositionType())
-                        .oldValue(fieldBeanOld.getValue())
-                        .newValue(fieldBeanNew.getValue())
-                        .modifyNickname(modifyNickname)
-                        .build();
-            });
-        }
-        // 删除
-        for (String name : removeList) {
-            FieldBean fieldBeanOld = oldDocInfoMap.get(name);
-            this.saveDiff(false, () -> {
-                return SaveDiffDTO.builder()
-                        .recordId(recordId)
-                        .targetName(name)
-                        .modifyType(ModifyType.DELETE)
-                        .positionType(fieldBeanOld.getPositionType())
-                        .oldValue(fieldBeanOld.getValue())
-                        .newValue("")
-                        .modifyNickname(modifyNickname)
-                        .build();
-            });
-        }
-        // 新增
-        for (String name : addList) {
-            FieldBean fieldBeanNew = newDocInfoMap.get(name);
-            this.saveDiff(false, () -> {
-                return SaveDiffDTO.builder()
-                        .recordId(recordId)
-                        .targetName(name)
-                        .modifyType(ModifyType.ADD)
-                        .positionType(fieldBeanNew.getPositionType())
-                        .oldValue("")
-                        .newValue(fieldBeanNew.getValue())
-                        .modifyNickname(modifyNickname)
-                        .build();
-            });
-        }
-        // 对比header
-        this.compareParam(docDiffRecord, docInfoOld, docInfoNew, DocInfoDTO::getHeaderParams);
-        // 对比路径参数
-        this.compareParam(docDiffRecord, docInfoOld, docInfoNew, DocInfoDTO::getPathParams);
-        // 对比查询参数
-        this.compareParam(docDiffRecord, docInfoOld, docInfoNew, DocInfoDTO::getQueryParams);
-        // 对比请求体参数
-        this.compareParam(docDiffRecord, docInfoOld, docInfoNew, docInfoDTO -> getAllParams(docInfoDTO, DocInfoDTO::getRequestParams));
-        // 对比返回参数
-        this.compareParam(docDiffRecord, docInfoOld, docInfoNew, docInfoDTO -> getAllParams(docInfoDTO, DocInfoDTO::getResponseParams));
 
-        modifyNicknameLocal.remove();
+        this.saveBatch(docDiffDetails);
     }
 
-    private List<DocParamDTO> getAllParams(DocInfoDTO docInfoDTO, Function<DocInfoDTO, List<DocParamDTO>> apply) {
-        List<DocParamDTO> docParamDTOList = apply.apply(docInfoDTO);
-        return getAllParams(docParamDTOList);
+    private DocDiffDetail buildDocDiffDetail(DocDiffRecord docDiffRecord, DiffBean diffBean) {
+        DocDiffDetail docDiffDetail = new DocDiffDetail();
+        docDiffDetail.setTargetName(diffBean.getTargetName());
+        docDiffDetail.setPositionType(diffBean.getPositionType().getType());
+        docDiffDetail.setRecordId(docDiffRecord.getId());
+        Map<String, Object> content = buildValue(diffBean);
+        docDiffDetail.setContent(JSON.toJSONString(content));
+        docDiffDetail.setModifyType(diffBean.getModifyType().getType());
+        return docDiffDetail;
     }
 
-    private List<DocParamDTO> getAllParams(List<DocParamDTO> docInfoDTOList) {
-        if (CollectionUtils.isEmpty(docInfoDTOList)) {
-            return Collections.emptyList();
-        }
-        List<DocParamDTO> list = new ArrayList<>();
-        for (DocParamDTO docParamDTO : docInfoDTOList) {
-            DocParamDTO item = new DocParamDTO();
-            item.setName(docParamDTO.getName());
-            item.setType(docParamDTO.getType());
-            item.setRequired(docParamDTO.getRequired());
-            item.setMaxLength(docParamDTO.getMaxLength());
-            item.setExample(docParamDTO.getExample());
-            item.setDescription(docParamDTO.getDescription());
-            item.setEnumId(docParamDTO.getEnumId());
-            item.setDocId(docParamDTO.getDocId());
-            list.add(item);
-            List<DocParamDTO> children = docParamDTO.getChildren();
-            if (!CollectionUtils.isEmpty(children)) {
-                List<DocParamDTO> allParams = getAllParams(children);
-                list.addAll(allParams);
+    private Map<String, Object> buildValue(DiffBean diffBean) {
+        PositionType positionType = diffBean.getPositionType();
+        /*
+        {
+            DOC_NAME: {
+                value: { old: '', new: '' }
+                targetName: '',
+                modifyType: 1
             }
         }
-        return list;
+         */
+        Map<String, Object> diffInfo = new LinkedHashMap<>(8);
+        Map<String, Object> value = new LinkedHashMap<>(8);
+        OldNewValue oldNewValue = new OldNewValue(diffBean.getOldValue(), diffBean.getNewValue());
+        value.put("value", oldNewValue);
+        value.put("targetName", diffBean.getTargetName());
+        value.put("modifyType", diffBean.getModifyType().getType());
+        diffInfo.put(positionType.getTypeName(), value);
+        return diffInfo;
     }
 
-    private void compareParam(DocDiffRecord docDiffRecord, DocInfoDTO docInfoOld, DocInfoDTO docInfoNew, Function<DocInfoDTO, List<DocParamDTO>> apply) {
-        List<DocParamDTO> headerParamsOld = Optional.ofNullable(apply.apply(docInfoOld)).orElse(Collections.emptyList());
-        List<DocParamDTO> headerParamsNew = Optional.ofNullable(apply.apply(docInfoNew)).orElse(Collections.emptyList());
-        // key：字段名称
-        Map<String, DocParamDTO> headerOldMap = headerParamsOld.stream()
-                .collect(Collectors.toMap(DocParamDTO::getName, Function.identity()));
+    private static List<DiffBean> buildDocDiffBeans(Field field, DocInfoDTO docInfoOld, DocInfoDTO docInfoNew) {
+        field.setAccessible(true);
+        String name = field.getName();
+        Diff diff = AnnotationUtils.getAnnotation(field, Diff.class);
+        Objects.requireNonNull(diff, "diff can not null");
+        Object valueOld = ReflectionUtils.getField(field, docInfoOld);
+        Object valueNew = ReflectionUtils.getField(field, docInfoNew);
+        if (valueOld instanceof List && valueNew instanceof List) {
+            List<DocParamDTO> docParamDTOListOld = (List<DocParamDTO>) valueOld;
+            List<DocParamDTO> docParamDTOListNew = (List<DocParamDTO>) valueNew;
+            if (CollectionUtils.isEmpty(docParamDTOListOld) && CollectionUtils.isEmpty(docParamDTOListNew)) {
+                return Collections.emptyList();
+            }
+            docParamDTOListOld = flatParams(docParamDTOListOld);
+            docParamDTOListNew = flatParams(docParamDTOListNew);
+            return buildDocParamDiffBeans(diff, docParamDTOListOld, docParamDTOListNew);
+        }
+        ModifyType modifyType = buildModifyType(valueOld, valueNew);
+        DiffBean diffBean = new DiffBean();
+        diffBean.setTargetName(name);
+        diffBean.setPositionType(diff.positionType());
+        diffBean.setOldValue(ofString(valueOld));
+        diffBean.setNewValue(ofString(valueNew));
+        diffBean.setModifyType(modifyType);
+        return Collections.singletonList(diffBean);
+    }
 
-        Map<String, DocParamDTO> headerNewMap = headerParamsNew.stream()
-                .collect(Collectors.toMap(DocParamDTO::getName, Function.identity()));
+    private static List<DocParamDTO> flatParams(List<DocParamDTO> docParamDTOS) {
+        List<DocParamDTO> ret = new ArrayList<>(docParamDTOS.size());
+        doFlatParams(ret, docParamDTOS);
+        return ret;
+    }
+
+    private static void doFlatParams(List<DocParamDTO> ret, List<DocParamDTO> docParamDTOS) {
+        for (DocParamDTO param : docParamDTOS) {
+            ret.add(param);
+            List<DocParamDTO> children = param.getChildren();
+            if (!CollectionUtils.isEmpty(children)) {
+                doFlatParams(ret, children);
+            }
+        }
+    }
+
+    private static List<DiffBean> buildDocParamDiffBeans(Diff diff, List<DocParamDTO> docParamDTOListOld, List<DocParamDTO> docParamDTOListNew) {
+        List<DiffBean> diffBeans = new ArrayList<>();
+        // key：字段名称
+        Map<String, DocParamDTO> paramOldMap = docParamDTOListOld.stream()
+                .collect(Collectors.toMap(DocParamDTO::getName, Function.identity(), (v1, v2) -> v2, LinkedHashMap::new));
+
+        Map<String, DocParamDTO> paramNewMap = docParamDTOListNew.stream()
+                .collect(Collectors.toMap(DocParamDTO::getName, Function.identity(), (v1, v2) -> v2, LinkedHashMap::new));
 
         // 修改过的
-        List<String> updateList = new ArrayList<>(headerOldMap.keySet());
+        List<String> updateList = new ArrayList<>(paramOldMap.keySet());
         // 移除的
-        List<String> removeList = new ArrayList<>(headerOldMap.keySet());
+        List<String> removeList = new ArrayList<>(paramOldMap.keySet());
         // 新增的
-        List<String> addList = new ArrayList<>(headerNewMap.keySet());
+        List<String> addList = new ArrayList<>(paramNewMap.keySet());
 
         // 交集部分就是修改部分
-        updateList.retainAll(headerNewMap.keySet());
+        updateList.retainAll(paramNewMap.keySet());
         // 老的移除新的，剩下的就是要删除的
-        removeList.removeAll(headerNewMap.keySet());
+        removeList.removeAll(paramNewMap.keySet());
         // 新的移除老的，剩下就是新增的
-        addList.removeAll(headerOldMap.keySet());
+        addList.removeAll(paramOldMap.keySet());
 
-        // 修改
-        compareParamDetail(docDiffRecord, docInfoNew.buildDataId(), headerOldMap, headerNewMap, ModifyType.UPDATE, updateList);
-        // 删除
-        compareParamDetail(docDiffRecord, docInfoNew.buildDataId(), headerOldMap, headerNewMap, ModifyType.DELETE, removeList);
-        // 新增
-        compareParamDetail(docDiffRecord, docInfoNew.buildDataId(), headerOldMap, headerNewMap, ModifyType.ADD, addList);
+        List<DiffBean> diffBeanUpdateList = buildParamDiffBeans(diff, ModifyType.UPDATE, paramOldMap, paramNewMap, updateList);
+        List<DiffBean> diffBeanRemoveList = buildParamDiffBeans(diff, ModifyType.DELETE, paramOldMap, paramNewMap, removeList);
+        List<DiffBean> diffBeanAddList = buildParamDiffBeans(diff, ModifyType.ADD, paramOldMap, paramNewMap, addList);
 
+        diffBeans.addAll(diffBeanUpdateList);
+        diffBeans.addAll(diffBeanRemoveList);
+        diffBeans.addAll(diffBeanAddList);
+
+        return diffBeans;
     }
 
-    private void compareParamDetail(
-            DocDiffRecord docDiffRecord,
-            String dataId,
-            Map<String, DocParamDTO> headerOldMap,
-            Map<String, DocParamDTO> headerNewMap,
+    private static List<DiffBean> buildParamDiffBeans(
+            Diff diff,
             ModifyType modifyType,
-            List<String> list
+            Map<String, DocParamDTO> paramOldMap,
+            Map<String, DocParamDTO> paramNewMap,
+            List<String> names) {
+        if (CollectionUtils.isEmpty(names)) {
+            return Collections.emptyList();
+        }
+        List<DiffBean> diffBeans = new ArrayList<>(names.size());
+        for (String name : names) {
+            DocParamDTO docParamOld = paramOldMap.get(name);
+            DocParamDTO docParamNew = paramNewMap.get(name);
+            Map<String, Object> valueOld = buildParamValue(docParamOld);
+            Map<String, Object> valueNew = buildParamValue(docParamNew);
 
-    ) {
-        for (String name : list) {
-            DocParamDTO paramOld = headerOldMap.get(name);
-            DocParamDTO paramNew = headerNewMap.get(name);
-            this.saveParamTypeDiff(docDiffRecord,
-                    dataId,
-                    paramOld,
-                    paramNew,
-                    modifyType,
-                    Arrays.asList(
-                            new ParamOperate(PositionType.PARAM_TYPE, DocParamDTO::getType),
-                            new ParamOperate(PositionType.PARAM_REQUIRED, docParamDTO -> String.valueOf(Booleans.isTrue(docParamDTO.getRequired()))),
-                            new ParamOperate(PositionType.PARAM_DESCRIPTION, DocParamDTO::getDescription),
-                            new ParamOperate(PositionType.PARAM_MAXLENGTH, DocParamDTO::getMaxLength),
-                            new ParamOperate(PositionType.PARAM_EXAMPLE, DocParamDTO::getExample)
-                    )
-            );
+            removeSaveValue(valueOld, valueNew);
+            // 如果都为空，表示没有改动
+            if (valueOld.isEmpty() && valueNew.isEmpty()) {
+                continue;
+            }
+
+            DiffBean diffBean = new DiffBean();
+            diffBean.setTargetName(name);
+            diffBean.setModifyType(modifyType);
+            diffBean.setOldValue(valueOld);
+            diffBean.setNewValue(valueNew);
+            diffBean.setPositionType(diff.positionType());
+            diffBeans.add(diffBean);
+        }
+        return diffBeans;
+    }
+
+    private static void removeSaveValue(Map<String, Object> valueOld, Map<String, Object> valueNew) {
+        List<String> sameKeys = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : valueOld.entrySet()) {
+            String key = entry.getKey();
+            Object valOld = entry.getValue();
+            Object valNew = valueNew.get(key);
+            if (Objects.equals(valOld, valNew)) {
+                sameKeys.add(key);
+            }
+        }
+        for (String key : sameKeys) {
+            valueOld.remove(key);
+            valueNew.remove(key);
+        }
+    }
+
+    private static Map<String, Object> buildParamValue(DocParamDTO docParamDTO) {
+        if (docParamDTO == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, Object> valueMap = new LinkedHashMap<>(16);
+        ReflectionUtils.doWithFields(docParamDTO.getClass(), field -> {
+            field.setAccessible(true);
+            Diff diff = AnnotationUtils.getAnnotation(field, Diff.class);
+            Object value = ReflectionUtils.getField(field, docParamDTO);
+            valueMap.put(diff.positionType().getTypeName(), value);
+        }, field -> AnnotationUtils.getAnnotation(field, Diff.class) != null);
+        return valueMap;
+    }
+
+    private static ModifyType buildModifyType(Object valueOld, Object valueNew) {
+        if (valueOld == null && valueNew != null) {
+            return ModifyType.ADD;
+        } else if (valueOld != null && valueNew == null) {
+            return ModifyType.DELETE;
+        } else if (valueOld != null && valueNew != null && !Objects.equals(valueOld, valueNew)) {
+            return ModifyType.UPDATE;
+        } else {
+            return ModifyType.NONE;
         }
     }
 
 
-    private void saveParamTypeDiff(
-            DocDiffRecord docDiffRecord,
-            String docDataId,
-            DocParamDTO paramOld,
-            DocParamDTO paramNew,
-            ModifyType modifyType,
-            List<ParamOperate> paramOperates
-    ) {
-
-        String modifyNickname = modifyNicknameLocal.get();
-        for (ParamOperate paramOperate : paramOperates) {
-            Function<DocParamDTO, String> valueGetter = paramOperate.getValueGetter();
-            PositionType positionType = paramOperate.getPositionType();
-            String oldVal = paramOld == null ? "" : valueGetter.apply(paramOld);
-            String newVal = paramNew == null ? "" : valueGetter.apply(paramNew);
-            this.saveDiff(Objects.equals(oldVal, newVal), () -> {
-                return SaveDiffDTO.builder()
-                        .recordId(docDiffRecord.getId())
-                        .targetName(positionType.getTypeName())
-                        .modifyType(modifyType)
-                        .positionType(positionType)
-                        .oldValue(oldVal)
-                        .newValue(newVal)
-                        .modifyNickname(modifyNickname)
-                        .build();
-            });
-        }
-
-    }
-
-    private static FieldBean buildFieldBean(Field field, DocInfoDTO docInfoDTO) {
-        field.setAccessible(true);
-        Object value = ReflectionUtils.getField(field, docInfoDTO);
-        if (value == null || StringUtils.isEmpty(String.valueOf(value))) {
-            return null;
-        }
-        Diff diff = AnnotationUtils.getAnnotation(field, Diff.class);
-        if (diff == null) {
-            return null;
-        }
-        FieldBean fieldBean = new FieldBean();
-        fieldBean.setPositionType(diff.positionType());
-        fieldBean.setValue(String.valueOf(value));
-        return fieldBean;
-    }
-
-    /**
-     * 保存不同的地方
-     *
-     * @param isSame              是否一样
-     * @param saveDiffDTOSupplier 如果不一样执行操作
-     */
-    public void saveDiff(boolean isSame, Supplier<SaveDiffDTO> saveDiffDTOSupplier) {
-        if (!isSame) {
-            SaveDiffDTO saveDiffDTO = saveDiffDTOSupplier.get();
-            DocDiffDetail docDiffRecord = CopyUtil.copyBean(saveDiffDTO, DocDiffDetail::new);
-            docDiffRecord.setPositionType(saveDiffDTO.getPositionType().getType());
-            docDiffRecord.setModifyType(saveDiffDTO.getModifyType().getType());
-            this.save(docDiffRecord);
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    private static class ParamOperate {
-        private PositionType positionType;
-        Function<DocParamDTO, String> valueGetter;
+    private static String ofString(Object o) {
+        return o == null ? null : String.valueOf(o);
     }
 
     @Data
     private static class FieldBean {
         private PositionType positionType;
         private String value;
+    }
+
+    @Data
+    private static class DiffBean {
+
+        private String targetName;
+
+        private PositionType positionType;
+
+        private ModifyType modifyType;
+
+        private Object oldValue;
+
+        private Object newValue;
+    }
+
+
+    @Data
+    @AllArgsConstructor
+    private static class OldNewValue {
+        private Object oldValue;
+        private Object newValue;
     }
 
 }
