@@ -1,6 +1,6 @@
 <template>
   <div class="doc-view-container">
-    <el-tabs v-show="load" v-model="active" @tab-click="onTabSelect">
+    <el-tabs v-show="showDoc" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document" /> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="infoItem" />
@@ -10,14 +10,25 @@
         <doc-debug :item="debugItem" />
       </el-tab-pane>
     </el-tabs>
+    <el-tabs v-show="showDubbo" v-model="active" type="card" @tab-click="onTabSelect">
+      <el-tab-pane name="info">
+        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
+        <dubbo-view ref="docView" :item="infoItem" :init-subscribe="false" />
+      </el-tab-pane>
+    </el-tabs>
+    <div v-show="showCustom">
+      <doc-view-custom :doc-info="item" :show-opt-bar="false" :init-subscribe="false" />
+    </div>
   </div>
 </template>
 <script>
 import DocView from '../doc/DocView'
+import DubboView from '../doc/DubboView'
 import DocDebug from '@/components/DocDebug'
+import DocViewCustom from '@/components/DocViewCustom'
 
 export default {
-  components: { DocView, DocDebug },
+  components: { DocView, DocDebug, DubboView, DocViewCustom },
   data() {
     return {
       active: 'info',
@@ -27,6 +38,17 @@ export default {
       debugItem: {},
       mockItem: {},
       isShowDebug: false
+    }
+  },
+  computed: {
+    showDoc() {
+      return this.item.type === this.getEnums().DOC_TYPE.HTTP
+    },
+    showDubbo() {
+      return this.item.type === this.getEnums().DOC_TYPE.DUBBO
+    },
+    showCustom() {
+      return this.item.type === this.getEnums().DOC_TYPE.CUSTOM
     }
   },
   created() {

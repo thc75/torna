@@ -1,6 +1,6 @@
 package cn.torna.service.login.oauth;
 
-import cn.torna.common.context.EnvironmentContext;
+import cn.torna.common.bean.EnvironmentContext;
 import me.zhyd.oauth.config.AuthSource;
 
 /**

@@ -112,13 +112,13 @@ public class ApiDocBuilder {
      * @return 返回文档内容
      */
     public List<FieldDocInfo> buildFieldDocInfo(Class<?> paramClass) {
-        return buildFieldDocInfosByType(paramClass, true);
+        return buildFieldDocInfosByType(paramClass, true, null);
     }
 
     /**
      * 从api参数中构建
      */
-    protected List<FieldDocInfo> buildFieldDocInfosByType(Class<?> clazz, boolean root) {
+    protected List<FieldDocInfo> buildFieldDocInfosByType(Class<?> clazz, boolean root, Class<?> generic) {
         Class<?> targetClassRef = PluginUtil.isCollectionOrArray(clazz) ? getCollectionElementClass(clazz) : clazz;
 
         // 查找泛型
@@ -164,7 +164,7 @@ public class ApiDocBuilder {
                 // 如果是自定义类
                 fieldDocInfo = buildFieldDocInfoByClass(apiModelProperty, fieldType, field);
             } else {
-                fieldDocInfo = buildFieldDocInfo(apiModelProperty, field);
+                fieldDocInfo = buildFieldDocInfo(apiModelProperty, field, generic);
             }
             formatDataType(fieldDocInfo, realClass != null ? realClass : fieldType);
             fieldDocInfos.add(fieldDocInfo);
@@ -235,7 +235,7 @@ public class ApiDocBuilder {
         return targetClass;
     }
 
-    protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field) {
+    protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field, Type generic) {
         ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Class<?> fieldType = field.getType();
         String type = getFieldType(field, apiModelPropertyWrapper);
@@ -257,8 +257,11 @@ public class ApiDocBuilder {
         boolean isList = PluginUtil.isCollectionOrArray(fieldType);
         Type genericType = field.getGenericType();
         Type elementClass = null;
+        if (generic != null && isList) {
+            elementClass = generic;
+        }
         // 如果有明确的泛型，如List<Order>
-        if (PluginUtil.isGenericType(genericType)) {
+        if (elementClass == null && PluginUtil.isGenericType(genericType)) {
             elementClass = PluginUtil.getGenericType(genericType);
             if (elementClass instanceof TypeVariable) {
                 TypeVariable<?> typeVariable = (TypeVariable<?>) elementClass;
@@ -290,7 +293,7 @@ public class ApiDocBuilder {
                 if (PluginUtil.isPojo(clazz)) {
                     List<FieldDocInfo> fieldDocInfos = isCycle(clazz, field)
                             ? Collections.emptyList()
-                            : buildFieldDocInfosByType(clazz, false);
+                            : buildFieldDocInfosByType(clazz, false, null);
                     fieldDocInfo.setChildren(fieldDocInfos);
                 }
             }
@@ -330,8 +333,10 @@ public class ApiDocBuilder {
         }
         // 解决循环依赖问题
         boolean cycle = isCycle(clazz, field);
+        Type genericType = PluginUtil.getGenericType(field);
+        Class<?> generic = genericType instanceof Class<?> ? (Class<?>) genericType : null;
         List<FieldDocInfo> children = cycle ? Collections.emptyList()
-                : buildFieldDocInfosByType(clazz, false);
+                : buildFieldDocInfosByType(clazz, false, generic);
         fieldDocInfo.setChildren(children);
 
         return fieldDocInfo;

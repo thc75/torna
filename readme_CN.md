@@ -47,6 +47,25 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 无特殊说明，只需要覆盖`torna.jar文件`和`dist文件夹`，然后重启即可
 
+### Linux服务器快速部署
+
+- 前提：导入数据库，执行[mysql.sql](./mysql.sql)
+
+创建配置文件，执行命令：
+
+```bash
+mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/install/application.properties -O /etc/torna/application.properties
+```
+
+`vim /etc/torna/application.properties`修改数据库连接配置
+
+拉取最新版本并启动，以1.19.1为例
+
+```bash
+wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.19.1
+```
+
+后续更新版本只需执行`sh restart-torna.sh 版本号`
 
 ### 方式2：docker运行
 
@@ -54,32 +73,15 @@ Torna弥补了传统文档生成工具（如swagger）的不如之处，在保�
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.18.2`
+`docker pull tanghc2020/torna:1.19.1`
 
-在`/etc/torna/`下创建一个空文件`application.properties`用来存放配置，执行命令：
+创建配置文件，执行命令：
 
-`mkdir /etc/torna && touch /etc/torna/application.properties`
-
-编辑配置文件
-
-`vim /etc/torna/application.properties`
-
-输入如下配置：
-
-```properties
-# 服务器端口
-server.port=7700
-
-# MySQL地址
-mysql.host=<mysql_ip>:3306
-# 数据库名称
-mysql.schema=torna
-# 数据库账号，确保能执行DDL语句
-mysql.username=<username>
-mysql.password=<password>
+```bash
+mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/install/application.properties -O /etc/torna/application.properties
 ```
 
-修改对应的MySQL地址、账号
+`vim /etc/torna/application.properties`修改数据库连接配置
 
 执行docker命令：
 
@@ -88,7 +90,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d tanghc2020/torna:1.18.2
+  -d tanghc2020/torna:1.19.1
 ```
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip

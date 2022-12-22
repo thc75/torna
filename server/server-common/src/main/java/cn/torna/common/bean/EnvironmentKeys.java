@@ -1,5 +1,6 @@
 package cn.torna.common.bean;
 
+import cn.torna.common.context.UploadContext;
 import cn.torna.common.enums.DocSortType;
 
 /**
@@ -56,6 +57,9 @@ public enum EnvironmentKeys {
     TORNA_SCHEDULE_SAVE_DOC_DIFF_POLL_SIZE("torna.schedule.save-doc-diff.poll-size", "20"),
     /** 文档排序规则 */
     TORNA_DOC_SORT_TYPE("torna.doc-sort-type", DocSortType.BY_ORDER.getType()),
+    /** 上传文件域名 */
+    TORNA_UPLOAD_DOMAIN("torna.upload.domain", null),
+    TORNA_UPLOAD_DIR("torna.upload.dir", null)
     ;
 
     private final String key;
@@ -82,7 +86,7 @@ public enum EnvironmentKeys {
         return key;
     }
 
-    private String getValue(String defaultValue) {
+    public String getValue(String defaultValue) {
         return Configs.getValue(key, defaultValue);
     }
 }

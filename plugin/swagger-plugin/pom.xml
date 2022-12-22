@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.torna</groupId>
     <artifactId>swagger-plugin</artifactId>
-    <version>1.2.16</version>
+    <version>1.2.18</version>
     <packaging>jar</packaging>
 
     <name>swagger-plugin</name>
@@ -203,7 +203,6 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
-                        <!-- JDK8必须使用下面的配置 -->
                         <configuration>
                             <additionalparam>-Xdoclint:none</additionalparam>
                         </configuration>

@@ -20,6 +20,9 @@
         <dubbo-view ref="docView" :item="infoItem" />
       </el-tab-pane>
     </el-tabs>
+    <div v-show="showCustom">
+      <doc-view-custom :doc-info="item" />
+    </div>
   </div>
 </template>
 <script>
@@ -27,14 +30,15 @@ import DocView from '../doc/DocView'
 import DubboView from '../doc/DubboView'
 import DocDebug from '@/components/DocDebug'
 import Mock from '@/components/Mock'
+import DocViewCustom from '@/components/DocViewCustom'
 
 export default {
-  components: { DocView, DocDebug, Mock, DubboView },
+  components: { DocView, DocDebug, Mock, DubboView, DocViewCustom },
   data() {
     return {
       active: 'info',
       item: {
-        type: 1
+        type: 0
       },
       infoItem: {},
       debugItem: {},
@@ -47,6 +51,9 @@ export default {
     },
     showDubbo() {
       return this.item.type === this.getEnums().DOC_TYPE.DUBBO
+    },
+    showCustom() {
+      return this.item.type === this.getEnums().DOC_TYPE.CUSTOM
     }
   },
   created() {

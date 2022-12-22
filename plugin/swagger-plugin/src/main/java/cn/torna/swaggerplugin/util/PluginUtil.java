@@ -93,6 +93,36 @@ public class PluginUtil {
         return false;
     }
 
+    public static Type getGenericType(Field field) {
+        ReflectionUtils.makeAccessible(field);
+        Method[] allDeclaredMethods = ReflectionUtils.getAllDeclaredMethods(Field.class);
+        for (Method allDeclaredMethod : allDeclaredMethods) {
+            if (allDeclaredMethod.getName().equals("getGenericSignature")) {
+                ReflectionUtils.makeAccessible(allDeclaredMethod);
+                Object o = ReflectionUtils.invokeMethod(allDeclaredMethod, field);
+                // Lcn/torna/tornaexample/controller/eg/vo/CommonPage<Lcn/torna/tornaexample/controller/eg/vo/LockingDto;>;
+                String signature = String.valueOf(o);
+                if (signature.startsWith("L") && signature.endsWith(";>;")) {
+                    String className = signature.replace(";", "");
+                    // Lcn/torna/tornaexample/controller/eg/vo/LockingDto
+                    className = StringUtil.findBetweenChar(className, '<', '>');
+                    if (className.startsWith("L")) {
+                        // cn/torna/tornaexample/controller/eg/vo/LockingDto
+                        className = className.substring(1);
+                    }
+                    className = StringUtil.splashToDot(className);
+                    try {
+                        return ClassUtils.forName(className, Thread.currentThread().getContextClassLoader());
+                    } catch (ClassNotFoundException e) {
+                        return null;
+                    }
+                }
+
+            }
+        }
+        return field.getGenericType();
+    }
+
 
     /**
      * 获取泛型参数类型，如：List{@literal <String> }  返回String

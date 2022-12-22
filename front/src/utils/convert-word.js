@@ -5,7 +5,7 @@ import {
   get_style_config, init_docInfo,
   StringBuilder
 } from '@/utils/common'
-import { isDubbo, isHttp, isShowRequestExample } from '@/utils/convert-common'
+import { isDubbo, isHttp, isCustom, isShowRequestExample } from '@/utils/convert-common'
 import { Enums } from '@/utils/enums'
 
 export const word_wrapper = `
@@ -71,6 +71,10 @@ const WordUtil = {
     }
     // 维护人
     docInfo.author && sb.append(`<p><strong>${$ts('maintainer')}：</strong>${docInfo.author}</p>`)
+    if (isCustom(docInfo)) {
+      sb.append(docInfo.description)
+      return sb.toString()
+    }
     // URL
     if (isHttp(docInfo)) {
       sb.append(`<p><strong>URL</strong></p>`)

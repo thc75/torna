@@ -19,18 +19,46 @@
           <el-radio-button label="by_url">根据URL排序</el-radio-button>
         </el-radio-group>
       </el-form-item>
+      <el-form-item>
+        <span slot="label">
+          图片上传设置
+          <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/upload.md')" />
+        </span>
+        <span>
+          上传文件存放目录
+        </span>
+        <el-input
+          v-model="config.uploadDir.value"
+          placeholder="绝对路径，如：/opt/upload 不填默认在 {user.home}/torna_upload 下"
+          @change="onConfigChange(config.uploadDir)"
+        />
+
+        <span>
+          自定义域名
+        </span>
+        <el-input
+          v-model="config.uploadDomain.value"
+          placeholder="如：http://images.xxx.com、http://images.xxx.com/upload"
+          @change="onConfigChange(config.uploadDomain)"
+        />
+      </el-form-item>
     </el-form>
+    <help ref="help" />
   </div>
 </template>
 
 <script>
+import Help from '@/components/Help'
 
 export default {
+  components: { Help },
   data() {
     return {
       config: {
         regEnable: { key: 'torna.register.enable', value: 'false' },
-        docSortType: { key: 'torna.doc-sort-type', value: 'by_order', remark: '文档排序规则' }
+        docSortType: { key: 'torna.doc-sort-type', value: 'by_order', remark: '文档排序规则' },
+        uploadDir: { key: 'torna.upload.dir', value: '', remark: '上传文件保存目录' },
+        uploadDomain: { key: 'torna.upload.domain', value: '', remark: '上传文件映射' }
       },
       docSortTypeMap: {
         'by_order': '根据排序字段排序',

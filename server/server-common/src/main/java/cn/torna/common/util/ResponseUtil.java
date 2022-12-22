@@ -3,6 +3,7 @@ package cn.torna.common.util;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -40,6 +41,16 @@ public class ResponseUtil {
                 out.flush();
                 out.close();
             }
+        }
+    }
+
+    public static void writeImage(HttpServletResponse response, byte[] data) {
+        response.setCharacterEncoding(UTF_8);
+        response.setContentType(MediaType.IMAGE_PNG_VALUE);
+        try {
+            response.getOutputStream().write(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

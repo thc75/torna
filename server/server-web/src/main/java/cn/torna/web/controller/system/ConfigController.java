@@ -4,7 +4,7 @@ import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
-import cn.torna.common.context.EnvironmentContext;
+import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.service.SystemConfigService;

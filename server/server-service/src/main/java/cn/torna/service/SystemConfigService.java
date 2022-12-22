@@ -1,6 +1,6 @@
 package cn.torna.service;
 
-import cn.torna.common.context.EnvironmentContext;
+import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.interfaces.IConfig;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;

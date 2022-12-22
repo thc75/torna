@@ -6,6 +6,7 @@
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
           <el-button
+            v-show="showOptBar && docInfo.id"
             type="text"
             class="icon-button"
             :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
@@ -174,10 +175,6 @@ h4 .content {
   top: 2px;
   margin: 8px;
   cursor: pointer;
-}
-.show-opt-bar .item {
-  margin-left: 10px;
-  display: inline-block;
 }
 </style>
 <script>

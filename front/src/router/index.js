@@ -164,14 +164,21 @@ export const constantRoutes = [
         path: 'edit/:moduleId(\\w+)/:docId(\\w+)',
         name: 'Edit',
         hidden: true,
-        component: () => import('@/views/doc/edit/index'),
+        component: () => import('@/views/doc/EditDocStandard/index'),
+        meta: { title: '编辑文档' }
+      },
+      {
+        path: 'edit_custom/:moduleId(\\w+)/:docId(\\w+)',
+        name: 'EditCustom',
+        hidden: true,
+        component: () => import('@/views/doc/EditDocCustom/index'),
         meta: { title: '编辑文档' }
       },
       {
         path: 'new/:moduleId(\\w+)/:parentId(\\w+)',
         name: 'New',
         hidden: true,
-        component: () => import('@/views/doc/edit/index'),
+        component: () => import('@/views/doc/add/index'),
         meta: { title: '新建文档' }
       },
       {
@@ -182,10 +189,17 @@ export const constantRoutes = [
         meta: { title: '复制文档' }
       },
       {
+        path: 'copy_custom/:moduleId(\\w+)/:copyId(\\w+)',
+        name: 'NewCopyCustom',
+        hidden: true,
+        component: () => import('@/views/doc/EditDocCustom/index'),
+        meta: { title: '复制文档' }
+      },
+      {
         path: 'new/:moduleId(\\w+)',
         name: 'New2',
         hidden: true,
-        component: () => import('@/views/doc/edit/index'),
+        component: () => import('@/views/doc/add/index'),
         meta: { title: '新建文档' }
       }
     ]

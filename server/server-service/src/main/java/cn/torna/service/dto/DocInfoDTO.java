@@ -110,7 +110,7 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private String baseUrl;
 
-    private List<ModuleEnvironmentDTO> debugEnvs;
+    private List<ModuleEnvironmentDTO> debugEnvs = Collections.emptyList();
 
     private Byte moduleType;
 
@@ -122,24 +122,24 @@ public class DocInfoDTO implements DocInfoDataId {
     private Long spaceId;
 
     @Diff(positionType = PositionType.PATH_PARAM)
-    private List<DocParamDTO> pathParams;
+    private List<DocParamDTO> pathParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.HEADER_PARAM)
-    private List<DocParamDTO> headerParams;
+    private List<DocParamDTO> headerParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.QUERY_PARAM)
-    private List<DocParamDTO> queryParams;
+    private List<DocParamDTO> queryParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.REQUEST_PARAM)
-    private List<DocParamDTO> requestParams;
+    private List<DocParamDTO> requestParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.RESPONSE_PARAM)
-    private List<DocParamDTO> responseParams;
+    private List<DocParamDTO> responseParams = Collections.emptyList();
     private List<DocParamDTO> errorCodeParams = Collections.emptyList();
 
-    private List<DocParamDTO> globalHeaders;
-    private List<DocParamDTO> globalParams;
-    private List<DocParamDTO> globalReturns;
+    private List<DocParamDTO> globalHeaders = Collections.emptyList();
+    private List<DocParamDTO> globalParams = Collections.emptyList();
+    private List<DocParamDTO> globalReturns = Collections.emptyList();
 
     private DubboInfoDTO dubboInfo;
 

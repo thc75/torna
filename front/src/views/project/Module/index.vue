@@ -2,7 +2,7 @@
   <div style="padding: 10px;">
     <el-empty v-if="moduleData.length === 0" :description="$ts('noAppDescription')">
       <el-dropdown
-        trigger="hover"
+        trigger="click"
         @command="handleCommand"
       >
         <el-button type="primary" icon="el-icon-circle-plus" style="padding: 10px; font-size: 16px"></el-button>
@@ -46,7 +46,7 @@
       <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="_new_">
         <span slot="label">
           <el-dropdown
-            trigger="hover"
+            trigger="click"
             @command="handleCommand"
           >
             <el-button type="text" icon="el-icon-circle-plus" style="padding: 10px; color: #303133;font-size: 16px"></el-button>

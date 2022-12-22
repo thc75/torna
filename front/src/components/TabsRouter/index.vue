@@ -3,7 +3,6 @@
     v-show="tabsList.length > 0"
     id="tabs-router"
     ref="tabs_router"
-    @mousewheel.prevent="mouseWheelScroll"
   >
     <div
       v-for="(tab,index) in tabsList"
