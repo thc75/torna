@@ -17,7 +17,7 @@
         <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
           <div class="item">
             <el-tooltip placement="top" :content="$ts('changeHistory')">
-              <el-button type="text" icon="el-icon-files" @click="onShowHistory"></el-button>
+              <el-button type="text" icon="el-icon-date" @click="onShowHistory"></el-button>
             </el-tooltip>
           </div>
           <div class="item">
@@ -154,6 +154,7 @@
       <doc-diff :doc-info="currentDocInfo" />
     </el-dialog>
     <p></p>
+    <doc-changelog-drawer ref="docChangelogDrawer" />
     <const-view ref="constView" />
   </div>
 </template>
@@ -178,6 +179,7 @@ h4 .content {
 }
 </style>
 <script>
+import DocChangelogDrawer from '@/components/DocChangelogDrawer'
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '../DocDiff'
@@ -193,7 +195,7 @@ $addI18n({
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, DocDiff, ConstView },
+  components: { ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },
   props: {
     docId: {
       type: String,
@@ -413,11 +415,13 @@ export default {
       ExportUtil.exportWordSinglePage(this.docInfo)
     },
     onShowHistory() {
-      this.historyShow = true
-      this.$nextTick(() => {
-        this.currentDocInfo = this.docInfo
-        this.historyDocId = this.docInfo.id
-      })
+      // this.historyShow = true
+      // this.$nextTick(() => {
+      //   this.currentDocInfo = this.docInfo
+      //   this.historyDocId = this.docInfo.id
+      // })
+      // console.log(this.$refs.docChangelogDrawer)
+      this.$refs.docChangelogDrawer.show(this.docInfo.id)
     },
     onSubscribe() {
       if (!this.isSubscribe) {

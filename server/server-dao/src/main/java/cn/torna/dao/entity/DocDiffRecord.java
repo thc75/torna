@@ -22,9 +22,9 @@ public class DocDiffRecord {
 
 
     /** 
-     * doc_info.data_id
+     * doc_info.id
      */
-    private String dataId;
+    private Long docId;
 
 
     /** 

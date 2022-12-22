@@ -68,24 +68,18 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
     }
 
     private Map<String, Object> buildValue(DiffBean diffBean) {
-        PositionType positionType = diffBean.getPositionType();
         /*
         {
-            DOC_NAME: {
-                value: { old: '', new: '' }
-                targetName: '',
-                modifyType: 1
-            }
+            value: { old: '', new: '' }
+            targetName: '',
+            modifyType: 1
         }
          */
-        Map<String, Object> diffInfo = new LinkedHashMap<>(8);
         Map<String, Object> value = new LinkedHashMap<>(8);
         OldNewValue oldNewValue = new OldNewValue(diffBean.getOldValue(), diffBean.getNewValue());
         value.put("value", oldNewValue);
         value.put("targetName", diffBean.getTargetName());
-        value.put("modifyType", diffBean.getModifyType().getType());
-        diffInfo.put(positionType.getTypeName(), value);
-        return diffInfo;
+        return value;
     }
 
     private static List<DiffBean> buildDocDiffBeans(Field field, DocInfoDTO docInfoOld, DocInfoDTO docInfoNew) {

@@ -47,11 +47,11 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     // TODO：获取修改记录
     /**
      * 获取修改记录
-     * @param dataId
+     * @param docId 文档id
      * @return
      */
-    public List<DocDiffRecordDTO> listDocDiff(String dataId) {
-        List<DocDiffRecord> diffRecordList = list("data_id", dataId);
+    public List<DocDiffRecordDTO> listDocDiff(Long docId) {
+        List<DocDiffRecord> diffRecordList = list("doc_id", docId);
         if (CollectionUtils.isEmpty(diffRecordList)) {
             return Collections.emptyList();
         }
@@ -80,6 +80,8 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         return docDiffDetailList.stream()
                 .map(docDiffDetail -> {
                     DocDiffDetailDTO docDiffDetailDTO = new DocDiffDetailDTO();
+                    docDiffDetailDTO.setModifyType(docDiffDetail.getModifyType());
+                    docDiffDetailDTO.setId(docDiffDetail.getId());
                     docDiffDetailDTO.setPositionType(docDiffDetail.getPositionType());
                     docDiffDetailDTO.setTargetName(docDiffDetail.getTargetName());
                     docDiffDetailDTO.setContent(JSON.parseObject(docDiffDetail.getContent()));
@@ -141,7 +143,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     private DocDiffRecord createRecord(DocInfoDTO docInfoDTO, DocDiffDTO docDiffDTO, ModifyType modifyType) {
         User user = docDiffDTO.getUser();
         DocDiffRecord docDiffRecord = new DocDiffRecord();
-        docDiffRecord.setDataId(docInfoDTO.buildDataId());
+        docDiffRecord.setDocId(docInfoDTO.getId());
         docDiffRecord.setMd5Old(docDiffDTO.getMd5Old());
         docDiffRecord.setMd5New(docDiffDTO.getMd5New());
         docDiffRecord.setModifySource(docDiffDTO.getModifySource().getSource());

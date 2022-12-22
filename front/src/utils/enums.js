@@ -95,5 +95,30 @@ export const Enums = {
     DOC: 0,
     MODULE: 1,
     PROJECT: 2
+  },
+  /**
+   * 文档元素位置
+   */
+  POSITION_TYPE: {
+    DOC_NAME: 0,
+    DOC_HTTP_METHOD: 1,
+    DOC_URL: 2,
+    CONTENT_TYPE: 3,
+    DOC_DESCRIPTION: 4,
+    DEPRECATED: 5,
+    IS_SHOW: 6,
+    ORDER_INDEX: 7,
+    PATH_PARAM: 8,
+    HEADER_PARAM: 9,
+    QUERY_PARAM: 10,
+    REQUEST_PARAM: 11,
+    RESPONSE_PARAM: 12,
+
+    PARAM_NAME: 50,
+    PARAM_TYPE: 51,
+    PARAM_REQUIRED: 52,
+    PARAM_MAXLENGTH: 53,
+    PARAM_DESCRIPTION: 54,
+    PARAM_EXAMPLE: 55
   }
 }

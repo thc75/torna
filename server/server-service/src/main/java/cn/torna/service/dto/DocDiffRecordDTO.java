@@ -14,12 +14,6 @@ import java.util.List;
 public class DocDiffRecordDTO {
 
     /**
-     * doc_info.data_id
-     */
-    private String dataId;
-
-
-    /**
      * 旧MD5
      */
     private String md5Old;

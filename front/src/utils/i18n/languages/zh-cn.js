@@ -2,6 +2,9 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'contentType': 'ContentType',
+  'queryParam': 'Query参数',
+  'modifier': '修改人',
   'changeHistory': '变更历史',
   'script': '脚本',
   'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
