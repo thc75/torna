@@ -3,6 +3,7 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
@@ -31,6 +32,8 @@ import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
+import cn.torna.service.event.DocAddEvent;
+import cn.torna.service.event.DocUpdateEvent;
 import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
@@ -378,15 +381,18 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
+        SpringContext.publishEvent(new DocAddEvent(docInfo));
         return docInfo;
     }
 
     public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
+        DocInfo docInfoOld = this.getById(docInfoDTO.getId());
+        String oldMd5 = docInfoOld.getMd5();
         // 修改基本信息
-        DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
-
+        DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
+        SpringContext.publishEvent(new DocUpdateEvent(docInfo, oldMd5));
         return docInfo;
     }
 
@@ -409,8 +415,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
-    private DocInfo modifyDocInfo(DocInfoDTO docInfoDTO, User user) {
-        DocInfo docInfo = this.getById(docInfoDTO.getId());
+    private DocInfo modifyDocInfo(DocInfo docInfo, DocInfoDTO docInfoDTO, User user) {
         String descriptionOld = docInfo.getDescription();
         String descriptionNew = docInfoDTO.getDescription();
         String oldMd5 = docInfo.getMd5();

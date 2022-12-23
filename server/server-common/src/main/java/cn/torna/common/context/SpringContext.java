@@ -1,6 +1,7 @@
 package cn.torna.common.context;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 
 /**
  * @author tanghc
@@ -23,5 +24,9 @@ public class SpringContext {
 
     public static ApplicationContext getApplicationContext() {
         return ctx;
+    }
+
+    public static void publishEvent(ApplicationEvent event) {
+        ctx.publishEvent(event);
     }
 }
