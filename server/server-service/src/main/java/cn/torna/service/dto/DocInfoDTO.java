@@ -83,6 +83,14 @@ public class DocInfoDTO implements DocInfoDataId {
     /** 修改人 */
     private String modifierName;
 
+    /** 创建人, 数据库字段：creator_id */
+    @JSONField(serialize = false)
+    private Long creatorId;
+
+    /** 修改人, 数据库字段：modifier_id */
+    @JSONField(serialize = false)
+    private Long modifierId;
+
     /** 是否显示, 数据库字段：is_show */
     private Byte isShow;
 
