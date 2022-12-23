@@ -182,7 +182,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return getDocInfoDTO(docInfo);
     }
 
-    private DocInfoDTO getDocInfoDTO(DocInfo docInfo) {
+    public DocInfoDTO getDocInfoDTO(DocInfo docInfo) {
         Assert.notNull(docInfo, () -> "文档不存在");
         DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
         Long moduleId = docInfo.getModuleId();
