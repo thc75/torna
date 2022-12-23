@@ -1,6 +1,5 @@
 package cn.torna.service.event;
 
-import cn.torna.dao.entity.DocInfo;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -19,8 +18,8 @@ public class DocUpdateEvent extends ApplicationEvent {
         super(docId);
     }
 
-    public DocInfo getDocInfo() {
-        return (DocInfo) getSource();
+    public Long getDocId() {
+        return (Long) getSource();
     }
 
     public String getOldMd5() {
