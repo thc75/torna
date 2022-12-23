@@ -9,6 +9,7 @@ import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.enums.PropTypeEnum;
+import cn.torna.common.enums.SourceFromEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -381,7 +382,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocAddEvent(docInfo.getId()));
+        SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), SourceFromEnum.FORM));
         return docInfo;
     }
 
@@ -392,7 +393,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5));
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, SourceFromEnum.FORM));
         return docInfo;
     }
 
