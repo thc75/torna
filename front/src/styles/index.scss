@@ -477,6 +477,14 @@ span.deprecated {
     border-collapse: collapse;
   }
 
+  caption {
+    border: 1px solid #b3b3b3;
+    border-bottom: 0;
+    padding: .4em;
+    background: rgba(0,0,0,0.05);
+    font-weight: 700;
+  }
+
   /**
    *     伪类nth-child的even参数可以选中偶数行，而odd则可以选中奇数行。
    *

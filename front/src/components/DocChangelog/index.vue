@@ -12,21 +12,38 @@
           <el-button style="float: right; padding: 0;margin-right: 10px" type="text">还原</el-button>
           <el-button style="float: right; padding: 0;margin-right: 10px" type="text">对比</el-button>
         </span>
+        <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
         <div>
-          <div v-for="detail in item.docDiffDetails" :key="detail.id">
-            <div v-if="detail.positionType < 50">
-              {{ getI18nName(detail.positionType) }}：{{ detail }}
+          <div v-for="detail in item.docDiffDetails" :key="detail.id" class="changelog-item">
+            <div class="changelog-item-label">
+              <el-tag size="mini" :type="getTagType(detail.modifyType)" :closabl="false">{{ getModifyTypeName(detail.modifyType) }}</el-tag>
+              <span class="position-type">{{ getI18nName(detail.positionType) }}</span>
             </div>
-            <div v-else></div>
-
+            <div v-if="isDocInfoChange(detail.positionType)" class="inline">
+              <doc-changelog-simple-diff :value="detail.content.value" />
+            </div>
+            <div v-else>
+              <doc-changelog-param-diff :content="detail.content" />
+            </div>
           </div>
         </div>
       </el-timeline-item>
     </el-timeline>
   </div>
 </template>
+<style>
+.changelog-item-label {
+  margin: 5px 0;
+  display: inline-block;
+}
+.position-type {
+  font-weight: bold;
+}
+</style>
 <script>
-import { Enums } from '@/utils/enums'
+import { Enums, PositionNameMap } from '@/utils/enums'
+import DocChangelogSimpleDiff from '@/components/DocChangelogSimpleDiff'
+import DocChangelogParamDiff from '@/components/DocChangelogParamDiff'
 const POSITION_TYPE = Enums.POSITION_TYPE
 // { '0': 'DOC_NAME' }
 const positionConfig = {}
@@ -34,31 +51,10 @@ for (const key in POSITION_TYPE) {
   const value = POSITION_TYPE[key]
   positionConfig['' + value] = key
 }
-const i18nNameMap = {
-  DOC_NAME: 'docName',
-  DOC_HTTP_METHOD: 'method',
-  DOC_URL: 'requestUrl',
-  CONTENT_TYPE: 'contentType',
-  DOC_DESCRIPTION: 'docDesc',
-  DEPRECATED: 'deprecated',
-  IS_SHOW: 'isShow',
-  ORDER_INDEX: 'orderIndex',
-  PATH_PARAM: 'pathVariable',
-  HEADER_PARAM: 'requestHeader',
-  QUERY_PARAM: 'queryParam',
-  REQUEST_PARAM: 'requestParams',
-  RESPONSE_PARAM: 'responseParam',
-
-  PARAM_NAME: 'paramName',
-  PARAM_TYPE: 'type',
-  PARAM_REQUIRED: 'required',
-  PARAM_MAXLENGTH: 'maxLength',
-  PARAM_DESCRIPTION: 'description',
-  PARAM_EXAMPLE: 'example'
-}
 
 export default {
   name: 'DocChangelog',
+  components: { DocChangelogSimpleDiff, DocChangelogParamDiff },
   data() {
     return {
       list: []
@@ -72,9 +68,36 @@ export default {
         })
       }
     },
+    getModifyTypeName(type) {
+      // 变更类型，0：修改，1：新增，2：删除
+      switch (type) {
+        case 0:
+          return $ts('update')
+        case 1:
+          return $ts('add')
+        case 2:
+          return $ts('delete')
+      }
+      return ''
+    },
+    getTagType(type) {
+      // 变更类型，0：修改，1：新增，2：删除
+      switch (type) {
+        case 0:
+          return 'warning'
+        case 1:
+          return 'success'
+        case 2:
+          return 'danger'
+      }
+      return ''
+    },
+    isDocInfoChange(positionType) {
+      return positionType <= 7
+    },
     getI18nName(positionType) {
       const name = positionConfig['' + positionType]
-      return $ts(i18nNameMap[name])
+      return $ts(PositionNameMap[name])
     }
   }
 }

@@ -2,6 +2,7 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'changeContent': 'Change Content',
   'contentType': 'ContentType',
   'queryParam': 'Query Param',
   'modifier': 'Modifier',

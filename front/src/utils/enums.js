@@ -122,3 +122,26 @@ export const Enums = {
     PARAM_EXAMPLE: 55
   }
 }
+
+export const PositionNameMap = {
+  DOC_NAME: 'docName',
+  DOC_HTTP_METHOD: 'method',
+  DOC_URL: 'requestUrl',
+  CONTENT_TYPE: 'contentType',
+  DOC_DESCRIPTION: 'docDesc',
+  DEPRECATED: 'deprecated',
+  IS_SHOW: 'isShow',
+  ORDER_INDEX: 'orderIndex',
+  PATH_PARAM: 'pathVariable',
+  HEADER_PARAM: 'requestHeader',
+  QUERY_PARAM: 'queryParam',
+  REQUEST_PARAM: 'requestParams',
+  RESPONSE_PARAM: 'responseParam',
+
+  PARAM_NAME: 'paramName',
+  PARAM_TYPE: 'type',
+  PARAM_REQUIRED: 'required',
+  PARAM_MAXLENGTH: 'maxLength',
+  PARAM_DESCRIPTION: 'description',
+  PARAM_EXAMPLE: 'example'
+}
