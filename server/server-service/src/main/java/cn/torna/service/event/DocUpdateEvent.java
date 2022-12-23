@@ -10,13 +10,13 @@ public class DocUpdateEvent extends ApplicationEvent {
 
     private String oldMd5;
 
-    public DocUpdateEvent(DocInfo source, String oldMd5) {
-        this(source);
+    public DocUpdateEvent(Long docId, String oldMd5) {
+        this(docId);
         this.oldMd5 = oldMd5;
     }
 
-    private DocUpdateEvent(DocInfo source) {
-        super(source);
+    private DocUpdateEvent(Long docId) {
+        super(docId);
     }
 
     public DocInfo getDocInfo() {

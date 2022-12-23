@@ -1,6 +1,5 @@
 package cn.torna.service.event;
 
-import cn.torna.dao.entity.DocInfo;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -8,11 +7,11 @@ import org.springframework.context.ApplicationEvent;
  */
 public class DocAddEvent extends ApplicationEvent {
 
-    public DocAddEvent(DocInfo source) {
-        super(source);
+    public DocAddEvent(Long docId) {
+        super(docId);
     }
 
-    public DocInfo getDocInfo() {
-        return (DocInfo) getSource();
+    public Long getDocId() {
+        return (Long) getSource();
     }
 }
