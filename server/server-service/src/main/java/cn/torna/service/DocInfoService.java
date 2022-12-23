@@ -3,6 +3,7 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
@@ -13,7 +14,6 @@ import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
-import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
@@ -27,12 +27,13 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
-import cn.torna.service.dto.DocRefDTO;
 import cn.torna.service.dto.DubboInfoDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
+import cn.torna.service.event.DocAddEvent;
+import cn.torna.service.event.DocUpdateEvent;
 import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
@@ -56,7 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -72,9 +73,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private ModuleConfigService moduleConfigService;
-
-    @Autowired
-    private DocSnapshotService docSnapshotService;
 
     @Autowired
     private UserMessageService userMessageService;
@@ -105,7 +103,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下的所有文档
-     *
      * @param moduleId 模块id
      * @return 返回文档
      */
@@ -154,7 +151,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
-     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -168,7 +164,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
-     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -179,7 +174,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
-     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -324,9 +318,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 保存文档信息
-     *
      * @param docInfoDTO 文档内容
-     * @param user       用户
+     * @param user 用户
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
@@ -367,13 +360,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return false;
     }
 
-    /**
-     * 文档内容是否变更
-     * @param dataId 文档dataId
-     * @param newMd5 新的MD5
-     * @param docMetas 文档数据
-     * @return true：已变更
-     */
     public static boolean isContentChanged(String dataId, String newMd5, List<DocMeta> docMetas) {
         if (CollectionUtils.isEmpty(docMetas)) {
             return false;
@@ -390,38 +376,23 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return false;
     }
 
-    public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {
-        if (CollectionUtils.isEmpty(docMetas)) {
-            return Optional.empty();
-        }
-        return docMetas.stream()
-                .filter(docMeta -> Objects.equals(dataId, docMeta.getDataId()))
-                .findFirst()
-                .map(DocMeta::getMd5);
-    }
-
     public DocInfo doSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
+        SpringContext.publishEvent(new DocAddEvent(docInfo));
         return docInfo;
     }
 
     public DocInfo doUpdateDocInfo(DocInfoDTO docInfoDTO, User user) {
-        DocInfo docInfoExist = getById(docInfoDTO.getId());
-        String oldMd5 = docInfoExist.getMd5();
-        String newMd5 = getDocMd5(docInfoDTO);
-        // 如果内容不一样，保存上一次的快照
-        if (!Objects.equals(oldMd5, newMd5)) {
-            this.saveOldSnapshot(docInfoDTO);
-        }
-        docInfoDTO.setMd5(newMd5);
+        DocInfo docInfoOld = this.getById(docInfoDTO.getId());
+        String oldMd5 = docInfoOld.getMd5();
         // 修改基本信息
-        DocInfo docInfo = this.modifyDocInfo(docInfoDTO, user);
-
+        DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
+        SpringContext.publishEvent(new DocUpdateEvent(docInfo, oldMd5));
         return docInfo;
     }
 
@@ -434,24 +405,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docParamService.saveParams(docInfo, docInfoDTO.getErrorCodeParams(), ParamStyleEnum.ERROR_CODE, user);
     }
 
-    private void saveOldSnapshot(DocInfoDTO docInfoDTO) {
-        DocInfo docInfo;
-        Long id = docInfoDTO.getId();
-        String dataId = docInfoDTO.buildDataId();
-        if (id != null) {
-            docInfo = getById(id);
-        } else {
-            docInfo = getByDataId(dataId);
-        }
-        if (docInfo == null) {
-            return;
-        }
-        ThreadPoolUtil.execute(() -> {
-            DocInfoDTO detail = this.getDocDetail(docInfo);
-            docSnapshotService.saveDocSnapshot(detail);
-        });
-    }
-
     private DocInfo saveBaseInfo(DocInfoDTO docInfoDTO, User user) {
         return this.insertDocInfo(docInfoDTO, user);
     }
@@ -462,8 +415,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
-    private DocInfo modifyDocInfo(DocInfoDTO docInfoDTO, User user) {
-        DocInfo docInfo = this.getById(docInfoDTO.getId());
+    private DocInfo modifyDocInfo(DocInfo docInfo, DocInfoDTO docInfoDTO, User user) {
         String descriptionOld = docInfo.getDescription();
         String descriptionNew = docInfoDTO.getDescription();
         String oldMd5 = docInfo.getMd5();
@@ -500,6 +452,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         NotNullStringBuilder content = new NotNullStringBuilder()
                 .append(docInfoDTO.getName())
                 .append(docInfoDTO.getDescription())
+                .append(docInfoDTO.getAuthor())
                 .append(docInfoDTO.getUrl())
                 .append(docInfoDTO.getHttpMethod())
                 .append(docInfoDTO.getParentId())
@@ -579,7 +532,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下面所有分类
-     *
      * @param moduleId 模块id
      * @return 返回分类
      */
@@ -606,7 +558,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 修改分类名称
-     *
      * @param updateDocFolderDTO
      */
     public void updateDocFolderName(UpdateDocFolderDTO updateDocFolderDTO) {
@@ -634,8 +585,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除文档
-     *
-     * @param id   文档注解
+     * @param id 文档注解
      * @param user 用户
      */
     public void deleteDocInfo(long id, User user) {
@@ -651,13 +601,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 创建文档分类，如果已存在，直接返回已存在的
-     *
      * @param folderName 分类名称
-     * @param moduleId   模块id
-     * @param user       操作人
+     * @param moduleId 模块id
+     * @param user 操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        return createDocFolder(folderName, moduleId, user, 0L);
+        return createDocFolder(folderName,  moduleId, user, 0L);
     }
 
     /**
@@ -708,7 +657,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除模块下所有文档
-     *
      * @param moduleId 模块id
      */
     public void deleteOpenAPIModuleDocs(long moduleId) {
@@ -729,16 +677,6 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
         // 删除文档对应的参数
         docParamService.deletePushParam(docIdList);
-    }
-
-    public DocRefDTO getDocRefInfo(long docId) {
-        DocRefDTO docRefDTO = new DocRefDTO();
-        DocInfo docInfo = getById(docId);
-        docRefDTO.setDocId(docId);
-        docRefDTO.setModuleId(docInfo.getModuleId());
-        Module module = moduleService.getById(docInfo.getModuleId());
-        docRefDTO.setProjectId(module.getProjectId());
-        return docRefDTO;
     }
 
     /**
