@@ -1,6 +1,6 @@
 <template>
   <div class="doc-view-container">
-    <el-tabs v-show="showDoc" v-model="active" @tab-click="onTabSelect">
+    <el-tabs v-if="showDoc" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document" /> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="infoItem" />
@@ -10,13 +10,13 @@
         <doc-debug :item="debugItem" />
       </el-tab-pane>
     </el-tabs>
-    <el-tabs v-show="showDubbo" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-if="showDubbo" v-model="active" type="card" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <dubbo-view ref="docView" :item="infoItem" :init-subscribe="false" />
       </el-tab-pane>
     </el-tabs>
-    <div v-show="showCustom">
+    <div v-if="showCustom">
       <doc-view-custom :doc-info="item" :show-opt-bar="false" :init-subscribe="false" />
     </div>
   </div>
@@ -33,7 +33,9 @@ export default {
     return {
       active: 'info',
       load: false,
-      item: {},
+      item: {
+        type: 0
+      },
       infoItem: {},
       debugItem: {},
       mockItem: {},

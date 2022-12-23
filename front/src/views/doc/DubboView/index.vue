@@ -191,7 +191,7 @@ export default {
       this.responseSuccessExample = this.doCreateResponseExample(data.responseParams)
     },
     buildDefinition(docInfo) {
-      let url = this.docInfo.url
+      let url = docInfo.url
       if (url && url.startsWith('/')) {
         url = url.substring(1)
       }

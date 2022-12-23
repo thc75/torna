@@ -1,6 +1,6 @@
 <template>
   <div class="doc-view-container">
-    <el-tabs v-show="showDoc" v-model="active" @tab-click="onTabSelect">
+    <el-tabs v-if="showDoc" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
         <doc-view ref="docView" :item="infoItem" />
@@ -14,13 +14,13 @@
         <mock :item="mockItem" />
       </el-tab-pane>
     </el-tabs>
-    <el-tabs v-show="showDubbo" v-model="active" type="card" @tab-click="onTabSelect">
+    <el-tabs v-if="showDubbo" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
-        <dubbo-view ref="docView" :item="infoItem" />
+        <dubbo-view ref="docView" />
       </el-tab-pane>
     </el-tabs>
-    <div v-show="showCustom">
+    <div v-if="showCustom">
       <doc-view-custom :doc-info="item" />
     </div>
   </div>
@@ -67,6 +67,11 @@ export default {
           this.item = data
           this.selectTab('info')
           this.setTitle(data.name)
+          if (this.item.type === this.getEnums().DOC_TYPE.DUBBO) {
+            this.$nextTick(() => {
+              this.$refs.docView.setData(this.item)
+            })
+          }
         })
       })
     } else {
