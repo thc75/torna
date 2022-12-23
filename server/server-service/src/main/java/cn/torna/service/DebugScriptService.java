@@ -1,7 +1,6 @@
 package cn.torna.service;
 
 import cn.torna.common.enums.DebugScriptScopeEnum;
-import cn.torna.common.enums.DebugScriptTypeEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.dao.entity.DebugScript;
 import cn.torna.dao.mapper.DebugScriptMapper;
@@ -19,10 +18,10 @@ import java.util.List;
 public class DebugScriptService extends BaseService<DebugScript, DebugScriptMapper> {
 
     @Autowired
-    private DocInfoService docInfoService;
+    private DocInfoProService docInfoProService;
 
     public List<DebugScript> list(Long docId) {
-        DocRefDTO docRefInfo = docInfoService.getDocRefInfo(docId);
+        DocRefDTO docRefInfo = docInfoProService.getDocRefInfo(docId);
         Query query = new Query();
         query.sql("(ref_id=? and scope=?) OR (ref_id=? and scope=?) OR (ref_id=? and scope=?)",
                 docRefInfo.getDocId(), DebugScriptScopeEnum.DOC.getScope(),

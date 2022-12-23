@@ -16,8 +16,8 @@ import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
-import cn.torna.common.enums.DocDiffModifySourceEnum;
 import cn.torna.common.enums.DocTypeEnum;
+import cn.torna.common.enums.SourceFromEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
@@ -26,14 +26,11 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
 import cn.torna.manager.tx.TornaTransactionManager;
-import cn.torna.service.DocDiffContext;
 import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
-import cn.torna.service.DocSnapshotService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.UserMessageService;
-import cn.torna.service.dto.DocDiffDTO;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocMeta;
@@ -280,7 +277,7 @@ public class DocApi {
                 return;
             }
             docInfoDTO.setModifierName(pushContext.getAuthor());
-            doDocModifyProcess(docInfoDTO, pushContext);
+            //doDocModifyProcess(docInfoDTO, pushContext);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user, BooleanUtils.toBoolean(docPushParam.getIsOverride()));
         }
     }
@@ -291,14 +288,24 @@ public class DocApi {
      * @param pushContext 推送上下文
      */
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        Optional<String> md5Opt = DocInfoService.getOldMd5(docInfoDTO.buildDataId(), pushContext.getDocMetas());
+        Optional<String> md5Opt = getOldMd5(docInfoDTO.buildDataId(), pushContext.getDocMetas());
         if (!md5Opt.isPresent()) {
             return;
         }
         ApiUser apiUser = new ApiUser();
         apiUser.setNickname(pushContext.getAuthor());
         String oldMd5 = md5Opt.get();
-        docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, DocDiffModifySourceEnum.PUSH, apiUser);
+        docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, SourceFromEnum.PUSH, apiUser);
+    }
+
+    public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {
+        if (CollectionUtils.isEmpty(docMetas)) {
+            return Optional.empty();
+        }
+        return docMetas.stream()
+                .filter(docMeta -> Objects.equals(dataId, docMeta.getDataId()))
+                .findFirst()
+                .map(DocMeta::getMd5);
     }
 
     private void processModifiedDocs(PushContext pushContext) {

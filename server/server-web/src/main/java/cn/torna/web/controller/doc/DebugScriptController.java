@@ -5,11 +5,10 @@ import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.DebugScriptScopeEnum;
-import cn.torna.common.enums.DebugScriptTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DebugScript;
 import cn.torna.service.DebugScriptService;
-import cn.torna.service.DocInfoService;
+import cn.torna.service.DocInfoProService;
 import cn.torna.service.dto.DocRefDTO;
 import cn.torna.web.controller.doc.param.DebugScriptAddParam;
 import cn.torna.web.controller.doc.param.DebugScriptUpdateParam;
@@ -35,7 +34,7 @@ public class DebugScriptController {
     private DebugScriptService debugScriptService;
 
     @Autowired
-    private DocInfoService docInfoService;
+    private DocInfoProService docInfoProService;
 
     @GetMapping("list")
     public Result<List<DebugScriptVO>> listPre(@HashId Long docId) {
@@ -58,7 +57,7 @@ public class DebugScriptController {
 
     private long getRefId(long docId, byte scope) {
         long refId = 0L;
-        DocRefDTO docRefInfo = docInfoService.getDocRefInfo(docId);
+        DocRefDTO docRefInfo = docInfoProService.getDocRefInfo(docId);
         switch (DebugScriptScopeEnum.of(scope)) {
             case DOC:
                 refId = docRefInfo.getDocId();

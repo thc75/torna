@@ -1,9 +1,8 @@
 package cn.torna.service;
-import com.alibaba.fastjson.JSONObject;
 
 import cn.torna.common.bean.User;
-import cn.torna.common.enums.DocDiffModifySourceEnum;
 import cn.torna.common.enums.ModifyType;
+import cn.torna.common.enums.SourceFromEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocDiffDetail;
@@ -16,7 +15,6 @@ import cn.torna.service.dto.DocDiffRecordDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.Sort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +42,6 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     @Autowired
     private DocDiffDetailService docDiffDetailService;
 
-    // TODO：获取修改记录
     /**
      * 获取修改记录
      * @param docId 文档id
@@ -91,18 +88,21 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     }
 
 
-    public void doDocDiff(String oldMd5, DocInfoDTO docInfoDTO, DocDiffModifySourceEnum sourceEnum, User user) {
+    public void doDocDiff(String oldMd5, DocInfoDTO docInfoDTO, SourceFromEnum sourceEnum, User user) {
         doDocDiffNow(oldMd5, docInfoDTO, sourceEnum, user, DocDiffContext::addQueue);
     }
 
     public boolean existRecord(String oldMd5, String newMd5) {
+        if (oldMd5 == null) {
+            return false;
+        }
         Query query = new Query()
                 .eq("md5_old", oldMd5)
                 .eq("md5_new", newMd5);
         return this.get(query) != null;
     }
 
-    public void doDocDiffNow(String oldMd5, DocInfoDTO docInfoDTO, DocDiffModifySourceEnum sourceEnum, User user, Consumer<DocDiffDTO> consumer) {
+    public void doDocDiffNow(String oldMd5, DocInfoDTO docInfoDTO, SourceFromEnum sourceEnum, User user, Consumer<DocDiffDTO> consumer) {
         String newMd5 = docInfoDTO.getMd5();
         boolean contentChanged = !Objects.equals(oldMd5, newMd5);
         // 文档内容被修改，做相关处理
@@ -146,7 +146,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         docDiffRecord.setDocId(docInfoDTO.getId());
         docDiffRecord.setMd5Old(docDiffDTO.getMd5Old());
         docDiffRecord.setMd5New(docDiffDTO.getMd5New());
-        docDiffRecord.setModifySource(docDiffDTO.getModifySource().getSource());
+        docDiffRecord.setModifySource(docDiffDTO.getSourceFromEnum().getSource());
         docDiffRecord.setModifyUserId(user.getUserId());
         docDiffRecord.setModifyNickname(user.getNickname());
         docDiffRecord.setModifyType(modifyType.getType());
