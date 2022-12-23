@@ -381,7 +381,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocAddEvent(docInfo));
+        SpringContext.publishEvent(new DocAddEvent(docInfo.getId()));
         return docInfo;
     }
 
@@ -392,7 +392,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocUpdateEvent(docInfo, oldMd5));
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5));
         return docInfo;
     }
 
