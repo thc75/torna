@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.19.3
+
+- 【修复】分享页面无法打开dubbo文档问题 [#I6768Y](https://gitee.com/durcframework/torna/issues/I6768Y)
+- 【优化】LDAP登录在自定义filter的情况不使用spring封装的template登录 [#I67767](https://gitee.com/durcframework/torna/issues/I67767)
+
 ## 1.19.2
 
 - 【修复】dubbo文档无法显示问题

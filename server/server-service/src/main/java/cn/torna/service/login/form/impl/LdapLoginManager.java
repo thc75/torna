@@ -32,6 +32,7 @@ import java.util.Hashtable;
 @Service
 public class LdapLoginManager implements ThirdPartyLoginManager {
 
+    public static final String DEFAULT_FILTER = "(&(objectClass=*)(uid=%s))";
 
     @Autowired
     private LdapTemplate ldapTemplate;
@@ -69,7 +70,7 @@ public class LdapLoginManager implements ThirdPartyLoginManager {
         String password = loginForm.getPassword();
         LdapUser ldapUser = ldapLogin(username, password);
         // 正常流程登录失败，再使用spring封装的登录
-        if (ldapUser == null) {
+        if (ldapUser == null && isDefaultFilter()) {
             ldapUser = ldapAuth(username, password);
         }
         if (ldapUser == null) {
@@ -90,6 +91,10 @@ public class LdapLoginManager implements ThirdPartyLoginManager {
         loginResult.setEmail(mail);
         loginResult.setUserInfoSourceEnum(UserInfoSourceEnum.LDAP);
         return loginResult;
+    }
+
+    private boolean isDefaultFilter() {
+        return DEFAULT_FILTER.equals(filter);
     }
 
     /**
