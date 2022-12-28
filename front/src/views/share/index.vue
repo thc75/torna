@@ -13,7 +13,7 @@
     <el-tabs v-if="showDubbo" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
         <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
-        <dubbo-view ref="docView" :show-opt-bar="false" :init-subscribe="false" />
+        <dubbo-view ref="docViewDubbo" :show-opt-bar="false" :init-subscribe="false" />
       </el-tab-pane>
     </el-tabs>
     <div v-if="showCustom">
@@ -34,7 +34,7 @@ export default {
       active: 'info',
       load: false,
       item: {
-        type: -1
+        type: 0
       },
       infoItem: {},
       debugItem: {},
@@ -68,7 +68,7 @@ export default {
           this.showDebug()
           if (this.item.type === this.getEnums().DOC_TYPE.DUBBO) {
             this.$nextTick(() => {
-              this.$refs.docView.setData(this.item)
+              this.$refs.docViewDubbo.setData(this.item)
             })
           }
         })
