@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.19.4
+
+- 【修复】分享页面无法显示文档信息
+
 ## 1.19.3
 
 - 【修复】分享页面无法打开dubbo文档问题 [#I6768Y](https://gitee.com/durcframework/torna/issues/I6768Y)
