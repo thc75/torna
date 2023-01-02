@@ -22,8 +22,8 @@
   </div>
 </template>
 <script>
-import DocView from '../doc/DocView'
-import DubboView from '../doc/DubboView'
+import DocView from '@/components/DocView'
+import DubboView from '@/components/DubboView'
 import DocDebug from '@/components/DocDebug'
 import DocViewCustom from '@/components/DocViewCustom'
 

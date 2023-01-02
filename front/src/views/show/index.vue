@@ -24,7 +24,7 @@
   </div>
 </template>
 <script>
-import DocView from '../doc/DocView'
+import DocView from '@/components/DocView'
 import DocDebug from '@/components/DocDebug'
 import { mavonEditor } from 'mavon-editor'
 
