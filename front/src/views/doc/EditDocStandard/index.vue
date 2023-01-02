@@ -241,7 +241,7 @@
 }
 </style>
 <script>
-import DocView from '../DocView'
+import DocView from '@/components/DocView'
 import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
 import { init_docInfo_complete_view } from '@/utils/common'
