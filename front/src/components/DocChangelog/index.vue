@@ -4,31 +4,43 @@
       <el-timeline-item
         v-for="(item, index) in list"
         :key="index"
-        :timestamp="item.gmtCreate"
-        placement="top"
       >
+        <h3>{{ item.gmtCreate }}</h3>
         <span class="doc-modify-info">
-          {{ $ts('modifier') }}：{{ item.modifyNickname }}
-          <el-button style="float: right; padding: 0;margin-right: 10px" type="text">还原</el-button>
-          <el-button style="float: right; padding: 0;margin-right: 10px" type="text">对比</el-button>
+          <el-tag v-if="item.modifyType === 1" size="medium" :type="getTagType(item.modifyType)" :closabl="false">
+            {{ getDocModifyTypeName(item.modifyType) }}
+          </el-tag>
+          {{ item.modifyType === 1 ? $ts('creator') : $ts('modifier') }}：{{ item.modifyNickname }}
+          <div v-show="index > 0" style="display: inline;">
+<!--            <el-popconfirm-->
+<!--              :title="$ts('confirmRestore')"-->
+<!--            >-->
+<!--              <el-button slot="reference" style="float: right; padding: 0;margin-right: 10px" type="text" @click="restoreDoc(item)">-->
+<!--                {{ $ts('restore') }}-->
+<!--              </el-button>-->
+<!--            </el-popconfirm>-->
+            <el-button style="float: right; padding: 0;margin-right: 10px" type="text" @click="showCompare(item)">
+              {{ $ts('viewDoc') }}
+            </el-button>
+          </div>
         </span>
-        <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
-        <div>
+        <div v-show="item.docDiffDetails && item.docDiffDetails.length > 0">
+          <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
           <div v-for="detail in item.docDiffDetails" :key="detail.id" class="changelog-item">
             <div class="changelog-item-label">
-              <el-tag size="mini" :type="getTagType(detail.modifyType)" :closabl="false">{{ getModifyTypeName(detail.modifyType) }}</el-tag>
               <span class="position-type">{{ getI18nName(detail.positionType) }}</span>
             </div>
             <div v-if="isDocInfoChange(detail.positionType)" class="inline">
               <doc-changelog-simple-diff :value="detail.content.value" />
             </div>
             <div v-else>
-              <doc-changelog-param-diff :content="detail.content" />
+              <doc-changelog-param-diff :detail="detail" />
             </div>
           </div>
         </div>
       </el-timeline-item>
     </el-timeline>
+    <doc-compare ref="docCompare" />
   </div>
 </template>
 <style>
@@ -44,6 +56,7 @@
 import { Enums, PositionNameMap } from '@/utils/enums'
 import DocChangelogSimpleDiff from '@/components/DocChangelogSimpleDiff'
 import DocChangelogParamDiff from '@/components/DocChangelogParamDiff'
+import DocCompare from '@/components/DocCompare'
 const POSITION_TYPE = Enums.POSITION_TYPE
 // { '0': 'DOC_NAME' }
 const positionConfig = {}
@@ -52,29 +65,45 @@ for (const key in POSITION_TYPE) {
   positionConfig['' + value] = key
 }
 
+$addI18n({
+  confirmRestore: { zh: '确认还原到此版本吗？', en: 'Restore this version?' }
+})
+
 export default {
   name: 'DocChangelog',
-  components: { DocChangelogSimpleDiff, DocChangelogParamDiff },
+  components: { DocChangelogSimpleDiff, DocChangelogParamDiff, DocCompare },
   data() {
     return {
-      list: []
+      list: [],
+      docId: ''
     }
   },
   methods: {
     show(docId) {
       if (docId) {
+        this.docId = docId
         this.get('/doc/changelog/list', { docId: docId }, resp => {
           this.list = resp.data
         })
       }
     },
-    getModifyTypeName(type) {
+    getDocModifyTypeName(type) {
+      // 变更类型，0：修改，1：创建
+      switch (type) {
+        case 0:
+          return $ts('update')
+        case 1:
+          return $ts('create')
+      }
+      return ''
+    },
+    getParamModifyTypeName(type) {
       // 变更类型，0：修改，1：新增，2：删除
       switch (type) {
         case 0:
           return $ts('update')
         case 1:
-          return $ts('add')
+          return $ts('newAdd')
         case 2:
           return $ts('delete')
       }
@@ -98,6 +127,11 @@ export default {
     getI18nName(positionType) {
       const name = positionConfig['' + positionType]
       return $ts(PositionNameMap[name])
+    },
+    showCompare(record) {
+      this.$refs.docCompare.show(record.md5New, this.docId)
+    },
+    restoreDoc(item) {
     }
   }
 }

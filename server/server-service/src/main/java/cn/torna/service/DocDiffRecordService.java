@@ -42,6 +42,9 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     @Autowired
     private DocDiffDetailService docDiffDetailService;
 
+    @Autowired
+    private DocInfoService docInfoService;
+
     /**
      * 获取修改记录
      * @param docId 文档id
@@ -152,6 +155,20 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         docDiffRecord.setModifyType(modifyType.getType());
         this.save(docDiffRecord);
         return docDiffRecord;
+    }
+
+    /**
+     * 还原
+     * @param id
+     */
+    public void restore(Long id, User user) {
+        Objects.requireNonNull(id);
+        DocDiffRecord docDiffRecord = getById(id);
+        String md5New = docDiffRecord.getMd5New();
+        DocSnapshot docSnapshot = docSnapshotService.getByMd5(md5New);
+        String content = docSnapshot.getContent();
+        DocInfoDTO docInfoDTO = JSON.parseObject(content, DocInfoDTO.class);
+        docInfoService.doUpdateDocInfo(docInfoDTO, user);
     }
 
 }

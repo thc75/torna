@@ -2,6 +2,12 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'historyVersion': 'History Version',
+  'currentDoc': 'Current Doc',
+  'restore': 'Restore',
+  'compare': 'Compare',
+  'newAdd': 'Add',
+  'create': 'Creation',
   'changeContent': 'Change Content',
   'contentType': 'ContentType',
   'queryParam': 'Query Param',

@@ -182,7 +182,7 @@ h4 .content {
 import DocChangelogDrawer from '@/components/DocChangelogDrawer'
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
-import DocDiff from '../DocDiff'
+import DocDiff from '@/components/DocDiff'
 import ConstView from '@/components/ConstView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'

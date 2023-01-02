@@ -2,6 +2,9 @@ package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
+import cn.torna.common.bean.User;
+import cn.torna.common.context.UserContext;
+import cn.torna.dao.entity.DocDiffRecord;
 import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.dto.DocDiffRecordDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,13 @@ public class DocChangelogController {
     public Result<List<DocDiffRecordDTO>> list(@HashId Long docId) {
         List<DocDiffRecordDTO> docDiffRecordDTOS = docDiffRecordService.listDocDiff(docId);
         return Result.ok(docDiffRecordDTOS);
+    }
+
+    @GetMapping("restore")
+    public Result restore(@HashId Long id) {
+        User user = UserContext.getUser();
+        docDiffRecordService.restore(id, user);
+        return Result.ok();
     }
 
 }

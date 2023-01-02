@@ -12,6 +12,8 @@ import cn.torna.service.event.DocUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author thc
  */
@@ -38,10 +40,14 @@ public class DocUpdateListener extends DefaultDocUpdateListener {
         docSnapshotService.saveDocSnapshot(docInfoDTO);
 
         // 2. 创建对比记录
+        String oldMd5 = event.getOldMd5();
+        String newMd5 = docInfoDTO.getMd5();
+        if (Objects.equals(oldMd5, newMd5)) {
+            return;
+        }
         Long modifierId = docInfoDTO.getModifierId();
         User user = userCacheManager.getUser(modifierId);
-        String oldMd5 = event.getOldMd5();
-        DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, docInfoDTO.getMd5(), user, event.getSourceFromEnum());
+        DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, newMd5, user, event.getSourceFromEnum());
         DocDiffContext.addQueue(docDiffDTO);
     }
 }
