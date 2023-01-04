@@ -59,6 +59,8 @@ public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
 
     private Byte isLocked;
 
+    private Byte status;
+
     private Integer orderIndex;
 
     private LocalDateTime gmtCreate;

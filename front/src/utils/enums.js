@@ -113,6 +113,7 @@ export const Enums = {
     QUERY_PARAM: 10,
     REQUEST_PARAM: 11,
     RESPONSE_PARAM: 12,
+    STATUS: 13,
 
     PARAM_NAME: 50,
     PARAM_TYPE: 51,
@@ -120,7 +121,12 @@ export const Enums = {
     PARAM_MAXLENGTH: 53,
     PARAM_DESCRIPTION: 54,
     PARAM_EXAMPLE: 55
-  }
+  },
+  DOC_STATUS: [
+    { label: 'todo', value: 0, type: 'info' },
+    { label: 'doing', value: 5, type: 'warning' },
+    { label: 'done', value: 10, type: 'success' }
+  ]
 }
 
 export const PositionNameMap = {
@@ -137,6 +143,7 @@ export const PositionNameMap = {
   QUERY_PARAM: 'queryParam',
   REQUEST_PARAM: 'requestParams',
   RESPONSE_PARAM: 'responseParam',
+  STATUS: 'status',
 
   PARAM_NAME: 'paramName',
   PARAM_TYPE: 'type',

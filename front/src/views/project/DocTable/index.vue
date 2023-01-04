@@ -121,6 +121,29 @@
         </template>
       </u-table-column>
       <u-table-column
+        prop="status"
+        :label="$ts('status')"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <div v-if="!isFolder(scope.row)">
+            <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <el-tag :type="getStatusType(scope.row.status)">{{ getStatusName(scope.row.status) }}</el-tag>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="item in getEnums().DOC_STATUS" :key="item.value" :command="() => onUpdateStatus(scope.row, item.value)">
+                  <el-tag :type="getStatusType(item.value)">{{ $ts(item.label) }}</el-tag>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <span v-else>
+              <el-tag :type="getStatusType(scope.row.status)">{{ getStatusName(scope.row.status) }}</el-tag>
+            </span>
+          </div>
+        </template>
+      </u-table-column>
+      <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         :label="$ts('operation')"
         :width="$width(160, { 'en': 190 })"
@@ -256,6 +279,9 @@ export default {
         name: [
           { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
+      },
+      statusMap: {
+
       }
     }
   },
@@ -270,6 +296,7 @@ export default {
     }
   },
   created() {
+    this.initStatus()
     this.initHeight()
     window.addEventListener('resize', this.initHeight)
   },
@@ -283,6 +310,33 @@ export default {
     window.removeEventListener('resize', this.initHeight)
   },
   methods: {
+    onUpdateStatus(row, status) {
+      if (row.status === status) {
+        return
+      }
+      this.post('/doc/pro/status/update', {
+        id: row.id,
+        status: status
+      }, resp => {
+        row.status = status
+        this.tipSuccess($ts('operateSuccess'))
+      });
+    },
+    getStatusName(status) {
+      const info = this.statusMap[status + '']
+      return info ? $ts(info.label) : '未知状态'
+    },
+    getStatusType(status) {
+      const info = this.statusMap[status + '']
+      return info ? info.type : ''
+    },
+    initStatus() {
+      const map = {}
+      for (const statusInfo of this.getEnums().DOC_STATUS) {
+        map[statusInfo.value + ''] = statusInfo
+      }
+      this.statusMap = map
+    },
     refreshTable() {
       this.loadTable(function() {
         this.tipSuccess(this.$ts('refreshSuccess'))

@@ -24,6 +24,7 @@ public enum PositionType {
     QUERY_PARAM((byte) 10),
     REQUEST_PARAM((byte) 11),
     RESPONSE_PARAM((byte) 12),
+    STATUS((byte) 13),
 
     PARAM_NAME((byte) 50),
     PARAM_TYPE((byte) 51),

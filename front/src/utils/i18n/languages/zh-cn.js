@@ -2,6 +2,9 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'todo': '未完成',
+  'doing': '进行中',
+  'done': '已完成',
   'historyVersion': '历史版本',
   'currentDoc': '当前文档',
   'restore': '还原',

@@ -42,11 +42,12 @@ public class UpgradeProService extends UpgradeService {
 
 
     private void doUpgradePro(int oldVersion) {
-        if (oldVersion < 10) {
+        if (oldVersion < 20000) {
             createTable("doc_snapshot", "upgrade/pro/2.0_ddl_doc_snapshot.txt");
             createTable("debug_script", "upgrade/pro/2.0_ddl_debug_script.txt");
             createTable("doc_diff_record", "upgrade/pro/2.0_ddl_doc_diff_record.txt");
             createTable("doc_diff_detail", "upgrade/pro/2.0_ddl_doc_diff_detail.txt");
+            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '10' COMMENT '文档状态' AFTER `is_locked`");
         }
     }
 

@@ -108,6 +108,10 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private Byte isLocked;
 
+    /** 文档状态 */
+    @Diff(positionType = PositionType.STATUS)
+    private Byte status;
+
     private String remark;
 
     private Integer orderIndex;

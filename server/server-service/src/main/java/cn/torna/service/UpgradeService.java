@@ -453,7 +453,7 @@ public class UpgradeService {
      * @param sql 添加字段sql
      * @return 返回true，插入成功
      */
-    private boolean addColumn(String tableName, String columnName, String sql) {
+    protected boolean addColumn(String tableName, String columnName, String sql) {
         if (isColumnExist(tableName, columnName)) {
             return false;
         }
