@@ -25,17 +25,19 @@
               </el-button>
             </div>
           </span>
-          <div v-show="item.docDiffDetails && item.docDiffDetails.length > 0">
+          <div v-show="item.docDiffWrappers && item.docDiffWrappers.length > 0">
             <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
-            <div v-for="detail in item.docDiffDetails" :key="detail.id" class="changelog-item">
+            <div v-for="wrapper in item.docDiffWrappers" :key="wrapper.positionType">
               <div class="changelog-item-label">
-                <span class="position-type">{{ getI18nName(detail.positionType) }}</span>
+                <span class="position-type">{{ getI18nName(wrapper.positionType) }}</span>
               </div>
-              <div v-if="isDocInfoChange(detail.positionType)" class="inline">
-                <doc-changelog-simple-diff :value="detail.content.value" />
-              </div>
-              <div v-else>
-                <doc-changelog-param-diff :detail="detail" />
+              <div v-for="detail in wrapper.docDiffDetails" :key="detail.id" class="changelog-item">
+                <div v-if="isDocInfoChange(detail.positionType)" class="inline">
+                  <doc-changelog-simple-diff :value="detail.content.value" />
+                </div>
+                <div v-else>
+                  <doc-changelog-param-diff :detail="detail" />
+                </div>
               </div>
             </div>
           </div>
@@ -47,11 +49,14 @@
 </template>
 <style>
 .changelog-item-label {
-  margin: 5px 0;
+  margin: 8px 0;
   display: inline-block;
 }
 .position-type {
   font-weight: bold;
+}
+.changelog-item {
+  margin: 5px 0;
 }
 </style>
 <script>

@@ -53,6 +53,7 @@ public class DocDiffRecordDTO {
     private LocalDateTime gmtCreate;
 
 
-    private List<DocDiffDetailDTO> docDiffDetails;
+    private List<DocDiffDetailWrapperDTO> docDiffWrappers;
+
 
 }

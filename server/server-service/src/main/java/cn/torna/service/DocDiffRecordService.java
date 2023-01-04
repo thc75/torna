@@ -11,6 +11,7 @@ import cn.torna.dao.entity.DocSnapshot;
 import cn.torna.dao.mapper.DocDiffRecordMapper;
 import cn.torna.service.dto.DocDiffDTO;
 import cn.torna.service.dto.DocDiffDetailDTO;
+import cn.torna.service.dto.DocDiffDetailWrapperDTO;
 import cn.torna.service.dto.DocDiffRecordDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
@@ -67,10 +68,22 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
                     DocDiffRecordDTO docDiffRecordDTO = CopyUtil.copyBean(docDiffRecord, DocDiffRecordDTO::new);
                     List<DocDiffDetail> docDiffDetailList = recordDetailMap.get(docDiffRecord.getId());
                     List<DocDiffDetailDTO> details = buildDocDiffDetails(docDiffDetailList);
-                    docDiffRecordDTO.setDocDiffDetails(details);
+                    List<DocDiffDetailWrapperDTO> wrapper = buildWrappers(details);
+                    docDiffRecordDTO.setDocDiffWrappers(wrapper);
                     return docDiffRecordDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    // 根据positionType分类
+    private List<DocDiffDetailWrapperDTO> buildWrappers(List<DocDiffDetailDTO> details) {
+        return details.stream()
+                .collect(Collectors.groupingBy(DocDiffDetailDTO::getPositionType))
+                .entrySet()
+                .stream()
+                .map(entry -> new DocDiffDetailWrapperDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
     }
 
     private List<DocDiffDetailDTO> buildDocDiffDetails(List<DocDiffDetail> docDiffDetailList) {

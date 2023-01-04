@@ -9,6 +9,8 @@ import cn.torna.service.DocSnapshotService;
 import cn.torna.service.dto.DocDiffDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.event.DocUpdateEvent;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,8 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class DocUpdateListener extends DefaultDocUpdateListener {
 
+    private Interner<String> interner = Interners.newWeakInterner();
+
     @Autowired
     private DocSnapshotService docSnapshotService;
 
@@ -33,7 +37,7 @@ public class DocUpdateListener extends DefaultDocUpdateListener {
 
     @Override
     public void onApplicationEvent(DocUpdateEvent event) {
-        synchronized (String.valueOf(event.getDocId()).intern()) {
+        synchronized (interner.intern(String.valueOf(event.getDocId()))) {
             // 1. 先保存快照
             DocInfoDTO docInfoDTO = docInfoService.getDocDetail(event.getDocId());
             // 自定义文档不参与

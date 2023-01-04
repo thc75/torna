@@ -1,6 +1,6 @@
 <template>
   <div class="rich-editor">
-    <table>
+    <table class="changelog-table">
       <tr>
         <th colspan="2">
           <el-tag size="mini" :type="getTagType(detail.modifyType)" :closabl="false">
@@ -18,6 +18,12 @@
     </table>
   </div>
 </template>
+<style>
+.changelog-table {
+  color: #606266;
+  font-size: 13px;
+}
+</style>
 <script>
 import { PositionNameMap } from '@/utils/enums'
 export default {

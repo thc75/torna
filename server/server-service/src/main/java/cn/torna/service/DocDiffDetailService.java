@@ -95,7 +95,7 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
             diffConfig.setIgnoreParamFields(ignoreFields);
         }
         if (Objects.equals(name, "headerParams")) {
-            diffConfig.appendIgnoreParamFields("maxLength");
+            diffConfig.appendIgnoreParamFields("type", "maxLength");
         }
         Objects.requireNonNull(diff, "diff can not null");
         Object valueOld = ReflectionUtils.getField(field, docInfoOld);

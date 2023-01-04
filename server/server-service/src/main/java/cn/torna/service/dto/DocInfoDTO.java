@@ -34,9 +34,11 @@ public class DocInfoDTO implements DocInfoDataId {
     private Byte type;
 
     /** 访问URL, 数据库字段：url */
+    @Diff(positionType = PositionType.DOC_URL)
     private String url;
 
     /** http方法, 数据库字段：http_method */
+    @Diff(positionType = PositionType.DOC_HTTP_METHOD)
     private String httpMethod;
 
     /** contentType, 数据库字段：content_type */
