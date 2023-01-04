@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author thc
@@ -31,23 +33,25 @@ public class DocUpdateListener extends DefaultDocUpdateListener {
 
     @Override
     public void onApplicationEvent(DocUpdateEvent event) {
-        // 1. 先保存快照
-        DocInfoDTO docInfoDTO = docInfoService.getDocDetail(event.getDocId());
-        // 自定义文档不参与
-        if (docInfoDTO.getType() == DocTypeEnum.CUSTOM.getType()) {
-            return;
-        }
-        docSnapshotService.saveDocSnapshot(docInfoDTO);
+        synchronized (String.valueOf(event.getDocId()).intern()) {
+            // 1. 先保存快照
+            DocInfoDTO docInfoDTO = docInfoService.getDocDetail(event.getDocId());
+            // 自定义文档不参与
+            if (docInfoDTO.getType() == DocTypeEnum.CUSTOM.getType()) {
+                return;
+            }
+            docSnapshotService.saveDocSnapshot(docInfoDTO);
 
-        // 2. 创建对比记录
-        String oldMd5 = event.getOldMd5();
-        String newMd5 = docInfoDTO.getMd5();
-        if (Objects.equals(oldMd5, newMd5)) {
-            return;
+            // 2. 创建对比记录
+            String oldMd5 = event.getOldMd5();
+            String newMd5 = docInfoDTO.getMd5();
+            if (Objects.equals(oldMd5, newMd5)) {
+                return;
+            }
+            Long modifierId = docInfoDTO.getModifierId();
+            User user = userCacheManager.getUser(modifierId);
+            DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, newMd5, user, event.getSourceFromEnum());
+            DocDiffContext.addQueue(docDiffDTO);
         }
-        Long modifierId = docInfoDTO.getModifierId();
-        User user = userCacheManager.getUser(modifierId);
-        DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, newMd5, user, event.getSourceFromEnum());
-        DocDiffContext.addQueue(docDiffDTO);
     }
 }

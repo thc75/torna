@@ -8,7 +8,6 @@
     >
       <el-row :gutter="10">
         <el-col :span="24">
-          <el-divider content-position="center">{{ $ts('historyVersion') }}</el-divider>
           <doc-view ref="docViewOld" :show-opt-bar="false" :init-subscribe="false" />
         </el-col>
 <!--        <el-col :span="12">-->

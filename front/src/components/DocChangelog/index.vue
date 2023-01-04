@@ -6,38 +6,40 @@
         :key="index"
       >
         <h3>{{ item.gmtCreate }}</h3>
-        <span class="doc-modify-info">
-          <el-tag v-if="item.modifyType === 1" size="medium" :type="getTagType(item.modifyType)" :closabl="false">
-            {{ getDocModifyTypeName(item.modifyType) }}
-          </el-tag>
-          {{ item.modifyType === 1 ? $ts('creator') : $ts('modifier') }}：{{ item.modifyNickname }}
-          <div v-show="index > 0" style="display: inline;">
-<!--            <el-popconfirm-->
-<!--              :title="$ts('confirmRestore')"-->
-<!--            >-->
-<!--              <el-button slot="reference" style="float: right; padding: 0;margin-right: 10px" type="text" @click="restoreDoc(item)">-->
-<!--                {{ $ts('restore') }}-->
-<!--              </el-button>-->
-<!--            </el-popconfirm>-->
-            <el-button style="float: right; padding: 0;margin-right: 10px" type="text" @click="showCompare(item)">
-              {{ $ts('viewDoc') }}
-            </el-button>
+        <el-card style="margin-right: 10px">
+          <span class="doc-modify-info">
+            <el-tag v-if="item.modifyType === 1" size="medium" :type="getTagType(item.modifyType)" :closabl="false">
+              {{ getDocModifyTypeName(item.modifyType) }}
+            </el-tag>
+            {{ item.modifyType === 1 ? $ts('creator') : $ts('modifier') }}：{{ item.modifyNickname }}
+            <div style="display: inline;">
+  <!--            <el-popconfirm-->
+              <!--              :title="$ts('confirmRestore')"-->
+              <!--            >-->
+              <!--              <el-button slot="reference" style="float: right; padding: 0;margin-left: 10px" type="text" @click="restoreDoc(item)">-->
+              <!--                {{ $ts('restore') }}-->
+              <!--              </el-button>-->
+              <!--            </el-popconfirm>-->
+              <el-button style="float: right; padding: 0;margin-left: 10px" type="text" @click="showCompare(item)">
+                {{ $ts('viewDoc') }}
+              </el-button>
+            </div>
+          </span>
+          <div v-show="item.docDiffDetails && item.docDiffDetails.length > 0">
+            <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
+            <div v-for="detail in item.docDiffDetails" :key="detail.id" class="changelog-item">
+              <div class="changelog-item-label">
+                <span class="position-type">{{ getI18nName(detail.positionType) }}</span>
+              </div>
+              <div v-if="isDocInfoChange(detail.positionType)" class="inline">
+                <doc-changelog-simple-diff :value="detail.content.value" />
+              </div>
+              <div v-else>
+                <doc-changelog-param-diff :detail="detail" />
+              </div>
+            </div>
           </div>
-        </span>
-        <div v-show="item.docDiffDetails && item.docDiffDetails.length > 0">
-          <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
-          <div v-for="detail in item.docDiffDetails" :key="detail.id" class="changelog-item">
-            <div class="changelog-item-label">
-              <span class="position-type">{{ getI18nName(detail.positionType) }}</span>
-            </div>
-            <div v-if="isDocInfoChange(detail.positionType)" class="inline">
-              <doc-changelog-simple-diff :value="detail.content.value" />
-            </div>
-            <div v-else>
-              <doc-changelog-param-diff :detail="detail" />
-            </div>
-          </div>
-        </div>
+        </el-card>
       </el-timeline-item>
     </el-timeline>
     <doc-compare ref="docCompare" />
@@ -66,7 +68,8 @@ for (const key in POSITION_TYPE) {
 }
 
 $addI18n({
-  confirmRestore: { zh: '确认还原到此版本吗？', en: 'Restore this version?' }
+  confirmRestore: { zh: '确认还原到此版本吗？', en: 'Restore this version?' },
+  currentVersion: { zh: '当前版本', en: 'Current version' }
 })
 
 export default {

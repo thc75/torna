@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.annotation.Diff;
+import cn.torna.common.bean.Configs;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.BaseService;
@@ -12,6 +13,8 @@ import cn.torna.service.dto.DocParamDTO;
 import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -42,7 +45,6 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
      */
     public void doCompare(DocInfoDTO docInfoOld, DocInfoDTO docInfoNew, DocDiffRecord docDiffRecord) {
         List<DocDiffDetail> docDiffDetails = new ArrayList<>();
-
         ReflectionUtils.doWithFields(docInfoOld.getClass(), field -> {
             List<DiffBean> diffBeans = buildDocDiffBeans(field, docInfoOld, docInfoNew);
             for (DiffBean diffBean : diffBeans) {
@@ -84,8 +86,17 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
 
     private static List<DiffBean> buildDocDiffBeans(Field field, DocInfoDTO docInfoOld, DocInfoDTO docInfoNew) {
         field.setAccessible(true);
-        String name = field.getName();
         Diff diff = AnnotationUtils.getAnnotation(field, Diff.class);
+        String name = field.getName();
+        DiffConfig diffConfig = new DiffConfig(diff);
+        if (Objects.equals(name, "responseParams")) {
+            String value = Configs.getValue("torna.view-config.response-hidden-columns", "");
+            String[] ignoreFields = value.split(",");
+            diffConfig.setIgnoreParamFields(ignoreFields);
+        }
+        if (Objects.equals(name, "headerParams")) {
+            diffConfig.appendIgnoreParamFields("maxLength");
+        }
         Objects.requireNonNull(diff, "diff can not null");
         Object valueOld = ReflectionUtils.getField(field, docInfoOld);
         Object valueNew = ReflectionUtils.getField(field, docInfoNew);
@@ -97,7 +108,7 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
             }
             docParamDTOListOld = flatParams(docParamDTOListOld);
             docParamDTOListNew = flatParams(docParamDTOListNew);
-            return buildDocParamDiffBeans(diff, docParamDTOListOld, docParamDTOListNew);
+            return buildDocParamDiffBeans(diffConfig, docParamDTOListOld, docParamDTOListNew);
         }
         ModifyType modifyType = buildModifyType(valueOld, valueNew);
         DiffBean diffBean = new DiffBean();
@@ -125,7 +136,7 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
         }
     }
 
-    private static List<DiffBean> buildDocParamDiffBeans(Diff diff, List<DocParamDTO> docParamDTOListOld, List<DocParamDTO> docParamDTOListNew) {
+    private static List<DiffBean> buildDocParamDiffBeans(DiffConfig diffConfig, List<DocParamDTO> docParamDTOListOld, List<DocParamDTO> docParamDTOListNew) {
         List<DiffBean> diffBeans = new ArrayList<>();
         // key：字段名称
         Map<String, DocParamDTO> paramOldMap = docParamDTOListOld.stream()
@@ -148,9 +159,9 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
         // 新的移除老的，剩下就是新增的
         addList.removeAll(paramOldMap.keySet());
 
-        List<DiffBean> diffBeanUpdateList = buildParamDiffBeans(diff, ModifyType.UPDATE, paramOldMap, paramNewMap, updateList);
-        List<DiffBean> diffBeanRemoveList = buildParamDiffBeans(diff, ModifyType.DELETE, paramOldMap, paramNewMap, removeList);
-        List<DiffBean> diffBeanAddList = buildParamDiffBeans(diff, ModifyType.ADD, paramOldMap, paramNewMap, addList);
+        List<DiffBean> diffBeanUpdateList = buildParamDiffBeans(diffConfig, ModifyType.UPDATE, paramOldMap, paramNewMap, updateList);
+        List<DiffBean> diffBeanRemoveList = buildParamDiffBeans(diffConfig, ModifyType.DELETE, paramOldMap, paramNewMap, removeList);
+        List<DiffBean> diffBeanAddList = buildParamDiffBeans(diffConfig, ModifyType.ADD, paramOldMap, paramNewMap, addList);
 
         diffBeans.addAll(diffBeanUpdateList);
         diffBeans.addAll(diffBeanRemoveList);
@@ -160,7 +171,7 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
     }
 
     private static List<DiffBean> buildParamDiffBeans(
-            Diff diff,
+            DiffConfig diffConfig,
             ModifyType modifyType,
             Map<String, DocParamDTO> paramOldMap,
             Map<String, DocParamDTO> paramNewMap,
@@ -168,12 +179,14 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
         if (CollectionUtils.isEmpty(names)) {
             return Collections.emptyList();
         }
+        Diff diff = diffConfig.getDiff();
         List<DiffBean> diffBeans = new ArrayList<>(names.size());
+        String[] ignoreFields = diffConfig.getIgnoreParamFields();
         for (String name : names) {
             DocParamDTO docParamOld = paramOldMap.get(name);
             DocParamDTO docParamNew = paramNewMap.get(name);
-            Map<String, Object> valueOld = buildParamValue(docParamOld);
-            Map<String, Object> valueNew = buildParamValue(docParamNew);
+            Map<String, Object> valueOld = buildParamValue(ignoreFields, docParamOld);
+            Map<String, Object> valueNew = buildParamValue(ignoreFields, docParamNew);
 
             removeSaveValue(valueOld, valueNew);
             // 如果都为空，表示没有改动
@@ -208,7 +221,7 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
         }
     }
 
-    private static Map<String, Object> buildParamValue(DocParamDTO docParamDTO) {
+    private static Map<String, Object> buildParamValue(String[] ignoreFields, DocParamDTO docParamDTO) {
         if (docParamDTO == null) {
             return Collections.emptyMap();
         }
@@ -218,7 +231,7 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
             Diff diff = AnnotationUtils.getAnnotation(field, Diff.class);
             Object value = ReflectionUtils.getField(field, docParamDTO);
             valueMap.put(diff.positionType().getTypeName(), value);
-        }, field -> AnnotationUtils.getAnnotation(field, Diff.class) != null);
+        }, field -> AnnotationUtils.getAnnotation(field, Diff.class) != null && !ArrayUtils.contains(ignoreFields, field.getName()));
         return valueMap;
     }
 
@@ -265,6 +278,22 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
     private static class OldNewValue {
         private Object oldValue;
         private Object newValue;
+    }
+
+    @NoArgsConstructor
+    @Data
+    private static class DiffConfig {
+
+        public DiffConfig(Diff diff) {
+            this.diff = diff;
+        }
+
+        private Diff diff;
+        private String[] ignoreParamFields = {};
+
+        public void appendIgnoreParamFields(String... fields) {
+            this.ignoreParamFields = ArrayUtils.addAll(this.ignoreParamFields, fields);
+        }
     }
 
 }
