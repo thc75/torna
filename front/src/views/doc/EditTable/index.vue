@@ -99,7 +99,7 @@
             prop="description"
             label-width="0"
           >
-            <el-input v-model="scope.row.description" :placeholder="descriptionLabel" maxlength="512" show-word-limit />
+            <el-input v-model="scope.row.description" :placeholder="descriptionLabel" />
           </el-form-item>
         </el-form>
       </template>
@@ -113,9 +113,7 @@
         <el-input
           v-model="scope.row.example"
           :placeholder="exampleLabel"
-          maxlength="128"
           size="mini"
-          show-word-limit
         />
       </template>
     </el-table-column>
