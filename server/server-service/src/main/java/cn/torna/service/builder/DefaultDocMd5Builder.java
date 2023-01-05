@@ -1,4 +1,4 @@
-package cn.torna.service;
+package cn.torna.service.builder;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.service.dto.DocInfoDTO;
