@@ -35,13 +35,11 @@ import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
 import cn.torna.service.event.DocAddEvent;
 import cn.torna.service.event.DocUpdateEvent;
-import cn.torna.service.login.NotNullStringBuilder;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
 import com.gitee.fastmybatis.core.util.MapperUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -452,58 +449,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public static String getDocMd5(DocInfoDTO docInfoDTO) {
-        NotNullStringBuilder content = new NotNullStringBuilder()
-                .append(docInfoDTO.getName())
-                .append(docInfoDTO.getDescription())
-                .append(docInfoDTO.getAuthor())
-                .append(docInfoDTO.getUrl())
-                .append(docInfoDTO.getHttpMethod())
-                .append(docInfoDTO.getParentId())
-                .append(docInfoDTO.getModuleId())
-                .append(docInfoDTO.getProjectId())
-                .append(docInfoDTO.getIsUseGlobalHeaders())
-                .append(docInfoDTO.getIsUseGlobalParams())
-                .append(docInfoDTO.getIsUseGlobalReturns())
-                .append(docInfoDTO.getIsRequestArray())
-                .append(docInfoDTO.getIsResponseArray())
-                .append(docInfoDTO.getRemark())
-                .append(getDocParamsMd5(docInfoDTO))
-                ;
-        return DigestUtils.md5Hex(content.toString());
-    }
-
-    private static String getDocParamsMd5(DocInfoDTO docInfoDTO) {
-        StringBuilder content = new StringBuilder()
-                .append(getParamsContent(docInfoDTO.getPathParams()))
-                .append(getParamsContent(docInfoDTO.getHeaderParams()))
-                .append(getParamsContent(docInfoDTO.getQueryParams()))
-                .append(getParamsContent(docInfoDTO.getRequestParams()))
-                .append(getParamsContent(docInfoDTO.getResponseParams()))
-                .append(getParamsContent(docInfoDTO.getErrorCodeParams()))
-                ;
-        return DigestUtils.md5Hex(content.toString());
-    }
-
-    private static String getParamsContent(List<DocParamDTO> docParamDTOS) {
-        if (CollectionUtils.isEmpty(docParamDTOS)) {
-            return "";
-        }
-        return docParamDTOS.stream()
-                .filter(docParamDTO -> Objects.equals(docParamDTO.getIsDeleted(), Booleans.FALSE))
-                .map(docParamDTO -> {
-                    NotNullStringBuilder stringBuilder = new NotNullStringBuilder()
-                            .append(docParamDTO.getName())
-                            .append(docParamDTO.getType())
-                            .append(docParamDTO.getRequired())
-                            .append(docParamDTO.getExample())
-                            .append(docParamDTO.getDescription())
-                            .append(docParamDTO.getEnumId())
-                            .append(docParamDTO.getIsDeleted())
-                            .append(getParamsContent(docParamDTO.getChildren()))
-                            ;
-                    return stringBuilder.toString();
-                })
-                .collect(Collectors.joining());
+        return DocMd5BuilderManager.getBuilder().buildMd5(docInfoDTO);
     }
 
     private DocInfo buildDocInfo(DocInfoDTO docInfoDTO, User user) {
