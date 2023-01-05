@@ -394,6 +394,21 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return docInfo;
     }
 
+    /**
+     * 修改文档基本信息。参数除外
+     * @param docInfoDTO
+     * @param user
+     * @return
+     */
+    public DocInfo doUpdateDocBaseInfo(DocInfoDTO docInfoDTO, User user) {
+        DocInfo docInfoOld = this.getById(docInfoDTO.getId());
+        String oldMd5 = docInfoOld.getMd5();
+        // 修改基本信息
+        DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, SourceFromEnum.FORM));
+        return docInfo;
+    }
+
     private void doUpdateParams(DocInfo docInfo, DocInfoDTO docInfoDTO, User user) {
         docParamService.saveParams(docInfo, docInfoDTO.getPathParams(), ParamStyleEnum.PATH, user);
         docParamService.saveParams(docInfo, docInfoDTO.getHeaderParams(), ParamStyleEnum.HEADER, user);
