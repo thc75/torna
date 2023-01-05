@@ -1,5 +1,8 @@
 package cn.torna.service;
 
+import cn.torna.service.builder.DefaultDocMd5Builder;
+import cn.torna.service.builder.DocMd5Builder;
+
 /**
  * @author thc
  */
