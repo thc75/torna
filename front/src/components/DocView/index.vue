@@ -3,6 +3,7 @@
     <div class="doc-title">
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
+        <doc-status-tag class="el-tag-method" :status="docInfo.status" />
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
           <el-button
@@ -179,6 +180,7 @@ h4 .content {
 }
 </style>
 <script>
+import DocStatusTag from '@/components/DocStatusTag'
 import DocChangelogDrawer from '@/components/DocChangelogDrawer'
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
@@ -195,7 +197,7 @@ $addI18n({
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },
+  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },
   props: {
     docId: {
       type: String,
@@ -238,6 +240,7 @@ export default {
       docBaseInfoData: [],
       currentDocInfo: {},
       docInfo: {
+        status: 0,
         id: '',
         name: '',
         url: '',

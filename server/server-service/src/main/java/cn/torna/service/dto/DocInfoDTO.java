@@ -28,6 +28,7 @@ public class DocInfoDTO implements DocInfoDataId {
     private String description;
 
     /** 维护人, 数据库字段：author */
+    @Diff(positionType = PositionType.AUTHOR)
     private String author;
 
     /** 0:http,1:dubbo, 数据库字段：protocol */
@@ -65,24 +66,31 @@ public class DocInfoDTO implements DocInfoDataId {
     private Long projectId;
 
     /** 是否使用全局请求参数, 数据库字段：is_use_global_headers */
+    @Diff(positionType = PositionType.USE_GLOBAL_HEADERS)
     private Byte isUseGlobalHeaders;
 
     /** 是否使用全局请求参数, 数据库字段：is_use_global_params */
+    @Diff(positionType = PositionType.USE_GLOBAL_PARAMS)
     private Byte isUseGlobalParams;
 
     /** 是否使用全局返回参数, 数据库字段：is_use_global_returns */
+    @Diff(positionType = PositionType.USE_GLOBAL_RETURNS)
     private Byte isUseGlobalReturns;
 
     /** 是否请求数组, 数据库字段：is_request_array */
+    @Diff(positionType = PositionType.IS_REQUEST_ARRAY)
     private Byte isRequestArray;
 
     /** 是否返回数组, 数据库字段：is_response_array */
+    @Diff(positionType = PositionType.IS_RESPONSE_ARRAY)
     private Byte isResponseArray;
 
     /** 请求数组时元素类型, 数据库字段：request_array_type */
+    @Diff(positionType = PositionType.REQUEST_ARRAY_TYPE)
     private String requestArrayType;
 
     /** 返回数组时元素类型, 数据库字段：response_array_type */
+    @Diff(positionType = PositionType.RESPONSE_ARRAY_TYPE)
     private String responseArrayType;
 
     /** 创建人 */

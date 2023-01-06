@@ -422,7 +422,7 @@ public class UpgradeService {
                 .findFirst();
     }
 
-    private void runSql(String sql) {
+    protected void runSql(String sql) {
         if (isLowerVersion()) {
             sql = sql.replace("utf8mb4", "utf8");
         }

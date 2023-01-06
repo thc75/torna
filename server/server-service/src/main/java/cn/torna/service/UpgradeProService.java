@@ -1,5 +1,6 @@
 package cn.torna.service;
 
+import cn.torna.common.enums.DocStatusEnum;
 import cn.torna.service.dto.SystemConfigDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -47,7 +48,8 @@ public class UpgradeProService extends UpgradeService {
             createTable("debug_script", "upgrade/pro/2.0_ddl_debug_script.txt");
             createTable("doc_diff_record", "upgrade/pro/2.0_ddl_doc_diff_record.txt");
             createTable("doc_diff_detail", "upgrade/pro/2.0_ddl_doc_diff_detail.txt");
-            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '10' COMMENT '文档状态' AFTER `is_locked`");
+            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.TODO.getStatus() + "' COMMENT '文档状态' AFTER `is_locked`");
+            runSql("UPDATE doc_info SET status=" + DocStatusEnum.DONE.getStatus());
         }
     }
 

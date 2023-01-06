@@ -1,20 +1,57 @@
 <template>
   <div style="display: inline-block">
-    <span>{{ value.oldValue }}</span> <span v-show="showArrow" class="el-icon-right"></span> <span>{{ value.newValue }}</span>
+    <span>{{ valueOld }}</span> <span v-show="showArrow" class="el-icon-right"></span> <span>{{ valueNew }}</span>
   </div>
 </template>
 <script>
+import { Enums } from '@/utils/enums'
+const DOC_STATUS = Enums.DOC_STATUS
+const docStatusMap = {}
+for (const obj of DOC_STATUS) {
+  docStatusMap['' + obj.value] = obj
+}
+function formatVal(targetName, val) {
+  if (val === undefined) {
+    return val
+  }
+  const obj = docStatusMap['' + val]
+  switch (targetName) {
+    case 'status':
+      return $ts(obj.label)
+    // 是/否
+    case 'isShow':
+    case 'isUseGlobalHeaders':
+    case 'isUseGlobalParams':
+    case 'isUseGlobalReturns':
+    case 'isRequestArray':
+    case 'isResponseArray':
+      return val === 1 ? $ts('yes') : $ts('no')
+  }
+  return val
+}
 export default {
   name: 'DocChangelogSimpleDiff',
   props: {
-    value: {
+    detail: {
       type: Object,
       required: true
     }
   },
   computed: {
     showArrow() {
-      return this.value.oldValue && this.value.newValue
+      return this.valueOld && this.valueNew
+    },
+    valueOld() {
+      const targetName = this.detail.targetName
+      return formatVal(targetName, this.content.value.oldValue)
+    },
+    valueNew() {
+      const targetName = this.detail.targetName
+      return formatVal(targetName, this.content.value.newValue)
+    },
+    // {"value":{"newValue":"jim","oldValue":"超级管理员"},"targetName":"author"}
+    content() {
+      return this.detail.content
     }
   }
 }

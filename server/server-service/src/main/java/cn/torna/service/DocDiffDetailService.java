@@ -114,8 +114,8 @@ public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDeta
         DiffBean diffBean = new DiffBean();
         diffBean.setTargetName(name);
         diffBean.setPositionType(diff.positionType());
-        diffBean.setOldValue(ofString(valueOld));
-        diffBean.setNewValue(ofString(valueNew));
+        diffBean.setOldValue(valueOld);
+        diffBean.setNewValue(valueNew);
         diffBean.setModifyType(modifyType);
         return Collections.singletonList(diffBean);
     }

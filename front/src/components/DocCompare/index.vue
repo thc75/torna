@@ -3,7 +3,7 @@
     <el-dialog
       :title="$ts('viewDoc')"
       :visible.sync="dlgShow"
-      width="80%"
+      width="70%"
       append-to-body
     >
       <el-row :gutter="10">

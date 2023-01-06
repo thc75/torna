@@ -100,55 +100,40 @@ export const Enums = {
    * 文档元素位置
    */
   POSITION_TYPE: {
-    DOC_NAME: 0,
-    DOC_HTTP_METHOD: 1,
-    DOC_URL: 2,
-    CONTENT_TYPE: 3,
-    DOC_DESCRIPTION: 4,
-    DEPRECATED: 5,
-    IS_SHOW: 6,
-    ORDER_INDEX: 7,
-    PATH_PARAM: 8,
-    HEADER_PARAM: 9,
-    QUERY_PARAM: 10,
-    REQUEST_PARAM: 11,
-    RESPONSE_PARAM: 12,
-    STATUS: 13,
+    DOC_NAME: { value: 0, label: 'docName' },
+    DOC_HTTP_METHOD: { value: 1, label: 'method' },
+    DOC_URL: { value: 2, label: 'requestUrl' },
+    CONTENT_TYPE: { value: 3, label: 'contentType' },
+    DOC_DESCRIPTION: { value: 4, label: 'docDesc' },
+    DEPRECATED: { value: 5, label: 'deprecated' },
+    IS_SHOW: { value: 6, label: 'isShow' },
+    ORDER_INDEX: { value: 7, label: 'orderIndex' },
+    STATUS: { value: 13, label: 'status' },
+    AUTHOR: { value: 14, label: 'maintainer' },
+    USE_GLOBAL_HEADERS: { value: 15, label: 'useCommonHeader' },
+    USE_GLOBAL_PARAMS: { value: 16, label: 'useCommonParam' },
+    USE_GLOBAL_RETURNS: { value: 17, label: 'useCommonResponse' },
+    IS_REQUEST_ARRAY: { value: 18, label: 'isRequestArray' },
+    IS_RESPONSE_ARRAY: { value: 19, label: 'isResponseArray' },
+    REQUEST_ARRAY_TYPE: { value: 20, label: 'requestArrayType' },
+    RESPONSE_ARRAY_TYPE: { value: 21, label: 'responseArrayType' },
+    //
+    PATH_PARAM: { value: 40, label: 'pathVariable' },
+    HEADER_PARAM: { value: 41, label: 'requestHeader' },
+    QUERY_PARAM: { value: 42, label: 'queryParam' },
+    REQUEST_PARAM: { value: 43, label: 'requestParams' },
+    RESPONSE_PARAM: { value: 44, label: 'responseParam' },
 
-    PARAM_NAME: 50,
-    PARAM_TYPE: 51,
-    PARAM_REQUIRED: 52,
-    PARAM_MAXLENGTH: 53,
-    PARAM_DESCRIPTION: 54,
-    PARAM_EXAMPLE: 55
+    PARAM_NAME: { value: 50, label: 'paramName' },
+    PARAM_TYPE: { value: 51, label: 'type' },
+    PARAM_REQUIRED: { value: 52, label: 'required' },
+    PARAM_MAXLENGTH: { value: 53, label: 'maxLength' },
+    PARAM_DESCRIPTION: { value: 54, label: 'description' },
+    PARAM_EXAMPLE: { value: 55, label: 'example' }
   },
   DOC_STATUS: [
     { label: 'todo', value: 0, type: 'info' },
     { label: 'doing', value: 5, type: 'warning' },
     { label: 'done', value: 10, type: 'success' }
   ]
-}
-
-export const PositionNameMap = {
-  DOC_NAME: 'docName',
-  DOC_HTTP_METHOD: 'method',
-  DOC_URL: 'requestUrl',
-  CONTENT_TYPE: 'contentType',
-  DOC_DESCRIPTION: 'docDesc',
-  DEPRECATED: 'deprecated',
-  IS_SHOW: 'isShow',
-  ORDER_INDEX: 'orderIndex',
-  PATH_PARAM: 'pathVariable',
-  HEADER_PARAM: 'requestHeader',
-  QUERY_PARAM: 'queryParam',
-  REQUEST_PARAM: 'requestParams',
-  RESPONSE_PARAM: 'responseParam',
-  STATUS: 'status',
-
-  PARAM_NAME: 'paramName',
-  PARAM_TYPE: 'type',
-  PARAM_REQUIRED: 'required',
-  PARAM_MAXLENGTH: 'maxLength',
-  PARAM_DESCRIPTION: 'description',
-  PARAM_EXAMPLE: 'example'
 }

@@ -2,6 +2,10 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'requestArrayType': 'Request array type',
+  'responseArrayType': 'Response array type',
+  'isRequestArray': 'Is request array',
+  'isResponseArray': 'Is response array',
   'todo': 'Todo',
   'doing': 'Doing',
   'done': 'Done',

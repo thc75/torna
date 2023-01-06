@@ -129,16 +129,16 @@
           <div v-if="!isFolder(scope.row)">
             <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
               <span class="el-dropdown-link">
-                <el-tag :type="getStatusType(scope.row.status)">{{ getStatusName(scope.row.status) }}</el-tag>
+                <doc-status-tag :status="scope.row.status" />
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-for="item in getEnums().DOC_STATUS" :key="item.value" :command="() => onUpdateStatus(scope.row, item.value)">
-                  <el-tag :type="getStatusType(item.value)">{{ $ts(item.label) }}</el-tag>
+                  <doc-status-tag :status="item.value" />
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <span v-else>
-              <el-tag :type="getStatusType(scope.row.status)">{{ getStatusName(scope.row.status) }}</el-tag>
+              <doc-status-tag :status="scope.row.status" />
             </span>
           </div>
         </template>
@@ -243,6 +243,7 @@
 }
 </style>
 <script>
+import DocStatusTag from '@/components/DocStatusTag'
 import HttpMethod from '@/components/HttpMethod'
 import SvgIcon from '@/components/SvgIcon'
 import TimeTooltip from '@/components/TimeTooltip'
@@ -251,7 +252,7 @@ import PopoverUpdate from '@/components/PopoverUpdate'
 
 export default {
   name: 'DocTable',
-  components: { HttpMethod, SvgIcon, TimeTooltip, DocExportDialog, PopoverUpdate },
+  components: { DocStatusTag, HttpMethod, SvgIcon, TimeTooltip, DocExportDialog, PopoverUpdate },
   props: {
     projectId: {
       type: String,
@@ -279,9 +280,6 @@ export default {
         name: [
           { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
         ]
-      },
-      statusMap: {
-
       }
     }
   },
@@ -296,7 +294,6 @@ export default {
     }
   },
   created() {
-    this.initStatus()
     this.initHeight()
     window.addEventListener('resize', this.initHeight)
   },
@@ -320,22 +317,7 @@ export default {
       }, resp => {
         row.status = status
         this.tipSuccess($ts('operateSuccess'))
-      });
-    },
-    getStatusName(status) {
-      const info = this.statusMap[status + '']
-      return info ? $ts(info.label) : '未知状态'
-    },
-    getStatusType(status) {
-      const info = this.statusMap[status + '']
-      return info ? info.type : ''
-    },
-    initStatus() {
-      const map = {}
-      for (const statusInfo of this.getEnums().DOC_STATUS) {
-        map[statusInfo.value + ''] = statusInfo
-      }
-      this.statusMap = map
+      })
     },
     refreshTable() {
       this.loadTable(function() {

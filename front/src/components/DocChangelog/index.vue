@@ -33,7 +33,7 @@
               </div>
               <div v-for="detail in wrapper.docDiffDetails" :key="detail.id" class="changelog-item">
                 <div v-if="isDocInfoChange(detail.positionType)" class="inline">
-                  <doc-changelog-simple-diff :value="detail.content.value" />
+                  <doc-changelog-simple-diff :detail="detail" />
                 </div>
                 <div v-else>
                   <doc-changelog-param-diff :detail="detail" />
@@ -60,16 +60,17 @@
 }
 </style>
 <script>
-import { Enums, PositionNameMap } from '@/utils/enums'
+import { Enums } from '@/utils/enums'
 import DocChangelogSimpleDiff from '@/components/DocChangelogSimpleDiff'
 import DocChangelogParamDiff from '@/components/DocChangelogParamDiff'
 import DocCompare from '@/components/DocCompare'
 const POSITION_TYPE = Enums.POSITION_TYPE
-// { '0': 'DOC_NAME' }
+// { '0': { label: '', value: 0 } }
 const positionConfig = {}
 for (const key in POSITION_TYPE) {
-  const value = POSITION_TYPE[key]
-  positionConfig['' + value] = key
+  // { label: '', value: 0 }
+  const obj = POSITION_TYPE[key]
+  positionConfig['' + obj.value] = obj
 }
 
 $addI18n({
@@ -130,11 +131,11 @@ export default {
       return ''
     },
     isDocInfoChange(positionType) {
-      return positionType <= 7
+      return positionType < 40
     },
     getI18nName(positionType) {
-      const name = positionConfig['' + positionType]
-      return $ts(PositionNameMap[name])
+      const obj = positionConfig['' + positionType]
+      return $ts(obj.label)
     },
     showCompare(record) {
       this.$refs.docCompare.show(record.md5New, this.docId)

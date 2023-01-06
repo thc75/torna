@@ -2,7 +2,11 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
-  'todo': '未完成',
+  'requestArrayType': '请求数组元素类型',
+  'responseArrayType': '返回数组元素类型',
+  'isRequestArray': '是否请求数组',
+  'isResponseArray': '是否返回数组',
+  'todo': '待进行',
   'doing': '进行中',
   'done': '已完成',
   'historyVersion': '历史版本',

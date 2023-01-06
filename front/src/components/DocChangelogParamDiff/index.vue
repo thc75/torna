@@ -23,9 +23,14 @@
   color: #606266;
   font-size: 13px;
 }
+.changelog-table td {
+  word-wrap:break-word;
+  word-break:break-all;
+}
 </style>
 <script>
-import { PositionNameMap } from '@/utils/enums'
+import { Enums } from '@/utils/enums'
+const POSITION_TYPE = Enums.POSITION_TYPE
 export default {
   name: 'DocChangelogParamDiff',
   props: {
@@ -80,7 +85,7 @@ export default {
       return this.getOldValue(key) !== undefined && this.getNewValue(key) !== undefined
     },
     getI18nName(key) {
-      return $ts(PositionNameMap[key])
+      return $ts(POSITION_TYPE[key].label)
     },
     getTagType(type) {
       // 变更类型，0：修改，1：新增，2：删除
