@@ -3,7 +3,7 @@
  */
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
-import { do_get, get, get_base_url, get_file, post } from './http'
+import { do_get, get, get_base_url, get_server_url, get_file, post } from './http'
 import {
   convert_tree,
   create_response_example,
@@ -83,8 +83,19 @@ Object.assign(Vue.prototype, {
   getEnums() {
     return Enums
   },
+  /**
+   * 获取前端基础路径
+   * @returns {string}
+   */
   getBaseUrl() {
     return get_base_url()
+  },
+  /**
+   * 获取服务端接口基础路径
+   * @returns {*|string}
+   */
+  getServerUrl() {
+    return get_server_url()
   },
   getUserId() {
     const token = getToken()
