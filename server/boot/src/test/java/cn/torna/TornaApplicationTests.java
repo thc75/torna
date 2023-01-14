@@ -3,7 +3,7 @@ package cn.torna;
 import cn.torna.common.context.UserContext;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = TornaApplication.class)
+@SpringBootTest(classes = TornaApplication.class, properties = "logging.level.cn.torna=debug")
 class TornaApplicationTests {
 
 

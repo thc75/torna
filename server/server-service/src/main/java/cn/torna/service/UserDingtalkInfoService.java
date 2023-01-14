@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDingtalkInfoService extends BaseService<UserDingtalkInfo, UserDingtalkInfoMapper> {
 
+    public UserDingtalkInfo getByUserId(long userId) {
+        return get("user_info_id", userId);
+    }
+
     public void addUser(DingTalkLoginDTO dingTalkLoginDTO, UserInfo userInfo) {
         UserDingtalkInfo userDingtalkInfo = getByUnionId(dingTalkLoginDTO.getUnionid());
         boolean save = false;

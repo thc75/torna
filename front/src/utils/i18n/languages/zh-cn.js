@@ -2,6 +2,8 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'bindAccount': '绑定账号',
+  'dingdingAccount': '钉钉账号',
   'requestArrayType': '请求数组元素类型',
   'responseArrayType': '返回数组元素类型',
   'isRequestArray': '是否请求数组',

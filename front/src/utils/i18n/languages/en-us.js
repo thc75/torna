@@ -2,6 +2,8 @@ import { BaseTranslator } from '../base'
 
 // Mapping
 const MAPPING = {
+  'bindAccount': 'Bind account',
+  'dingdingAccount': 'DingDing Account',
   'requestArrayType': 'Request array type',
   'responseArrayType': 'Response array type',
   'isRequestArray': 'Is request array',

@@ -16,7 +16,8 @@ function getBrowserUrl() {
 }
 
 const frontURL = getBrowserUrl()
-const serverUrl = process.env.VUE_APP_BASE_API || frontURL
+// const serverUrl = process.env.VUE_APP_BASE_API || frontURL
+const serverUrl = 'http://torna.develop.dahuangf.com'
 
 // 创建axios实例
 const client = axios.create({
