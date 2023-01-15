@@ -6,6 +6,7 @@
         :model="importJsonFormData"
         :rules="importJsonRule"
         label-width="100px"
+        size="mini"
       >
         <el-form-item>
           <el-tooltip effect="dark" :content="$ts('syncSwaggerDoc')" placement="top">
