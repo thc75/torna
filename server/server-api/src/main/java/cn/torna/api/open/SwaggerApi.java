@@ -459,6 +459,10 @@ public class SwaggerApi {
             return null;
         }
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
+        return buildObjectParam(jsonSchema, openAPI, context);
+    }
+
+    private static List<DocParamPushParam> buildObjectParam(JsonSchema jsonSchema, OpenAPI openAPI, BuildObjectParamContext context) {
         final Map<String, Schema> properties = jsonSchema.getSchema().getProperties();
         return Optional.ofNullable(properties)
                 .orElse(Collections.emptyMap()).entrySet()
@@ -475,11 +479,16 @@ public class SwaggerApi {
                             .build();
                     String type = value.getType();
                     List<DocParamPushParam> children = null;
-                    // 如果有子对象
+                    // 如果有子对象的ref
                     if (value.get$ref() != null) {
                         type = TYPE_OBJECT;
                         final String child$ref = value.get$ref();
                         children = buildObjectParam(child$ref, openAPI, context);
+                    }
+                    // 如果直接书写了子对象的内容
+                    if(value.getProperties()!=null){
+                        type = TYPE_OBJECT;
+                        children = buildObjectParam(getJsonSchema(value), openAPI, context);
                     }
                     // 如果是枚举字段
                     if (value.getEnum() != null) {
@@ -499,6 +508,9 @@ public class SwaggerApi {
                         String itemType = items.getType();
                         if (itemType != null) {
                             type = "array[" + itemType + "]";
+                            if(TYPE_OBJECT.equals(itemType)){
+                                children = buildObjectParam(getJsonSchema(items), openAPI, context);
+                            }
                         }
                     }
                     param.setChildren(children);
@@ -647,6 +659,10 @@ public class SwaggerApi {
     private static JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
         String refName = getRefName($ref);
         Schema<?> schema = openAPI.getComponents().getSchemas().get(refName);
+        return getJsonSchema(schema);
+    }
+
+    private static JsonSchema getJsonSchema(Schema<?> schema) {
         String type= null;
         try {
             type = schema.getType();
