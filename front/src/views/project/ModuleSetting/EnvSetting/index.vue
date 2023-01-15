@@ -13,7 +13,6 @@
         ref="updateEnvForm"
         :rules="dialogDebugEnvFormRules"
         :model="updateEnvFormData"
-        size="mini"
         class="update-env-form"
       >
         <el-descriptions :column="3" border>

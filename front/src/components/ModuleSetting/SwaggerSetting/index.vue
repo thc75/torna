@@ -5,7 +5,6 @@
         ref="importJsonForm"
         :model="importJsonFormData"
         :rules="importJsonRule"
-        size="mini"
         label-width="100px"
       >
         <el-form-item>
