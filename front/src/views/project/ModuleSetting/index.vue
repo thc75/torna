@@ -22,17 +22,22 @@
       <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$ts('swaggerSetting')">
         <swagger-setting ref="swaggerSetting" />
       </el-tab-pane>
+      <el-tab-pane name="dingdingSetting" :label="$ts('dingdingSetting')">
+        <ding-ding-setting />
+      </el-tab-pane>
     </el-tabs>
 
   </div>
 </template>
 <script>
+import DingDingSetting from './DingDingSetting'
 import PopoverUpdate from '@/components/PopoverUpdate'
 import SwaggerSetting from '@/components/ModuleSetting/SwaggerSetting'
 import EnvSetting from './EnvSetting'
 
 // 添加国际化
 $addI18n({
+  'dingdingSetting': { 'zh': '钉钉配置', 'en': 'DingTalk Setting' },
   'addEnv': { 'zh': '添加环境', 'en': 'Add Environment' },
   'swaggerSetting': { 'zh': 'Swagger设置', 'en': 'Swagger Setting' },
   'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' },
@@ -41,7 +46,7 @@ $addI18n({
 
 export default {
   name: 'ModuleSetting',
-  components: { PopoverUpdate, SwaggerSetting, EnvSetting },
+  components: { DingDingSetting, PopoverUpdate, SwaggerSetting, EnvSetting },
   props: {
     projectId: {
       type: String,

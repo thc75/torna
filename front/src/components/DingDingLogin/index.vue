@@ -16,7 +16,6 @@
 }
 </style>
 <script>
-import {} from '@/utils/ddlogin'
 export default {
   name: 'DingDingLogin',
   props: {

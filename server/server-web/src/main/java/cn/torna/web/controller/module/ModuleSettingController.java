@@ -14,19 +14,24 @@ import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
+import cn.torna.web.controller.module.param.ModuleConfigUpdateParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
 import cn.torna.web.controller.module.param.ModuleSwaggerConfigParam;
 import cn.torna.web.controller.module.vo.DebugEnvVO;
+import cn.torna.web.controller.module.vo.ModuleConfigVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalVO;
 import cn.torna.web.controller.module.vo.ModuleSwaggerConfigVO;
 import cn.torna.web.controller.module.vo.SwaggerSettingVO;
+import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,6 +46,36 @@ public class ModuleSettingController {
 
     @Autowired
     private ModuleSwaggerConfigService moduleSwaggerConfigService;
+
+
+    @GetMapping("list")
+    public Result<List<ModuleConfigVO>> listModuleConfig(String key) {
+        if (StringUtils.isEmpty(key)) {
+            return Result.ok(Collections.emptyList());
+        }
+        String[] keys = key.split(",");
+        Query query = new Query()
+                .eq("type", ModuleConfigTypeEnum.COMMON.getType())
+                .in("config_key", keys);
+
+        List<ModuleConfig> list = moduleConfigService.list(query);
+        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(list, ModuleConfigVO::new);
+        return Result.ok(moduleConfigVOS);
+    }
+
+    @PostMapping("update")
+    public Result update(@RequestBody ModuleConfigUpdateParam param) {
+        ModuleConfig moduleConfig = moduleConfigService.getCommonConfig(param.getModuleId(), param.getConfigKey());
+        if (moduleConfig == null) {
+            moduleConfig = CopyUtil.copyBean(param, ModuleConfig::new);
+            moduleConfigService.save(moduleConfig);
+        } else {
+            moduleConfig.setConfigValue(param.getConfigValue());
+            moduleConfigService.update(moduleConfig);
+        }
+        return Result.ok();
+    }
+
 
     @PostMapping("/debugEnv/set")
     public Result setDebugEnv(@RequestBody DebugEnvParam param) {
