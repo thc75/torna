@@ -32,7 +32,9 @@
             <el-input v-model="importJsonFormData.authPassword" :placeholder="$ts('optionalPassword')" style="width: 100%;" />
           </el-col>
         </el-form-item>
-        <el-button type="primary" size="mini" @click="onSwaggerConfigSave">{{ $ts('save') }}</el-button>
+        <el-form-item>
+          <el-button type="primary" @click="onSwaggerConfigSave">{{ $ts('save') }}</el-button>
+        </el-form-item>
       </el-form>
     </div>
   </div>
