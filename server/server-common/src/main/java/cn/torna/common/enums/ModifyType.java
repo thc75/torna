@@ -9,12 +9,15 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ModifyType {
-    NONE((byte) -1),
+    NONE((byte) -1, ""),
 
-    UPDATE((byte) 0),
-    ADD((byte) 1),
-    DELETE((byte) 2),
+    UPDATE((byte) 0, "更新"),
+    ADD((byte) 1, "新增"),
+    DELETE((byte) 2, "删除"),
     ;
     private final byte type;
+    private final String description;
+
+
 
 }

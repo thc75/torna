@@ -11,6 +11,7 @@ import cn.torna.service.dto.DocRefDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,13 +31,13 @@ public class DocInfoProService {
     @Autowired
     private UserSubscribeService userSubscribeService;
 
-    @Autowired
+    @Resource
     private UserDingtalkInfoMapper userDingtalkInfoMapper;
 
     /**
      * 获取文档所有的关注人员的钉钉userid
      * @param docId
-     * @return
+     * @return 返回钉钉的userid
      */
     public List<String> listSubscribeDocDingDingUserIds(long docId) {
         List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);

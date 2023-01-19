@@ -15,7 +15,7 @@
       </span>
     </h3>
 
-    <el-tabs active-name="envSetting" tab-position="left">
+    <el-tabs active-name="envSetting" tab-position="left" @tab-click="tabChange">
       <el-tab-pane name="envSetting" :label="$ts('debugEnv')">
         <env-setting ref="envSetting" :project-id="projectId" />
       </el-tab-pane>
@@ -23,7 +23,7 @@
         <swagger-setting ref="swaggerSetting" />
       </el-tab-pane>
       <el-tab-pane name="dingdingSetting" :label="$ts('dingdingSetting')">
-        <ding-ding-setting />
+        <ding-ding-setting ref="dingdingSetting" />
       </el-tab-pane>
     </el-tabs>
 
@@ -55,6 +55,7 @@ export default {
   },
   data() {
     return {
+      moduleId: '',
       moduleVO: {
         id: '',
         name: '',
@@ -68,7 +69,13 @@ export default {
     }
   },
   methods: {
+    tabChange(tab) {
+      const name = tab.name
+      const ref = this.$refs[name]
+      ref && ref.reload(this.moduleId)
+    },
     reload(moduleId) {
+      this.moduleId = moduleId
       this.$refs.envSetting.reload(moduleId)
       this.loadModuleInfo(moduleId)
     },

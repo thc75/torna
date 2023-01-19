@@ -33,7 +33,7 @@ public class AdminSettingController {
         AdminConfigVO adminConfigVO = new AdminConfigVO();
         adminConfigVO.addConfig(AdminConfigVO.buildItem(EnvironmentKeys.REGISTER_ENABLE));
         for (String key : keys) {
-            String value = Configs.getValue(key, null);
+            String value = Configs.getValue(key);
             adminConfigVO.addConfig(AdminConfigVO.buildItem(key, value));
         }
         return Result.ok(adminConfigVO);

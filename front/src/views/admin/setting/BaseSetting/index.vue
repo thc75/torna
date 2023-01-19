@@ -1,6 +1,12 @@
 <template>
   <div class="app-container">
     <el-form :model="config" size="mini" label-width="200px" style="width: 80%">
+      <el-form-item label="Torna根地址">
+        <el-input
+          v-model="config.tornaFrontUrl.value"
+          @change="onConfigChange(config.tornaFrontUrl)"
+        />
+      </el-form-item>
       <el-form-item label="允许注册">
         <el-switch
           v-model="config.regEnable.value"
@@ -48,7 +54,7 @@
 
 <script>
 import Help from '@/components/Help'
-import '../setting'
+import { saveAdminConfig, loadAdminConfig } from '../setting'
 
 export default {
   name: 'BaseSetting',
@@ -59,7 +65,8 @@ export default {
         regEnable: { key: 'torna.register.enable', value: 'false' },
         docSortType: { key: 'torna.doc-sort-type', value: 'by_order', remark: '文档排序规则' },
         uploadDir: { key: 'torna.upload.dir', value: '', remark: '上传文件保存目录' },
-        uploadDomain: { key: 'torna.upload.domain', value: '', remark: '上传文件映射' }
+        uploadDomain: { key: 'torna.upload.domain', value: '', remark: '上传文件映射' },
+        tornaFrontUrl: { key: 'torna.front-url', value: '', remark: 'Torna前端地址' }
       },
       docSortTypeMap: {
         'by_order': '根据排序字段排序',
@@ -69,11 +76,20 @@ export default {
     }
   },
   created() {
-    this.loadAdminConfig(this.config)
+    this.reload()
   },
   methods: {
+    reload() {
+      loadAdminConfig(this.config, () => {
+        const baseUrlConfig = this.config.tornaFrontUrl
+        if (!baseUrlConfig.value) {
+          baseUrlConfig.value = this.getBaseUrl()
+          saveAdminConfig(baseUrlConfig, true)
+        }
+      })
+    },
     onConfigChange(config) {
-      this.saveAdminConfig(config)
+      saveAdminConfig(config)
     },
     onDocSortTypeChange(val) {
       this.config.docSortType.remark = '文档排序规则，' + this.docSortTypeMap[val]

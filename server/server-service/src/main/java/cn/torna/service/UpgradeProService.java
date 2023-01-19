@@ -50,6 +50,7 @@ public class UpgradeProService extends UpgradeService {
             createTable("doc_diff_detail", "upgrade/pro/2.0_ddl_doc_diff_detail.txt");
             addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.TODO.getStatus() + "' COMMENT '文档状态' AFTER `is_locked`");
             runSql("UPDATE doc_info SET status=" + DocStatusEnum.DONE.getStatus());
+            runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
         }
     }
 

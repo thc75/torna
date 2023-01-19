@@ -1,12 +1,14 @@
 package cn.torna.common.bean;
 
-import cn.torna.common.context.UploadContext;
 import cn.torna.common.enums.DocSortType;
+
+import java.util.Objects;
 
 /**
  * 获取环境配置信息，读取顺序：缓存>数据库>Spring Environment
  */
 public enum EnvironmentKeys {
+    TORNA_FRONT_URL("torna.front-url"),
     /** 是否开启注册 */
     REGISTER_ENABLE("torna.register.enable"),
     /** 是否开启第三方登录 */
@@ -48,7 +50,13 @@ public enum EnvironmentKeys {
     /** 推送钉钉webhook */
     PUSH_DINGDING_WEBHOOK_URL("torna.push.dingding-webhook-url"),
     /** 变更文档内容模板 */
-    PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "文档[%s]内容已变更"),
+    PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "【文档{modifyType}提醒】\n" +
+            "【所属应用】： {projectName} - {appName}\n" +
+            "【文档名称】：{docName}\n" +
+            "【修改人】：{modifier}\n" +
+            "【修改时间】：{modifyTime}\n" +
+            "【查看地址】：{docViewUrl}\n" +
+            "{@user}"),
     /** 是否打印推送内容，默认false */
     TORNA_PUSH_PRINT_CONTENT("torna.push.print-content", "false"),
     /** 是否允许相同的文件夹，默认：true */
@@ -65,6 +73,15 @@ public enum EnvironmentKeys {
     private final String key;
     private String defaultValue;
 
+    public static EnvironmentKeys of(String key) {
+        for (EnvironmentKeys value : EnvironmentKeys.values()) {
+            if (Objects.equals(value.key, key)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     EnvironmentKeys(String key) {
         this.key = key;
     }
@@ -72,6 +89,10 @@ public enum EnvironmentKeys {
     EnvironmentKeys(String key, String defaultValue) {
         this.key = key;
         this.defaultValue = defaultValue;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
     }
 
     public boolean getBoolean() {

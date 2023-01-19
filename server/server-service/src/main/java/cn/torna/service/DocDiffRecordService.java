@@ -1,14 +1,23 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.enums.SourceFromEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.DingTalkUtil;
+import cn.torna.common.util.IdUtil;
+import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocDiffDetail;
 import cn.torna.dao.entity.DocDiffRecord;
 import cn.torna.dao.entity.DocSnapshot;
+import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.Project;
 import cn.torna.dao.mapper.DocDiffRecordMapper;
+import cn.torna.dao.mapper.ModuleMapper;
+import cn.torna.dao.mapper.ProjectMapper;
 import cn.torna.service.dto.DocDiffDTO;
 import cn.torna.service.dto.DocDiffDetailDTO;
 import cn.torna.service.dto.DocDiffDetailWrapperDTO;
@@ -17,12 +26,17 @@ import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.Query;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +51,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffRecordMapper> {
 
+    private static final DateTimeFormatter YMDHMS_PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Autowired
     private DocSnapshotService docSnapshotService;
 
@@ -45,6 +61,18 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
 
     @Autowired
     private DocInfoService docInfoService;
+
+    @Autowired
+    private ModuleConfigService moduleConfigService;
+
+    @Resource
+    private ProjectMapper projectMapper;
+
+    @Resource
+    private ModuleMapper moduleMapper;
+
+    @Autowired
+    private DocInfoProService docInfoProService;
 
     /**
      * 获取修改记录
@@ -139,21 +167,83 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         DocSnapshot snapshotOld = docSnapshotService.getByMd5(md5Old);
         DocSnapshot snapshotNew = docSnapshotService.getByMd5(md5New);
 
+        ModifyType modifyType;
         // del
         if (snapshotOld != null && snapshotNew == null) {
             DocInfoDTO docInfoOld = JSON.parseObject(snapshotOld.getContent(), DocInfoDTO.class);
-            this.createRecord(docInfoOld, docDiffDTO, ModifyType.DELETE);
+            modifyType = ModifyType.DELETE;
+            this.createRecord(docInfoOld, docDiffDTO, modifyType);
+            this.pushMessage(docInfoOld, modifyType);
         } else if (snapshotOld == null && snapshotNew != null) {
             // new
             DocInfoDTO docInfoNew = JSON.parseObject(snapshotNew.getContent(), DocInfoDTO.class);
-            this.createRecord(docInfoNew, docDiffDTO, ModifyType.ADD);
+            modifyType = ModifyType.ADD;
+            this.createRecord(docInfoNew, docDiffDTO, modifyType);
         } else if (snapshotOld != null && snapshotNew != null) {
             // update
             DocInfoDTO docInfoOld = JSON.parseObject(snapshotOld.getContent(), DocInfoDTO.class);
             DocInfoDTO docInfoNew = JSON.parseObject(snapshotNew.getContent(), DocInfoDTO.class);
-            DocDiffRecord updateRecord = this.createRecord(docInfoOld, docDiffDTO, ModifyType.UPDATE);
+            modifyType = ModifyType.UPDATE;
+            DocDiffRecord updateRecord = this.createRecord(docInfoOld, docDiffDTO, modifyType);
             docDiffDetailService.doCompare(docInfoOld, docInfoNew, updateRecord);
+            this.pushMessage(docInfoNew, modifyType);
         }
+    }
+
+    /**
+     * 推送钉钉消息
+     * @param docInfoDTO
+     * @param modifyType
+     */
+    private void pushMessage(DocInfoDTO docInfoDTO, ModifyType modifyType) {
+        try {
+            if (modifyType == ModifyType.UPDATE || modifyType == ModifyType.DELETE) {
+                String url = moduleConfigService.getDingDingRobotWebhookUrl(docInfoDTO.getModuleId());
+                if (StringUtils.isEmpty(url)) {
+                    return;
+                }
+                List<String> dingDingUserIds = docInfoProService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
+                String content = buildDingDingMessage(docInfoDTO, modifyType, dingDingUserIds);
+                if (StringUtils.isEmpty(content)) {
+                    return;
+                }
+                DingTalkUtil.pushRobotMessage(url, content, dingDingUserIds);
+            }
+        } catch (Exception e) {
+            log.error("推送钉钉消息失败, doc={}", docInfoDTO.getName(), e);
+        }
+    }
+
+    private String buildDingDingMessage(DocInfoDTO docInfoDTO, ModifyType modifyType, List<String> userIds) {
+        Project project = projectMapper.getById(docInfoDTO.getProjectId());
+        Module module = moduleMapper.getById(docInfoDTO.getModuleId());
+        Map<String, String> replaceMap = new HashMap<>(16);
+        replaceMap.put("{projectName}", project.getName());
+        replaceMap.put("{appName}", module.getName());
+        replaceMap.put("{docName}", docInfoDTO.getName());
+        replaceMap.put("{url}", docInfoDTO.getUrl());
+        replaceMap.put("{modifier}", docInfoDTO.getModifierName());
+        replaceMap.put("{modifyTime}", docInfoDTO.getGmtModified().format(YMDHMS_PATTERN));
+        replaceMap.put("{modifyType}", modifyType.getDescription());
+        String frontUrl = EnvironmentKeys.TORNA_FRONT_URL.getValue("http://localhost:7700");
+        String docViewUrl = frontUrl + "/#/view/" + IdUtil.encode(docInfoDTO.getId());
+        replaceMap.put("{docViewUrl}", docViewUrl);
+        String atUser = "";
+        if (!CollectionUtils.isEmpty(userIds)) {
+            atUser = userIds.stream()
+                    .map(userId -> "@" + userId)
+                    .collect(Collectors.joining(" "));
+        }
+        replaceMap.put("{@user}", atUser);
+
+        String content = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue();
+        if (StringUtils.isEmpty(content)) {
+            return content;
+        }
+        for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
+            content = content.replace(entry.getKey(), entry.getValue());
+        }
+        return content;
     }
 
     private DocDiffRecord createRecord(DocInfoDTO docInfoDTO, DocDiffDTO docDiffDTO, ModifyType modifyType) {
