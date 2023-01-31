@@ -2,11 +2,11 @@
   <div v-show="hasData" class="doc-view-container">
     <el-tabs active-name="info" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
+        <span slot="label"><i class="el-icon-document"></i> {{ $t('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="item" />
       </el-tab-pane>
       <el-tab-pane v-if="setting.showDebug" name="debug">
-        <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
+        <span slot="label"><i class="el-icon-s-promotion"></i> {{ $t('debugApi') }}</span>
         <doc-debug :item="debugItem" :internal="false" />
       </el-tab-pane>
       <el-tab-pane v-for="page in extPageData" :key="page.id" :label="page.title" :label-content="() => page"></el-tab-pane>

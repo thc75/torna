@@ -2,7 +2,7 @@
   <div>
     <h1 style="margin-bottom: 0">
       {{ docInfo.name }}
-      <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+      <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
         <el-button
           v-show="showOptBar && docInfo.id"
           type="text"
@@ -14,23 +14,23 @@
       </el-tooltip>
     </h1>
     <span v-show="showOptBar" class="doc-modify-info">
-      {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
-      {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
+      {{ docInfo.creatorName }} {{ $t('createdOn') }} {{ docInfo.gmtCreate }}，
+      {{ docInfo.modifierName }} {{ $t('lastModifiedBy') }} {{ docInfo.gmtModified }}
     </span>
     <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
       <div class="item">
         <el-dropdown trigger="click" @command="handleCommand">
-          <el-tooltip placement="top" :content="$ts('export')">
+          <el-tooltip placement="top" :content="$t('export')">
             <el-button type="text" class="icon-button" icon="el-icon-download" />
           </el-tooltip>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
-            <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
+            <el-dropdown-item :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
+            <el-dropdown-item :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
       <div class="item">
-        <el-tooltip placement="top" :content="$ts('viewConst')">
+        <el-tooltip placement="top" :content="$t('viewConst')">
           <el-button type="text" class="icon-button" icon="el-icon-collection" @click="showConst" />
         </el-tooltip>
       </div>
@@ -89,12 +89,12 @@ export default {
     onSubscribe() {
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('subscribeSuccess'))
+          this.tipSuccess($t('subscribeSuccess'))
           this.isSubscribe = true
         })
       } else {
         this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('unsubscribeSuccess'))
+          this.tipSuccess($t('unsubscribeSuccess'))
           this.isSubscribe = false
         })
       }

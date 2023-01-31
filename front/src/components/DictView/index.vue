@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-drawer
-      :title="$ts('dictInfo')"
+      :title="$t('dictInfo')"
       :visible.sync="drawer"
       :direction="direction"
       size="35%"
@@ -16,7 +16,7 @@
         </div>
       </div>
       <div v-else style="text-align: center;margin-top: 30px;">
-        <span class="info-tip">{{ $ts('emptyDictData') }}</span>
+        <span class="info-tip">{{ $t('emptyDictData') }}</span>
       </div>
     </el-drawer>
   </div>

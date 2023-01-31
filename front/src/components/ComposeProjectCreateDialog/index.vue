@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="$ts('composeProject')"
+    :title="$t('composeProject')"
     :close-on-click-modal="false"
     :visible.sync="visible"
     @close="onHide"
@@ -13,14 +13,14 @@
       label-width="150px"
       style="width: 600px;"
     >
-      <el-form-item :label="$ts('projectName')" prop="name">
+      <el-form-item :label="$t('projectName')" prop="name">
         <el-input
           v-model="projectFormData.name"
           show-word-limit
           maxlength="50"
         />
       </el-form-item>
-      <el-form-item :label="$ts('projectDesc')" prop="description">
+      <el-form-item :label="$t('projectDesc')" prop="description">
         <el-input
           v-model="projectFormData.description"
           type="textarea"
@@ -28,22 +28,22 @@
           maxlength="100"
         />
       </el-form-item>
-      <el-form-item :label="$ts('visitStyle')">
+      <el-form-item :label="$t('visitStyle')">
         <el-radio-group v-model="projectFormData.type">
-          <el-radio :label="getEnums().COMPOSE_PROJECT_TYPE.PUBLIC">{{ $ts('public') }}</el-radio>
-          <el-radio :label="getEnums().COMPOSE_PROJECT_TYPE.ENCRYPT">{{ $ts('encryption') }}</el-radio>
+          <el-radio :label="getEnums().COMPOSE_PROJECT_TYPE.PUBLIC">{{ $t('public') }}</el-radio>
+          <el-radio :label="getEnums().COMPOSE_PROJECT_TYPE.ENCRYPT">{{ $t('encryption') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item :label="$ts('status')">
+      <el-form-item :label="$t('status')">
         <el-radio-group v-model="projectFormData.status">
-          <el-radio :label="getEnums().STATUS.ENABLE">{{ $ts('enable') }}</el-radio>
-          <el-radio :label="getEnums().STATUS.DISABLE">{{ $ts('disable') }}</el-radio>
+          <el-radio :label="getEnums().STATUS.ENABLE">{{ $t('enable') }}</el-radio>
+          <el-radio :label="getEnums().STATUS.DISABLE">{{ $t('disable') }}</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="visible = false">{{ $ts('dlgCancel') }}</el-button>
-      <el-button type="primary" @click="onProjectCreateSave">{{ $ts('dlgSave') }}</el-button>
+      <el-button @click="visible = false">{{ $t('dlgCancel') }}</el-button>
+      <el-button type="primary" @click="onProjectCreateSave">{{ $t('dlgSave') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -68,10 +68,10 @@ export default {
       },
       projectRule: {
         name: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ],
         spaceId: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
       },
       spaceData: []
@@ -84,7 +84,7 @@ export default {
           const uri = this.projectFormData.id ? '/compose/project/update' : '/compose/project/add'
           this.post(uri, this.projectFormData, resp => {
             this.visible = false
-            this.tipSuccess(this.$ts('addSuccess'))
+            this.tipSuccess(this.$t('addSuccess'))
             this.initPerm()
             this.success(resp.data)
           })

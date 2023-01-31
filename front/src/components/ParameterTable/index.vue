@@ -21,20 +21,20 @@
     >
       <template slot-scope="scope">
         <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''" style="white-space: nowrap">
-          {{ scope.row.name }}<el-tag v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.name)">{{ $ts('copy') }}</el-tag>
+          {{ scope.row.name }}<el-tag v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.name)">{{ $t('copy') }}</el-tag>
         </span>
       </template>
     </el-table-column>
     <el-table-column
       v-if="isColumnShow('type')"
       prop="type"
-      :label="$ts('type')"
+      :label="$t('type')"
       width="100"
     >
       <template slot-scope="scope">
         <span>{{ scope.row.type }}</span>
         <span v-show="scope.row.type === 'array' && scope.row.elementType">
-          <el-tooltip effect="dark" :content="$ts('elType', scope.row.elementType)" placement="top">
+          <el-tooltip effect="dark" :content="$t('elType', scope.row.elementType)" placement="top">
             <i class="el-icon-info"></i>
           </el-tooltip>
         </span>
@@ -43,17 +43,17 @@
     <el-table-column
       v-if="isColumnShow('required')"
       prop="required"
-      :label="$ts('require')"
+      :label="$t('require')"
       :width="$width(60, { 'en': 75 })"
     >
       <template slot-scope="scope">
-        <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
+        <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $t('yes') : $t('no') }}</span>
       </template>
     </el-table-column>
     <el-table-column
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
-      :label="$ts('maxLength')"
+      :label="$t('maxLength')"
       :width="$width(80, { 'en': 100 })"
     />
     <el-table-column
@@ -72,7 +72,7 @@
             <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
           </div>
         </div>
-        <el-tag v-if="scope.row.description && scope.row.description.length > 0" v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.description)">{{ $ts('copy') }}</el-tag>
+        <el-tag v-if="scope.row.description && scope.row.description.length > 0" v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.description)">{{ $t('copy') }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
@@ -109,19 +109,19 @@ export default {
     },
     emptyText: {
       type: String,
-      default: $ts('emptyParam')
+      default: $t('emptyParam')
     },
     nameLabel: {
       type: String,
-      default: $ts('name')
+      default: $t('name')
     },
     descriptionLabel: {
       type: String,
-      default: $ts('description')
+      default: $t('description')
     },
     exampleLabel: {
       type: String,
-      default: $ts('example')
+      default: $t('example')
     },
     hiddenColumns: {
       type: Array,

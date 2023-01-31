@@ -1,10 +1,10 @@
 <template>
   <div>
     <div style="float: right">
-      <el-button type="danger" size="mini" @click="onModuleDelete">{{ $ts('deleteModule') }}</el-button>
+      <el-button type="danger" size="mini" @click="onModuleDelete">{{ $t('deleteModule') }}</el-button>
     </div>
     <h3>
-      {{ $ts('appName') }}：
+      {{ $t('appName') }}：
       <span style="font-weight: normal">
         {{ moduleVO.name }}
         <popover-update
@@ -16,10 +16,10 @@
     </h3>
 
     <el-tabs active-name="envSetting" tab-position="left">
-      <el-tab-pane name="envSetting" :label="$ts('debugEnv')">
+      <el-tab-pane name="envSetting" :label="$t('debugEnv')">
         <env-setting ref="envSetting" :project-id="projectId" />
       </el-tab-pane>
-      <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$ts('swaggerSetting')">
+      <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$t('swaggerSetting')">
         <swagger-setting ref="swaggerSetting" />
       </el-tab-pane>
     </el-tabs>
@@ -30,14 +30,6 @@
 import PopoverUpdate from '@/components/PopoverUpdate'
 import SwaggerSetting from '@/components/ModuleSetting/SwaggerSetting'
 import EnvSetting from './EnvSetting'
-
-// 添加国际化
-$addI18n({
-  'addEnv': { 'zh': '添加环境', 'en': 'Add Environment' },
-  'swaggerSetting': { 'zh': 'Swagger设置', 'en': 'Swagger Setting' },
-  'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' },
-  'plzCheckEnv': { 'zh': '请勾选环境', 'en': 'Please select environment' }
-})
 
 export default {
   name: 'ModuleSetting',
@@ -87,15 +79,15 @@ export default {
         name: value
       }
       this.post('/module/name/update', param, () => {
-        this.tipSuccess(this.$ts('updateSuccess'))
+        this.tipSuccess(this.$t('updateSuccess'))
         this.moduleVO.name = value
         done()
       })
     },
     onModuleDelete() {
-      this.confirm(this.$ts('deleteModuleConfirm'), () => {
+      this.confirm(this.$t('deleteModuleConfirm'), () => {
         this.post('/module/delete', { id: this.moduleId }, () => {
-          alert(this.$ts('deleteSuccess'))
+          alert(this.$t('deleteSuccess'))
           location.reload()
         })
       })

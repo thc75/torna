@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="$ts('importPostmanDoc')"
+    :title="$t('importPostmanDoc')"
     :visible.sync="importPostmanDlgShow"
     @close="onHide"
   >
@@ -21,13 +21,13 @@
         :on-remove="(file, files) => onSelectFile(file, files)"
         :on-success="onSuccess"
       >
-        <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
-        <div slot="tip" class="el-upload__tip">{{ $ts('importPostmanTip') }}</div>
+        <el-button slot="trigger" class="choose-file" type="primary">{{ $t('chooseFile') }}</el-button>
+        <div slot="tip" class="el-upload__tip">{{ $t('importPostmanTip') }}</div>
       </el-upload>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="importPostmanDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-      <el-button :disabled="fileList.length === 0" type="primary" @click="submitUpload">{{ $ts('dlgImport') }}</el-button>
+      <el-button @click="importPostmanDlgShow = false">{{ $t('dlgCancel') }}</el-button>
+      <el-button :disabled="fileList.length === 0" type="primary" @click="submitUpload">{{ $t('dlgImport') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -52,7 +52,7 @@ export default {
       importPostmanDlgShow: false,
       importPostmanRule: {
         file: [
-          { required: true, message: this.$ts('pleaseUploadFile'), trigger: 'blur' }
+          { required: true, message: this.$t('pleaseUploadFile'), trigger: 'blur' }
         ]
       }
     }
@@ -71,7 +71,7 @@ export default {
       this.fileList = fileList
     },
     onExceed(files, fileList) {
-      this.$message.warning(this.$ts('onlyChooseOneFile'))
+      this.$message.warning(this.$t('onlyChooseOneFile'))
     },
     onBeforeUpload() {
       this.extData.projectId = this.projectId

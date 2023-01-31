@@ -6,31 +6,31 @@
       style="margin-bottom: 10px"
       @click="onDebugEnvAdd"
     >
-      {{ $ts('addEnv') }}
+      {{ $t('addEnv') }}
     </el-button>
     <el-table
       :data="debugEnv"
       border
       highlight-current-row
     >
-      <el-table-column :label="$ts('envName')" prop="name" width="300px" />
-      <el-table-column :label="$ts('baseUrl')" prop="url" />
-      <el-table-column :label="$ts('isPublic')" prop="isPublic" width="100px">
+      <el-table-column :label="$t('envName')" prop="name" width="300px" />
+      <el-table-column :label="$t('baseUrl')" prop="url" />
+      <el-table-column :label="$t('isPublic')" prop="isPublic" width="100px">
         <template slot-scope="scope">
-          {{ scope.row.isPublic === 1 ? $ts('yes') : $ts('no') }}
+          {{ scope.row.isPublic === 1 ? $t('yes') : $t('no') }}
         </template>
       </el-table-column>
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="150"
       >
         <template slot-scope="scope">
-          <el-link type="primary" size="mini" @click="onDebugEnvUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <el-link type="primary" size="mini" @click="onDebugEnvUpdate(scope.row)">{{ $t('update') }}</el-link>
           <el-popconfirm
-            :title="$ts('deleteConfirm', scope.row.name)"
+            :title="$t('deleteConfirm', scope.row.name)"
             @confirm="onDebugEnvDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $t('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -51,30 +51,30 @@
       >
         <el-form-item
           prop="name"
-          :label="$ts('envName')"
+          :label="$t('envName')"
         >
-          <el-input v-model="dialogDebugEnvFormData.name" :placeholder="$ts('envNamePlaceholder')" show-word-limit maxlength="50" />
+          <el-input v-model="dialogDebugEnvFormData.name" :placeholder="$t('envNamePlaceholder')" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="url"
-          :label="$ts('baseUrl')"
+          :label="$t('baseUrl')"
         >
-          <el-input v-model="dialogDebugEnvFormData.url" :placeholder="$ts('baseUrlPlaceholder')" show-word-limit maxlength="100" />
+          <el-input v-model="dialogDebugEnvFormData.url" :placeholder="$t('baseUrlPlaceholder')" show-word-limit maxlength="100" />
         </el-form-item>
         <el-form-item
           prop="extendId"
-          :label="$ts('isPublic')"
+          :label="$t('isPublic')"
         >
           <el-radio-group v-model="dialogDebugEnvFormData.isPublic">
-            <el-radio :label="1">{{ $ts('yes') }}</el-radio>
-            <el-radio :label="0">{{ $ts('no') }}</el-radio>
-            <span class="info-tip">{{ $ts('debugEnvPublicTip') }}</span>
+            <el-radio :label="1">{{ $t('yes') }}</el-radio>
+            <el-radio :label="0">{{ $t('no') }}</el-radio>
+            <span class="info-tip">{{ $t('debugEnvPublicTip') }}</span>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDebugEnvVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDialogDebugEnvSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="dialogDebugEnvVisible = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogDebugEnvSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -97,10 +97,10 @@ export default {
       },
       dialogDebugEnvFormRules: {
         name: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ],
         url: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -118,12 +118,12 @@ export default {
       })
     },
     onDebugEnvAdd() {
-      this.dialogDebugEnvTitle = this.$ts('addEnv')
+      this.dialogDebugEnvTitle = this.$t('addEnv')
       this.dialogDebugEnvVisible = true
       this.dialogDebugEnvFormData.id = ''
     },
     onDebugEnvUpdate(row) {
-      this.dialogDebugEnvTitle = this.$ts('updateEnv')
+      this.dialogDebugEnvTitle = this.$t('updateEnv')
       this.dialogDebugEnvVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogDebugEnvFormData, row)
@@ -131,7 +131,7 @@ export default {
     },
     onDebugEnvDelete(row) {
       this.post('/module/environment/delete', row, () => {
-        this.tip(this.$ts('deleteSuccess'))
+        this.tip(this.$t('deleteSuccess'))
         this.reload()
       })
     },

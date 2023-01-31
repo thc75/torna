@@ -2,17 +2,13 @@
   <div>
     <el-alert v-if="showTip" type="info" title="" :closable="false">
       <div slot="title">
-        {{ $ts('imgUploadInfo') }} <help-link :button-text="$ts('imgHelpBtnText')" style="margin-left: 20px;" to="/help?id=upload" />
+        {{ $t('RichTextEditor.imgUploadInfo') }} <help-link :button-text="$t('RichTextEditor.imgHelpBtnText')" style="margin-left: 20px;" to="/help?id=upload" />
       </div>
     </el-alert>
     <ckeditor ref="ckeditor" v-model="content" :editor="editor" :config="editorConfig" @ready="onReady" />
   </div>
 </template>
 <script>
-$addI18n({
-  'imgUploadInfo': { 'zh': '支持剪贴板图片上传，本地图片上传，URL图片插入', 'en': 'Support clipboard image upload, URL image insert, local image upload insert' },
-  'imgHelpBtnText': { 'zh': '图片上传设置', 'en': 'Upload image setting' }
-})
 import CKEditor from '@ckeditor/ckeditor5-vue2'
 import ClassicEditor from '@torna/ckeditor5'
 import { get_token, get_server_url } from '@/utils/http'

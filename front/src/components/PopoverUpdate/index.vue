@@ -20,8 +20,8 @@
         <el-input v-else ref="input" v-model="updateForm.value" show-word-limit maxlength="50" />
       </el-form-item>
       <div style="text-align: right; margin: 0">
-        <el-button type="text" size="mini" @click="hide">{{ $ts('cancel') }}</el-button>
-        <el-button type="primary" size="mini" native-type="submit" @click="onUpdateNameSave">{{ $ts('ok') }}</el-button>
+        <el-button type="text" size="mini" @click="hide">{{ $t('cancel') }}</el-button>
+        <el-button type="primary" size="mini" native-type="submit" @click="onUpdateNameSave">{{ $t('ok') }}</el-button>
       </div>
     </el-form>
     <el-button
@@ -55,7 +55,7 @@ export default {
     },
     title: {
       type: String,
-      default: $ts('updateName')
+      default: $t('updateName')
     },
     label: {
       type: String,

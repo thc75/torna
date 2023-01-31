@@ -90,7 +90,7 @@ export default {
     },
     onConfigChange(config) {
       this.post('/system/config/update', config, () => {
-        this.tipSuccess($ts('updateSuccess'))
+        this.tipSuccess($t('updateSuccess'))
       })
     },
     onDocSortTypeChange(val) {

@@ -4,7 +4,7 @@
     border
     highlight-current-row
   >
-    <el-table-column :label="$ts('value')" prop="value">
+    <el-table-column :label="$t('value')" prop="value">
       <template slot-scope="scope">
         <span v-if="scope.row.name === scope.row.value">
           {{ scope.row.value }}
@@ -14,8 +14,8 @@
         </span>
       </template>
     </el-table-column>
-    <el-table-column :label="$ts('type')" prop="type" width="100" />
-    <el-table-column :label="$ts('description')" prop="description" />
+    <el-table-column :label="$t('type')" prop="type" width="100" />
+    <el-table-column :label="$t('description')" prop="description" />
   </el-table>
 </template>
 <script>

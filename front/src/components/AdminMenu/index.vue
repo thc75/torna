@@ -8,11 +8,11 @@
     >
       <el-menu-item index="/admin/users">
         <i class="el-icon-user"></i>
-        <span class="title">{{ $ts('userManagement') }}</span>
+        <span class="title">{{ $t('userManagement') }}</span>
       </el-menu-item>
       <el-menu-item index="/admin/setting">
         <i class="el-icon-setting"></i>
-        <span class="title">{{ $ts('systemSetting') }}</span>
+        <span class="title">{{ $t('systemSetting') }}</span>
       </el-menu-item>
     </el-menu>
   </div>

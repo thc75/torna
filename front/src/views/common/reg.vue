@@ -10,11 +10,11 @@
       style="margin: 60px auto;"
       @submit.native.prevent
     >
-      <h3>{{ $ts('signUp') }}</h3>
+      <h3>{{ $t('signUp') }}</h3>
       <el-form-item prop="username">
         <el-input
           v-model="regForm.username"
-          :placeholder="$ts('loginAccount')"
+          :placeholder="$t('loginAccount')"
           prefix-icon="el-icon-message"
           maxlength="100"
           show-word-limit
@@ -23,7 +23,7 @@
       <el-form-item prop="nickname">
         <el-input
           v-model="regForm.nickname"
-          :placeholder="$ts('nickname')"
+          :placeholder="$t('nickname')"
           prefix-icon="el-icon-user"
           maxlength="100"
           show-word-limit
@@ -33,7 +33,7 @@
         <el-input
           v-model="regForm.password"
           type="password"
-          :placeholder="$ts('password')"
+          :placeholder="$t('password')"
           prefix-icon="el-icon-lock"
         />
       </el-form-item>
@@ -41,13 +41,13 @@
         <el-input
           v-model="regForm.password2"
           type="password"
-          :placeholder="$ts('passwordConfirm')"
+          :placeholder="$t('passwordConfirm')"
           prefix-icon="el-icon-lock"
         />
       </el-form-item>
-      <el-button type="primary" style="width: 100%;" native-type="submit" @click="handleReg">{{ $ts('signUp') }}</el-button>
+      <el-button type="primary" style="width: 100%;" native-type="submit" @click="handleReg">{{ $t('signUp') }}</el-button>
       <div class="footer">
-        <el-button type="text" @click="goLogin">{{ $ts('goLogin') }}</el-button>
+        <el-button type="text" @click="goLogin">{{ $t('goLogin') }}</el-button>
       </div>
     </el-form>
   </div>

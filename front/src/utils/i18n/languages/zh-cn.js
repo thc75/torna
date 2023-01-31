@@ -1,7 +1,4 @@
-import { BaseTranslator } from '../base'
-
-// Mapping
-const MAPPING = {
+export default {
   'ok': '确定',
   'cancel': '取消',
   'home': '首页',
@@ -419,16 +416,52 @@ const MAPPING = {
   'selectAll': '全选',
   'recommend': '推荐',
   'standardDocument': '标准文档',
-  'customDocument': '自定义文档'
-
-}
-
-export class Translator extends BaseTranslator {
-  getMapping() {
-    return MAPPING
+  'customDocument': '自定义文档',
+  'spaceDimension': '空间维度',
+  'projectDimension': '项目维度',
+  // module
+  RichTextEditor: {
+    'imgUploadInfo': '支持剪贴板图片上传，本地图片上传，URL图片插入',
+    'imgHelpBtnText': '图片上传设置'
+  },
+  ConstView: {
+    'constInfo': '常量信息'
+  },
+  Mock: {
+    'backMockScript': '获取脚本内容'
+  },
+  SwaggerSetting: {
+    'syncConfirm': '保存成功，是否立即同步文档？',
+    'synchronizing': '同步中...'
+  },
+  EditDocCustom: {
+    'inputDocContent': '输入文档内容'
+  },
+  ConstantInfo: {
+    'projectConstantTip': '定义项目级别常量（错误码、枚举），能被下面各个应用访问',
+    'applicationConstantTip': '定义每个应用单独的常量'
+  },
+  ImportSwaggerDialog: {
+    'pluginImport': '插件导入',
+    'pluginImportTip': '如果是Java项目且用Maven管理可使用此方式，优点：无需启动项目即可推送文档',
+    'urlImport': 'URL导入',
+    'importing': '导入中...',
+    'swaggerContentImport': ' JSON/YAML导入',
+    'swaggerContentImportTip': '输入swagger文档内容，支持json或yaml格式',
+    'importTip': '提示：服务端异步处理导入过程，保存后可能无法看到文档，请过2~3秒再刷新查看'
+  },
+  Module: {
+    'noAppDescription': '当前没有应用'
+  },
+  EnvSetting: {
+    'newEnv': '新环境',
+    'importEnv': '从其它模块导入',
+    'copyCurrent': '复制环境',
+    'deleteCurrent': '删除环境',
+    'copyEnv': '{0} 拷贝',
+    'commonSetting': '公共设置',
+    'plzCheckEnv': '请勾选环境',
+    'ownerSpace': '所属空间',
+    'allowDebug': '允许调试'
   }
-  addMapping(anotherMapping) {
-    Object.assign(this.getMapping(), anotherMapping)
-  }
 }
-

@@ -1,15 +1,15 @@
 <template>
   <div style="padding: 10px;">
-    <el-empty v-if="moduleData.length === 0" :description="$ts('noAppDescription')">
+    <el-empty v-if="moduleData.length === 0" :description="$t('Module.noAppDescription')">
       <el-dropdown
         trigger="click"
         @command="handleCommand"
       >
         <el-button type="primary" icon="el-icon-circle-plus" style="padding: 10px; font-size: 16px"></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $t('newModule') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $t('importSwaggerDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $t('importPostmanDoc') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </el-empty>
@@ -30,7 +30,7 @@
       >
         <span slot="label">
           {{ item.name }}
-          <el-tooltip effect="dark" :content="$ts('syncSwaggerDoc')" placement="top">
+          <el-tooltip effect="dark" :content="$t('syncSwaggerDoc')" placement="top">
             <el-button
               v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])"
               v-show="module.id === item.id && item.type === 1"
@@ -51,9 +51,9 @@
           >
             <el-button type="text" icon="el-icon-circle-plus" style="padding: 10px; color: #303133;font-size: 16px"></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $ts('newModule') }}</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $ts('importSwaggerDoc') }}</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $ts('importPostmanDoc') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $t('newModule') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $t('importSwaggerDoc') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $t('importPostmanDoc') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </span>
@@ -84,9 +84,6 @@
 }
 </style>
 <script>
-$addI18n({
-  'noAppDescription': { 'zh': '当前没有应用', 'en': 'No application' }
-})
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
 import ImportPostmanDialog from '@/views/project/ImportPostmanDialog/index'
@@ -172,18 +169,18 @@ export default {
       return this.getProjectConfig(this.projectId).moduleId
     },
     onModuleAdd() {
-      this.$prompt(this.$ts('inputModuleName'), this.$ts('newModule'), {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
+      this.$prompt(this.$t('inputModuleName'), this.$t('newModule'), {
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+        inputErrorMessage: this.$t('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           name: value,
           projectId: this.projectId
         }
         this.post('/module/add', data, resp => {
-          this.tipSuccess(this.$ts('createSuccess'))
+          this.tipSuccess(this.$t('createSuccess'))
           this.module = resp.data
           this.reload()
         })
@@ -193,14 +190,14 @@ export default {
     onRefreshSwagger(item) {
       const loading = this.$loading({
         lock: true,
-        text: $ts('synchronizing'),
+        text: $t('SwaggerSetting.synchronizing'),
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       })
       this.get('/module/refresh/swaggerV2', { moduleId: item.id }, () => {
         setTimeout(() => {
           loading.close()
-          this.tipSuccess(this.$ts('syncSuccess'))
+          this.tipSuccess(this.$t('syncSuccess'))
           this.$refs.docInfo.reload()
         }, 1500)
       }, () => loading.close())

@@ -6,7 +6,7 @@
       style="margin-bottom: 10px"
       @click="onParamAdd"
     >
-      {{ $ts('add') }}
+      {{ $t('add') }}
     </el-button>
     <el-table
       :data="globalParams"
@@ -17,43 +17,43 @@
       :indent="20"
       class="el-table-tree"
     >
-      <el-table-column :label="$ts('paramName')" prop="name" width="300px">
+      <el-table-column :label="$t('paramName')" prop="name" width="300px">
         <template slot-scope="scope">
           <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''">
             {{ scope.row.name }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('type')" prop="type" width="120px" />
+      <el-table-column :label="$t('type')" prop="type" width="120px" />
       <el-table-column
         prop="required"
-        :label="$ts('require')"
+        :label="$t('require')"
         :width="$width(60, { 'en': 75 })"
       >
         <template slot-scope="scope">
-          <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
+          <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $t('yes') : $t('no') }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('example')" prop="example" >
+      <el-table-column :label="$t('example')" prop="example" >
         <template slot-scope="scope">
           <span v-show="!isNodeData(scope.row)">
             {{ scope.row.example }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('description')" prop="description" />
+      <el-table-column :label="$t('description')" prop="description" />
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         :width="$width(200, { 'en': 240 })"
       >
         <template slot-scope="scope">
-          <el-link type="primary" size="mini" @click="onParamAddChild(scope.row)">{{ $ts('addChildNode') }}</el-link>
-          <el-link type="primary" size="mini" @click="onParamUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <el-link type="primary" size="mini" @click="onParamAddChild(scope.row)">{{ $t('addChildNode') }}</el-link>
+          <el-link type="primary" size="mini" @click="onParamUpdate(scope.row)">{{ $t('update') }}</el-link>
           <el-popconfirm
-            :title="$ts('deleteConfirm', scope.row.name)"
+            :title="$t('deleteConfirm', scope.row.name)"
             @confirm="onParamDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $t('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -74,13 +74,13 @@
       >
         <el-form-item
           prop="name"
-          :label="$ts('paramName')"
+          :label="$t('paramName')"
         >
           <el-input v-model="dialogParamFormData.name" show-word-limit maxlength="50" />
         </el-form-item>
         <el-form-item
           prop="dataType"
-          :label="$ts('type')"
+          :label="$t('type')"
         >
           <el-select v-model="dialogParamFormData.type" size="mini">
             <el-option v-for="type in getTypeConfig()" :key="type" :label="type" :value="type"></el-option>
@@ -88,35 +88,35 @@
         </el-form-item>
         <el-form-item
           prop="required"
-          :label="$ts('required')"
+          :label="$t('required')"
         >
           <el-switch
             v-model="dialogParamFormData.required"
             :active-value="1"
-            :active-text="$ts('yes')"
+            :active-text="$t('yes')"
             inactive-text=""
           />
         </el-form-item>
         <el-form-item
-          :label="$ts('example')"
+          :label="$t('example')"
         >
           <el-switch
             v-model="isDataNode"
-            :active-text="$ts('isDataNode')"
+            :active-text="$t('isDataNode')"
             inactive-text=""
           />
-          <el-input v-show="!isDataNode" v-model="dialogParamFormData.example" :placeholder="$ts('example')" show-word-limit maxlength="200" />
+          <el-input v-show="!isDataNode" v-model="dialogParamFormData.example" :placeholder="$t('example')" show-word-limit maxlength="200" />
         </el-form-item>
         <el-form-item
           prop="description"
-          :label="$ts('description')"
+          :label="$t('description')"
         >
           <el-input v-model="dialogParamFormData.description" type="textarea" show-word-limit maxlength="200" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogParamVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDialogParamSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="dialogParamVisible = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogParamSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -163,10 +163,10 @@ export default {
       },
       dialogParamFormRules: {
         name: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' },
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^[a-zA-Z0-9\-_]+$/.test(value)) {
-              callback(new Error(this.$ts('errorParam')))
+              callback(new Error(this.$t('errorParam')))
             } else {
               callback()
             }
@@ -205,12 +205,12 @@ export default {
       })
     },
     onParamAdd() {
-      this.dialogParamTitle = this.$ts('addParam')
+      this.dialogParamTitle = this.$t('addParam')
       this.dialogParamVisible = true
       this.dialogParamFormData = this.getNewData()
     },
     onParamUpdate(row) {
-      this.dialogParamTitle = this.$ts('updateParam')
+      this.dialogParamTitle = this.$t('updateParam')
       this.dialogParamVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogParamFormData, row)
@@ -231,13 +231,13 @@ export default {
     },
     onParamAddChild(row) {
       const child = this.getNewData(row)
-      this.dialogParamTitle = this.$ts('addChildTitle', row.name)
+      this.dialogParamTitle = this.$t('addChildTitle', row.name)
       this.dialogParamVisible = true
       this.dialogParamFormData = child
     },
     onParamDelete(row) {
       this.post(this.deleteUrl, row, () => {
-        this.tipSuccess(this.$ts('deleteSuccess'))
+        this.tipSuccess(this.$t('deleteSuccess'))
         this.reload()
       })
     },

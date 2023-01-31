@@ -9,7 +9,7 @@
         size="mini"
       >
         <el-form-item>
-          <el-tooltip effect="dark" :content="$ts('syncSwaggerDoc')" placement="top">
+          <el-tooltip effect="dark" :content="$t('syncSwaggerDoc')" placement="top">
             <el-button
               type="primary"
               icon="el-icon-refresh"
@@ -20,31 +20,27 @@
         <el-form-item label="URL" prop="url">
           <el-input
             v-model="importJsonFormData.url"
-            :placeholder="$ts('importSwaggerPlaceholder')"
+            :placeholder="$t('importSwaggerPlaceholder')"
             show-word-limit
             maxlength="100"
           />
         </el-form-item>
-        <el-form-item :label="$ts('basicAuth')">
+        <el-form-item :label="$t('basicAuth')">
           <el-col :span="12" style="padding-right: 10px;">
-            <el-input v-model="importJsonFormData.authUsername" :placeholder="$ts('optionalUsername')" style="width: 100%;" />
+            <el-input v-model="importJsonFormData.authUsername" :placeholder="$t('optionalUsername')" style="width: 100%;" />
           </el-col>
           <el-col :span="12">
-            <el-input v-model="importJsonFormData.authPassword" :placeholder="$ts('optionalPassword')" style="width: 100%;" />
+            <el-input v-model="importJsonFormData.authPassword" :placeholder="$t('optionalPassword')" style="width: 100%;" />
           </el-col>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSwaggerConfigSave">{{ $ts('save') }}</el-button>
+          <el-button type="primary" @click="onSwaggerConfigSave">{{ $t('save') }}</el-button>
         </el-form-item>
       </el-form>
     </div>
   </div>
 </template>
 <script>
-$addI18n({
-  'syncConfirm': { 'zh': '保存成功，是否立即同步文档？', 'en': 'Save success, synchronize documents now?' },
-  'synchronizing': { 'zh': '同步中...', 'en': 'synchronizing' }
-})
 export default {
   data() {
     return {
@@ -60,10 +56,10 @@ export default {
       },
       importJsonRule: {
         url: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' },
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^http(s)?:\/\/.+$/i.test(value)) {
-              callback(new Error(this.$ts('errorUrl')))
+              callback(new Error(this.$t('errorUrl')))
             } else {
               callback()
             }
@@ -95,7 +91,7 @@ export default {
           this.formatHost(this.importJsonFormData)
           this.post('/module/setting/swaggerSetting/config/update', this.importJsonFormData, resp => {
             if (resp.code === '0') {
-              this.confirm(this.$ts('syncConfirm'), () => {
+              this.confirm(this.$t('SwaggerSetting.syncConfirm'), () => {
                 this.onRefreshSwagger()
               })
             }
@@ -106,14 +102,14 @@ export default {
     onRefreshSwagger() {
       const loading = this.$loading({
         lock: true,
-        text: $ts('synchronizing'),
+        text: $t('SwaggerSetting.synchronizing'),
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       })
       this.get('/module/refresh/swaggerV2', { moduleId: this.moduleId }, () => {
         setTimeout(() => {
           loading.close()
-          this.tipSuccess(this.$ts('syncSuccess'))
+          this.tipSuccess(this.$t('syncSuccess'))
         }, 1500)
       }, () => loading.close())
     },
@@ -123,7 +119,7 @@ export default {
         method: this.setting.allowMethod
       }
       this.post('/module/setting/swaggerSetting/allowMethod/set', data, () => {
-        this.tipSuccess(this.$ts('updateSuccess'))
+        this.tipSuccess(this.$t('updateSuccess'))
       })
     }
   }

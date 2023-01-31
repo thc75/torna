@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h3>{{ $ts('systemSetting') }}</h3>
+    <h3>{{ $t('systemSetting') }}</h3>
     <el-form
       ref="systemSettingForm"
       :model="systemSettingData"
@@ -8,7 +8,7 @@
       label-width="120px"
       style="width: 500px;"
     >
-      <el-form-item :label="$ts('language')">
+      <el-form-item :label="$t('language')">
         <el-select v-model="systemSettingData.language" placeholder="请选择">
           <el-option
             v-for="item in languageOptions"
@@ -18,14 +18,14 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$ts('docTabView')">
+      <el-form-item :label="$t('docTabView')">
         <el-radio-group v-model="systemSettingData.docViewTabs">
-          <el-radio :label="true">{{ $ts('enable') }}</el-radio>
-          <el-radio :label="false">{{ $ts('disable') }}</el-radio>
+          <el-radio :label="true">{{ $t('enable') }}</el-radio>
+          <el-radio :label="false">{{ $t('disable') }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $ts('dlgSave') }}</el-button>
+        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $t('dlgSave') }}</el-button>
       </el-form-item>
     </el-form>
   </div>

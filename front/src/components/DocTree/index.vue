@@ -3,7 +3,7 @@
     <el-input
       v-if="!viewMode"
       v-model="filterText"
-      :placeholder="$ts('filterNameUrl')"
+      :placeholder="$t('filterNameUrl')"
       size="mini"
       clearable
     >
@@ -19,8 +19,8 @@
       <span slot-scope="{ node, data }" class="custom-tree-node">
         <span>{{ node.label }}<span v-show="!data.isFolder && data.httpMethod" class="el-tree-label-tip">【{{ data.httpMethod }}】{{ data.url }}</span></span>
         <span v-if="!readonly && data.isFolder && isChecked(data)" @click.stop>
-          <el-checkbox v-model="data.isShareFolder" :disabled="viewMode">{{ $ts('appendShare') }}</el-checkbox>
-          <el-tooltip placement="top" :content="$ts('appendShareTip')">
+          <el-checkbox v-model="data.isShareFolder" :disabled="viewMode">{{ $t('appendShare') }}</el-checkbox>
+          <el-tooltip placement="top" :content="$t('appendShareTip')">
             <i class="el-icon-question"></i>
           </el-tooltip>
         </span>

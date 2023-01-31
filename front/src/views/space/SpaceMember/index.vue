@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="searchFormData" size="mini" @submit.native.prevent>
-      <el-form-item :label="$ts('nickEmail')">
+      <el-form-item :label="$t('nickEmail')">
         <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" native-type="submit" @click="onSearch">{{ $ts('search') }}</el-button>
+        <el-button type="primary" icon="el-icon-search" native-type="submit" @click="onSearch">{{ $t('search') }}</el-button>
       </el-form-item>
     </el-form>
     <el-button
@@ -16,7 +16,7 @@
       style="margin-bottom: 10px;"
       @click="onMemberAdd"
     >
-      {{ $ts('addMember') }}
+      {{ $t('addMember') }}
     </el-button>
     <el-table
       :data="pageInfo.rows"
@@ -25,17 +25,17 @@
     >
       <el-table-column
         prop="username"
-        :label="$ts('member')"
+        :label="$t('member')"
         width="400"
       >
         <template slot-scope="scope">
           {{ scope.row.nickname }}<span v-show="scope.row.email">{{ `(${scope.row.email})` }}</span>
-          <el-tag v-if="isSelf(scope.row.id)">{{ $ts('me') }}</el-tag>
+          <el-tag v-if="isSelf(scope.row.id)">{{ $t('me') }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="roleCode"
-        :label="$ts('role')"
+        :label="$t('role')"
         width="250"
       >
         <template slot-scope="scope">
@@ -57,21 +57,21 @@
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        :label="$ts('joinTime')"
+        :label="$t('joinTime')"
         width="200"
       />
       <el-table-column
         v-if="hasRole(`space:${spaceId}`, [Role.admin])"
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="150"
       >
         <template slot-scope="scope">
           <el-popconfirm
             v-if="!isSelf(scope.row.id)"
-            :title="$ts('removeConfirm', scope.row.nickname)"
+            :title="$t('removeConfirm', scope.row.nickname)"
             @confirm="onMemberRemove(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">{{ $ts('remove') }}</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $t('remove') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -89,7 +89,7 @@
     />
     <!--    -->
     <el-dialog
-      :title="$ts('addUser')"
+      :title="$t('addUser')"
       :close-on-click-modal="false"
       :visible.sync="memberAddDlgShow"
       @close="onHide"
@@ -102,11 +102,11 @@
         style="width: 600px;"
         label-width="150px"
       >
-        <el-form-item :label="$ts('user')" required>
+        <el-form-item :label="$t('user')" required>
           <!-- role_pos -->
           <user-select-v2 ref="userSelect" multiple />
         </el-form-item>
-        <el-form-item :label="$ts('role')" prop="roleCode">
+        <el-form-item :label="$t('role')" prop="roleCode">
           <el-select v-model="memberAddFormData.roleCode">
             <el-option v-for="item in getSpaceRoleCodeConfig()" :key="item.code" :value="item.code" :label="item.label">
               {{ item.label }}
@@ -115,8 +115,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="memberAddDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onMemberAddSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="memberAddDlgShow = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onMemberAddSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -153,7 +153,7 @@ export default {
       },
       memberAddRules: {
         roleCode: [
-          { required: true, message: this.$ts('pleaseSelect'), trigger: ['blur', 'change'] }
+          { required: true, message: this.$t('pleaseSelect'), trigger: ['blur', 'change'] }
         ]
       }
     }
@@ -182,7 +182,7 @@ export default {
         userId: row.id
       }
       this.post('/space/member/remove', data, resp => {
-        this.tipSuccess(this.$ts('removeSuccess'))
+        this.tipSuccess(this.$t('removeSuccess'))
         this.loadTable()
       })
     },
@@ -201,7 +201,7 @@ export default {
         roleCode: row.roleCode
       }
       this.post('/space/member/update', data, () => {
-        this.tipSuccess(this.$ts('updateSuccess'))
+        this.tipSuccess(this.$t('updateSuccess'))
       })
     },
     onMemberAddSave() {
@@ -214,7 +214,7 @@ export default {
           userIds: userIds
         })
         this.post('/space/member/add', data, resp => {
-          this.tipSuccess(this.$ts('addSuccess'))
+          this.tipSuccess(this.$t('addSuccess'))
           this.memberAddDlgShow = false
           this.loadTable()
         })

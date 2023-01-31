@@ -6,7 +6,6 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 // locale
 import i18n from '@/utils/i18n/index'
-import '@/utils/i18n/config'
 
 import '@/styles/index.scss' // global css
 

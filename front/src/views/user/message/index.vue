@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h3>{{ $ts('myMessage') }}</h3>
+    <h3>{{ $t('myMessage') }}</h3>
     <div class="table-opt-btn">
       <el-button
         v-show="hasUnreadMessage()"
@@ -9,7 +9,7 @@
         icon="el-icon-circle-check"
         @click="setReadAll"
       >
-        {{ $ts('userMsgReadAll') }}
+        {{ $t('userMsgReadAll') }}
       </el-button>
     </div>
     <el-table
@@ -19,34 +19,34 @@
     >
       <el-table-column
         prop="message"
-        :label="$ts('content')"
+        :label="$t('content')"
         show-overflow-tooltip
       />
       <el-table-column
         prop="isRead"
-        :label="$ts('status')"
+        :label="$t('status')"
         width="80px"
       >
         <template slot-scope="scope">
           <el-tag :type="scope.row.isRead === 0 ? 'info' : 'success'">
-            {{ scope.row.isRead === 0 ? $ts('unread') : $ts('read') }}
+            {{ scope.row.isRead === 0 ? $t('unread') : $t('read') }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        :label="$ts('pushTime')"
+        :label="$t('pushTime')"
         width="200px"
       />
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="200px"
       >
         <template slot-scope="scope">
           <router-link v-if="scope.row.type === 1" :to="`/view/${scope.row.sourceId}`">
-            <el-button type="text" size="mini" @click="setRead(scope.row)">{{ $ts('viewDoc') }}</el-button>
+            <el-button type="text" size="mini" @click="setRead(scope.row)">{{ $t('viewDoc') }}</el-button>
           </router-link>
-          <el-button v-show="scope.row.isRead === 0" type="text" size="mini" @click="setRead(scope.row)">{{ $ts('setRead') }}</el-button>
+          <el-button v-show="scope.row.isRead === 0" type="text" size="mini" @click="setRead(scope.row)">{{ $t('setRead') }}</el-button>
         </template>
       </el-table-column>
     </el-table>

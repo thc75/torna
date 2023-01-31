@@ -3,14 +3,14 @@
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <div class="menu-tree">
         <el-radio-group v-model="expandAll" size="mini" style="padding-bottom: 10px;" @change="onTriggerStatus">
-          <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
-          <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
+          <el-radio-button :label="true">{{ $t('expand') }}</el-radio-button>
+          <el-radio-button :label="false">{{ $t('collapse') }}</el-radio-button>
         </el-radio-group>
         <el-input
           v-show="treeData.length > 0"
           v-model="filterText"
           prefix-icon="el-icon-search"
-          :placeholder="$ts('apiFilter')"
+          :placeholder="$t('apiFilter')"
           style="margin-bottom: 10px;"
           size="mini"
           clearable
@@ -23,7 +23,7 @@
           :highlight-current="true"
           :expand-on-click-node="true"
           :default-expanded-keys="expandKeys"
-          :empty-text="$ts('noData')"
+          :empty-text="$t('noData')"
           node-key="id"
           class="filter-tree"
           @node-click="onNodeClick"

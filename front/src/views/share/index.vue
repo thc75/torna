@@ -2,17 +2,17 @@
   <div class="doc-view-container">
     <el-tabs v-if="showDoc" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document" /> {{ $ts('apiInfo') }}</span>
+        <span slot="label"><i class="el-icon-document" /> {{ $t('apiInfo') }}</span>
         <doc-view ref="docView" :show-opt-bar="false" :init-subscribe="false" :item="infoItem" />
       </el-tab-pane>
       <el-tab-pane v-if="isShowDebug && infoItem.debugEnvs.length > 0" name="debug">
-        <span slot="label"><i class="el-icon-s-promotion" /> {{ $ts('debugApi') }}</span>
+        <span slot="label"><i class="el-icon-s-promotion" /> {{ $t('debugApi') }}</span>
         <doc-debug :item="debugItem" />
       </el-tab-pane>
     </el-tabs>
     <el-tabs v-if="showDubbo" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
+        <span slot="label"><i class="el-icon-document"></i> {{ $t('apiInfo') }}</span>
         <dubbo-view ref="docViewDubbo" :show-opt-bar="false" :init-subscribe="false" />
       </el-tab-pane>
     </el-tabs>

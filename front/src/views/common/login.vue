@@ -26,17 +26,17 @@
         </el-select>
       </el-row>
       <div class="title-container">
-        <h3 class="title">{{ $ts('userLogin') }}</h3>
+        <h3 class="title">{{ $t('userLogin') }}</h3>
       </div>
       <el-tabs v-show="showLoginTab" v-model="loginForm.source" type="card">
-        <el-tab-pane :label="$ts('accountLogin')" name="register"></el-tab-pane>
-        <el-tab-pane v-if="serverConfig.enableThirdPartyForm" :label="$ts('thirdpartyLogin')" name="form"></el-tab-pane>
-        <el-tab-pane v-if="serverConfig.enableLdap" :label="$ts('ldapLogin')" name="ldap"></el-tab-pane>
+        <el-tab-pane :label="$t('accountLogin')" name="register"></el-tab-pane>
+        <el-tab-pane v-if="serverConfig.enableThirdPartyForm" :label="$t('thirdpartyLogin')" name="form"></el-tab-pane>
+        <el-tab-pane v-if="serverConfig.enableLdap" :label="$t('ldapLogin')" name="ldap"></el-tab-pane>
       </el-tabs>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
-          :placeholder="$ts('loginAccount')"
+          :placeholder="$t('loginAccount')"
           prefix-icon="el-icon-message"
           auto-complete="on"
         />
@@ -45,17 +45,17 @@
         <el-input
           v-model="loginForm.password"
           type="password"
-          :placeholder="$ts('password')"
+          :placeholder="$t('password')"
           prefix-icon="el-icon-lock"
           auto-complete="on"
         />
       </el-form-item>
-      <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">{{ $ts('loginSubmit') }}</el-button>
+      <el-button :loading="loading" type="primary" style="width: 100%;" native-type="submit" @click="handleLogin">{{ $t('loginSubmit') }}</el-button>
       <div class="footer">
         <div v-if="serverConfig.enableReg">
-          <el-link type="primary" :underline="false" @click="onReg">{{ $ts('signUp') }}</el-link>
+          <el-link type="primary" :underline="false" @click="onReg">{{ $t('signUp') }}</el-link>
           <span class="split">|</span>
-          <el-link type="primary" :underline="false" @click="onForgetPwd">{{ $ts('forgetPwd') }}？</el-link>
+          <el-link type="primary" :underline="false" @click="onForgetPwd">{{ $t('forgetPwd') }}？</el-link>
         </div>
         <el-link
           v-if="serverConfig.enableThirdPartyOauth"
@@ -82,14 +82,14 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (value.length === 0) {
-        callback(new Error($ts('plzInputLoginAccount')))
+        callback(new Error($t('plzInputLoginAccount')))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length === 0) {
-        callback(new Error($ts('plzInputPassword')))
+        callback(new Error($t('plzInputPassword')))
       } else {
         callback()
       }
@@ -154,7 +154,7 @@ export default {
       this.$router.push({ path: `/reg` })
     },
     onForgetPwd() {
-      this.alert($ts('askSuperAdminRestPwd'), $ts('forgetPwd'))
+      this.alert($t('askSuperAdminRestPwd'), $t('forgetPwd'))
     },
     showPwd() {
       if (this.passwordType === 'password') {

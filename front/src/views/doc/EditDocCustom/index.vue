@@ -9,24 +9,24 @@
     >
       <table>
         <tr>
-          <td>{{ $ts('sourceFolder') }}</td>
+          <td>{{ $t('sourceFolder') }}</td>
           <td class="text-form-input">
             <el-form-item prop="parentId">
-              <el-select v-model="docInfo.parentId" :placeholder="$ts('pleaseSelect')" style="width: 300px;">
-                <el-option :label="$ts('empty')" :value="0">{{ $ts('empty') }}</el-option>
+              <el-select v-model="docInfo.parentId" :placeholder="$t('pleaseSelect')" style="width: 300px;">
+                <el-option :label="$t('empty')" :value="0">{{ $t('empty') }}</el-option>
                 <el-option v-for="item in folders" :key="item.id" :label="item.name" :value="item.id">
                   {{ item.name }}
                 </el-option>
               </el-select>
             </el-form-item>
           </td>
-          <td>{{ $ts('maintainer') }}</td>
+          <td>{{ $t('maintainer') }}</td>
           <td class="text-form-input">
             <el-form-item prop="author">
               <el-input v-model="docInfo.author" maxlength="64" show-word-limit />
             </el-form-item>
           </td>
-          <td>{{ $ts('isShow') }}</td>
+          <td>{{ $t('isShow') }}</td>
           <td class="text-form-input">
             <el-form-item prop="isShow">
               <el-switch
@@ -38,7 +38,7 @@
               />
             </el-form-item>
           </td>
-          <td>{{ $ts('orderIndex') }}</td>
+          <td>{{ $t('orderIndex') }}</td>
           <td class="text-form-input">
             <el-form-item prop="orderIndex">
               <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
@@ -47,23 +47,23 @@
         </tr>
       </table>
       <el-form-item prop="name" style="margin-bottom: 20px">
-        <el-input v-model="docInfo.name" :placeholder="$ts('docTitle')" maxlength="100" show-word-limit />
+        <el-input v-model="docInfo.name" :placeholder="$t('docTitle')" maxlength="100" show-word-limit />
       </el-form-item>
       <rich-text-editor
         :value="docInfo.description"
-        :placeholder="$ts('inputDocContent')"
+        :placeholder="$t('EditDocCustom.inputDocContent')"
         :editable="true"
         @input="editorContent"
       />
     </el-form>
     <div style="margin-top: 10px;">
-      <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>
-      <el-button type="primary" icon="el-icon-finished" @click="submitCustomDoc">{{ $ts('save') }}</el-button>
-      <el-button type="success" icon="el-icon-view" @click="viewCustomDoc">{{ $ts('preview') }}</el-button>
+      <el-button type="text" icon="el-icon-back" @click="goBack">{{ $t('back') }}</el-button>
+      <el-button type="primary" icon="el-icon-finished" @click="submitCustomDoc">{{ $t('save') }}</el-button>
+      <el-button type="success" icon="el-icon-view" @click="viewCustomDoc">{{ $t('preview') }}</el-button>
     </div>
     <!-- dialog -->
     <el-dialog
-      :title="$ts('preview')"
+      :title="$t('preview')"
       :visible.sync="viewCustomDialogVisible"
       width="70%"
     >
@@ -82,11 +82,6 @@
 </style>
 <script>
 import RichTextEditor from '@/components/RichTextEditor'
-
-$addI18n({
-  'customDocTip': { zh: '使用富文本编辑器编写文档内容', en: 'Use rich text editor to write document' },
-  'inputDocContent': { zh: '输入文档内容', en: 'Input document content' }
-})
 
 export default {
   components: { RichTextEditor },
@@ -191,7 +186,7 @@ export default {
             }
           })
         } else {
-          this.tipError($ts('pleaseFinishForm'))
+          this.tipError($t('pleaseFinishForm'))
         }
       })
     }

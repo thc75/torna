@@ -15,7 +15,7 @@ export default {
   },
   computed: {
     btnText() {
-      return this.buttonText || this.$ts('helpBook')
+      return this.buttonText || this.$t('helpBook')
     }
   }
 }

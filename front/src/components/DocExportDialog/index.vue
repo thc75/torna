@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog
-      :title="$ts('exportDoc')"
+      :title="$t('exportDoc')"
       :visible.sync="dialogVisible"
     >
       <el-form
@@ -10,15 +10,15 @@
         label-width="120px"
         size="mini"
       >
-        <el-form-item :label="$ts('exportAs')">
+        <el-form-item :label="$t('exportAs')">
           <template>
             <el-radio-group v-model="dialogFormData.style">
-              <el-radio :label="1">{{ $ts('singlePage') }}</el-radio>
-              <el-radio :label="2">{{ $ts('multiPage') }}</el-radio>
+              <el-radio :label="1">{{ $t('singlePage') }}</el-radio>
+              <el-radio :label="2">{{ $t('multiPage') }}</el-radio>
             </el-radio-group>
           </template>
         </el-form-item>
-        <el-form-item :label="$ts('fileType')">
+        <el-form-item :label="$t('fileType')">
           <template>
             <el-radio-group v-model="dialogFormData.type">
               <el-radio label="html">html</el-radio>
@@ -27,14 +27,14 @@
             </el-radio-group>
           </template>
         </el-form-item>
-        <el-form-item :label="$ts('selectDoc')">
+        <el-form-item :label="$t('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">
-            <el-radio :label="1">{{ $ts('allDocs') }}</el-radio>
-            <el-radio :label="0">{{ $ts('partDocs') }}</el-radio>
+            <el-radio :label="1">{{ $t('allDocs') }}</el-radio>
+            <el-radio :label="0">{{ $t('partDocs') }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :label="$ts('selectEnv')">
-          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $ts('selectAll') }}</el-checkbox>
+        <el-form-item :label="$t('selectEnv')">
+          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $t('selectAll') }}</el-checkbox>
           <el-checkbox-group v-model="dialogFormData.envIds">
             <el-checkbox v-for="env in envs" :key="env.id" :label="env.id">{{ env.name }}</el-checkbox>
           </el-checkbox-group>
@@ -44,8 +44,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" :loading="loading" @click="onDialogSave">{{ $ts('dlgExport') }}</el-button>
+        <el-button @click="dialogVisible = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" :loading="loading" @click="onDialogSave">{{ $t('dlgExport') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -113,7 +113,7 @@ export default {
       } else {
         keys = this.$refs.docTreeRef.getCheckedAllKeys()
         if (!keys || keys.length === 0) {
-          this.tipError(this.$ts('pleaseCheckDoc'))
+          this.tipError(this.$t('pleaseCheckDoc'))
           return
         }
       }

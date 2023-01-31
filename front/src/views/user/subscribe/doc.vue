@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h3>{{ $ts('mySubscribeApi') }}</h3>
+    <h3>{{ $t('mySubscribeApi') }}</h3>
     <el-table
       :data="pageInfo.rows"
       border
@@ -9,18 +9,18 @@
     >
       <el-table-column
         prop="name"
-        :label="$ts('apiName')"
+        :label="$t('apiName')"
       />
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="130px"
       >
         <template slot-scope="scope">
           <el-popconfirm
-            :title="$ts('cancelSubscribeConfirm', scope.row.name)"
+            :title="$t('cancelSubscribeConfirm', scope.row.name)"
             @confirm="onCancel(scope.row)"
           >
-            <el-link slot="reference" type="primary" size="mini">{{ $ts('cancelSubscribe') }}</el-link>
+            <el-link slot="reference" type="primary" size="mini">{{ $t('cancelSubscribe') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -67,7 +67,7 @@ export default {
         sourceId: row.id
       }
       this.post('/user/subscribe/doc/cancelSubscribe', data, () => {
-        this.tipSuccess($ts('operateSuccess'))
+        this.tipSuccess($t('operateSuccess'))
         this.loadTable()
       })
     },

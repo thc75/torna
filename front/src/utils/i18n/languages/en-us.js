@@ -1,7 +1,4 @@
-import { BaseTranslator } from '../base'
-
-// Mapping
-const MAPPING = {
+export default {
   'ok': 'OK',
   'cancel': 'Cancel',
   'home': 'Home',
@@ -418,16 +415,35 @@ const MAPPING = {
   'selectAll': 'Select All',
   'recommend': 'Recommend',
   'standardDocument': 'Standard Document',
-  'customDocument': 'Custom Document'
+  'customDocument': 'Custom Document',
+  'spaceDimension': 'Space Dimension',
+  'projectDimension': 'Project Dimension',
+  // module
+  'RichTextEditor.imgUploadInfo': 'Support clipboard image upload, URL image insert, local image upload insert',
+  'RichTextEditor.imgHelpBtnText': 'Upload image setting',
+  'ConstView.constInfo': 'Constant Info',
+  'Mock.backMockScript': 'Response mock script',
+  'SwaggerSetting.syncConfirm': 'Save success, synchronize documents now?',
+  'SwaggerSetting.synchronizing': 'synchronizing',
+  'EditDocCustom.inputDocContent': 'Input document content',
+  'ConstantInfo.projectConstantTip': 'The project constant that can be visited by the following applications',
+  'ConstantInfo.applicationConstantTip': 'Define a separate constant for each application',
+  'ImportSwaggerDialog.pluginImport': 'Plugin Import',
+  'ImportSwaggerDialog.pluginImportTip': 'If your project written in Java and managed by Maven, you can use this method. Advantages: You can push documents without starting the project',
+  'ImportSwaggerDialog.urlImport': 'URL Import',
+  'ImportSwaggerDialog.importing': 'Importing',
+  'ImportSwaggerDialog.swaggerContentImport': 'JSON/YAML Import',
+  'ImportSwaggerDialog.swaggerContentImportTip': 'Input swagger doc content,support json or yaml',
+  'ImportSwaggerDialog.importTip': 'Note: The import process is asynchronous on the server. After the file is saved successfully, you cannot see the file immediately. Refresh after 3 to 5 seconds',
+  'Module.noAppDescription': 'No application',
+  'EnvSetting.newEnv': 'New Environment',
+  'EnvSetting.importEnv': 'Import from other modules',
+  'EnvSetting.copyCurrent': 'Duplicate',
+  'EnvSetting.deleteCurrent': 'Delete environment',
+  'EnvSetting.copyEnv': '{0} Copy',
+  'EnvSetting.commonSetting': 'Common Settings',
+  'EnvSetting.plzCheckEnv': 'Please select environment',
+  'EnvSetting.ownerSpace': 'Space Name',
+  'EnvSetting.allowDebug': 'Allow Debug'
 
 }
-
-export class Translator extends BaseTranslator {
-  getMapping() {
-    return MAPPING
-  }
-  addMapping(anotherMapping) {
-    Object.assign(this.getMapping(), anotherMapping)
-  }
-}
-
