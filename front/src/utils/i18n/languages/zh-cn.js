@@ -86,7 +86,6 @@ export default {
   'errorCodeManagement': '错误码管理',
   'moduleSetting': '应用配置',
   'shareManagement': '分享管理',
-  'createApi': '新建接口',
   'createFolder': '新建分类',
   'apiFilter': '过滤: 支持ID、名称、路径',
   'refreshTable': '刷新表格',
@@ -419,7 +418,8 @@ export default {
   'customDocument': '自定义文档',
   'spaceDimension': '空间维度',
   'projectDimension': '项目维度',
-  // module
+  // ---- common end ----
+  // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {
     'imgUploadInfo': '支持剪贴板图片上传，本地图片上传，URL图片插入',
     'imgHelpBtnText': '图片上传设置'
