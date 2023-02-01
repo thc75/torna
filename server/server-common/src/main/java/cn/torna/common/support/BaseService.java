@@ -197,5 +197,14 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
         return mapper.deleteById(id);
     }
 
+    /**
+     * 修改或保存
+     * @param entity 实体类
+     * @return 返回影响行数
+     */
+    public int saveOrUpdate(E entity) {
+        return mapper.saveOrUpdate(entity);
+    }
+
 
 }
