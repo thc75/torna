@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
+import { Message } from 'element-ui'
 
 /**
  * 获取浏览器上面的根地址，到端口，后面没有/
@@ -93,7 +94,10 @@ export function do_get(uri, data, callback) {
     })
     .catch(error => {
       console.error('error', error)
-      that.$message.error('请求异常，请查看日志')
+      Message({
+        message: '请求异常，请查看日志',
+        type: 'error'
+      })
     })
 }
 
@@ -111,7 +115,10 @@ export function do_post(uri, data, callback) {
     })
     .catch(error => {
       console.error('error', error)
-      that.$message.error('请求异常，请查看日志')
+      Message({
+        message: '请求异常，请查看日志',
+        type: 'error'
+      })
     })
 }
 
@@ -223,7 +230,10 @@ function doResponse(response, callback, errorCallback) {
     if (code === '0') { // 成功
       callback && callback.call(this, resp)
     } else {
-      this.$message.error(resp.msg || '请求异常，请查看日志')
+      Message({
+        message: '请求异常，请查看日志',
+        type: 'error'
+      })
       errorCallback && errorCallback.call(this, resp)
     }
   } else {
