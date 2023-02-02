@@ -28,6 +28,7 @@ public class SystemI18nController {
     private SystemI18nConfigService systemI18nConfigService;
 
 
+    @NoLogin
     @GetMapping("lang/list")
     public Result<List<SystemI18nVO>> listLang() {
         List<SystemI18nConfig> systemI18nConfigs = systemI18nConfigService.getMapper()
