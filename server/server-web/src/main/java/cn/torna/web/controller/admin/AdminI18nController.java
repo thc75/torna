@@ -1,12 +1,14 @@
 package cn.torna.web.controller.admin;
 
+import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.SystemI18nConfig;
 import cn.torna.service.SystemI18nConfigService;
 import cn.torna.web.controller.admin.param.SystemI18nConfigParam;
-import cn.torna.web.controller.admin.vo.SystemI18nLangVO;
-import com.alibaba.fastjson.JSONObject;
+import cn.torna.web.controller.admin.vo.SystemI18nVO;
+import cn.torna.web.controller.doc.vo.IdVO;
+import cn.torna.web.controller.system.param.IdParam;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,35 +26,36 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("admin/i18n")
-public class I18nController {
+public class AdminI18nController {
 
     @Autowired
     private SystemI18nConfigService systemI18nConfigService;
 
-    @GetMapping("content/get")
-    public Result<Object> getLangContent(String lang) {
-        JSONObject content = systemI18nConfigService.getContentByLang(lang);
-        return Result.ok(content);
+    @GetMapping("get")
+    public Result<SystemI18nVO> getLangContent(@HashId Long id) {
+        SystemI18nConfig systemI18nConfig = systemI18nConfigService.getById(id);
+        SystemI18nVO systemI18nVO = CopyUtil.copyBean(systemI18nConfig, SystemI18nVO::new);
+        return Result.ok(systemI18nVO);
     }
 
     @GetMapping("lang/list")
-    public Result<List<SystemI18nLangVO>> listLang() {
+    public Result<List<SystemI18nVO>> listLang() {
         List<SystemI18nConfig> systemI18nConfigs = systemI18nConfigService.getMapper()
-                .listBySpecifiedColumns(Arrays.asList("lang", "description"), new Query());
-        List<SystemI18nLangVO> systemI18nLangVOS = CopyUtil.copyList(systemI18nConfigs, SystemI18nLangVO::new);
+                .listBySpecifiedColumns(Arrays.asList("id", "lang", "description"), new Query());
+        List<SystemI18nVO> systemI18nLangVOS = CopyUtil.copyList(systemI18nConfigs, SystemI18nVO::new);
         return Result.ok(systemI18nLangVOS);
     }
 
     @PostMapping("save")
-    public Result save(@RequestBody SystemI18nConfigParam param) {
+    public Result<IdVO> save(@RequestBody SystemI18nConfigParam param) {
         SystemI18nConfig systemI18nConfig = CopyUtil.copyBean(param, SystemI18nConfig::new);
-        SystemI18nConfig config = systemI18nConfigService.get("lang", param.getLang());
-        if (config == null) {
-            systemI18nConfigService.save(systemI18nConfig);
-        } else {
-            CopyUtil.copyPropertiesIgnoreNull(systemI18nConfig, config);
-            systemI18nConfigService.update(config);
-        }
+        systemI18nConfigService.saveOrUpdate(systemI18nConfig);
+        return Result.ok(new IdVO(systemI18nConfig.getId()));
+    }
+
+    @PostMapping("delete")
+    public Result save(@RequestBody IdParam param) {
+        systemI18nConfigService.deleteById(param.getId());
         return Result.ok();
     }
 

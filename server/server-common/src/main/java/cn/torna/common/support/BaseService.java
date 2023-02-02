@@ -1,6 +1,7 @@
 package cn.torna.common.support;
 
 import cn.torna.common.util.CopyUtil;
+import com.gitee.fastmybatis.core.FastmybatisContext;
 import com.gitee.fastmybatis.core.mapper.CrudMapper;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.PageEasyui;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -203,7 +205,17 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      * @return 返回影响行数
      */
     public int saveOrUpdate(E entity) {
-        return mapper.saveOrUpdate(entity);
+        Objects.requireNonNull(entity, "entity can not null");
+        Object pkValue = FastmybatisContext.getPkValue(entity);
+        // 如果存在数据，执行更新操作
+        if (pkValue != null) {
+            String pkColumnName = FastmybatisContext.getPkColumnName(entity.getClass());
+            Object columnValue = this.getMapper().getColumnValue(pkColumnName, new Query().eq(pkColumnName, pkValue), Object.class);
+            if (columnValue != null) {
+                return this.update(entity);
+            }
+        }
+        return this.save(entity);
     }
 
 

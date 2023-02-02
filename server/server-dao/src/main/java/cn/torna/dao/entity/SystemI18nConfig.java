@@ -42,6 +42,10 @@ public class SystemI18nConfig {
     private String content;
 
 
+    @com.gitee.fastmybatis.annotation.Column(logicDelete = true)
+    private Byte isDeleted;
+
+
     private LocalDateTime gmtCreate;
 
 

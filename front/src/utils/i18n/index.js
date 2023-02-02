@@ -8,16 +8,33 @@ import { get_lang } from '@/utils/i18n/common'
 import { format_string } from '@/utils/common'
 import mappingEn from '@/utils/i18n/languages/en-us'
 import mappingZh from '@/utils/i18n/languages/zh-cn'
+import axios from 'axios'
+import { get_server_url } from '@/utils/http'
 
 Vue.use(VueI18n)
 
 const i18n = new VueI18n({
   locale: get_lang(),
+  fallbackLocale: 'zh-CN',
+  silentFallbackWarn: true,
   messages: {
-    'zh': { ...zhLocale, ...mappingZh },
+    'zh-CN': { ...zhLocale, ...mappingZh },
     'en': { ...enLocale, ...mappingEn }
   }
 })
+
+axios.get(`${get_server_url()}/system/i18n/get?lang=${get_lang()}`, {})
+  .then(response => {
+    const data = response.data
+    const i18nConfig = data.data
+    if (i18nConfig) {
+      const lang = get_lang()
+      const elLang = require(`element-ui/lib/locale/lang/${lang}`).default
+      const fullConfig = Object.assign(elLang, i18nConfig)
+      i18n.setLocaleMessage(lang, fullConfig)
+    }
+  })
+
 ElementLocale.i18n((key, value) => i18n.t(key, value))
 
 // config

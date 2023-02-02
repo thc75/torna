@@ -9,7 +9,7 @@
       style="width: 500px;"
     >
       <el-form-item :label="$t('language')">
-        <el-select v-model="systemSettingData.language" placeholder="请选择">
+        <el-select v-model="systemSettingData.language" :placeholder="$t('pleaseSelect')">
           <el-option
             v-for="item in languageOptions"
             :key="item.value"
@@ -18,7 +18,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('docTabView')">
+      <el-form-item :label="$t('docTabView')" style="display: none">
         <el-radio-group v-model="systemSettingData.docViewTabs">
           <el-radio :label="true">{{ $t('enable') }}</el-radio>
           <el-radio :label="false">{{ $t('disable') }}</el-radio>
@@ -38,19 +38,27 @@ export default {
     return {
       systemSettingData: {
         language: '',
-        docViewTabs: false
+        docViewTabs: true
       },
       systemSettingRules: {
       },
       languageOptions: [
-        { label: '简体中文', value: 'zh' },
+        { label: '简体中文', value: 'zh-CN' },
         { label: 'English', value: 'en' }
       ]
     }
   },
   mounted() {
-    this.systemSettingData.language = get_lang()
-    this.systemSettingData.docViewTabs = this.$store.state.settings.docViewTabSwitch
+    this.get('system/i18n/lang/list', {}, resp => {
+      const items = resp.data
+      for (const item of items) {
+        this.languageOptions.push(
+          { label: item.description, value: item.lang }
+        )
+      }
+      this.systemSettingData.language = get_lang()
+      this.systemSettingData.docViewTabs = this.$store.state.settings.docViewTabSwitch
+    })
   },
   methods: {
     handleUpdate() {
