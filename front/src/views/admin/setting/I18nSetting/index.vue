@@ -14,8 +14,19 @@
       />
     </el-aside>
     <el-main>
-      <el-form ref="i18nForm" v-if="formData.id || formData.isNew" :model="formData" :rules="formRules">
-        <el-form-item label="语言" prop="lang">
+      <el-form v-if="formData.id || formData.isNew" ref="i18nForm"  :model="formData" :rules="formRules">
+        <el-form-item label="语言简称" prop="lang">
+          <el-alert>
+            <div slot="title">
+              建议跟ElementUI简称保持一致，
+              <el-link
+                type="primary"
+                href="https://github.com/ElemeFE/element/tree/dev/src/locale/lang"
+                target="_blank"
+              >点击查看</el-link><br/>
+              系统内置了zh-CN（简体中文）,en（英文）两个配置，可在此进行覆盖，如要覆盖简体中文填zh-CN
+            </div>
+          </el-alert>
           <el-input
             v-model="formData.lang"
             placeholder="语言简称，如：zh-TW"
@@ -32,7 +43,12 @@
           />
         </el-form-item>
         <el-form-item label="翻译内容">
-          <el-alert title="key不变，翻译value值，{0}为占位符不用翻译。完成后前往【个人中心】-【系统设置】-【语言】查看" :closable="false" />
+          <el-alert :closable="false">
+            <div slot="title">
+              json内容，key不变，翻译value值，{0}为占位符不用翻译。完成后前往
+              <el-link type="primary" :href="`${getBaseUrl()}/#/user/systemSetting`" target="_blank">【个人中心】</el-link>查看
+            </div>
+          </el-alert>
           <editor
             ref="requestEditor"
             v-model="formData.content"

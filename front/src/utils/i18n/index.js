@@ -29,7 +29,13 @@ axios.get(`${get_server_url()}/system/i18n/get?lang=${get_lang()}`, {})
     const i18nConfig = data.data
     if (i18nConfig) {
       const lang = get_lang()
-      const elLang = require(`element-ui/lib/locale/lang/${lang}`).default
+      let elLang
+      try {
+        elLang = require(`element-ui/lib/locale/lang/${lang}`).default
+      } catch (e) {
+        console.error(`elementUI国际化不存在，locale:${lang}`)
+        elLang = {}
+      }
       const fullConfig = Object.assign(elLang, i18nConfig)
       i18n.setLocaleMessage(lang, fullConfig)
     }
