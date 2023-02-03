@@ -21,7 +21,7 @@
               建议跟ElementUI简称保持一致，
               <el-link
                 type="primary"
-                href="https://github.com/ElemeFE/element/tree/dev/src/locale/lang"
+                href="https://github.com/ElemeFE/element/tree/master/src/locale/lang"
                 target="_blank"
               >点击查看</el-link><br/>
               系统内置了zh-CN（简体中文）,en（英文）两个配置，可在此进行覆盖，如要覆盖简体中文填zh-CN
@@ -130,26 +130,23 @@ export default {
       // language
       require('brace/mode/json')
       require('brace/theme/chrome')
-      // 监听值的变化
-      const that = this
-      editor.on('blur', event => {
-        that.onBodyBlur()
-      })
     },
-    onBodyBlur() {
+    formatContent() {
       const val = this.formData.content
       if (val) {
         try {
           this.formData.content = this.formatJson(JSON.parse(val))
+          return true
           // eslint-disable-next-line no-empty
         } catch (e) {
           this.tipError('格式错误，确保为json')
         }
       }
+      return false
     },
     onSave() {
       this.$refs.i18nForm.validate(valid => {
-        if (valid) {
+        if (valid && this.formatContent()) {
           this.post('admin/i18n/save', this.formData, resp => {
             this.tipSuccess($t('saveSuccess'))
             if (!this.formData.id) {

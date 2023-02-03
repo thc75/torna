@@ -231,13 +231,16 @@ function doResponse(response, callback, errorCallback) {
       callback && callback.call(this, resp)
     } else {
       Message({
-        message: '请求异常，请查看日志',
+        message: resp.msg,
         type: 'error'
       })
       errorCallback && errorCallback.call(this, resp)
     }
   } else {
     console.error('error', response)
-    this.$message.error('请求异常，请查看日志')
+    Message({
+      message: '请求异常，请查看日志',
+      type: 'error'
+    })
   }
 }

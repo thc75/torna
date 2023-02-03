@@ -86,7 +86,7 @@ export default {
     },
     onModuleDelete() {
       this.confirm(this.$t('deleteModuleConfirm'), () => {
-        this.post('/module/delete', { id: this.moduleId }, () => {
+        this.post('/module/delete', { id: this.moduleVO.id }, () => {
           alert(this.$t('deleteSuccess'))
           location.reload()
         })
