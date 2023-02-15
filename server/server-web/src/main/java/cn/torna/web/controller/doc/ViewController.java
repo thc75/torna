@@ -4,7 +4,7 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;

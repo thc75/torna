@@ -2,7 +2,7 @@ package cn.torna.web.controller.user;
 
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserInfo;

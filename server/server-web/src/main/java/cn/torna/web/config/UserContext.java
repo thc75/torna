@@ -1,7 +1,8 @@
-package cn.torna.common.context;
+package cn.torna.web.config;
 
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
+import cn.torna.common.context.SpringContext;
 import cn.torna.common.exception.ErrorTokenException;
 import cn.torna.common.exception.JwtErrorException;
 import cn.torna.common.exception.JwtExpiredException;
@@ -55,6 +56,19 @@ public class UserContext {
         }
     }
 
+    /**
+     * 获取当前登录用户
+     * @return 返回当前登录用户，没有返回null
+     */
+    public static User getUser(HttpServletRequest request) {
+        String token = getToken(request);
+        try {
+            return getUser(token);
+        } catch (ErrorTokenException e) {
+            throw new LoginFailureException();
+        }
+    }
+
     public static String getToken(HttpServletRequest request) {
         String token = request.getHeader(HEADER_TOKEN);
         if (StringUtils.hasText(token) && token.startsWith(JWT_PREFIX)) {
@@ -91,7 +105,7 @@ public class UserContext {
         try {
             data = JwtUtil.verifyJwt(jwt, secret);
         } catch (JwtExpiredException | JwtErrorException e) {
-            log.error("jwt verify failed, userId:{}, token:{}, message:{}", userIdDecoded, token, e.getMessage());
+            log.error("jwt verify failed, userId:{}, token:{}, message:{}", userIdDecoded, token, e.getMessage(), e);
             throw new ErrorTokenException();
         }
         Claim id = data.get("id");
@@ -118,6 +132,7 @@ public class UserContext {
     }
 
 
+    @Deprecated
     public static Locale getLocale() {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();

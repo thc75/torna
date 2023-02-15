@@ -1,7 +1,6 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.Message;
 import cn.torna.common.message.MessageEnum;
@@ -54,7 +53,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         messageDTO.setMessageEnum(messageEnum);
         messageDTO.setType(UserSubscribeTypeEnum.DOC);
         messageDTO.setSourceId(docInfo.getId());
-        messageDTO.setLocale(UserContext.getLocale());
+        messageDTO.setLocale(Locale.SIMPLIFIED_CHINESE);
         this.sendMessage(finalUserIds, messageDTO, docInfo.getModifierName(), docInfo.getName(), remark);
     }
 
@@ -68,7 +67,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         messageDTO.setMessageEnum(MessageEnum.DOC_DELETE);
         messageDTO.setType(UserSubscribeTypeEnum.DOC);
         messageDTO.setSourceId(docInfo.getId());
-        messageDTO.setLocale(UserContext.getLocale());
+        messageDTO.setLocale(Locale.SIMPLIFIED_CHINESE);
         this.sendMessage(finalUserIds, messageDTO, docInfo.getModifierName(), docInfo.getName());
     }
 

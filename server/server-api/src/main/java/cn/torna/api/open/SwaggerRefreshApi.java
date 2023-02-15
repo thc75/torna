@@ -1,7 +1,6 @@
 package cn.torna.api.open;
 
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleSwaggerConfig;
@@ -32,25 +31,16 @@ public class SwaggerRefreshApi {
      * 刷新
      * @param moduleId
      */
-    public void refresh(Long moduleId, String ip) {
+    public void refresh(Long moduleId, String ip, User user) {
         ModuleSwaggerConfig moduleSwaggerConfig = moduleSwaggerConfigService.getByModuleId(moduleId);
         if (moduleSwaggerConfig != null) {
             Module module = moduleService.getById(moduleId);
             ImportSwaggerV2DTO importSwaggerV2DTO = CopyUtil.copyBean(moduleSwaggerConfig, ImportSwaggerV2DTO::new);
-            User user = UserContext.getUser();
             importSwaggerV2DTO.setUser(user);
             importSwaggerV2DTO.setIp(ip);
             importSwaggerV2DTO.setProjectId(module.getProjectId());
             swaggerApi.importSwagger(importSwaggerV2DTO);
         }
-    }
-
-    /**
-     * 刷新
-     * @param moduleId
-     */
-    public void refresh(Long moduleId) {
-        refresh(moduleId, IP);
     }
 
 }

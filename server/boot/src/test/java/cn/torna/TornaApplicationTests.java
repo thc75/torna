@@ -1,6 +1,6 @@
 package cn.torna;
 
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = TornaApplication.class)
