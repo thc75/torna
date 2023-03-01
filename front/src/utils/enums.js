@@ -78,5 +78,9 @@ export const Enums = {
   /**
    * 初始orderIndex
    */
-  INIT_ORDER_INDEX: 10000
+  INIT_ORDER_INDEX: 10000,
+  ModuleConfig: {
+    TORNA_PUSH_PRINT_CONTENT: 'torna.push.print-content',
+    TORNA_PUSH_OVERRIDE: 'torna.push.override'
+  }
 }

@@ -463,5 +463,11 @@ export default {
     'plzCheckEnv': '请勾选环境',
     'ownerSpace': '所属空间',
     'allowDebug': '允许调试'
+  },
+  OpenApi: {
+    'printPushContent': '打印推送内容',
+    'printPushContentTip': '推送内容在 {安装目录}/log/server.log',
+    'contentOverride': '内容覆盖',
+    'contentOverrideTip': '是：局部推送(可推送若干个文档，不影响其它文档)，否：全量替换(默认)'
   }
 }

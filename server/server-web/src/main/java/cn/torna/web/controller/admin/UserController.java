@@ -7,9 +7,12 @@ import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.UserInfo;
+import cn.torna.service.AllocateProjectService;
 import cn.torna.service.UserInfoService;
+import cn.torna.service.dto.AllocateProjectDTO;
 import cn.torna.service.dto.UserAddDTO;
 import cn.torna.service.dto.UserInfoDTO;
+import cn.torna.web.controller.admin.param.AllocateProjectParam;
 import cn.torna.web.controller.admin.param.ResetPasswordParam;
 import cn.torna.web.controller.admin.param.UserCreateParam;
 import cn.torna.web.controller.admin.param.UserInfoParam;
@@ -41,6 +44,9 @@ public class UserController {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Autowired
+    private AllocateProjectService allocateProjectService;
 
     @Value("${torna.user.initial-password}")
     private String initPassword;
@@ -119,6 +125,13 @@ public class UserController {
         Long id = param.getId();
         String resetPassword = userInfoService.resetPassword(id);
         return Result.ok(resetPassword);
+    }
+
+    @PostMapping("allocateProject")
+    public Result allocateProject(@RequestBody AllocateProjectParam param) {
+        AllocateProjectDTO allocateProjectDTO = CopyUtil.copyBean(param, AllocateProjectDTO::new);
+        allocateProjectService.allocateProject(allocateProjectDTO);
+        return Result.ok();
     }
 
 }

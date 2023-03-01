@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.EnvironmentContext;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.interfaces.IConfig;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -60,7 +61,13 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
     }
 
     /**
-     * 获取配置信息，优先从数据库中读取
+     * 获取配置信息
+     * <pre>
+     *  优先级：
+     *  数据库
+     *  Environment
+     *  默认配置
+     * </pre>
      *
      * @param key          配置key
      * @param defaultValue 没有获取到返回的默认值
@@ -71,7 +78,16 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
         SystemConfig systemConfig = get("config_key", key);
         return Optional.ofNullable(systemConfig)
                 .map(SystemConfig::getConfigValue)
-                .orElse(EnvironmentContext.getValue(key, defaultValue));
+                .orElseGet(() -> {
+                    String value = EnvironmentContext.getValue(key, defaultValue);
+                    if (value == null) {
+                        EnvironmentKeys environmentKeys = EnvironmentKeys.of(key);
+                        if (environmentKeys != null && environmentKeys.getDefaultValue() != null) {
+                            value = environmentKeys.getDefaultValue();
+                        }
+                    }
+                    return value;
+                });
     }
 
     @Override
@@ -79,6 +95,10 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
         return configCache.getUnchecked(key).orElse(null);
     }
 
+    @Override
+    public String getConfig(String key, String defaultValue) {
+        return configCache.getUnchecked(key).orElse(defaultValue);
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

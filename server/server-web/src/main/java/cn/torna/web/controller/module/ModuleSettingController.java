@@ -14,9 +14,11 @@ import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
+import cn.torna.web.controller.module.param.ModuleCommonConfigParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
 import cn.torna.web.controller.module.param.ModuleSwaggerConfigParam;
 import cn.torna.web.controller.module.vo.DebugEnvVO;
+import cn.torna.web.controller.module.vo.ModuleConfigVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalVO;
 import cn.torna.web.controller.module.vo.ModuleSwaggerConfigVO;
 import cn.torna.web.controller.module.vo.SwaggerSettingVO;
@@ -27,7 +29,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -228,4 +232,23 @@ public class ModuleSettingController {
         moduleSwaggerConfigService.updateIgnoreNull(moduleSwaggerConfig);
         return Result.ok();
     }
+
+    @PostMapping("common/set")
+    public Result setCommonValue(@RequestBody ModuleCommonConfigParam param) {
+        moduleConfigService.setCommonConfigValue(
+                param.getModuleId(),
+                param.getConfigKey(),
+                param.getConfigValue()
+        );
+        return Result.ok();
+    }
+
+    @GetMapping("common/list")
+    public Result<List<ModuleConfigVO>> listCommonValue(@HashId long moduleId, String keys) {
+        String[] split = keys.split(",");
+        List<ModuleConfig> moduleConfigs = moduleConfigService.listCommonConfigValue(moduleId, Arrays.stream(split).collect(Collectors.toList()));
+        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
+        return Result.ok(moduleConfigVOS);
+    }
+
 }

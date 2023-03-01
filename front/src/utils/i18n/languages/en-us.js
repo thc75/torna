@@ -463,5 +463,11 @@ export default {
     'plzCheckEnv': 'Please select environment',
     'ownerSpace': 'Space Name',
     'allowDebug': 'Allow Debug'
+  },
+  OpenApi: {
+    'printPushContent': 'Print push content',
+    'printPushContentTip': 'The content in {install dir}/log/server.log',
+    'contentOverride': 'Override content',
+    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents'
   }
 }

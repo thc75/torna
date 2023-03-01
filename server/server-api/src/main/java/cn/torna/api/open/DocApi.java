@@ -89,10 +89,15 @@ public class DocApi {
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
+        RequestContext context = RequestContext.getCurrentContext();
+        String token = context.getToken();
+        Module module = context.getModule();
+        String ip = context.getIp();
+        log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
         // 是否打印推送内容
         String isPrint = EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getValue();
-        if (Boolean.parseBoolean(isPrint)) {
-            log.info("推送内容：\n{}", JSON.toJSONString(param));
+        if (Boolean.parseBoolean(isPrint) || isPrintContent(module.getId())) {
+            log.info("【PUSH】推送内容：{}", JSON.toJSONString(param));
         }
         // 允许有相同的目录
         String allowSameFolder = EnvironmentKeys.TORNA_PUSH_ALLOW_SAME_FOLDER.getValue();
@@ -101,7 +106,6 @@ public class DocApi {
         } else {
             this.checkSameFolder(param);
         }
-        RequestContext context = RequestContext.getCurrentContext();
         String author = param.getAuthor();
         if (StringUtils.hasText(author)) {
             ApiUser user = (ApiUser) context.getApiUser();
@@ -162,7 +166,6 @@ public class DocApi {
         Module module = context.getModule();
         long moduleId = module.getId();
         String ip = context.getIp();
-        log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>());
@@ -177,7 +180,9 @@ public class DocApi {
                     moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
                 }
                 // 替换文档
-                if (Booleans.isTrue(param.getIsReplace(), true) && !BooleanUtils.toBoolean(param.getIsOverride())) {
+                if (!isOverride(moduleId)
+                        && Booleans.isTrue(param.getIsReplace(), true)
+                        && !BooleanUtils.toBoolean(param.getIsOverride())) {
                     // 先删除之前的文档
                     this.deleteOpenAPIModuleDocs(moduleId);
                 }
@@ -197,6 +202,18 @@ public class DocApi {
             log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
                     module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);
         }
+    }
+
+    private boolean isOverride(long moduleId) {
+        String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_OVERRIDE.getKey(),
+                EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
+        return Boolean.parseBoolean(value);
+    }
+
+    private boolean isPrintContent(long moduleId) {
+        String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getKey(),
+                EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
+        return Boolean.parseBoolean(value);
     }
 
     /**

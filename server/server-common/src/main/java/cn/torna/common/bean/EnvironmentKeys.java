@@ -3,6 +3,8 @@ package cn.torna.common.bean;
 import cn.torna.common.context.UploadContext;
 import cn.torna.common.enums.DocSortType;
 
+import java.util.Objects;
+
 /**
  * 获取环境配置信息，读取顺序：缓存>数据库>Spring Environment
  */
@@ -59,11 +61,22 @@ public enum EnvironmentKeys {
     TORNA_DOC_SORT_TYPE("torna.doc-sort-type", DocSortType.BY_ORDER.getType()),
     /** 上传文件域名 */
     TORNA_UPLOAD_DOMAIN("torna.upload.domain", null),
-    TORNA_UPLOAD_DIR("torna.upload.dir", null)
+    TORNA_UPLOAD_DIR("torna.upload.dir", null),
+    /** 推送是否覆盖 */
+    TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false))
     ;
 
     private final String key;
     private String defaultValue;
+
+    public static EnvironmentKeys of(String key) {
+        for (EnvironmentKeys value : EnvironmentKeys.values()) {
+            if (Objects.equals(value.key, key)) {
+                return value;
+            }
+        }
+        return null;
+    }
 
     EnvironmentKeys(String key) {
         this.key = key;
@@ -72,6 +85,10 @@ public enum EnvironmentKeys {
     EnvironmentKeys(String key, String defaultValue) {
         this.key = key;
         this.defaultValue = defaultValue;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
     }
 
     public boolean getBoolean() {
