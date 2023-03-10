@@ -288,7 +288,7 @@ public class SwaggerApi {
     }
 
     private static List<DocPushItemParam> buildItems(Map.Entry<String, PathItem> entry, OpenAPI openAPI) {
-         List<DocPushItemParam> items = new ArrayList<>();
+        List<DocPushItemParam> items = new ArrayList<>();
         String path = entry.getKey();
         PathItem pathItem = entry.getValue();
         Map<PathItem.HttpMethod, Operation> operationMap = pathItem.readOperationsMap();
@@ -475,7 +475,7 @@ public class SwaggerApi {
                             .required(Booleans.toValue(jsonSchema.getRequired(name) || Objects.equals("true", String.valueOf(value.getRequired()))))
                             .description(value.getDescription())
                             .example(toString(value.getExample()))
-                            .maxLength(getMaxLength(jsonSchema.getSchema()))
+                            .maxLength(getMaxLength(jsonSchema.getSchema(), value))
                             .build();
                     String type = value.getType();
                     List<DocParamPushParam> children = null;
@@ -644,10 +644,17 @@ public class SwaggerApi {
     }
 
     private static String getMaxLength(Schema<?> schema) {
-        Integer maxLength = Optional.ofNullable(schema)
+        return Optional.ofNullable(schema)
                 .map(Schema::getMaxLength)
-                .orElse(null);
-        return maxLength == null ? "-" : maxLength.toString();
+                .map(String::valueOf)
+                .orElse("-");
+    }
+
+    private static String getMaxLength(Schema<?> schema, Schema<?> value) {
+        return Optional.ofNullable(schema)
+                .map(Schema::getMaxLength)
+                .map(String::valueOf)
+                .orElseGet(() -> getMaxLength(value));
     }
 
     /**
