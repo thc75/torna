@@ -1,6 +1,7 @@
 package cn.torna.web.controller.admin;
 
 import cn.torna.common.bean.Result;
+import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.ProjectService;
@@ -53,10 +54,11 @@ public class AdminProjectController {
             Long spaceId = entry.getKey();
             Space space = entry.getValue();
             List<Project> projectsList = spaceIdProjects.get(spaceId);
-            TreeVO treeVO = new TreeVO(spaceId.toString(), space.getName(), "", (byte) 0);
+            String id = IdUtil.encode(spaceId);
+            TreeVO treeVO = new TreeVO(id, space.getName(), "");
             List<TreeVO> children = projectsList.stream()
                     .map(project -> {
-                        return new TreeVO(project.getId().toString(), project.getName(), spaceId.toString(), (byte) 0);
+                        return new TreeVO(IdUtil.encode(project.getId()), project.getName(), id);
                     })
                     .collect(Collectors.toList());
             treeVO.setChildren(children);

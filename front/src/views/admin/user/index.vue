@@ -75,10 +75,11 @@
       </el-table-column>
       <el-table-column
         :label="$t('operation')"
-        width="210"
+        width="260"
       >
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
+            <el-link :underline="false" type="primary" @click="onAllocateProject(scope.row)">{{ $t('AdminUser.allocateProject') }}</el-link>
             <el-link :underline="false" type="primary" @click="onUserUpdate(scope.row)">{{ $t('update') }}</el-link>
             <el-popconfirm
               v-if="scope.row.source === getEnums().SOURCE.REGISTER || scope.row.source === getEnums().SOURCE.BACKEND"
@@ -165,14 +166,37 @@
         <el-button type="primary" @click="onDialogSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      :title="$t('AdminUser.allocateProject')"
+      :visible.sync="chooseProjectShow"
+      :close-on-click-modal="false"
+    >
+      <div style="margin-bottom: 10px">
+        <el-form class="text-form" label-width="120">
+          <el-form-item :label="$t('nickname')">
+            {{ currentUserNick }}
+          </el-form-item>
+          <el-form-item :label="$t('role')">
+            <el-radio-group v-model="projectRole">
+              <el-radio :label="Role.guest">{{ $t('visitor') }}</el-radio>
+              <el-radio :label="Role.dev">{{ $t('developer') }}</el-radio>
+              <el-radio :label="Role.admin">{{ $t('admin') }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <project-select ref="projectSelect" :on-ok="onAllocateProjectOk" :on-cancel="() => chooseProjectShow = false" />
+        </el-form>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import TimeTooltip from '@/components/TimeTooltip'
+import ProjectSelect from '@/components/ProjectSelect'
 
 export default {
-  components: { TimeTooltip },
+  components: { TimeTooltip, ProjectSelect },
   data() {
     return {
       searchFormData: {
@@ -199,7 +223,11 @@ export default {
         nickname: [
           { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ]
-      }
+      },
+      currentUserId: 0,
+      chooseProjectShow: false,
+      projectRole: 'dev',
+      currentUserNick: ''
     }
   },
   created() {
@@ -242,6 +270,17 @@ export default {
       this.dialogTitle = $t('update')
       Object.assign(this.dialogFormData, row)
       this.dialogVisible = true
+    },
+    onAllocateProject(row) {
+      this.currentUserId = row.id
+      this.currentUserNick = row.nickname
+      this.get('/admin/user/getUserProjectIds', { userId: row.id }, resp => {
+        const projectIds = resp.data
+        this.chooseProjectShow = true
+        this.$nextTick(() => {
+          this.$refs.projectSelect.reload(projectIds)
+        })
+      })
     },
     onDialogSave() {
       this.$refs.dialogForm.validate((valid) => {
@@ -298,6 +337,17 @@ export default {
         'backend': $t('backendAdd'),
         'ldap': 'LDAP'
       }
+    },
+    onAllocateProjectOk(projectIds) {
+      const data = {
+        userId: this.currentUserId,
+        role: this.projectRole,
+        projectIds: projectIds
+      }
+      this.post('/admin/user/allocateProject', data, resp => {
+        this.tipSuccess($t('operateSuccess'))
+        this.chooseProjectShow = false
+      })
     }
   }
 }

@@ -24,7 +24,8 @@
             )
         </foreach>
         ON DUPLICATE KEY UPDATE
-        is_deleted = 0
+        is_deleted = 0,
+        role_code = VALUES(role_code)
     </insert>
 
 </mapper>

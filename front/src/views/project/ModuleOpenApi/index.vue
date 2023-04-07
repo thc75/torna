@@ -95,6 +95,7 @@ export default {
       }
     },
     loadConfig(moduleId) {
+      this.contentOverride = false
       const keyPushOverride = this.getEnums().ModuleConfig.TORNA_PUSH_OVERRIDE
       const keyPushPrintContent = this.getEnums().ModuleConfig.TORNA_PUSH_PRINT_CONTENT
       const keys = [
