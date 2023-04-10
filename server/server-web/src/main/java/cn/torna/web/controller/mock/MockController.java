@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,11 +40,9 @@ public class MockController {
     public void mock(
             HttpServletRequest request,
             HttpServletResponse response) {
-        MockConfig mockConfig;
-        String mockId = getMockId(request);
-        String dataId = buildDataId(request);
-        mockConfig = mockConfigService.getByDataId(dataId);
+        MockConfig mockConfig = getMockConfig(request);
         if (mockConfig == null) {
+            String mockId = getMockId(request);
             Long id = IdUtil.decode(mockId);
             mockConfig = mockConfigService.getById(id);
         }
@@ -57,6 +56,21 @@ public class MockController {
         response.setStatus(mockConfig.getHttpStatus());
         String responseBody = getResponseBody(mockConfig);
         ResponseUtil.write(response, responseBody);
+    }
+
+    private MockConfig getMockConfig(HttpServletRequest request) {
+        List<String> dataIds = Arrays.asList(
+                buildDataId(request, ignoreParam),
+                buildDataId(request, true)
+        );
+        MockConfig mockConfig;
+        for (String dataId : dataIds) {
+            mockConfig = mockConfigService.getByDataId(dataId);
+            if (mockConfig != null) {
+                return mockConfig;
+            }
+        }
+        return null;
     }
 
     private String getPath(HttpServletRequest request) {
@@ -74,7 +88,7 @@ public class MockController {
         return mockId;
     }
 
-    private String buildDataId(HttpServletRequest request) {
+    private String buildDataId(HttpServletRequest request, boolean ignoreParam) {
         String path = getPath(request);
         if (ignoreParam) {
             return MockConfigService.buildDataId(path);
@@ -86,6 +100,7 @@ public class MockController {
         }
         return MockConfigService.buildDataId(path);
     }
+
 
     private String getResponseBody(MockConfig mockConfig) {
         Byte resultType = mockConfig.getResultType();

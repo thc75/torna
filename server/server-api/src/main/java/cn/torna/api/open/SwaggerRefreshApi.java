@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class SwaggerRefreshApi {
 
-    public static final String IP = "127.0.0.1";
-
     @Autowired
     private ModuleService moduleService;
 
@@ -29,6 +27,7 @@ public class SwaggerRefreshApi {
 
     /**
      * 刷新
+     *
      * @param moduleId
      */
     public void refresh(Long moduleId, String ip, User user) {
@@ -39,7 +38,7 @@ public class SwaggerRefreshApi {
             importSwaggerV2DTO.setUser(user);
             importSwaggerV2DTO.setIp(ip);
             importSwaggerV2DTO.setProjectId(module.getProjectId());
-            swaggerApi.importSwagger(importSwaggerV2DTO);
+            swaggerApi.importSwagger(importSwaggerV2DTO, module);
         }
     }
 

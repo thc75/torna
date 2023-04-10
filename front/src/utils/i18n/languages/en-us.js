@@ -69,6 +69,7 @@ export default {
   'updateSuccess': 'Update success',
   'visitor': 'Guest',
   'developer': 'Developer',
+  'admin': 'Administrator',
   'createAccount': 'New Account',
   'applicant': 'Applicant',
   'status': 'Status',
@@ -463,5 +464,15 @@ export default {
     'plzCheckEnv': 'Please select environment',
     'ownerSpace': 'Space Name',
     'allowDebug': 'Allow Debug'
+  },
+  OpenApi: {
+    'printPushContent': 'Print push content',
+    'printPushContentTip': 'The content in {install dir}/log/server.log',
+    'contentOverride': 'Override content',
+    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents'
+  },
+  AdminUser: {
+    'allocateProject': 'Allocate Project',
+    'chooseProject': 'Choose Project'
   }
 }

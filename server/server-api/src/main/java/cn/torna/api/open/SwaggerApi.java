@@ -89,6 +89,10 @@ public class SwaggerApi {
      * @param importSwaggerV2DTO importSwaggerV2DTO
      */
     public Module importSwagger(ImportSwaggerV2DTO importSwaggerV2DTO) {
+        return importSwagger(importSwaggerV2DTO, null);
+    }
+
+    public Module importSwagger(ImportSwaggerV2DTO importSwaggerV2DTO, Module module) {
         String content = buildSwaggerDocContent(importSwaggerV2DTO);
         User user = importSwaggerV2DTO.getUser();
         String nickname = user.getNickname();
@@ -97,7 +101,9 @@ public class SwaggerApi {
         apiUser.setNickname(user.getNickname());
         OpenAPI openAPI = getOpenAPI(content);
         DocPushParam docPushParam = buildDocPushParam(nickname, openAPI);
-        Module module = createModule(importSwaggerV2DTO, getTitle(openAPI));
+        if (module == null) {
+            module = createModule(importSwaggerV2DTO, getTitle(openAPI));
+        }
         RequestContext.getCurrentContext().setModule(module);
         RequestContext.getCurrentContext().setIp(importSwaggerV2DTO.getIp());
         RequestContext.getCurrentContext().setApiUser(apiUser);

@@ -1,5 +1,19 @@
 # 更新日志
 
+## 1.21.0
+
+- 【新增】
+    - 支持覆盖更新，可更新局部文档
+    - 后台管理支持给用户批量分配项目
+
+- 【优化】
+    - mock调试优化
+
+- 【修复】
+    - 所属分类 bug [#I6QSF9](https://gitee.com/durcframework/torna/issues/I6QSF9)
+    - swagger应用同步问题 [#I6RVL0](https://gitee.com/durcframework/torna/issues/I6RVL0)
+
+
 ## 1.20.3
 
 - 【修复】多个调试环境公共header切换错乱问题
@@ -7,6 +21,7 @@
 ## 1.20.2
 
 - 【修复】swagger推送不显示maxLength问题
+
 
 ## 1.20.1
 

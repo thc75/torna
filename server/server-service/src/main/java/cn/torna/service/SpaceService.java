@@ -1,5 +1,4 @@
 package cn.torna.service;
-import java.time.LocalDateTime;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
@@ -35,7 +34,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -80,11 +78,6 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
      */
     public void addSpaceUser(long spaceId, List<Long> userIds, RoleEnum roleEnum) {
         Assert.notEmpty(userIds, () -> "用户不能为空");
-        Query query = new Query()
-                .eq("space_id", spaceId)
-                .in("user_id", userIds).setQueryAll(true);
-        List<SpaceUser> existUsers = spaceUserMapper.list(query);
-        userInfoService.checkExist(existUsers, SpaceUser::getUserId);
         List<SpaceUser> tobeSaveList = userIds.stream()
                 .map(userId -> {
                     SpaceUser spaceUser = new SpaceUser();
@@ -335,6 +328,18 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
             }
         }
         spaceUserMapper.saveBatchIgnoreNull(tobeSaveList);
+    }
+
+
+
+    /**
+     * 移除空间成员
+     * @param userId 空间用户
+     */
+    public void removeMember(long userId) {
+        Query query = new Query()
+                .eq("user_id", userId);
+        spaceUserMapper.forceDeleteByQuery(query);
     }
 
 }
