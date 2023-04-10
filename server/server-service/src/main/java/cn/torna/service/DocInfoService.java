@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -326,6 +327,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Transactional(rollbackFor = Exception.class)
     public synchronized DocInfo updateDocInfo(DocInfoDTO docInfoDTO, User user) {
+        if (ObjectUtils.isEmpty(docInfoDTO.getParentId())) {
+            docInfoDTO.setParentId(0L);
+        }
         return doUpdateDocInfo(docInfoDTO, user);
     }
 
