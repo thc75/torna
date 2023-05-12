@@ -435,8 +435,10 @@ public class SwaggerApi {
                         if ("array".equals(type)) {
                             isResponseArray = true;
                             Schema<?> items = schema.getItems();
-                            $ref = items.get$ref();
-                            docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                            if (items != null) {
+                                $ref = items.get$ref();
+                                docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                            }
                         } else if ($ref != null && !$ref.endsWith("@")/*排除@*/) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         } else {
@@ -467,6 +469,9 @@ public class SwaggerApi {
             return null;
         }
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
+        if (jsonSchema == null) {
+            return null;
+        }
         return buildObjectParam(jsonSchema, openAPI, context);
     }
 
@@ -732,6 +737,9 @@ public class SwaggerApi {
     private static JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
         String refName = getRefName($ref);
         Schema<?> schema = openAPI.getComponents().getSchemas().get(refName);
+        if (schema == null) {
+            return null;
+        }
         return getJsonSchema(schema);
     }
 
