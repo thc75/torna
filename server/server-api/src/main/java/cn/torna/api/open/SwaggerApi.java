@@ -439,6 +439,8 @@ public class SwaggerApi {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         } else if ($ref != null && !$ref.endsWith("@")/*排除@*/) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                        } else {
+                            docParamPushParams = buildObjectParam0(schema, openAPI, new BuildObjectParamContext());
                         }
                     }
                 }
@@ -482,6 +484,64 @@ public class SwaggerApi {
                             .description(value.getDescription())
                             .example(toString(value.getExample()))
                             .maxLength(getMaxLength(jsonSchema.getSchema(), value))
+                            .build();
+                    String type = value.getType();
+                    List<DocParamPushParam> children = null;
+                    // 如果有子对象的ref
+                    if (value.get$ref() != null) {
+                        type = TYPE_OBJECT;
+                        final String child$ref = value.get$ref();
+                        children = buildObjectParam(child$ref, openAPI, context);
+                    }
+                    // 如果直接书写了子对象的内容
+                    if(value.getProperties()!=null){
+                        type = TYPE_OBJECT;
+                        children = buildObjectParam(getJsonSchema(value), openAPI, context);
+                    }
+                    // 如果是枚举字段
+                    if (value.getEnum() != null) {
+                        type = TYPE_ENUM;
+                        List<?> list = value.getEnum();
+                        setEnumDescription(list, param);
+                    }
+                    // list对象，List<XX>
+                    if (TYPE_ARRAY.equals(type) && value.getItems() != null) {
+                        Schema items = value.getItems();
+                        String itemRef = items.get$ref();
+                        if (itemRef != null) {
+                            final String child$ref = itemRef;
+                            children = buildObjectParam(child$ref, openAPI, context);
+                            type = "array[object]";
+                        }
+                        String itemType = items.getType();
+                        if (itemType != null) {
+                            type = "array[" + itemType + "]";
+                            if(TYPE_OBJECT.equals(itemType)){
+                                children = buildObjectParam(getJsonSchema(items), openAPI, context);
+                            }
+                        }
+                    }
+                    param.setChildren(children);
+                    param.setType(type);
+                    return param;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static List<DocParamPushParam> buildObjectParam0(Schema<?> schema, OpenAPI openAPI, BuildObjectParamContext context) {
+        final Map<String, Schema> properties = schema.getProperties();
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyMap()).entrySet()
+                .stream()
+                .map(entry -> {
+                    String name = entry.getKey();
+                    Schema value = entry.getValue();
+                    DocParamPushParam param = DocParamPushParam.builder()
+                            .name(name)
+                            .required(Booleans.toValue(Objects.equals("true", String.valueOf(value.getRequired()))))
+                            .description(value.getDescription())
+                            .example(toString(value.getExample()))
+                            .maxLength(getMaxLength(schema, value))
                             .build();
                     String type = value.getType();
                     List<DocParamPushParam> children = null;
