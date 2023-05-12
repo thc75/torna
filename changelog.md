@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.21.1
+
+- 【修复】swagger文件导入不成功问题 [#I6WK77](https://gitee.com/durcframework/torna/issues/I6WK77) [#I6N26T](https://gitee.com/durcframework/torna/issues/I6N26T)
+
 ## 1.21.0
 
 - 【新增】
