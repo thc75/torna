@@ -82,10 +82,17 @@ public class SwaggerPluginService {
 
     private final TornaConfig tornaConfig;
     private final OpenClient client;
+    private boolean existsApiIgnore = true;
 
     public SwaggerPluginService(TornaConfig tornaConfig) {
         this.tornaConfig = tornaConfig;
         client = new OpenClient(tornaConfig.getUrl());
+        try {
+            Class.forName("springfox.documentation.annotations.ApiIgnore");
+        } catch (ClassNotFoundException e) {
+            existsApiIgnore = false;
+            System.out.println("Warning: no 'springfox-core' dependency is imported, 'ApiIgnore' check will be skipped.");
+        }
     }
 
     public void pushDoc() {
@@ -283,12 +290,14 @@ public class SwaggerPluginService {
     protected DocItem buildDocItem(RequestInfoBuilder requestInfoBuilder) throws HiddenException, IgnoreException {
         Method method = requestInfoBuilder.getMethod();
         ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
-        ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
         if (apiOperation.hidden()) {
             throw new HiddenException("Hidden API（@ApiOperation.hidden=true）：" + apiOperation.value());
         }
-        if (apiIgnore != null) {
-            throw new IgnoreException("Ignore API（@ApiIgnore）：" + apiOperation.value());
+        if (existsApiIgnore) {
+            ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
+            if (apiIgnore != null) {
+                throw new IgnoreException("Ignore API（@ApiIgnore）：" + apiOperation.value());
+            }
         }
         return doBuildDocItem(requestInfoBuilder);
     }
@@ -837,12 +846,14 @@ public class SwaggerPluginService {
 
     private ControllerInfo buildControllerInfo(Class<?> controllerClass) throws HiddenException, IgnoreException {
         Api api = AnnotationUtils.findAnnotation(controllerClass, Api.class);
-        ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
         if (api != null && api.hidden()) {
             throw new HiddenException("Hidden doc（@Api.hidden=true）：" + api.value());
         }
-        if (apiIgnore != null) {
-            throw new IgnoreException("Ignore doc（@ApiIgnore）：" + controllerClass.getName());
+        if (existsApiIgnore) {
+            ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
+            if (apiIgnore != null) {
+                throw new IgnoreException("Ignore doc（@ApiIgnore）：" + controllerClass.getName());
+            }
         }
         String name, description;
         int position = 0;

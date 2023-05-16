@@ -4,6 +4,7 @@ import cn.torna.api.bean.ApiUser;
 import cn.torna.api.open.SwaggerApi;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.common.bean.User;
+import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
 import com.alibaba.fastjson.JSON;
@@ -27,7 +28,7 @@ public class SwaggerApiTest extends TornaApplicationTests {
 
     @Test
     public void buildDocPushParam() throws IOException {
-        String content = FileUtils.readFileToString(new File("D:\\downloads\\swagger.json"), StandardCharsets.UTF_8);
+        String content = FileUtils.readFileToString(new File("D:\\downloads\\2023-5-12-1.json"), StandardCharsets.UTF_8);
         OpenAPI openAPI = SwaggerApi.getOpenAPI(content);
         DocPushParam docPushParam = SwaggerApi.buildDocPushParam("tanghc", openAPI);
         System.out.println(JSON.toJSONString(docPushParam));
@@ -35,10 +36,10 @@ public class SwaggerApiTest extends TornaApplicationTests {
 
     @Test
     public void importSwagger() throws IOException, InterruptedException {
-        String content = FileUtils.readFileToString(new File("D:\\downloads\\swagger.json"), StandardCharsets.UTF_8);
+        String content = FileUtils.readFileToString(new File("D:\\downloads\\2023-5-12-1.json"), StandardCharsets.UTF_8);
         User user = new ApiUser();
         ImportSwaggerV2DTO importSwaggerV2DTO = ImportSwaggerV2DTO.builder()
-                .projectId(4L)
+                .projectId(IdUtil.decode("kpX9MXr1"))
                 .content(content)
                 .user(user)
                 .ip("127.0.0.1")

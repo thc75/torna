@@ -397,7 +397,8 @@ export default {
       rightSpanSize: 0,
       isProxy: true,
       currentItem: {
-        debugEnvs: []
+        debugEnvs: [],
+        headerParams: []
       },
       itemMap: null,
       textRadio: 'application/json',
@@ -515,7 +516,7 @@ export default {
     loadGlobalHeader(debugId) {
       this.get('/doc/headers/global', { environmentId: debugId }, resp => {
         const globalHeaders = resp.data
-        const headers = this.currentItem.headerParams
+        const headers = this.headerData
         for (const target of headers) {
           for (const globalHeader of globalHeaders) {
             if (globalHeader.name === target.name) {
