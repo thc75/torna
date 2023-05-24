@@ -1,5 +1,7 @@
 # 更新日志
 
+
+- 1.2.19：捕获ClassNotFoundException允许正常push文档; https://gitee.com/durcframework/torna/pulls/44
 - 1.2.18：修复添加了@DecimalMax注解报NPE问题
 - 1.2.17：优化泛型参数解析
 - 1.2.16：添加插件特性，支持优先使用@Api.tags属性
