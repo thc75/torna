@@ -782,7 +782,7 @@ export default {
         const setProp = (params, data, ref) => {
           if (data && Object.keys(data).length > 0 && params) {
             // 临时添加的
-            const temps = data.temps
+            const temps = data.temps || []
             for (const tempName of temps) {
               const val = data[tempName]
               if (ref && val) {
