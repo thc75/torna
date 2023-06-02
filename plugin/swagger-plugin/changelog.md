@@ -1,5 +1,6 @@
 # 更新日志
 
+- 1.2.21：修复参数错乱问题 https://gitee.com/durcframework/torna/issues/I79TZ2
 - 1.2.20：修复参数字段排序问题
 - 1.2.19：捕获ClassNotFoundException允许正常push文档; https://gitee.com/durcframework/torna/pulls/44
 - 1.2.18：修复添加了@DecimalMax注解报NPE问题

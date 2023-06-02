@@ -334,7 +334,7 @@ public class ApiDocBuilder {
         // 解决循环依赖问题
         boolean cycle = isCycle(clazz, field);
         Type genericType = PluginUtil.getGenericType(field);
-        Class<?> generic = genericType instanceof Class<?> ? (Class<?>) genericType : null;
+        Class<?> generic = genericType instanceof Class<?> && genericType != clazz? (Class<?>) genericType : null;
         List<FieldDocInfo> children = cycle ? Collections.emptyList()
                 : buildFieldDocInfosByType(clazz, false, generic);
         fieldDocInfo.setChildren(children);
