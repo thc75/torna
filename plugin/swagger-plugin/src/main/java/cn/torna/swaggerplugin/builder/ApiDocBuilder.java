@@ -285,7 +285,10 @@ public class ApiDocBuilder {
                     Type genericElType = PluginUtil.getGenericType(elementClass);
                     if (isList) {
                         Class<?> elType = (Class<?>) genericElType;
-                        fieldDocInfo.setType("List<List<" + elType.getSimpleName() + ">>");
+                        boolean primitive = ClassUtil.isPrimitive(elType.getName());
+                        fieldDocInfo.setType("List<List<"+ (primitive ? elType.getSimpleName() : "Object") +">");
+                        List<FieldDocInfo> fieldDocInfos = buildFieldDocInfosByType(elType, true, null);
+                        fieldDocInfo.setChildren(fieldDocInfos);
                     }
                 }
             } else {
