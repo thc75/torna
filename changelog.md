@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.21.2
+
+- 修复嵌套数组显示问题（`List<List<xx>>`）
+- 修复分享页面打开右侧无内容填充问题
+
 ## 1.21.1
 
 - 【修复】swagger文件导入不成功问题 [#I6WK77](https://gitee.com/durcframework/torna/issues/I6WK77) [#I6N26T](https://gitee.com/durcframework/torna/issues/I6N26T)

@@ -249,8 +249,8 @@ export default {
     setCurrentNode(currentNode) {
       if (currentNode) {
         const tree = this.$refs.tree
-        tree.setCurrentKey(currentNode.id)
         this.expandKeys = [currentNode.parentId]
+        tree.setCurrentKey(currentNode.id)
       }
     },
     getClassName(data) {
