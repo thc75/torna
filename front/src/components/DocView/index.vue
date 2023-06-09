@@ -1,5 +1,5 @@
 <template>
-  <div class="doc-view">
+  <div v-show="docInfo.id" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>

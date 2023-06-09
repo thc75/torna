@@ -242,6 +242,7 @@ public class SwaggerPluginService {
     }
 
     protected void push(List<DocItem> docItems) {
+        formatIndex(docItems);
         String token = tornaConfig.getToken();
         DocPushRequest request = new DocPushRequest(token);
         // 设置请求参数
@@ -264,6 +265,59 @@ public class SwaggerPluginService {
             System.out.println("Push error，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
         }
     }
+
+    protected void formatIndex(List<DocItem> docItems) {
+        for (DocItem docItem : docItems) {
+            if (docItem.getIsFolder() == 1) {
+                formatIndex(docItem.getItems());
+            } else {
+                formatDocParamReqIndex(docItem.getQueryParams());
+                formatDocParamReqIndex(docItem.getRequestParams());
+                formatDocParamRespIndex(docItem.getResponseParams());
+            }
+        }
+    }
+
+    protected void formatDocParamReqIndex(List<DocParamReq> docParamReqs) {
+        int sum = docParamReqs.stream()
+                .mapToInt(val -> {
+                    Integer orderIndex = val.getOrderIndex();
+                    return orderIndex == null ? 0 : orderIndex;
+                })
+                .sum();
+        // 等于0表示所有字段都没有指定orderIndex，那么自动给他们排序从0开始
+        if (sum == 0) {
+            int i = 0;
+            for (DocParamReq docParamReq : docParamReqs) {
+                docParamReq.setOrderIndex(i++);
+                List<DocParamReq> children = docParamReq.getChildren();
+                if (children != null && children.size() > 0) {
+                    formatDocParamReqIndex(children);
+                }
+            }
+        }
+    }
+
+    protected void formatDocParamRespIndex(List<DocParamResp> docParamReqs) {
+        int sum = docParamReqs.stream()
+                .mapToInt(val -> {
+                    Integer orderIndex = val.getOrderIndex();
+                    return orderIndex == null ? 0 : orderIndex;
+                })
+                .sum();
+        // 等于0表示所有字段都没有指定orderIndex，那么自动给他们排序从0开始
+        if (sum == 0) {
+            int i = 0;
+            for (DocParamResp docParamResp : docParamReqs) {
+                docParamResp.setOrderIndex(i++);
+                List<DocParamResp> children = docParamResp.getChildren();
+                if (children != null && children.size() > 0) {
+                    formatDocParamRespIndex(children);
+                }
+            }
+        }
+    }
+
 
     private static void printJson(Object obj, boolean format) {
         if (format) {

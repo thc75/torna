@@ -26,7 +26,7 @@ export function create_response_example(params) {
       const childrenValue = create_response_example(row.children)
       // 如果是数组
       if (is_array_type(row.type)) {
-        val = [childrenValue]
+        val = is_nest_array_type(row.type) ? [[childrenValue]] : [childrenValue]
       } else {
         val = childrenValue
       }
@@ -47,6 +47,8 @@ export function create_response_example(params) {
           example = parse_num_array(example)
         } else if (is_str_array(type, example)) {
           example = parse_str_array(example)
+        } else if (is_nest_array_type(type)) {
+          example = get_nest_array_value(type, example)
         }
       }
       val = example
@@ -66,6 +68,10 @@ function get_default_example(type) {
   }
   if (is_boolean_type(type)) {
     return false
+  }
+  if (is_nest_array_type(type)) {
+    const val = type.toLowerCase().indexOf('string') > -1 ? 'string value' : 1
+    return [[val]]
   }
   let example = ''
   switch (typeLower) {
@@ -252,6 +258,45 @@ function is_array_type(type) {
     }
   }
   return false
+}
+
+/**
+ * 是否嵌套list
+ * @param type
+ * @returns {*|boolean}
+ */
+function is_nest_array_type(type) {
+  if (!type) {
+    return false
+  }
+  return type.startsWith('List<List<') ||
+    type.indexOf('[][]') > -1 ||
+    type.startsWith('Collection<Collection<') ||
+    type.startsWith('List<Collection<') ||
+    type.startsWith('Collection<List<') ||
+    type.startsWith('List<Set<') ||
+    type.startsWith('Set<Set<')
+}
+
+function get_nest_array_value(type, example) {
+  const type_ = type.toLowerCase()
+  if (!example) {
+    return type_.indexOf('string') > -1 ? [['string']] : [[1]]
+  }
+  if (type_.indexOf('int') > -1 ||
+    type_.indexOf('long') > -1 ||
+    type_.indexOf('decimal') > -1 ||
+    type_.indexOf('float') > -1 ||
+    type_.indexOf('double') > -1 ||
+    type_.indexOf('byte') > -1 ||
+    type_.indexOf('short') > -1
+  ) {
+    return [[parse_number(example)]]
+  }
+  if (type_.indexOf('bool') > -1) {
+    return [[true, false]]
+  }
+  return [[example]]
 }
 
 export function parse_root_array(type, example) {

@@ -1,7 +1,6 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.enums.UserInfoSourceEnum;
@@ -73,6 +72,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     /**
      * 是否是第三方用户
+     *
      * @param userInfo user
      * @return true，第三方用户
      */
@@ -153,7 +153,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
                 // LDAP登录
                 userInfo = this.doThirdPartyLogin(ldapLoginManager, username, password);
                 break;
-            default:{
+            default: {
                 // 默认注册账号登录
                 userInfo = this.doDatabaseLogin(username, password);
             }
@@ -178,6 +178,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     /**
      * oauth登录
+     *
      * @param user 认证用户
      * @return 返回登录用户
      */
@@ -200,6 +201,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     /**
      * 钉钉登录
+     *
      * @param dingTalkLoginDTO
      * @return
      */
@@ -285,10 +287,10 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
      * @return 返回重置后的密码
      */
     public String resetPassword(Long id) {
-        if (EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean()) {
-            throw new BizException("已开启第三方登录，不支持重置密码");
-        }
         UserInfo userInfo = getById(id);
+        if (isThirdPartyUser(userInfo)) {
+            throw new BizException("第三方登录用户，不支持重置密码");
+        }
         String newPwd = PasswordUtil.getRandomSimplePassword(6);
         String password = DigestUtils.md5DigestAsHex(newPwd.getBytes(StandardCharsets.UTF_8));
         password = getDbPassword(userInfo.getUsername(), password);

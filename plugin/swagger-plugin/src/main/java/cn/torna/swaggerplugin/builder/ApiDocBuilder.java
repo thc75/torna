@@ -285,7 +285,10 @@ public class ApiDocBuilder {
                     Type genericElType = PluginUtil.getGenericType(elementClass);
                     if (isList) {
                         Class<?> elType = (Class<?>) genericElType;
-                        fieldDocInfo.setType("List<List<" + elType.getSimpleName() + ">>");
+                        boolean primitive = ClassUtil.isPrimitive(elType.getName());
+                        fieldDocInfo.setType("List<List<"+ (primitive ? elType.getSimpleName() : "Object") +">");
+                        List<FieldDocInfo> fieldDocInfos = buildFieldDocInfosByType(elType, true, null);
+                        fieldDocInfo.setChildren(fieldDocInfos);
                     }
                 }
             } else {
@@ -334,7 +337,7 @@ public class ApiDocBuilder {
         // 解决循环依赖问题
         boolean cycle = isCycle(clazz, field);
         Type genericType = PluginUtil.getGenericType(field);
-        Class<?> generic = genericType instanceof Class<?> ? (Class<?>) genericType : null;
+        Class<?> generic = genericType instanceof Class<?> && genericType != clazz? (Class<?>) genericType : null;
         List<FieldDocInfo> children = cycle ? Collections.emptyList()
                 : buildFieldDocInfosByType(clazz, false, generic);
         fieldDocInfo.setChildren(children);
