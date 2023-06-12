@@ -3,26 +3,17 @@ import querystring from 'query-string'
 const KEY = 'torna.language'
 const LANG_ZH_CN = 'zh-CN'
 
-let storeLang
-
 export function get_lang() {
+  return localStorage.getItem(KEY) || getLangFrmQuery()
+}
+
+function getLangFrmQuery() {
   const query = location.search
   const queryParam = querystring.parse(query) || {}
   if (queryParam.lang) {
     return formatLang(queryParam.lang)
   }
-  if (!storeLang) {
-    const get = () => {
-      const lang = localStorage.getItem(KEY)
-      if (!lang) {
-        return LANG_ZH_CN
-      } else {
-        return lang
-      }
-    }
-    storeLang = get()
-  }
-  return formatLang(storeLang)
+  return ''
 }
 
 function formatLang(lang) {

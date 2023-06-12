@@ -1,12 +1,14 @@
 package cn.torna.web.controller.system;
 
-import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
+import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.SystemI18nConfig;
 import cn.torna.service.SystemI18nConfigService;
 import cn.torna.web.controller.admin.vo.SystemI18nVO;
+import cn.torna.web.controller.system.vo.LangVO;
 import com.alibaba.fastjson.JSONObject;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +40,17 @@ public class SystemI18nController {
     }
 
     @NoLogin
+    @GetMapping("lang/default")
+    public Result<String> defaultLang() {
+        String lang = EnvironmentKeys.TORNA_DEFAULT_LANG.getValue();
+        return Result.ok(lang);
+    }
+
+    @NoLogin
     @GetMapping("get")
-    public Result<JSONObject> getLangContent(String lang) {
+    public Result<LangVO> getLangContent(String lang) {
         JSONObject jsonObject = systemI18nConfigService.getContentByLang(lang);
-        return Result.ok(jsonObject);
+        String defaultLang = Configs.getValue("torna.default-lang", "zh-CN");
+        return Result.ok(new LangVO(jsonObject, defaultLang, lang));
     }
 }

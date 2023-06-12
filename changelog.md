@@ -1,5 +1,11 @@
 # 更新日志
 
+## 1.21.3
+
+- 支持默认以英文页面打开 [#I74DXD](https://gitee.com/durcframework/torna/issues/I74DXD)
+
+前往`后台管理 - 系统设置 - 国际化设置`
+
 ## 1.21.2
 
 - 修复嵌套数组显示问题（`List<List<xx>>`）

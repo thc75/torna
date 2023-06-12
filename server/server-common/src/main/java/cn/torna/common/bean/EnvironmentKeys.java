@@ -63,7 +63,9 @@ public enum EnvironmentKeys {
     TORNA_UPLOAD_DOMAIN("torna.upload.domain", null),
     TORNA_UPLOAD_DIR("torna.upload.dir", null),
     /** 推送是否覆盖 */
-    TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false))
+    TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false)),
+    /** 系统默认语言 */
+    TORNA_DEFAULT_LANG("torna.default-lang", "zh-CN"),
     ;
 
     private final String key;

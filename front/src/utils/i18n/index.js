@@ -4,7 +4,7 @@ import VueI18n from 'vue-i18n'
 import ElementLocale from 'element-ui/lib/locale'
 import enLocale from 'element-ui/lib/locale/lang/en'
 import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
-import { get_lang } from '@/utils/i18n/common'
+import { get_lang, set_lang } from '@/utils/i18n/common'
 import { format_string } from '@/utils/common'
 import mappingEn from '@/utils/i18n/languages/en-us'
 import mappingZh from '@/utils/i18n/languages/zh-cn'
@@ -23,23 +23,29 @@ const i18n = new VueI18n({
   }
 })
 
-axios.get(`${get_server_url()}/system/i18n/get?lang=${get_lang()}`, {})
-  .then(response => {
-    const data = response.data
-    const i18nConfig = data.data
-    if (i18nConfig) {
-      const lang = get_lang()
-      let elLang
-      try {
-        elLang = require(`element-ui/lib/locale/lang/${lang}`).default
-      } catch (e) {
-        console.error(`elementUI国际化不存在，locale:${lang}`)
-        elLang = {}
-      }
-      const fullConfig = Object.assign(elLang, i18nConfig)
-      i18n.setLocaleMessage(lang, fullConfig)
+axios.get(`${get_server_url()}/system/i18n/get?lang=${get_lang()}`, {}).then(response => {
+  const resp = response.data
+  const data = resp.data
+  const i18nConfig = data.content
+  const defaultLang = data.defaultLang
+  const userLang = data.userLang
+  // 优先使用用户选择的语言
+  const lang = userLang || defaultLang
+  if (i18nConfig) {
+    let elLang
+    try {
+      elLang = require(`element-ui/lib/locale/lang/${lang}`).default
+    } catch (e) {
+      console.error(`elementUI国际化不存在，locale:${lang}`)
+      elLang = {}
     }
-  })
+    const fullConfig = Object.assign(elLang, i18nConfig)
+    i18n.setLocaleMessage(lang, fullConfig)
+  } else {
+    i18n.locale = lang
+  }
+  set_lang(lang)
+})
 
 ElementLocale.i18n((key, value) => i18n.t(key, value))
 
