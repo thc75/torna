@@ -1,9 +1,11 @@
 package cn.torna.web.controller.admin;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.SystemI18nConfig;
+import cn.torna.service.SystemConfigService;
 import cn.torna.service.SystemI18nConfigService;
 import cn.torna.web.controller.admin.param.SystemI18nConfigParam;
 import cn.torna.web.controller.admin.vo.SystemI18nVO;
@@ -11,6 +13,7 @@ import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.system.param.IdParam;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +34,9 @@ public class AdminI18nController {
     @Autowired
     private SystemI18nConfigService systemI18nConfigService;
 
+    @Autowired
+    private SystemConfigService systemConfigService;
+
     @GetMapping("get")
     public Result<SystemI18nVO> getLangContent(@HashId Long id) {
         SystemI18nConfig systemI18nConfig = systemI18nConfigService.getById(id);
@@ -44,6 +50,15 @@ public class AdminI18nController {
                 .listBySpecifiedColumns(Arrays.asList("id", "lang", "description"), new Query());
         List<SystemI18nVO> systemI18nLangVOS = CopyUtil.copyList(systemI18nConfigs, SystemI18nVO::new);
         return Result.ok(systemI18nLangVOS);
+    }
+
+    @PostMapping("lang/setDefaultLang")
+    public Result<?> setDefaultLang(String lang) {
+        if (StringUtils.isEmpty(lang)) {
+            lang = "zh-CN";
+        }
+        systemConfigService.setConfig(EnvironmentKeys.TORNA_DEFAULT_LANG.getKey(), lang, "系统默认语言");
+        return Result.ok();
     }
 
     @PostMapping("save")

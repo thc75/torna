@@ -1,72 +1,89 @@
 <template>
-  <el-container>
-    <el-aside width="200px" style="padding: 20px">
-      <el-button type="primary" size="mini" @click="addNew">添加国际化</el-button>
-      <el-tree
-        :data="list"
-        :props="defaultProps"
-        :highlight-current="true"
-        :expand-on-click-node="true"
-        :empty-text="$t('noData')"
-        node-key="id"
-        style="margin-top: 20px"
-        @node-click="onNodeClick"
-      />
-    </el-aside>
-    <el-main>
-      <el-form v-if="formData.id || formData.isNew" ref="i18nForm"  :model="formData" :rules="formRules">
-        <el-form-item label="语言简称" prop="lang">
-          <el-alert>
-            <div slot="title">
-              建议跟ElementUI简称保持一致，
-              <el-link
-                type="primary"
-                href="https://github.com/ElemeFE/element/tree/master/src/locale/lang"
-                target="_blank"
-              >点击查看</el-link><br/>
-              系统内置了zh-CN（简体中文）,en（英文）两个配置，可在此进行覆盖，如要覆盖简体中文填zh-CN
-            </div>
-          </el-alert>
-          <el-input
-            v-model="formData.lang"
-            placeholder="语言简称，如：zh-TW"
-            show-word-limit
-            maxlength="10"
-          />
-        </el-form-item>
-        <el-form-item label="语言描述" prop="description">
-          <el-input
-            v-model="formData.description"
-            placeholder="语言描述，如：繁体中文"
-            show-word-limit
-            maxlength="50"
-          />
-        </el-form-item>
-        <el-form-item label="翻译内容">
-          <el-alert :closable="false">
-            <div slot="title">
-              json内容，key不变，翻译value值，{0}为占位符不用翻译。完成后前往
-              <el-link type="primary" :href="`${getBaseUrl()}/#/user/systemSetting`" target="_blank">【个人中心】</el-link>查看
-            </div>
-          </el-alert>
-          <editor
-            ref="requestEditor"
-            v-model="formData.content"
-            lang="json"
-            theme="chrome"
-            :height="requestEditorConfig.height"
-            class="normal-boarder"
-            :options="requestEditorConfig"
-            @init="requestEditorInit"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSave">保存</el-button>
-          <el-button v-show="formData.id.length > 0" type="danger" @click="onDel">删除</el-button>
+  <div>
+    <div style="display: inline-block">
+      <el-form :model="systemSettingData" size="mini" label-width="120px">
+        <el-form-item label="系统默认语言">
+          <el-select v-model="systemSettingData.lang" :placeholder="$t('pleaseSelect')" @change="onDefaultLangChange">
+            <el-option
+              v-for="item in languageOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+          <span class="info-tip">新用户第一次进入系统所显示的语言</span>
         </el-form-item>
       </el-form>
-    </el-main>
-  </el-container>
+    </div>
+    <el-container>
+      <el-aside width="200px" style="padding: 20px">
+        <el-button type="primary" size="mini" @click="addNew">添加国际化</el-button>
+        <el-tree
+          :data="list"
+          :props="defaultProps"
+          :highlight-current="true"
+          :expand-on-click-node="true"
+          :empty-text="$t('noData')"
+          node-key="id"
+          style="margin-top: 20px"
+          @node-click="onNodeClick"
+        />
+      </el-aside>
+      <el-main>
+        <el-form v-if="formData.id || formData.isNew" ref="i18nForm"  :model="formData" :rules="formRules">
+          <el-form-item label="语言简称" prop="lang">
+            <el-alert>
+              <div slot="title">
+                建议跟ElementUI简称保持一致，
+                <el-link
+                  type="primary"
+                  href="https://github.com/ElemeFE/element/tree/master/src/locale/lang"
+                  target="_blank"
+                >点击查看</el-link><br/>
+                系统内置了zh-CN（简体中文）,en（英文）两个配置，可在此进行覆盖，如要覆盖简体中文填zh-CN
+              </div>
+            </el-alert>
+            <el-input
+              v-model="formData.lang"
+              placeholder="语言简称，如：zh-TW"
+              show-word-limit
+              maxlength="10"
+            />
+          </el-form-item>
+          <el-form-item label="语言描述" prop="description">
+            <el-input
+              v-model="formData.description"
+              placeholder="语言描述，如：繁体中文"
+              show-word-limit
+              maxlength="50"
+            />
+          </el-form-item>
+          <el-form-item label="翻译内容">
+            <el-alert :closable="false">
+              <div slot="title">
+                json内容，key不变，翻译value值，{0}为占位符不用翻译。完成后前往
+                <el-link type="primary" :href="`${getBaseUrl()}/#/user/systemSetting`" target="_blank">【个人中心】</el-link>查看
+              </div>
+            </el-alert>
+            <editor
+              ref="requestEditor"
+              v-model="formData.content"
+              lang="json"
+              theme="chrome"
+              :height="requestEditorConfig.height"
+              class="normal-boarder"
+              :options="requestEditorConfig"
+              @init="requestEditorInit"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onSave">保存</el-button>
+            <el-button v-show="formData.id.length > 0" type="danger" @click="onDel">删除</el-button>
+          </el-form-item>
+        </el-form>
+      </el-main>
+    </el-container>
+  </div>
 </template>
 <script>
 import mappingZh from '@/utils/i18n/languages/zh-cn'
@@ -100,13 +117,23 @@ export default {
         // 去除编辑器里的竖线
         showPrintMargin: false,
         height: 500
-      }
+      },
+      systemSettingData: {
+        lang: 'zh-CN'
+      },
+      languageOptions: [
+        { label: '简体中文', value: 'zh-CN' },
+        { label: 'English', value: 'en' }
+      ]
     }
   },
   methods: {
     reload() {
       this.get('admin/i18n/lang/list', {}, resp => {
         this.list = resp.data
+      })
+      this.get('system/i18n/lang/default', {}, resp => {
+        this.systemSettingData.lang = resp.data
       })
     },
     // 树点击事件
@@ -167,6 +194,11 @@ export default {
           this.tipSuccess(this.$t('deleteSuccess'))
           this.reload()
         })
+      })
+    },
+    onDefaultLangChange(lang) {
+      this.post(`admin/i18n/lang/setDefaultLang?lang=${lang}`, {}, () => {
+        this.tipSuccess(this.$t('saveSuccess'))
       })
     }
   }

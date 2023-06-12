@@ -9,6 +9,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,9 @@ public class SystemI18nConfigService extends BaseService<SystemI18nConfig, Syste
             });
 
     public JSONObject getContentByLang(String lang) {
+        if (StringUtils.isEmpty(lang)) {
+            return null;
+        }
         return configCache.getUnchecked(lang).orElse(null);
     }
 
