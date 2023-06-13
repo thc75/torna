@@ -30,6 +30,9 @@ public class DocItem {
     /** 访问URL */
     private String url;
 
+    /** 版本号，不填默认为空字符串 */
+    private String version = "";
+
     /** 废弃信息 */
     private String deprecated;
 
