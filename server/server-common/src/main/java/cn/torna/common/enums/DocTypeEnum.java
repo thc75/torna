@@ -6,7 +6,10 @@ package cn.torna.common.enums;
 public enum DocTypeEnum {
     HTTP((byte) 0),
     DUBBO((byte) 1),
+    /** 富文本 */
     CUSTOM((byte) 2),
+    /** markdown */
+    MARKDOWN((byte) 3),
     ;
 
     DocTypeEnum(byte type) {

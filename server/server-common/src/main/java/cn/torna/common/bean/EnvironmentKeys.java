@@ -66,6 +66,7 @@ public enum EnvironmentKeys {
     TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false)),
     /** 系统默认语言 */
     TORNA_DEFAULT_LANG("torna.default-lang", "zh-CN"),
+    TORNA_NAME_VERSION_TPL("torna.name-version-tpl", "{_name_} {_version_}"),
     ;
 
     private final String key;

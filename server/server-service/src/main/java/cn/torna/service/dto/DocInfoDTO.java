@@ -32,6 +32,8 @@ public class DocInfoDTO implements DocInfoDataId {
     /** 访问URL, 数据库字段：url */
     private String url;
 
+    private String version = "";
+
     /** http方法, 数据库字段：http_method */
     private String httpMethod;
 

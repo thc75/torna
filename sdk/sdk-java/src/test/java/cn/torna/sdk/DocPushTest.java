@@ -90,7 +90,7 @@ public class DocPushTest extends BaseTest {
         item.setContentType("application/json");
         item.setParentId("");
         item.setIsShow(Booleans.TRUE);
-        item.setVersion("1.0");
+        item.setVersion("1.1");
 
         /* 设置path参数 */
         DocParamPath pathParam = new DocParamPath();
