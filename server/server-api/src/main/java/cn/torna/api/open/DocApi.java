@@ -296,13 +296,10 @@ public class DocApi {
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
         String version = param.getVersion();
-        if (StringUtils.hasText(version) && !"-".equals(version)) {
-            String tpl = EnvironmentKeys.TORNA_NAME_VERSION_TPL.getValue();
-            String name = tpl.replace("{_name_}", docInfoDTO.getName())
-                    .replace("{_version_}", version);
-
-            docInfoDTO.setName(name);
+        if ("-".equals(version)) {
+            version = "";
         }
+        docInfoDTO.setVersion(version);
 
         List<CodeParamPushParam> errorCodeParams = param.getErrorCodeParams();
         if (!CollectionUtils.isEmpty(errorCodeParams)) {

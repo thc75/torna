@@ -51,7 +51,7 @@ public class DocPushTest extends BaseTest {
         request.setAuthor("张三");
         request.setCommonErrorCodes(buildEnumItemParamList());
         // 是否替换文档，true：替换，false：不替换（追加）。默认：true
-        request.setIsReplace(Booleans.FALSE);
+        request.setIsReplace(Booleans.TRUE);
 
         // 发送请求
         DocPushResponse response = client.execute(request);
@@ -90,7 +90,6 @@ public class DocPushTest extends BaseTest {
         item.setContentType("application/json");
         item.setParentId("");
         item.setIsShow(Booleans.TRUE);
-        item.setVersion("1.1");
 
         /* 设置path参数 */
         DocParamPath pathParam = new DocParamPath();

@@ -31,9 +31,10 @@ public interface DocInfoDataId {
             content = String.format(TPL_API, getModuleId(), parentId, getUrl(), getHttpMethod());
         }
         String version = getVersion();
-        if (version != null && !"".equals(version) && !"-".equals(version)) {
-            content = content + version;
+        if ("-".equals(version) || version == null) {
+            version = "";
         }
+        content = content + version;
         return DigestUtils.md5DigestAsHex(content.getBytes(StandardCharsets.UTF_8));
     }
 

@@ -137,4 +137,8 @@ public class DocInfoDTO implements DocInfoDataId {
     private DubboInfoDTO dubboInfo;
 
     private String errorCodeInfo;
+
+    public String getName() {
+        return name + ("".equals(version) || version == null ? "" : " " + version);
+    }
 }

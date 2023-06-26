@@ -631,7 +631,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Query query = new Query()
                 .eq("module_id", moduleId)
                 .eq("create_mode", OperationMode.OPEN.getType())
-                .eq("is_locked", Booleans.FALSE);
+                .eq("is_locked", Booleans.FALSE)
+                // 如果已经定义了版本号，不被删除
+                .isEmpty("version");
         // 查询出文档id
         List<Long> docIdList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
         if (CollectionUtils.isEmpty(docIdList)) {
@@ -682,4 +684,20 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             this.getMapper().updateByMap(set, new Query().eq("id", docInfo.getId()));
         }
     }
+
+
+    public void updateVersion(Long docId, String version) {
+        if (version == null) {
+            version = "";
+        }
+        DocInfo docInfo = getById(docId);
+        DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+        docInfoDTO.setVersion(version);
+        // 重新设置下dataId
+        String dataId = docInfoDTO.buildDataId();
+        docInfo.setDataId(dataId);
+        docInfo.setVersion(version);
+        this.update(docInfo);
+    }
+
 }

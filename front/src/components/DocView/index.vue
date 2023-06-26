@@ -216,6 +216,7 @@ export default {
         id: '',
         name: '',
         url: '',
+        version: '',
         contentType: '',
         description: '',
         author: '',

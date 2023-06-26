@@ -19,11 +19,7 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
-import cn.torna.web.controller.doc.param.DocFolderAddParam;
-import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
-import cn.torna.web.controller.doc.param.DocInfoSaveParam;
-import cn.torna.web.controller.doc.param.DocInfoSearch;
-import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
+import cn.torna.web.controller.doc.param.*;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalParamsVO;
@@ -276,6 +272,12 @@ public class DocController {
         DocInfo docInfo = docInfoService.getById(param.getId());
         docInfo.setOrderIndex(param.getOrderIndex());
         docInfoService.update(docInfo);
+        return Result.ok();
+    }
+
+    @PostMapping("version/update")
+    public Result updateVersion(@RequestBody UpdateVersionParam param) {
+        docInfoService.updateVersion(param.getId(), param.getVersion());
         return Result.ok();
     }
 

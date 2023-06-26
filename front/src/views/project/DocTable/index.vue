@@ -83,6 +83,27 @@
         </template>
       </u-table-column>
       <u-table-column
+        prop="version"
+        :label="$t('version')"
+        width="80"
+        show-overflow-tooltip
+      >
+        <template slot-scope="scope">
+          <div v-if="scope.row.isFolder === 0">
+            <span style="margin-right: 5px;">{{ scope.row.version }}</span>
+            <popover-update
+              :title="$t('version')"
+              :maxlength="20"
+              :show-icon="true"
+              :is-validate="false"
+              :value="`${scope.row.version}`"
+              :on-show="() => {return scope.row.version}"
+              :on-save="(val, call) => onSaveVersion(scope.row.id, val, call)"
+            />
+          </div>
+        </template>
+      </u-table-column>
+      <u-table-column
         prop="author"
         :label="$t('maintainer')"
         width="120"
@@ -309,6 +330,15 @@ export default {
     onSaveOrderIndex(id, orderIndex, callback) {
       callback()
       this.updateOrderIndex(id, orderIndex)
+    },
+    onSaveVersion(id, version, callback) {
+      callback()
+      this.updateVersion(id, version)
+    },
+    updateVersion(id, version) {
+      this.post('/doc/version/update', { id: id, version: version }, resp => {
+        this.loadTable()
+      })
     },
     updateOrderIndex(id, orderIndex) {
       this.post('/doc/orderindex/update', { id: id, orderIndex: orderIndex }, resp => {

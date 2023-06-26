@@ -11,6 +11,7 @@
             <if test="author != null">author,</if>
             <if test="type != null">type,</if>
             <if test="url != null">url,</if>
+            <if test="version != null">version,</if>
             <if test="httpMethod != null">http_method,</if>
             <if test="contentType != null">content_type,</if>
             deprecated,
@@ -44,6 +45,7 @@
             <if test="author != null">#{author},</if>
             <if test="type != null">#{type},</if>
             <if test="url != null">#{url},</if>
+            <if test="version != null">#{version},</if>
             <if test="httpMethod != null">#{httpMethod},</if>
             <if test="contentType != null">#{contentType},</if>
             #{deprecated},
@@ -76,6 +78,7 @@
         <if test="author != null">author = VALUES(author),</if>
         <if test="type != null">type = VALUES(type),</if>
         <if test="url != null">url = VALUES(url),</if>
+        <if test="version != null">version = VALUES(version),</if>
         <if test="httpMethod != null">http_method = VALUES(http_method),</if>
         <if test="contentType != null">content_type = VALUES(content_type),</if>
         deprecated = VALUES(deprecated),
