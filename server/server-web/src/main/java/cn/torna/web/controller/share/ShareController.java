@@ -107,6 +107,7 @@ public class ShareController {
             docInfoVO.setHttpMethod(docInfo.getHttpMethod());
             docInfoVO.setDocType(docInfo.getType());
             docInfoVO.setDocId(docInfo.getId());
+            docInfoVO.setVersion(docInfo.getVersion());
             // 如果是文档
             if (!isFolder) {
                 docInfoVO.setUrl(docInfo.getUrl());
