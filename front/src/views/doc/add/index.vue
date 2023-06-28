@@ -1,11 +1,12 @@
 <template>
   <div class="app-container">
     <el-radio-group v-if="$route.path.indexOf('new') > -1" v-model="type" size="small">
-      <el-radio-button :label="0">{{ $t('standardDocument') }}</el-radio-button>
-      <el-radio-button :label="3">{{ $t('customDocument') }}</el-radio-button>
+      <el-radio-button :label="getEnums().DOC_TYPE.HTTP">{{ $t('standardDocument') }}</el-radio-button>
+      <el-radio-button :label="getEnums().DOC_TYPE.CUSTOM">{{ $t('customDocument') + `(${$t('richTextEditor')})` }}</el-radio-button>
+      <el-radio-button :label="getEnums().DOC_TYPE.MARKDOWN">{{ $t('customDocument') + `(${$t('markdown')})` }}</el-radio-button>
     </el-radio-group>
-    <edit-doc-standard v-show="type === 0" />
-    <edit-doc-custom v-show="type === 3" />
+    <edit-doc-standard v-show="type === getEnums().DOC_TYPE.HTTP" />
+    <edit-doc-custom v-show="type === getEnums().DOC_TYPE.CUSTOM || type === getEnums().DOC_TYPE.MARKDOWN" :doc-type="type" />
   </div>
 </template>
 <script>

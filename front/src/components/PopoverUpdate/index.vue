@@ -17,7 +17,7 @@
     >
       <el-form-item :label="label" prop="value">
         <el-input-number v-if="isNumber" ref="inputNumber" v-model="updateForm.value" controls-position="right" style="width: 150px;" />
-        <el-input v-else ref="input" v-model="updateForm.value" show-word-limit :maxlength="maxlength" />
+        <el-input v-else ref="input" v-model="updateForm.value" show-word-limit :maxlength="maxlength" clearable />
       </el-form-item>
       <div style="text-align: right; margin: 0">
         <el-button type="text" size="mini" @click="hide">{{ $t('cancel') }}</el-button>

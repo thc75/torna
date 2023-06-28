@@ -419,6 +419,9 @@ export default {
   'customDocument': '自定义文档',
   'spaceDimension': '空间维度',
   'projectDimension': '项目维度',
+  'richTextEditor': '富文本',
+  'markdown': 'Markdown',
+  'docType': '文档类型',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {

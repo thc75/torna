@@ -70,6 +70,11 @@
               <i class="el-icon-lock"></i>
             </el-tooltip>
           </div>
+          <div v-if="scope.row.type === getEnums().DOC_TYPE.MARKDOWN" class="el-table-cell-icon">
+            <el-tooltip placement="top" :content="$t('mardown')">
+              <el-tag>md</el-tag>
+            </el-tooltip>
+          </div>
         </template>
       </u-table-column>
       <u-table-column
@@ -494,7 +499,7 @@ export default {
       if (row.isFolder) {
         this.onFolderUpdate(row)
       } else {
-        if (row.type === this.getEnums().DOC_TYPE.CUSTOM) {
+        if (row.type !== this.getEnums().DOC_TYPE.HTTP) {
           this.goRoute(`/doc/edit_custom/${this.moduleId}/${row.id}`)
         } else {
           this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)

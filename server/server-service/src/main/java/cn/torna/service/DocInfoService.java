@@ -695,6 +695,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setVersion(version);
         // 重新设置下dataId
         String dataId = docInfoDTO.buildDataId();
+        if (this.getMapper().checkExist("data_id", dataId, docInfo.getId())) {
+            throw new BizException("相同版本号已存在");
+        }
         docInfo.setDataId(dataId);
         docInfo.setVersion(version);
         this.update(docInfo);

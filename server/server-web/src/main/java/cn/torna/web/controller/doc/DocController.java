@@ -5,6 +5,7 @@ import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
@@ -37,6 +38,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -86,8 +88,14 @@ public class DocController {
             String dataId = docInfoDTO.buildDataId();
             DocInfo exist = docInfoService.getByDataId(dataId);
             if (exist != null) {
-                String tpl = "【%s】%s";
-                throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
+                Byte type = param.getType();
+                if (Objects.equals(type, DocTypeEnum.HTTP.getType())) {
+                    String tpl = "【%s】%s";
+                    throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
+                } else {
+                    String tpl = "文档标题 %s";
+                    throw new BizException(String.format(tpl, param.getName()) + " 已存在");
+                }
             }
             this.nullParamsId(docInfoDTO);
             // 不存在则保存文档

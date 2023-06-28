@@ -53,7 +53,7 @@ export default {
       return this.item.type === this.getEnums().DOC_TYPE.DUBBO
     },
     showCustom() {
-      return this.item.type === this.getEnums().DOC_TYPE.CUSTOM
+      return this.item.type === this.getEnums().DOC_TYPE.CUSTOM || this.item.type === this.getEnums().DOC_TYPE.MARKDOWN
     }
   },
   created() {

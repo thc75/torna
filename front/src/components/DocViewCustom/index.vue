@@ -35,16 +35,26 @@
         </el-tooltip>
       </div>
     </div>
-    <div v-html="docInfo.description"></div>
+    <div v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" v-html="docInfo.description"></div>
+    <mavon-editor
+      v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN"
+      v-model="docInfo.description"
+      :boxShadow="false"
+      :subfield="false"
+      defaultOpen="preview"
+      :editable="false"
+      :toolbarsFlag="false"
+    />
     <const-view ref="constView" />
   </div>
 </template>
 <script>
 import ExportUtil from '@/utils/export'
 import ConstView from '@/components/ConstView'
+import { mavonEditor } from 'mavon-editor'
 
 export default {
-  components: { ConstView },
+  components: { ConstView, mavonEditor },
   props: {
     docInfo: Object,
     showOptBar: {
