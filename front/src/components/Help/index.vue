@@ -5,14 +5,16 @@
       :visible.sync="drawer"
       size="35%"
     >
-      <mavon-editor
-        v-model="content"
-        :boxShadow="false"
-        :subfield="false"
-        defaultOpen="preview"
-        :editable="false"
-        :toolbarsFlag="false"
-      />
+      <div style="padding: 0 20px">
+        <mavon-editor
+          v-model="content"
+          :boxShadow="false"
+          :subfield="false"
+          defaultOpen="preview"
+          :editable="false"
+          :toolbarsFlag="false"
+        />
+      </div>
     </el-drawer>
   </div>
 </template>
