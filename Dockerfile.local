@@ -1,4 +1,5 @@
-FROM openjdk:8
+# 作者自己制作的精简版jre8
+FROM registry.cn-hangzhou.aliyuncs.com/tanghc/jre8:1
 
 MAINTAINER tanghc
 EXPOSE 7700
