@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.22.0
+
+- 【新增】支持Markdown文档编辑
+- 【新增】支持定义版本号，可以实现接口多版本管理
+
 ## 1.21.3
 
 - 支持默认以英文页面打开 [#I74DXD](https://gitee.com/durcframework/torna/issues/I74DXD)

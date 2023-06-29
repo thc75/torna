@@ -49,6 +49,16 @@
     <const-view ref="constView" />
   </div>
 </template>
+<style scoped>
+/deep/ .v-note-wrapper .v-note-panel .v-note-show .v-show-content {
+  background-color: #FFFFFF !important;
+  padding: 0 !important;
+}
+.v-note-wrapper {
+  background-color: #FFFFFF !important;
+  border: 0 !important;
+}
+</style>
 <script>
 import ExportUtil from '@/utils/export'
 import ConstView from '@/components/ConstView'
