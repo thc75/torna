@@ -27,6 +27,11 @@ public class DocInfoVO implements TreeAware<DocInfoVO, Long> {
     /** 访问URL, 数据库字段：url */
     private String url;
 
+    /**
+     * 版本号
+     */
+    private String version;
+
     /** http方法, 数据库字段：http_method */
     private String httpMethod;
 

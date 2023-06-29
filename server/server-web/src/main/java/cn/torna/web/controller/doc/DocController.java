@@ -5,6 +5,7 @@ import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
@@ -19,11 +20,7 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
-import cn.torna.web.controller.doc.param.DocFolderAddParam;
-import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
-import cn.torna.web.controller.doc.param.DocInfoSaveParam;
-import cn.torna.web.controller.doc.param.DocInfoSearch;
-import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
+import cn.torna.web.controller.doc.param.*;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalParamsVO;
@@ -41,6 +38,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -90,8 +88,14 @@ public class DocController {
             String dataId = docInfoDTO.buildDataId();
             DocInfo exist = docInfoService.getByDataId(dataId);
             if (exist != null) {
-                String tpl = "【%s】%s";
-                throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
+                Byte type = param.getType();
+                if (Objects.equals(type, DocTypeEnum.HTTP.getType())) {
+                    String tpl = "【%s】%s";
+                    throw new BizException(String.format(tpl, exist.getHttpMethod(), exist.getUrl()) + " 已存在");
+                } else {
+                    String tpl = "文档标题 %s";
+                    throw new BizException(String.format(tpl, param.getName()) + " 已存在");
+                }
             }
             this.nullParamsId(docInfoDTO);
             // 不存在则保存文档
@@ -276,6 +280,12 @@ public class DocController {
         DocInfo docInfo = docInfoService.getById(param.getId());
         docInfo.setOrderIndex(param.getOrderIndex());
         docInfoService.update(docInfo);
+        return Result.ok();
+    }
+
+    @PostMapping("version/update")
+    public Result updateVersion(@RequestBody UpdateVersionParam param) {
+        docInfoService.updateVersion(param.getId(), param.getVersion());
         return Result.ok();
     }
 

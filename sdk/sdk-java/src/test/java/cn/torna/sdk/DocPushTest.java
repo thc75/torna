@@ -51,7 +51,7 @@ public class DocPushTest extends BaseTest {
         request.setAuthor("张三");
         request.setCommonErrorCodes(buildEnumItemParamList());
         // 是否替换文档，true：替换，false：不替换（追加）。默认：true
-//        request.setIsReplace(Booleans.FALSE);
+        request.setIsReplace(Booleans.TRUE);
 
         // 发送请求
         DocPushResponse response = client.execute(request);

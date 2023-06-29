@@ -24,8 +24,9 @@
             <el-button type="text" class="icon-button" icon="el-icon-download" />
           </el-tooltip>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
-            <el-dropdown-item :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN" :command="onExportMarkdown">{{ $t('exportMarkdown') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -35,16 +36,36 @@
         </el-tooltip>
       </div>
     </div>
-    <div v-html="docInfo.description"></div>
+    <div v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" v-html="docInfo.description"></div>
+    <mavon-editor
+      v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN"
+      v-model="docInfo.description"
+      :boxShadow="false"
+      :subfield="false"
+      defaultOpen="preview"
+      :editable="false"
+      :toolbarsFlag="false"
+    />
     <const-view ref="constView" />
   </div>
 </template>
+<style scoped>
+/deep/ .v-note-wrapper .v-note-panel .v-note-show .v-show-content {
+  background-color: #FFFFFF !important;
+  padding: 0 !important;
+}
+.v-note-wrapper {
+  background-color: #FFFFFF !important;
+  border: 0 !important;
+}
+</style>
 <script>
 import ExportUtil from '@/utils/export'
 import ConstView from '@/components/ConstView'
+import { mavonEditor } from 'mavon-editor'
 
 export default {
-  components: { ConstView },
+  components: { ConstView, mavonEditor },
   props: {
     docInfo: Object,
     showOptBar: {
@@ -75,6 +96,9 @@ export default {
     },
     onExportWord() {
       ExportUtil.exportWordSinglePage(this.docInfo)
+    },
+    onExportMarkdown() {
+      ExportUtil.exportMarkdownSinglePage(this.docInfo)
     },
     loadSubscribe(id) {
       if (!this.initSubscribe) {

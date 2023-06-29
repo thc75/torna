@@ -50,16 +50,27 @@
         <el-input v-model="docInfo.name" :placeholder="$t('docTitle')" maxlength="100" show-word-limit />
       </el-form-item>
       <rich-text-editor
+        v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM"
         :value="docInfo.description"
         :placeholder="$t('EditDocCustom.inputDocContent')"
         :editable="true"
         @input="editorContent"
       />
+      <mavon-editor
+        v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN"
+        v-model="docInfo.description"
+        :boxShadow="false"
+        :scrollStyle="true"
+        :subfield="true"
+        :toolbars="toolbars"
+        :style="editorStyle"
+        @fullScreen="onFullScreen"
+      />
     </el-form>
     <div style="margin-top: 10px;">
       <el-button type="text" icon="el-icon-back" @click="goBack">{{ $t('back') }}</el-button>
       <el-button type="primary" icon="el-icon-finished" @click="submitCustomDoc">{{ $t('save') }}</el-button>
-      <el-button type="success" icon="el-icon-view" @click="viewCustomDoc">{{ $t('preview') }}</el-button>
+      <el-button v-if="docInfo.type === getEnums().DOC_TYPE.CUSTOM" type="success" icon="el-icon-view" @click="viewCustomDoc">{{ $t('preview') }}</el-button>
     </div>
     <!-- dialog -->
     <el-dialog
@@ -79,24 +90,36 @@
 .text-form-input {
   padding-right: 20px;
 }
+.v-note-wrapper {
+  padding: 0 !important;
+}
 </style>
 <script>
 import RichTextEditor from '@/components/RichTextEditor'
+import { mavonEditor } from 'mavon-editor'
 
 export default {
-  components: { RichTextEditor },
+  components: { RichTextEditor, mavonEditor },
+  props: {
+    docType: {
+      type: Number,
+      default: -1
+    }
+  },
   data() {
     return {
       docInfo: {
+        id: '',
         name: '',
         author: '',
-        type: this.getEnums().DOC_TYPE.CUSTOM,
+        type: 0,
         description: '',
         parentId: '',
         projectId: '',
         isShow: 1,
         orderIndex: this.getEnums().INIT_ORDER_INDEX
       },
+      markdownContent: '',
       viewCustomDialogVisible: false,
       folders: [],
       rulesCustom: {
@@ -104,6 +127,49 @@ export default {
           { required: true, message: '请输入标题', trigger: 'blur' },
           { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
         ]
+      },
+      editorStyle: 'height: auto;',
+      toolbars: {
+        bold: true, // 粗体
+        italic: true, // 斜体
+        header: true, // 标题
+        underline: true, // 下划线
+        strikethrough: true, // 中划线
+        mark: true, // 标记
+        superscript: true, // 上角标
+        subscript: true, // 下角标
+        quote: true, // 引用
+        ol: true, // 有序列表
+        ul: true, // 无序列表
+        link: true, // 链接
+        imagelink: true, // 图片链接
+        code: true, // code
+        table: true, // 表格
+        fullscreen: true, // 全屏编辑
+        readmodel: false, // 沉浸式阅读
+        htmlcode: false, // 展示html源码
+        help: true, // 帮助
+        /* 1.3.5 */
+        undo: true, // 上一步
+        redo: true, // 下一步
+        trash: true, // 清空
+        save: false, // 保存（触发events中的save事件）
+        /* 1.4.2 */
+        navigation: true, // 导航目录
+        /* 2.1.8 */
+        alignleft: true, // 左对齐
+        aligncenter: true, // 居中
+        alignright: true, // 右对齐
+        /* 2.2.1 */
+        subfield: true, // 单双栏模式
+        preview: true // 预览
+      }
+    }
+  },
+  watch: {
+    docType(val) {
+      if (val > -1) {
+        this.docInfo.type = val
       }
     }
   },
@@ -144,7 +210,9 @@ export default {
       this.initOrderIndex()
     },
     editorContent(content) {
-      this.docInfo.description = content
+      if (this.docInfo.type === this.getEnums().DOC_TYPE.CUSTOM) {
+        this.docInfo.description = content;
+      }
     },
     goBack: function() {
       const projectId = this.docInfo.projectId || this.getCurrentProject().id
@@ -168,14 +236,12 @@ export default {
       }
     },
     viewCustomDoc() {
-      console.log(1)
       this.viewCustomDialogVisible = true
     },
     submitCustomDoc() {
       this.$refs.docFormCustom.validate((valid) => {
         if (valid) {
           const data = this.docInfo
-          this.docInfo.type = this.getEnums().DOC_TYPE.CUSTOM
           this.post('/doc/save', data, resp => {
             this.tipSuccess('保存成功')
             const id = resp.data.id
@@ -189,6 +255,13 @@ export default {
           this.tipError($t('pleaseFinishForm'))
         }
       })
+    },
+    onFullScreen(status) {
+      if (status) {
+        this.editorStyle = 'margin-left: 70px;margin-top: 50px;'
+      } else {
+        this.editorStyle = 'height: auto'
+      }
     }
   }
 }

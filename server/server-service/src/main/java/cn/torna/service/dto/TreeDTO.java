@@ -37,6 +37,11 @@ public class TreeDTO implements TreeAware<TreeDTO, String> {
     /** 接口数量 */
     private int apiCount;
 
+    /**
+     * 版本号
+     */
+    private String version;
+
     @JSONField(serialize = false)
     private TreeDTO parent;
 
@@ -61,5 +66,9 @@ public class TreeDTO implements TreeAware<TreeDTO, String> {
     @Override
     public void setParent(TreeDTO parent) {
         this.parent = parent;
+    }
+
+    public String getLabel() {
+        return label + ( version == null || "".equals(version) ? "" : " " + version );
     }
 }

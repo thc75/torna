@@ -295,6 +295,12 @@ public class DocApi {
 
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+        String version = param.getVersion();
+        if ("-".equals(version)) {
+            version = "";
+        }
+        docInfoDTO.setVersion(version);
+
         List<CodeParamPushParam> errorCodeParams = param.getErrorCodeParams();
         if (!CollectionUtils.isEmpty(errorCodeParams)) {
             List<DocParamDTO> errorParams = CopyUtil.copyList(errorCodeParams, DocParamDTO::new);
