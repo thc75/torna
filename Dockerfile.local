@@ -1,4 +1,5 @@
 FROM openjdk:8-jre-alpine3.9
+
 MAINTAINER tanghc
 
 RUN echo http://mirrors.aliyun.com/alpine/v3.10/main/ > /etc/apk/repositories &&  echo http://mirrors.aliyun.com/alpine/v3.10/community/ >> /etc/apk/repositories
