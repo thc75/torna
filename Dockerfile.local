@@ -1,7 +1,14 @@
-# 作者自己制作的精简版jre8
-FROM registry.cn-hangzhou.aliyuncs.com/tanghc/jre8:1
-
+FROM openjdk:8-jre-alpine3.9
 MAINTAINER tanghc
+
+RUN echo http://mirrors.aliyun.com/alpine/v3.10/main/ > /etc/apk/repositories &&  echo http://mirrors.aliyun.com/alpine/v3.10/community/ >> /etc/apk/repositories
+RUN  apk add  curl
+
+# 解决时差8小时问题
+ENV TZ=Asia/Shanghai
+RUN apk add tzdata && cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
 EXPOSE 7700
 
 VOLUME /tmp
