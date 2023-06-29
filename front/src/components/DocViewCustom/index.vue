@@ -24,8 +24,9 @@
             <el-button type="text" class="icon-button" icon="el-icon-download" />
           </el-tooltip>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
-            <el-dropdown-item :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN" :command="onExportMarkdown">{{ $t('exportMarkdown') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -85,6 +86,9 @@ export default {
     },
     onExportWord() {
       ExportUtil.exportWordSinglePage(this.docInfo)
+    },
+    onExportMarkdown() {
+      ExportUtil.exportMarkdownSinglePage(this.docInfo)
     },
     loadSubscribe(id) {
       if (!this.initSubscribe) {

@@ -90,6 +90,9 @@
 .text-form-input {
   padding-right: 20px;
 }
+.v-note-wrapper {
+  padding: 0 !important;
+}
 </style>
 <script>
 import RichTextEditor from '@/components/RichTextEditor'
@@ -125,7 +128,7 @@ export default {
           { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
         ]
       },
-      editorStyle: 'max-height: 500px',
+      editorStyle: 'height: auto;',
       toolbars: {
         bold: true, // 粗体
         italic: true, // 斜体
@@ -142,7 +145,7 @@ export default {
         imagelink: true, // 图片链接
         code: true, // code
         table: true, // 表格
-        //fullscreen: true, // 全屏编辑
+        fullscreen: true, // 全屏编辑
         readmodel: false, // 沉浸式阅读
         htmlcode: false, // 展示html源码
         help: true, // 帮助
@@ -255,9 +258,9 @@ export default {
     },
     onFullScreen(status) {
       if (status) {
-        this.editorStyle = ''
+        this.editorStyle = 'margin-left: 70px;margin-top: 50px;'
       } else {
-        this.editorStyle = 'max-height: 500px'
+        this.editorStyle = 'height: auto'
       }
     }
   }
