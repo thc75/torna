@@ -12,6 +12,7 @@ import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.AuthRequest;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,9 @@ public class OauthController {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    @Value("${torna.login.third-party.oauth.success-url:/}")
+    private String successUrl;
 
     /**
      * 认证登录，跳转到登录页
@@ -62,7 +66,7 @@ public class OauthController {
             try {
                 LoginUser loginUser = userInfoService.oauthLogin(user);
                 // 做页面跳转，主要是保存token
-                ResponseUtil.writeHtml(response, JwtUtil.getJumpPageHtml(loginUser.getToken()));
+                ResponseUtil.writeHtml(response, JwtUtil.getJumpPageHtml(loginUser.getToken(), successUrl));
             } catch (Exception e) {
                 ResponseUtil.writeHtml(response, e.getMessage());
             }
