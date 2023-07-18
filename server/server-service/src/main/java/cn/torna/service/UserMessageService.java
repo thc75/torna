@@ -100,7 +100,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
                 .orderby("is_read", Sort.ASC)
                 .orderby("id", Sort.DESC);
 
-        return this.page(query);
+        return this.pageEasyui(query);
     }
 
     public void setRead(long id) {

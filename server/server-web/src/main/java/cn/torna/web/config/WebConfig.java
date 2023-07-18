@@ -43,7 +43,7 @@ import java.util.List;
 @Configuration
 @Slf4j
 // 开启异步调用
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, InitializingBean {
 
     @Value("${torna.front-location:}")

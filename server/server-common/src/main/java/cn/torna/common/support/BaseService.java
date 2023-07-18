@@ -2,16 +2,16 @@ package cn.torna.common.support;
 
 import cn.torna.common.util.CopyUtil;
 import com.gitee.fastmybatis.core.FastmybatisContext;
+import com.gitee.fastmybatis.core.ext.MapperRunner;
 import com.gitee.fastmybatis.core.mapper.CrudMapper;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.util.MapperUtil;
+import com.gitee.fastmybatis.core.support.CommonService;
+import com.gitee.fastmybatis.core.util.ClassUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  *
  * @author tanghc
  */
-public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
+public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> implements CommonService<E, Long, Mapper> {
 
     @Autowired
     private Mapper mapper;
@@ -28,28 +28,15 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
         return mapper;
     }
 
-    /**
-     * 分页查询
-     * @param query 查询条件
-     * @return 分页内容
-     */
-    public PageEasyui<E> page(Query query) {
-        return MapperUtil.queryForEasyuiDatagrid(mapper, query);
-    }
-
-    /**
-     * 分页查询，指定转换类
-     * @param query 查询条件
-     * @param clazz 转换类class，会将结果转换成对应类
-     * @param <T> 对应类
-     * @return 分页内容
-     */
-    public <T> PageEasyui<T> page(Query query, Class<T> clazz) {
-        return MapperUtil.queryForEasyuiDatagrid(mapper, query, clazz);
+    @Override
+    public MapperRunner<Mapper> getMapperRunner() {
+        Class mapperLCass = ClassUtil.getSuperClassGenricType(this.getClass(), 1);
+        return FastmybatisContext.getMapperRunner(mapperLCass);
     }
 
     /**
      * 查询全部
+     *
      * @return 返回全部数据，不包括已删除的，没有返回空集合
      */
     public List<E> listAll() {
@@ -58,6 +45,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 根据条件查询全部数据
+     *
      * @param query 查询条件
      * @return 返回对应条件下的全部数据，不包括已删除的，没有返回空集合
      */
@@ -67,6 +55,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 查询全部，并对结果集进行转换
+     *
      * @param supplier 转换类
      * @param <R>
      * @return 返回转换后的结果，没有返回空集合
@@ -78,6 +67,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 根据条件查询
+     *
      * @param query 查询条件
      * @return 返回结果集，没有返回空集合
      */
@@ -87,8 +77,9 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 根据某个字段查询结果
+     *
      * @param column 数据库字段名
-     * @param value 查询值
+     * @param value  查询值
      * @return 返回结果集，没有返回空集合
      */
     public List<E> list(String column, Object value) {
@@ -97,6 +88,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 根据某个字段集合查询结果，即 IN 查询
+     *
      * @param column 数据库字段名
      * @param values 查询值
      * @return 返回结果集，没有返回空集合
@@ -107,6 +99,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 只返回id列
+     *
      * @param query 查询条件
      * @return id列表
      */
@@ -116,6 +109,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
 
     /**
      * 根据条件查询单条记录
+     *
      * @param query 查询条件
      * @return 返回单条记录，没有返回null
      */
@@ -148,19 +142,6 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
      */
     public int save(E entity) {
         return mapper.saveIgnoreNull(entity);
-    }
-
-    /**
-     * 批量添加
-     *
-     * @param entityList 添加对象
-     * @return 返回影响行数
-     */
-    public int saveBatch(List<E> entityList) {
-        if (entityList == null || entityList.isEmpty()) {
-            return 0;
-        }
-        return mapper.saveBatch(entityList);
     }
 
     /**
@@ -199,24 +180,6 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> {
         return mapper.deleteById(id);
     }
 
-    /**
-     * 修改或保存
-     * @param entity 实体类
-     * @return 返回影响行数
-     */
-    public int saveOrUpdate(E entity) {
-        Objects.requireNonNull(entity, "entity can not null");
-        Object pkValue = FastmybatisContext.getPkValue(entity);
-        // 如果存在数据，执行更新操作
-        if (pkValue != null) {
-            String pkColumnName = FastmybatisContext.getPkColumnName(entity.getClass());
-            Object columnValue = this.getMapper().getColumnValue(pkColumnName, new Query().eq(pkColumnName, pkValue), Object.class);
-            if (columnValue != null) {
-                return this.update(entity);
-            }
-        }
-        return this.save(entity);
-    }
 
 
 }

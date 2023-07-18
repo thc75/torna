@@ -9,6 +9,7 @@ import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class ModuleEnvironmentParamService extends BaseService<ModuleEnvironment
     }
 
     @Override
-    public int saveBatch(List<ModuleEnvironmentParam> entityList) {
+    public int saveBatch(Collection<ModuleEnvironmentParam> entityList) {
         for (ModuleEnvironmentParam param : entityList) {
             initDataId(param);
         }
