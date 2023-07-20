@@ -81,6 +81,13 @@ export const constantRoutes = [
     'hidden': true
   },
   {
+    'path': '/successLogin',
+    'name': 'SuccessLogin',
+    component: () => import('@/views/common/successLogin'),
+    'meta': { 'title': '' },
+    'hidden': true
+  },
+  {
     path: '/updatePassword',
     component: Layout,
     children: [{

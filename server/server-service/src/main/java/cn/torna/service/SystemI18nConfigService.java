@@ -58,7 +58,7 @@ public class SystemI18nConfigService extends BaseService<SystemI18nConfig, Syste
 
     @Override
     public int saveOrUpdate(SystemI18nConfig entity) {
-        int i = super.saveOrUpdate(entity);
+        int i = super.saveOrUpdateIgnoreNull(entity);
         refreshCache(entity.getLang());
         return i;
     }
