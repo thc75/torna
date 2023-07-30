@@ -368,15 +368,11 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     public void doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
-        try {
-            DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
-            // 删除文档对应的参数
-            docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
-            // 修改参数
-            this.doUpdateParams(docInfo, docInfoDTO, user);
-        } catch (Exception e) {
-            log.error("insertDocInfo error, docInfo={}", docInfoDTO, e);
-        }
+        DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
+        // 删除文档对应的参数
+        docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
+        // 修改参数
+        this.doUpdateParams(docInfo, docInfoDTO, user);
     }
 
     public List<DocMeta> listDocMeta(long moduleId) {
