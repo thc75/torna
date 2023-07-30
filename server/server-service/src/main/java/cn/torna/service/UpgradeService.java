@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12201;
+    private static final int VERSION = 12300;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
