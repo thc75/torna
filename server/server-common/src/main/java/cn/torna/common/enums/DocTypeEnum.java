@@ -1,5 +1,7 @@
 package cn.torna.common.enums;
 
+import java.util.Objects;
+
 /**
  * @author tanghc
  */
@@ -14,6 +16,15 @@ public enum DocTypeEnum {
 
     DocTypeEnum(byte type) {
         this.type = type;
+    }
+
+    public static DocTypeEnum of(Byte type) {
+        for (DocTypeEnum value : DocTypeEnum.values()) {
+            if (Objects.equals(value.getType(), type)) {
+                return value;
+            }
+        }
+        return HTTP;
     }
 
     private final byte type;

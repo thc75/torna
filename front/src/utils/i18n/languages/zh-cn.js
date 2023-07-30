@@ -134,6 +134,7 @@ export default {
   'newModule': '创建应用',
   'importSwaggerDoc': '导入Swagger文档',
   'importPostmanDoc': '导入Postman文档',
+  'importMarkdownYapi': '导入Markdown文档(YAPI)',
   'syncSwaggerDoc': '同步Swagger文档',
   'inputModuleName': '请输入应用名称',
   'appName': '应用名称',
@@ -453,6 +454,11 @@ export default {
     'swaggerContentImport': ' JSON/YAML导入',
     'swaggerContentImportTip': '输入swagger文档内容，支持json或yaml格式',
     'importTip': '提示：服务端异步处理导入过程，保存后可能无法看到文档，请过2~3秒再刷新查看'
+  },
+  ImportYapiMarkdownDoc: {
+    'importYapiMarkdownDoc': '导入YAPI的Markdown文档',
+    'step1': '第一步：导出Markdown文档',
+    'step2': '第二步：上传导出文件'
   },
   Module: {
     'noAppDescription': '当前没有应用'

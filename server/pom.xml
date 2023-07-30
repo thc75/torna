@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <fastmybatis.version>2.9.0</fastmybatis.version>
+        <fastmybatis.version>2.9.1</fastmybatis.version>
         <flexmark.version>0.18.4</flexmark.version>
     </properties>
 

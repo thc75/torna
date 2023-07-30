@@ -1,11 +1,14 @@
 package cn.torna.web.controller.module;
 
+import cn.torna.api.bean.ApiUser;
 import cn.torna.api.open.SwaggerApi;
 import cn.torna.api.open.SwaggerRefreshApi;
+import cn.torna.api.open.YapiApi;
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
+import cn.torna.service.dto.YapiMarkdownDTO;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ModuleTypeEnum;
 import cn.torna.common.exception.BizException;
@@ -27,6 +30,7 @@ import cn.torna.web.controller.module.param.ModuleDeleteParam;
 import cn.torna.web.controller.module.param.ModuleUpdateNameParam;
 import cn.torna.web.controller.module.vo.ModuleVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -63,6 +68,9 @@ public class ModuleController {
 
     @Autowired
     private SwaggerRefreshApi swaggerRefreshApi;
+
+    @Autowired
+    private YapiApi yapiApi;
 
     @GetMapping("info")
     public Result<ModuleVO> info(@HashId Long moduleId) {
@@ -182,6 +190,34 @@ public class ModuleController {
             importPostmanDTO.setProjectId(IdUtil.decode(projectId));
             importPostmanDTO.setUser(user);
             Module module = docImportService.importPostman(importPostmanDTO);
+            ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
+            return Result.ok(moduleVO);
+        } catch (Exception e) {
+            log.error("导入文件失败", e);
+            throw new BizException("导入失败，请查看日志");
+        }
+    }
+
+    /**
+     * 导入yapi markdown
+     * @param file md导出文件
+     * @param projectId 项目id
+     * @return
+     */
+    @PostMapping("import/yapi/markdown")
+    public Result<ModuleVO> importYapiMarkdownDoc(MultipartFile file, String projectId, HttpServletRequest request) {
+        User user = UserContext.getUser();
+        try {
+            String content = IOUtils.toString(file.getInputStream(), StandardCharsets.UTF_8);
+
+            YapiMarkdownDTO yapiMarkdownDTO = new YapiMarkdownDTO();
+            yapiMarkdownDTO.setIp(RequestUtil.getIP(request));
+            yapiMarkdownDTO.setUser(user);
+            yapiMarkdownDTO.setProjectId(IdUtil.decode(projectId));
+            yapiMarkdownDTO.setContent(content);
+
+            Module module = yapiApi.importMarkdown(yapiMarkdownDTO);
+
             ModuleVO moduleVO = CopyUtil.copyBean(module, ModuleVO::new);
             return Result.ok(moduleVO);
         } catch (Exception e) {

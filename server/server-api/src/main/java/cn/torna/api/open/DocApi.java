@@ -41,7 +41,6 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -130,7 +129,7 @@ public class DocApi {
         folderCount.forEach((name, count) -> {
             if (count.get() > 1) {
                 String msg = "文档名称重复【" + name + "】";
-                this.sendMessage(msg);
+                this.sendErrorMessage(msg);
                 throw new ApiException(msg);
             }
         });
@@ -164,6 +163,7 @@ public class DocApi {
     private void doPush(DocPushParam param, RequestContext context) {
         String token = context.getToken();
         Module module = context.getModule();
+        User apiUser = context.getApiUser();
         long moduleId = module.getId();
         String ip = context.getIp();
         long startTime = System.currentTimeMillis();
@@ -173,41 +173,42 @@ public class DocApi {
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
                 // 设置调试环境
-                for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
-                    if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
-                        continue;
-                    }
-                    moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
-                }
+                saveDebugEnv(param, moduleId);
                 // 替换文档
-                if (!isOverride(moduleId)
-                        && Booleans.isTrue(param.getIsReplace(), true)
-                        && !BooleanUtils.toBoolean(param.getIsOverride())) {
-                    // 先删除之前的文档
-                    this.deleteOpenAPIModuleDocs(moduleId);
-                }
+                replaceDoc(param, moduleId);
                 for (DocPushItemParam detailPushParam : param.getApis()) {
                     docPushItemParamThreadLocal.set(detailPushParam);
-                    this.pushDocItem(detailPushParam, context, 0L, pushContext, param);
+                    this.pushDocItem(detailPushParam, context, 0L, pushContext);
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
+                this.sendSuccessMessage("推送文档成功，应用：" + module.getName() + "，推送人：" + param.getAuthor(), apiUser);
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
                 String paramInfo = JSON.toJSONString(docPushItemParam);
                 log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), ip, token, paramInfo, e);
-                this.sendMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
+                this.sendErrorMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
             });
             log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
                     module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);
         }
     }
 
-    private boolean isOverride(long moduleId) {
-        String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_OVERRIDE.getKey(),
-                EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
-        return Boolean.parseBoolean(value);
+    private void saveDebugEnv(DocPushParam param, long moduleId) {
+        for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+            if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
+                continue;
+            }
+            moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
+        }
+    }
+
+    private void replaceDoc(DocPushParam param, long moduleId) {
+        if (Booleans.isTrue(param.getIsReplace(), true)) {
+            // 先删除之前的文档
+            this.deleteOpenAPIModuleDocs(moduleId);
+        }
     }
 
     private boolean isPrintContent(long moduleId) {
@@ -225,23 +226,35 @@ public class DocApi {
         docInfoService.deleteOpenAPIModuleDocs(moduleId);
     }
 
-    private void sendMessage(String msg) {
+    private void sendErrorMessage(String msg) {
         MessageDTO messageDTO = new MessageDTO();
-        messageDTO.setMessageEnum(MessageEnum.SYSTEM_ERROR);
+        messageDTO.setMessageEnum(MessageEnum.PUSH_ERROR);
         messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
         messageDTO.setLocale(ApiContext.getLocal());
         messageDTO.setSourceId(0L);
         userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
-    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext, DocPushParam docPushParam) {
+    private void sendSuccessMessage(String msg, User user) {
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessageEnum(MessageEnum.PUSH_DOC_SUCCESS);
+        messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
+        messageDTO.setLocale(ApiContext.getLocal());
+        messageDTO.setSourceId(0L);
+        userMessageService.sendMessageToAdmin(messageDTO, msg);
+        if (!(user instanceof ApiUser)) {
+            userMessageService.sendMessageToUser(messageDTO, msg, user.getUserId());
+        }
+    }
+
+    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
         List<DocMeta> docMetas = pushContext.getDocMetas();
         if (Booleans.isTrue(param.getIsFolder())) {
             DocInfo folder;
             Map<String, Object> props = null;
-            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.HTTP;
+            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.of( param.getType());
             if (docTypeEnum == DocTypeEnum.DUBBO) {
                 props = buildProps(param);
             }
@@ -268,7 +281,7 @@ public class DocApi {
                     if (StringUtils.isEmpty(item.getAuthor())) {
                         item.setAuthor(folder.getAuthor());
                     }
-                    this.pushDocItem(item, context, pid, pushContext, docPushParam);
+                    this.pushDocItem(item, context, pid, pushContext);
                 }
             }
         } else {
@@ -280,7 +293,7 @@ public class DocApi {
             if (DocInfoService.isLocked(docInfoDTO.buildDataId(), docMetas)) {
                 return;
             }
-            docInfoService.doPushSaveDocInfo(docInfoDTO, user, BooleanUtils.toBoolean(docPushParam.getIsOverride()));
+            docInfoService.doPushSaveDocInfo(docInfoDTO, user);
         }
     }
 

@@ -21,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -83,6 +81,16 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
                 .map(UserInfo::getId)
                 .collect(Collectors.toList());
         this.sendMessage(userIds, messageDTO, content);
+    }
+
+    /**
+     * 给超级管理员发站内信
+     *
+     * @param content 信息内容
+     */
+    @Async
+    public void sendMessageToUser(MessageDTO messageDTO, String content, Long userId) {
+        this.sendMessage(Collections.singletonList(userId), messageDTO, content);
     }
 
     public List<UserMessage> listUserUnReadMessage(long userId, int limit) {

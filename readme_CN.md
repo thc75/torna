@@ -6,7 +6,7 @@
 
 Torna弥补了传统文档生成工具（如swagger）的不如之处，在保持原有功能的前提下丰富并增强了一些实用的功能。
 
-<img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
+<img src="./asset/arc2.png" width="80%" height="80%" />
 
 
 ## 解决文档管理痛点
@@ -135,13 +135,13 @@ docker run --name torna --restart=always \
 
 ## 界面预览
 
-![文档管理](./front/public/static/images/table.png "table.png")
+![文档管理](./asset/table.png "table.png")
 
-![编辑接口](./front/public/static/images/edit.png "edit.png")
+![编辑接口](./asset/edit.png "edit.png")
 
-![浏览文档](./front/public/static/images/view.png "view.png")
+![浏览文档](./asset/view.png "view.png")
 
-![调试接口](./front/public/static/images/debug.png "debug.png")
+![调试接口](./asset/debug.png "debug.png")
 
 
 ## 沟通交流
@@ -152,8 +152,8 @@ docker run --name torna --restart=always \
     <td>二群</td>
   </tr>
   <tr>
-    <td><img src="./front/public/static/images/group.jpg" width="50%" height="50%" /></td>
-    <td><img src="./front/public/static/images/group2.jpg" width="50%" height="50%" /></td>
+    <td><img src="./asset/group.jpg" width="50%" height="50%" /></td>
+    <td><img src="./asset/group2.jpg" width="50%" height="50%" /></td>
   </tr>
 </table>
 
