@@ -70,7 +70,7 @@
               <i class="el-icon-lock"></i>
             </el-tooltip>
           </div>
-          <div v-if="scope.row.type === getEnums().DOC_TYPE.MARKDOWN" class="el-table-cell-icon">
+          <div v-if="scope.row.isFolder === 0 && scope.row.type === getEnums().DOC_TYPE.MARKDOWN" class="el-table-cell-icon">
             <el-tooltip placement="top" :content="$t('mardown')">
               <el-tag>md</el-tag>
             </el-tooltip>
