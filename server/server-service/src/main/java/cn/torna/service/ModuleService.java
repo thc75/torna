@@ -10,6 +10,7 @@ import cn.torna.dao.mapper.ModuleMapper;
 import cn.torna.service.dto.ImportPostmanDTO;
 import cn.torna.service.dto.ImportSwaggerDTO;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
+import cn.torna.service.dto.YapiMarkdownDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -127,6 +128,32 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
             this.save(module);
         } else {
             module.setType(ModuleTypeEnum.SWAGGER_IMPORT.getType());
+            module.setModifyMode(user.getOperationModel());
+            module.setModifierId(user.getUserId());
+            module.setIsDeleted(Booleans.FALSE);
+            this.update(module);
+        }
+        return module;
+    }
+
+    public Module createYapiModule(YapiMarkdownDTO yapiMarkdownDTO, String name) {
+        Assert.notNull(name, () -> "name不能为空");
+        User user = yapiMarkdownDTO.getUser();
+        Long projectId = yapiMarkdownDTO.getProjectId();
+        Module module = getByProjectIdAndName(projectId, name);
+        if (module == null) {
+            module = new Module();
+            module.setName(name);
+            module.setProjectId(projectId);
+            module.setType(ModuleTypeEnum.YAPI_MARKDOWN.getType());
+            module.setToken(createToken());
+            module.setCreateMode(user.getOperationModel());
+            module.setModifyMode(user.getOperationModel());
+            module.setCreatorId(user.getUserId());
+            module.setModifierId(user.getUserId());
+            this.save(module);
+        } else {
+            module.setType(ModuleTypeEnum.YAPI_MARKDOWN.getType());
             module.setModifyMode(user.getOperationModel());
             module.setModifierId(user.getUserId());
             module.setIsDeleted(Booleans.FALSE);

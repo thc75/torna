@@ -30,7 +30,6 @@ public class DocPushItemParam {
 
     /** 文档概述, 数据库字段：description */
     @ApiDocField(description = "文档概述", example = "获取商品信息")
-    @Length(max = 128, message = "'description' 长度不能超过128")
     private String description;
 
     @ApiDocField(description = "接口维护人", example = "李四")

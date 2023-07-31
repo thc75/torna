@@ -23,8 +23,10 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ProjectDTO;
 import cn.torna.service.dto.SpaceProjectDTO;
 import cn.torna.service.dto.TreeDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +42,7 @@ import java.util.stream.Collectors;
 /**
  * @author tanghc
  */
+@Slf4j
 @RestController
 @RequestMapping("doc/view")
 public class ViewController {
@@ -129,7 +132,11 @@ public class ViewController {
         for (Module module : modules) {
             TreeDTO moduleVO = new TreeDTO(IdGen.nextId(), module.getName(), "", TYPE_MODULE);
             list.add(moduleVO);
+            StopWatch stopWatch1 = new StopWatch();
+            stopWatch1.start();
             List<DocInfo> docInfos = docInfoService.listDocMenuView(module.getId());
+            stopWatch1.stop();
+            log.debug("查询【{}】下的接口，耗时:{}", module.getName(), stopWatch1.getTotalTimeSeconds());
             String base = moduleVO.getId();
             for (DocInfo docInfo : docInfos) {
                 boolean isFolder = Booleans.isTrue(docInfo.getIsFolder());

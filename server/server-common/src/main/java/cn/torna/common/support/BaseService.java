@@ -1,17 +1,17 @@
 package cn.torna.common.support;
 
 import cn.torna.common.util.CopyUtil;
-import com.gitee.fastmybatis.core.FastmybatisContext;
 import com.gitee.fastmybatis.core.ext.MapperRunner;
 import com.gitee.fastmybatis.core.mapper.CrudMapper;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.CommonService;
-import com.gitee.fastmybatis.core.util.ClassUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -20,6 +20,8 @@ import java.util.function.Supplier;
  * @author tanghc
  */
 public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> implements CommonService<E, Long, Mapper> {
+
+    private static final Map<Object, MapperRunner<?>> cache = new ConcurrentHashMap<>(64);
 
     @Autowired
     private Mapper mapper;
@@ -30,8 +32,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> impleme
 
     @Override
     public MapperRunner<Mapper> getMapperRunner() {
-        Class mapperLCass = ClassUtil.getSuperClassGenricType(this.getClass(), 1);
-        return FastmybatisContext.getMapperRunner(mapperLCass);
+        return (MapperRunner<Mapper>) cache.computeIfAbsent(getMapper(), k -> new MapperRunner<>(k, null));
     }
 
     /**

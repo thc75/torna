@@ -39,7 +39,9 @@ import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
+import com.gitee.fastmybatis.core.support.Q;
 import com.gitee.fastmybatis.core.util.MapperUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +65,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
+@Slf4j
 public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     private static final String REGEX_BR = "<br\\s*/*>";
@@ -132,10 +135,40 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public List<DocInfo> listDocMenuView(long moduleId) {
-        return this.listModuleDoc(moduleId)
-                .stream()
-                .filter(docInfo -> docInfo.getIsShow() == Booleans.TRUE)
-                .collect(Collectors.toList());
+        return this.listModuleMenuDoc(moduleId);
+    }
+
+    /**
+     * 查询模块下的所有文档
+     * @param moduleId 模块id
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleMenuDoc(long moduleId) {
+        Query query = Q.create().eq("module_id", moduleId)
+                .eq("is_show", Booleans.TRUE);
+        List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
+                "id", "name", "parent_id", "url", "is_folder",
+                "type", "http_method", "deprecated", "version",
+                "order_index", "is_show"), query);
+        sortDocInfo(docInfoList);
+        return docInfoList;
+    }
+
+    /**
+     * 查询模块下的所有文档
+     * @param moduleId 模块id
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleTableDoc(long moduleId) {
+        Query query = Q.create().eq("module_id", moduleId)
+                .eq("is_show", Booleans.TRUE);
+        List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
+                "id", "name", "parent_id", "url", "is_folder",
+                "type", "http_method", "deprecated", "version",
+                "author", "modifier_name", "gmt_modified",
+                "order_index", "is_show"), query);
+        sortDocInfo(docInfoList);
+        return docInfoList;
     }
 
     public PageEasyui<DocInfo> pageDocByIds(List<Long> docIds, PageParam pageParam) {
@@ -333,16 +366,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         return doUpdateDocInfo(docInfoDTO, user);
     }
 
-    public DocInfo doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user, boolean isOverride) {
+    public void doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
-        if (isOverride) {
-            // 删除文档对应的参数
-            docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
-        }
+        // 删除文档对应的参数
+        docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        return docInfo;
     }
 
     public List<DocMeta> listDocMeta(long moduleId) {

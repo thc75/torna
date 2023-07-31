@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping("admin/project")
 public class AdminProjectController {
 
+    private static final String SPACE_PREFIX = "S_";
+
     @Autowired
     private ProjectService projectService;
 
@@ -54,7 +56,9 @@ public class AdminProjectController {
             Long spaceId = entry.getKey();
             Space space = entry.getValue();
             List<Project> projectsList = spaceIdProjects.get(spaceId);
-            String id = IdUtil.encode(spaceId);
+            // spaceId和projectId有可能相同
+            // 在spaceId前加个前缀区分
+            String id = SPACE_PREFIX + IdUtil.encode(spaceId);
             TreeVO treeVO = new TreeVO(id, space.getName(), "");
             List<TreeVO> children = projectsList.stream()
                     .map(project -> {

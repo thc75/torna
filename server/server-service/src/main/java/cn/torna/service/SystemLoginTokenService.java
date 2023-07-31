@@ -42,7 +42,7 @@ public class SystemLoginTokenService extends BaseService<SystemLoginToken, Syste
     public void del() {
         Query query = Q.create()
                 .lt("expire_time", new Date());
-        getMapper().deleteByQuery(query);
+        this.forceDeleteByQuery(query);
     }
 
 }

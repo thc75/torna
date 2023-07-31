@@ -454,6 +454,9 @@ export default {
     'swaggerContentImportTip': 'Input swagger doc content,support json or yaml',
     'importTip': 'Note: The import process is asynchronous on the server. After the file is saved successfully, you cannot see the file immediately. Refresh after 3 to 5 seconds'
   },
+  ImportYapiMarkdownDoc: {
+    'importYapiMarkdownDoc': 'Import Markdown file from YAPI'
+  },
   Module: {
     'noAppDescription': 'No application'
   },

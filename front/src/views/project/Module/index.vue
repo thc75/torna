@@ -10,6 +10,7 @@
           <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $t('newModule') }}</el-dropdown-item>
           <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $t('importSwaggerDoc') }}</el-dropdown-item>
           <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $t('importPostmanDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-download" :command="onImportMarkdownApi">{{ $t('importMarkdownYapi') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </el-empty>
@@ -54,6 +55,7 @@
               <el-dropdown-item icon="el-icon-box" :command="onModuleAdd">{{ $t('newModule') }}</el-dropdown-item>
               <el-dropdown-item icon="el-icon-download" divided :command="onImportSwagger">{{ $t('importSwaggerDoc') }}</el-dropdown-item>
               <el-dropdown-item icon="el-icon-download" :command="onImportPostman">{{ $t('importPostmanDoc') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-download" :command="onImportMarkdownApi">{{ $t('importMarkdownYapi') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </span>
@@ -63,6 +65,7 @@
     <!-- 导入json -->
     <import-swagger-dialog ref="importSwaggerDlg" :project-id="projectId" :success="reload" />
     <import-postman-dialog ref="importPostmanDlg" :project-id="projectId" :success="reload" />
+    <import-yapi-markdown-dialog ref="importYapiMarkdownDlg" :project-id="projectId" :success="reload" />
   </div>
 </template>
 <style lang="scss">
@@ -86,11 +89,12 @@
 <script>
 import DocInfo from '../DocInfo'
 import ImportSwaggerDialog from '../ImportSwaggerDialog'
-import ImportPostmanDialog from '@/views/project/ImportPostmanDialog/index'
+import ImportPostmanDialog from '../ImportPostmanDialog'
+import ImportYapiMarkdownDialog from '../ImportYapiMarkdownDialog'
 
 export default {
   name: 'Module',
-  components: { ImportPostmanDialog, DocInfo, ImportSwaggerDialog },
+  components: { ImportPostmanDialog, DocInfo, ImportSwaggerDialog, ImportYapiMarkdownDialog },
   props: {
     projectId: {
       type: String,
@@ -207,6 +211,9 @@ export default {
     },
     onImportPostman() {
       this.$refs.importPostmanDlg.show()
+    },
+    onImportMarkdownApi() {
+      this.$refs.importYapiMarkdownDlg.show()
     },
     onTabClick(tab) {
       const label = tab.label
