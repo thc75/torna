@@ -32,7 +32,7 @@ public abstract class BaseService<E, Mapper extends CrudMapper<E, Long>> impleme
 
     @Override
     public MapperRunner<Mapper> getMapperRunner() {
-        return (MapperRunner<Mapper>) cache.computeIfAbsent(getMapperRunner(), k -> new MapperRunner<>(k, null));
+        return (MapperRunner<Mapper>) cache.computeIfAbsent(getMapper(), k -> new MapperRunner<>(k, null));
     }
 
     /**
