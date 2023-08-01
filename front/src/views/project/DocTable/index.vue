@@ -507,7 +507,7 @@ export default {
       }
     },
     onDocCopy(row) {
-      if (row.type === this.getEnums().DOC_TYPE.CUSTOM) {
+      if (row.type === this.getEnums().DOC_TYPE.CUSTOM || row.type === this.getEnums().DOC_TYPE.MARKDOWN) {
         this.goRoute(`/doc/copy_custom/${this.moduleId}/${row.id}`)
       } else {
         this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
