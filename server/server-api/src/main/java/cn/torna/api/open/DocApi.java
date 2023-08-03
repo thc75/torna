@@ -41,6 +41,7 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -205,6 +206,9 @@ public class DocApi {
     }
 
     private void replaceDoc(DocPushParam param, long moduleId) {
+        if (isOverride(moduleId) || Booleans.isTrue(param.getIsOverride(), false)) {
+            return;
+        }
         if (Booleans.isTrue(param.getIsReplace(), true)) {
             // 先删除之前的文档
             this.deleteOpenAPIModuleDocs(moduleId);
@@ -213,6 +217,12 @@ public class DocApi {
 
     private boolean isPrintContent(long moduleId) {
         String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getKey(),
+                EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
+        return Boolean.parseBoolean(value);
+    }
+
+    private boolean isOverride(long moduleId) {
+        String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_OVERRIDE.getKey(),
                 EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
         return Boolean.parseBoolean(value);
     }
