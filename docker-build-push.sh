@@ -21,10 +21,8 @@ sleep 1
 # 如果有参数
 if [ -n "${1}" ];then
 
-  echo "tag 镜像，命令：docker tag torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}"
-  docker tag torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}
-
-#  docker build -f Dockerfile.local -t registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1} .
+  echo "tag 镜像，命令：docker tag registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}"
+  docker tag registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}
 
   sleep 1
 
