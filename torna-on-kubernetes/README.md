@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
         - name: torna
-          image: tanghc2020/torna:latest
+          image: registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest
           imagePullPolicy: Always
           env:
               - name:  JAVA_OPTS
