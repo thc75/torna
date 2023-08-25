@@ -338,7 +338,7 @@ export default {
           const children = node.children || []
           if (children.length > 0) {
             for (const child of children) {
-              append(child, isShareFolder)
+              append(child, child.isShareFolder)
             }
           }
         }
