@@ -125,6 +125,7 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private List<DocParamDTO> pathParams = Collections.emptyList();
     private List<DocParamDTO> headerParams = Collections.emptyList();
+    private List<DocParamDTO> headerParamsRaw = Collections.emptyList();
     private List<DocParamDTO> queryParams = Collections.emptyList();
     private List<DocParamDTO> requestParams = Collections.emptyList();
     private List<DocParamDTO> responseParams = Collections.emptyList();

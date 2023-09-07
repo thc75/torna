@@ -105,8 +105,7 @@ public class DocImportService {
         String url = importSwaggerDTO.getImportUrl();
         try {
             HttpHelper.ResponseResult responseResult = HttpHelper
-                    .create()
-                    .basicAuth(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword())
+                    .createBasic(importSwaggerDTO.getBasicAuthUsername(), importSwaggerDTO.getBasicAuthPassword())
                     .url(url)
                     .method("get")
                     .execute();

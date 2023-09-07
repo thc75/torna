@@ -27,6 +27,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
@@ -84,7 +85,7 @@ public class HttpHelper {
             .setSocketTimeout(600000)
             .build();
 
-    private final HttpClient client;
+    private HttpClient client;
 
     private HttpContext context;
 
@@ -108,6 +109,26 @@ public class HttpHelper {
         this.client = client;
     }
 
+    /**
+     * 创建一个基于basic认证的客户端
+     * @param username 用户名
+     * @param password 密码
+     */
+    public HttpHelper(String username, String password) {
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            this.client = CLOSEABLE_HTTP_CLIENT;
+        } else {
+            // 创建用户信息
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+            provider.setCredentials(AuthScope.ANY, credentials);
+            // 创建客户端的时候进行身份验证
+            this.client = HttpClientBuilder.create()
+                    .setDefaultCredentialsProvider(provider)
+                    .build();
+        }
+    }
+
 
     /**
      * 创建一个HttpHelper实例
@@ -116,6 +137,15 @@ public class HttpHelper {
      */
     public static HttpHelper create() {
         return new HttpHelper();
+    }
+
+    /**
+     * 创建一个基于basic认证的实例
+     *
+     * @return 返回HttpHelper
+     */
+    public static HttpHelper createBasic(String username, String password) {
+        return new HttpHelper(username, password);
     }
 
 
@@ -127,14 +157,17 @@ public class HttpHelper {
      * @return 返回HttpHelper
      */
     public HttpHelper basicAuth(String username, String password) {
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        Credentials credentials = new UsernamePasswordCredentials(username, password);
-        credentialsProvider.setCredentials(AuthScope.ANY, credentials);
-        HttpClientContext context = HttpClientContext.create();
-        context.setCredentialsProvider(credentialsProvider);
-        this.context(context);
+        // 创建用户信息
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+        provider.setCredentials(AuthScope.ANY, credentials);
+        // 创建客户端的时候进行身份验证
+        this.client = HttpClientBuilder.create()
+                .setDefaultCredentialsProvider(provider)
+                .build();
         return this;
     }
+
 
     /**
      * 设置HttpContext

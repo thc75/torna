@@ -160,8 +160,7 @@ public class SwaggerApi {
         if (StringUtils.hasText(url)) {
             try {
                 HttpHelper.ResponseResult responseResult = HttpHelper
-                        .create()
-                        .basicAuth(importSwaggerV2DTO.getAuthUsername(), importSwaggerV2DTO.getAuthPassword())
+                        .createBasic(importSwaggerV2DTO.getAuthUsername(), importSwaggerV2DTO.getAuthPassword())
                         .url(url)
                         .method("get")
                         .execute();

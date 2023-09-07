@@ -149,7 +149,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
                 "id", "name", "parent_id", "url", "is_folder",
                 "type", "http_method", "deprecated", "version",
-                "order_index", "is_show"), query);
+                "order_index", "is_show", "is_locked"), query);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -166,7 +166,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 "id", "name", "parent_id", "url", "is_folder",
                 "type", "http_method", "deprecated", "version",
                 "author", "modifier_name", "gmt_modified",
-                "order_index", "is_show"), query);
+                "order_index", "is_show", "is_locked"), query);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -236,6 +236,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocParam> errorCodeParams = paramsMap.getOrDefault(ParamStyleEnum.ERROR_CODE.getStyle(), new ArrayList<>(0));
         docInfoDTO.setPathParams(CopyUtil.copyList(pathParams, DocParamDTO::new));
         docInfoDTO.setHeaderParams(CopyUtil.copyList(headerParams, DocParamDTO::new));
+        docInfoDTO.setHeaderParamsRaw(CopyUtil.copyList(headerParams, DocParamDTO::new));
         docInfoDTO.setQueryParams(CopyUtil.copyList(queryParams, DocParamDTO::new));
         docInfoDTO.setRequestParams(CopyUtil.copyList(requestParams, DocParamDTO::new));
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));

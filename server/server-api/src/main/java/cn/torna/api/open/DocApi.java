@@ -22,10 +22,12 @@ import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.Project;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
+import cn.torna.service.ProjectService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
@@ -84,6 +86,9 @@ public class DocApi {
 
     @Autowired
     private UserMessageService userMessageService;
+
+    @Autowired
+    private ProjectService projectService;
 
 
     @Api(name = "doc.push")
@@ -183,7 +188,8 @@ public class DocApi {
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
-                this.sendSuccessMessage("推送文档成功，应用：" + module.getName() + "，推送人：" + param.getAuthor(), apiUser);
+                Project project = projectService.getById(module.getProjectId());
+                this.sendSuccessMessage("推送文档成功（" + project.getName() + "-" + module.getName() + "），推送人：" + param.getAuthor(), apiUser);
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
