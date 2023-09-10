@@ -6,6 +6,7 @@
 - 【修复】分享出来的Markdown文档不显示 [#I7SJ3O](https://gitee.com/durcframework/torna/issues/I7SJ3O)
 - 【修复】点击锁定文档按钮，锁图标没显示 [#I7SJ3X](https://gitee.com/durcframework/torna/issues/I7SJ3X)
 - 【修复】导入swagger basic认证失败 [#I7S3LU](https://gitee.com/durcframework/torna/issues/I7S3LU)
+- 【修复】推送枚举名称字段显示枚举内容问题
 
 ## 1.23.1
 

@@ -15,6 +15,10 @@ public class ApiParamWrapper {
         this.apiParamOptional = Optional.ofNullable(apiParam);
     }
 
+    public String getName() {
+        return apiParamOptional.map(ApiParam::name).orElse("");
+    }
+
     public String getType() {
         return apiParamOptional.map(ApiParam::type).orElse("");
     }
