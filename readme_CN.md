@@ -59,10 +59,10 @@ mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/instal
 
 `vim /etc/torna/application.properties`修改数据库连接配置
 
-拉取最新版本并启动，以1.23.0为例
+拉取最新版本并启动，以1.23.2为例
 
 ```bash
-wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.23.0
+wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.23.2
 ``` 
 
 后续更新版本只需执行`sh restart-torna.sh 版本号`
@@ -73,7 +73,7 @@ wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh &
 
 下载公共镜像
 
-`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.23.0`
+`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.23.2`
 
 创建配置文件，执行命令：
 
@@ -90,7 +90,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.23.0
+  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.23.2
 ```
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
