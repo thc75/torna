@@ -398,7 +398,8 @@ export default {
       isProxy: true,
       currentItem: {
         debugEnvs: [],
-        headerParams: []
+        headerParams: [],
+        headerParamsRaw: []
       },
       itemMap: null,
       textRadio: 'application/json',
@@ -509,21 +510,19 @@ export default {
       this.debugEnv = debugConfig.name
       this.debugId = debugConfig.id
       this.setAttr(this.getHostKey(), this.debugId)
-      this.loadGlobalHeader(debugId)
-      this.loadProxySelect()
-      this.loadProps()
+      this.loadGlobalHeader(debugId, function() {
+        this.loadProxySelect()
+        this.loadProps()
+      })
     },
-    loadGlobalHeader(debugId) {
+    loadGlobalHeader(debugId, callback) {
+      this.headerData = this.deepCopy(this.currentItem.headerParamsRaw)
       this.get('/doc/headers/global', { environmentId: debugId }, resp => {
         const globalHeaders = resp.data
-        const headers = this.headerData
-        for (const target of headers) {
-          for (const globalHeader of globalHeaders) {
-            if (globalHeader.name === target.name) {
-              target.example = globalHeader.example
-            }
-          }
+        for (const globalHeader of globalHeaders) {
+          this.headerData.push(globalHeader)
         }
+        callback && callback.call(this)
       })
     },
     bindRequestParam(item) {
@@ -544,7 +543,7 @@ export default {
         })
       }
       this.pathData = this.deepCopy(item.pathParams)
-      this.headerData = this.deepCopy(item.headerParams)
+      // this.headerData = this.deepCopy(item.headerParamsRaw)
       this.queryData = this.deepCopy(item.queryParams)
       this.formData = formData
       this.multipartData = multipartData
@@ -772,10 +771,12 @@ export default {
       this.get('/prop/find', data, resp => {
         const respData = resp.data
         if (!respData) {
+          this.setTableCheck()
           return
         }
         const debugData = respData.val
         if (!debugData) {
+          this.setTableCheck()
           return
         }
         const props = JSON.parse(debugData)

@@ -116,6 +116,7 @@ public class UpgradeService {
 
     private void v1_22_1(int oldVersion) {
         if (oldVersion < 12300) {
+            log.info("Upgrade version to 1.22.1");
             runSql("ALTER TABLE `doc_info` CHANGE `description` `description` longtext NULL COMMENT '文档描述'");
             createTable("system_login_token", "upgrade/1.22.1_ddl.txt");
         }

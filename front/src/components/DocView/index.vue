@@ -231,6 +231,7 @@ export default {
         gmtModified: '',
         pathParams: [],
         headerParams: [],
+        headerParamsRaw: [],
         queryParams: [],
         requestParams: [],
         responseParams: [],

@@ -453,17 +453,11 @@ public class SwaggerPluginService {
     }
 
     private static DocParamInfo buildDocParamInfo(Parameter parameter) {
-        ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
-        String example = "";
-        String desc = "";
-        String type = "";
-        boolean required = false;
-        if (apiParam != null) {
-            desc = apiParam.value();
-            example = apiParam.example();
-            type = apiParam.type();
-            required = apiParam.required();
-        }
+        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
+        String example = apiParamWrapper.getExample();
+        String desc = apiParamWrapper.getDescription();
+        String type = apiParamWrapper.getType();
+        boolean required = apiParamWrapper.getRequired();
         if (StringUtils.isEmpty(type)) {
             type = PluginUtil.getParameterType(parameter);
         }
@@ -589,6 +583,12 @@ public class SwaggerPluginService {
      * @return 返回参数名称
      */
     protected String getParameterName(Parameter parameter) {
+        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
+        String fieldName = apiParamWrapper.getName();
+        // 优先使用ApiParam中的name名称
+        if (StringUtils.hasText(fieldName)) {
+            return fieldName;
+        }
         RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
         PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
         RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);

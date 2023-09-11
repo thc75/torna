@@ -1,5 +1,6 @@
 # 更新日志
 
+- 1.2.24：get参数使用`@ApiParam`name属性不生效问题
 - 1.2.23：修复嵌套数组显示问题（`List<List<xx>>`）
 - 1.2.22：修复嵌套数组不显示问题（`List<List<xx>`）
 - 1.2.21：修复参数错乱问题 https://gitee.com/durcframework/torna/issues/I79TZ2

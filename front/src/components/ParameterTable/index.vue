@@ -63,7 +63,6 @@
     >
       <template slot-scope="scope">
         <div v-if="scope.row.enumId" style="display: inline-block;">
-          {{ scope.row.description }}
           <enum-item-view :ref="`enumRef_${scope.row.id}`" :enum-id="scope.row.enumId" mounted-load />
         </div>
         <div v-else style="display: inline-block;">
