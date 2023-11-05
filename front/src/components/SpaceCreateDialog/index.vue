@@ -12,6 +12,7 @@
       :rules="spaceRule"
       size="mini"
       label-position="top"
+      @submit.native="onSpaceCreateSave"
     >
       <el-form-item :label="$t('spaceName')" prop="name">
         <el-input
@@ -36,7 +37,7 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="visible = false">{{ $t('dlgCancel') }}</el-button>
-      <el-button type="primary" @click="onSpaceCreateSave">{{ $t('dlgSave') }}</el-button>
+      <el-button type="primary" native-type="submit" @click="onSpaceCreateSave">{{ $t('dlgSave') }}</el-button>
     </div>
   </el-dialog>
 </template>

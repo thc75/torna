@@ -10,10 +10,12 @@ import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
+import cn.torna.api.open.param.SwaggerJsonParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
@@ -33,6 +35,7 @@ import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.ImportSwaggerV2DTO;
 import cn.torna.service.dto.MessageDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
 import com.alibaba.fastjson.JSON;
@@ -43,7 +46,6 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -89,6 +91,8 @@ public class DocApi {
 
     @Autowired
     private ProjectService projectService;
+
+
 
 
     @Api(name = "doc.push")
@@ -401,5 +405,38 @@ public class DocApi {
         docInfoService.updateDocFolderName(updateDocFolderDTO);
     }
 
+    @Api(name = "swagger-json.push")
+    @ApiDocMethod(description = "推送swagger文档（json）", order = 6, remark = "请求body：{\n" +
+            "    \"name\": \"swagger-json.push\",\n" +
+            "    \"version\": \"1.0\",\n" +
+            "    \"data\": {\n" +
+            "        \"author\": \"jim\",\n" +
+            "        \"json\": {\n" +
+            "            // swagger json内容\n" +
+            "        }\n" +
+            "    },\n" +
+            "    \"access_token\": \"3a6f9fd55e7547a78493e1082ecc1782\"\n" +
+            "}")
+    public void pushSwaggerDoc(SwaggerJsonParam param) {
+        RequestContext context = RequestContext.getCurrentContext();
+        Module module = context.getModule();
+        String ip = context.getIp();
+
+        String json = param.getJson();
+        String author = param.getAuthor();
+        ApiUser user = (ApiUser) context.getApiUser();
+        if (StringUtils.hasText(author)) {
+            user.setNickname(author);
+        }
+
+        ImportSwaggerV2DTO importSwaggerV2DTO = ImportSwaggerV2DTO.builder()
+                .projectId(module.getProjectId())
+                .content(json)
+                .user(user)
+                .ip(ip)
+                .build();
+
+        SpringContext.getBean(SwaggerApi.class).importSwagger(importSwaggerV2DTO, module);
+    }
 
 }

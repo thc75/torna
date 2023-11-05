@@ -2,7 +2,7 @@
   <div v-show="docInfo.id" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
+        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.docName }}</span>
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
           <el-button
@@ -215,6 +215,7 @@ export default {
       docInfo: {
         id: '',
         name: '',
+        docName: '',
         url: '',
         version: '',
         contentType: '',

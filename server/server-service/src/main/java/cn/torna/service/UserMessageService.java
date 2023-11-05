@@ -97,8 +97,10 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         Query query = new Query()
                 .eq("user_id", userId)
                 .eq("is_read", Booleans.FALSE)
-                .orderby("id", Sort.DESC)
-                .limit(0, limit);
+                .orderby("id", Sort.DESC);
+        if (limit > 0) {
+            query.limit(0, limit);
+        }
         return this.list(query);
     }
 
