@@ -3,6 +3,7 @@
 ## 1.23.3
 
 - 【新增】新增推送swagger文档接口
+- 【新增】Markdown支持图片上传
 - 【修复】未读消息最多显示10条问题
 - 【修复】创建空间/项目直接回车页面刷新问题
 - 【修复】文档名称出现多个版本号 [#I897TH](https://gitee.com/durcframework/torna/issues/I897TH)
