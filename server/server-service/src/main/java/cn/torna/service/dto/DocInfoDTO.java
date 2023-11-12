@@ -139,7 +139,10 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private String errorCodeInfo;
 
-    public String getName() {
-        return name + ("".equals(version) || version == null ? "" : " " + version);
+    public String getDocName() {
+        if (version == null || version.trim().isEmpty()) {
+            return name;
+        }
+        return name + " " + version;
     }
 }

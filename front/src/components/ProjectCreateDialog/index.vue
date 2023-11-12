@@ -12,6 +12,7 @@
       size="mini"
       label-width="150px"
       style="width: 600px;"
+      @submit.native="onProjectCreateSave"
     >
       <el-form-item :label="$t('projectName')" prop="name">
         <el-input
@@ -38,7 +39,7 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="visible = false">{{ $t('dlgCancel') }}</el-button>
-      <el-button type="primary" @click="onProjectCreateSave">{{ $t('dlgSave') }}</el-button>
+      <el-button type="primary" native-type="submit" @click="onProjectCreateSave">{{ $t('dlgSave') }}</el-button>
     </div>
   </el-dialog>
 </template>

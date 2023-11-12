@@ -34,7 +34,7 @@ public class UserMessageController {
      * 查询未读信息
      */
     @GetMapping("unread")
-    public Result<List<UserMessageVO>> unread(@RequestParam(defaultValue = "10") int limit) {
+    public Result<List<UserMessageVO>> unread(@RequestParam(defaultValue = "99") int limit) {
         User user = UserContext.getUser();
         List<UserMessage> userMessages = userMessageService.listUserUnReadMessage(user.getUserId(), limit);
         List<UserMessageVO> userMessageVOS = CopyUtil.copyList(userMessages, UserMessageVO::new);
