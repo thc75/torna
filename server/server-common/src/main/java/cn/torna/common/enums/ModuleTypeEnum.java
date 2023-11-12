@@ -18,6 +18,10 @@ public enum ModuleTypeEnum {
      * postman导入
      */
     POSTMAN_IMPORT((byte) 2),
+    /**
+     * yapi Markdown导入
+     */
+    YAPI_MARKDOWN((byte) 3),
     ;
 
     private final byte type;

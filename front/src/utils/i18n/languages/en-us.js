@@ -33,6 +33,7 @@ const MAPPING = {
   'unlock': 'Unlock',
   'lockDocDesc': 'Locked doc can\'t be modified by push.',
   'nameValue': 'Name(Value)',
+export default {
   'ok': 'OK',
   'cancel': 'Cancel',
   'home': 'Home',
@@ -103,6 +104,7 @@ const MAPPING = {
   'updateSuccess': 'Update success',
   'visitor': 'Guest',
   'developer': 'Developer',
+  'admin': 'Administrator',
   'createAccount': 'New Account',
   'applicant': 'Applicant',
   'status': 'Status',
@@ -445,16 +447,69 @@ const MAPPING = {
   'selectAll': 'Select All',
   'recommend': 'Recommend',
   'standardDocument': 'Standard Document',
-  'customDocument': 'Custom Document'
-
-}
-
-export class Translator extends BaseTranslator {
-  getMapping() {
-    return MAPPING
+  'customDocument': 'Custom Document',
+  'spaceDimension': 'Space Dimension',
+  'projectDimension': 'Project Dimension',
+  'richTextEditor': 'Rich Text Editor',
+  'markdown': 'Markdown',
+  'docType': 'Document Type',
+  // ---- common end ----
+  // ---- 组件特有的，key表示组件名称(文件夹名称) ----
+  RichTextEditor: {
+    'imgUploadInfo': 'Support clipboard image upload, URL image insert, local image upload insert',
+    'imgHelpBtnText': 'Upload image setting'
+  },
+  ConstView: {
+    'constInfo': 'Constant Info'
+  },
+  Mock: {
+    'backMockScript': 'Response mock script'
+  },
+  SwaggerSetting: {
+    'syncConfirm': 'Save success, synchronize documents now?',
+    'synchronizing': 'Synchronizing'
+  },
+  EditDocCustom: {
+    'inputDocContent': 'Input document content'
+  },
+  ConstantInfo: {
+    'projectConstantTip': 'The project constant that can be visited by the following applications',
+    'applicationConstantTip': 'Define a separate constant for each application'
+  },
+  ImportSwaggerDialog: {
+    'pluginImport': 'Plugin Import',
+    'pluginImportTip': 'If your project written in Java and managed by Maven, you can use this method. Advantages: You can push documents without starting the project',
+    'urlImport': 'URL Import',
+    'importing': 'Importing',
+    'swaggerContentImport': ' JSON/YAML Import',
+    'swaggerContentImportTip': 'Input swagger doc content,support json or yaml',
+    'importTip': 'Note: The import process is asynchronous on the server. After the file is saved successfully, you cannot see the file immediately. Refresh after 3 to 5 seconds'
+  },
+  ImportYapiMarkdownDoc: {
+    'importYapiMarkdownDoc': 'Import Markdown file from YAPI'
+  },
+  Module: {
+    'noAppDescription': 'No application'
+  },
+  EnvSetting: {
+    'newEnv': 'New Environment',
+    'importEnv': 'Import from other modules',
+    'copyCurrent': 'Duplicate',
+    'deleteCurrent': 'Delete environment',
+    'copyEnv': '{0} Copy',
+    'commonSetting': 'Common Settings',
+    'plzCheckEnv': 'Please select environment',
+    'ownerSpace': 'Space Name',
+    'allowDebug': 'Allow Debug'
+  },
+  OpenApi: {
+    'printPushContent': 'Print push content',
+    'printPushContentTip': 'The content in {install dir}/log/server.log',
+    'contentOverride': 'Override content',
+    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents'
+  },
+  AdminUser: {
+    'allocateProject': 'Allocate Project',
+    'chooseProject': 'Choose Project'
   }
-  addMapping(anotherMapping) {
-    Object.assign(this.getMapping(), anotherMapping)
-  }
 }
-

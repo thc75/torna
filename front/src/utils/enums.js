@@ -57,7 +57,8 @@ export const Enums = {
   DOC_TYPE: {
     HTTP: 0,
     DUBBO: 1,
-    CUSTOM: 2
+    CUSTOM: 2,
+    MARKDOWN: 3
   },
   /**
    * 扩展属性
@@ -136,4 +137,9 @@ export const Enums = {
     { label: 'doing', value: 5, type: 'warning' },
     { label: 'done', value: 10, type: 'success' }
   ]
+  INIT_ORDER_INDEX: 10000,
+  ModuleConfig: {
+    TORNA_PUSH_PRINT_CONTENT: 'torna.push.print-content',
+    TORNA_PUSH_OVERRIDE: 'torna.push.override'
+  }
 }

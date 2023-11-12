@@ -16,12 +16,13 @@
 
     <properties>
         <!-- Project revision -->
-        <revision>1.19.4</revision>
+        <revision>1.23.3</revision>
         <java.version>1.8</java.version>
     </properties>
 
     <modules>
         <module>server</module>
+        <module>sdk/sdk-java</module>
     </modules>
 
     <build>

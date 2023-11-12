@@ -7,26 +7,26 @@
       label-width="150px"
       style="width: 500px;"
     >
-      <el-form-item :label="$ts('oldPassword')" prop="oldPassword">
+      <el-form-item :label="$t('oldPassword')" prop="oldPassword">
         <el-input
           v-model="updatePwdData.oldPassword"
           type="password"
         />
       </el-form-item>
-      <el-form-item :label="$ts('newPassword')" prop="password">
+      <el-form-item :label="$t('newPassword')" prop="password">
         <el-input
           v-model="updatePwdData.password"
           type="password"
         />
       </el-form-item>
-      <el-form-item :label="$ts('newPasswordConfirm')" prop="password2">
+      <el-form-item :label="$t('newPasswordConfirm')" prop="password2">
         <el-input
           v-model="updatePwdData.password2"
           type="password"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $ts('dlgUpdate') }}</el-button>
+        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $t('dlgUpdate') }}</el-button>
       </el-form-item>
     </el-form>
     </div>
@@ -40,7 +40,7 @@ export default {
   data() {
     const validatePassword2 = (rule, value, callback) => {
       if (value !== this.updatePwdData.password) {
-        callback(new Error($ts('notSamePassword')))
+        callback(new Error($t('notSamePassword')))
       } else {
         callback()
       }
@@ -53,10 +53,10 @@ export default {
       },
       updatePwdRules: {
         oldPassword: [
-          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ],
         password: [
-          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ],
         password2: [{ required: true, trigger: 'blur', validator: validatePassword2 }]
       }
@@ -71,7 +71,7 @@ export default {
           data.oldPassword = md5(data.oldPassword)
           data.password = md5(data.password)
           this.post('/user/password/update', data, function(resp) {
-            alert($ts('updatePasswordSuccess'))
+            alert($t('updatePasswordSuccess'))
             this.logout('/')
           })
         }

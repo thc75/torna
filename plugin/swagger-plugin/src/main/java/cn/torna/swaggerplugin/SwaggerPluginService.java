@@ -82,10 +82,17 @@ public class SwaggerPluginService {
 
     private final TornaConfig tornaConfig;
     private final OpenClient client;
+    private boolean existsApiIgnore = true;
 
     public SwaggerPluginService(TornaConfig tornaConfig) {
         this.tornaConfig = tornaConfig;
         client = new OpenClient(tornaConfig.getUrl());
+        try {
+            Class.forName("springfox.documentation.annotations.ApiIgnore");
+        } catch (ClassNotFoundException e) {
+            existsApiIgnore = false;
+            System.out.println("Warning: no 'springfox-core' dependency is imported, 'ApiIgnore' check will be skipped.");
+        }
     }
 
     public void pushDoc() {
@@ -235,6 +242,7 @@ public class SwaggerPluginService {
     }
 
     protected void push(List<DocItem> docItems) {
+        formatIndex(docItems);
         String token = tornaConfig.getToken();
         DocPushRequest request = new DocPushRequest(token);
         // 设置请求参数
@@ -257,6 +265,59 @@ public class SwaggerPluginService {
             System.out.println("Push error，errorCode:" + response.getCode() + ",errorMsg:" + response.getMsg());
         }
     }
+
+    protected void formatIndex(List<DocItem> docItems) {
+        for (DocItem docItem : docItems) {
+            if (docItem.getIsFolder() == 1) {
+                formatIndex(docItem.getItems());
+            } else {
+                formatDocParamReqIndex(docItem.getQueryParams());
+                formatDocParamReqIndex(docItem.getRequestParams());
+                formatDocParamRespIndex(docItem.getResponseParams());
+            }
+        }
+    }
+
+    protected void formatDocParamReqIndex(List<DocParamReq> docParamReqs) {
+        int sum = docParamReqs.stream()
+                .mapToInt(val -> {
+                    Integer orderIndex = val.getOrderIndex();
+                    return orderIndex == null ? 0 : orderIndex;
+                })
+                .sum();
+        // 等于0表示所有字段都没有指定orderIndex，那么自动给他们排序从0开始
+        if (sum == 0) {
+            int i = 0;
+            for (DocParamReq docParamReq : docParamReqs) {
+                docParamReq.setOrderIndex(i++);
+                List<DocParamReq> children = docParamReq.getChildren();
+                if (children != null && children.size() > 0) {
+                    formatDocParamReqIndex(children);
+                }
+            }
+        }
+    }
+
+    protected void formatDocParamRespIndex(List<DocParamResp> docParamReqs) {
+        int sum = docParamReqs.stream()
+                .mapToInt(val -> {
+                    Integer orderIndex = val.getOrderIndex();
+                    return orderIndex == null ? 0 : orderIndex;
+                })
+                .sum();
+        // 等于0表示所有字段都没有指定orderIndex，那么自动给他们排序从0开始
+        if (sum == 0) {
+            int i = 0;
+            for (DocParamResp docParamResp : docParamReqs) {
+                docParamResp.setOrderIndex(i++);
+                List<DocParamResp> children = docParamResp.getChildren();
+                if (children != null && children.size() > 0) {
+                    formatDocParamRespIndex(children);
+                }
+            }
+        }
+    }
+
 
     private static void printJson(Object obj, boolean format) {
         if (format) {
@@ -283,12 +344,14 @@ public class SwaggerPluginService {
     protected DocItem buildDocItem(RequestInfoBuilder requestInfoBuilder) throws HiddenException, IgnoreException {
         Method method = requestInfoBuilder.getMethod();
         ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
-        ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
         if (apiOperation.hidden()) {
             throw new HiddenException("Hidden API（@ApiOperation.hidden=true）：" + apiOperation.value());
         }
-        if (apiIgnore != null) {
-            throw new IgnoreException("Ignore API（@ApiIgnore）：" + apiOperation.value());
+        if (existsApiIgnore) {
+            ApiIgnore apiIgnore = method.getAnnotation(ApiIgnore.class);
+            if (apiIgnore != null) {
+                throw new IgnoreException("Ignore API（@ApiIgnore）：" + apiOperation.value());
+            }
         }
         return doBuildDocItem(requestInfoBuilder);
     }
@@ -390,17 +453,11 @@ public class SwaggerPluginService {
     }
 
     private static DocParamInfo buildDocParamInfo(Parameter parameter) {
-        ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
-        String example = "";
-        String desc = "";
-        String type = "";
-        boolean required = false;
-        if (apiParam != null) {
-            desc = apiParam.value();
-            example = apiParam.example();
-            type = apiParam.type();
-            required = apiParam.required();
-        }
+        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
+        String example = apiParamWrapper.getExample();
+        String desc = apiParamWrapper.getDescription();
+        String type = apiParamWrapper.getType();
+        boolean required = apiParamWrapper.getRequired();
         if (StringUtils.isEmpty(type)) {
             type = PluginUtil.getParameterType(parameter);
         }
@@ -526,6 +583,12 @@ public class SwaggerPluginService {
      * @return 返回参数名称
      */
     protected String getParameterName(Parameter parameter) {
+        ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
+        String fieldName = apiParamWrapper.getName();
+        // 优先使用ApiParam中的name名称
+        if (StringUtils.hasText(fieldName)) {
+            return fieldName;
+        }
         RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
         PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
         RequestHeader requestHeader = parameter.getAnnotation(RequestHeader.class);
@@ -837,12 +900,14 @@ public class SwaggerPluginService {
 
     private ControllerInfo buildControllerInfo(Class<?> controllerClass) throws HiddenException, IgnoreException {
         Api api = AnnotationUtils.findAnnotation(controllerClass, Api.class);
-        ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
         if (api != null && api.hidden()) {
             throw new HiddenException("Hidden doc（@Api.hidden=true）：" + api.value());
         }
-        if (apiIgnore != null) {
-            throw new IgnoreException("Ignore doc（@ApiIgnore）：" + controllerClass.getName());
+        if (existsApiIgnore) {
+            ApiIgnore apiIgnore = AnnotationUtils.findAnnotation(controllerClass, ApiIgnore.class);
+            if (apiIgnore != null) {
+                throw new IgnoreException("Ignore doc（@ApiIgnore）：" + controllerClass.getName());
+            }
         }
         String name, description;
         int position = 0;

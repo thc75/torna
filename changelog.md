@@ -1,5 +1,85 @@
 # 更新日志
 
+## 1.23.3
+
+- 【新增】新增推送swagger文档接口
+- 【新增】Markdown支持图片上传
+- 【修复】未读消息最多显示10条问题
+- 【修复】创建空间/项目直接回车页面刷新问题
+- 【修复】文档名称出现多个版本号 [#I897TH](https://gitee.com/durcframework/torna/issues/I897TH)
+
+## 1.23.2
+
+- 【修复】切换环境请求头不会变化
+- 【修复】分享出来的Markdown文档不显示 [#I7SJ3O](https://gitee.com/durcframework/torna/issues/I7SJ3O)
+- 【修复】点击锁定文档按钮，锁图标没显示 [#I7SJ3X](https://gitee.com/durcframework/torna/issues/I7SJ3X)
+- 【修复】导入swagger basic认证失败 [#I7S3LU](https://gitee.com/durcframework/torna/issues/I7S3LU)
+- 【修复】推送枚举名称字段显示枚举内容问题
+
+## 1.23.1
+
+- 【修复】内容覆盖更新配置不生效问题
+
+## 1.23.0
+
+- 【新增】前后端分离可进行OAuth登录
+- 【新增】导入yapi的Markdown文档
+- 【优化】推送文档追加模式也可以更新参数 from loren
+
+## 1.22.0
+
+- 【新增】支持Markdown文档编辑
+- 【新增】支持定义版本号，可以实现接口多版本管理 [doc](https://torna.cn/dev/multi-version.html)
+
+## 1.21.3
+
+- 支持默认以英文页面打开 [#I74DXD](https://gitee.com/durcframework/torna/issues/I74DXD)
+
+前往`后台管理 - 系统设置 - 国际化设置`
+
+## 1.21.2
+
+- 修复嵌套数组显示问题（`List<List<xx>>`）
+- 修复分享页面打开右侧无内容填充问题
+
+## 1.21.1
+
+- 【修复】swagger文件导入不成功问题 [#I6WK77](https://gitee.com/durcframework/torna/issues/I6WK77) [#I6N26T](https://gitee.com/durcframework/torna/issues/I6N26T)
+
+## 1.21.0
+
+- 【新增】
+    - 支持覆盖更新，可更新局部文档
+    - 后台管理支持给用户批量分配项目
+
+- 【优化】
+    - mock调试优化
+
+- 【修复】
+    - 所属分类 bug [#I6QSF9](https://gitee.com/durcframework/torna/issues/I6QSF9)
+    - swagger应用同步问题 [#I6RVL0](https://gitee.com/durcframework/torna/issues/I6RVL0)
+
+
+## 1.20.3
+
+- 【修复】多个调试环境公共header切换错乱问题
+
+## 1.20.2
+
+- 【修复】swagger推送不显示maxLength问题
+
+
+## 1.20.1
+
+- 【修复】推送文档dataId太长导致保存数据错误
+
+## 1.20.0
+
+- 【新增】可自定义扩展i18n（后台管理-系统设置-国际化配置）
+- 【优化】swagger导入支持非ref的嵌套对象
+- 【优化】优化应用配置UI
+- 【优化】调整前端目录结构
+
 ## 1.19.4
 
 - 【修复】分享页面无法显示文档信息

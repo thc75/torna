@@ -1,52 +1,52 @@
 <template>
   <div>
     <div class="table-opt-btn">
-      <el-button type="primary" size="mini" @click="onAdd">{{ $ts('newShare') }}</el-button>
+      <el-button type="primary" size="mini" @click="onAdd">{{ $t('newShare') }}</el-button>
     </div>
     <el-table
       :data="pageInfo.rows"
       border
       highlight-current-row
     >
-      <el-table-column :label="$ts('shareUrl')" show-overflow-tooltip>
+      <el-table-column :label="$t('shareUrl')" show-overflow-tooltip>
         <template slot-scope="scope">
           <el-link type="primary" :href="buildUrl(scope.row)" target="_blank">{{ buildUrl(scope.row) }}</el-link>
           <span v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT">
-            &nbsp;&nbsp;{{ $ts('pwdShow') }}：{{ scope.row.password }}
+            &nbsp;&nbsp;{{ $t('pwdShow') }}：{{ scope.row.password }}
           </span>
           <span v-if="scope.row.remark.length > 0" class="info-tip">
-            {{ $ts('remarkShow') }}：{{ scope.row.remark }}
+            {{ $t('remarkShow') }}：{{ scope.row.remark }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('shareDoc')" width="100">
+      <el-table-column :label="$t('shareDoc')" width="100">
         <template slot-scope="scope">
-          <span v-if="scope.row.isAll">{{ $ts('allDocs') }}</span>
-          <el-button v-else type="text" @click="viewDoc(scope.row)">{{ $ts('look') }}</el-button>
+          <span v-if="scope.row.isAll">{{ $t('allDocs') }}</span>
+          <el-button v-else type="text" @click="viewDoc(scope.row)">{{ $t('look') }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('shareStyle')" width="100">
+      <el-table-column :label="$t('shareStyle')" width="100">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.PUBLIC">{{ $ts('public') }}</el-tag>
-          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT" type="warning">{{ $ts('encryption') }}</el-tag>
+          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.PUBLIC">{{ $t('public') }}</el-tag>
+          <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT" type="warning">{{ $t('encryption') }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('creator')" prop="creatorName" width="120" />
-      <el-table-column :label="$ts('status')" width="80">
+      <el-table-column :label="$t('creator')" prop="creatorName" width="120" />
+      <el-table-column :label="$t('status')" width="80">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === getEnums().STATUS.ENABLE" type="success">{{ $ts('enable') }}</el-tag>
-          <el-tag v-if="scope.row.status === getEnums().STATUS.DISABLE" type="danger">{{ $ts('disable') }}</el-tag>
+          <el-tag v-if="scope.row.status === getEnums().STATUS.ENABLE" type="success">{{ $t('enable') }}</el-tag>
+          <el-tag v-if="scope.row.status === getEnums().STATUS.DISABLE" type="danger">{{ $t('disable') }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('allowDebug')" width="80">
+      <el-table-column :label="$t('EnvSetting.allowDebug')" width="80">
         <template slot-scope="scope">
-          <span v-if="scope.row.isShowDebug === getEnums().STATUS.ENABLE">{{ $ts('yes') }}</span>
-          <span v-else>{{ $ts('no') }}</span>
+          <span v-if="scope.row.isShowDebug === getEnums().STATUS.ENABLE">{{ $t('yes') }}</span>
+          <span v-else>{{ $t('no') }}</span>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        :label="$ts('createTime')"
+        :label="$t('createTime')"
         width="110"
       >
         <template slot-scope="scope">
@@ -54,20 +54,20 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="200"
       >
         <template slot-scope="scope">
-          <el-link type="primary" :underline="false" @click="onTableUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <el-link type="primary" :underline="false" @click="onTableUpdate(scope.row)">{{ $t('update') }}</el-link>
           <el-link v-if="scope.row.status === getEnums().STATUS.ENABLE" type="warning" :underline="false" @click="onTableDisable(scope.row)">
-            {{ $ts('disable') }}
+            {{ $t('disable') }}
           </el-link>
-          <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">{{ $ts('enable') }}</el-link>
+          <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">{{ $t('enable') }}</el-link>
           <el-popconfirm
-            :title="$ts('deleteRowConfirm')"
+            :title="$t('deleteRowConfirm')"
             @confirm="onTableDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger">{{ $ts('delete') }}</el-link>
+            <el-link slot="reference" type="danger">{{ $t('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -101,22 +101,22 @@
         label-width="120px"
         size="mini"
       >
-        <el-form-item :label="$ts('remark')">
-          <el-input v-model="dialogFormData.remark" :placeholder="$ts('optional')" show-word-limit maxlength="50" />
+        <el-form-item :label="$t('remark')">
+          <el-input v-model="dialogFormData.remark" :placeholder="$t('optional')" show-word-limit maxlength="50" />
         </el-form-item>
-        <el-form-item :label="$ts('shareStyle')">
+        <el-form-item :label="$t('shareStyle')">
           <el-radio-group v-model="dialogFormData.type">
-            <el-radio :label="1">{{ $ts('public') }}</el-radio>
-            <el-radio :label="2">{{ $ts('encryption') }}</el-radio>
+            <el-radio :label="1">{{ $t('public') }}</el-radio>
+            <el-radio :label="2">{{ $t('encryption') }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :label="$ts('selectDoc')">
+        <el-form-item :label="$t('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">
-            <el-radio :label="0">{{ $ts('partDocs') }}</el-radio>
-            <el-radio :label="1">{{ $ts('allDocs') }}<span class="normal-text">{{ $ts('wholeModule') }}</span></el-radio>
+            <el-radio :label="0">{{ $t('partDocs') }}</el-radio>
+            <el-radio :label="1">{{ $t('allDocs') }}<span class="normal-text">{{ $t('wholeModule') }}</span></el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :label="$ts('allowDebug')">
+        <el-form-item :label="$t('EnvSetting.allowDebug')">
           <el-switch
             v-model="dialogFormData.isShowDebug"
             active-color="#13ce66"
@@ -124,8 +124,8 @@
             :inactive-value="0"
           />
         </el-form-item>
-        <el-form-item v-show="dialogFormData.isShowDebug" :label="$ts('debugEnv')">
-          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $ts('selectAll') }}</el-checkbox>
+        <el-form-item v-show="dialogFormData.isShowDebug" :label="$t('debugEnv')">
+          <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $t('selectAll') }}</el-checkbox>
           <el-checkbox-group v-model="dialogFormData.moduleEnvironmentIdList">
             <el-checkbox v-for="(env, index) in moduleEnvironmentList" :key="index" :label="env.id">{{ env.name }}</el-checkbox>
           </el-checkbox-group>
@@ -135,12 +135,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDialogSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="dialogVisible = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
     <el-dialog
-      :title="$ts('shareDoc')"
+      :title="$t('shareDoc')"
       :visible.sync="dialogViewVisible"
       @close="() => { $refs.docTreeViewRef.clear() }"
     >
@@ -150,10 +150,6 @@
 </template>
 <script>
 import DocTree from '@/components/DocTree'
-
-$addI18n({
-  'allowDebug': { 'zh': '允许调试', 'en': 'Allow Debug' }
-})
 
 export default {
   components: { DocTree },
@@ -222,7 +218,7 @@ export default {
       }
     },
     onAdd() {
-      this.dialogTitle = this.$ts('newShare')
+      this.dialogTitle = this.$t('newShare')
       this.dialogVisible = true
       this.dialogFormData = {
         id: '',
@@ -257,7 +253,7 @@ export default {
       this.dialogFormData = this.$data.dialogFormData
     },
     onTableUpdate(row) {
-      this.dialogTitle = this.$ts('updateShare')
+      this.dialogTitle = this.$t('updateShare')
       this.dialogVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogFormData, row)
@@ -291,13 +287,13 @@ export default {
     },
     onTableEnable(row) {
       this.post('/doc/share/enable', row, resp => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.reload()
       })
     },
     onTableDisable(row) {
       this.post('/doc/share/disable', row, resp => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.reload()
       })
     },
@@ -306,7 +302,7 @@ export default {
         id: row.id
       }
       this.post('/doc/share/del', data, () => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.reload()
       })
     },
@@ -315,7 +311,7 @@ export default {
       data.moduleId = this.moduleId
       const checkedNodes = this.$refs.docTreeRef.getCheckedNodes()
       if (!data.isAll && checkedNodes.length === 0) {
-        this.tipError(this.$ts('pleaseCheckDoc'))
+        this.tipError(this.$t('pleaseCheckDoc'))
         return
       }
       const content = []
@@ -342,7 +338,7 @@ export default {
           const children = node.children || []
           if (children.length > 0) {
             for (const child of children) {
-              append(child, isShareFolder)
+              append(child, child.isShareFolder)
             }
           }
         }

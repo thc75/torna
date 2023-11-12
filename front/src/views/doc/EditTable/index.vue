@@ -32,7 +32,7 @@
             prop="name"
             label-width="0"
           >
-            <el-input v-model="scope.row.name" :placeholder="$ts('paramName')" maxlength="64" show-word-limit />
+            <el-input v-model="scope.row.name" :placeholder="$t('paramName')" maxlength="64" show-word-limit />
           </el-form-item>
         </el-form>
       </template>
@@ -40,7 +40,7 @@
     <el-table-column
       v-if="isColumnShow('type')"
       prop="type"
-      :label="$ts('type')"
+      :label="$t('type')"
       width="130"
     >
       <template slot-scope="scope">
@@ -52,7 +52,7 @@
     <el-table-column
       v-if="isColumnShow('enum')"
       prop="enum"
-      :label="$ts('linkDict')"
+      :label="$t('linkDict')"
       width="120"
     >
       <template slot-scope="scope">
@@ -66,7 +66,7 @@
     <el-table-column
       v-if="isColumnShow('required')"
       prop="required"
-      :label="$ts('require')"
+      :label="$t('require')"
       width="80"
     >
       <template slot-scope="scope">
@@ -81,11 +81,11 @@
     <el-table-column
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
-      :label="$ts('maxLength')"
+      :label="$t('maxLength')"
       width="130"
     >
       <template slot-scope="scope">
-        <el-input v-model="scope.row.maxLength" :placeholder="$ts('maxLength')" size="mini" maxlength="10" show-word-limit />
+        <el-input v-model="scope.row.maxLength" :placeholder="$t('maxLength')" size="mini" maxlength="10" show-word-limit />
       </template>
     </el-table-column>
     <el-table-column
@@ -119,7 +119,7 @@
     </el-table-column>
     <el-table-column
       prop="orderIndex"
-      :label="$ts('orderIndex')"
+      :label="$t('orderIndex')"
       width="125"
     >
       <template slot-scope="scope">
@@ -133,19 +133,19 @@
     </el-table-column>
     <el-table-column
       v-if="isColumnShow('opt')"
-      :label="$ts('operation')"
+      :label="$t('operation')"
       width="90"
     >
       <template slot-scope="scope">
         <div>
           <div v-show="scope.row.isDeleted === 0">
-            <el-tooltip :content="$ts('addChildNode')" placement="top" :open-delay="500">
+            <el-tooltip :content="$t('addChildNode')" placement="top" :open-delay="500">
               <el-link v-if="canAddNode" type="primary" icon="el-icon-circle-plus-outline" @click="onParamNodeAdd(scope.row)"></el-link>
             </el-tooltip>
             <el-link type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>
           </div>
           <div v-show="scope.row.isDeleted === 1">
-            <el-tooltip :content="$ts('clickRestore')" placement="top">
+            <el-tooltip :content="$t('clickRestore')" placement="top">
               <el-link type="danger" icon="el-icon-remove" @click="scope.row.isDeleted = 0"></el-link>
             </el-tooltip>
           </div>
@@ -168,7 +168,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: $ts('noData')
+      default: $t('noData')
     },
     canAddNode: {
       type: Boolean,
@@ -176,7 +176,7 @@ export default {
     },
     nameLabel: {
       type: String,
-      default: $ts('name')
+      default: $t('name')
     },
     nameWidth: {
       type: Number,
@@ -188,11 +188,11 @@ export default {
     },
     descriptionLabel: {
       type: String,
-      default: $ts('description')
+      default: $t('description')
     },
     exampleLabel: {
       type: String,
-      default: $ts('example')
+      default: $t('example')
     },
     hiddenColumns: {
       type: Array,
@@ -209,7 +209,7 @@ export default {
       enumData: [],
       paramRowRule: {
         name: [
-          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
+          { required: true, message: $t('notEmpty'), trigger: ['blur', 'change'] }
         ]
       }
     }

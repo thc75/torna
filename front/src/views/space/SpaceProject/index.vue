@@ -1,16 +1,16 @@
 <template>
   <div class="app-container">
     <p>
-      <el-button v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" type="primary" @click="onProjectAdd">{{ $ts('createProject') }}</el-button>
+      <el-button v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" type="primary" @click="onProjectAdd">{{ $t('createProject') }}</el-button>
     </p>
     <div v-if="data.length === 0" class="info-tip">
-      {{ $ts('noProject') }}
+      {{ $t('noProject') }}
     </div>
     <div v-else>
       <div style="float: right;margin-bottom: 10px;">
         <el-radio-group v-model="showType" size="mini" @change="onChangeShowType">
-          <el-radio-button label="card">{{ $ts('card') }}</el-radio-button>
-          <el-radio-button label="grid">{{ $ts('grid') }}</el-radio-button>
+          <el-radio-button label="card">{{ $t('card') }}</el-radio-button>
+          <el-radio-button label="grid">{{ $t('grid') }}</el-radio-button>
         </el-radio-group>
       </div>
       <div v-if="showType === 'card'" style="float: left">
@@ -18,20 +18,20 @@
           <el-card shadow="hover" class="box-card">
             <div slot="header" class="clearfix">
               <span>
-                <el-tooltip placement="top" :content="$ts('privateProject')">
+                <el-tooltip placement="top" :content="$t('privateProject')">
                   <i v-if="project.isPrivate" class="el-icon-lock"></i>
                 </el-tooltip>
                 {{ project.name }}
               </span>
             </div>
             <el-form ref="form" :model="project" class="text-form" label-width="100px">
-              <el-form-item :label="$ts('projectDesc')">
+              <el-form-item :label="$t('projectDesc')">
                 {{ project.description }}
               </el-form-item>
-              <el-form-item :label="$ts('creator')">
+              <el-form-item :label="$t('creator')">
                 {{ project.creatorName }}
               </el-form-item>
-              <el-form-item :label="$ts('createTime')">
+              <el-form-item :label="$t('createTime')">
                 {{ project.gmtCreate }}
               </el-form-item>
             </el-form>
@@ -44,19 +44,19 @@
           border
           highlight-current-row
         >
-          <el-table-column :label="$ts('projectName')" prop="value">
+          <el-table-column :label="$t('projectName')" prop="value">
             <template slot-scope="scope">
               <span>
                 <el-link type="primary" style="font-size: 14px" @click="enterProject(scope.row)">{{ scope.row.name }}</el-link>
-                <el-tooltip placement="right" :content="$ts('privateProject')">
+                <el-tooltip placement="right" :content="$t('privateProject')">
                   <i v-if="scope.row.isPrivate" class="el-icon-lock"></i>
                 </el-tooltip>
               </span>
             </template>
           </el-table-column>
-          <el-table-column :label="$ts('projectDesc')" prop="description" />
-          <el-table-column :label="$ts('creator')" prop="creatorName" />
-          <el-table-column :label="$ts('createTime')" prop="gmtCreate" />
+          <el-table-column :label="$t('projectDesc')" prop="description" />
+          <el-table-column :label="$t('creator')" prop="creatorName" />
+          <el-table-column :label="$t('createTime')" prop="gmtCreate" />
         </el-table>
       </div>
     </div>

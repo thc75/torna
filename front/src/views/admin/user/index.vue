@@ -4,15 +4,15 @@
       <el-form-item label="UserId">
         <el-input v-model="searchFormData.id" :clearable="true" style="width: 250px;" />
       </el-form-item>
-      <el-form-item :label="$ts('loginAccount')">
+      <el-form-item :label="$t('loginAccount')">
         <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="onSearch">{{ $ts('search') }}</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="onSearch">{{ $t('search') }}</el-button>
       </el-form-item>
     </el-form>
     <div class="table-opt-btn">
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">{{ $ts('addNewUser') }}</el-button>
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">{{ $t('addNewUser') }}</el-button>
     </div>
     <el-table
       :data="pageInfo.rows"
@@ -26,27 +26,27 @@
       />
       <el-table-column
         prop="username"
-        :label="$ts('loginAccount')"
+        :label="$t('loginAccount')"
       />
       <el-table-column
         prop="nickname"
-        :label="$ts('nickname')"
+        :label="$t('nickname')"
         width="180"
       >
         <template slot-scope="scope">
           {{ scope.row.nickname }}
-          <el-tooltip v-show="scope.row.isSuperAdmin" :content="$ts('superAdmin')" placement="top">
+          <el-tooltip v-show="scope.row.isSuperAdmin" :content="$t('superAdmin')" placement="top">
             <i class="el-icon-s-custom"></i>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
         prop="email"
-        :label="$ts('email')"
+        :label="$t('email')"
       />
       <el-table-column
         prop="source"
-        :label="$ts('origin')"
+        :label="$t('origin')"
         width="120"
       >
         <template slot-scope="scope">
@@ -55,18 +55,18 @@
       </el-table-column>
       <el-table-column
         prop="status"
-        :label="$ts('status')"
+        :label="$t('status')"
         width="100"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.status === 0" class="danger">{{ $ts('disable') }}</span>
-          <span v-if="scope.row.status === 1" class="success">{{ $ts('normal') }}</span>
-          <span v-if="scope.row.status === 2" class="warning">{{ $ts('inactive') }}</span>
+          <span v-if="scope.row.status === 0" class="danger">{{ $t('disable') }}</span>
+          <span v-if="scope.row.status === 1" class="success">{{ $t('normal') }}</span>
+          <span v-if="scope.row.status === 2" class="warning">{{ $t('inactive') }}</span>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        :label="$ts('regTime')"
+        :label="$t('regTime')"
         width="120"
       >
         <template slot-scope="scope">
@@ -74,38 +74,39 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$ts('operation')"
-        width="210"
+        :label="$t('operation')"
+        width="260"
       >
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
-            <el-link :underline="false" type="primary" @click="onUserUpdate(scope.row)">{{ $ts('update') }}</el-link>
+            <el-link :underline="false" type="primary" @click="onAllocateProject(scope.row)">{{ $t('AdminUser.allocateProject') }}</el-link>
+            <el-link :underline="false" type="primary" @click="onUserUpdate(scope.row)">{{ $t('update') }}</el-link>
             <el-popconfirm
               v-if="scope.row.source === getEnums().SOURCE.REGISTER || scope.row.source === getEnums().SOURCE.BACKEND"
-              :title="$ts('resetPasswordConfirm', scope.row.nickname)"
+              :title="$t('resetPasswordConfirm', scope.row.nickname)"
               @confirm="onRestPwd(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="primary">{{ $ts('resetPassword') }}</el-link>
+              <el-link slot="reference" :underline="false" type="primary">{{ $t('resetPassword') }}</el-link>
             </el-popconfirm>
             <el-popconfirm
               v-if="scope.row.status === 1"
-              :title="$ts('disableConfirm', scope.row.nickname)"
+              :title="$t('disableConfirm', scope.row.nickname)"
               @confirm="onUserDisable(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="danger">{{ $ts('disable') }}</el-link>
+              <el-link slot="reference" :underline="false" type="danger">{{ $t('disable') }}</el-link>
             </el-popconfirm>
             <el-popconfirm
               v-if="scope.row.status === 0"
-              :title="$ts('enableConfirm', scope.row.nickname)"
+              :title="$t('enableConfirm', scope.row.nickname)"
               @confirm="onUserEnable(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="primary">{{ $ts('enable') }}</el-link>
+              <el-link slot="reference" :underline="false" type="primary">{{ $t('enable') }}</el-link>
             </el-popconfirm>
             <el-popconfirm
-              :title="$ts('deleteConfirm', scope.row.nickname)"
+              :title="$t('deleteConfirm', scope.row.nickname)"
               @confirm="onUserDelete(scope.row)"
             >
-              <el-link slot="reference" :underline="false" type="danger">{{ $ts('delete') }}</el-link>
+              <el-link slot="reference" :underline="false" type="danger">{{ $t('delete') }}</el-link>
             </el-popconfirm>
           </div>
         </template>
@@ -137,19 +138,19 @@
       >
         <el-form-item
           prop="username"
-          :label="$ts('loginAccount')"
+          :label="$t('loginAccount')"
         >
-          <el-input v-model="dialogFormData.username" :placeholder="$ts('loginAccount')" />
+          <el-input v-model="dialogFormData.username" :placeholder="$t('loginAccount')" />
         </el-form-item>
         <el-form-item
           prop="nickname"
-          :label="$ts('nickname')"
+          :label="$t('nickname')"
         >
-          <el-input v-model="dialogFormData.nickname" :placeholder="$ts('suggestUseRealName')" />
+          <el-input v-model="dialogFormData.nickname" :placeholder="$t('suggestUseRealName')" />
         </el-form-item>
         <el-form-item
           prop="isSuperAdmin"
-          :label="$ts('isSuperAdmin')"
+          :label="$t('isSuperAdmin')"
         >
           <el-switch
             v-model="dialogFormData.isSuperAdmin"
@@ -161,8 +162,30 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDialogSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="dialogVisible = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogSave">{{ $t('dlgSave') }}</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      :title="$t('AdminUser.allocateProject')"
+      :visible.sync="chooseProjectShow"
+      :close-on-click-modal="false"
+    >
+      <div style="margin-bottom: 10px">
+        <el-form class="text-form" label-width="120">
+          <el-form-item :label="$t('nickname')">
+            {{ currentUserNick }}
+          </el-form-item>
+          <el-form-item :label="$t('role')">
+            <el-radio-group v-model="projectRole">
+              <el-radio :label="Role.guest">{{ $t('visitor') }}</el-radio>
+              <el-radio :label="Role.dev">{{ $t('developer') }}</el-radio>
+              <el-radio :label="Role.admin">{{ $t('admin') }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <project-select ref="projectSelect" :on-ok="onAllocateProjectOk" :on-cancel="() => chooseProjectShow = false" />
+        </el-form>
       </div>
     </el-dialog>
   </div>
@@ -170,9 +193,10 @@
 
 <script>
 import TimeTooltip from '@/components/TimeTooltip'
+import ProjectSelect from '@/components/ProjectSelect'
 
 export default {
-  components: { TimeTooltip },
+  components: { TimeTooltip, ProjectSelect },
   data() {
     return {
       searchFormData: {
@@ -186,7 +210,7 @@ export default {
         total: 0
       },
       dialogVisible: false,
-      dialogTitle: $ts('addNewUser'),
+      dialogTitle: $t('addNewUser'),
       dialogFormData: {
         username: '',
         nickname: '',
@@ -194,12 +218,16 @@ export default {
       },
       dialogFormRules: {
         username: [
-          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ],
         nickname: [
-          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ]
-      }
+      },
+      currentUserId: 0,
+      chooseProjectShow: false,
+      projectRole: 'dev',
+      currentUserNick: ''
     }
   },
   created() {
@@ -217,31 +245,42 @@ export default {
     },
     onRestPwd(row) {
       this.post('/admin/user/password/reset', { id: row.id }, resp => {
-        this.alert($ts('resetPasswordSuccess', resp.data), $ts('resetSuccess'))
+        this.alert($t('resetPasswordSuccess', resp.data), $t('resetSuccess'))
       })
     },
     onUserDisable(row) {
       this.post('/admin/user/disable', row, () => {
-        this.tipSuccess($ts('operateSuccess'))
+        this.tipSuccess($t('operateSuccess'))
         this.loadTable()
       })
     },
     onUserEnable(row) {
       this.post('/admin/user/enable', row, () => {
-        this.tipSuccess($ts('operateSuccess'))
+        this.tipSuccess($t('operateSuccess'))
         this.loadTable()
       })
     },
     onUserDelete(row) {
       this.post('/admin/user/delete', row, () => {
-        this.tipSuccess($ts('operateSuccess'))
+        this.tipSuccess($t('operateSuccess'))
         this.loadTable()
       })
     },
     onUserUpdate(row) {
-      this.dialogTitle = $ts('update')
+      this.dialogTitle = $t('update')
       Object.assign(this.dialogFormData, row)
       this.dialogVisible = true
+    },
+    onAllocateProject(row) {
+      this.currentUserId = row.id
+      this.currentUserNick = row.nickname
+      this.get('/admin/user/getUserProjectIds', { userId: row.id }, resp => {
+        const projectIds = resp.data
+        this.chooseProjectShow = true
+        this.$nextTick(() => {
+          this.$refs.projectSelect.reload(projectIds)
+        })
+      })
     },
     onDialogSave() {
       this.$refs.dialogForm.validate((valid) => {
@@ -250,7 +289,7 @@ export default {
           if (isUpdate) {
             const uri = '/admin/user/update'
             this.post(uri, this.dialogFormData, () => {
-              this.tipSuccess($ts('operateSuccess'))
+              this.tipSuccess($t('operateSuccess'))
               this.dialogVisible = false
               this.loadTable()
             })
@@ -258,7 +297,7 @@ export default {
             const uri = '/admin/user/create'
             this.post(uri, this.dialogFormData, (resp) => {
               const data = resp.data
-              this.alert($ts('addUserSuccess', data.username, data.password), $ts('createSuccess'))
+              this.alert($t('addUserSuccess', data.username, data.password), $t('createSuccess'))
               this.dialogVisible = false
               this.loadTable()
             })
@@ -273,7 +312,7 @@ export default {
     },
     onAdd() {
       this.dialogVisible = true
-      this.dialogTitle = $ts('addNewUser')
+      this.dialogTitle = $t('addNewUser')
       this.dialogFormData = {
         username: '',
         nickname: '',
@@ -292,12 +331,23 @@ export default {
     },
     getSourceMap() {
       return {
-        'register': $ts('selfReg'),
-        'oauth': $ts('thirdPartyLogin'),
-        'form': $ts('thirdPartyLogin'),
-        'backend': $ts('backendAdd'),
+        'register': $t('selfReg'),
+        'oauth': $t('thirdPartyLogin'),
+        'form': $t('thirdPartyLogin'),
+        'backend': $t('backendAdd'),
         'ldap': 'LDAP'
       }
+    },
+    onAllocateProjectOk(projectIds) {
+      const data = {
+        userId: this.currentUserId,
+        role: this.projectRole,
+        projectIds: projectIds
+      }
+      this.post('/admin/user/allocateProject', data, resp => {
+        this.tipSuccess($t('operateSuccess'))
+        this.chooseProjectShow = false
+      })
     }
   }
 }

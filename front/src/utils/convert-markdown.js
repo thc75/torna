@@ -8,7 +8,7 @@ import {
   get_style_config
 } from './common'
 
-import { isDubbo, isHttp, isShowRequestExample } from './convert-common'
+import { isDubbo, isHttp, isShowRequestExample, isMarkdown } from './convert-common'
 
 const split_char = ' | '
 
@@ -136,9 +136,13 @@ const MarkdownUtil = {
     if (docInfo.author) {
       append(`${$ts('maintainer')}：${docInfo.author}`)
     }
+    if (isMarkdown(docInfo)) {
+      builder.append(docInfo.description)
+      return builder.toString()
+    }
     if (isHttp(docInfo)) {
-      append(`#### URL`)
-      const debugEnvs = docInfo.debugEnvs || []
+      append(`#### URL`);
+      const debugEnvs = docInfo.debugEnvs || [];
       if (debugEnvs.length > 0) {
         const ul = new StringBuilder()
         docInfo.debugEnvs.forEach(hostConfig => {
@@ -151,7 +155,7 @@ const MarkdownUtil = {
         append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
       }
     } else if (isDubbo(docInfo)) {
-      append(`${$ts('method')}：${docInfo.url}`)
+      append(`${$ts('method')}：${docInfo.url}`);
     }
     append(`${$ts('description')}：${docInfo.description}`)
 

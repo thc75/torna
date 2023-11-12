@@ -52,42 +52,37 @@ export default {
       const id = this.$route.params.shareId
       this.$nextTick(() => {
         this.get('/share/menu', { id: id }, resp => {
-          const data = resp.data
-          this.$refs.docSelect.loadData(data)
+          const rows = resp.data
+          this.$refs.docSelect.loadData(rows)
+          const docId = this.$route.params.docId
+          if (!docId && rows.length > 0) {
+            const data = this.findFirstPage(rows)
+            this.onNodeClick(data)
+          }
         })
       })
     },
-    getCurrentNode(data) {
-      const docId = this.$route.params.docId
-      let currentNode
-      for (let i = 0; i < data.length; i++) {
-        const node = data[i]
-        if (node.id === docId) {
-          currentNode = node
-          break
+    findFirstPage(rows) {
+      for (const row of rows) {
+        if (row.type === this.types.TYPE_DOC) {
+          return row
+        } else if (row.children && row.children.length > 0) {
+          return this.findFirstPage(row.children)
         }
       }
-      return currentNode
-    },
-    setCurrentNode(currentNode) {
-      if (currentNode) {
-        const tree = this.$refs.tree
-        tree.setCurrentKey(currentNode.id)
-        this.expandKeys = [currentNode.parentId]
-      }
-    },
-    filterNode(value, row) {
-      if (!value) return true
-      const searchText = value.toLowerCase()
-      return (row.id && row.id.toLowerCase().indexOf(searchText) > -1) ||
-        (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
-        (row.url && row.url.toLowerCase().indexOf(searchText) > -1)
+      return {}
     },
     // 树点击事件
-    onNodeClick(data, node, tree) {
+    onNodeClick(data) {
+      if (!data) {
+        return
+      }
       if (data.type === this.types.TYPE_DOC) {
         const shareId = this.$route.params.shareId
         this.toRoute({ path: `/share/${shareId}/${data.id}` }, data.label)
+        this.$nextTick(() => {
+          this.$refs.docSelect.setCurrentNode(data)
+        })
       }
     }
   }

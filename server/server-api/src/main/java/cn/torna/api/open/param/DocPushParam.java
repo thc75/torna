@@ -28,8 +28,9 @@ public class DocPushParam {
     private List<CodeParamPushParam> commonErrorCodes;
 
     @ApiDocField(description = "是否替换文档，1：替换，0：不替换（追加）。缺省：1", example = "1")
-    private Byte isReplace;
+    private Byte isReplace = 1;
 
     @ApiDocField(description = "是否覆盖文档，1：覆盖，0：不覆盖。缺省：0。如果只想修改部分接口传1", example = "0")
     private Byte isOverride = 0;
+
 }

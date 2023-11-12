@@ -4,7 +4,7 @@
       {{ docInfo.name || initTitle }} <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
     </h3>
     <el-tabs v-model="activeName" tab-position="left">
-      <el-tab-pane :label="$ts('baseInfo')" name="info">
+      <el-tab-pane :label="$t('baseInfo')" name="info">
         <el-form
           ref="docForm"
           :model="docInfo"
@@ -13,15 +13,15 @@
           size="mini"
           style="width: 800px"
         >
-          <el-form-item prop="name" :label="$ts('docTitle')">
+          <el-form-item prop="name" :label="$t('docTitle')">
             <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
           </el-form-item>
-          <el-form-item prop="description" :label="$ts('docDesc')">
-            <rich-text-editor :value="docInfo.description" :placeholder="$ts('inputContent')" :editable="true" @input="editorInput" />
+          <el-form-item prop="description" :label="$t('docDesc')">
+            <rich-text-editor :value="docInfo.description" :placeholder="$t('inputContent')" :editable="true" @input="editorInput" />
           </el-form-item>
-          <el-form-item prop="url" :label="$ts('requestUrl')">
+          <el-form-item prop="url" :label="$t('requestUrl')">
             <el-input v-model="docInfo.url" class="input-with-select" maxlength="200" show-word-limit @input="onUrlInput">
-              <el-select slot="prepend" v-model="docInfo.httpMethod" :placeholder="$ts('pleaseSelect')" style="width: 100px;">
+              <el-select slot="prepend" v-model="docInfo.httpMethod" :placeholder="$t('pleaseSelect')" style="width: 100px;">
                 <el-option v-for="method in allMethods" :key="method" :label="method" :value="method">
                   {{ method }}
                 </el-option>
@@ -33,31 +33,31 @@
               :data="docInfo.pathParams"
               :getter="(rows) => { return rows.filter(row => row.isDeleted === 0) }"
               :module-id="moduleId"
-              :name-label="$ts('pathVariable')"
+              :name-label="$t('pathVariable')"
               :name-width="200"
               :text-columns="['name']"
               :hidden-columns="['required', 'maxLength', 'enum', 'opt']"
             />
           </el-form-item>
           <el-form-item prop="contentType" label="ContentType">
-            <el-select v-model="docInfo.contentType" :clearable="true" :placeholder="$ts('pleaseSelect')" style="width: 300px;">
+            <el-select v-model="docInfo.contentType" :clearable="true" :placeholder="$t('pleaseSelect')" style="width: 300px;">
               <el-option v-for="contentType in getEnums().CONTENT_TYPE" :key="contentType" :label="contentType" :value="contentType">
                 {{ contentType }}
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item prop="parentId" :label="$ts('sourceFolder')">
-            <el-select v-model="docInfo.parentId" :placeholder="$ts('pleaseSelect')" style="width: 300px;">
-              <el-option label="无" :value="0">{{ $ts('empty') }}</el-option>
+          <el-form-item prop="parentId" :label="$t('sourceFolder')">
+            <el-select v-model="docInfo.parentId" :placeholder="$t('pleaseSelect')" style="width: 300px;">
+              <el-option label="无" :value="0">{{ $t('empty') }}</el-option>
               <el-option v-for="item in folders" :key="item.id" :label="item.name" :value="item.id">
                 {{ item.name }}
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$ts('maintainer')">
+          <el-form-item :label="$t('maintainer')">
             <el-input v-model="docInfo.author" maxlength="64" show-word-limit />
           </el-form-item>
-          <el-form-item :label="$ts('isShow')">
+          <el-form-item :label="$t('isShow')">
             <el-switch
               v-model="docInfo.isShow"
               active-color="#13ce66"
@@ -66,7 +66,7 @@
               :inactive-value="0"
             />
           </el-form-item>
-          <el-form-item :label="$ts('lockDoc')">
+          <el-form-item :label="$t('lockDoc')">
             <el-switch
               v-model="docInfo.isLocked"
               active-color="#13ce66"
@@ -74,20 +74,20 @@
               :active-value="1"
               :inactive-value="0"
             />
-            <span class="info-tip">{{ $ts('lockDocDesc') }}</span>
+            <span class="info-tip">{{ $t('lockDocDesc') }}</span>
           </el-form-item>
-          <el-form-item :label="$ts('orderIndex')">
+          <el-form-item :label="$t('orderIndex')">
             <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
           </el-form-item>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane :label="$ts('requestHeader')" name="headerParam">
-        <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">{{ $ts('newHeader') }}</el-button>
-        <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">{{ $ts('importHeader') }}</el-button>
+      <el-tab-pane :label="$t('requestHeader')" name="headerParam">
+        <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.headerParams)">{{ $t('newHeader') }}</el-button>
+        <el-button type="text" icon="el-icon-bottom-right" @click="onImportHeaderParamAdd">{{ $t('importHeader') }}</el-button>
         <span class="split">|</span>
         <el-switch
           v-model="docInfo.isUseGlobalHeaders"
-          :active-text="$ts('useCommonHeader')"
+          :active-text="$t('useCommonHeader')"
           inactive-text=""
           :active-value="1"
           :inactive-value="0"
@@ -100,12 +100,12 @@
         />
       </el-tab-pane>
       <!-- 请求参数 -->
-      <el-tab-pane :label="$ts('requestParams')" name="requestParam">
+      <el-tab-pane :label="$t('requestParams')" name="requestParam">
         <el-tabs v-model="paramsActive" type="card">
           <el-tab-pane label="Query Parameter" name="tabQueryParams">
             <div class="table-opt-btn">
-              <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">{{ $ts('newQueryParam') }}</el-button>
-              <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">{{ $ts('importQueryParam') }}</el-button>
+              <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.queryParams)">{{ $t('newQueryParam') }}</el-button>
+              <el-button type="text" icon="el-icon-bottom-right" @click="onImportQueryParamAdd">{{ $t('importQueryParam') }}</el-button>
             </div>
             <edit-table ref="queryParamTable" :data="docInfo.queryParams" :module-id="moduleId" />
           </el-tab-pane>
@@ -118,7 +118,7 @@
             <div class="table-opt-btn">
               <el-switch
                 v-model="docInfo.isRequestArray"
-                :active-text="$ts('isRootArray')"
+                :active-text="$t('isRootArray')"
                 inactive-text=""
                 :active-value="1"
                 :inactive-value="0"
@@ -126,12 +126,12 @@
               />
               <div v-show="!isEnableRequestRootArray" style="display: inline-block">
                 <span class="split">|</span>
-                <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">{{ $ts('newBodyParam') }}</el-button>
-                <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importBodyParam') }}</el-button>
+                <el-button type="text" icon="el-icon-plus" @click="onParamAdd(docInfo.requestParams)">{{ $t('newBodyParam') }}</el-button>
+                <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $t('importBodyParam') }}</el-button>
                 <span class="split">|</span>
                 <el-switch
                   v-model="docInfo.isUseGlobalParams"
-                  :active-text="$ts('useCommonParam')"
+                  :active-text="$t('useCommonParam')"
                   inactive-text=""
                   :active-value="1"
                   :inactive-value="0"
@@ -143,11 +143,11 @@
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
-      <el-tab-pane :label="$ts('responseParam')" name="responseParam">
+      <el-tab-pane :label="$t('responseParam')" name="responseParam">
         <div class="table-opt-btn">
           <el-switch
             v-model="docInfo.isResponseArray"
-            :active-text="$ts('isRootArray')"
+            :active-text="$t('isRootArray')"
             inactive-text=""
             :active-value="1"
             :inactive-value="0"
@@ -155,12 +155,12 @@
           />
           <div v-show="!isEnableResponseRootArray" style="display: inline-block">
             <span class="split">|</span>
-            <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">{{ $ts('newResponseParam') }}</el-button>
-            <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">{{ $ts('importResponseParam') }}</el-button>
+            <el-button type="text" icon="el-icon-plus" @click="onResponseParamAdd">{{ $t('newResponseParam') }}</el-button>
+            <el-button type="text" icon="el-icon-bottom-right" @click="onImportResponseParamAdd">{{ $t('importResponseParam') }}</el-button>
             <span class="split">|</span>
             <el-switch
               v-model="docInfo.isUseGlobalReturns"
-              :active-text="$ts('useCommonResponse')"
+              :active-text="$t('useCommonResponse')"
               inactive-text=""
               :active-value="1"
               :inactive-value="0"
@@ -170,31 +170,31 @@
         <root-array-table v-show="isEnableResponseRootArray" ref="responseArrayTable" :data="docInfo.responseParams" :el-type="docInfo.responseArrayType" :module-id="moduleId" />
         <edit-table v-show="!isEnableResponseRootArray" ref="responseParamTable" :data="docInfo.responseParams" :module-id="moduleId" :hidden-columns="responseHiddenColumns" />
       </el-tab-pane>
-      <el-tab-pane :label="$ts('errorCode')" name="errorCode">
-        <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">{{ $ts('newErrorCode') }}</el-button>
+      <el-tab-pane :label="$t('errorCode')" name="errorCode">
+        <el-button type="text" icon="el-icon-plus" @click="onErrorCodeAdd">{{ $t('newErrorCode') }}</el-button>
         <edit-table
           ref="errorCodeParamTable"
           :data="docInfo.errorCodeParams"
           :hidden-columns="['required', 'maxLength', 'type', 'enum']"
           :can-add-node="false"
-          :name-label="$ts('errorCode')"
-          :description-label="$ts('errorDesc')"
-          :example-label="$ts('solution')"
+          :name-label="$t('errorCode')"
+          :description-label="$t('errorDesc')"
+          :example-label="$t('solution')"
         />
       </el-tab-pane>
     </el-tabs>
     <div style="margin: 20px;">
-      <h3>{{ $ts('remark') }}： </h3>
-      <rich-text-editor :value="docInfo.remark" :placeholder="$ts('inputContent')" :editable="true" @input="remarkEditorInput" />
+      <h3>{{ $t('remark') }}： </h3>
+      <rich-text-editor :value="docInfo.remark" :placeholder="$t('inputContent')" :editable="true" @input="remarkEditorInput" />
     </div>
     <div style="margin-top: 10px;">
-      <el-button type="text" icon="el-icon-back" @click="goBack">{{ $ts('back') }}</el-button>
-      <el-button type="primary" icon="el-icon-finished" @click="submitForm">{{ $ts('save') }}</el-button>
-      <el-button type="success" icon="el-icon-view" @click="viewDoc">{{ $ts('preview') }}</el-button>
+      <el-button type="text" icon="el-icon-back" @click="goBack">{{ $t('back') }}</el-button>
+      <el-button type="primary" icon="el-icon-finished" @click="submitForm">{{ $t('save') }}</el-button>
+      <el-button type="success" icon="el-icon-view" @click="viewDoc">{{ $t('preview') }}</el-button>
     </div>
     <!-- dialog -->
     <el-dialog
-      :title="$ts('preview')"
+      :title="$t('preview')"
       :visible.sync="viewDialogVisible"
       width="70%"
     >
@@ -205,29 +205,29 @@
       :visible.sync="importParamTemplateDlgShow"
     >
       <el-radio-group v-model="importParamTemplateModel" style="margin-bottom: 20px;">
-        <el-radio v-show="paramsActive === 'tabBodyParams'" :label="2">{{ $ts('importJson') }}</el-radio>
-        <el-radio :label="0">{{ $ts('importByQueryParam') }}</el-radio>
-        <el-radio :label="1">{{ $ts('importByBulk') }}</el-radio>
+        <el-radio v-show="paramsActive === 'tabBodyParams'" :label="2">{{ $t('importJson') }}</el-radio>
+        <el-radio :label="0">{{ $t('importByQueryParam') }}</el-radio>
+        <el-radio :label="1">{{ $t('importByBulk') }}</el-radio>
       </el-radio-group>
       <el-input v-model="importParamTemplateValue" type="textarea" :rows="4" :placeholder="getParamTemplatePlaceholder()" />
       <div slot="footer" class="dialog-footer">
-        <el-button @click="importParamTemplateDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="callImportParamHandler">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="importParamTemplateDlgShow = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="callImportParamHandler">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
     <el-dialog
-      :title="$ts('importResponseParam')"
+      :title="$t('importResponseParam')"
       :visible.sync="paramResponseTemplateDlgShow"
     >
-      <el-alert :title="$ts('importResponseParamTip')" :closable="false" class="el-alert-tip" />
+      <el-alert :title="$t('importResponseParamTip')" :closable="false" class="el-alert-tip" />
       <el-form ref="paramResponseTemplateForm" :model="paramResponseTemplateFormData">
-        <el-form-item prop="value" :rules="[{ required: true, message: $ts('pleaseInputJson'), trigger: 'blur' }]">
-          <el-input v-model="paramResponseTemplateFormData.value" type="textarea" :rows="14" :placeholder="$ts('jsonType')" />
+        <el-form-item prop="value" :rules="[{ required: true, message: $t('pleaseInputJson'), trigger: 'blur' }]">
+          <el-input v-model="paramResponseTemplateFormData.value" type="textarea" :rows="14" :placeholder="$t('jsonType')" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="paramResponseTemplateDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onImportResponseParamSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="paramResponseTemplateDlgShow = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onImportResponseParamSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -327,7 +327,7 @@ export default {
   created() {
     this.initResponseHiddenColumns()
     if (this.$route.path.indexOf('new') > -1) {
-      this.initTitle = $ts('createDoc')
+      this.initTitle = $t('createDoc')
     }
     this.initData()
   },
@@ -499,10 +499,10 @@ export default {
               }
             })
           }).catch((e) => {
-            this.tipError($ts('pleaseFinishForm'))
+            this.tipError($t('pleaseFinishForm'))
           }) // 加上这个控制台不会报Uncaught (in promise)
         } else {
-          this.tipError($ts('pleaseFinishForm'))
+          this.tipError($t('pleaseFinishForm'))
         }
       })
     },

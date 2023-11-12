@@ -4,12 +4,12 @@
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <div class="side-opt-bar">
         <el-radio-group v-model="dimension" size="mini" @change="onDimensionChange">
-          <el-radio-button :label="1">{{ $ts('spaceDimension') }}</el-radio-button>
-          <el-radio-button :label="2">{{ $ts('projectDimension') }}</el-radio-button>
+          <el-radio-button :label="1">{{ $t('spaceDimension') }}</el-radio-button>
+          <el-radio-button :label="2">{{ $t('projectDimension') }}</el-radio-button>
         </el-radio-group>
         <el-radio-group v-model="expandAll" size="mini" @change="onTriggerStatus">
-          <el-radio-button :label="true">{{ $ts('expand') }}</el-radio-button>
-          <el-radio-button :label="false">{{ $ts('collapse') }}</el-radio-button>
+          <el-radio-button :label="true">{{ $t('expand') }}</el-radio-button>
+          <el-radio-button :label="false">{{ $t('collapse') }}</el-radio-button>
         </el-radio-group>
       </div>
       <doc-select v-if="dimension === 1" ref="ref1" :node-click="onNodeClick" :on-space-change="onSpaceChange" />
@@ -22,11 +22,6 @@ import { mapGetters } from 'vuex'
 import Logo from '@/components/Logo'
 import DocSelect from '@/components/DocSelect'
 import DocSelectV2 from '@/components/DocSelectV2'
-
-$addI18n({
-  'spaceDimension': { 'zh': '空间维度', 'en': 'Space Dimension' },
-  'projectDimension': { 'zh': '项目维度', 'en': 'Project Dimension' }
-})
 
 export default {
   components: { Logo, DocSelect, DocSelectV2 },

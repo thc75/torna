@@ -89,6 +89,10 @@ public class SwaggerApi {
      * @param importSwaggerV2DTO importSwaggerV2DTO
      */
     public Module importSwagger(ImportSwaggerV2DTO importSwaggerV2DTO) {
+        return importSwagger(importSwaggerV2DTO, null);
+    }
+
+    public Module importSwagger(ImportSwaggerV2DTO importSwaggerV2DTO, Module module) {
         String content = buildSwaggerDocContent(importSwaggerV2DTO);
         User user = importSwaggerV2DTO.getUser();
         String nickname = user.getNickname();
@@ -97,7 +101,9 @@ public class SwaggerApi {
         apiUser.setNickname(user.getNickname());
         OpenAPI openAPI = getOpenAPI(content);
         DocPushParam docPushParam = buildDocPushParam(nickname, openAPI);
-        Module module = createModule(importSwaggerV2DTO, getTitle(openAPI));
+        if (module == null) {
+            module = createModule(importSwaggerV2DTO, getTitle(openAPI));
+        }
         RequestContext.getCurrentContext().setModule(module);
         RequestContext.getCurrentContext().setIp(importSwaggerV2DTO.getIp());
         RequestContext.getCurrentContext().setApiUser(apiUser);
@@ -154,8 +160,7 @@ public class SwaggerApi {
         if (StringUtils.hasText(url)) {
             try {
                 HttpHelper.ResponseResult responseResult = HttpHelper
-                        .create()
-                        .basicAuth(importSwaggerV2DTO.getAuthUsername(), importSwaggerV2DTO.getAuthPassword())
+                        .createBasic(importSwaggerV2DTO.getAuthUsername(), importSwaggerV2DTO.getAuthPassword())
                         .url(url)
                         .method("get")
                         .execute();
@@ -288,7 +293,7 @@ public class SwaggerApi {
     }
 
     private static List<DocPushItemParam> buildItems(Map.Entry<String, PathItem> entry, OpenAPI openAPI) {
-         List<DocPushItemParam> items = new ArrayList<>();
+        List<DocPushItemParam> items = new ArrayList<>();
         String path = entry.getKey();
         PathItem pathItem = entry.getValue();
         Map<PathItem.HttpMethod, Operation> operationMap = pathItem.readOperationsMap();
@@ -429,10 +434,14 @@ public class SwaggerApi {
                         if ("array".equals(type)) {
                             isResponseArray = true;
                             Schema<?> items = schema.getItems();
-                            $ref = items.get$ref();
-                            docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                            if (items != null) {
+                                $ref = items.get$ref();
+                                docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                            }
                         } else if ($ref != null && !$ref.endsWith("@")/*排除@*/) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                        } else {
+                            docParamPushParams = buildObjectParam0(schema, openAPI, new BuildObjectParamContext());
                         }
                     }
                 }
@@ -459,6 +468,9 @@ public class SwaggerApi {
             return null;
         }
         JsonSchema jsonSchema = getJsonSchema($ref, openAPI);
+        if (jsonSchema == null) {
+            return null;
+        }
         return buildObjectParam(jsonSchema, openAPI, context);
     }
 
@@ -475,7 +487,65 @@ public class SwaggerApi {
                             .required(Booleans.toValue(jsonSchema.getRequired(name) || Objects.equals("true", String.valueOf(value.getRequired()))))
                             .description(value.getDescription())
                             .example(toString(value.getExample()))
-                            .maxLength(getMaxLength(jsonSchema.getSchema()))
+                            .maxLength(getMaxLength(jsonSchema.getSchema(), value))
+                            .build();
+                    String type = value.getType();
+                    List<DocParamPushParam> children = null;
+                    // 如果有子对象的ref
+                    if (value.get$ref() != null) {
+                        type = TYPE_OBJECT;
+                        final String child$ref = value.get$ref();
+                        children = buildObjectParam(child$ref, openAPI, context);
+                    }
+                    // 如果直接书写了子对象的内容
+                    if(value.getProperties()!=null){
+                        type = TYPE_OBJECT;
+                        children = buildObjectParam(getJsonSchema(value), openAPI, context);
+                    }
+                    // 如果是枚举字段
+                    if (value.getEnum() != null) {
+                        type = TYPE_ENUM;
+                        List<?> list = value.getEnum();
+                        setEnumDescription(list, param);
+                    }
+                    // list对象，List<XX>
+                    if (TYPE_ARRAY.equals(type) && value.getItems() != null) {
+                        Schema items = value.getItems();
+                        String itemRef = items.get$ref();
+                        if (itemRef != null) {
+                            final String child$ref = itemRef;
+                            children = buildObjectParam(child$ref, openAPI, context);
+                            type = "array[object]";
+                        }
+                        String itemType = items.getType();
+                        if (itemType != null) {
+                            type = "array[" + itemType + "]";
+                            if(TYPE_OBJECT.equals(itemType)){
+                                children = buildObjectParam(getJsonSchema(items), openAPI, context);
+                            }
+                        }
+                    }
+                    param.setChildren(children);
+                    param.setType(type);
+                    return param;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static List<DocParamPushParam> buildObjectParam0(Schema<?> schema, OpenAPI openAPI, BuildObjectParamContext context) {
+        final Map<String, Schema> properties = schema.getProperties();
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyMap()).entrySet()
+                .stream()
+                .map(entry -> {
+                    String name = entry.getKey();
+                    Schema value = entry.getValue();
+                    DocParamPushParam param = DocParamPushParam.builder()
+                            .name(name)
+                            .required(Booleans.toValue(Objects.equals("true", String.valueOf(value.getRequired()))))
+                            .description(value.getDescription())
+                            .example(toString(value.getExample()))
+                            .maxLength(getMaxLength(schema, value))
                             .build();
                     String type = value.getType();
                     List<DocParamPushParam> children = null;
@@ -644,10 +714,17 @@ public class SwaggerApi {
     }
 
     private static String getMaxLength(Schema<?> schema) {
-        Integer maxLength = Optional.ofNullable(schema)
+        return Optional.ofNullable(schema)
                 .map(Schema::getMaxLength)
-                .orElse(null);
-        return maxLength == null ? "-" : maxLength.toString();
+                .map(String::valueOf)
+                .orElse("-");
+    }
+
+    private static String getMaxLength(Schema<?> schema, Schema<?> value) {
+        return Optional.ofNullable(schema)
+                .map(Schema::getMaxLength)
+                .map(String::valueOf)
+                .orElseGet(() -> getMaxLength(value));
     }
 
     /**
@@ -659,6 +736,9 @@ public class SwaggerApi {
     private static JsonSchema getJsonSchema(String $ref, OpenAPI openAPI) {
         String refName = getRefName($ref);
         Schema<?> schema = openAPI.getComponents().getSchemas().get(refName);
+        if (schema == null) {
+            return null;
+        }
         return getJsonSchema(schema);
     }
 

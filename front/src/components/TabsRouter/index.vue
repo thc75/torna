@@ -29,9 +29,9 @@
       </router-link>
     </div>
     <ul v-show="showContextMenu" class="contextMenu" :style="contextMenuStyle">
-      <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $ts('closeOthers') }}</li>
-      <li v-show="!isFirstTab()" @click="closeLeftTabs"><i class="el-icon-back" /> {{ $ts('closeLeft') }}</li>
-      <li v-show="!isLastTab()" @click="closeRightTabs"><i class="el-icon-right" /> {{ $ts('closeRight') }}</li>
+      <li v-show="tabsList.length > 1" @click="closeOthersTabs()"><i class="el-icon-circle-close" /> {{ $t('closeOthers') }}</li>
+      <li v-show="!isFirstTab()" @click="closeLeftTabs"><i class="el-icon-back" /> {{ $t('closeLeft') }}</li>
+      <li v-show="!isLastTab()" @click="closeRightTabs"><i class="el-icon-right" /> {{ $t('closeRight') }}</li>
     </ul>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h3>{{ $ts('systemSetting') }}</h3>
+    <h3>{{ $t('systemSetting') }}</h3>
     <el-form
       ref="systemSettingForm"
       :model="systemSettingData"
@@ -8,8 +8,8 @@
       label-width="120px"
       style="width: 500px;"
     >
-      <el-form-item :label="$ts('language')">
-        <el-select v-model="systemSettingData.language" placeholder="请选择">
+      <el-form-item :label="$t('language')">
+        <el-select v-model="systemSettingData.language" :placeholder="$t('pleaseSelect')">
           <el-option
             v-for="item in languageOptions"
             :key="item.value"
@@ -18,14 +18,14 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$ts('docTabView')">
+      <el-form-item :label="$t('docTabView')" style="display: none">
         <el-radio-group v-model="systemSettingData.docViewTabs">
-          <el-radio :label="true">{{ $ts('enable') }}</el-radio>
-          <el-radio :label="false">{{ $ts('disable') }}</el-radio>
+          <el-radio :label="true">{{ $t('enable') }}</el-radio>
+          <el-radio :label="false">{{ $t('disable') }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $ts('dlgSave') }}</el-button>
+        <el-button type="primary" @click.native.prevent="handleUpdate">{{ $t('dlgSave') }}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -38,19 +38,27 @@ export default {
     return {
       systemSettingData: {
         language: '',
-        docViewTabs: false
+        docViewTabs: true
       },
       systemSettingRules: {
       },
       languageOptions: [
-        { label: '简体中文', value: 'zh' },
+        { label: '简体中文', value: 'zh-CN' },
         { label: 'English', value: 'en' }
       ]
     }
   },
   mounted() {
-    this.systemSettingData.language = get_lang()
-    this.systemSettingData.docViewTabs = this.$store.state.settings.docViewTabSwitch
+    this.get('system/i18n/lang/list', {}, resp => {
+      const items = resp.data
+      for (const item of items) {
+        this.languageOptions.push(
+          { label: item.description, value: item.lang }
+        )
+      }
+      this.systemSettingData.language = get_lang()
+      this.systemSettingData.docViewTabs = this.$store.state.settings.docViewTabSwitch
+    })
   },
   methods: {
     handleUpdate() {

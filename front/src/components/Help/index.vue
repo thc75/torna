@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-drawer
-      :title="$ts('help')"
+      :title="$t('help')"
       :visible.sync="drawer"
       size="35%"
     >

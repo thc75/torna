@@ -134,11 +134,6 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
      */
     public void addProjectUser(long projectId, List<Long> userIds, RoleEnum roleEnum) {
         Assert.notEmpty(userIds, () -> "用户不能为空");
-        Query query = new Query()
-                .eq("project_id", projectId)
-                .in("user_id", userIds).setQueryAll(true);
-        List<ProjectUser> existUsers = projectUserMapper.list(query);
-        userInfoService.checkExist(existUsers, ProjectUser::getUserId);
         List<ProjectUser> tobeSaveList = userIds.stream()
                 .map(userId -> {
                     ProjectUser projectUser = new ProjectUser();
@@ -332,6 +327,16 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
             return Optional.ofNullable(project).map(Project::getSpaceId).orElse(null);
         });
 
+    }
+
+    /**
+     * 移除项目用户
+     * @param userId
+     */
+    public void removeProjectUser(long userId) {
+        Query query = new Query()
+                .eq("user_id", userId);
+        projectUserMapper.forceDeleteByQuery(query);
     }
 
     @Override

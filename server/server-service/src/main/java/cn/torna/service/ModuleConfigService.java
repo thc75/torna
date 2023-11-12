@@ -4,6 +4,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.context.ModuleConfigKeys;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.enums.ParamStyleEnum;
+import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.DataIdUtil;
@@ -334,6 +335,30 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
                 .orElse(defaultValue);
     }
 
+    public void setCommonConfigValue(long moduleId, String key, String value) {
+        ModuleConfig commonConfig = getModuleConfig(moduleId, key, ModuleConfigTypeEnum.COMMON, true);
+        if (commonConfig == null) {
+            commonConfig = new ModuleConfig();
+            commonConfig.setModuleId(moduleId);
+            commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
+            commonConfig.setConfigKey(key);
+            commonConfig.setConfigValue(value);
+            commonConfig.setIsDeleted(Booleans.FALSE);
+            save(commonConfig);
+        } else {
+            commonConfig.setConfigValue(value);
+            update(commonConfig);
+        }
+    }
+
+    public List<ModuleConfig> listCommonConfigValue(long moduleId, List<String> keys) {
+        Query query = new Query()
+                .eq("module_id", moduleId)
+                .eq("type",ModuleConfigTypeEnum.COMMON.getType())
+                .in("config_key", keys);
+        return list(query);
+    }
+
     public ModuleConfig getModuleConfig(long moduleId, String key, ModuleConfigTypeEnum type, boolean forceQuery) {
         Query query = new Query()
                 .eq("module_id", moduleId)
@@ -347,18 +372,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     public void setBaseUrl(long moduleId, String baseUrl) {
         String key = ModuleConfigService.getDebugHostKey(moduleId);
-        ModuleConfig commonConfig = getCommonConfig(moduleId, key);
-        if (commonConfig == null) {
-            commonConfig = new ModuleConfig();
-            commonConfig.setModuleId(moduleId);
-            commonConfig.setType(ModuleConfigTypeEnum.COMMON.getType());
-            commonConfig.setConfigKey(key);
-            commonConfig.setConfigValue(baseUrl);
-            save(commonConfig);
-        } else {
-            commonConfig.setConfigValue(baseUrl);
-            update(commonConfig);
-        }
+        setCommonConfigValue(moduleId, key, baseUrl);
     }
 
 }

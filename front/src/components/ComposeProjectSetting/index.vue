@@ -16,7 +16,7 @@
     <el-divider />
     <h4>公共参数</h4>
     <el-tabs active-name="commonRequestParam" @tab-click="onCommonTabChange">
-      <el-tab-pane :label="$ts('commonRequest')" name="commonRequestParam">
+      <el-tab-pane :label="$t('commonRequest')" name="commonRequestParam">
         <common-param
           ref="commonRequestParamRef"
           list-url="/compose/project/setting/globalParams/list"
@@ -25,7 +25,7 @@
           delete-url="/compose/project/setting/globalParams/delete"
         />
       </el-tab-pane>
-      <el-tab-pane :label="$ts('commonResponse')" name="commonResponseParam">
+      <el-tab-pane :label="$t('commonResponse')" name="commonResponseParam">
         <common-param
           ref="commonResponseParamRef"
           list-url="/compose/project/setting/globalReturns/list"
@@ -42,7 +42,7 @@
       style="margin-bottom: 10px"
       @click="onExtDocAdd"
     >
-      {{ $ts('add') }}
+      {{ $t('add') }}
     </el-button>
     <el-table
       :data="extPageData"
@@ -61,17 +61,17 @@
       </el-table-column>
       <el-table-column
         prop="status"
-        :label="$ts('status')"
+        :label="$t('status')"
         width="100px"
       >
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">{{ $ts('enable') }}</el-tag>
-          <el-tag v-if="scope.row.status === 0" type="danger">{{ $ts('disable') }}</el-tag>
+          <el-tag v-if="scope.row.status === 1" type="success">{{ $t('enable') }}</el-tag>
+          <el-tag v-if="scope.row.status === 0" type="danger">{{ $t('disable') }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        :label="$ts('createTime')"
+        :label="$t('createTime')"
         width="110"
       >
         <template slot-scope="scope">
@@ -79,30 +79,30 @@
         </template>
       </el-table-column>
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         :width="$width(200, { 'en': 240 })"
       >
         <template slot-scope="scope">
           <el-popconfirm
             v-if="scope.row.status === 1"
-            :title="$ts('disableConfirm', scope.row.title)"
+            :title="$t('disableConfirm', scope.row.title)"
             @confirm="onExtDocUpdateStatus(scope.row, 0)"
           >
-            <el-link slot="reference" :underline="false" type="danger">{{ $ts('disable') }}</el-link>
+            <el-link slot="reference" :underline="false" type="danger">{{ $t('disable') }}</el-link>
           </el-popconfirm>
           <el-popconfirm
             v-if="scope.row.status === 0"
-            :title="$ts('enableConfirm', scope.row.title)"
+            :title="$t('enableConfirm', scope.row.title)"
             @confirm="onExtDocUpdateStatus(scope.row, 1)"
           >
-            <el-link slot="reference" :underline="false" type="primary">{{ $ts('enable') }}</el-link>
+            <el-link slot="reference" :underline="false" type="primary">{{ $t('enable') }}</el-link>
           </el-popconfirm>
-          <el-link type="primary" size="mini" @click="onExtDocUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <el-link type="primary" size="mini" @click="onExtDocUpdate(scope.row)">{{ $t('update') }}</el-link>
           <el-popconfirm
-            :title="$ts('deleteConfirm', scope.row.title)"
+            :title="$t('deleteConfirm', scope.row.title)"
             @confirm="onExtDocDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $t('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -299,7 +299,7 @@ export default {
     },
     onExtDocUpdateStatus(row, status) {
       this.post('/compose/additional/status/update', { id: row.id, status: status }, resp => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.loadExtTable()
       })
     },

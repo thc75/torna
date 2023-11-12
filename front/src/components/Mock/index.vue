@@ -7,9 +7,9 @@
         style="margin-bottom: 10px;margin-right: 10px;"
         @click="onMockAdd"
       >
-        {{ $ts('newConfig') }}
+        {{ $t('newConfig') }}
       </el-button>
-      <el-tooltip placement="top" :content="$ts('helpDoc')">
+      <el-tooltip placement="top" :content="$t('helpDoc')">
         <i class="el-icon-question cursor-pointer" @click="openLink('/help?id=mock')"></i>
       </el-tooltip>
     </div>
@@ -29,18 +29,18 @@
     <div v-show="isShow" class="mock-content">
       <div class="doc-modify-info">
         <div v-show="isAdded()" class="left-div">
-          {{ formData.creatorName }} {{ $ts('createdOn') }} {{ formData.gmtCreate }}，
-          {{ formData.modifierName }} {{ $ts('lastModifiedBy') }} {{ formData.gmtModified }}
+          {{ formData.creatorName }} {{ $t('createdOn') }} {{ formData.gmtCreate }}，
+          {{ formData.modifierName }} {{ $t('lastModifiedBy') }} {{ formData.gmtModified }}
         </div>
         <div class="right-div">
-          <el-tooltip v-show="isAdded()" :content="$ts('copyCurrentConfig')" placement="top">
+          <el-tooltip v-show="isAdded()" :content="$t('copyCurrentConfig')" placement="top">
             <el-link type="primary" icon="el-icon-document-copy" @click="onCopy" />
           </el-tooltip>
           <el-popconfirm
-            :title="$ts('deleteConfigConfirm')"
+            :title="$t('deleteConfigConfirm')"
             @confirm="onMockDelete(formData)"
           >
-            <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$ts('delete')" />
+            <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$t('delete')" />
           </el-popconfirm>
         </div>
       </div>
@@ -52,7 +52,7 @@
         label-width="120px"
         class="mock-form"
       >
-        <el-form-item :label="$ts('mockUrl')">
+        <el-form-item :label="$t('mockUrl')">
           <el-input v-model="formData.path" placeholder="path">
             <template slot="prepend">{{ mockBaseUrl }}</template>
           </el-input>
@@ -60,13 +60,13 @@
             可在path后面添加query参数区分不同mock，如：{{ 'product/getDetail?id=2' }}
           </span>
         </el-form-item>
-        <el-form-item :label="$ts('name')" prop="name">
+        <el-form-item :label="$t('name')" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
         </el-form-item>
-<!--        <el-form-item v-show="!ignoreParam" :label="$ts('param')">
+<!--        <el-form-item v-show="!ignoreParam" :label="$t('param')">
           <el-switch
             v-model="formData.requestDataType"
-            :active-text="$ts('jsonType')"
+            :active-text="$t('jsonType')"
             inactive-text=""
             :active-value="1"
             :inactive-value="0"
@@ -83,14 +83,14 @@
             @init="editorInit"
           />
         </el-form-item>-->
-        <el-divider content-position="left">{{ $ts('response') }}</el-divider>
+        <el-divider content-position="left">{{ $t('response') }}</el-divider>
         <el-form-item label="Http Status">
           <el-input-number v-model="formData.httpStatus" controls-position="right" />
         </el-form-item>
-        <el-form-item :label="$ts('responseDelay')">
+        <el-form-item :label="$t('responseDelay')">
           <el-input-number v-model="formData.delayMills" :min="0" :max="60000" controls-position="right" /> ms
         </el-form-item>
-        <el-form-item :label="$ts('responseHeader')">
+        <el-form-item :label="$t('responseHeader')">
           <name-value-table
             ref="responseHeadersRef"
             :data="formData.responseHeaders"
@@ -98,10 +98,10 @@
             :value-suggest-data="valueSuggestData"
           />
         </el-form-item>
-        <el-form-item :label="$ts('responseContent')">
+        <el-form-item :label="$t('responseContent')">
           <el-switch
             v-model="formData.resultType"
-            :active-text="$ts('mockScript')"
+            :active-text="$t('mockScript')"
             inactive-text=""
             :active-value="1"
             :inactive-value="0"
@@ -119,13 +119,13 @@
             />
           </div>
           <div v-else>
-            <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">{{ $ts('run') }}</el-button>
+            <el-button type="success" icon="el-icon-caret-right" style="margin-bottom: 10px;" @click="onRunMockScript">{{ $t('run') }}</el-button>
             <span class="info-tip">
-              {{ $ts('baseOnMockjs') }}，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">{{ $ts('helpDoc') }}</el-link>
+              {{ $t('baseOnMockjs') }}，<el-link type="primary" :underline="false" @click="openLink('/help?id=mock')">{{ $t('helpDoc') }}</el-link>
             </span>
             <div v-show="!formData.isNew">
               <el-form label-position="left" label-width="120px" size="mini" class="text-form">
-                <el-form-item :label="$ts('backMockScript')">
+                <el-form-item :label="$t('Mock.backMockScript')">
                   <el-link type="primary" :underline="false" :href="backMockScriptUrl" target="_blank">{{ backMockScriptUrl }}</el-link>
                 </el-form-item>
               </el-form>
@@ -142,16 +142,16 @@
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="medium" @click="onSave">{{ $ts('save') }}</el-button>
+          <el-button type="primary" size="medium" @click="onSave">{{ $t('save') }}</el-button>
         </el-form-item>
       </el-form>
     </div>
     <el-dialog
-      :title="$ts('runResult')"
+      :title="$t('runResult')"
       :visible.sync="mockResultDlgShow"
     >
-      <el-alert v-if="mockResultRunResult" :title="$ts('runSuccess')" type="success" :closable="false" />
-      <el-alert v-else :title="$ts('runError')" type="error" :closable="false" />
+      <el-alert v-if="mockResultRunResult" :title="$t('runSuccess')" type="success" :closable="false" />
+      <el-alert v-else :title="$t('runError')" type="error" :closable="false" />
       <el-input
         v-model="mockResultDlgView"
         type="textarea"
@@ -168,11 +168,6 @@ import { header_names, header_values } from '@/utils/headers'
 const Mock = require('mockjs')
 const Random = require('mockjs')
 import moment from 'moment'
-
-$addI18n({
-  'backMockScript': { 'zh': '获取脚本内容', 'en': 'Response mock script' },
-  'backMockResult': { 'zh': '获取mock结果', 'en': 'Response mock result' }
-})
 
 const FORM_DATA = {
   dataKv: [],
@@ -210,17 +205,17 @@ export default {
       formData: Object.assign({}, FORM_DATA),
       formRules: {
         name: [
-          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
+          { required: true, message: $t('notEmpty'), trigger: ['blur', 'change'] }
         ],
         path: [
-          { required: true, message: $ts('notEmpty'), trigger: ['blur', 'change'] }
+          { required: true, message: $t('notEmpty'), trigger: ['blur', 'change'] }
         ]
       },
       aceEditorConfig: {
         // 去除编辑器里的竖线
         showPrintMargin: false
       },
-      mockResultDlgTitle: $ts('runResult'),
+      mockResultDlgTitle: $t('runResult'),
       mockResultDlgView: '',
       mockResultDlgShow: false,
       mockResultRunResult: false,
@@ -320,7 +315,7 @@ export default {
         const fn = new Function('$params', '$body', 'Mock', 'Random', 'moment', `return ${code}`)
         const data = fn(globalVariable.$params, globalVariable.$body, Mock, Random, moment)
         if (data === undefined) {
-          throw new Error($ts('noResultTip'))
+          throw new Error($t('noResultTip'))
         }
         successCall.call(this, data)
         return true
@@ -345,12 +340,12 @@ export default {
     onRunMockScript() {
       this.runScript(data => {
         this.formData.mockResult = this.formatJson(data)
-        this.mockResultDlgTitle = $ts('runResult')
+        this.mockResultDlgTitle = $t('runResult')
         this.mockResultDlgView = this.formData.mockResult
         this.mockResultRunResult = true
       }, e => {
         this.mockResultRunResult = false
-        this.mockResultDlgTitle = $ts('runError')
+        this.mockResultDlgTitle = $t('runError')
         this.mockResultDlgView = e
       })
       this.mockResultDlgShow = true
@@ -364,7 +359,7 @@ export default {
       }
       Object.assign(node, {
         id: '' + this.nextId(),
-        name: $ts('newConfig'),
+        name: $t('newConfig'),
         path: path,
         responseBody: this.formatJson(respBody),
         responseHeaders: [
@@ -392,7 +387,7 @@ export default {
         this.removeLocal(data)
       } else {
         this.post('/doc/mock/delete', data, resp => {
-          this.tipSuccess($ts('deleteSuccess'))
+          this.tipSuccess($t('deleteSuccess'))
           this.reload()
         })
       }
@@ -410,7 +405,7 @@ export default {
           const success = this.runScript(data => {
             this.formData.mockResult = this.formatJson(data)
           }, e => {
-            this.tipError($ts('mockScriptError'))
+            this.tipError($t('mockScriptError'))
           })
           if (!success) {
             return
@@ -419,7 +414,7 @@ export default {
         this.formatData()
         this.formData.docId = this.item.id
         this.post('/doc/mock/save', this.formData, resp => {
-          this.tipSuccess($ts('saveSuccess'))
+          this.tipSuccess($t('saveSuccess'))
           this.activeMock = resp.data.id
           this.reload()
         })

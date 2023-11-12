@@ -22,7 +22,7 @@ services:
       - torna-net
     restart: always
   torna:
-    image: tanghc2020/torna:latest
+    image: registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest
     container_name: torna
     ports:
       - 7700:7700

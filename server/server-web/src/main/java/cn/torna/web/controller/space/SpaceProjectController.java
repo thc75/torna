@@ -3,7 +3,7 @@ package cn.torna.web.controller.space;
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.service.ComposeProjectService;
 import cn.torna.service.ProjectService;
 import cn.torna.service.SpaceService;

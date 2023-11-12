@@ -1,10 +1,10 @@
 <template>
   <div>
     <div style="float: right">
-      <el-button type="danger" size="mini" @click="onModuleDelete">{{ $ts('deleteModule') }}</el-button>
+      <el-button type="danger" size="mini" @click="onModuleDelete">{{ $t('deleteModule') }}</el-button>
     </div>
     <h3>
-      {{ $ts('appName') }}：
+      {{ $t('appName') }}：
       <span style="font-weight: normal">
         {{ moduleVO.name }}
         <popover-update
@@ -16,10 +16,10 @@
     </h3>
 
     <el-tabs active-name="envSetting" tab-position="left" @tab-click="tabChange">
-      <el-tab-pane name="envSetting" :label="$ts('debugEnv')">
+      <el-tab-pane name="envSetting" :label="$t('debugEnv')">
         <env-setting ref="envSetting" :project-id="projectId" />
       </el-tab-pane>
-      <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$ts('swaggerSetting')">
+      <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$t('swaggerSetting')">
         <swagger-setting ref="swaggerSetting" />
       </el-tab-pane>
       <el-tab-pane name="dingdingSetting" :label="$ts('dingdingSetting')">
@@ -99,15 +99,15 @@ export default {
         name: value
       }
       this.post('/module/name/update', param, () => {
-        this.tipSuccess(this.$ts('updateSuccess'))
+        this.tipSuccess(this.$t('updateSuccess'))
         this.moduleVO.name = value
         done()
       })
     },
     onModuleDelete() {
-      this.confirm(this.$ts('deleteModuleConfirm'), () => {
-        this.post('/module/delete', { id: this.moduleId }, () => {
-          alert(this.$ts('deleteSuccess'))
+      this.confirm(this.$t('deleteModuleConfirm'), () => {
+        this.post('/module/delete', { id: this.moduleVO.id }, () => {
+          alert(this.$t('deleteSuccess'))
           location.reload()
         })
       })

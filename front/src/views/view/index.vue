@@ -2,11 +2,11 @@
   <div class="doc-view-container">
     <el-tabs v-if="showDoc" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
+        <span slot="label"><i class="el-icon-document"></i> {{ $t('apiInfo') }}</span>
         <doc-view ref="docView" :item="infoItem" />
       </el-tab-pane>
       <el-tab-pane name="debug">
-        <span slot="label"><i class="el-icon-s-promotion"></i> {{ $ts('debugApi') }}</span>
+        <span slot="label"><i class="el-icon-s-promotion"></i> {{ $t('debugApi') }}</span>
         <doc-debug :item="debugItem" />
       </el-tab-pane>
       <el-tab-pane name="mock">
@@ -16,7 +16,7 @@
     </el-tabs>
     <el-tabs v-if="showDubbo" v-model="active" @tab-click="onTabSelect">
       <el-tab-pane name="info">
-        <span slot="label"><i class="el-icon-document"></i> {{ $ts('apiInfo') }}</span>
+        <span slot="label"><i class="el-icon-document"></i> {{ $t('apiInfo') }}</span>
         <dubbo-view ref="docViewDubbo" />
       </el-tab-pane>
     </el-tabs>
@@ -53,7 +53,7 @@ export default {
       return this.item.type === this.getEnums().DOC_TYPE.DUBBO
     },
     showCustom() {
-      return this.item.type === this.getEnums().DOC_TYPE.CUSTOM
+      return this.item.type === this.getEnums().DOC_TYPE.CUSTOM || this.item.type === this.getEnums().DOC_TYPE.MARKDOWN
     }
   },
   created() {

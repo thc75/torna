@@ -67,7 +67,12 @@ public enum EnvironmentKeys {
     TORNA_DOC_SORT_TYPE("torna.doc-sort-type", DocSortType.BY_ORDER.getType()),
     /** 上传文件域名 */
     TORNA_UPLOAD_DOMAIN("torna.upload.domain", null),
-    TORNA_UPLOAD_DIR("torna.upload.dir", null)
+    TORNA_UPLOAD_DIR("torna.upload.dir", null),
+    /** 推送是否覆盖 */
+    TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false)),
+    /** 系统默认语言 */
+    TORNA_DEFAULT_LANG("torna.default-lang", "zh-CN"),
+    TORNA_NAME_VERSION_TPL("torna.name-version-tpl", "{_name_} {_version_}"),
     ;
 
     private final String key;

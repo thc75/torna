@@ -1,15 +1,15 @@
 <template>
   <el-tabs v-model="activeName" tab-position="left" class="doc-info-tabs" @tab-click="handleClick">
     <el-tab-pane name="DocList">
-      <span slot="label"><i class="el-icon-s-grid"> {{ $ts('apiList') }}</i></span>
+      <span slot="label"><i class="el-icon-s-grid"> {{ $t('apiList') }}</i></span>
       <doc-table ref="moduleIdDocList" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane name="EnumInfo">
-      <span slot="label"><i class="el-icon-tickets"></i> {{ $ts('dictionaryManagement') }}</span>
+      <span slot="label"><i class="el-icon-tickets"></i> {{ $t('dictionaryManagement') }}</span>
       <enum-info ref="moduleIdEnumInfo" :project-id="projectId" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ShareConfig">
-      <span slot="label"><i class="el-icon-share"></i> {{ $ts('shareManagement') }}</span>
+      <span slot="label"><i class="el-icon-share"></i> {{ $t('shareManagement') }}</span>
       <share-config ref="moduleIdShareConfig" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="OpenApi">
@@ -17,7 +17,7 @@
       <module-open-api ref="moduleIdOpenApi" />
     </el-tab-pane>
     <el-tab-pane v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" name="ModuleSetting">
-      <span slot="label"><i class="el-icon-setting"></i> {{ $ts('moduleSetting') }}</span>
+      <span slot="label"><i class="el-icon-setting"></i> {{ $t('moduleSetting') }}</span>
       <module-setting ref="moduleIdModuleSetting" :project-id="projectId" />
     </el-tab-pane>
   </el-tabs>

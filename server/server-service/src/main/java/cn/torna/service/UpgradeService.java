@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 11800;
+    private static final int VERSION = 12300;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -109,6 +109,31 @@ public class UpgradeService {
         v1_15_4(oldVersion);
         v1_16_0(oldVersion);
         v1_18_0(oldVersion);
+        v1_20_0(oldVersion);
+        v1_22_0(oldVersion);
+        v1_22_1(oldVersion);
+    }
+
+    private void v1_22_1(int oldVersion) {
+        if (oldVersion < 12300) {
+            log.info("Upgrade version to 1.22.1");
+            runSql("ALTER TABLE `doc_info` CHANGE `description` `description` longtext NULL COMMENT '文档描述'");
+            createTable("system_login_token", "upgrade/1.22.1_ddl.txt");
+        }
+    }
+
+    private void v1_22_0(int oldVersion) {
+        if (oldVersion < 12200) {
+            addColumn("doc_info", "version", "ALTER TABLE `doc_info` ADD COLUMN `version` varchar(32) NULL DEFAULT '' COMMENT '版本号，默认空字符串' after url");
+        }
+    }
+
+    private void v1_20_0(int oldVersion) {
+        if (oldVersion < 12000) {
+            log.info("Upgrade version to 1.20.0");
+            createTable("system_i18n_config", "upgrade/1.20.0_ddl.txt");
+            log.info("Upgrade 1.20.0 finished.");
+        }
     }
 
     private void v1_18_0(int oldVersion) {

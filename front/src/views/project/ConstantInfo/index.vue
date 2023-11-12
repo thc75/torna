@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-tabs>
-      <el-tab-pane :label="$ts('projectConstant')">
+      <el-tab-pane :label="$t('projectConstant')">
         <el-alert type="info" :closable="false">
-          <span slot="title">{{ $ts('projectConstantTip') }}
+          <span slot="title">{{ $t('ConstantInfo.projectConstantTip') }}
             <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/constant.md')" />
           </span>
         </el-alert>
@@ -13,10 +13,10 @@
           :editable="true"
           @input="projectConstantInfoEditorInput"
         />
-        <el-button type="primary" style="margin-top: 20px" @click="onProjectConstantInfoSave">{{ $ts('save') }}</el-button>
+        <el-button type="primary" style="margin-top: 20px" @click="onProjectConstantInfoSave">{{ $t('save') }}</el-button>
       </el-tab-pane>
-      <el-tab-pane :label="$ts('applicationConstant')">
-        <el-alert type="info" :title="$ts('applicationConstantTip')" :closable="false" />
+      <el-tab-pane :label="$t('applicationConstant')">
+        <el-alert type="info" :title="$t('ConstantInfo.applicationConstantTip')" :closable="false" />
         <br/>
         <el-tabs type="card" @tab-click="onTabSelect">
           <el-tab-pane v-for="item in moduleData" :key="item.id" :label="item.name"></el-tab-pane>
@@ -25,7 +25,7 @@
             :editable="true"
             @input="moduleConstantInfoEditorInput"
           />
-          <el-button type="primary" style="margin-top: 20px" @click="onModuleConstantInfoSave">{{ $ts('save') }}</el-button>
+          <el-button type="primary" style="margin-top: 20px" @click="onModuleConstantInfoSave">{{ $t('save') }}</el-button>
         </el-tabs>
       </el-tab-pane>
     </el-tabs>
@@ -33,10 +33,6 @@
   </div>
 </template>
 <script>
-$addI18n({
-  'projectConstantTip': { 'zh': '定义项目级别常量（错误码、枚举），能被下面各个应用访问', 'en': 'The project constant that can be visited by the following applications' },
-  'applicationConstantTip': { 'zh': '定义每个应用单独的常量', 'en': 'Define a separate constant for each application' }
-})
 import RichTextEditor from '@/components/RichTextEditor'
 import Help from '@/components/Help'
 
@@ -93,7 +89,7 @@ export default {
         id: this.projectId,
         content: this.projectConstantInfo
       }, resp => {
-        this.tipSuccess($ts('saveSuccess'))
+        this.tipSuccess($t('saveSuccess'))
       })
     },
     onModuleConstantInfoSave() {
@@ -101,7 +97,7 @@ export default {
         id: this.currentModule.id,
         content: this.moduleConstantInfo
       }, resp => {
-        this.tipSuccess($ts('saveSuccess'))
+        this.tipSuccess($t('saveSuccess'))
       })
     },
     onTabSelect(tab) {

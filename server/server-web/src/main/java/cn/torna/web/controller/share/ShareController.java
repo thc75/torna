@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -107,6 +108,7 @@ public class ShareController {
             docInfoVO.setHttpMethod(docInfo.getHttpMethod());
             docInfoVO.setDocType(docInfo.getType());
             docInfoVO.setDocId(docInfo.getId());
+            docInfoVO.setVersion(docInfo.getVersion());
             // 如果是文档
             if (!isFolder) {
                 docInfoVO.setUrl(docInfo.getUrl());
@@ -133,11 +135,25 @@ public class ShareController {
             if (BooleanUtils.toBoolean(shareContent.getIsShareFolder())) {
                 Query query = new Query()
                         .eq("parent_id", shareContent.getDocId());
-                List<Long> childIdList = docInfoService.listId(query);
-                idList.addAll(childIdList);
+                List<DocInfo> childIdList = docInfoService.list(query);
+                idList.addAll(childIdList.stream().map(DocInfo::getId).collect(Collectors.toList()));
+                // 递归获取子文件夹下的文件内容
+                addChildFoldersAndFiles(idList, childIdList.stream().filter(doc->doc.getIsFolder().equals(Booleans.TRUE)).map(DocInfo::getId).collect(Collectors.toList()));
             }
         }
         return idList;
+    }
+
+
+    private void addChildFoldersAndFiles(List<Long> idList, List<Long> childIdList) {
+        for (Long childId : childIdList) {
+            Query query = new Query().eq("parent_id", childId);
+            List<Long> grandChildIdList = docInfoService.listId(query);
+            if (!grandChildIdList.isEmpty()) {
+                idList.addAll(grandChildIdList);
+                addChildFoldersAndFiles(idList, grandChildIdList);
+            }
+        }
     }
 
 }

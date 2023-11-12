@@ -8,15 +8,15 @@
     >
       <el-menu-item :index="projectIndex">
         <i class="el-icon-s-grid"></i>
-        <span class="title">{{ $ts('projectList') }}</span>
+        <span class="title">{{ $t('projectList') }}</span>
       </el-menu-item>
       <el-menu-item :index="`/space/info/${spaceId}`">
         <i class="el-icon-info"></i>
-        <span class="title">{{ $ts('spaceInfo') }}</span>
+        <span class="title">{{ $t('spaceInfo') }}</span>
       </el-menu-item>
       <el-menu-item :index="`/space/member/${spaceId}`">
         <i class="el-icon-user"></i>
-        <span class="title">{{ $ts('spaceMember') }}</span>
+        <span class="title">{{ $t('spaceMember') }}</span>
       </el-menu-item>
     </el-menu>
   </div>

@@ -29,6 +29,7 @@ const MAPPING = {
   'dlgClose': '关 闭',
   'preRequestScript': '前置脚本',
   'afterResponseScript': '后置脚本',
+export default {
   'ok': '确定',
   'cancel': '取消',
   'home': '首页',
@@ -99,6 +100,7 @@ const MAPPING = {
   'updateSuccess': '修改成功',
   'visitor': '访客',
   'developer': '开发者',
+  'admin': '管理员',
   'createAccount': '新建账号',
   'applicant': '申请人',
   'status': '状态',
@@ -116,7 +118,6 @@ const MAPPING = {
   'errorCodeManagement': '错误码管理',
   'moduleSetting': '应用配置',
   'shareManagement': '分享管理',
-  'createApi': '新建接口',
   'createFolder': '新建分类',
   'apiFilter': '过滤: 支持ID、名称、路径',
   'refreshTable': '刷新表格',
@@ -164,6 +165,7 @@ const MAPPING = {
   'newModule': '创建应用',
   'importSwaggerDoc': '导入Swagger文档',
   'importPostmanDoc': '导入Postman文档',
+  'importMarkdownYapi': '导入Markdown文档(YAPI)',
   'syncSwaggerDoc': '同步Swagger文档',
   'inputModuleName': '请输入应用名称',
   'appName': '应用名称',
@@ -446,16 +448,71 @@ const MAPPING = {
   'selectAll': '全选',
   'recommend': '推荐',
   'standardDocument': '标准文档',
-  'customDocument': '自定义文档'
-
-}
-
-export class Translator extends BaseTranslator {
-  getMapping() {
-    return MAPPING
+  'customDocument': '自定义文档',
+  'spaceDimension': '空间维度',
+  'projectDimension': '项目维度',
+  'richTextEditor': '富文本',
+  'markdown': 'Markdown',
+  'docType': '文档类型',
+  // ---- common end ----
+  // ---- 组件特有的，key表示组件名称(文件夹名称) ----
+  RichTextEditor: {
+    'imgUploadInfo': '支持剪贴板图片上传，本地图片上传，URL图片插入',
+    'imgHelpBtnText': '图片上传设置'
+  },
+  ConstView: {
+    'constInfo': '常量信息'
+  },
+  Mock: {
+    'backMockScript': '获取脚本内容'
+  },
+  SwaggerSetting: {
+    'syncConfirm': '保存成功，是否立即同步文档？',
+    'synchronizing': '同步中...'
+  },
+  EditDocCustom: {
+    'inputDocContent': '输入文档内容'
+  },
+  ConstantInfo: {
+    'projectConstantTip': '定义项目级别常量（错误码、枚举），能被下面各个应用访问',
+    'applicationConstantTip': '定义每个应用单独的常量'
+  },
+  ImportSwaggerDialog: {
+    'pluginImport': '插件导入',
+    'pluginImportTip': '如果是Java项目且用Maven管理可使用此方式，优点：无需启动项目即可推送文档',
+    'urlImport': 'URL导入',
+    'importing': '导入中...',
+    'swaggerContentImport': ' JSON/YAML导入',
+    'swaggerContentImportTip': '输入swagger文档内容，支持json或yaml格式',
+    'importTip': '提示：服务端异步处理导入过程，保存后可能无法看到文档，请过2~3秒再刷新查看'
+  },
+  ImportYapiMarkdownDoc: {
+    'importYapiMarkdownDoc': '导入YAPI的Markdown文档',
+    'step1': '第一步：导出Markdown文档',
+    'step2': '第二步：上传导出文件'
+  },
+  Module: {
+    'noAppDescription': '当前没有应用'
+  },
+  EnvSetting: {
+    'newEnv': '新环境',
+    'importEnv': '从其它模块导入',
+    'copyCurrent': '复制环境',
+    'deleteCurrent': '删除环境',
+    'copyEnv': '{0} 拷贝',
+    'commonSetting': '公共设置',
+    'plzCheckEnv': '请勾选环境',
+    'ownerSpace': '所属空间',
+    'allowDebug': '允许调试'
+  },
+  OpenApi: {
+    'printPushContent': '打印推送内容',
+    'printPushContentTip': '推送内容在 {安装目录}/log/server.log',
+    'contentOverride': '内容覆盖',
+    'contentOverrideTip': '是：局部推送(可推送若干个文档，不影响其它文档)，否：全量替换(默认)'
+  },
+  AdminUser: {
+    'allocateProject': '分配项目',
+    'chooseProject': '选择项目'
   }
-  addMapping(anotherMapping) {
-    Object.assign(this.getMapping(), anotherMapping)
-  }
 }
-

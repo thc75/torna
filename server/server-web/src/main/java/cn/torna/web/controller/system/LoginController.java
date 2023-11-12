@@ -5,7 +5,7 @@ import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.util.CopyUtil;

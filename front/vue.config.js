@@ -28,7 +28,7 @@ module.exports = {
     // 解决内网穿透出现Invalid Host header
     disableHostCheck: true,
     port: port,
-    open: true,
+    open: false,
     overlay: {
       warnings: false,
       errors: true

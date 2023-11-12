@@ -34,11 +34,11 @@
       <el-form-item :label="$ts('email')" prop="email">
         <el-input v-model="userData.email" show-word-limit maxlength="100" />
       </el-form-item>
-      <el-form-item :label="$ts('regTime')">
+      <el-form-item :label="$t('regTime')">
         {{ userData.gmtCreate }}
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button type="primary" @click="onSave">{{ $t('dlgSave') }}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -68,7 +68,7 @@ export default {
       },
       rules: {
         nickname: [
-          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ]
       }
     }

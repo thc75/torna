@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="info-tip">{{ $ts('rootArrayTip') }}：[{...}, {...}]、[1, 2, 3]、['hello', 'world']</div>
+    <div class="info-tip">{{ $t('rootArrayTip') }}：[{...}, {...}]、[1, 2, 3]、['hello', 'world']</div>
     <div class="table-opt-btn">
-      <span class="normal-text">{{ $ts('elementType') }}</span>：
+      <span class="normal-text">{{ $t('elementType') }}</span>：
       <el-select v-model="elementType" size="mini" @change="onTypeChange">
         <el-option v-for="type in elTypes" :key="type" :value="type" :label="type">{{ type }}</el-option>
       </el-select>
     </div>
     <div v-if="isTypeObject">
-      <el-button type="text" icon="el-icon-plus" @click="onParamAdd">{{ $ts('newParam') }}</el-button>
-      <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $ts('importParam') }}</el-button>
+      <el-button type="text" icon="el-icon-plus" @click="onParamAdd">{{ $t('newParam') }}</el-button>
+      <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $t('importParam') }}</el-button>
     </div>
     <el-table
       :data="tableData"
@@ -43,7 +43,7 @@
               prop="name"
               label-width="0"
             >
-              <el-input v-model="scope.row.name" :placeholder="$ts('paramName')" maxlength="64" show-word-limit />
+              <el-input v-model="scope.row.name" :placeholder="$t('paramName')" maxlength="64" show-word-limit />
             </el-form-item>
           </el-form>
         </template>
@@ -51,7 +51,7 @@
       <el-table-column
         v-if="isTypeObject && isColumnShow('type')"
         prop="type"
-        :label="$ts('type')"
+        :label="$t('type')"
         width="130"
       >
         <template slot-scope="scope">
@@ -63,7 +63,7 @@
       <el-table-column
         v-if="isTypeObject && isColumnShow('enum')"
         prop="enum"
-        :label="$ts('linkDict')"
+        :label="$t('linkDict')"
         width="120"
       >
         <template slot-scope="scope">
@@ -77,7 +77,7 @@
       <el-table-column
         v-if="isTypeObject && isColumnShow('required')"
         prop="required"
-        :label="$ts('require')"
+        :label="$t('require')"
         width="80"
       >
         <template slot-scope="scope">
@@ -92,11 +92,11 @@
       <el-table-column
         v-if="isTypeObject && isColumnShow('maxLength')"
         prop="maxLength"
-        :label="$ts('maxLength')"
+        :label="$t('maxLength')"
         width="130"
       >
         <template slot-scope="scope">
-          <el-input v-model="scope.row.maxLength" :placeholder="$ts('maxLength')" size="mini" maxlength="10" show-word-limit />
+          <el-input v-model="scope.row.maxLength" :placeholder="$t('maxLength')" size="mini" maxlength="10" show-word-limit />
         </template>
       </el-table-column>
       <el-table-column
@@ -132,19 +132,19 @@
       </el-table-column>
       <el-table-column
         v-if="isColumnShow('opt')"
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="90"
       >
         <template slot-scope="scope">
           <div>
             <div v-show="scope.row.isDeleted === 0">
-              <el-tooltip :content="$ts('addChildNode')" placement="top" :open-delay="500">
+              <el-tooltip :content="$t('addChildNode')" placement="top" :open-delay="500">
                 <el-link v-if="isTypeObject && canAddNode" type="primary" icon="el-icon-circle-plus-outline" @click="onParamNodeAdd(scope.row)"></el-link>
               </el-tooltip>
               <el-link v-if="isTypeObject" type="danger" icon="el-icon-delete" @click="onParamRemove(scope.row)"></el-link>
             </div>
             <div v-show="scope.row.isDeleted === 1">
-              <el-tooltip :content="$ts('clickRestore')" placement="top">
+              <el-tooltip :content="$t('clickRestore')" placement="top">
                 <el-link type="danger" icon="el-icon-remove" @click="scope.row.isDeleted = 0"></el-link>
               </el-tooltip>
             </div>
@@ -158,8 +158,8 @@
     >
       <el-input v-model="importParamTemplateValue" type="textarea" :rows="4" placeholder="[{...}, {...}]" />
       <div slot="footer" class="dialog-footer">
-        <el-button @click="importParamTemplateDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onImportParamSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="importParamTemplateDlgShow = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onImportParamSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -182,7 +182,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: $ts('noData')
+      default: $t('noData')
     },
     canAddNode: {
       type: Boolean,
@@ -190,7 +190,7 @@ export default {
     },
     nameLabel: {
       type: String,
-      default: $ts('name')
+      default: $t('name')
     },
     nameWidth: {
       type: Number,
@@ -202,11 +202,11 @@ export default {
     },
     descriptionLabel: {
       type: String,
-      default: $ts('description')
+      default: $t('description')
     },
     exampleLabel: {
       type: String,
-      default: $ts('example')
+      default: $t('example')
     },
     hiddenColumns: {
       type: Array,
@@ -290,12 +290,12 @@ export default {
     onImportParamSave() {
       const val = this.importParamTemplateValue
       if (!is_array_string(val)) {
-        this.tipError($ts('mustArray'))
+        this.tipError($t('mustArray'))
         return
       }
       this.parseJSON(val, arr => {
         if (arr.length === 0) {
-          this.tipError($ts('arrayMustHasElement'))
+          this.tipError($t('arrayMustHasElement'))
         } else {
           const json = arr[0]
           this.deleteAndHideData()

@@ -3,17 +3,17 @@
     <div>
       <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <el-button type="primary" size="mini">
-          {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
+          {{ $t('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item icon="el-icon-document" :command="onDocNew">{{ $ts('createDoc') }}</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">{{ $ts('createFolder') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-document" :command="onDocNew">{{ $t('createDoc') }}</el-dropdown-item>
+          <el-dropdown-item icon="el-icon-folder" :command="onFolderAdd">{{ $t('createFolder') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
         <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
-          <el-radio-button label="1">{{ $ts('expand') }}</el-radio-button>
-          <el-radio-button label="0">{{ $ts('collapse') }}</el-radio-button>
+          <el-radio-button label="1">{{ $t('expand') }}</el-radio-button>
+          <el-radio-button label="0">{{ $t('collapse') }}</el-radio-button>
         </el-radio-group>
         <div class="table-right-item">
           <el-input
@@ -21,17 +21,17 @@
             prefix-icon="el-icon-search"
             clearable
             size="mini"
-            :placeholder="$ts('apiFilter')"
+            :placeholder="$t('apiFilter')"
             style="width: 300px;"
           />
         </div>
         <div class="table-right-item">
-          <el-tooltip placement="top" :content="$ts('refreshTable')">
+          <el-tooltip placement="top" :content="$t('refreshTable')">
             <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">{{ $ts('export') }}</el-button>
+          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">{{ $t('export') }}</el-button>
         </div>
       </div>
     </div>
@@ -53,21 +53,26 @@
       <u-table-column
         :tree-node="true"
         prop="name"
-        :label="$ts('docName')"
+        :label="$t('docName')"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
           <div v-if="isDoc(scope.row)" class="el-table-cell-icon">
             <div v-if="!scope.row.isShow">
-              <el-tooltip placement="top" :content="$ts('hidden')">
+              <el-tooltip placement="top" :content="$t('hidden')">
                 <svg-icon icon-class="eye" svg-style="color: #e6a23c" />
               </el-tooltip>
             </div>
           </div>
           <div v-if="scope.row.isLocked" class="el-table-cell-icon">
-            <el-tooltip placement="top" :content="$ts('lockDocDesc')">
+            <el-tooltip placement="top" :content="$t('lockDocDesc')">
               <i class="el-icon-lock"></i>
+            </el-tooltip>
+          </div>
+          <div v-if="scope.row.isFolder === 0 && scope.row.type === getEnums().DOC_TYPE.MARKDOWN" class="el-table-cell-icon">
+            <el-tooltip placement="top" :content="$t('mardown')">
+              <el-tag>md</el-tag>
             </el-tooltip>
           </div>
         </template>
@@ -83,20 +88,41 @@
         </template>
       </u-table-column>
       <u-table-column
+        prop="version"
+        :label="$t('version')"
+        width="80"
+        show-overflow-tooltip
+      >
+        <template slot-scope="scope">
+          <div v-if="scope.row.isFolder === 0">
+            <span style="margin-right: 5px;">{{ scope.row.version }}</span>
+            <popover-update
+              :title="$t('version')"
+              :maxlength="20"
+              :show-icon="true"
+              :is-validate="false"
+              :value="`${scope.row.version}`"
+              :on-show="() => {return scope.row.version}"
+              :on-save="(val, call) => onSaveVersion(scope.row.id, val, call)"
+            />
+          </div>
+        </template>
+      </u-table-column>
+      <u-table-column
         prop="author"
-        :label="$ts('maintainer')"
+        :label="$t('maintainer')"
         width="120"
         show-overflow-tooltip
       />
       <u-table-column
         prop="modifierName"
-        :label="$ts('modifierName')"
+        :label="$t('modifierName')"
         width="120"
         show-overflow-tooltip
       />
       <u-table-column
         prop="gmtModified"
-        :label="$ts('updateTime')"
+        :label="$t('updateTime')"
         width="110"
       >
         <template slot-scope="scope">
@@ -106,12 +132,12 @@
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         prop="orderIndex"
-        :label="$ts('orderIndex')"
+        :label="$t('orderIndex')"
         width="80"
       >
         <template slot-scope="scope">
           <popover-update
-            :title="$ts('orderIndex')"
+            :title="$t('orderIndex')"
             is-number
             :show-icon="false"
             :value="`${scope.row.orderIndex}`"
@@ -145,16 +171,16 @@
       </u-table-column>
       <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-        :label="$ts('operation')"
+        :label="$t('operation')"
         :width="$width(160, { 'en': 190 })"
       >
         <template slot-scope="scope">
           <div class="icon-operation">
-            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-document-add" :title="$ts('createDoc')" @click="onDocAdd(scope.row)" />
-            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-folder-add" :title="$ts('createFolder')" @click="onDocFolderAdd(scope.row)" />
-            <el-link v-if="!isFolder(scope.row)" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
-            <el-link type="primary" icon="el-icon-edit" :title="$ts('update')" @click="onDocUpdate(scope.row)" />
-            <el-link v-if="!isFolder(scope.row)" type="info" icon="el-icon-document-copy" :title="$ts('copy')" @click="onDocCopy(scope.row)" />
+            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-document-add" :title="$t('createDoc')" @click="onDocAdd(scope.row)" />
+            <el-link v-if="isFolder(scope.row)" type="primary" icon="el-icon-folder-add" :title="$t('createFolder')" @click="onDocFolderAdd(scope.row)" />
+            <el-link v-if="!isFolder(scope.row)" type="success" icon="el-icon-view" :title="$t('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
+            <el-link type="primary" icon="el-icon-edit" :title="$t('update')" @click="onDocUpdate(scope.row)" />
+            <el-link v-if="!isFolder(scope.row)" type="info" icon="el-icon-document-copy" :title="$t('copy')" @click="onDocCopy(scope.row)" />
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
               <span class="el-dropdown-link">
                 <i class="el-icon-more el-icon--right"></i>
@@ -163,7 +189,7 @@
                 <el-dropdown-item
                   icon="el-icon-delete"
                   class="danger"
-                  :title="$ts('delete')"
+                  :title="$t('delete')"
                   :command="() => { onDocRemove(scope.row) }"
                 >
                 </el-dropdown-item>
@@ -171,14 +197,14 @@
                   v-if="!isFolder(scope.row) && !scope.row.isLocked"
                   :command="() => { onDocLock(scope.row) }"
                 >
-                  <el-tooltip placement="top" :content="$ts('lockDocDesc')">
+                  <el-tooltip placement="top" :content="$t('lockDocDesc')">
                     <span class="el-icon-lock"></span>
                   </el-tooltip>
                 </el-dropdown-item>
                 <el-dropdown-item
                   v-if="scope.row.isLocked"
                   icon="el-icon-unlock"
-                  :title="$ts('unlock')"
+                  :title="$t('unlock')"
                   :command="() => { onDocUnLock(scope.row) }"
                 >
                 </el-dropdown-item>
@@ -189,12 +215,12 @@
       </u-table-column>
       <u-table-column
         v-else
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="80"
       >
         <template slot-scope="scope">
           <div v-if="!isFolder(scope.row)">
-            <el-link v-if="scope.row.isShow" type="success" icon="el-icon-view" :title="$ts('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
+            <el-link v-if="scope.row.isShow" type="success" icon="el-icon-view" :title="$t('preview')" :underline="false" @click="openLink(getViewUrl(scope.row))" />
           </div>
         </template>
       </u-table-column>
@@ -202,7 +228,7 @@
     <doc-export-dialog ref="exportDialog" />
     <!-- dialog -->
     <el-dialog
-      :title="$ts('updateFolderTitle')"
+      :title="$t('updateFolderTitle')"
       :close-on-click-modal="false"
       :visible.sync="updateFolderDlgShow"
     >
@@ -213,20 +239,20 @@
         label-width="120px"
         style="width: 500px;"
       >
-        <el-form-item :label="$ts('parentNode')" prop="parentId">
+        <el-form-item :label="$t('parentNode')" prop="parentId">
           <el-select v-model="rowData.parentId">
             <el-option v-for="item in folders" :key="item.id" :value="item.id" :label="item.name" :disabled="item.disabled">
               {{ item.name }}
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$ts('categoryName')" prop="name">
+        <el-form-item :label="$t('categoryName')" prop="name">
           <el-input v-model="rowData.name" show-word-limit maxlength="100" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="updateFolderDlgShow = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onFolderSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="updateFolderDlgShow = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onFolderSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -274,11 +300,11 @@ export default {
         parentId: ''
       },
       folders: [],
-      emptyNode: { id: '', name: $ts('empty') },
+      emptyNode: { id: '', name: $t('empty') },
       updateFolderDlgShow: false,
       updateFolderFormRules: {
         name: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -321,7 +347,7 @@ export default {
     },
     refreshTable() {
       this.loadTable(function() {
-        this.tipSuccess(this.$ts('refreshSuccess'))
+        this.tipSuccess(this.$t('refreshSuccess'))
       })
     },
     loadTable(callback) {
@@ -345,6 +371,15 @@ export default {
     onSaveOrderIndex(id, orderIndex, callback) {
       callback()
       this.updateOrderIndex(id, orderIndex)
+    },
+    onSaveVersion(id, version, callback) {
+      callback()
+      this.updateVersion(id, version)
+    },
+    updateVersion(id, version) {
+      this.post('/doc/version/update', { id: id, version: version }, resp => {
+        this.loadTable()
+      })
     },
     updateOrderIndex(id, orderIndex) {
       this.post('/doc/orderindex/update', { id: id, orderIndex: orderIndex }, resp => {
@@ -378,7 +413,7 @@ export default {
           }
           this.post('/doc/folder/update', data, () => {
             this.updateFolderDlgShow = false
-            this.tipSuccess(this.$ts('updateSuccess'))
+            this.tipSuccess(this.$t('updateSuccess'))
             this.reload()
           })
         }
@@ -410,18 +445,18 @@ export default {
       this.goRoute(`/doc/new/${this.moduleId}`)
     },
     onFolderAdd() {
-      this.$prompt(this.$ts('inputFolderMsg'), this.$ts('newFolderTitle'), {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
+      this.$prompt(this.$t('inputFolderMsg'), this.$t('newFolderTitle'), {
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+        inputErrorMessage: this.$t('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           name: value,
           moduleId: this.moduleId
         }
         this.post('/doc/folder/add', data, () => {
-          this.tipSuccess(this.$ts('createSuccess'))
+          this.tipSuccess(this.$t('createSuccess'))
           this.reload()
         })
       }).catch(() => {
@@ -450,25 +485,25 @@ export default {
         (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
     onDocRemove(row) {
-      this.confirm(this.$ts('deleteConfirm', row.name), () => {
+      this.confirm(this.$t('deleteConfirm', row.name), () => {
         const data = {
           id: row.id
         }
         this.post('/doc/delete', data, () => {
-          this.tipSuccess(this.$ts('deleteSuccess'))
+          this.tipSuccess(this.$t('deleteSuccess'))
           this.loadTable()
         })
       })
     },
     onDocLock(row) {
       this.post('/doc/lock', { id: row.id }, () => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.loadTable()
       })
     },
     onDocUnLock(row) {
       this.post('/doc/unlock', { id: row.id }, () => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.loadTable()
       })
     },
@@ -478,11 +513,11 @@ export default {
       })
     },
     onDocFolderAdd(row) {
-      this.$prompt(this.$ts('inputFolderMsg'), `${row.name} - ${this.$ts('newFolderTitle')}`, {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
+      this.$prompt(this.$t('inputFolderMsg'), `${row.name} - ${this.$t('newFolderTitle')}`, {
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+        inputErrorMessage: this.$t('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           name: value,
@@ -490,7 +525,7 @@ export default {
           parentId: row.id
         }
         this.post('/doc/folder/add', data, () => {
-          this.tipSuccess(this.$ts('createSuccess'))
+          this.tipSuccess(this.$t('createSuccess'))
           this.reload()
         })
       }).catch(() => {
@@ -500,7 +535,7 @@ export default {
       if (row.isFolder) {
         this.onFolderUpdate(row)
       } else {
-        if (row.type === this.getEnums().DOC_TYPE.CUSTOM) {
+        if (row.type !== this.getEnums().DOC_TYPE.HTTP) {
           this.goRoute(`/doc/edit_custom/${this.moduleId}/${row.id}`)
         } else {
           this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
@@ -508,7 +543,7 @@ export default {
       }
     },
     onDocCopy(row) {
-      if (row.type === this.getEnums().DOC_TYPE.CUSTOM) {
+      if (row.type === this.getEnums().DOC_TYPE.CUSTOM || row.type === this.getEnums().DOC_TYPE.MARKDOWN) {
         this.goRoute(`/doc/copy_custom/${this.moduleId}/${row.id}`)
       } else {
         this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)

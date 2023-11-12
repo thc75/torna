@@ -2,7 +2,7 @@ package cn.torna.web.controller.user;
 
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.UserMessage;
 import cn.torna.service.UserMessageService;
@@ -34,7 +34,7 @@ public class UserMessageController {
      * 查询未读信息
      */
     @GetMapping("unread")
-    public Result<List<UserMessageVO>> unread(@RequestParam(defaultValue = "10") int limit) {
+    public Result<List<UserMessageVO>> unread(@RequestParam(defaultValue = "99") int limit) {
         User user = UserContext.getUser();
         List<UserMessage> userMessages = userMessageService.listUserUnReadMessage(user.getUserId(), limit);
         List<UserMessageVO> userMessageVOS = CopyUtil.copyList(userMessages, UserMessageVO::new);

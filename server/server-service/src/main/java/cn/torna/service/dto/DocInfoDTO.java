@@ -38,6 +38,8 @@ public class DocInfoDTO implements DocInfoDataId {
     @Diff(positionType = PositionType.DOC_URL)
     private String url;
 
+    private String version = "";
+
     /** http方法, 数据库字段：http_method */
     @Diff(positionType = PositionType.DOC_HTTP_METHOD)
     private String httpMethod;
@@ -150,6 +152,7 @@ public class DocInfoDTO implements DocInfoDataId {
     private List<DocParamDTO> headerParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.QUERY_PARAM)
+    private List<DocParamDTO> headerParamsRaw = Collections.emptyList();
     private List<DocParamDTO> queryParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.REQUEST_PARAM)
@@ -166,4 +169,11 @@ public class DocInfoDTO implements DocInfoDataId {
     private DubboInfoDTO dubboInfo;
 
     private String errorCodeInfo;
+
+    public String getDocName() {
+        if (version == null || version.trim().isEmpty()) {
+            return name;
+        }
+        return name + " " + version;
+    }
 }

@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <h3>{{ $ts('accountInfo') }}</h3>
+    <h3>{{ $t('accountInfo') }}</h3>
     <el-tabs v-model="activeName" type="card">
-      <el-tab-pane :label="$ts('baseInfo')" name="1">
+      <el-tab-pane :label="$t('baseInfo')" name="1">
         <user-info :user-info="userInfo" />
       </el-tab-pane>
-      <el-tab-pane v-if="!isThirdPartyUser()" :label="$ts('updatePassword')" name="2">
+      <el-tab-pane v-if="!isThirdPartyUser()" :label="$t('updatePassword')" name="2">
         <update-password />
       </el-tab-pane>
     </el-tabs>

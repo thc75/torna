@@ -24,10 +24,10 @@
           <el-input
             v-model="encryptFormData.password"
             type="password"
-            :placeholder="$ts('visitPassword')"
+            :placeholder="$t('visitPassword')"
             prefix-icon="el-icon-lock"
           >
-            <el-button slot="append" class="btn-send" native-type="submit" @click="onCheckPassword">{{ $ts('btnOk') }}</el-button>
+            <el-button slot="append" class="btn-send" native-type="submit" @click="onCheckPassword">{{ $t('btnOk') }}</el-button>
           </el-input>
         </el-form-item>
       </el-form>
@@ -62,7 +62,7 @@ export default {
       },
       encryptFormRules: {
         password: [
-          { required: true, message: $ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ]
       }
     }

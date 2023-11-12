@@ -31,7 +31,6 @@ public class DocPushItemParam {
 
     /** 文档概述, 数据库字段：description */
     @ApiDocField(description = "文档概述", example = "获取商品信息")
-    @Length(max = 128, message = "'description' 长度不能超过128")
     private String description;
 
     @ApiDocField(description = "接口维护人", example = "李四")
@@ -42,12 +41,17 @@ public class DocPushItemParam {
     private String deprecated;
 
     /** 0:http,1:dubbo */
+    @ApiDocField(description = "0:http,1:dubbo,2:富文本，3：markdown", example = "0")
     private Byte type;
 
     /** 访问URL, 数据库字段：url */
     @ApiDocField(description = "请求url", example = "/goods/get")
     @Length(max = 200, message = "'url' 长度不能超过200")
     private String url;
+
+    @ApiDocField(description = "版本号，不填默认为空字符串", example = "1.0")
+    @Length(max = 32, message = "'version' 长度不能超过32")
+    private String version = "";
 
     @ApiDocField(description = "dubbo的接口方法定义", example = "Result<Order> getOrder(String orderNo)")
     @Length(max = 200, message = "'definition' 长度不能超过200")
@@ -116,6 +120,7 @@ public class DocPushItemParam {
 
     @ApiDocField(description = "文档项")
     private List<DocPushItemParam> items;
+
 
     private String tag;
 

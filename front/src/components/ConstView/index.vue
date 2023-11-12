@@ -8,13 +8,13 @@
       :before-close="handleClose"
     >
       <el-tabs v-if="!isNoData" type="card">
-        <el-tab-pane v-if="hasConstant" :label="$ts('constInfo')">
+        <el-tab-pane v-if="hasConstant" :label="$t('ConstView.constInfo')">
           <div style="margin: 10px;">
             <div class="rich-editor" v-html="moduleConstantInfo.constantProject.replace(/\n/g,'<br />')"></div>
             <div class="rich-editor" v-html="moduleConstantInfo.constantModule.replace(/\n/g,'<br />')"></div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="hasDict" :label="$ts('dictInfo')">
+        <el-tab-pane v-if="hasDict" :label="$t('dictInfo')">
           <div style="margin: 10px;">
             <div v-for="enumInfo in list" :key="enumInfo.id">
               <h3>{{ enumInfo.name }}</h3>
@@ -25,7 +25,7 @@
         </el-tab-pane>
       </el-tabs>
       <div v-else style="text-align: center;margin-top: 30px;">
-        <el-empty :description="$ts('noData')"></el-empty>
+        <el-empty :description="$t('noData')"></el-empty>
       </div>
     </el-drawer>
   </div>
@@ -59,9 +59,6 @@ function showScrollbar() {
   document.getElementById('navBar').style.marginRight = '0'
 }
 
-$addI18n({
-  'constInfo': { 'zh': '常量信息', 'en': 'Constant Info' }
-})
 import EnumItemView from '@/components/EnumItemView'
 export default {
   components: { EnumItemView },

@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 不需要登录验证
  * @author tanghc
  */
 @Target({ElementType.TYPE, ElementType.METHOD})

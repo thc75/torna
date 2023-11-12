@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form ref="form" :model="form" class="text-form" label-width="110px">
-      <el-form-item :label="$ts('spaceName')">
+      <el-form-item :label="$t('spaceName')">
         {{ form.name }}
         <popover-update
           v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
@@ -9,17 +9,17 @@
           :on-save="onSaveName"
         />
       </el-form-item>
-      <el-form-item :label="$ts('spaceAdmin')">
+      <el-form-item :label="$t('spaceAdmin')">
         {{ form.leader }}
       </el-form-item>
-      <el-form-item :label="$ts('creator')">
+      <el-form-item :label="$t('creator')">
         {{ form.creatorName }}
       </el-form-item>
-      <el-form-item :label="$ts('createTime')">
+      <el-form-item :label="$t('createTime')">
         {{ form.gmtCreate }}
       </el-form-item>
       <el-form-item v-if="hasRole(`space:${spaceId}`, Role.admin)">
-        <el-button type="danger" size="mini" @click="onSpaceDel">{{ $ts('deleteSpace') }}</el-button>
+        <el-button type="danger" size="mini" @click="onSpaceDel">{{ $t('deleteSpace') }}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -51,7 +51,7 @@ export default {
       },
       updateFormRules: {
         name: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -84,10 +84,10 @@ export default {
       })
     },
     onSpaceDel() {
-      this.confirm(this.$ts('deleteSpaceConfirm'), () => {
+      this.confirm(this.$t('deleteSpaceConfirm'), () => {
         this.post('/space/delete', { id: this.spaceId }, () => {
           this.setSpaceId('')
-          this.tipSuccess(this.$ts('deleteSuccess'))
+          this.tipSuccess(this.$t('deleteSuccess'))
           this.goRoute('/')
         })
       })

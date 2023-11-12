@@ -1,7 +1,6 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.context.UserContext;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.Message;
 import cn.torna.common.message.MessageEnum;
@@ -22,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +51,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         messageDTO.setMessageEnum(messageEnum);
         messageDTO.setType(UserSubscribeTypeEnum.DOC);
         messageDTO.setSourceId(docInfo.getId());
-        messageDTO.setLocale(UserContext.getLocale());
+        messageDTO.setLocale(Locale.SIMPLIFIED_CHINESE);
         this.sendMessage(finalUserIds, messageDTO, docInfo.getModifierName(), docInfo.getName(), remark);
     }
 
@@ -68,7 +65,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         messageDTO.setMessageEnum(MessageEnum.DOC_DELETE);
         messageDTO.setType(UserSubscribeTypeEnum.DOC);
         messageDTO.setSourceId(docInfo.getId());
-        messageDTO.setLocale(UserContext.getLocale());
+        messageDTO.setLocale(Locale.SIMPLIFIED_CHINESE);
         this.sendMessage(finalUserIds, messageDTO, docInfo.getModifierName(), docInfo.getName());
     }
 
@@ -86,12 +83,24 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
         this.sendMessage(userIds, messageDTO, content);
     }
 
+    /**
+     * 给超级管理员发站内信
+     *
+     * @param content 信息内容
+     */
+    @Async
+    public void sendMessageToUser(MessageDTO messageDTO, String content, Long userId) {
+        this.sendMessage(Collections.singletonList(userId), messageDTO, content);
+    }
+
     public List<UserMessage> listUserUnReadMessage(long userId, int limit) {
         Query query = new Query()
                 .eq("user_id", userId)
                 .eq("is_read", Booleans.FALSE)
-                .orderby("id", Sort.DESC)
-                .limit(0, limit);
+                .orderby("id", Sort.DESC);
+        if (limit > 0) {
+            query.limit(0, limit);
+        }
         return this.list(query);
     }
 
@@ -101,7 +110,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
                 .orderby("is_read", Sort.ASC)
                 .orderby("id", Sort.DESC);
 
-        return this.page(query);
+        return this.pageEasyui(query);
     }
 
     public void setRead(long id) {

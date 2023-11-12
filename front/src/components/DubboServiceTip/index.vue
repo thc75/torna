@@ -8,13 +8,13 @@
   >
     <div style="padding: 10px">
       <el-form size="mini" label-width="60px" class="text-form">
-        <el-form-item :label="$ts('interface')">{{ propData.interfaceName }}</el-form-item>
-        <el-form-item :label="$ts('version')">{{ propData.version }}</el-form-item>
-        <el-form-item :label="$ts('protocol')">{{ propData.protocol }}</el-form-item>
-        <el-form-item :label="$ts('author')">{{ propData.author }}</el-form-item>
+        <el-form-item :label="$t('interface')">{{ propData.interfaceName }}</el-form-item>
+        <el-form-item :label="$t('version')">{{ propData.version }}</el-form-item>
+        <el-form-item :label="$t('protocol')">{{ propData.protocol }}</el-form-item>
+        <el-form-item :label="$t('author')">{{ propData.author }}</el-form-item>
       </el-form>
       <div v-show="propData.dependency">
-        <h3>{{ $ts('dependency') }}</h3>
+        <h3>{{ $t('dependency') }}</h3>
         <el-input v-model="propData.dependency" :rows="7" type="textarea" readonly />
       </div>
     </div>

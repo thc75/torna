@@ -2,7 +2,7 @@ package cn.torna.web.interceptor;
 
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.exception.LoginFailureException;
 import cn.torna.common.exception.SetPasswordException;
@@ -35,7 +35,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         if (noLogin != null) {
             return true;
         }
-        User user = UserContext.getUser();
+        User user = UserContext.getUser(request);
         if (user == null || UserStatusEnum.of(user.getStatus()) == UserStatusEnum.DISABLED) {
             String token = UserContext.getToken(request);
             String userId = UserContext.getPrefixUserId(token);

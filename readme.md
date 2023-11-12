@@ -6,7 +6,7 @@ Enterprise API document solution, the goal is to make the document management be
 
 Torna makes up for the shortcomings of traditional document generation tools such as Swagger by enriching and enhancing some useful functionality while maintaining the original functionality.
 
-<img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
+<img src="./asset/arc2.png" width="80%" height="80%" />
 
 
 ## Usage
@@ -42,7 +42,7 @@ Import database,run [mysql.sql](./mysql.sql)
 
 Download image
 
-`docker pull tanghc2020/torna:1.19.0`
+`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest`
 
 Create an empty file `application.properties` to store config：
 
@@ -72,7 +72,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d tanghc2020/torna:1.19.0
+  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest
 ```
 
 Browser visit:`http://<ip>:7700`
@@ -111,13 +111,13 @@ See:[Development document](http://torna.cn/dev/)
 
 ## Page preview
 
-![API management](./front/public/static/images/table.png "table.png")
+![API management](./asset/table.png "table.png")
 
-![Edit API](./front/public/static/images/edit.png "edit.png")
+![Edit API](./asset/edit.png "edit.png")
 
-![Preview](./front/public/static/images/view.png "view.png")
+![Preview](./asset/view.png "view.png")
 
-![Debug API](./front/public/static/images/debug.png "debug.png")
+![Debug API](./asset/debug.png "debug.png")
 
 ## Acknowledgements
 Thanks to [JetBrains SoftWare](https://www.jetbrains.com) for providing free Open Source license for this open source project.

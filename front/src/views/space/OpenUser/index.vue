@@ -7,10 +7,10 @@
         <el-input v-model="searchFormData.appKey" clearable placeholder="appKey" style="width: 250px;"/>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" @click="reload">{{ $ts('search') }}</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="reload">{{ $t('search') }}</el-button>
       </el-form-item>
     </el-form>
-    <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onAdd">{{ $ts('createAccount') }}</el-button>
+    <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onAdd">{{ $t('createAccount') }}</el-button>
     <el-table
       :data="pageInfo.rows"
       border
@@ -26,46 +26,46 @@
       />
       <el-table-column
         prop="applicant"
-        :label="$ts('applicant')"
+        :label="$t('applicant')"
         width="150px"
       />
       <el-table-column
         prop="status"
-        :label="$ts('status')"
+        :label="$t('status')"
         width="100px"
       >
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 1" type="success">{{ $ts('enable') }}</el-tag>
-          <el-tag v-if="scope.row.status === 0" type="danger">{{ $ts('disable') }}</el-tag>
+          <el-tag v-if="scope.row.status === 1" type="success">{{ $t('enable') }}</el-tag>
+          <el-tag v-if="scope.row.status === 0" type="danger">{{ $t('disable') }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
         prop="gmtCreate"
-        :label="$ts('addTime')"
+        :label="$t('addTime')"
         width="160px"
       />
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="180px"
       >
         <template slot-scope="scope">
           <el-popconfirm
-            :title="$ts('enableAccountConfirm')"
+            :title="$t('enableAccountConfirm')"
             @confirm="onEnable(scope.row)"
           >
-            <el-link v-show="scope.row.status === 0" slot="reference" type="success">{{ $ts('enable') }}</el-link>
+            <el-link v-show="scope.row.status === 0" slot="reference" type="success">{{ $t('enable') }}</el-link>
           </el-popconfirm>
           <el-popconfirm
-            :title="$ts('disableAccountConfirm')"
+            :title="$t('disableAccountConfirm')"
             @confirm="onDisable(scope.row)"
           >
-            <el-link v-show="scope.row.status === 1" slot="reference" type="danger">{{ $ts('disable') }}</el-link>
+            <el-link v-show="scope.row.status === 1" slot="reference" type="danger">{{ $t('disable') }}</el-link>
           </el-popconfirm>
           <el-popconfirm
-            :title="$ts('resetSecretConfirm')"
+            :title="$t('resetSecretConfirm')"
             @confirm="onRestSecret(scope.row)"
           >
-            <el-link slot="reference" type="primary">{{ $ts('resetSecret') }}</el-link>
+            <el-link slot="reference" type="primary">{{ $t('resetSecret') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -126,7 +126,7 @@ export default {
       this.post('/openuser/enable', {
         id: row.id
       }, resp => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.reload()
       })
     },
@@ -134,7 +134,7 @@ export default {
       this.post('/openuser/disable', {
         id: row.id
       }, resp => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.reload()
       })
     },
@@ -142,23 +142,23 @@ export default {
       this.post('/openuser/secret/reset', {
         id: row.id
       }, resp => {
-        this.tipSuccess(this.$ts('operateSuccess'))
+        this.tipSuccess(this.$t('operateSuccess'))
         this.reload()
       })
     },
     onAdd() {
-      this.$prompt(this.$ts('applicant'), this.$ts('createAccount'), {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
+      this.$prompt(this.$t('applicant'), this.$t('createAccount'), {
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+        inputErrorMessage: this.$t('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           spaceId: this.spaceId,
           applicant: value
         }
         this.post('/openuser/add', data, resp => {
-          this.tipSuccess(this.$ts('createSuccess'))
+          this.tipSuccess(this.$t('createSuccess'))
           this.reload()
         })
       }).catch(() => {

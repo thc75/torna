@@ -4,7 +4,7 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ShareConfig;

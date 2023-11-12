@@ -4,8 +4,8 @@
     trigger="hover"
   >
     <div>
-      <p>{{ $ts('privateDesc') }}</p>
-      <p>{{ $ts('publicDesc') }}</p>
+      <p>{{ $t('privateDesc') }}</p>
+      <p>{{ $t('publicDesc') }}</p>
     </div>
     <i slot="reference" class="el-icon-question" style="margin-left: 10px"></i>
   </el-popover>

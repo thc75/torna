@@ -6,7 +6,7 @@
       style="margin-bottom: 10px"
       @click="onHeaderAdd"
     >
-      {{ $ts('add') }}
+      {{ $t('add') }}
     </el-button>
     <el-table
       :data="globalHeaders"
@@ -17,25 +17,25 @@
       <el-table-column label="Value" prop="example" />
       <el-table-column
         prop="required"
-        :label="$ts('require')"
+        :label="$t('require')"
         :width="$width(60, { 'en': 75 })"
       >
         <template slot-scope="scope">
-          <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $ts('yes') : $ts('no') }}</span>
+          <span :class="scope.row.required ? 'danger' : ''">{{ scope.row.required ? $t('yes') : $t('no') }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$ts('description')" prop="description" />
+      <el-table-column :label="$t('description')" prop="description" />
       <el-table-column
-        :label="$ts('operation')"
+        :label="$t('operation')"
         width="150"
       >
         <template slot-scope="scope">
-          <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">{{ $ts('update') }}</el-link>
+          <el-link type="primary" size="mini" @click="onHeaderUpdate(scope.row)">{{ $t('update') }}</el-link>
           <el-popconfirm
-            :title="$ts('deleteConfirm', scope.row.name)"
+            :title="$t('deleteConfirm', scope.row.name)"
             @confirm="onHeaderDelete(scope.row)"
           >
-            <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
+            <el-link slot="reference" type="danger" size="mini">{{ $t('delete') }}</el-link>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -68,26 +68,26 @@
         </el-form-item>
         <el-form-item
           prop="required"
-          :label="$ts('required')"
+          :label="$t('required')"
         >
           <el-switch
             v-model="dialogHeaderFormData.required"
             :active-value="1"
             :inactive-value="0"
-            :active-text="$ts('yes')"
-            :inactive-text="$ts('no')"
+            :active-text="$t('yes')"
+            :inactive-text="$t('no')"
           />
         </el-form-item>
         <el-form-item
           prop="description"
-          :label="$ts('description')"
+          :label="$t('description')"
         >
-          <el-input v-model="dialogHeaderFormData.description" type="textarea" :placeholder="$ts('description')" show-word-limit maxlength="200" />
+          <el-input v-model="dialogHeaderFormData.description" type="textarea" :placeholder="$t('description')" show-word-limit maxlength="200" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogHeaderVisible = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDialogHeaderSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="dialogHeaderVisible = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDialogHeaderSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -110,16 +110,16 @@ export default {
       },
       dialogHeaderFormRules: {
         name: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' },
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (value && !/^[a-zA-Z0-9\-_]+$/.test(value)) {
-              callback(new Error(this.$ts('errorParam')))
+              callback(new Error(this.$t('errorParam')))
             } else {
               callback()
             }
           }, trigger: 'blur' }
         ], example: [
-          { required: true, message: this.$ts('notEmpty'), trigger: 'blur' }
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
       }
     }
@@ -140,12 +140,12 @@ export default {
       })
     },
     onHeaderAdd() {
-      this.dialogHeaderTitle = this.$ts('newHeader')
+      this.dialogHeaderTitle = this.$t('newHeader')
       this.dialogHeaderVisible = true
       this.dialogHeaderFormData.id = ''
     },
     onHeaderUpdate(row) {
-      this.dialogHeaderTitle = this.$ts('updateHeader')
+      this.dialogHeaderTitle = this.$t('updateHeader')
       this.dialogHeaderVisible = true
       this.$nextTick(() => {
         Object.assign(this.dialogHeaderFormData, row)
@@ -153,7 +153,7 @@ export default {
     },
     onHeaderDelete(row) {
       this.post('module/environment/param/delete', row, () => {
-        this.tipSuccess(this.$ts('deleteSuccess'))
+        this.tipSuccess(this.$t('deleteSuccess'))
         this.reload()
       })
     },

@@ -3,7 +3,6 @@ package cn.torna.web.controller.project;
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.Space;
 import cn.torna.service.ProjectService;
@@ -11,6 +10,7 @@ import cn.torna.service.SpaceService;
 import cn.torna.service.dto.ProjectAddDTO;
 import cn.torna.service.dto.ProjectInfoDTO;
 import cn.torna.service.dto.ProjectUpdateDTO;
+import cn.torna.web.config.UserContext;
 import cn.torna.web.controller.project.param.ProjectParam;
 import cn.torna.web.controller.project.vo.ProjectSpaceVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ import java.util.Collections;
 
 /**
  * 项目信息
+ *
  * @author tanghc
  */
 @RestController
@@ -40,6 +41,7 @@ public class ProjectController {
 
     /**
      * 项目信息
+     *
      * @param projectId
      * @return
      */
@@ -63,6 +65,7 @@ public class ProjectController {
 
     /**
      * 修改项目
+     *
      * @param param
      * @return
      */
@@ -77,6 +80,7 @@ public class ProjectController {
 
     /**
      * 删除项目
+     *
      * @param param
      * @return
      */
@@ -89,6 +93,7 @@ public class ProjectController {
 
     /**
      * 添加项目
+     *
      * @param projectAddDTO
      * @return
      */
@@ -103,6 +108,5 @@ public class ProjectController {
         projectService.addProject(projectAddDTO);
         return Result.ok();
     }
-
 
 }

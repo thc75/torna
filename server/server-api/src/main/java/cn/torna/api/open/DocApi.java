@@ -10,12 +10,14 @@ import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
+import cn.torna.api.open.param.SwaggerJsonParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
+import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.SourceFromEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
@@ -25,16 +27,19 @@ import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.Project;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
+import cn.torna.service.ProjectService;
 import cn.torna.service.UserMessageService;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.ImportSwaggerV2DTO;
 import cn.torna.service.dto.MessageDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
 import com.alibaba.fastjson.JSON;
@@ -45,7 +50,6 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -96,14 +100,24 @@ public class DocApi {
     @Autowired
     private UserMessageService userMessageService;
 
+    @Autowired
+    private ProjectService projectService;
+
+
+
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
     public void pushDoc(DocPushParam param) {
+        RequestContext context = RequestContext.getCurrentContext();
+        String token = context.getToken();
+        Module module = context.getModule();
+        String ip = context.getIp();
+        log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
         // 是否打印推送内容
         String isPrint = EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getValue();
-        if (Boolean.parseBoolean(isPrint)) {
-            log.info("推送内容：\n{}", JSON.toJSONString(param));
+        if (Boolean.parseBoolean(isPrint) || isPrintContent(module.getId())) {
+            log.info("【PUSH】推送内容：{}", JSON.toJSONString(param));
         }
         // 允许有相同的目录
         String allowSameFolder = EnvironmentKeys.TORNA_PUSH_ALLOW_SAME_FOLDER.getValue();
@@ -112,7 +126,6 @@ public class DocApi {
         } else {
             this.checkSameFolder(param);
         }
-        RequestContext context = RequestContext.getCurrentContext();
         String author = param.getAuthor();
         if (StringUtils.hasText(author)) {
             ApiUser user = (ApiUser) context.getApiUser();
@@ -137,7 +150,7 @@ public class DocApi {
         folderCount.forEach((name, count) -> {
             if (count.get() > 1) {
                 String msg = "文档名称重复【" + name + "】";
-                this.sendMessage(msg);
+                this.sendErrorMessage(msg);
                 throw new ApiException(msg);
             }
         });
@@ -171,9 +184,9 @@ public class DocApi {
     private void doPush(DocPushParam param, RequestContext context) {
         String token = context.getToken();
         Module module = context.getModule();
+        User apiUser = context.getApiUser();
         long moduleId = module.getId();
         String ip = context.getIp();
-        log.info("【PUSH】收到文档推送，模块名称：{}，推送人：{}，ip：{}，token：{}", module.getName(), param.getAuthor(), ip, token);
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
@@ -181,23 +194,17 @@ public class DocApi {
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
                 // 设置调试环境
-                for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
-                    if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
-                        continue;
-                    }
-                    moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
-                }
+                saveDebugEnv(param, moduleId);
                 // 替换文档
-                if (Booleans.isTrue(param.getIsReplace(), true) && !BooleanUtils.toBoolean(param.getIsOverride())) {
-                    // 先删除之前的文档
-                    this.deleteOpenAPIModuleDocs(moduleId);
-                }
+                replaceDoc(param, moduleId);
                 for (DocPushItemParam detailPushParam : param.getApis()) {
                     docPushItemParamThreadLocal.set(detailPushParam);
-                    this.pushDocItem(detailPushParam, context, 0L, pushContext, param);
+                    this.pushDocItem(detailPushParam, context, 0L, pushContext);
                 }
                 // 设置公共错误码
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
+                Project project = projectService.getById(module.getProjectId());
+                this.sendSuccessMessage("推送文档成功（" + project.getName() + "-" + module.getName() + "），推送人：" + param.getAuthor(), apiUser);
                 // 处理修改过的文档
                 processModifiedDocs(pushContext);
                 return null;
@@ -205,11 +212,42 @@ public class DocApi {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
                 String paramInfo = JSON.toJSONString(docPushItemParam);
                 log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), ip, token, paramInfo, e);
-                this.sendMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
+                this.sendErrorMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
             });
             log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
                     module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);
         }
+    }
+
+    private void saveDebugEnv(DocPushParam param, long moduleId) {
+        for (DebugEnvParam debugEnv : param.getDebugEnvs()) {
+            if (StringUtils.isEmpty(debugEnv.getName()) || StringUtils.isEmpty(debugEnv.getUrl())) {
+                continue;
+            }
+            moduleEnvironmentService.setDebugEnv(moduleId, debugEnv.getName(), debugEnv.getUrl());
+        }
+    }
+
+    private void replaceDoc(DocPushParam param, long moduleId) {
+        if (isOverride(moduleId) || Booleans.isTrue(param.getIsOverride(), false)) {
+            return;
+        }
+        if (Booleans.isTrue(param.getIsReplace(), true)) {
+            // 先删除之前的文档
+            this.deleteOpenAPIModuleDocs(moduleId);
+        }
+    }
+
+    private boolean isPrintContent(long moduleId) {
+        String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_PRINT_CONTENT.getKey(),
+                EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
+        return Boolean.parseBoolean(value);
+    }
+
+    private boolean isOverride(long moduleId) {
+        String value = moduleConfigService.getCommonConfigValue(moduleId, EnvironmentKeys.TORNA_PUSH_OVERRIDE.getKey(),
+                EnvironmentKeys.TORNA_PUSH_OVERRIDE.getDefaultValue());
+        return Boolean.parseBoolean(value);
     }
 
     /**
@@ -221,23 +259,35 @@ public class DocApi {
         docInfoService.deleteOpenAPIModuleDocs(moduleId);
     }
 
-    private void sendMessage(String msg) {
+    private void sendErrorMessage(String msg) {
         MessageDTO messageDTO = new MessageDTO();
-        messageDTO.setMessageEnum(MessageEnum.SYSTEM_ERROR);
+        messageDTO.setMessageEnum(MessageEnum.PUSH_ERROR);
         messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
         messageDTO.setLocale(ApiContext.getLocal());
         messageDTO.setSourceId(0L);
         userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
-    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext, DocPushParam docPushParam) {
+    private void sendSuccessMessage(String msg, User user) {
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessageEnum(MessageEnum.PUSH_DOC_SUCCESS);
+        messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
+        messageDTO.setLocale(ApiContext.getLocal());
+        messageDTO.setSourceId(0L);
+        userMessageService.sendMessageToAdmin(messageDTO, msg);
+        if (!(user instanceof ApiUser)) {
+            userMessageService.sendMessageToUser(messageDTO, msg, user.getUserId());
+        }
+    }
+
+    public void pushDocItem(DocPushItemParam param, RequestContext context, Long parentId, PushContext pushContext) {
         User user = context.getApiUser();
         long moduleId = context.getModuleId();
         List<DocMeta> docMetas = pushContext.getDocMetas();
         if (Booleans.isTrue(param.getIsFolder())) {
             DocInfo folder;
             Map<String, Object> props = null;
-            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.HTTP;
+            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.of( param.getType());
             if (docTypeEnum == DocTypeEnum.DUBBO) {
                 props = buildProps(param);
             }
@@ -264,7 +314,7 @@ public class DocApi {
                     if (StringUtils.isEmpty(item.getAuthor())) {
                         item.setAuthor(folder.getAuthor());
                     }
-                    this.pushDocItem(item, context, pid, pushContext, docPushParam);
+                    this.pushDocItem(item, context, pid, pushContext);
                 }
             }
         } else {
@@ -279,6 +329,7 @@ public class DocApi {
             docInfoDTO.setModifierName(pushContext.getAuthor());
             //doDocModifyProcess(docInfoDTO, pushContext);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user, BooleanUtils.toBoolean(docPushParam.getIsOverride()));
+            docInfoService.doPushSaveDocInfo(docInfoDTO, user);
         }
     }
 
@@ -340,6 +391,12 @@ public class DocApi {
 
     private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+        String version = param.getVersion();
+        if ("-".equals(version)) {
+            version = "";
+        }
+        docInfoDTO.setVersion(version);
+
         List<CodeParamPushParam> errorCodeParams = param.getErrorCodeParams();
         if (!CollectionUtils.isEmpty(errorCodeParams)) {
             List<DocParamDTO> errorParams = CopyUtil.copyList(errorCodeParams, DocParamDTO::new);
@@ -411,5 +468,38 @@ public class DocApi {
         docInfoService.updateDocFolderName(updateDocFolderDTO);
     }
 
+    @Api(name = "swagger-json.push")
+    @ApiDocMethod(description = "推送swagger文档（json）", order = 6, remark = "请求body：{\n" +
+            "    \"name\": \"swagger-json.push\",\n" +
+            "    \"version\": \"1.0\",\n" +
+            "    \"data\": {\n" +
+            "        \"author\": \"jim\",\n" +
+            "        \"json\": {\n" +
+            "            // swagger json内容\n" +
+            "        }\n" +
+            "    },\n" +
+            "    \"access_token\": \"3a6f9fd55e7547a78493e1082ecc1782\"\n" +
+            "}")
+    public void pushSwaggerDoc(SwaggerJsonParam param) {
+        RequestContext context = RequestContext.getCurrentContext();
+        Module module = context.getModule();
+        String ip = context.getIp();
+
+        String json = param.getJson();
+        String author = param.getAuthor();
+        ApiUser user = (ApiUser) context.getApiUser();
+        if (StringUtils.hasText(author)) {
+            user.setNickname(author);
+        }
+
+        ImportSwaggerV2DTO importSwaggerV2DTO = ImportSwaggerV2DTO.builder()
+                .projectId(module.getProjectId())
+                .content(json)
+                .user(user)
+                .ip(ip)
+                .build();
+
+        SpringContext.getBean(SwaggerApi.class).importSwagger(importSwaggerV2DTO, module);
+    }
 
 }

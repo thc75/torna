@@ -12,7 +12,7 @@
         v-show="treeData.length > 0"
         v-model="filterText"
         prefix-icon="el-icon-search"
-        :placeholder="$ts('apiFilter')"
+        :placeholder="$t('apiFilter')"
         style="margin-bottom: 10px;"
         size="mini"
         clearable
@@ -24,7 +24,7 @@
         :highlight-current="true"
         :expand-on-click-node="true"
         :default-expanded-keys="expandKeys"
-        :empty-text="$ts('noData')"
+        :empty-text="$t('noData')"
         node-key="id"
         class="filter-tree"
         :indent="indent"
@@ -249,8 +249,8 @@ export default {
     setCurrentNode(currentNode) {
       if (currentNode) {
         const tree = this.$refs.tree
-        tree.setCurrentKey(currentNode.id)
         this.expandKeys = [currentNode.parentId]
+        tree.setCurrentKey(currentNode.id)
       }
     },
     getClassName(data) {

@@ -4,7 +4,7 @@
       <h2 class="doc-title">
         {{ docInfo.name }} <dubbo-service-tip :doc-id-getter="() => docInfo.parentId" placement="bottom" /> <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <div v-show="showOptBar" style="float: right">
-          <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+          <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
             <el-button
               type="text"
               :icon="isSubscribe ? 'el-icon-star-on' : 'el-icon-star-off'"
@@ -14,41 +14,41 @@
           </el-tooltip>
           <el-dropdown trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
-              {{ $ts('export') }} <i class="el-icon-arrow-down el-icon--right"></i>
+              {{ $t('export') }} <i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
-              <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
-              <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportMarkdown">{{ $t('exportMarkdown') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
+              <el-dropdown-item :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
       </h2>
       <span v-show="showOptBar" class="doc-modify-info">
-        {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
-        {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
+        {{ docInfo.creatorName }} {{ $t('createdOn') }} {{ docInfo.gmtCreate }}，
+        {{ docInfo.modifierName }} {{ $t('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
-    <h4 v-show="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
-    <h4>{{ $ts('interface') }}<span>{{ docInfo.dubboInfo && docInfo.dubboInfo.interfaceName }}</span></h4>
-    <h4>{{ $ts('method') }}<span>{{ buildDefinition(docInfo) }}</span></h4>
-    <h4 v-if="docInfo.description">{{ $ts('description') }}<span>{{ docInfo.description }}</span></h4>
-    <h4>{{ $ts('invokeParam') }}</h4>
+    <h4 v-show="docInfo.author">{{ $t('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
+    <h4>{{ $t('interface') }}<span>{{ docInfo.dubboInfo && docInfo.dubboInfo.interfaceName }}</span></h4>
+    <h4>{{ $t('method') }}<span>{{ buildDefinition(docInfo) }}</span></h4>
+    <h4 v-if="docInfo.description">{{ $t('description') }}<span>{{ docInfo.description }}</span></h4>
+    <h4>{{ $t('invokeParam') }}</h4>
     <parameter-table :data="docInfo.requestParams" />
-    <h4>{{ $ts('returnResult') }}</h4>
+    <h4>{{ $t('returnResult') }}</h4>
     <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" />
     <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
-    <h4>{{ $ts('errorCode') }}</h4>
+    <h4>{{ $t('errorCode') }}</h4>
     <parameter-table
       :data="docInfo.errorCodeParams"
-      :empty-text="$ts('emptyErrorCode')"
+      :empty-text="$t('emptyErrorCode')"
       :hidden-columns="['required', 'maxLength', 'type']"
-      :name-label="$ts('errorCode')"
-      :description-label="$ts('errorDesc')"
-      :example-label="$ts('solution')"
+      :name-label="$t('errorCode')"
+      :description-label="$t('errorDesc')"
+      :example-label="$t('solution')"
     />
     <div v-if="docInfo.remark" class="doc-info-remark">
-      <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
+      <el-divider content-position="left">{{ $t('updateRemark') }}</el-divider>
       <span>{{ docInfo.remark }}</span>
     </div>
   </div>
@@ -209,12 +209,12 @@ export default {
     onSubscribe() {
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('subscribeSuccess'))
+          this.tipSuccess($t('subscribeSuccess'))
           this.isSubscribe = true
         })
       } else {
         this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('unsubscribeSuccess'))
+          this.tipSuccess($t('unsubscribeSuccess'))
           this.isSubscribe = false
         })
       }

@@ -13,34 +13,34 @@
             </el-radio-button>
           </el-radio-group>
           <span class="split">|</span>
-          <el-checkbox v-model="isProxy" :label="$ts('proxyForward')" @change="saveProxySelect" />
+          <el-checkbox v-model="isProxy" :label="$t('proxyForward')" @change="saveProxySelect" />
           <el-popover
             placement="right"
-            :title="$ts('proxyForward')"
+            :title="$t('proxyForward')"
             width="400"
             :open-delay="500"
             trigger="hover"
           >
-            <p>{{ $ts('proxyForwardOn') }}</p>
-            <p>{{ $ts('proxyForwardOff') }}</p>
+            <p>{{ $t('proxyForwardOn') }}</p>
+            <p>{{ $t('proxyForwardOff') }}</p>
             <i slot="reference" class="el-icon-question"></i>
           </el-popover>
           <el-input v-model="requestUrl" :readonly="pathData.length > 0" class="request-url">
             <span slot="prepend">
               {{ currentMethod }}
             </span>
-            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send">{{ $ts('debugSend') }}</el-button>
+            <el-button slot="append" :loading="sendLoading" class="btn-send" @click="send">{{ $t('debugSend') }}</el-button>
           </el-input>
         </div>
         <el-alert v-else :closable="false">
           <span v-if="internal" slot="title">
-            {{ $ts('noDebugEvnTip1') }}
-            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">{{ $ts('moduleSetting') }}</router-link>】
-            {{ $ts('noDebugEvnTip2') }}
-            <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('referenceDoc') }}</el-link>
+            {{ $t('noDebugEvnTip1') }}
+            【<router-link class="el-link el-link--primary" :to="getProjectHomeUrl(currentItem.projectId, 'id=ModuleSetting')">{{ $t('moduleSetting') }}</router-link>】
+            {{ $t('noDebugEvnTip2') }}
+            <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $t('referenceDoc') }}</el-link>
           </span>
           <span v-else>
-            {{ $ts('noDebugEvnTip3') }}
+            {{ $t('noDebugEvnTip3') }}
           </span>
         </el-alert>
         <div v-show="pathData.length > 0" class="path-param">
@@ -52,10 +52,10 @@
           >
             <el-table-column
               prop="name"
-              :label="$ts('pathVariable')"
+              :label="$t('pathVariable')"
               width="300"
             />
-            <el-table-column :label="$ts('value')">
+            <el-table-column :label="$t('value')">
               <template slot-scope="scope">
                 <el-form :model="scope.row" size="mini">
                   <el-form-item label-width="0">
@@ -79,12 +79,12 @@
               <span>Headers <span class="param-count">({{ headerData.length }})</span></span>
             </span>
             <div>
-              <el-link type="primary" :underline="false" @click="onTempHeaderAdd">{{ $ts('add') + 'Header' }}</el-link>
+              <el-link type="primary" :underline="false" @click="onTempHeaderAdd">{{ $t('add') + 'Header' }}</el-link>
               <el-table
                 ref="headerDataRef"
                 :data="headerData"
                 border
-                :empty-text="$ts('noHeader')"
+                :empty-text="$t('noHeader')"
                 @selection-change="handleHeaderSelectionChange"
               >
                 <el-table-column type="selection" width="50" />
@@ -107,7 +107,7 @@
                     </el-form>
                   </template>
                 </el-table-column>
-                <el-table-column :label="$ts('operation')" width="100">
+                <el-table-column :label="$t('operation')" width="100">
                   <template slot-scope="scope">
                     <el-link
                       v-show="scope.row.temp === 1"
@@ -126,7 +126,7 @@
             <span slot="label" class="result-header-label">
               <span>Query Parameter <span class="param-count">({{ queryData.length }})</span></span>
             </span>
-            <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempQueryAdd">{{ $ts('add') + $ts('param') }}</el-link>
+            <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempQueryAdd">{{ $t('add') + $t('param') }}</el-link>
             <el-table
               ref="queryDataRef"
               :data="queryData"
@@ -136,7 +136,7 @@
               <el-table-column type="selection" width="50" />
               <el-table-column
                 prop="name"
-                :label="$ts('paramName')"
+                :label="$t('paramName')"
                 width="300"
               >
                 <template slot-scope="scope">
@@ -148,7 +148,7 @@
                   <span v-else>{{ scope.row.name }}</span>
                 </template>
               </el-table-column>
-              <el-table-column :label="$ts('value')">
+              <el-table-column :label="$t('value')">
                 <template slot-scope="scope">
                   <el-form :model="scope.row" size="mini">
                     <el-form-item label-width="0">
@@ -162,7 +162,7 @@
                   </el-form>
                 </template>
               </el-table-column>
-              <el-table-column :label="$ts('operation')" width="100">
+              <el-table-column :label="$t('operation')" width="100">
                 <template slot-scope="scope">
                   <el-link
                     v-show="scope.row.temp === 1"
@@ -211,7 +211,7 @@
               </el-form>
             </div>
             <div v-show="showBody('form')">
-              <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempFormAdd">{{ $ts('add') + $ts('param') }}</el-link>
+              <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempFormAdd">{{ $t('add') + $t('param') }}</el-link>
               <el-table
                 ref="formDataRef"
                 :data="formData"
@@ -221,7 +221,7 @@
                 <el-table-column type="selection" width="50" />
                 <el-table-column
                   prop="name"
-                  :label="$ts('paramName')"
+                  :label="$t('paramName')"
                   width="300"
                 >
                   <template slot-scope="scope">
@@ -233,7 +233,7 @@
                     <span v-else>{{ scope.row.name }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column :label="$ts('value')">
+                <el-table-column :label="$t('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0">
@@ -247,7 +247,7 @@
                     </el-form>
                   </template>
                 </el-table-column>
-                <el-table-column :label="$ts('operation')" width="100">
+                <el-table-column :label="$t('operation')" width="100">
                   <template slot-scope="scope">
                     <el-link
                       v-show="scope.row.temp === 1"
@@ -268,9 +268,9 @@
                 :on-remove="(file, fileList) => onSelectMultiFile(file, fileList)"
                 :on-change="(file, fileList) => onSelectMultiFile(file, fileList)"
               >
-                <el-button slot="trigger" type="primary" size="mini">{{ $ts('uploadMultiFiles') }}</el-button>
+                <el-button slot="trigger" type="primary" size="mini">{{ $t('uploadMultiFiles') }}</el-button>
               </el-upload>
-              <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempMultipartAdd">{{ $ts('add') + $ts('param') }}</el-link>
+              <el-link type="primary" :underline="false" style="margin-bottom: 5px" @click="onTempMultipartAdd">{{ $t('add') + $t('param') }}</el-link>
               <el-table
                 v-show="showBody('multipart')"
                 ref="multipartDataRef"
@@ -281,7 +281,7 @@
                 <el-table-column type="selection" width="50" />
                 <el-table-column
                   prop="name"
-                  :label="$ts('paramName')"
+                  :label="$t('paramName')"
                   width="300"
                 >
                   <template slot-scope="scope">
@@ -293,7 +293,7 @@
                     <span v-else>{{ scope.row.name }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column :label="$ts('value')">
+                <el-table-column :label="$t('value')">
                   <template slot-scope="scope">
                     <el-form :model="scope.row" size="mini">
                       <el-form-item label-width="0" style="margin-bottom: 0">
@@ -305,7 +305,7 @@
                           :on-change="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                           :on-remove="(file, fileList) => onSelectFile(file, fileList, scope.row)"
                         >
-                          <el-button slot="trigger" class="choose-file" type="primary">{{ $ts('chooseFile') }}</el-button>
+                          <el-button slot="trigger" class="choose-file" type="primary">{{ $t('chooseFile') }}</el-button>
                         </el-upload>
                         <div v-else-if="scope.row.enumInfo">
                           <enum-select :row="scope.row" />
@@ -317,7 +317,7 @@
                     </el-form>
                   </template>
                 </el-table-column>
-                <el-table-column :label="$ts('operation')" width="100">
+                <el-table-column :label="$t('operation')" width="100">
                   <template slot-scope="scope">
                     <el-link
                       v-show="scope.row.temp === 1"
@@ -345,7 +345,7 @@
           Status: <el-tag :type="result.status >= 200 && result.status < 300 ? 'success' : 'danger'">{{ result.status }}</el-tag>
         </div>
         <el-tabs v-model="resultActive" type="card">
-          <el-tab-pane :label="$ts('returnResult')" name="body">
+          <el-tab-pane :label="$t('returnResult')" name="body">
             <img v-if="result.image.length > 0" :src="result.image" />
             <el-input v-else v-model="result.content" type="textarea" :readonly="true" style="font-size: 13px;" :autosize="{ minRows: 2, maxRows: 200}" />
           </el-tab-pane>
@@ -407,7 +407,9 @@ export default {
       rightSpanSize: 0,
       isProxy: true,
       currentItem: {
-        debugEnvs: []
+        debugEnvs: [],
+        headerParams: [],
+        headerParamsRaw: []
       },
       itemMap: null,
       textRadio: 'application/json',
@@ -433,8 +435,8 @@ export default {
       multipartDataChecked: [],
       uploadFiles: [],
       fieldTypes: [
-        { type: 'text', label: $ts('text') },
-        { type: 'file', label: $ts('file') }
+        { type: 'text', label: $t('text') },
+        { type: 'file', label: $t('file') }
       ],
       debugEnv: '',
       debugId: '',
@@ -523,21 +525,19 @@ export default {
       this.debugEnv = debugConfig.name
       this.debugId = debugConfig.id
       this.setAttr(this.getHostKey(), this.debugId)
-      this.loadGlobalHeader(debugId)
-      this.loadProxySelect()
-      this.loadProps()
+      this.loadGlobalHeader(debugId, function() {
+        this.loadProxySelect()
+        this.loadProps()
+      })
     },
-    loadGlobalHeader(debugId) {
+    loadGlobalHeader(debugId, callback) {
+      this.headerData = this.deepCopy(this.currentItem.headerParamsRaw)
       this.get('/doc/headers/global', { environmentId: debugId }, resp => {
         const globalHeaders = resp.data
-        const headers = this.currentItem.headerParams
-        for (const target of headers) {
-          for (const globalHeader of globalHeaders) {
-            if (globalHeader.name === target.name) {
-              target.example = globalHeader.example
-            }
-          }
+        for (const globalHeader of globalHeaders) {
+          this.headerData.push(globalHeader)
         }
+        callback && callback.call(this)
       })
     },
     bindRequestParam(item) {
@@ -558,7 +558,7 @@ export default {
         })
       }
       this.pathData = this.deepCopy(item.pathParams)
-      this.headerData = this.deepCopy(item.headerParams)
+      // this.headerData = this.deepCopy(item.headerParamsRaw)
       this.queryData = this.deepCopy(item.queryParams)
       this.formData = formData
       this.multipartData = multipartData
@@ -685,6 +685,14 @@ export default {
             this.result.content = $ts('sendErrorTip')
             this.openRightPanel()
           }
+      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, error => {
+        const resp = error.response
+        if (resp) {
+          this.doProxyResponse(resp)
+        } else {
+          this.sendLoading = false
+          this.result.content = $t('sendErrorTip')
+          this.openRightPanel()
         }
       )
       this.setProps()
@@ -817,6 +825,11 @@ export default {
       }
       this.get('/prop/find', data, resp => {
         const respData = resp.data || {}
+        const respData = resp.data
+        if (!respData) {
+          this.setTableCheck()
+          return
+        }
         const debugData = respData.val
         if (debugData) {
           const props = JSON.parse(debugData)
@@ -858,6 +871,45 @@ export default {
           this.setTableCheck()
         }
         this.getDebugScript().load(this.preCheckedId, this.afterCheckedId)
+        if (!debugData) {
+          this.setTableCheck()
+          return
+        }
+        const props = JSON.parse(debugData)
+        const setProp = (params, data, ref) => {
+          if (data && Object.keys(data).length > 0 && params) {
+            // 临时添加的
+            const temps = data.temps || []
+            for (const tempName of temps) {
+              const val = data[tempName]
+              if (ref && val) {
+                const row = {
+                  id: this.nextId() + '',
+                  name: tempName,
+                  example: val,
+                  temp: 1,
+                  description: ''
+                }
+                params.push(row)
+              }
+            }
+            params.forEach(row => {
+              const val = data[row.name]
+              if (val !== undefined) {
+                row.example = val
+              }
+            })
+          }
+        }
+        setProp(this.headerData, props.headerData, 'headerDataRef')
+        setProp(this.pathData, props.pathData)
+        setProp(this.queryData, props.queryData, 'queryDataRef')
+        setProp(this.multipartData, props.multipartData, 'multipartDataRef')
+        setProp(this.formData, props.formData, 'formDataRef')
+        if (props.bodyText !== undefined) {
+          this.bodyText = props.bodyText
+        }
+        this.setTableCheck()
       })
     },
     setTableCheck() {
@@ -981,7 +1033,7 @@ export default {
             content = this.formatResponse(contentType, finalData)
           }
         } catch (e) {
-          console.error($ts('parseError'), e)
+          console.error($t('parseError'), e)
         }
         this.result.content = content
       }

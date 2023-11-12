@@ -3,7 +3,7 @@ package cn.torna.web.controller.doc;
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.common.context.UserContext;
+import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.MockRequestDataTypeEnum;
 import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.common.util.CopyUtil;

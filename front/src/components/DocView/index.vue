@@ -1,11 +1,12 @@
 <template>
-  <div class="doc-view">
+  <div v-show="docInfo.id" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
+        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.docName }}</span>
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.name }}</span>
         <doc-status-tag class="el-tag-method" :status="docInfo.status" />
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
-        <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+        <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
           <el-button
             v-show="showOptBar && docInfo.id"
             type="text"
@@ -23,33 +24,33 @@
           </div>
           <div class="item">
             <el-dropdown trigger="click" @command="handleCommand">
-              <el-tooltip placement="top" :content="$ts('export')">
+              <el-tooltip placement="top" :content="$t('export')">
                 <el-button type="text" class="icon-button" icon="el-icon-download" />
               </el-tooltip>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item :command="onExportMarkdown">{{ $ts('exportMarkdown') }}</el-dropdown-item>
-                <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
-                <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportMarkdown">{{ $t('exportMarkdown') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
+                <el-dropdown-item :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
           <div class="item">
-            <el-tooltip placement="top" :content="$ts('viewConst')">
+            <el-tooltip placement="top" :content="$t('viewConst')">
               <el-button type="text" class="icon-button" icon="el-icon-collection" @click="showConst" />
             </el-tooltip>
           </div>
         </div>
       </h2>
       <span v-show="showOptBar" class="doc-modify-info">
-        {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
-        {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
+        {{ docInfo.creatorName }} {{ $t('createdOn') }} {{ docInfo.gmtCreate }}，
+        {{ docInfo.modifierName }} {{ $t('lastModifiedBy') }} {{ docInfo.gmtModified }}
       </span>
     </div>
     <div v-show="isDeprecated" style="margin-top: 10px">
-      <el-tag type="warning" class="el-tag-method">{{ $ts('deprecated') }}</el-tag>
+      <el-tag type="warning" class="el-tag-method">{{ $t('deprecated') }}</el-tag>
       <span class="tip">{{ docInfo.deprecated }}</span>
     </div>
-    <h4 v-if="docInfo.author">{{ $ts('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
+    <h4 v-if="docInfo.author">{{ $t('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>URL</h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
@@ -59,7 +60,7 @@
           size="small"
           effect="plain"
           class="copyBtn"
-          @click.stop="copy(docInfo.url)">{{ $ts('copy') }}</el-tag>
+          @click.stop="copy(docInfo.url)">{{ $t('copy') }}</el-tag>
       </li>
     </ul>
     <div v-else class="debug-url" @mouseenter="isShowDebugUrlCopy=true" @mouseleave="isShowDebugUrlCopy=false">
@@ -70,15 +71,15 @@
         effect="plain"
         class="copyBtn"
         @click.stop="copy(docInfo.url)"
-      >{{ $ts('copy') }}</el-tag>
+      >{{ $t('copy') }}</el-tag>
     </div>
     <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
-      {{ $ts('description') }}
+      {{ $t('description') }}
     </h4>
     <div v-show="docInfo.description" class="rich-editor" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
     <h4 v-show="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
-      <h4>{{ $ts('pathVariable') }}</h4>
+      <h4>{{ $t('pathVariable') }}</h4>
       <parameter-table
         :data="docInfo.pathParams"
         :can-add-node="false"
@@ -86,27 +87,27 @@
       />
     </div>
     <div v-if="docInfo.headerParams.length > 0">
-      <h4>{{ $ts('requestHeader') }}</h4>
+      <h4>{{ $t('requestHeader') }}</h4>
       <parameter-table
         :data="docInfo.headerParams"
         :can-add-node="false"
         :hidden-columns="['type', 'maxLength']"
-        :empty-text="$ts('noHeader')"
+        :empty-text="$t('noHeader')"
       />
     </div>
-    <h4>{{ $ts('requestParams') }}</h4>
-    <span v-show="docInfo.queryParams.length === 0 && docInfo.requestParams.length === 0" class="normal-text">{{ $ts('empty') }}</span>
+    <h4>{{ $t('requestParams') }}</h4>
+    <span v-show="docInfo.queryParams.length === 0 && docInfo.requestParams.length === 0" class="normal-text">{{ $t('empty') }}</span>
     <div v-show="docInfo.queryParams.length > 0">
       <h5>Query Parameter</h5>
       <parameter-table :data="docInfo.queryParams" />
     </div>
     <div v-show="docInfo.requestParams.length > 0">
       <h5>Body Parameter</h5>
-      <el-alert v-if="docInfo.isRequestArray" :closable="false" show-icon :title="$ts('objectArrayReqTip')" />
+      <el-alert v-if="docInfo.isRequestArray" :closable="false" show-icon :title="$t('objectArrayReqTip')" />
       <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isShowRequestExample">
-      <h4>{{ $ts('requestExample') }}</h4>
+      <h4>{{ $t('requestExample') }}</h4>
       <div class="code-box" @mouseenter="isShowRequestExampleCopy=true" @mouseleave="isShowRequestExampleCopy=false">
         <pre class="code-block">{{ formatJson(requestExample) }}</pre>
         <el-tag
@@ -114,14 +115,14 @@
           size="small"
           effect="plain"
           class="code-copy"
-          @click.stop="copy(formatJson(requestExample))">{{ $ts('copy') }}</el-tag>
+          @click.stop="copy(formatJson(requestExample))">{{ $t('copy') }}</el-tag>
       </div>
     </div>
-    <h4>{{ $ts('responseParam') }}</h4>
-    <el-alert v-if="docInfo.isResponseArray" :closable="false" show-icon :title="$ts('objectArrayRespTip')" />
+    <h4>{{ $t('responseParam') }}</h4>
+    <el-alert v-if="docInfo.isResponseArray" :closable="false" show-icon :title="$t('objectArrayRespTip')" />
     <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
-    <h4>{{ $ts('responseExample') }}</h4>
+    <h4>{{ $t('responseExample') }}</h4>
     <div class="code-box" @mouseenter="isShowResponseSuccessExample=true" @mouseleave="isShowResponseSuccessExample=false">
       <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
       <el-tag
@@ -129,21 +130,21 @@
         size="small"
         effect="plain"
         class="code-copy"
-        @click.stop="copy(formatJson(responseSuccessExample))">{{ $ts('copy') }}</el-tag>
+        @click.stop="copy(formatJson(responseSuccessExample))">{{ $t('copy') }}</el-tag>
     </div>
     <div v-show="docInfo.errorCodeParams && docInfo.errorCodeParams.length > 0">
-      <h4>{{ $ts('errorCode') }}</h4>
+      <h4>{{ $t('errorCode') }}</h4>
       <parameter-table
         :data="docInfo.errorCodeParams"
-        :empty-text="$ts('emptyErrorCode')"
+        :empty-text="$t('emptyErrorCode')"
         :hidden-columns="['required', 'maxLength', 'type']"
-        :name-label="$ts('errorCode')"
-        :description-label="$ts('errorDesc')"
-        :example-label="$ts('solution')"
+        :name-label="$t('errorCode')"
+        :description-label="$t('errorDesc')"
+        :example-label="$t('solution')"
       />
     </div>
     <div v-show="docInfo.remark && docInfo.remark !== emptyContent" class="doc-info-remark">
-      <el-divider content-position="left">{{ $ts('updateRemark') }}</el-divider>
+      <el-divider content-position="left">{{ $t('updateRemark') }}</el-divider>
       <div class="rich-editor" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
     </div>
     <el-dialog
@@ -243,7 +244,9 @@ export default {
         status: 0,
         id: '',
         name: '',
+        docName: '',
         url: '',
+        version: '',
         contentType: '',
         description: '',
         author: '',
@@ -258,6 +261,7 @@ export default {
         gmtModified: '',
         pathParams: [],
         headerParams: [],
+        headerParamsRaw: [],
         queryParams: [],
         requestParams: [],
         responseParams: [],
@@ -429,12 +433,12 @@ export default {
     onSubscribe() {
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('subscribeSuccess'))
+          this.tipSuccess($t('subscribeSuccess'))
           this.isSubscribe = true
         })
       } else {
         this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('unsubscribeSuccess'))
+          this.tipSuccess($t('unsubscribeSuccess'))
           this.isSubscribe = false
         })
       }

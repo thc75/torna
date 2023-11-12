@@ -6,7 +6,7 @@
 
 Torna弥补了传统文档生成工具（如swagger）的不如之处，在保持原有功能的前提下丰富并增强了一些实用的功能。
 
-<img src="./front/public/static/images/arc2.png" width="80%" height="80%" />
+<img src="./asset/arc2.png" width="80%" height="80%" />
 
 
 ## 解决文档管理痛点
@@ -59,11 +59,11 @@ mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/instal
 
 `vim /etc/torna/application.properties`修改数据库连接配置
 
-拉取最新版本并启动，以1.19.4为例
+拉取最新版本并启动，以1.23.2为例
 
 ```bash
-wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.19.4
-```
+wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.23.2
+``` 
 
 后续更新版本只需执行`sh restart-torna.sh 版本号`
 
@@ -73,7 +73,7 @@ wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh &
 
 下载公共镜像
 
-`docker pull tanghc2020/torna:1.19.4`
+`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.23.2`
 
 创建配置文件，执行命令：
 
@@ -90,7 +90,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d tanghc2020/torna:1.19.4
+  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.23.2
 ```
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
@@ -135,13 +135,13 @@ docker run --name torna --restart=always \
 
 ## 界面预览
 
-![文档管理](./front/public/static/images/table.png "table.png")
+![文档管理](./asset/table.png "table.png")
 
-![编辑接口](./front/public/static/images/edit.png "edit.png")
+![编辑接口](./asset/edit.png "edit.png")
 
-![浏览文档](./front/public/static/images/view.png "view.png")
+![浏览文档](./asset/view.png "view.png")
 
-![调试接口](./front/public/static/images/debug.png "debug.png")
+![调试接口](./asset/debug.png "debug.png")
 
 
 ## 沟通交流
@@ -152,8 +152,8 @@ docker run --name torna --restart=always \
     <td>二群</td>
   </tr>
   <tr>
-    <td><img src="./front/public/static/images/group.jpg" width="50%" height="50%" /></td>
-    <td><img src="./front/public/static/images/group2.jpg" width="50%" height="50%" /></td>
+    <td><img src="./asset/group.jpg" width="50%" height="50%" /></td>
+    <td><img src="./asset/group2.jpg" width="50%" height="50%" /></td>
   </tr>
 </table>
 

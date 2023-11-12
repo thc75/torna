@@ -1,8 +1,6 @@
 package cn.torna.web.controller.doc.vo;
 
 import cn.torna.common.bean.TreeAware;
-import cn.torna.common.support.IdCodec;
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.util.List;
@@ -19,47 +17,17 @@ public class TreeVO implements TreeAware<TreeVO, String> {
 
     private String parentId;
 
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
-    private Long docId;
+    private List<TreeVO> children;
 
-    private String url;
-
-    private Byte type;
-
-    private String httpMethod;
-
-    private Byte docType;
-
-    private String deprecated;
-
-    private String origin;
-
-    /** 接口数量 */
-    private int apiCount;
-
-    @JSONField(serialize = false)
-    private TreeVO parent;
-
-    public TreeVO(String id, String label, String parentId, byte type) {
+    public TreeVO(String id, String label, String parentId) {
         this.id = id;
         this.label = label;
         this.parentId = parentId;
-        this.type = type;
-    }
-
-    public void addApiCount() {
-        this.apiCount++;
-        if (parent != null) {
-            parent.addApiCount();
-        }
     }
 
     @Override
     public void setChildren(List<TreeVO> children) {
+        this.children = children;
     }
 
-    @Override
-    public void setParent(TreeVO parent) {
-        this.parent = parent;
-    }
 }

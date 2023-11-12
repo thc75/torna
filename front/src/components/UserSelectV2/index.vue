@@ -6,7 +6,7 @@
         filterable
         :filter-method="dataFilter"
         :multiple="multiple"
-        :placeholder="$ts('filterWithUsername')"
+        :placeholder="$t('filterWithUsername')"
         style="width: 100%"
       >
         <el-option
@@ -34,7 +34,7 @@ export default {
       default() {
         return {
           value: [
-            { required: true, message: this.$ts('selectUser'), trigger: ['blur', 'change'] }
+            { required: true, message: this.$t('selectUser'), trigger: ['blur', 'change'] }
           ]
         }
       }

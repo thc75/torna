@@ -2,7 +2,7 @@
   <div>
     <h1 style="margin-bottom: 0">
       {{ docInfo.name }}
-      <el-tooltip placement="top" :content="isSubscribe ? $ts('cancelSubscribe') : $ts('clickSubscribe')">
+      <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
         <el-button
           v-show="showOptBar && docInfo.id"
           type="text"
@@ -14,37 +14,58 @@
       </el-tooltip>
     </h1>
     <span v-show="showOptBar" class="doc-modify-info">
-      {{ docInfo.creatorName }} {{ $ts('createdOn') }} {{ docInfo.gmtCreate }}，
-      {{ docInfo.modifierName }} {{ $ts('lastModifiedBy') }} {{ docInfo.gmtModified }}
+      {{ docInfo.creatorName }} {{ $t('createdOn') }} {{ docInfo.gmtCreate }}，
+      {{ docInfo.modifierName }} {{ $t('lastModifiedBy') }} {{ docInfo.gmtModified }}
     </span>
     <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
       <div class="item">
         <el-dropdown trigger="click" @command="handleCommand">
-          <el-tooltip placement="top" :content="$ts('export')">
+          <el-tooltip placement="top" :content="$t('export')">
             <el-button type="text" class="icon-button" icon="el-icon-download" />
           </el-tooltip>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item :command="onExportHtml">{{ $ts('exportHtml') }}</el-dropdown-item>
-            <el-dropdown-item :command="onExportWord">{{ $ts('exportWord') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" :command="onExportHtml">{{ $t('exportHtml') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN" :command="onExportMarkdown">{{ $t('exportMarkdown') }}</el-dropdown-item>
+            <el-dropdown-item v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" :command="onExportWord">{{ $t('exportWord') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
       <div class="item">
-        <el-tooltip placement="top" :content="$ts('viewConst')">
+        <el-tooltip placement="top" :content="$t('viewConst')">
           <el-button type="text" class="icon-button" icon="el-icon-collection" @click="showConst" />
         </el-tooltip>
       </div>
     </div>
-    <div v-html="docInfo.description"></div>
+    <div v-show="docInfo.type === getEnums().DOC_TYPE.CUSTOM" v-html="docInfo.description"></div>
+    <mavon-editor
+      v-show="docInfo.type === getEnums().DOC_TYPE.MARKDOWN"
+      v-model="docInfo.description"
+      :boxShadow="false"
+      :subfield="false"
+      defaultOpen="preview"
+      :editable="false"
+      :toolbarsFlag="false"
+    />
     <const-view ref="constView" />
   </div>
 </template>
+<style scoped>
+/deep/ .v-note-wrapper .v-note-panel .v-note-show .v-show-content {
+  background-color: #FFFFFF !important;
+  padding: 0 !important;
+}
+.v-note-wrapper {
+  background-color: #FFFFFF !important;
+  border: 0 !important;
+}
+</style>
 <script>
 import ExportUtil from '@/utils/export'
 import ConstView from '@/components/ConstView'
+import { mavonEditor } from 'mavon-editor'
 
 export default {
-  components: { ConstView },
+  components: { ConstView, mavonEditor },
   props: {
     docInfo: Object,
     showOptBar: {
@@ -76,6 +97,9 @@ export default {
     onExportWord() {
       ExportUtil.exportWordSinglePage(this.docInfo)
     },
+    onExportMarkdown() {
+      ExportUtil.exportMarkdownSinglePage(this.docInfo)
+    },
     loadSubscribe(id) {
       if (!this.initSubscribe) {
         return
@@ -89,12 +113,12 @@ export default {
     onSubscribe() {
       if (!this.isSubscribe) {
         this.post('/user/subscribe/doc/subscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('subscribeSuccess'))
+          this.tipSuccess($t('subscribeSuccess'))
           this.isSubscribe = true
         })
       } else {
         this.post('/user/subscribe/doc/cancelSubscribe', { sourceId: this.docInfo.id }, resp => {
-          this.tipSuccess($ts('unsubscribeSuccess'))
+          this.tipSuccess($t('unsubscribeSuccess'))
           this.isSubscribe = false
         })
       }

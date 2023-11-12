@@ -1,19 +1,19 @@
 <template>
   <div class="navbar">
     <el-breadcrumb v-if="showBreadcrumb" class="app-breadcrumb" separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: `/` }">{{ $ts('home') }}</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: `/` }">{{ $t('home') }}</el-breadcrumb-item>
       <el-breadcrumb-item v-if="currentSpace" :to="{ path: spaceRoute }">{{ currentSpace.name }}</el-breadcrumb-item>
       <el-breadcrumb-item v-if="currentProject">{{ currentProject.name }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="right-menu">
       <div v-if="isSuperAdmin()" class="right-menu-item">
-        <el-button type="primary" size="mini" @click="goRoute('/admin/users')">{{ $ts('adminManage') }}</el-button>
+        <el-button type="primary" size="mini" @click="goRoute('/admin/users')">{{ $t('adminManage') }}</el-button>
       </div>
       <div class="right-menu-item">
-        <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">{{ $ts('previewModel') }}</el-button>
+        <el-button type="success" size="mini" icon="el-icon-view" @click="goViewPage">{{ $t('previewModel') }}</el-button>
       </div>
       <div class="right-menu-item">
-        <el-tooltip placement="bottom" :content="$ts('helpCenter')">
+        <el-tooltip placement="bottom" :content="$t('helpCenter')">
           <el-button type="text" class="el-icon-question navbar-btn" @click="openLink('/help')" />
         </el-tooltip>
       </div>

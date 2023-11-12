@@ -5,7 +5,7 @@
       type="primary"
       @click="onProjectAdd"
     >
-      {{ $ts('createProject') }}
+      {{ $t('createProject') }}
     </el-button>
     <el-tabs
       v-show="projectList.length > 0"
@@ -35,15 +35,15 @@
               </el-tooltip>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-edit" :command="onUpdate">{{ $ts('update')}}</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-delete" class="danger" :command="onDelete">{{ $ts('delete') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-edit" :command="onUpdate">{{ $t('update')}}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-delete" class="danger" :command="onDelete">{{ $t('delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </span>
       </el-tab-pane>
       <el-tab-pane v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" name="_new_">
         <span slot="label" @click="onProjectAdd">
-          <el-tooltip placement="top" :content="$ts('createProject')">
+          <el-tooltip placement="top" :content="$t('createProject')">
             <i class="el-icon-circle-plus"></i>
           </el-tooltip>
         </span>
@@ -51,31 +51,31 @@
     </el-tabs>
     <div v-show="projectList.length > 0" class="compose-content">
       <el-tabs active-name="doc" tab-position="left">
-        <el-tab-pane :label="$ts('apiList')" name="doc">
+        <el-tab-pane :label="$t('apiList')" name="doc">
           <div class="compose-url">
             <span style="margin-right: 20px">
               状态：
-              <el-tag v-if="projectInfo.status" type="success">{{ $ts('enable') }}</el-tag>
-              <el-tag v-else type="danger">{{ $ts('disable') }}</el-tag>
+              <el-tag v-if="projectInfo.status" type="success">{{ $t('enable') }}</el-tag>
+              <el-tag v-else type="danger">{{ $t('disable') }}</el-tag>
             </span>
             <span v-show="visitUrl" style="margin-right: 20px">
-              {{ $ts('visitUrl') }}：<el-link :href="visitUrl" type="primary" :underline="false" target="_blank">{{ visitUrl }}</el-link>
+              {{ $t('visitUrl') }}：<el-link :href="visitUrl" type="primary" :underline="false" target="_blank">{{ visitUrl }}</el-link>
             </span>
-            <span v-show="visitPassword">{{ $ts('pwdShow') }}：{{ visitPassword }}</span>
+            <span v-show="visitPassword">{{ $t('pwdShow') }}：{{ visitPassword }}</span>
           </div>
           <el-dropdown v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
             <el-button type="primary" size="mini">
-              {{ $ts('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
+              {{ $t('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-document" :command="onDocAdd">{{ $ts('createDoc') }}</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-folder" :command="onDocFolderAdd">{{ $ts('createFolder') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-document" :command="onDocAdd">{{ $t('createDoc') }}</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-folder" :command="onDocFolderAdd">{{ $t('createFolder') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
           <div class="table-right">
             <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
-              <el-radio-button label="1">{{ $ts('expand') }}</el-radio-button>
-              <el-radio-button label="0">{{ $ts('collapse') }}</el-radio-button>
+              <el-radio-button label="1">{{ $t('expand') }}</el-radio-button>
+              <el-radio-button label="0">{{ $t('collapse') }}</el-radio-button>
             </el-radio-group>
             <div class="table-right-item">
               <el-input
@@ -83,12 +83,12 @@
                 prefix-icon="el-icon-search"
                 clearable
                 size="mini"
-                :placeholder="$ts('apiFilter')"
+                :placeholder="$t('apiFilter')"
                 style="width: 300px;"
               />
             </div>
             <div class="table-right-item">
-              <el-tooltip placement="top" :content="$ts('refreshTable')">
+              <el-tooltip placement="top" :content="$t('refreshTable')">
                 <el-button type="primary" size="mini" icon="el-icon-refresh" @click="refreshTable" />
               </el-tooltip>
             </div>
@@ -111,7 +111,7 @@
             <u-table-column
               :tree-node="true"
               prop="name"
-              :label="$ts('docName')"
+              :label="$t('docName')"
               show-overflow-tooltip
             />
             <u-table-column
@@ -126,19 +126,19 @@
             </u-table-column>
             <u-table-column
               prop="origin"
-              :label="$ts('origin')"
+              :label="$t('origin')"
               width="250"
               show-overflow-tooltip
             />
             <u-table-column
               prop="creator"
-              :label="$ts('creator')"
+              :label="$t('creator')"
               width="120"
               show-overflow-tooltip
             />
             <u-table-column
               prop="gmtCreate"
-              :label="$ts('createTime')"
+              :label="$t('createTime')"
               width="110"
             >
               <template slot-scope="scope">
@@ -148,12 +148,12 @@
             <u-table-column
               v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
               prop="orderIndex"
-              :label="$ts('orderIndex')"
+              :label="$t('orderIndex')"
               width="80"
             >
               <template slot-scope="scope">
                 <popover-update
-                  :title="$ts('orderIndex')"
+                  :title="$t('orderIndex')"
                   is-number
                   :show-icon="false"
                   :value="`${scope.row.orderIndex}`"
@@ -164,41 +164,41 @@
             </u-table-column>
             <u-table-column
               v-if="hasRole(`space:${spaceId}`, [Role.dev, Role.admin])"
-              :label="$ts('operation')"
+              :label="$t('operation')"
               width="150"
             >
               <template slot-scope="scope">
                 <div class="icon-operation">
                   <div v-if="isFolder(scope.row)" style="display: inline-block">
-                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createDoc')" :open-delay="500">
+                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$t('createDoc')" :open-delay="500">
                       <el-link type="primary" icon="el-icon-document-add" @click="onDocAdd(scope.row)" />
                     </el-tooltip>
-                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('createFolder')" :open-delay="500">
+                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$t('createFolder')" :open-delay="500">
                       <el-link type="primary" icon="el-icon-folder-add" @click="onDocFolderAdd(scope.row)" />
                     </el-tooltip>
-                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$ts('updateName')" :open-delay="500">
+                    <el-tooltip v-if="isFolder(scope.row)" placement="top" :content="$t('updateName')" :open-delay="500">
                       <el-link type="primary" icon="el-icon-edit" @click="onDocUpdate(scope.row)" />
                     </el-tooltip>
                   </div>
                   <el-popconfirm
-                    :title="$ts('deleteConfirm', scope.row.name)"
+                    :title="$t('deleteConfirm', scope.row.name)"
                     @confirm="onDocRemove(scope.row)"
                   >
-                    <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$ts('delete')" />
+                    <el-link slot="reference" type="danger" icon="el-icon-delete" :title="$t('delete')" />
                   </el-popconfirm>
                 </div>
               </template>
             </u-table-column>
           </u-table>
         </el-tab-pane>
-        <el-tab-pane :label="$ts('setting')" name="setting">
+        <el-tab-pane :label="$t('setting')" name="setting">
           <compose-project-setting ref="composeProjectSettingRef" :project-id="projectInfo.id" />
         </el-tab-pane>
       </el-tabs>
     </div>
     <compose-project-create-dialog ref="projectCreateDlg" :success="onProjectAddSuccess" />
     <el-dialog
-      :title="$ts('selectDoc')"
+      :title="$t('selectDoc')"
       :visible.sync="selectDocShow"
       @close="() => getSelect().clearChecked()"
     >
@@ -210,8 +210,8 @@
         :indent="16"
       />
       <div slot="footer" class="dialog-footer">
-        <el-button @click="selectDocShow = false">{{ $ts('dlgCancel') }}</el-button>
-        <el-button type="primary" @click="onDocAddSave">{{ $ts('dlgSave') }}</el-button>
+        <el-button @click="selectDocShow = false">{{ $t('dlgCancel') }}</el-button>
+        <el-button type="primary" @click="onDocAddSave">{{ $t('dlgSave') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -380,11 +380,11 @@ export default {
       })
     },
     onDocFolderAdd(parent) {
-      this.$prompt(this.$ts('inputFolderMsg'), this.$ts('newFolderTitle'), {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
+      this.$prompt(this.$t('inputFolderMsg'), this.$t('newFolderTitle'), {
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+        inputErrorMessage: this.$t('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           name: value,
@@ -398,7 +398,7 @@ export default {
           data.orderIndex = order
         })
         this.post('/compose/doc/folder/add', data, () => {
-          this.tipSuccess(this.$ts('createSuccess'))
+          this.tipSuccess(this.$t('createSuccess'))
           this.reload()
         })
       }).catch(() => {
@@ -413,7 +413,7 @@ export default {
         .filter(row => row.docId && row.docId.length > 0)
         .map(row => { return { docId: row.docId, origin: row.origin } })
       if (docList.length === 0) {
-        this.tipError($ts('pleaseCheckDoc'))
+        this.tipError($t('pleaseCheckDoc'))
         return
       }
       const data = {
@@ -431,7 +431,7 @@ export default {
         })
         this.post('/compose/doc/add', data, () => {
           this.selectDocShow = false
-          this.tipSuccess($ts('addSuccess'))
+          this.tipSuccess($t('addSuccess'))
           this.reloadTable()
         })
       })
@@ -451,12 +451,12 @@ export default {
       this.$refs.projectCreateDlg.updateShow(this.projectInfo)
     },
     onDelete() {
-      this.confirm(this.$ts('deleteConfirm', this.projectInfo.name), () => {
+      this.confirm(this.$t('deleteConfirm', this.projectInfo.name), () => {
         const data = {
           id: this.projectInfo.id
         }
         this.post('/compose/project/delete', data, () => {
-          this.tipSuccess(this.$ts('deleteSuccess'))
+          this.tipSuccess(this.$t('deleteSuccess'))
           this.reload()
         })
       })
@@ -482,19 +482,19 @@ export default {
       }
     },
     onFolderUpdate(row) {
-      this.$prompt(this.$ts('inputFolderMsg'), this.$ts('updateFolderTitle'), {
-        confirmButtonText: this.$ts('ok'),
-        cancelButtonText: this.$ts('cancel'),
+      this.$prompt(this.$t('inputFolderMsg'), this.$t('updateFolderTitle'), {
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
         inputValue: row.name,
         inputPattern: /^.{1,64}$/,
-        inputErrorMessage: this.$ts('notEmptyLengthLimit', 64)
+        inputErrorMessage: this.$t('notEmptyLengthLimit', 64)
       }).then(({ value }) => {
         const data = {
           id: row.id,
           name: value
         }
         this.post('/compose/doc/folder/update', data, () => {
-          this.tipSuccess(this.$ts('updateSuccess'))
+          this.tipSuccess(this.$t('updateSuccess'))
           this.reload()
         })
       }).catch(() => {
@@ -502,7 +502,7 @@ export default {
     },
     onDocRemove(row) {
       this.post('/compose/doc/remove', { id: row.id }, () => {
-        this.tipSuccess($ts('deleteSuccess'))
+        this.tipSuccess($t('deleteSuccess'))
         this.reloadTable()
       })
     }

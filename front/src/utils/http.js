@@ -238,6 +238,9 @@ function doResponse(response, callback, errorCallback) {
     }
   } else {
     console.error('error', response)
-    this.$message.error('请求异常，请查看日志')
+    Message({
+      message: '请求异常，请查看日志',
+      type: 'error'
+    })
   }
 }
