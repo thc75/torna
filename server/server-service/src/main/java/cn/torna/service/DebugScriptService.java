@@ -18,10 +18,10 @@ import java.util.List;
 public class DebugScriptService extends BaseService<DebugScript, DebugScriptMapper> {
 
     @Autowired
-    private DocInfoProService docInfoProService;
+    private DocInfoService docInfoService;
 
     public List<DebugScript> list(Long docId) {
-        DocRefDTO docRefInfo = docInfoProService.getDocRefInfo(docId);
+        DocRefDTO docRefInfo = docInfoService.getDocRefInfo(docId);
         Query query = new Query();
         query.sql("(ref_id=? and scope=?) OR (ref_id=? and scope=?) OR (ref_id=? and scope=?)",
                 docRefInfo.getDocId(), DebugScriptScopeEnum.DOC.getScope(),

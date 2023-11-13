@@ -190,12 +190,6 @@ import ConstView from '@/components/ConstView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 
-$addI18n({
-  'comment': { 'zh': '评论', 'en': 'Comment' },
-  'me': { 'zh': '我', 'en': 'Me' },
-  'commentPlaceholder': { 'zh': '在此输入评论内容...', 'en': 'Input comment here...' }
-})
-
 export default {
   name: 'DocView',
   components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },

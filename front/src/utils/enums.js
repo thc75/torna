@@ -136,8 +136,7 @@ export const Enums = {
     { label: 'todo', value: 0, type: 'info' },
     { label: 'doing', value: 5, type: 'warning' },
     { label: 'done', value: 10, type: 'success' }
-  ]
-  INIT_ORDER_INDEX: 10000,
+  ],
   ModuleConfig: {
     TORNA_PUSH_PRINT_CONTENT: 'torna.push.print-content',
     TORNA_PUSH_OVERRIDE: 'torna.push.override'

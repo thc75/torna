@@ -337,7 +337,7 @@ export default {
       if (row.status === status) {
         return
       }
-      this.post('/doc/pro/status/update', {
+      this.post('/doc/status/update', {
         id: row.id,
         status: status
       }, resp => {

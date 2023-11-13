@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.DocStatusEnum;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.TreeUtil;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12300;
+    private static final int VERSION = 12400;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -112,6 +113,19 @@ public class UpgradeService {
         v1_20_0(oldVersion);
         v1_22_0(oldVersion);
         v1_22_1(oldVersion);
+        v1_24_0(oldVersion);
+    }
+
+    private void v1_24_0(int oldVersion) {
+        if (oldVersion < 12400) {
+            createTable("doc_snapshot", "upgrade/1.24.0_ddl_doc_snapshot.txt");
+            createTable("debug_script", "upgrade/1.24.0_ddl_debug_script.txt");
+            createTable("doc_diff_record", "upgrade/1.24.0_ddl_doc_diff_record.txt");
+            createTable("doc_diff_detail", "upgrade/1.24.0_ddl_doc_diff_detail.txt");
+            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.TODO.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
+            runSql("UPDATE doc_info SET status=" + DocStatusEnum.DONE.getStatus());
+            runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
+        }
     }
 
     private void v1_22_1(int oldVersion) {

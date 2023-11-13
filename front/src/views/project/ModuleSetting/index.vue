@@ -19,10 +19,10 @@
       <el-tab-pane name="envSetting" :label="$t('debugEnv')">
         <env-setting ref="envSetting" :project-id="projectId" />
       </el-tab-pane>
-      <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$t('swaggerSetting')">
+      <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$t('ModuleSetting.swaggerSetting')">
         <swagger-setting ref="swaggerSetting" />
       </el-tab-pane>
-      <el-tab-pane name="dingdingSetting" :label="$ts('dingdingSetting')">
+      <el-tab-pane name="dingdingSetting" :label="$ts('ModuleSetting.dingdingSetting')">
         <ding-ding-setting ref="dingdingSetting" />
       </el-tab-pane>
     </el-tabs>
@@ -34,15 +34,6 @@ import DingDingSetting from './DingDingSetting'
 import PopoverUpdate from '@/components/PopoverUpdate'
 import SwaggerSetting from '@/components/ModuleSetting/SwaggerSetting'
 import EnvSetting from './EnvSetting'
-
-// 添加国际化
-$addI18n({
-  'dingdingSetting': { 'zh': '钉钉配置', 'en': 'DingTalk Setting' },
-  'addEnv': { 'zh': '添加环境', 'en': 'Add Environment' },
-  'swaggerSetting': { 'zh': 'Swagger设置', 'en': 'Swagger Setting' },
-  'copyEnv': { 'zh': '{0} 拷贝', 'en': '{0} Copy' },
-  'plzCheckEnv': { 'zh': '请勾选环境', 'en': 'Please select environment' }
-})
 
 export default {
   name: 'ModuleSetting',

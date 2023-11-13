@@ -16,7 +16,7 @@
             placement="right"
             v-model="bindDingDingShow"
           >
-            <el-alert :title="$ts('bindDingDingTip')" :closable="false" />
+            <el-alert :title="$ts('UserInfo.bindDingDingTip')" :closable="false" />
             <ding-ding-login :on-login-success="bindDingDingSuccess" />
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="bindDingDingShow = false">取消</el-button>
@@ -44,9 +44,6 @@
   </div>
 </template>
 <script>
-$addI18n({
-  'bindDingDingTip': { 'zh': '使用钉钉App扫一扫进行账号绑定', 'en': 'Use DingDing app scan the QR to bind account' }
-})
 import DingDingLogin from '@/components/DingDingLogin'
 export default {
   name: 'UserInfo',

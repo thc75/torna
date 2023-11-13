@@ -71,9 +71,6 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     @Resource
     private ModuleMapper moduleMapper;
 
-    @Autowired
-    private DocInfoProService docInfoProService;
-
     /**
      * 获取修改记录
      * @param docId 文档id
@@ -202,7 +199,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
                 if (StringUtils.isEmpty(url)) {
                     return;
                 }
-                List<String> dingDingUserIds = docInfoProService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
+                List<String> dingDingUserIds = docInfoService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
                 String content = buildDingDingMessage(docInfoDTO, modifyType, dingDingUserIds);
                 if (StringUtils.isEmpty(content)) {
                     return;

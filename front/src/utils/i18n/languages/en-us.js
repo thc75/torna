@@ -1,7 +1,4 @@
-import { BaseTranslator } from '../base'
-
-// Mapping
-const MAPPING = {
+export default {
   'bindAccount': 'Bind account',
   'dingdingAccount': 'DingDing Account',
   'requestArrayType': 'Request array type',
@@ -33,7 +30,6 @@ const MAPPING = {
   'unlock': 'Unlock',
   'lockDocDesc': 'Locked doc can\'t be modified by push.',
   'nameValue': 'Name(Value)',
-export default {
   'ok': 'OK',
   'cancel': 'Cancel',
   'home': 'Home',
@@ -453,6 +449,8 @@ export default {
   'richTextEditor': 'Rich Text Editor',
   'markdown': 'Markdown',
   'docType': 'Document Type',
+  'comment': 'Comment',
+  'commentPlaceholder': 'Input comment here...',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {
@@ -511,5 +509,20 @@ export default {
   AdminUser: {
     'allocateProject': 'Allocate Project',
     'chooseProject': 'Choose Project'
+  },
+  DingDingSetting: {
+    'dingdingWebhookUrl': 'DingDing group robot webhook URL',
+    'dingdingWebhookUrlPlacehoder': 'Input full url with token parameter',
+    'dingdingWebhookUrlTip': 'Push message to dingding group when doc is changed'
+  },
+  UserInfo: {
+    'bindDingDingTip':'Use DingDing app scan the QR to bind account'
+  },
+  ModuleSetting: {
+    'dingdingSetting': 'DingTalk Setting',
+    'swaggerSetting': 'Swagger Setting',
+  },
+  DocChangelog: {
+    confirmRestore: 'Restore this version?'
   }
 }

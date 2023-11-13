@@ -14,7 +14,7 @@
             {{ item.modifyType === 1 ? $ts('creator') : $ts('modifier') }}：{{ item.modifyNickname }}
             <div style="display: inline;">
   <!--            <el-popconfirm-->
-              <!--              :title="$ts('confirmRestore')"-->
+              <!--              :title="$ts('DocChangelog.confirmRestore')"-->
               <!--            >-->
               <!--              <el-button slot="reference" style="float: right; padding: 0;margin-left: 10px" type="text" @click="restoreDoc(item)">-->
               <!--                {{ $ts('restore') }}-->
@@ -72,11 +72,6 @@ for (const key in POSITION_TYPE) {
   const obj = POSITION_TYPE[key]
   positionConfig['' + obj.value] = obj
 }
-
-$addI18n({
-  confirmRestore: { zh: '确认还原到此版本吗？', en: 'Restore this version?' },
-  currentVersion: { zh: '当前版本', en: 'Current version' }
-})
 
 export default {
   name: 'DocChangelog',

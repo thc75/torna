@@ -50,6 +50,7 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -327,8 +328,7 @@ public class DocApi {
                 return;
             }
             docInfoDTO.setModifierName(pushContext.getAuthor());
-            //doDocModifyProcess(docInfoDTO, pushContext);
-            docInfoService.doPushSaveDocInfo(docInfoDTO, user, BooleanUtils.toBoolean(docPushParam.getIsOverride()));
+            doDocModifyProcess(docInfoDTO, pushContext);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user);
         }
     }

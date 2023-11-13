@@ -1,7 +1,4 @@
-import { BaseTranslator } from '../base'
-
-// Mapping
-const MAPPING = {
+export default {
   'bindAccount': '绑定账号',
   'dingdingAccount': '钉钉账号',
   'requestArrayType': '请求数组元素类型',
@@ -29,7 +26,6 @@ const MAPPING = {
   'dlgClose': '关 闭',
   'preRequestScript': '前置脚本',
   'afterResponseScript': '后置脚本',
-export default {
   'ok': '确定',
   'cancel': '取消',
   'home': '首页',
@@ -454,6 +450,8 @@ export default {
   'richTextEditor': '富文本',
   'markdown': 'Markdown',
   'docType': '文档类型',
+  'comment': '评论',
+  'commentPlaceholder': '在此输入评论内容...',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {
@@ -514,5 +512,20 @@ export default {
   AdminUser: {
     'allocateProject': '分配项目',
     'chooseProject': '选择项目'
+  },
+  DingDingSetting: {
+    'dingdingWebhookUrl': '钉钉群机器人推送URL（Webhook）',
+    'dingdingWebhookUrlPlacehoder': '输入完整带token参数的url',
+    'dingdingWebhookUrlTip': '当文档变更时推送消息到钉钉群。需要创建自定义机器人，添加关键字：文档',
+  },
+  UserInfo: {
+    'bindDingDingTip': '使用钉钉App扫一扫进行账号绑定'
+  },
+  ModuleSetting: {
+    'dingdingSetting': '钉钉配置',
+    'swaggerSetting': 'Swagger设置'
+  },
+  DocChangelog: {
+    confirmRestore: '确认还原到此版本吗？'
   }
 }

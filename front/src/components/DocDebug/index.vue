@@ -685,14 +685,6 @@ export default {
             this.result.content = $ts('sendErrorTip')
             this.openRightPanel()
           }
-      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, error => {
-        const resp = error.response
-        if (resp) {
-          this.doProxyResponse(resp)
-        } else {
-          this.sendLoading = false
-          this.result.content = $t('sendErrorTip')
-          this.openRightPanel()
         }
       )
       this.setProps()
@@ -825,7 +817,6 @@ export default {
       }
       this.get('/prop/find', data, resp => {
         const respData = resp.data || {}
-        const respData = resp.data
         if (!respData) {
           this.setTableCheck()
           return
@@ -869,47 +860,10 @@ export default {
           this.preCheckedId = props.preCheckedId
           this.afterCheckedId = props.afterCheckedId
           this.setTableCheck()
+        } else {
+          this.setTableCheck()
         }
         this.getDebugScript().load(this.preCheckedId, this.afterCheckedId)
-        if (!debugData) {
-          this.setTableCheck()
-          return
-        }
-        const props = JSON.parse(debugData)
-        const setProp = (params, data, ref) => {
-          if (data && Object.keys(data).length > 0 && params) {
-            // 临时添加的
-            const temps = data.temps || []
-            for (const tempName of temps) {
-              const val = data[tempName]
-              if (ref && val) {
-                const row = {
-                  id: this.nextId() + '',
-                  name: tempName,
-                  example: val,
-                  temp: 1,
-                  description: ''
-                }
-                params.push(row)
-              }
-            }
-            params.forEach(row => {
-              const val = data[row.name]
-              if (val !== undefined) {
-                row.example = val
-              }
-            })
-          }
-        }
-        setProp(this.headerData, props.headerData, 'headerDataRef')
-        setProp(this.pathData, props.pathData)
-        setProp(this.queryData, props.queryData, 'queryDataRef')
-        setProp(this.multipartData, props.multipartData, 'multipartDataRef')
-        setProp(this.formData, props.formData, 'formDataRef')
-        if (props.bodyText !== undefined) {
-          this.bodyText = props.bodyText
-        }
-        this.setTableCheck()
       })
     },
     setTableCheck() {
