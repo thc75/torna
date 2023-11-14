@@ -6,7 +6,7 @@ import cn.torna.common.util.IdUtil;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +51,9 @@ public class DocCommentVO implements TreeAware<DocCommentVO, Long> {
      */
     private Long replyId;
 
-    private Date gmtCreate;
+    private LocalDateTime gmtCreate;
 
-    private Date gmtModified;
+    private LocalDateTime gmtModified;
 
     @JSONField(name = "childrenList")
     private List<DocCommentVO> children;
@@ -75,7 +75,7 @@ public class DocCommentVO implements TreeAware<DocCommentVO, Long> {
         return user;
     }
 
-    public Date getCreateDate() {
+    public LocalDateTime getCreateDate() {
         return this.gmtCreate;
     }
 
