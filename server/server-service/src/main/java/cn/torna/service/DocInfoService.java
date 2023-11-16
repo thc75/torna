@@ -9,7 +9,7 @@ import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.enums.PropTypeEnum;
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
@@ -426,7 +426,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), SourceFromEnum.FORM));
+        SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), ModifySourceEnum.FORM));
         return docInfo;
     }
 
@@ -437,7 +437,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, SourceFromEnum.FORM));
+        ModifySourceEnum sourceFromEnum = DocTypeEnum.isTextType(docInfo.getType()) ? ModifySourceEnum.TEXT : ModifySourceEnum.FORM;
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, sourceFromEnum));
         return docInfo;
     }
 
@@ -452,7 +453,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         String oldMd5 = docInfoOld.getMd5();
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
-        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, SourceFromEnum.FORM));
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, ModifySourceEnum.FORM));
         return docInfo;
     }
 

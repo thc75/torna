@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author thc
@@ -40,10 +38,6 @@ public class DocUpdateListener extends DefaultDocUpdateListener {
         synchronized (interner.intern(String.valueOf(event.getDocId()))) {
             // 1. 先保存快照
             DocInfoDTO docInfoDTO = docInfoService.getDocDetail(event.getDocId());
-            // 自定义文档不参与
-            if (docInfoDTO.getType() == DocTypeEnum.CUSTOM.getType()) {
-                return;
-            }
             docSnapshotService.saveDocSnapshot(docInfoDTO);
 
             // 2. 创建对比记录

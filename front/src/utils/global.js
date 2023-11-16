@@ -253,6 +253,18 @@ Object.assign(Vue.prototype, {
       })
     })
   },
+  /**
+   * 获取前端配置
+   * @param key
+   * @returns {Promise<unknown>}
+   */
+  pmsFrontConfig(key) {
+    return new Promise((resolve, reject) => {
+      get('/system/frontConfig', { key: key }, resp => {
+        resolve(resp.data)
+      })
+    })
+  },
   loadEnumData(moduleId, callback) {
     this.get('/doc/enum/info/baselist', { moduleId: moduleId }, resp => {
       callback.call(this, resp.data)

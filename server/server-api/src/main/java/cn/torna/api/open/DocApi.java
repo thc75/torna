@@ -19,7 +19,7 @@ import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocTypeEnum;
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
@@ -50,7 +50,6 @@ import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -346,7 +345,7 @@ public class DocApi {
         ApiUser apiUser = new ApiUser();
         apiUser.setNickname(pushContext.getAuthor());
         String oldMd5 = md5Opt.get();
-        docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, SourceFromEnum.PUSH, apiUser);
+        docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, ModifySourceEnum.PUSH, apiUser);
     }
 
     public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {

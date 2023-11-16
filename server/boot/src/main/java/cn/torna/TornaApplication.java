@@ -1,6 +1,5 @@
 package cn.torna;
 
-import cn.torna.service.UpgradeProService;
 import cn.torna.service.UpgradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,6 @@ public class TornaApplication implements ApplicationRunner {
     @Autowired
     private UpgradeService upgradeService;
 
-    @Autowired
-    private UpgradeProService upgradeProService;
-
     public static void main(String[] args) {
         SpringApplication.run(TornaApplication.class, args);
     }
@@ -28,7 +24,6 @@ public class TornaApplication implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         try {
             upgradeService.upgrade();
-            upgradeProService.upgrade();
         } catch (Exception e) {
             log.error("upgrade error", e);
             System.exit(0);

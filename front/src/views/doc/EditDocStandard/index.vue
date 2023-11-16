@@ -545,7 +545,8 @@ export default {
         viewData.responseParams = this.deepCopy(responseParams)
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
         init_docInfo_complete_view(viewData)
-        this.docInfoString = JSON.stringify(viewData)
+        viewData.isPreview = true
+        this.docInfoString = JSON.stringify(viewData);
       })
     },
     onRootArraySwitch(val, key) {

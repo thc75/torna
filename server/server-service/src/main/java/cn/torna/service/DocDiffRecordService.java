@@ -1,15 +1,13 @@
 package cn.torna.service;
 
-import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ModifyType;
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.DingTalkUtil;
 import cn.torna.common.util.IdUtil;
-import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocDiffDetail;
 import cn.torna.dao.entity.DocDiffRecord;
 import cn.torna.dao.entity.DocSnapshot;
@@ -26,7 +24,6 @@ import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.Query;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -129,7 +126,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     }
 
 
-    public void doDocDiff(String oldMd5, DocInfoDTO docInfoDTO, SourceFromEnum sourceEnum, User user) {
+    public void doDocDiff(String oldMd5, DocInfoDTO docInfoDTO, ModifySourceEnum sourceEnum, User user) {
         doDocDiffNow(oldMd5, docInfoDTO, sourceEnum, user, DocDiffContext::addQueue);
     }
 
@@ -143,7 +140,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         return this.get(query) != null;
     }
 
-    public void doDocDiffNow(String oldMd5, DocInfoDTO docInfoDTO, SourceFromEnum sourceEnum, User user, Consumer<DocDiffDTO> consumer) {
+    public void doDocDiffNow(String oldMd5, DocInfoDTO docInfoDTO, ModifySourceEnum sourceEnum, User user, Consumer<DocDiffDTO> consumer) {
         String newMd5 = docInfoDTO.getMd5();
         boolean contentChanged = !Objects.equals(oldMd5, newMd5);
         // 文档内容被修改，做相关处理
@@ -182,7 +179,9 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
             DocInfoDTO docInfoNew = JSON.parseObject(snapshotNew.getContent(), DocInfoDTO.class);
             modifyType = ModifyType.UPDATE;
             DocDiffRecord updateRecord = this.createRecord(docInfoOld, docDiffDTO, modifyType);
-            docDiffDetailService.doCompare(docInfoOld, docInfoNew, updateRecord);
+            if (!Objects.equals(docDiffDTO.getModifySourceEnum(), ModifySourceEnum.TEXT)) {
+                docDiffDetailService.doCompare(docInfoOld, docInfoNew, updateRecord);
+            }
             this.pushMessage(docInfoNew, modifyType);
         }
     }
@@ -249,7 +248,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         docDiffRecord.setDocId(docInfoDTO.getId());
         docDiffRecord.setMd5Old(docDiffDTO.getMd5Old());
         docDiffRecord.setMd5New(docDiffDTO.getMd5New());
-        docDiffRecord.setModifySource(docDiffDTO.getSourceFromEnum().getSource());
+        docDiffRecord.setModifySource(docDiffDTO.getModifySourceEnum().getSource());
         docDiffRecord.setModifyUserId(user.getUserId());
         docDiffRecord.setModifyNickname(user.getNickname());
         docDiffRecord.setModifyType(modifyType.getType());

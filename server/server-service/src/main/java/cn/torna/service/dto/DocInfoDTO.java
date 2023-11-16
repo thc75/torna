@@ -151,8 +151,9 @@ public class DocInfoDTO implements DocInfoDataId {
     @Diff(positionType = PositionType.HEADER_PARAM)
     private List<DocParamDTO> headerParams = Collections.emptyList();
 
-    @Diff(positionType = PositionType.QUERY_PARAM)
     private List<DocParamDTO> headerParamsRaw = Collections.emptyList();
+
+    @Diff(positionType = PositionType.QUERY_PARAM)
     private List<DocParamDTO> queryParams = Collections.emptyList();
 
     @Diff(positionType = PositionType.REQUEST_PARAM)
@@ -160,6 +161,7 @@ public class DocInfoDTO implements DocInfoDataId {
 
     @Diff(positionType = PositionType.RESPONSE_PARAM)
     private List<DocParamDTO> responseParams = Collections.emptyList();
+
     private List<DocParamDTO> errorCodeParams = Collections.emptyList();
 
     private List<DocParamDTO> globalHeaders = Collections.emptyList();

@@ -2,7 +2,7 @@ package cn.torna;
 
 import cn.torna.api.bean.ApiUser;
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocSnapshot;
 import cn.torna.service.DocDiffDetailService;
@@ -72,7 +72,7 @@ public class DocDiffRecordServiceTest extends TornaApplicationTests {
         String docMd5 = DocInfoService.getDocMd5(docInfoDTONew);
         docInfoDTONew.setMd5(docMd5);
 
-        docDiffRecordService.doDocDiffNow(docInfoDTOOld.getMd5(), docInfoDTONew, SourceFromEnum.FORM, user
+        docDiffRecordService.doDocDiffNow(docInfoDTOOld.getMd5(), docInfoDTONew, ModifySourceEnum.FORM, user
             , docDiffRecordService::processDocDiff
         );
     }
@@ -91,7 +91,7 @@ public class DocDiffRecordServiceTest extends TornaApplicationTests {
             headerParams.clear();
         }
 
-        docDiffRecordService.doDocDiffNow(docInfoDTOOld.getMd5(), docInfoDTONew, SourceFromEnum.PUSH, user
+        docDiffRecordService.doDocDiffNow(docInfoDTOOld.getMd5(), docInfoDTONew, ModifySourceEnum.PUSH, user
                 , docDiffRecordService::processDocDiff);
     }
 }

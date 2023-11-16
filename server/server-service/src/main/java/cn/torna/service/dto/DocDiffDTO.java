@@ -1,7 +1,7 @@
 package cn.torna.service.dto;
 
 import cn.torna.common.bean.User;
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -17,6 +17,6 @@ public class DocDiffDTO {
 
     private User user;
 
-    private SourceFromEnum sourceFromEnum;
+    private ModifySourceEnum modifySourceEnum;
 
 }

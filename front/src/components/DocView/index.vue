@@ -1,5 +1,5 @@
 <template>
-  <div v-show="docInfo.id" class="doc-view">
+  <div v-show="docInfo.id || docInfo.isPreview" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.docName }}</span>
@@ -270,7 +270,8 @@ export default {
         isResponseArray: 0,
         requestArrayType: 'object',
         responseArrayType: 'object',
-        remark: ''
+        remark: '',
+        isPreview: false
       },
       requestExample: {},
       responseSuccessExample: {},
