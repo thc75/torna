@@ -5,10 +5,10 @@
         v-for="(item, index) in list"
         :key="index"
       >
-        <h3>{{ item.gmtCreate }}</h3>
+        <h3>{{ item.modifyTime }}</h3>
         <el-card style="margin-right: 10px">
           <span class="doc-modify-info">
-            <el-tag v-if="item.modifyType === 1" size="medium" :type="getTagType(item.modifyType)" :closabl="false">
+            <el-tag size="medium" :type="getTagType(item.modifyType)" :closable="false">
               {{ getDocModifyTypeName(item.modifyType) }}
             </el-tag>
             {{ item.modifyType === 1 ? $ts('creator') : $ts('modifier') }}：{{ item.modifyNickname }}
@@ -20,7 +20,16 @@
               <!--                {{ $ts('restore') }}-->
               <!--              </el-button>-->
               <!--            </el-popconfirm>-->
-              <el-button style="float: right; padding: 0;margin-left: 10px" type="text" @click="showCompare(item)">
+
+              <el-button
+                v-if="item.modifySource === getEnums().MODIFY_SOURCE.TEXT && item.md5Old && item.md5New"
+                style="float: right; padding: 0;margin-left: 10px"
+                type="text"
+                @click="showDiff(item)"
+              >
+                {{ $ts('compare') }}
+              </el-button>
+              <el-button v-else-if="item.modifySource !== getEnums().MODIFY_SOURCE.TEXT" style="float: right; padding: 0;margin-left: 10px" type="text" @click="showCompare(item)">
                 {{ $ts('viewDoc') }}
               </el-button>
             </div>
@@ -45,6 +54,15 @@
       </el-timeline-item>
     </el-timeline>
     <doc-compare ref="docCompare" />
+    <el-dialog
+      ref="compareDlg"
+      :title="$t('compare')"
+      :visible.sync="compareDlgShow"
+      fullscreen
+      :modal="false"
+    >
+      <doc-diff ref="docDiff" />
+    </el-dialog>
   </div>
 </template>
 <style>
@@ -64,6 +82,7 @@ import { Enums } from '@/utils/enums'
 import DocChangelogSimpleDiff from '@/components/DocChangelogSimpleDiff'
 import DocChangelogParamDiff from '@/components/DocChangelogParamDiff'
 import DocCompare from '@/components/DocCompare'
+import DocDiff from '@/components/DocDiff'
 const POSITION_TYPE = Enums.POSITION_TYPE
 // { '0': { label: '', value: 0 } }
 const positionConfig = {}
@@ -75,11 +94,12 @@ for (const key in POSITION_TYPE) {
 
 export default {
   name: 'DocChangelog',
-  components: { DocChangelogSimpleDiff, DocChangelogParamDiff, DocCompare },
+  components: { DocChangelogSimpleDiff, DocChangelogParamDiff, DocCompare, DocDiff },
   data() {
     return {
       list: [],
-      docId: ''
+      docId: '',
+      compareDlgShow: false
     }
   },
   methods: {
@@ -133,7 +153,13 @@ export default {
       return $ts(obj.label)
     },
     showCompare(record) {
-      this.$refs.docCompare.show(record.md5New, this.docId)
+      this.$refs.docCompare.show(record.md5New, this.docId);
+    },
+    showDiff(record) {
+      this.compareDlgShow = true
+      this.$nextTick(() => {
+        this.$refs.docDiff.compareWithMd5(record.md5Old, record.md5New)
+      })
     },
     restoreDoc(item) {
     }

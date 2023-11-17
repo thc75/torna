@@ -30,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
@@ -147,7 +148,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         if (contentChanged) {
             // 保存新md5内容
             docSnapshotService.saveDocSnapshot(docInfoDTO);
-            consumer.accept(new DocDiffDTO(oldMd5, newMd5, user, sourceEnum));
+            consumer.accept(new DocDiffDTO(oldMd5, newMd5, LocalDateTime.now(), user, sourceEnum));
         }
     }
 
@@ -252,6 +253,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         docDiffRecord.setModifyUserId(user.getUserId());
         docDiffRecord.setModifyNickname(user.getNickname());
         docDiffRecord.setModifyType(modifyType.getType());
+        docDiffRecord.setModifyTime(docDiffDTO.getModifyTime());
         this.save(docDiffRecord);
         return docDiffRecord;
     }

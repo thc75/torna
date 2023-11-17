@@ -49,6 +49,7 @@ public class DocDiffRecordDTO {
      */
     private Byte modifyType;
 
+    private LocalDateTime modifyTime;
 
     private LocalDateTime gmtCreate;
 

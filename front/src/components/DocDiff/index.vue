@@ -1,27 +1,11 @@
 <template>
   <div>
     <el-row :gutter="2">
-      <el-col :span="4">
-        <el-tree
-          ref="tree"
-          :data="treeData"
-          :props="defaultProps"
-          :highlight-current="true"
-          node-key="id"
-          empty-text="无变更记录"
-          @node-click="handleNodeClick"
-        />
-      </el-col>
-      <el-col v-show="treeData.length > 0" :span="20">
+      <el-col :span="24">
         <div class="version-bar">
-          <div style="float: left;display: inline-block">修改于 {{ currentChange }}</div>
           <div style="float: right;display: inline-block">当前文档</div>
         </div>
         <div id="diffView" style="margin-top: 20px;"></div>
-        <div>
-          <div style="float: left">修改备注：{{ remarkOther }}</div>
-          <div style="float: right">修改备注：{{ remarkCurrent }}</div>
-        </div>
       </el-col>
     </el-row>
   </div>
@@ -133,6 +117,17 @@ export default {
       const oldStr = MarkdownUtil.toMarkdown(otherData)
       const newStr = MarkdownUtil.toMarkdown(currentData)
       initUI(oldStr, newStr)
+    },
+    compareWithMd5(md5Old, md5New) {
+      this.get('/doc/snapshot/compare-info', { md5Old: md5Old, md5New: md5New }, resp => {
+        const data = resp.data
+        const docOld = data.docOld
+        const docNew = data.docNew
+        this.currentChange = docNew.gmtModified
+        this.initDocInfo(docOld)
+        this.initDocInfo(docNew)
+        this.compare(docOld, docNew)
+      })
     }
   }
 }

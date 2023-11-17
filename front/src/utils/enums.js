@@ -140,5 +140,22 @@ export const Enums = {
   ModuleConfig: {
     TORNA_PUSH_PRINT_CONTENT: 'torna.push.print-content',
     TORNA_PUSH_OVERRIDE: 'torna.push.override'
+  },
+  /**
+   * 来源方式
+   */
+  MODIFY_SOURCE: {
+    /**
+     * 推送
+     */
+    PUSH: 0,
+    /**
+     * 表单编辑
+     */
+    FORM: 1,
+    /**
+     * 文本编辑,Markdown或富文本
+     */
+    TEXT: 2
   }
 }

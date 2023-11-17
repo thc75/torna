@@ -12,6 +12,8 @@ import cn.torna.service.event.DocAddEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 /**
  * @author thc
  */
@@ -40,7 +42,7 @@ public class DocAddListener extends DefaultDocAddListener {
         // 2. 创建对比记录
         Long creatorId = docInfoDTO.getCreatorId();
         User user = userCacheManager.getUser(creatorId);
-        DocDiffDTO docDiffDTO = new DocDiffDTO(null, docInfoDTO.getMd5(), user, event.getSourceFromEnum());
+        DocDiffDTO docDiffDTO = new DocDiffDTO(null, docInfoDTO.getMd5(), LocalDateTime.now(), user, event.getSourceFromEnum());
         DocDiffContext.addQueue(docDiffDTO);
     }
 }

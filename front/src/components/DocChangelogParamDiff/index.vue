@@ -3,7 +3,7 @@
     <table class="changelog-table">
       <tr>
         <th colspan="2">
-          <el-tag size="mini" :type="getTagType(detail.modifyType)" :closabl="false">
+          <el-tag size="mini" :type="getTagType(detail.modifyType)" effect="plain" :closabl="false">
             {{ getParamModifyTypeName(detail.modifyType) }}
           </el-tag>
           {{ content.targetName }}

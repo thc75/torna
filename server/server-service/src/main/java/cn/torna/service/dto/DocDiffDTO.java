@@ -5,6 +5,8 @@ import cn.torna.common.enums.ModifySourceEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * @author thc
  */
@@ -14,6 +16,7 @@ public class DocDiffDTO {
 
     private String md5Old;
     private String md5New;
+    private LocalDateTime modifyTime;
 
     private User user;
 

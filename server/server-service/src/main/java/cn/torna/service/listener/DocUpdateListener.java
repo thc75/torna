@@ -14,6 +14,7 @@ import com.google.common.collect.Interners;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -48,7 +49,7 @@ public class DocUpdateListener extends DefaultDocUpdateListener {
             }
             Long modifierId = docInfoDTO.getModifierId();
             User user = userCacheManager.getUser(modifierId);
-            DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, newMd5, user, event.getSourceFromEnum());
+            DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, newMd5, LocalDateTime.now(), user, event.getSourceFromEnum());
             DocDiffContext.addQueue(docDiffDTO);
         }
     }

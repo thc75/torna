@@ -7,6 +7,7 @@ CREATE TABLE `doc_diff_record` (
 	`modify_user_id` BIGINT(20) NOT NULL DEFAULT '0' COMMENT '修改人id',
 	`modify_nickname` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '修改人' ,
 	`modify_type` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '变更类型，0：修改，1：新增，2：删除',
+	`modify_time` datetime DEFAULT NULL COMMENT '修改时间',
 	`gmt_create` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
 	`gmt_modified` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`) USING BTREE,
