@@ -34,10 +34,6 @@ public class DocAddListener extends DefaultDocAddListener {
         // 1. 添加快照
         Long docId = event.getDocId();
         DocInfoDTO docInfoDTO = docInfoService.getDocDetail(docId);
-        // 自定义文档不参与
-        if (docInfoDTO.getType() == DocTypeEnum.CUSTOM.getType()) {
-            return;
-        }
         docSnapshotService.saveDocSnapshot(docInfoDTO);
         // 2. 创建对比记录
         Long creatorId = docInfoDTO.getCreatorId();

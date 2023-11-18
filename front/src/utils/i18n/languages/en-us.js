@@ -451,6 +451,7 @@ export default {
   'docType': 'Document Type',
   'comment': 'Comment',
   'commentPlaceholder': 'Input comment here...',
+  'previousVersion': 'Previous Version',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {

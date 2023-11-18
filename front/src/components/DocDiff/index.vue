@@ -1,11 +1,17 @@
 <template>
   <div>
     <el-row :gutter="2">
-      <el-col :span="24">
+      <el-col v-show="!isRichText" :span="24">
         <div class="version-bar">
-          <div style="float: right;display: inline-block">当前文档</div>
+          <div style="float: left;display: inline-block">{{ $t('previousVersion') }}</div>
         </div>
         <div id="diffView" style="margin-top: 20px;"></div>
+      </el-col>
+      <el-col v-show="isRichText" :span="12" style="border: 1px #ccc solid;">
+        <div  v-html="oldRichText"></div>
+      </el-col>
+      <el-col v-show="isRichText" :span="12" style="border: 1px #ccc solid;">
+        <div  v-html="newRichText"></div>
       </el-col>
     </el-row>
   </div>
@@ -75,7 +81,10 @@ export default {
       },
       currentChange: '',
       remarkOther: '',
-      remarkCurrent: ''
+      remarkCurrent: '',
+      isRichText: false,
+      oldRichText: '',
+      newRichText: ''
     }
   },
   watch: {
@@ -114,9 +123,15 @@ export default {
     compare(otherData, currentData) {
       this.remarkOther = otherData.remark
       this.remarkCurrent = currentData.remark
-      const oldStr = MarkdownUtil.toMarkdown(otherData)
-      const newStr = MarkdownUtil.toMarkdown(currentData)
-      initUI(oldStr, newStr)
+      if (otherData.type === this.getEnums().DOC_TYPE.CUSTOM) {
+        this.isRichText = true
+        this.oldRichText = otherData.description
+        this.newRichText = currentData.description
+      } else {
+        const oldStr = MarkdownUtil.toMarkdown(otherData)
+        const newStr = MarkdownUtil.toMarkdown(currentData)
+        initUI(oldStr, newStr);
+      }
     },
     compareWithMd5(md5Old, md5New) {
       this.get('/doc/snapshot/compare-info', { md5Old: md5Old, md5New: md5New }, resp => {

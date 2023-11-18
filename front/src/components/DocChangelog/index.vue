@@ -22,14 +22,14 @@
               <!--            </el-popconfirm>-->
 
               <el-button
-                v-if="item.modifySource === getEnums().MODIFY_SOURCE.TEXT && item.md5Old && item.md5New"
+                v-show="item.modifySource === getEnums().MODIFY_SOURCE.TEXT && item.md5Old && item.md5New"
                 style="float: right; padding: 0;margin-left: 10px"
                 type="text"
                 @click="showDiff(item)"
               >
                 {{ $ts('compare') }}
               </el-button>
-              <el-button v-else-if="item.modifySource !== getEnums().MODIFY_SOURCE.TEXT" style="float: right; padding: 0;margin-left: 10px" type="text" @click="showCompare(item)">
+              <el-button style="float: right; padding: 0;margin-left: 10px" type="text" @click="showCompare(item)">
                 {{ $ts('viewDoc') }}
               </el-button>
             </div>

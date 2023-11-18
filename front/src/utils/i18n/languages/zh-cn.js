@@ -452,6 +452,7 @@ export default {
   'docType': '文档类型',
   'comment': '评论',
   'commentPlaceholder': '在此输入评论内容...',
+  'previousVersion': '上一版',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {
