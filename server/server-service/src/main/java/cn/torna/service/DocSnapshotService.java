@@ -10,7 +10,9 @@ import com.gitee.fastmybatis.core.query.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author tanghc
@@ -46,7 +48,7 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
         docSnapshot.setMd5(docInfoDTO.getMd5());
         docSnapshot.setDocId(docInfoDTO.getId());
         docSnapshot.setModifierName(docInfoDTO.getModifierName());
-        docSnapshot.setModifierTime(docInfoDTO.getGmtModified());
+        docSnapshot.setModifierTime(Optional.ofNullable(docInfoDTO.getGmtModified()).orElseGet(LocalDateTime::now));
         docSnapshot.setContent(content);
         this.save(docSnapshot);
     }

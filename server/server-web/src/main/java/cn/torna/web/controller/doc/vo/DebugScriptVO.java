@@ -33,6 +33,8 @@ public class DebugScriptVO {
     /** 作用域，0：当前文档，1：当前模块，2：当前项目, 数据库字段：scope */
     private Byte scope;
 
+    private Byte enabled;
+
     /** 关联id, 数据库字段：ref_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long refId;

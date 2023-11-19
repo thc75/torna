@@ -327,8 +327,8 @@ public class DocApi {
                 return;
             }
             docInfoDTO.setModifierName(pushContext.getAuthor());
-            doDocModifyProcess(docInfoDTO, pushContext);
             docInfoService.doPushSaveDocInfo(docInfoDTO, user);
+            doDocModifyProcess(docInfoDTO, pushContext);
         }
     }
 
@@ -339,12 +339,9 @@ public class DocApi {
      */
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
         Optional<String> md5Opt = getOldMd5(docInfoDTO.buildDataId(), pushContext.getDocMetas());
-        if (!md5Opt.isPresent()) {
-            return;
-        }
         ApiUser apiUser = new ApiUser();
         apiUser.setNickname(pushContext.getAuthor());
-        String oldMd5 = md5Opt.get();
+        String oldMd5 = md5Opt.orElse(null);
         docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, ModifySourceEnum.PUSH, apiUser);
     }
 

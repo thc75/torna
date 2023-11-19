@@ -27,6 +27,8 @@ public class DebugScriptAddParam {
     /** 作用域，0：当前文档，1：当前模块，2：当前项目, 数据库字段：scope */
     private Byte scope;
 
+    private Byte enabled;
+
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long docId;
 

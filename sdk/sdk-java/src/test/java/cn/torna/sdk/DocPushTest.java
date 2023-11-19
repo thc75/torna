@@ -96,7 +96,7 @@ public class DocPushTest extends BaseTest {
         pathParam.setName("id");
         pathParam.setType("int");
         pathParam.setDescription("id");
-        pathParam.setExample("123");
+        pathParam.setExample("1231");
         pathParam.setMaxLength("-");
         pathParam.setRequired(Booleans.TRUE);
         item.setPathParams(Arrays.asList(pathParam));
@@ -105,14 +105,14 @@ public class DocPushTest extends BaseTest {
         DocParamHeader header = new DocParamHeader();
         header.setName("token");
         header.setRequired(Booleans.TRUE);
-        header.setDescription("请求token");
-        header.setExample("xxxx");
+        header.setDescription("请求token1");
+        header.setExample("xxxxx1");
         item.setHeaderParams(Arrays.asList(header));
 
         /* 设置Query参数 */
         DocParamReq queryCreateParamReq = new DocParamReq();
         queryCreateParamReq.setName("uid");
-        queryCreateParamReq.setType("number");
+        queryCreateParamReq.setType("string");
         queryCreateParamReq.setDescription("uid");
         queryCreateParamReq.setExample("1111");
         queryCreateParamReq.setMaxLength("64");
@@ -125,7 +125,7 @@ public class DocPushTest extends BaseTest {
         paramCreateParamReq.setName("goodsName");
         paramCreateParamReq.setType("string");
         paramCreateParamReq.setDescription("商品名称");
-        paramCreateParamReq.setExample("iphone12");
+        paramCreateParamReq.setExample("iphone13");
         paramCreateParamReq.setMaxLength("64");
         paramCreateParamReq.setRequired(Booleans.TRUE);
         paramCreateParamReq.setParentId("");

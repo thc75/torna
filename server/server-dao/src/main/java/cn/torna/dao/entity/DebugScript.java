@@ -44,6 +44,9 @@ public class DebugScript {
     @com.gitee.fastmybatis.core.annotation.LogicDelete
     private Byte isDeleted;
 
+    /** 是否启用 */
+    private Byte enabled;
+
     /**  数据库字段：gmt_create */
     private LocalDateTime gmtCreate;
 

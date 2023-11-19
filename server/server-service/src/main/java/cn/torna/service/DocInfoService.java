@@ -475,6 +475,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         String docMd5 = getDocMd5(docInfoDTO);
         docInfo.setMd5(docMd5);
         this.getMapper().saveDocInfo(docInfo);
+        if (docInfoDTO.getId() == null && docInfo.getId() != null) {
+            docInfoDTO.setId(docInfo.getId());
+        }
         return docInfo;
     }
 

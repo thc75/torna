@@ -12,7 +12,9 @@
           </el-button>
           <span class="split">|</span>
           <span class="tip">{{ $ts('preScriptTip') }}</span>
-          <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('document') }}</el-link>
+          <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/debug-script.md')">
+            {{ $ts('document') }}
+          </el-link>
         </div>
         <el-table
           v-if="!preEdit"
@@ -20,11 +22,6 @@
           border
           highlight-current-row
         >
-          <el-table-column width="50">
-            <template slot-scope="scope">
-              <el-checkbox v-model="scope.row.checked" @change="(val) => handlePreTableCurrentChange(scope.row, val)" />
-            </template>
-          </el-table-column>
           <el-table-column :label="$ts('name')" prop="name" />
           <el-table-column :label="$ts('content')" prop="content" width="100">
             <template slot-scope="scope">
@@ -44,6 +41,18 @@
           >
             <template slot-scope="scope">
               <span :title="scope.row.gmtCreate">{{ scope.row.gmtCreate.split(' ')[0] }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('enable')" width="80">
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.enabled"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                :active-value="1"
+                :inactive-value="0"
+                @change="onUpdateScriptEnable(scope.row)"
+              />
             </template>
           </el-table-column>
           <el-table-column
@@ -74,6 +83,26 @@
               </el-select>
             </el-form-item>
             <el-form-item :label="$ts('content')" prop="content">
+              <div>
+                <table border="0" cellpadding="0" cellspacing="0" class="el-table">
+                  <caption>内置对象:req</caption>
+                  <tr>
+                    <th>参数</th><th>类型</th><th>说明</th>
+                  </tr>
+                  <tr>
+                    <td>url</td><td>string</td><td>请求URL，字符串格式</td>
+                  </tr>
+                  <tr>
+                    <td>method</td><td>string</td><td>请求方法，如：GET</td>
+                  </tr>
+                  <tr>
+                    <td>params</td><td>object</td><td>请求的query参数</td>
+                  </tr>
+                  <tr>
+                    <td>headers</td><td>object</td><td>请求头</td>
+                  </tr>
+                </table>
+              </div>
               <editor
                 v-model="preForm.content"
                 lang="javascript"
@@ -102,7 +131,9 @@
           </el-button>
           <span class="split">|</span>
           <span class="tip">{{ $ts('afterScriptTip') }}</span>
-          <el-link type="primary" :underline="false" @click="openLink('/help?id=debug')">{{ $ts('document') }}</el-link>
+          <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/debug-script.md')">
+            {{ $ts('document') }}
+          </el-link>
         </div>
         <el-table
           v-if="!afterEdit"
@@ -191,6 +222,7 @@
         <el-button @click="showVisible = false">{{ $ts('dlgClose') }}</el-button>
       </div>
     </el-dialog>
+      <help ref="help" />
   </div>
 </template>
 <script>
@@ -199,6 +231,8 @@ import moment from 'moment'
 import qs from 'qs'
 import { RSA } from '@/utils/rsa'
 import { loadJs } from '@/utils/loadjs'
+import Help from '@/components/Help'
+import axios from 'axios'
 
 function getLib() {
   return {
@@ -206,13 +240,14 @@ function getLib() {
     moment: moment,
     qs: qs,
     RSA: RSA,
-    loadJs: loadJs
+    loadJs: loadJs,
+    axios: axios
   }
 }
 
 export default {
   name: 'DebugScript',
-  components: { editor: require('vue2-ace-editor') },
+  components: { Help, editor: require('vue2-ace-editor') },
   props: {
     id: {
       type: String,
@@ -289,25 +324,18 @@ export default {
       // snippet
       require('brace/snippets/javascript')
     },
-    load(preCheckedId, afterCheckedId) {
-      this.preCheckedId = preCheckedId || ''
-      this.afterCheckedId = afterCheckedId || ''
-      this.loadTable()
+    load(callback) {
+      this.loadTable(callback)
     },
-    loadTable() {
+    loadTable(callback) {
       if (this.docId) {
         this.get('/doc/debugscript/list', { docId: this.docId }, resp => {
           const data = resp.data
           const preData = data.filter(row => row.type === this.getEnums().DEBUG_SCRIPT_TYPE.PRE)
           const afterData = data.filter(row => row.type === this.getEnums().DEBUG_SCRIPT_TYPE.AFTER)
-          preData.forEach(row => {
-            row.checked = row.id === this.preCheckedId
-          })
-          afterData.forEach(row => {
-            row.checked = row.id === this.afterCheckedId
-          })
           this.preData = preData
           this.afterData = afterData
+          callback && callback.call(this, this.getEnable())
         })
       }
     },
@@ -418,8 +446,8 @@ export default {
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
       const fn = new Function('lib', 'req', `return ${code}`)
-      fn(getLib(), req)
-      return req
+      const result = fn(getLib(), req)
+      return result !== undefined ? result : req
     },
     runAfter(resp, req) {
       const data = this.getData()
@@ -449,7 +477,7 @@ export default {
     getPreCheckedRow() {
       const data = this.preData
       for (const row of data) {
-        if (row.checked) {
+        if (row.enabled) {
           return row
         }
       }
@@ -457,14 +485,20 @@ export default {
     getAfterCheckedRow() {
       const data = this.afterData
       for (const row of data) {
-        if (row.checked) {
+        if (row.enabled) {
           return row
         }
       }
     },
     getEnable() {
-      const data = this.getData()
-      return data.preCheckedRow
+      const preCheckedRow = this.getPreCheckedRow()
+      const afterCheckedRow = this.getAfterCheckedRow()
+      return preCheckedRow !== null || afterCheckedRow != null
+    },
+    onUpdateScriptEnable(row) {
+      this.post('/doc/debugscript/update-v2', row, resp => {
+        this.tipSuccess($t('operateSuccess'))
+      })
     }
   }
 }

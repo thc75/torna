@@ -1,6 +1,7 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DebugScriptScopeEnum;
@@ -51,6 +52,7 @@ public class DebugScriptController {
         Byte scope = param.getScope();
         debugScript.setRefId(getRefId(docId, scope));
         debugScript.setCreatorName(user.getNickname());
+        debugScript.setEnabled(Booleans.TRUE);
         debugScriptService.save(debugScript);
         return Result.ok();
     }
@@ -79,6 +81,14 @@ public class DebugScriptController {
         Long docId = param.getDocId();
         Byte scope = param.getScope();
         debugScript.setRefId(getRefId(docId, scope));
+        debugScriptService.update(debugScript);
+        return Result.ok();
+    }
+
+    @PostMapping("update-v2")
+    public Result updateV2(@RequestBody DebugScriptUpdateParam param) {
+        DebugScript debugScript = debugScriptService.getById(param.getId());
+        CopyUtil.copyPropertiesIgnoreNull(param, debugScript);
         debugScriptService.update(debugScript);
         return Result.ok();
     }

@@ -332,7 +332,7 @@
           </el-tab-pane>
           <el-tab-pane name="script">
             <span slot="label" class="result-header-label">
-              <el-badge :is-dot="enableScript" type="danger">
+              <el-badge :is-dot.sync="enableScript" type="danger">
                 <span>{{ $ts('script') }}</span>
               </el-badge>
             </span>
@@ -460,7 +460,8 @@ export default {
         height: 240
       },
       preCheckedId: '',
-      afterCheckedId: ''
+      afterCheckedId: '',
+      enableScript: false
     }
   },
   computed: {
@@ -478,9 +479,6 @@ export default {
     },
     isResponseJson() {
       return this.isJsonString(this.result.content)
-    },
-    enableScript() {
-      return (this.preCheckedId !== undefined && this.preCheckedId.length > 0) || (this.afterCheckedId !== undefined && this.afterCheckedId.length > 0)
     }
   },
   watch: {
@@ -501,6 +499,11 @@ export default {
       this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
       this.initActive()
       this.initDebugHost()
+      this.$nextTick(() => {
+        this.getDebugScript().load(function(enableScript) {
+          this.enableScript = enableScript
+        })
+      })
     },
     initDebugHost() {
       const debugId = this.getAttr(this.getHostKey()) || ''
@@ -621,6 +624,7 @@ export default {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
       const params = this.getQueryParams(this.queryDataChecked)
+      let url = this.url
       let data = {}
       let isMultipart = false
       // 如果请求body
@@ -638,23 +642,38 @@ export default {
           data = this.bodyText
         }
       }
-      this.sendLoading = true
-      let url = this.url
       let req = {
         url: url,
         method: item.httpMethod,
         params: params,
         data: data,
-        headers: headers
+        headers: headers,
+        isMultipart: isMultipart
       }
+      // 执行脚本
       try {
-        req = this.getDebugScript().runPre(req)
+        // result 有可能是Promise对象
+        const result = this.getDebugScript().runPre(req)
+        if (result instanceof Promise) {
+          result.then(request => {
+            Object.assign(req, request)
+            this.doSend(url, req)
+          }).catch(error => {
+            console.log(error)
+          })
+        } else {
+          this.doSend(url, req)
+        }
       } catch (e) {
         console.error(e)
         this.tipError('Run pre-request script error, ' + e)
         this.sendLoading = false
-        return
       }
+
+    },
+    doSend(url, req) {
+      this.sendLoading = true
+      const headers = req.headers
       let realHeaders
       // 代理转发
       if (this.isProxy) {
@@ -666,26 +685,26 @@ export default {
         realHeaders = headers
       }
       request.call(
-        this,
-        req.method,
-        req.url,
-        req.params,
-        req.data,
-        realHeaders,
-        isMultipart,
-        (response) => {
-          this.doProxyResponse(response, req)
-        },
-        (error) => {
-          const resp = error.response
-          if (resp) {
-            this.doProxyResponse(resp)
-          } else {
-            this.sendLoading = false
-            this.result.content = $ts('sendErrorTip')
-            this.openRightPanel()
+          this,
+          req.method,
+          req.url,
+          req.params,
+          req.data,
+          realHeaders,
+          req.isMultipart,
+          (response) => {
+            this.doProxyResponse(response, req)
+          },
+          (error) => {
+            const resp = error.response
+            if (resp) {
+              this.doProxyResponse(resp)
+            } else {
+              this.sendLoading = false
+              this.result.content = $ts('sendErrorTip')
+              this.openRightPanel()
+            }
           }
-        }
       )
       this.setProps()
     },
@@ -752,18 +771,13 @@ export default {
         })
         return data
       }
-      const scriptData = this.getDebugScript().getData()
-      const preCheckedRow = scriptData.preCheckedRow
-      const afterCheckedRow = scriptData.afterCheckedRow
       const props = {
         headerData: formatData(this.headerData),
         pathData: formatData(this.pathData),
         queryData: formatData(this.queryData),
         multipartData: formatData(this.multipartData.filter(row => row.type !== 'file')),
         formData: formatData(this.formData),
-        bodyText: this.bodyText,
-        preCheckedId: preCheckedRow ? preCheckedRow.id : '',
-        afterCheckedId: afterCheckedRow ? afterCheckedRow.id : ''
+        bodyText: this.bodyText
       }
       for (const key in props) {
         if (props[key] === '' || JSON.stringify(props[key]) === '{}') {
@@ -863,7 +877,6 @@ export default {
         } else {
           this.setTableCheck()
         }
-        this.getDebugScript().load(this.preCheckedId, this.afterCheckedId)
       })
     },
     setTableCheck() {
