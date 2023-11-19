@@ -72,7 +72,7 @@ import { mavonEditor } from 'mavon-editor'
 import DocChangelogDrawer from '@/components/DocChangelogDrawer'
 
 export default {
-  components: {DocChangelogDrawer, ConstView, mavonEditor },
+  components: { DocChangelogDrawer, ConstView, mavonEditor },
   props: {
     docInfo: Object,
     showOptBar: {
@@ -135,7 +135,7 @@ export default {
     },
     onShowHistory() {
       this.$refs.docChangelogDrawer.show(this.docInfo.id)
-    },
+    }
   }
 }
 </script>
