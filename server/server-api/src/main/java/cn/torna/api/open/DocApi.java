@@ -338,11 +338,12 @@ public class DocApi {
      * @param pushContext 推送上下文
      */
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        Optional<String> md5Opt = getOldMd5(docInfoDTO.buildDataId(), pushContext.getDocMetas());
+        DocInfoDTO docDetailView = docInfoService.getDocDetailView(docInfoDTO.getId());
+        Optional<String> md5Opt = getOldMd5(docDetailView.buildDataId(), pushContext.getDocMetas());
         ApiUser apiUser = new ApiUser();
         apiUser.setNickname(pushContext.getAuthor());
         String oldMd5 = md5Opt.orElse(null);
-        docDiffRecordService.doDocDiff(oldMd5, docInfoDTO, ModifySourceEnum.PUSH, apiUser);
+        docDiffRecordService.doDocDiff(oldMd5, docDetailView, ModifySourceEnum.PUSH, apiUser);
     }
 
     public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {

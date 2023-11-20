@@ -624,7 +624,7 @@ export default {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
       const params = this.getQueryParams(this.queryDataChecked)
-      let url = this.url
+      const url = this.url
       let data = {}
       let isMultipart = false
       // 如果请求body
@@ -642,7 +642,7 @@ export default {
           data = this.bodyText
         }
       }
-      let req = {
+      const req = {
         url: url,
         method: item.httpMethod,
         params: params,
@@ -669,7 +669,6 @@ export default {
         this.tipError('Run pre-request script error, ' + e)
         this.sendLoading = false
       }
-
     },
     doSend(url, req) {
       this.sendLoading = true
@@ -685,26 +684,26 @@ export default {
         realHeaders = headers
       }
       request.call(
-          this,
-          req.method,
-          req.url,
-          req.params,
-          req.data,
-          realHeaders,
-          req.isMultipart,
-          (response) => {
-            this.doProxyResponse(response, req)
-          },
-          (error) => {
-            const resp = error.response
-            if (resp) {
-              this.doProxyResponse(resp)
-            } else {
-              this.sendLoading = false
-              this.result.content = $ts('sendErrorTip')
-              this.openRightPanel()
-            }
+        this,
+        req.method,
+        req.url,
+        req.params,
+        req.data,
+        realHeaders,
+        req.isMultipart,
+        (response) => {
+          this.doProxyResponse(response, req)
+        },
+        (error) => {
+          const resp = error.response
+          if (resp) {
+            this.doProxyResponse(resp)
+          } else {
+            this.sendLoading = false
+            this.result.content = $ts('sendErrorTip')
+            this.openRightPanel()
           }
+        }
       )
       this.setProps()
     },

@@ -37,7 +37,7 @@ export default {
     }
   },
   methods: {
-    show(md5Old, docId) {
+    show(md5, docId) {
       this.dlgShow = true
       this.$nextTick(() => {
         // this.get('/doc/view/detail', { id: docId }, function(resp) {
@@ -45,9 +45,8 @@ export default {
         //   init_docInfo_view(data)
         //   this.$refs.docViewCurrent.setData(data)
         // })
-        this.get('doc/snapshot/docinfo', { md5: md5Old }, resp => {
+        this.get('doc/snapshot/docinfo', { md5: md5 }, resp => {
           const data = resp.data
-          // console.log(data)
           init_docInfo_view(data)
           Object.assign(this.docInfo, data)
           if (data.type === this.getEnums().DOC_TYPE.HTTP) {

@@ -11,5 +11,5 @@ CREATE TABLE `doc_diff_record` (
 	`gmt_create` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
 	`gmt_modified` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`) USING BTREE,
-	INDEX `idx_dataid` (`data_id`) USING BTREE
+	INDEX `idx_doc_id` (`doc_id`) USING BTREE
 ) COMMENT='文档比较记录' COLLATE='utf8mb4_general_ci' ENGINE=InnoDB;

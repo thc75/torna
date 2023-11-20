@@ -8,6 +8,5 @@ CREATE TABLE `doc_diff_detail` (
   gmt_create    datetime DEFAULT CURRENT_TIMESTAMP,
   gmt_modified  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `idx_dataid` (`data_id`),
-  KEY `idx_optkey` (`operate_key`)
+  KEY `idx_record_id` (`record_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档比较记录'
