@@ -12,7 +12,7 @@
       :rules="spaceRule"
       size="mini"
       label-position="top"
-      @submit.native="onSpaceCreateSave"
+      @submit.native.prevent="onSpaceCreateSave"
     >
       <el-form-item :label="$t('spaceName')" prop="name">
         <el-input
