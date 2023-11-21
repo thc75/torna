@@ -48,6 +48,27 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     @Autowired
     private ConstantInfoService constantInfoService;
 
+    /**
+     * 获取钉钉群机器人推送url
+     * @return
+     */
+    public String getDingDingRobotWebhookUrl(long moduleId) {
+        return this.getCommonConfigValue(moduleId, "dingdingWebhookUrl", "");
+    }
+
+    /**
+     * 根据应用id和配置key查询
+     * @param moduleId 应用id
+     * @param keys 配置key
+     * @return 返回配置对象
+     */
+    public List<ModuleConfig> listByModuleIdAndKeys(long moduleId, String[] keys) {
+        Query query = new Query();
+        query.eq("module_id", moduleId);
+        query.in("config_key", keys);
+        return this.listAll(query);
+    }
+
 
     public List<DocParam> listGlobalHeaders(long moduleId) {
         return this.listGlobal(moduleId, ParamStyleEnum.HEADER);

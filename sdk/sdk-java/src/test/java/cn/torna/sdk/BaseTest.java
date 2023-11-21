@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 public class BaseTest extends TestCase {
 
     static String url = "http://localhost:7700/api";
-    static String token = "b414086531524fb0bc14f757346fec92";
+    static String token = "6a7c58eb9689437ca6b5d05011d7a0ed";
 
 
     static OpenClient client = new OpenClient(url);

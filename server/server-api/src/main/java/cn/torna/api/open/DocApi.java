@@ -13,10 +13,13 @@ import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.param.SwaggerJsonParam;
 import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
+import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocTypeEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
@@ -26,6 +29,7 @@ import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.Project;
 import cn.torna.manager.tx.TornaTransactionManager;
+import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
@@ -56,7 +60,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author tanghc
@@ -73,6 +80,10 @@ public class DocApi {
     private static final String PUSH_ERROR_MSG = "【%s】推送失败，请查看日志";
 
     private final Object lock = new Object();
+
+
+    @Autowired
+    private DocDiffRecordService docDiffRecordService;
 
     @Autowired
     private DocInfoService docInfoService;
@@ -178,7 +189,7 @@ public class DocApi {
         String ip = context.getIp();
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
-        PushContext pushContext = new PushContext(docMetas, new ArrayList<>());
+        PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
         ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal = new ThreadLocal<>();
         synchronized (lock) {
             tornaTransactionManager.execute(() -> {
@@ -194,6 +205,8 @@ public class DocApi {
                 this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
                 Project project = projectService.getById(module.getProjectId());
                 this.sendSuccessMessage("推送文档成功（" + project.getName() + "-" + module.getName() + "），推送人：" + param.getAuthor(), apiUser);
+                // 处理修改过的文档
+                processModifiedDocs(pushContext);
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
@@ -313,7 +326,54 @@ public class DocApi {
             if (DocInfoService.isLocked(docInfoDTO.buildDataId(), docMetas)) {
                 return;
             }
+            docInfoDTO.setModifierName(pushContext.getAuthor());
             docInfoService.doPushSaveDocInfo(docInfoDTO, user);
+            doDocModifyProcess(docInfoDTO, pushContext);
+        }
+    }
+
+    /**
+     * 处理变更情况
+     * @param docInfoDTO 最新的文档内容
+     * @param pushContext 推送上下文
+     */
+    protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
+        DocInfoDTO docDetailView = docInfoService.getDocDetailView(docInfoDTO.getId());
+        Optional<String> md5Opt = getOldMd5(docDetailView.buildDataId(), pushContext.getDocMetas());
+        ApiUser apiUser = new ApiUser();
+        apiUser.setNickname(pushContext.getAuthor());
+        String oldMd5 = md5Opt.orElse(null);
+        docDiffRecordService.doDocDiff(oldMd5, docDetailView, ModifySourceEnum.PUSH, apiUser);
+    }
+
+    public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {
+        if (CollectionUtils.isEmpty(docMetas)) {
+            return Optional.empty();
+        }
+        return docMetas.stream()
+                .filter(docMeta -> Objects.equals(dataId, docMeta.getDataId()))
+                .findFirst()
+                .map(DocMeta::getMd5);
+    }
+
+    private void processModifiedDocs(PushContext pushContext) {
+        String url = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_URL.getValue();
+        List<DocInfoDTO> contentChangedDocs = pushContext.getContentChangedDocs();
+        if (StringUtils.hasText(url) && !CollectionUtils.isEmpty(contentChangedDocs)) {
+            String names = contentChangedDocs.stream()
+                    .map(DocInfoDTO::getName)
+                    .collect(Collectors.joining("、"));
+            String content = String.format(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue(), names);
+            DingdingWebHookBody dingdingWebHookBody = DingdingWebHookBody.create(content);
+            try {
+                // 推送钉钉机器人
+                String result = HttpHelper.postJson(url, JSON.toJSONString(dingdingWebHookBody))
+                        .execute()
+                        .asString();
+                log.info("文档变更，推送钉钉机器人, url:{}, content:{}, 推送结果:{}", url, content, result);
+            } catch (Exception e) {
+                log.error("推送钉钉失败, url:{}", url, e);
+            }
         }
     }
 

@@ -1,0 +1,12 @@
+CREATE TABLE `doc_diff_detail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `record_id` bigint(20) NOT NULL COMMENT 'doc_diff_record.id',
+  `position_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '变更位置，0：文档名称，1：文档描述，2：contentType，3：httpMethod，10：参数名称，11：参数类型，12：参数必填，13：参数最大长度，14：参数描述，15：参数示例值',
+  `target_name` varchar(64) NOT NULL COMMENT '目标名称',
+  `content` text  COMMENT '内容',
+  `modify_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '变更类型，0：修改，1：新增，2：删除',
+  gmt_create    datetime DEFAULT CURRENT_TIMESTAMP,
+  gmt_modified  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_record_id` (`record_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档比较记录'

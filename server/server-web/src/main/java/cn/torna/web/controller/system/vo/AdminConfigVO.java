@@ -12,6 +12,9 @@ public class AdminConfigVO {
     private List<ConfigItemVO> configs = new ArrayList<>(8);
 
     public void addConfig(ConfigItemVO configItemVO) {
+        if (configs.contains(configItemVO)) {
+            return;
+        }
         configs.add(configItemVO);
     }
 

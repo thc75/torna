@@ -25,6 +25,8 @@ const TORNA_PROJECT_CONFIG = 'torna.project.'
 
 const pageSizeConfig = [5, 10, 20, 50, 100]
 
+let statusMap
+
 const typeConfig = [
   'string',
   'number',
@@ -51,6 +53,24 @@ let next_id = 1
 let server_config
 
 Object.assign(Vue.prototype, {
+  getDocStatusType(status) {
+    const map = this.getDocStatusMap()
+    const info = map[status + '']
+    return info ? info.type : ''
+  },
+  getDocStatusName(status) {
+    const map = this.getDocStatusMap()
+    return $ts(map[status + ''].label)
+  },
+  getDocStatusMap() {
+    if (!statusMap) {
+      statusMap = {}
+      for (const statusInfo of this.getEnums().DOC_STATUS) {
+        statusMap[statusInfo.value + ''] = statusInfo
+      }
+    }
+    return statusMap
+  },
   /**
    * GET请求接口
    * @param uri uri
@@ -229,6 +249,18 @@ Object.assign(Vue.prototype, {
     return new Promise((resolve, reject) => {
       get('/system/viewConfig', {}, resp => {
         server_config = resp.data
+        resolve(resp.data)
+      })
+    })
+  },
+  /**
+   * 获取前端配置
+   * @param key
+   * @returns {Promise<unknown>}
+   */
+  pmsFrontConfig(key) {
+    return new Promise((resolve, reject) => {
+      get('/system/frontConfig', { key: key }, resp => {
         resolve(resp.data)
       })
     })

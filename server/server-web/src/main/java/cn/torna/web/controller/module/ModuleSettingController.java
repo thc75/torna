@@ -14,6 +14,7 @@ import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.web.controller.module.param.DebugEnvParam;
 import cn.torna.web.controller.module.param.ModuleAllowMethodSetParam;
+import cn.torna.web.controller.module.param.ModuleConfigUpdateParam;
 import cn.torna.web.controller.module.param.ModuleCommonConfigParam;
 import cn.torna.web.controller.module.param.ModuleGlobalParam;
 import cn.torna.web.controller.module.param.ModuleSwaggerConfigParam;
@@ -45,6 +46,48 @@ public class ModuleSettingController {
 
     @Autowired
     private ModuleSwaggerConfigService moduleSwaggerConfigService;
+
+    /**
+     * 根据应用id和配置key查询配置
+     * @param moduleId 应用id
+     * @param key 配置key
+     * @return
+     */
+    @GetMapping("list")
+    public Result<List<ModuleConfigVO>> list(@HashId Long moduleId, String key) {
+        List<ModuleConfig> moduleConfigs = moduleConfigService.listByModuleIdAndKeys(moduleId, key.split(","));
+        List<ModuleConfigVO> moduleConfigVOS = CopyUtil.copyList(moduleConfigs, ModuleConfigVO::new);
+        return Result.ok(moduleConfigVOS);
+    }
+
+
+    @PostMapping("update")
+    public Result update(@RequestBody ModuleConfigUpdateParam param) {
+        Long moduleId = param.getModuleId();
+        List<ModuleConfigUpdateParam.ModuleConfigItem> items = param.getItems();
+        for (ModuleConfigUpdateParam.ModuleConfigItem item : items) {
+            Byte type = item.getType();
+            if (type == null) {
+                item.setType(ModuleConfigTypeEnum.COMMON.getType());
+            }
+            ModuleConfig moduleConfig = moduleConfigService.getCommonConfig(moduleId, item.getConfigKey());
+            if (moduleConfig == null) {
+                moduleConfig = CopyUtil.copyBean(item, ModuleConfig::new);
+                moduleConfig.setModuleId(moduleId);
+                moduleConfigService.save(moduleConfig);
+            } else {
+                moduleConfig.setConfigValue(item.getConfigValue());
+                moduleConfigService.update(moduleConfig);
+            }
+        }
+        return Result.ok();
+    }
+
+
+    @PostMapping("/debugEnv/set")
+    public Result setDebugEnv(@RequestBody DebugEnvParam param) {
+        return Result.ok();
+    }
 
     @Deprecated
     @GetMapping("/debugEnv/list")

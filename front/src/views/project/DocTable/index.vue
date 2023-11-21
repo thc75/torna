@@ -147,6 +147,29 @@
         </template>
       </u-table-column>
       <u-table-column
+        prop="status"
+        :label="$ts('status')"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <div v-if="!isFolder(scope.row)">
+            <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <doc-status-tag :status="scope.row.status" />
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="item in getEnums().DOC_STATUS" :key="item.value" :command="() => onUpdateStatus(scope.row, item.value)">
+                  <doc-status-tag :status="item.value" />
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <span v-else>
+              <doc-status-tag :status="scope.row.status" />
+            </span>
+          </div>
+        </template>
+      </u-table-column>
+      <u-table-column
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         :label="$t('operation')"
         :width="$width(160, { 'en': 190 })"
@@ -246,6 +269,7 @@
 }
 </style>
 <script>
+import DocStatusTag from '@/components/DocStatusTag'
 import HttpMethod from '@/components/HttpMethod'
 import SvgIcon from '@/components/SvgIcon'
 import TimeTooltip from '@/components/TimeTooltip'
@@ -254,7 +278,7 @@ import PopoverUpdate from '@/components/PopoverUpdate'
 
 export default {
   name: 'DocTable',
-  components: { HttpMethod, SvgIcon, TimeTooltip, DocExportDialog, PopoverUpdate },
+  components: { DocStatusTag, HttpMethod, SvgIcon, TimeTooltip, DocExportDialog, PopoverUpdate },
   props: {
     projectId: {
       type: String,
@@ -309,6 +333,18 @@ export default {
     window.removeEventListener('resize', this.initHeight)
   },
   methods: {
+    onUpdateStatus(row, status) {
+      if (row.status === status) {
+        return
+      }
+      this.post('/doc/status/update', {
+        id: row.id,
+        status: status
+      }, resp => {
+        row.status = status
+        this.tipSuccess($ts('operateSuccess'))
+      })
+    },
     refreshTable() {
       this.loadTable(function() {
         this.tipSuccess(this.$t('refreshSuccess'))

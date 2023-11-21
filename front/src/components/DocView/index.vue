@@ -1,8 +1,9 @@
 <template>
-  <div v-show="docInfo.id" class="doc-view">
+  <div v-show="docInfo.id || docInfo.isPreview" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
         <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.docName }}</span>
+        <doc-status-tag class="el-tag-method" :status="docInfo.status" />
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
           <el-button
@@ -15,6 +16,11 @@
           />
         </el-tooltip>
         <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
+          <div class="item">
+            <el-tooltip placement="top" :content="$ts('changeHistory')">
+              <el-button type="text" icon="el-icon-date" @click="onShowHistory"></el-button>
+            </el-tooltip>
+          </div>
           <div class="item">
             <el-dropdown trigger="click" @command="handleCommand">
               <el-tooltip placement="top" :content="$t('export')">
@@ -140,7 +146,16 @@
       <el-divider content-position="left">{{ $t('updateRemark') }}</el-divider>
       <div class="rich-editor" v-html="docInfo.remark.replace(/\n/g,'<br />')"></div>
     </div>
+    <el-dialog
+      ref="historyDlg"
+      title="变更历史"
+      :visible.sync="historyShow"
+      fullscreen
+    >
+      <doc-diff :doc-info="currentDocInfo" />
+    </el-dialog>
     <p></p>
+    <doc-changelog-drawer ref="docChangelogDrawer" />
     <const-view ref="constView" />
   </div>
 </template>
@@ -165,15 +180,18 @@ h4 .content {
 }
 </style>
 <script>
+import DocStatusTag from '@/components/DocStatusTag'
+import DocChangelogDrawer from '@/components/DocChangelogDrawer'
 import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
+import DocDiff from '@/components/DocDiff'
 import ConstView from '@/components/ConstView'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 
 export default {
   name: 'DocView',
-  components: { ParameterTable, HttpMethod, ConstView },
+  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },
   props: {
     docId: {
       type: String,
@@ -211,8 +229,12 @@ export default {
       },
       commonParams: [],
       commonResult: [],
+      commentList: [],
+      commentNum: 0,
       docBaseInfoData: [],
+      currentDocInfo: {},
       docInfo: {
+        status: 0,
         id: '',
         name: '',
         docName: '',
@@ -247,10 +269,13 @@ export default {
         isResponseArray: 0,
         requestArrayType: 'object',
         responseArrayType: 'object',
-        remark: ''
+        remark: '',
+        isPreview: false
       },
       requestExample: {},
       responseSuccessExample: {},
+      historyShow: false,
+      historyDocId: '',
       isSubscribe: false,
       responseHiddenColumns: [],
       hostConfigName: '',
@@ -309,6 +334,15 @@ export default {
     this.initResponseHiddenColumns()
   },
   methods: {
+    initDocComment(docId) {
+      if (docId) {
+        this.get('/doc/comment/list', { docId: docId }, resp => {
+          const pageInfo = resp.data
+          this.commentList = pageInfo.list
+          this.commentNum = pageInfo.total
+        })
+      }
+    },
     loadData: function(docId) {
       if (docId) {
         this.get(this.url, { id: docId }, function(resp) {
@@ -380,6 +414,15 @@ export default {
     },
     onExportWord() {
       ExportUtil.exportWordSinglePage(this.docInfo)
+    },
+    onShowHistory() {
+      // this.historyShow = true
+      // this.$nextTick(() => {
+      //   this.currentDocInfo = this.docInfo
+      //   this.historyDocId = this.docInfo.id
+      // })
+      // console.log(this.$refs.docChangelogDrawer)
+      this.$refs.docChangelogDrawer.show(this.docInfo.id)
     },
     onSubscribe() {
       if (!this.isSubscribe) {

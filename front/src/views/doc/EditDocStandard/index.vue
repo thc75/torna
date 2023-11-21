@@ -79,6 +79,11 @@
           <el-form-item :label="$t('orderIndex')">
             <el-input-number v-model="docInfo.orderIndex" controls-position="right" />
           </el-form-item>
+          <el-form-item :label="$ts('status')">
+            <el-radio-group v-model="docInfo.status">
+              <el-radio v-for="item in statusArr" :key="item.value" :label="item.value">{{ $ts(item.label) }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-form>
       </el-tab-pane>
       <el-tab-pane :label="$t('requestHeader')" name="headerParam">
@@ -251,12 +256,14 @@ export default {
   components: { RichTextEditor, DocView, EditTable, RootArrayTable },
   data() {
     return {
+      statusArr: this.getEnums().DOC_STATUS,
       params: {},
       initTitle: '',
       activeName: 'info',
       allMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       moduleId: '',
       docInfo: {
+        status: 5,
         docId: '',
         name: '',
         url: '',
@@ -538,7 +545,8 @@ export default {
         viewData.responseParams = this.deepCopy(responseParams)
         viewData.errorCodeParams = this.deepCopy(this.getErrorCodeParamsData())
         init_docInfo_complete_view(viewData)
-        this.docInfoString = JSON.stringify(viewData)
+        viewData.isPreview = true
+        this.docInfoString = JSON.stringify(viewData);
       })
     },
     onRootArraySwitch(val, key) {

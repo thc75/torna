@@ -20,9 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 public class TokenInterceptor extends ApiInterceptorAdapter {
 
     private static final ApiUser DEFAULT_USER = new ApiUser();
-    static {
-        DEFAULT_USER.setId(99999L);
-    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object serviceObj, Object argu) throws Exception {

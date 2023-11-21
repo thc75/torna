@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 @Data
 public class UserInfoDTO {
 
+    private String dingdingNick;
+
+    private String dingdingUserId;
+
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 

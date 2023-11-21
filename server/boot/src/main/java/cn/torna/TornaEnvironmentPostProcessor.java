@@ -20,6 +20,7 @@ public class TornaEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     private static final String[] PROPERTIES_FILES = {
             "META-INF/torna.properties",
+            "META-INF/torna-pro.properties",
     };
 
     @Override

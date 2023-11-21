@@ -120,6 +120,9 @@ public class DocInfo {
     /** 是否锁住, 数据库字段：is_locked */
     private Byte isLocked;
 
+    /** 文档状态 */
+    private Byte status;
+
     /**  数据库字段：gmt_create */
     private LocalDateTime gmtCreate;
 

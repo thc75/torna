@@ -92,6 +92,8 @@ public class DocInfoSaveParam implements DocInfoDataId {
 
     private Integer orderIndex;
 
+    private Byte status;
+
     /**  数据库字段：gmt_create */
     private LocalDateTime gmtCreate;
 

@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.DocStatusEnum;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.TreeUtil;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12300;
+    private static final int VERSION = 12400;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -112,6 +113,22 @@ public class UpgradeService {
         v1_20_0(oldVersion);
         v1_22_0(oldVersion);
         v1_22_1(oldVersion);
+        v1_24_0(oldVersion);
+    }
+
+    private void v1_24_0(int oldVersion) {
+        if (oldVersion < 12400) {
+            log.info("Upgrade version to 1.24.0");
+            createTable("doc_snapshot", "upgrade/1.24.0_ddl_doc_snapshot.txt");
+            createTable("debug_script", "upgrade/1.24.0_ddl_debug_script.txt");
+            createTable("doc_diff_record", "upgrade/1.24.0_ddl_doc_diff_record.txt");
+            createTable("doc_diff_detail", "upgrade/1.24.0_ddl_doc_diff_detail.txt");
+            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.DONE.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
+            runSql("UPDATE doc_info SET status=" + DocStatusEnum.DONE.getStatus());
+            runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
+            runSql("INSERT INTO `system_config`(`config_key`, `config_value`, `remark`) VALUES ('front.param.type-array', '[\"string\",\"number\",\"boolean\",\"object\",\"array\",\"num_array\",\"str_array\",\"file\",\"file[]\",\"enum\"]', '参数类型配置');");
+            log.info("Upgrade 1.24.0 finished.");
+        }
     }
 
     private void v1_22_1(int oldVersion) {
@@ -119,12 +136,15 @@ public class UpgradeService {
             log.info("Upgrade version to 1.22.1");
             runSql("ALTER TABLE `doc_info` CHANGE `description` `description` longtext NULL COMMENT '文档描述'");
             createTable("system_login_token", "upgrade/1.22.1_ddl.txt");
+            log.info("Upgrade 1.22.1 finished.");
         }
     }
 
     private void v1_22_0(int oldVersion) {
         if (oldVersion < 12200) {
+            log.info("Upgrade version to 1.22.0");
             addColumn("doc_info", "version", "ALTER TABLE `doc_info` ADD COLUMN `version` varchar(32) NULL DEFAULT '' COMMENT '版本号，默认空字符串' after url");
+            log.info("Upgrade 1.22.0 finished.");
         }
     }
 
@@ -247,8 +267,8 @@ public class UpgradeService {
     private void v1_9_5(int oldVersion) {
         if (oldVersion < 13) {
             addColumn("doc_info",
-                "is_locked",
-                "ALTER TABLE `doc_info` ADD COLUMN `is_locked` TINYINT DEFAULT 0  NOT NULL  COMMENT '是否锁住' AFTER `is_deleted`"
+                    "is_locked",
+                    "ALTER TABLE `doc_info` ADD COLUMN `is_locked` TINYINT DEFAULT 0  NOT NULL  COMMENT '是否锁住' AFTER `is_deleted`"
             );
             addColumn("doc_info",
                     "md5",
@@ -447,7 +467,7 @@ public class UpgradeService {
                 .findFirst();
     }
 
-    private void runSql(String sql) {
+    protected void runSql(String sql) {
         if (isLowerVersion()) {
             sql = sql.replace("utf8mb4", "utf8");
         }
@@ -478,7 +498,7 @@ public class UpgradeService {
      * @param sql 添加字段sql
      * @return 返回true，插入成功
      */
-    private boolean addColumn(String tableName, String columnName, String sql) {
+    protected boolean addColumn(String tableName, String columnName, String sql) {
         if (isColumnExist(tableName, columnName)) {
             return false;
         }
@@ -507,7 +527,7 @@ public class UpgradeService {
      * @param ddlFile DDL文件
      * @return 创建成功返回true
      */
-    private boolean createTable(String tableName, String ddlFile) {
+    protected boolean createTable(String tableName, String ddlFile) {
         if (!isTableExist(tableName)) {
             String sql = this.loadDDL(ddlFile);
             if (isLowerVersion()) {

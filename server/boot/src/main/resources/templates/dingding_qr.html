@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DingDing Login</title>
+</head>
+<body style="overflow: hidden">
+<div id="login_container"></div>
+<script src="https://g.alicdn.com/dingding/dinglogin/0.0.5/ddLogin.js"></script>
+<script th:inline="javascript">
+    var userId = [[${userId}]];
+    var appKey = [[${appKey}]];
+    var baseUrl = [[${baseUrl}]];
+    var redirectUri =  baseUrl + '/system/dingtalk/auth'
+
+    var url = encodeURIComponent(redirectUri);
+    var goto = encodeURIComponent('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=' + appKey + '&response_type=code&scope=snsapi_login&state=' + userId + '&redirect_uri=' + url);
+
+    var obj = DDLogin({
+        id:"login_container",//这里需要你在自己的页面定义一个HTML标签并设置id，例如<div id="login_container"></div>或<span id="login_container"></span>
+        goto: goto,
+        style: "border:none;background-color:#FFFFFF;",
+        width : "365",
+        height: "400"
+    });
+
+    /*
+    引入的js会在获取用户扫描之后将获取的loginTmpCode通过window.parent.postMessage(loginTmpCode,'*');返回给您的网站。
+     */
+    var handleMessage = function (event) {
+        var origin = event.origin;
+        if( origin == "https://login.dingtalk.com" ) { //判断是否来自ddLogin扫码事件。
+            var loginTmpCode = event.data;
+            //获取到loginTmpCode后就可以在这里构造跳转链接进行跳转了
+            var jumpUrl = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=' + appKey
+                + '&response_type=code&scope=snsapi_login&state=' + userId + '&redirect_uri=' + url + '&loginTmpCode=' + loginTmpCode;
+            window.location.href = jumpUrl
+        }
+    };
+    if (typeof window.addEventListener != 'undefined') {
+        window.addEventListener('message', handleMessage, false);
+    } else if (typeof window.attachEvent != 'undefined') {
+        window.attachEvent('onmessage', handleMessage);
+    }
+</script>
+</body>
+</html>

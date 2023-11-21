@@ -231,7 +231,7 @@ function doResponse(response, callback, errorCallback) {
       callback && callback.call(this, resp)
     } else {
       Message({
-        message: resp.msg,
+        message: '请求异常，请查看日志',
         type: 'error'
       })
       errorCallback && errorCallback.call(this, resp)

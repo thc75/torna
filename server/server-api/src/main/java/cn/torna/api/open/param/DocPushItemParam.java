@@ -1,5 +1,6 @@
 package cn.torna.api.open.param;
 
+import cn.torna.common.enums.DocStatusEnum;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,6 +77,9 @@ public class DocPushItemParam {
     /** 排序 */
     @ApiDocField(description = "排序, 值小靠前", example = "0")
     private Integer orderIndex;
+
+    @ApiDocField(description = "状态", example = "0")
+    private Byte status = DocStatusEnum.DONE.getStatus();
 
     // 1.8.1
     @ApiDocField(description = "是否请求数组", example = "0")

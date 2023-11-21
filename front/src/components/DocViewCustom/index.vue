@@ -19,6 +19,11 @@
     </span>
     <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
       <div class="item">
+        <el-tooltip placement="top" :content="$ts('changeHistory')">
+          <el-button type="text" icon="el-icon-date" @click="onShowHistory"></el-button>
+        </el-tooltip>
+      </div>
+      <div class="item">
         <el-dropdown trigger="click" @command="handleCommand">
           <el-tooltip placement="top" :content="$t('export')">
             <el-button type="text" class="icon-button" icon="el-icon-download" />
@@ -46,6 +51,7 @@
       :editable="false"
       :toolbarsFlag="false"
     />
+    <doc-changelog-drawer ref="docChangelogDrawer" />
     <const-view ref="constView" />
   </div>
 </template>
@@ -63,9 +69,10 @@
 import ExportUtil from '@/utils/export'
 import ConstView from '@/components/ConstView'
 import { mavonEditor } from 'mavon-editor'
+import DocChangelogDrawer from '@/components/DocChangelogDrawer'
 
 export default {
-  components: { ConstView, mavonEditor },
+  components: { DocChangelogDrawer, ConstView, mavonEditor },
   props: {
     docInfo: Object,
     showOptBar: {
@@ -125,6 +132,9 @@ export default {
     },
     showConst() {
       this.$refs.constView.show(this.docInfo.moduleId)
+    },
+    onShowHistory() {
+      this.$refs.docChangelogDrawer.show(this.docInfo.id)
     }
   }
 }

@@ -346,4 +346,21 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
                 .collect(Collectors.toMap(Project::getId, Project::getSpaceId));
         projectIdSpaceIdMap.putAll(map);
     }
+
+    /**
+     * 用户能否操作项目
+     * @param user 用户
+     * @param projectId 项目id
+     * @return true：是
+     */
+    public boolean canOperateProject(User user, long projectId) {
+        if (user.isSuperAdmin()) {
+            return true;
+        }
+        List<UserInfoDTO> userInfoDTOS = this.listProjectLeader(projectId);
+        return userInfoDTOS.stream()
+                .map(UserInfoDTO::getId)
+                .collect(Collectors.toList())
+                .contains(user.getUserId());
+    }
 }

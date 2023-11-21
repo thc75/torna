@@ -27,6 +27,10 @@ public enum DocTypeEnum {
         return HTTP;
     }
 
+    public static boolean isTextType(Byte type) {
+        return Objects.equals(CUSTOM.type, type) || Objects.equals(MARKDOWN.type, type);
+    }
+
     private final byte type;
 
     public byte getType() {

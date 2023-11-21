@@ -320,4 +320,11 @@ public class DocController {
         return Result.ok(moduleGlobalParamsVO);
     }
 
+    @PostMapping("status/update")
+    public Result updateStatus(@RequestBody UpdateStatusParam param) {
+        User user = UserContext.getUser();
+        docInfoService.updateStatus(param.getId(), param.getStatus(), user);
+        return Result.ok();
+    }
+
 }

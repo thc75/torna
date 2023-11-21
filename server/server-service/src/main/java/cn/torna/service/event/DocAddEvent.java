@@ -1,6 +1,6 @@
 package cn.torna.service.event;
 
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
@@ -10,9 +10,9 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class DocAddEvent extends ApplicationEvent {
 
-    private SourceFromEnum sourceFromEnum;
+    private ModifySourceEnum sourceFromEnum;
 
-    public DocAddEvent(Long source, SourceFromEnum sourceFromEnum) {
+    public DocAddEvent(Long source, ModifySourceEnum sourceFromEnum) {
         super(source);
         this.sourceFromEnum = sourceFromEnum;
     }

@@ -6,6 +6,7 @@ import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.service.SystemConfigService;
 import cn.torna.web.config.TornaViewProperties;
@@ -79,6 +80,14 @@ public class ConfigController implements InitializingBean {
     public Result<TornaViewProperties> viewConfig() {
         tornaViewProperties.setEnableReg(EnvironmentKeys.REGISTER_ENABLE.getBoolean());
         return Result.ok(tornaViewProperties);
+    }
+
+    @GetMapping("/frontConfig")
+    public Result<String> frontConfig(String key) {
+        if (!key.startsWith("front.")) {
+            throw new BizException("配置key错误");
+        }
+        return Result.ok(Configs.getValue(key));
     }
 
     @Override

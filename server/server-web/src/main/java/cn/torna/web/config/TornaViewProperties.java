@@ -9,6 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "torna.view-config")
 public class TornaViewProperties {
+    private String baseUrl;
+    private String dingdingAppKey;
     // old
     private boolean enableReg;
     private boolean enableThirdPartyForm;

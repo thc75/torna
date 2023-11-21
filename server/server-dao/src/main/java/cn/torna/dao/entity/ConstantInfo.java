@@ -1,12 +1,11 @@
 package cn.torna.dao.entity;
 
-import java.time.LocalDateTime;
-
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
-
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * 表名：error_code_info

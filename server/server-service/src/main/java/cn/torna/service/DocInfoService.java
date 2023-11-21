@@ -9,7 +9,8 @@ import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.enums.PropTypeEnum;
-import cn.torna.common.enums.SourceFromEnum;
+import cn.torna.common.enums.ModifySourceEnum;
+import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
@@ -21,13 +22,16 @@ import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ModuleEnvironmentParam;
+import cn.torna.dao.entity.UserDingtalkInfo;
 import cn.torna.dao.mapper.DocInfoMapper;
+import cn.torna.dao.mapper.UserDingtalkInfoMapper;
 import cn.torna.manager.doc.DataType;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.dto.DocRefDTO;
 import cn.torna.service.dto.DubboInfoDTO;
 import cn.torna.service.dto.EnumInfoDTO;
 import cn.torna.service.dto.EnumItemDTO;
@@ -50,6 +54,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -103,6 +108,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private PushIgnoreFieldService pushIgnoreFieldService;
 
+    @Resource
+    private UserDingtalkInfoMapper userDingtalkInfoMapper;
+
+    @Autowired
+    private UserSubscribeService userSubscribeService;
+
+
     /**
      * 查询模块下的所有文档
      * @param moduleId 模块id
@@ -149,7 +161,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
                 "id", "name", "parent_id", "url", "is_folder",
                 "type", "http_method", "deprecated", "version",
-                "order_index", "is_show", "is_locked"), query);
+                "order_index", "is_show", "is_locked", "status"), query);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -166,7 +178,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                 "id", "name", "parent_id", "url", "is_folder",
                 "type", "http_method", "deprecated", "version",
                 "author", "modifier_name", "gmt_modified",
-                "order_index", "is_show", "is_locked"), query);
+                "order_index", "is_show", "is_locked", "status"), query);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -414,7 +426,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.saveBaseInfo(docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), SourceFromEnum.FORM));
+        SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), ModifySourceEnum.FORM));
         return docInfo;
     }
 
@@ -425,7 +437,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
-        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, SourceFromEnum.FORM));
+        ModifySourceEnum sourceFromEnum = DocTypeEnum.isTextType(docInfo.getType()) ? ModifySourceEnum.TEXT : ModifySourceEnum.FORM;
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, sourceFromEnum));
         return docInfo;
     }
 
@@ -440,7 +453,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         String oldMd5 = docInfoOld.getMd5();
         // 修改基本信息
         DocInfo docInfo = this.modifyDocInfo(docInfoOld, docInfoDTO, user);
-        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, SourceFromEnum.FORM));
+        SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, ModifySourceEnum.FORM));
         return docInfo;
     }
 
@@ -462,6 +475,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         String docMd5 = getDocMd5(docInfoDTO);
         docInfo.setMd5(docMd5);
         this.getMapper().saveDocInfo(docInfo);
+        if (docInfoDTO.getId() == null && docInfo.getId() != null) {
+            docInfoDTO.setId(docInfo.getId());
+        }
         return docInfo;
     }
 
@@ -732,6 +748,44 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setDataId(dataId);
         docInfo.setVersion(version);
         this.update(docInfo);
+    }
+
+    /**
+     * 获取文档所有的关注人员的钉钉userid
+     * @param docId
+     * @return 返回钉钉的userid
+     */
+    public List<String> listSubscribeDocDingDingUserIds(long docId) {
+        List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);
+        List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.listByCollection("user_info_id", userIds);
+        return dingtalkInfoList.stream()
+                .map(UserDingtalkInfo::getUserid)
+                .collect(Collectors.toList());
+    }
+
+    public DocRefDTO getDocRefInfo(long docId) {
+        DocRefDTO docRefDTO = new DocRefDTO();
+        DocInfo docInfo = this.getById(docId);
+        docRefDTO.setDocId(docId);
+        docRefDTO.setModuleId(docInfo.getModuleId());
+        Module module = moduleService.getById(docInfo.getModuleId());
+        docRefDTO.setProjectId(module.getProjectId());
+        return docRefDTO;
+    }
+
+    /**
+     * 更新文档状态
+     * @param docId
+     * @param status
+     * @param user
+     */
+    public void updateStatus(long docId, byte status, User user) {
+        DocInfoDTO docDetail = this.getDocForm(docId);
+        if (Objects.equals(status, docDetail.getStatus())) {
+            return;
+        }
+        docDetail.setStatus(status);
+        this.doUpdateDocBaseInfo(docDetail, user);
     }
 
 }

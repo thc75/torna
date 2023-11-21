@@ -5,7 +5,9 @@ import cn.torna.common.bean.User;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.dao.entity.UserDingtalkInfo;
 import cn.torna.dao.entity.UserInfo;
+import cn.torna.service.UserDingtalkInfoService;
 import cn.torna.service.UserInfoService;
 import cn.torna.service.dto.UserInfoDTO;
 import cn.torna.web.controller.user.param.UpdateInfoParam;
@@ -36,6 +38,9 @@ import java.util.Objects;
 public class UserInfoController {
 
     @Autowired
+    private UserDingtalkInfoService userDingtalkInfoService;
+
+    @Autowired
     private UserInfoService userInfoService;
 
     @PostMapping("/list")
@@ -52,6 +57,15 @@ public class UserInfoController {
         User user = UserContext.getUser();
         UserInfo userInfo = userInfoService.getById(user.getUserId());
         UserInfoDTO userInfoDTO = CopyUtil.copyBean(userInfo, UserInfoDTO::new);
+        UserDingtalkInfo userDingtalkInfo = userDingtalkInfoService.getByUserId(userInfo.getId());
+        if (userDingtalkInfo != null) {
+            userInfoDTO.setDingdingUserId(userDingtalkInfo.getUserid());
+            String nick = userDingtalkInfo.getNick();
+            if (StringUtils.isEmpty(nick)) {
+                nick = userDingtalkInfo.getName();
+            }
+            userInfoDTO.setDingdingNick(nick);
+        }
         return Result.ok(userInfoDTO);
     }
 

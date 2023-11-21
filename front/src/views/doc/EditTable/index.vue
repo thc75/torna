@@ -44,8 +44,13 @@
       width="130"
     >
       <template slot-scope="scope">
-        <el-select v-model="scope.row.type" size="mini">
-          <el-option v-for="type in getTypeConfig()" :key="type" :label="type" :value="type"></el-option>
+        <el-select
+          v-model="scope.row.type"
+          filterable
+          allow-create
+          size="mini"
+        >
+          <el-option v-for="type in configTypes" :key="type" :label="type" :value="type"></el-option>
         </el-select>
       </template>
     </el-table-column>
@@ -207,6 +212,7 @@ export default {
     return {
       rows: [],
       enumData: [],
+      configTypes: [],
       paramRowRule: {
         name: [
           { required: true, message: $t('notEmpty'), trigger: ['blur', 'change'] }
@@ -223,6 +229,9 @@ export default {
     if (this.moduleId) {
       this.loadEnumData(this.moduleId, data => {
         this.enumData = data
+      })
+      this.pmsFrontConfig('front.param.type-array').then(value => {
+        this.configTypes = value ? JSON.parse(value) : this.getTypeConfig()
       })
     }
   },

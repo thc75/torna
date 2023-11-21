@@ -330,6 +330,14 @@
               </el-table>
             </div>
           </el-tab-pane>
+          <el-tab-pane name="script">
+            <span slot="label" class="result-header-label">
+              <el-badge :is-dot.sync="enableScript" type="danger">
+                <span>{{ $ts('script') }}</span>
+              </el-badge>
+            </span>
+            <debug-script ref="debugScriptRef" :id="currentItem.id"/>
+          </el-tab-pane>
         </el-tabs>
       </el-col>
       <el-col :span="rightSpanSize" style="border-left: 1px #E4E7ED solid;">
@@ -374,6 +382,8 @@ require('fast-text-encoding')
 const xmlFormatter = require('xml-formatter')
 import { get_full_url, request } from '@/utils/http'
 import { get_effective_url, is_array_string, parse_root_array } from '@/utils/common'
+import DebugScript from '../DebugScript'
+
 import EnumSelect from '@/components/EnumSelect'
 const HOST_KEY = 'torna.debug-host'
 const FILE_TYPES = ['file', 'file[]']
@@ -381,7 +391,7 @@ const TEXT_DECODER = new TextDecoder('utf-8')
 
 export default {
   name: 'DocDebug',
-  components: { EnumSelect, editor: require('vue2-ace-editor') },
+  components: { EnumSelect, DebugScript, editor: require('vue2-ace-editor') },
   props: {
     item: {
       type: Object,
@@ -448,7 +458,10 @@ export default {
         // 去除编辑器里的竖线
         showPrintMargin: false,
         height: 240
-      }
+      },
+      preCheckedId: '',
+      afterCheckedId: '',
+      enableScript: false
     }
   },
   computed: {
@@ -486,6 +499,11 @@ export default {
       this.isPostJson = this.contentType.toLowerCase().indexOf('json') > -1
       this.initActive()
       this.initDebugHost()
+      this.$nextTick(() => {
+        this.getDebugScript().load(function(enableScript) {
+          this.enableScript = enableScript
+        })
+      })
     },
     initDebugHost() {
       const debugId = this.getAttr(this.getHostKey()) || ''
@@ -606,6 +624,7 @@ export default {
       const item = this.currentItem
       const headers = this.buildRequestHeaders()
       const params = this.getQueryParams(this.queryDataChecked)
+      const url = this.url
       let data = {}
       let isMultipart = false
       // 如果请求body
@@ -623,9 +642,38 @@ export default {
           data = this.bodyText
         }
       }
+      const req = {
+        url: url,
+        method: item.httpMethod,
+        params: params,
+        data: data,
+        headers: headers,
+        isMultipart: isMultipart
+      }
+      // 执行脚本
+      try {
+        // result 有可能是Promise对象
+        const result = this.getDebugScript().runPre(req)
+        if (result instanceof Promise) {
+          result.then(request => {
+            Object.assign(req, request)
+            this.doSend(url, req)
+          }).catch(error => {
+            console.log(error)
+          })
+        } else {
+          this.doSend(url, req)
+        }
+      } catch (e) {
+        console.error(e)
+        this.tipError('Run pre-request script error, ' + e)
+        this.sendLoading = false
+      }
+    },
+    doSend(url, req) {
       this.sendLoading = true
+      const headers = req.headers
       let realHeaders
-      let url = this.url
       // 代理转发
       if (this.isProxy) {
         realHeaders = {}
@@ -635,16 +683,28 @@ export default {
       } else {
         realHeaders = headers
       }
-      request.call(this, item.httpMethod, url, params, data, realHeaders, isMultipart, this.doProxyResponse, error => {
-        const resp = error.response
-        if (resp) {
-          this.doProxyResponse(resp)
-        } else {
-          this.sendLoading = false
-          this.result.content = $t('sendErrorTip')
-          this.openRightPanel()
+      request.call(
+        this,
+        req.method,
+        req.url,
+        req.params,
+        req.data,
+        realHeaders,
+        req.isMultipart,
+        (response) => {
+          this.doProxyResponse(response, req)
+        },
+        (error) => {
+          const resp = error.response
+          if (resp) {
+            this.doProxyResponse(resp)
+          } else {
+            this.sendLoading = false
+            this.result.content = $ts('sendErrorTip')
+            this.openRightPanel()
+          }
         }
-      })
+      )
       this.setProps()
     },
     getProxyUrl(uri) {
@@ -769,51 +829,53 @@ export default {
         name: this.debugId
       }
       this.get('/prop/find', data, resp => {
-        const respData = resp.data
+        const respData = resp.data || {}
         if (!respData) {
           this.setTableCheck()
           return
         }
         const debugData = respData.val
-        if (!debugData) {
-          this.setTableCheck()
-          return
-        }
-        const props = JSON.parse(debugData)
-        const setProp = (params, data, ref) => {
-          if (data && Object.keys(data).length > 0 && params) {
-            // 临时添加的
-            const temps = data.temps || []
-            for (const tempName of temps) {
-              const val = data[tempName]
-              if (ref && val) {
-                const row = {
-                  id: this.nextId() + '',
-                  name: tempName,
-                  example: val,
-                  temp: 1,
-                  description: ''
+        if (debugData) {
+          const props = JSON.parse(debugData)
+          const setProp = (params, data, ref) => {
+            if (data && Object.keys(data).length > 0 && params) {
+              // 临时添加的
+              const temps = data.temps
+              for (const tempName of temps) {
+                const val = data[tempName]
+                if (ref && val) {
+                  const row = {
+                    id: this.nextId() + '',
+                    name: tempName,
+                    example: val,
+                    temp: 1,
+                    description: ''
+                  }
+                  params.push(row)
                 }
-                params.push(row)
               }
+              params.forEach(row => {
+                const val = data[row.name]
+                if (val !== undefined) {
+                  row.example = val
+                }
+              })
             }
-            params.forEach(row => {
-              const val = data[row.name]
-              if (val !== undefined) {
-                row.example = val
-              }
-            })
           }
+          setProp(this.headerData, props.headerData, 'headerDataRef')
+          setProp(this.pathData, props.pathData)
+          setProp(this.queryData, props.queryData, 'queryDataRef')
+          setProp(this.multipartData, props.multipartData, 'multipartDataRef')
+          setProp(this.formData, props.formData, 'formDataRef')
+          if (props.bodyText !== undefined) {
+            this.bodyText = props.bodyText
+          }
+          this.preCheckedId = props.preCheckedId
+          this.afterCheckedId = props.afterCheckedId
+          this.setTableCheck()
+        } else {
+          this.setTableCheck()
         }
-        setProp(this.headerData, props.headerData, 'headerDataRef')
-        setProp(this.pathData, props.pathData)
-        setProp(this.queryData, props.queryData, 'queryDataRef')
-        setProp(this.multipartData, props.multipartData, 'multipartDataRef')
-        setProp(this.formData, props.formData, 'formDataRef')
-        if (props.bodyText !== undefined) {
-          this.bodyText = props.bodyText
-        }
-        this.setTableCheck()
       })
     },
     setTableCheck() {
@@ -878,7 +940,7 @@ export default {
       }
       return fileConfigs
     },
-    doProxyResponse(response) {
+    doProxyResponse(response, req) {
       this.sendLoading = false
       this.result = {
         headerData: [],
@@ -888,12 +950,12 @@ export default {
       }
       this.buildResultHeaders(response)
       this.buildResultStatus(response)
-      this.buildResultContent(response)
+      this.buildResultContent(response, req)
     },
     buildResultStatus(response) {
       this.result.status = response.status
     },
-    buildResultContent(response) {
+    buildResultContent(response, req) {
       const headers = response.targetHeaders
       const contentType = this.getHeaderValue(headers, 'Content-Type') || ''
       const contentDisposition = this.getHeaderValue(headers, 'Content-Disposition') || ''
@@ -908,6 +970,7 @@ export default {
         let content = ''
         let json
         const arrayBuffer = response.data
+        response.buffer = arrayBuffer
         // 如果是ArrayBuffer
         if (arrayBuffer && arrayBuffer.toString() === '[object ArrayBuffer]') {
           if (arrayBuffer.byteLength > 0) {
@@ -917,10 +980,23 @@ export default {
           // 否则认为是json
           json = arrayBuffer
         }
+        let resp = {
+          headers: headers,
+          buffer: arrayBuffer,
+          status: response.status,
+          data: this.isString(json) ? JSON.parse(json) : json,
+          raw_response: response
+        }
+        try {
+          resp = this.getDebugScript().runAfter(resp, req)
+        } catch (e) {
+          this.tipError('Run after response script error, ' + e)
+        }
+        const finalData = resp.data
         // 格式化json
         try {
-          if (json) {
-            content = this.formatResponse(contentType, json)
+          if (finalData) {
+            content = this.formatResponse(contentType, finalData)
           }
         } catch (e) {
           console.error($t('parseError'), e)
@@ -1002,6 +1078,7 @@ export default {
           headersData.push({ name: key, value: targetHeaders[key] })
         }
       }
+      response.headers = targetHeaders
       this.result.headerData = headersData
     },
     getTargetHeaders(response) {
@@ -1025,6 +1102,9 @@ export default {
         }
       }
       return false
+    },
+    getDebugScript() {
+      return this.$refs.debugScriptRef
     },
     onTempHeaderAdd() {
       const row = {
