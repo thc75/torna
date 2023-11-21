@@ -50,6 +50,7 @@ export default {
       const items = []
       for (const configKey in this.config) {
         const obj = this.config[configKey]
+        obj.configKey = configKey
         items.push(obj)
       }
       saveModuleConfig({
