@@ -984,7 +984,7 @@ export default {
           headers: headers,
           buffer: arrayBuffer,
           status: response.status,
-          data: this.isString(json) ? JSON.parse(json) : json,
+          data: this.isJsonString(json) ? JSON.parse(json) : json,
           raw_response: response
         }
         try {
