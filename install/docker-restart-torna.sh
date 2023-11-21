@@ -20,11 +20,11 @@ echo "remove torna container"
 docker rm torna
 
 echo "pull new torna image : tanghc2020/torna:${version}"
-docker pull tanghc2020/torna:${version}
+docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${version}
 
-echo "run docker image : tanghc2020/torna:${version}"
+echo "run docker image : registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${version}"
 
 docker run --name torna --restart=always \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d tanghc2020/torna:${version}
+  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${version}
