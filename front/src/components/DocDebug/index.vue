@@ -678,7 +678,7 @@ export default {
       if (this.isProxy) {
         realHeaders = {}
         realHeaders['target-headers'] = JSON.stringify(headers)
-        realHeaders['target-url'] = this.url
+        realHeaders['target-url'] = url
         url = this.getProxyUrl('/doc/debug/v1')
       } else {
         realHeaders = headers
@@ -686,7 +686,7 @@ export default {
       request.call(
         this,
         req.method,
-        req.url,
+        url,
         req.params,
         req.data,
         realHeaders,
