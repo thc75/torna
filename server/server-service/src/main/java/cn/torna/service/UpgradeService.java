@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 /**
  * 升级
+ *
  * @author tanghc
  */
 @Service
@@ -82,6 +83,7 @@ public class UpgradeService {
 
     /**
      * 升级
+     *
      * @param oldVersion 本地老版本
      */
     private void doUpgrade(int oldVersion) {
@@ -124,9 +126,12 @@ public class UpgradeService {
             createTable("doc_diff_record", "upgrade/1.24.0_ddl_doc_diff_record.txt");
             createTable("doc_diff_detail", "upgrade/1.24.0_ddl_doc_diff_detail.txt");
             addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.DONE.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
-            runSql("UPDATE doc_info SET status=" + DocStatusEnum.DONE.getStatus());
-            runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
-            runSql("INSERT INTO `system_config`(`config_key`, `config_value`, `remark`) VALUES ('front.param.type-array', '[\"string\",\"number\",\"boolean\",\"object\",\"array\",\"num_array\",\"str_array\",\"file\",\"file[]\",\"enum\"]', '参数类型配置');");
+            try {
+                runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
+                runSql("INSERT INTO `system_config`(`config_key`, `config_value`, `remark`) VALUES ('front.param.type-array', '[\"string\",\"number\",\"boolean\",\"object\",\"array\",\"num_array\",\"str_array\",\"file\",\"file[]\",\"enum\"]', '参数类型配置');");
+            } catch (Exception e) {
+                // IGNORE
+            }
             log.info("Upgrade 1.24.0 finished.");
         }
     }
@@ -356,7 +361,7 @@ public class UpgradeService {
 
 
     private void saveVersion(int oldVersion) {
-        if (oldVersion != VERSION) {
+        if (oldVersion < VERSION) {
             SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
             systemConfigDTO.setConfigKey(TORNA_VERSION_KEY);
             systemConfigDTO.setConfigValue(String.valueOf(VERSION));
@@ -476,6 +481,7 @@ public class UpgradeService {
 
     /**
      * 表是否有对应索引
+     *
      * @param tableName 表名
      * @param indexName 索引名
      * @return 返回true：有对应索引
@@ -493,9 +499,10 @@ public class UpgradeService {
 
     /**
      * 添加表字段
-     * @param tableName 表名
+     *
+     * @param tableName  表名
      * @param columnName 字段名
-     * @param sql 添加字段sql
+     * @param sql        添加字段sql
      * @return 返回true，插入成功
      */
     protected boolean addColumn(String tableName, String columnName, String sql) {
@@ -511,8 +518,9 @@ public class UpgradeService {
 
     /**
      * 创建表
-     * @param tableName 表名
-     * @param ddlFile DDL文件
+     *
+     * @param tableName         表名
+     * @param ddlFile           DDL文件
      * @param ddlFileCompatible 低版本DDL文件
      * @return 创建成功返回true
      */
@@ -523,8 +531,9 @@ public class UpgradeService {
 
     /**
      * 创建表
+     *
      * @param tableName 表名
-     * @param ddlFile DDL文件
+     * @param ddlFile   DDL文件
      * @return 创建成功返回true
      */
     protected boolean createTable(String tableName, String ddlFile) {
@@ -557,7 +566,8 @@ public class UpgradeService {
 
     /**
      * 判断列是否存在
-     * @param tableName 表名
+     *
+     * @param tableName  表名
      * @param columnName 列名
      * @return true：存在
      */
@@ -568,6 +578,7 @@ public class UpgradeService {
 
     /**
      * 表是否存在
+     *
      * @param tableName
      * @return
      */
@@ -578,6 +589,7 @@ public class UpgradeService {
 
     /**
      * 是否是低版本mysql
+     *
      * @return
      */
     private boolean isLowerVersion() {
