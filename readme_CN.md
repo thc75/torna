@@ -59,7 +59,7 @@ mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/instal
 
 `vim /etc/torna/application.properties`修改数据库连接配置
 
-拉取最新版本并启动，以1.23.2为例
+拉取最新版本并启动
 
 ```bash
 wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.24.1
