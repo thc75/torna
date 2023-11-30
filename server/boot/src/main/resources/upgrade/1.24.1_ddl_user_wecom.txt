@@ -1,0 +1,8 @@
+CREATE TABLE `user_wecom_info`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '企业微信绑定手机号码',
+  `user_info_id` bigint NOT NULL COMMENT 'user_info.id',
+  `gmt_create` datetime NOT NULL,
+  `gmt_modified` datetime NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB  CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;

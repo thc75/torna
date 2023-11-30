@@ -10,6 +10,9 @@
       <el-tab-pane label="钉钉配置" name="dingding">
         <ding-ding ref="dingding" />
       </el-tab-pane>
+      <el-tab-pane label="企业微信配置" name="weCom">
+        <weCom ref="weCom" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -17,10 +20,11 @@
 <script>
 import BaseSetting from './BaseSetting'
 import DingDing from './DingDing'
+import WeCom from './WeCom'
 import I18nSetting from './I18nSetting'
 
 export default {
-  components: { BaseSetting, I18nSetting, DingDing },
+  components: { BaseSetting, I18nSetting, DingDing, WeCom },
   methods: {
     tabChange(tab) {
       const name = tab.name

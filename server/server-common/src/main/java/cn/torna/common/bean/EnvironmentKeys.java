@@ -49,6 +49,8 @@ public enum EnvironmentKeys {
 
     /** 推送钉钉webhook */
     PUSH_DINGDING_WEBHOOK_URL("torna.push.dingding-webhook-url"),
+
+    PUSH_DINGDING_WECOM_URL("torna.push.wecom-webhook-url"),
     /** 变更文档内容模板 */
     PUSH_DINGDING_WEBHOOK_CONTENT("torna.push.dingding-webhook-content", "【文档{modifyType}提醒】\n" +
             "【所属应用】： {projectName} - {appName}\n" +
@@ -57,6 +59,12 @@ public enum EnvironmentKeys {
             "【修改时间】：{modifyTime}\n" +
             "【查看地址】：{docViewUrl}\n" +
             "{@user}"),
+    PUSH_WECOM_WEBHOOK_CONTENT("torna.push.wecom-webhook-content", "【文档{modifyType}提醒】\n" +
+            "【所属应用】： {projectName} - {appName}\n" +
+            "【文档名称】：{docName}\n" +
+            "【修改人】：{modifier}\n" +
+            "【修改时间】：{modifyTime}\n" +
+            "【查看地址】：{docViewUrl}"),
     /** 是否打印推送内容，默认false */
     TORNA_PUSH_PRINT_CONTENT("torna.push.print-content", "false"),
     /** 是否允许相同的文件夹，默认：true */

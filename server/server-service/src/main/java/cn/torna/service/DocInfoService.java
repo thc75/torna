@@ -16,15 +16,10 @@ import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
-import cn.torna.dao.entity.DocInfo;
-import cn.torna.dao.entity.DocParam;
-import cn.torna.dao.entity.EnumInfo;
-import cn.torna.dao.entity.Module;
-import cn.torna.dao.entity.ModuleEnvironment;
-import cn.torna.dao.entity.ModuleEnvironmentParam;
-import cn.torna.dao.entity.UserDingtalkInfo;
+import cn.torna.dao.entity.*;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
+import cn.torna.dao.mapper.UserWeComInfoMapper;
 import cn.torna.manager.doc.DataType;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
@@ -111,12 +106,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Resource
     private UserDingtalkInfoMapper userDingtalkInfoMapper;
 
+    @Resource
+    private UserWeComInfoMapper userWeComInfoWrapper;
+
     @Autowired
     private UserSubscribeService userSubscribeService;
 
 
     /**
      * 查询模块下的所有文档
+     *
      * @param moduleId 模块id
      * @return 返回文档
      */
@@ -139,7 +138,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             case BY_NAME:
                 comparator = Comparator.comparing(DocInfo::getName).thenComparing(DocInfo::getOrderIndex);
                 break;
-            default:{
+            default: {
                 comparator = Comparator.comparing(DocInfo::getOrderIndex);
             }
         }
@@ -152,6 +151,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下的所有文档
+     *
      * @param moduleId 模块id
      * @return 返回文档
      */
@@ -168,6 +168,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下的所有文档
+     *
      * @param moduleId 模块id
      * @return 返回文档
      */
@@ -195,6 +196,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -208,6 +210,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -218,6 +221,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -276,6 +280,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 绑定枚举信息
+     *
      * @param docParamDTOS
      */
     private void bindEnumInfo(List<DocParamDTO> docParamDTOS) {
@@ -354,6 +359,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块全局错误码
+     *
      * @param moduleId 模块id
      * @return 返回全局错误码
      */
@@ -363,8 +369,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 保存文档信息
+     *
      * @param docInfoDTO 文档内容
-     * @param user 用户
+     * @param user       用户
      */
     @Transactional(rollbackFor = Exception.class)
     public synchronized DocInfo saveDocInfo(DocInfoDTO docInfoDTO, User user) {
@@ -444,6 +451,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 修改文档基本信息。参数除外
+     *
      * @param docInfoDTO
      * @param user
      * @return
@@ -547,6 +555,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 查询模块下面所有分类
+     *
      * @param moduleId 模块id
      * @return 返回分类
      */
@@ -573,6 +582,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 修改分类名称
+     *
      * @param updateDocFolderDTO
      */
     public void updateDocFolderName(UpdateDocFolderDTO updateDocFolderDTO) {
@@ -600,7 +610,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除文档
-     * @param id 文档注解
+     *
+     * @param id   文档注解
      * @param user 用户
      */
     public void deleteDocInfo(long id, User user) {
@@ -616,12 +627,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 创建文档分类，如果已存在，直接返回已存在的
+     *
      * @param folderName 分类名称
-     * @param moduleId 模块id
-     * @param user 操作人
+     * @param moduleId   模块id
+     * @param user       操作人
      */
     public DocInfo createDocFolder(String folderName, long moduleId, User user) {
-        return createDocFolder(folderName,  moduleId, user, 0L);
+        return createDocFolder(folderName, moduleId, user, 0L);
     }
 
     /**
@@ -672,6 +684,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 删除模块下所有文档
+     *
      * @param moduleId 模块id
      */
     public void deleteOpenAPIModuleDocs(long moduleId) {
@@ -698,6 +711,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 获取指定环境下的header
+     *
      * @param envId 环境id
      * @param docId 文档id
      * @return 返回所有的header，全局+文档
@@ -752,6 +766,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 获取文档所有的关注人员的钉钉userid
+     *
      * @param docId
      * @return 返回钉钉的userid
      */
@@ -760,6 +775,22 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.listByCollection("user_info_id", userIds);
         return dingtalkInfoList.stream()
                 .map(UserDingtalkInfo::getUserid)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * 获取文档所有的关注人员的企业微信用户手机号码
+     *
+     * @param docId 文档id
+     * @return 返回 企业微信用户手机号码
+     */
+    public List<String> listSubscribeDocWeComUserMobiles(long docId) {
+        List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);
+        List<UserWeComInfo> userInfoId = userWeComInfoWrapper.listByCollection("user_info_id", userIds);
+        return userInfoId.stream()
+                .map(UserWeComInfo::getMobile)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -775,6 +806,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     /**
      * 更新文档状态
+     *
      * @param docId
      * @param status
      * @param user

@@ -28,6 +28,9 @@
           {{ userData.dingdingNick }}
         </span>
       </el-form-item>
+      <el-form-item :label="$ts('weComMobile')" prop="weComMobile">
+        <el-input v-model="userData.weComMobile" show-word-limit maxlength="11" />
+      </el-form-item>
       <el-form-item :label="$ts('nickname')" prop="nickname">
         <el-input v-model="userData.nickname" show-word-limit maxlength="50" />
       </el-form-item>
@@ -61,7 +64,8 @@ export default {
         username: '',
         dingdingUserId: '',
         nickname: '',
-        email: ''
+        email: '',
+        weComMobile: ''
       },
       rules: {
         nickname: [

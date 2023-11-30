@@ -1,4 +1,5 @@
 export default {
+  'weComMobile': 'WeCom Mobile',
   'bindAccount': 'Bind account',
   'dingdingAccount': 'DingDing Account',
   'requestArrayType': 'Request array type',
@@ -516,10 +517,16 @@ export default {
     'dingdingWebhookUrlPlacehoder': 'Input full url with token parameter',
     'dingdingWebhookUrlTip': 'Push message to dingding group when doc is changed'
   },
+  WeComSetting: {
+    'weComWebhookUrl': 'WeCom group robot webhook URL',
+    'weComWebhookUrlPlacehoder': 'Input full url with token parameter',
+    'weComWebhookUrlTip': 'Push message to weCom group when doc is changed'
+  },
   UserInfo: {
     'bindDingDingTip':'Use DingDing app scan the QR to bind account'
   },
   ModuleSetting: {
+    'weComSetting': 'WeCom Setting',
     'dingdingSetting': 'DingTalk Setting',
     'swaggerSetting': 'Swagger Setting',
   },

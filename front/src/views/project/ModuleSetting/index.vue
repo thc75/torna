@@ -25,19 +25,23 @@
       <el-tab-pane name="dingdingSetting" :label="$ts('ModuleSetting.dingdingSetting')">
         <ding-ding-setting ref="dingdingSetting" />
       </el-tab-pane>
+      <el-tab-pane name="weComSetting" :label="$ts('ModuleSetting.weComSetting')">
+        <we-com-setting ref="weComSetting" />
+      </el-tab-pane>
     </el-tabs>
 
   </div>
 </template>
 <script>
 import DingDingSetting from './DingDingSetting'
+import WeComSetting from './WeComSetting'
 import PopoverUpdate from '@/components/PopoverUpdate'
 import SwaggerSetting from '@/components/ModuleSetting/SwaggerSetting'
 import EnvSetting from './EnvSetting'
 
 export default {
   name: 'ModuleSetting',
-  components: { DingDingSetting, PopoverUpdate, SwaggerSetting, EnvSetting },
+  components: { WeComSetting, DingDingSetting, PopoverUpdate, SwaggerSetting, EnvSetting },
   props: {
     projectId: {
       type: String,

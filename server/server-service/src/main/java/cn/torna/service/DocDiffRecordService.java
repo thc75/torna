@@ -2,11 +2,12 @@ package cn.torna.service;
 
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
+import cn.torna.common.enums.MessageNotifyTypeEnum;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
-import cn.torna.common.util.DingTalkUtil;
+import cn.torna.common.util.DingTalkOrWeComWebHookUtil;
 import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.DocDiffDetail;
 import cn.torna.dao.entity.DocDiffRecord;
@@ -71,6 +72,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
 
     /**
      * 获取修改记录
+     *
      * @param docId 文档id
      * @return
      */
@@ -188,30 +190,46 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
     }
 
     /**
-     * 推送钉钉消息
+     * 推送钉钉/企业微信 消息
+     *
      * @param docInfoDTO
      * @param modifyType
      */
     private void pushMessage(DocInfoDTO docInfoDTO, ModifyType modifyType) {
         try {
             if (modifyType == ModifyType.UPDATE || modifyType == ModifyType.DELETE) {
+                // 钉钉机器人 webhook url
                 String url = moduleConfigService.getDingDingRobotWebhookUrl(docInfoDTO.getModuleId());
-                if (StringUtils.isEmpty(url)) {
-                    return;
+                if (StringUtils.hasText(url)) {
+                    List<String> dingDingUserIds = docInfoService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
+                    // 如果没有人关注 则跳过
+                    if (!CollectionUtils.isEmpty(dingDingUserIds)) {
+                        String content = buildDingDingMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, docInfoDTO, modifyType, dingDingUserIds);
+                        if (!StringUtils.hasText(content)) {
+                            return;
+                        }
+                        DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, url, content, dingDingUserIds);
+                    }
+
                 }
-                List<String> dingDingUserIds = docInfoService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
-                String content = buildDingDingMessage(docInfoDTO, modifyType, dingDingUserIds);
-                if (StringUtils.isEmpty(content)) {
-                    return;
+                // 企业微信webhook url
+                url = moduleConfigService.getWeComWebhookUrl(docInfoDTO.getModuleId());
+                if (StringUtils.hasText(url)) {
+                    // 关注的用户的 企业微信手机号码
+                    List<String> weComUserMobiles = docInfoService.listSubscribeDocWeComUserMobiles(docInfoDTO.getId());
+                    // 如果没有人关注 则跳过
+                    if (!CollectionUtils.isEmpty(weComUserMobiles)) {
+                        String content = buildDingDingMessage(MessageNotifyTypeEnum.WECOM_WEBHOOK, docInfoDTO, modifyType, weComUserMobiles);
+                        DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.WECOM_WEBHOOK, url, content, weComUserMobiles);
+                    }
                 }
-                DingTalkUtil.pushRobotMessage(url, content, dingDingUserIds);
             }
         } catch (Exception e) {
-            log.error("推送钉钉消息失败, doc={}", docInfoDTO.getName(), e);
+            log.error("推送钉钉/企业微信消息失败, doc={}", docInfoDTO.getName(), e);
         }
     }
 
-    private String buildDingDingMessage(DocInfoDTO docInfoDTO, ModifyType modifyType, List<String> userIds) {
+    private String buildDingDingMessage(MessageNotifyTypeEnum notificationType, DocInfoDTO docInfoDTO, ModifyType modifyType, List<String> userIds) {
         Project project = projectMapper.getById(docInfoDTO.getProjectId());
         Module module = moduleMapper.getById(docInfoDTO.getModuleId());
         Map<String, String> replaceMap = new HashMap<>(16);
@@ -225,16 +243,22 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         String frontUrl = EnvironmentKeys.TORNA_FRONT_URL.getValue("http://localhost:7700");
         String docViewUrl = frontUrl + "/#/view/" + IdUtil.encode(docInfoDTO.getId());
         replaceMap.put("{docViewUrl}", docViewUrl);
-        String atUser = "";
-        if (!CollectionUtils.isEmpty(userIds)) {
-            atUser = userIds.stream()
-                    .map(userId -> "@" + userId)
-                    .collect(Collectors.joining(" "));
+        String content = null;
+        // 钉钉
+        if (notificationType.equals(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK)) {
+            String atUser = "";
+            if (!CollectionUtils.isEmpty(userIds)) {
+                atUser = userIds.stream()
+                        .map(userId -> "@" + userId)
+                        .collect(Collectors.joining(" "));
+            }
+            replaceMap.put("{@user}", atUser);
+            content = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue();
         }
-        replaceMap.put("{@user}", atUser);
-
-        String content = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue();
-        if (StringUtils.isEmpty(content)) {
+        if (notificationType.equals(MessageNotifyTypeEnum.WECOM_WEBHOOK)) {
+            content = EnvironmentKeys.PUSH_WECOM_WEBHOOK_CONTENT.getValue();
+        }
+        if (!StringUtils.hasText(content)) {
             return content;
         }
         for (Map.Entry<String, String> entry : replaceMap.entrySet()) {
@@ -260,6 +284,7 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
 
     /**
      * 还原
+     *
      * @param id
      */
     public void restore(Long id, User user) {

@@ -16,6 +16,8 @@ public class UserInfoDTO {
 
     private String dingdingUserId;
 
+    private String weComMobile;
+
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 

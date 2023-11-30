@@ -1,4 +1,5 @@
 export default {
+  'weComMobile': '企业微信手机号码',
   'bindAccount': '绑定账号',
   'dingdingAccount': '钉钉账号',
   'requestArrayType': '请求数组元素类型',
@@ -519,10 +520,16 @@ export default {
     'dingdingWebhookUrlPlacehoder': '输入完整带token参数的url',
     'dingdingWebhookUrlTip': '当文档变更时推送消息到钉钉群。需要创建自定义机器人，添加关键字：文档',
   },
+  WeComSetting: {
+    'weComWebhookUrl': '企业微信群机器人推送URL（Webhook）',
+    'weComWebhookUrlPlacehoder': '输入完整带token参数的url',
+    'weComWebhookUrlTip': '当文档变更时推送消息到企业微信群。需要创建自定义机器人，添加关键字：文档',
+  },
   UserInfo: {
     'bindDingDingTip': '使用钉钉App扫一扫进行账号绑定'
   },
   ModuleSetting: {
+    'weComSetting': '企业微信配置',
     'dingdingSetting': '钉钉配置',
     'swaggerSetting': 'Swagger设置'
   },
