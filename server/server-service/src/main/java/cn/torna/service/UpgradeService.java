@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12400;
+    private static final int VERSION = 12500;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -116,6 +116,15 @@ public class UpgradeService {
         v1_22_0(oldVersion);
         v1_22_1(oldVersion);
         v1_24_0(oldVersion);
+        v1_25_0(oldVersion);
+    }
+
+    private void v1_25_0(int oldVersion) {
+        if (oldVersion < 12500) {
+            log.info("Upgrade version to 1.25.0");
+            createTable("user_wecom_info", "upgrade/1.25.0_ddl_user_wecom_info.txt");
+            log.info("Upgrade 1.25.0 finished.");
+        }
     }
 
     private void v1_24_0(int oldVersion) {

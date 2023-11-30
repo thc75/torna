@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.25.0
+
+- 【新增】企业微信群机器人WebHook通知 [PR](https://gitee.com/durcframework/torna/pulls/47)
+
 ## 1.24.1
 
 - 【修复】代理转发功能失效问题 [#I8J1Q8](https://gitee.com/durcframework/torna/issues/I8J1Q8)
