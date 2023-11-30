@@ -29,7 +29,7 @@ export default {
     return {
       moduleId: '',
       config: {
-        dingdingWebhookUrl: { configValue: '', description: '钉钉群机器人webhook' }
+        dingdingWebhookUrl: { configKey: 'dingdingWebhookUrl', configValue: '', description: '钉钉群机器人webhook' }
       }
     }
   },

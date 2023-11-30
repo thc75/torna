@@ -14,5 +14,9 @@ public class UpdateInfoParam {
     private String nickname;
 
     private String email;
+    /**
+     * 企业微信绑定的手机号码
+     */
+    private String weComMobile;
 
 }

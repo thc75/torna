@@ -2,6 +2,8 @@ package cn.torna.web.controller.user;
 
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
+import cn.torna.dao.entity.UserWeComInfo;
+import cn.torna.service.UserWeComInfoService;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
@@ -43,6 +45,9 @@ public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
 
+    @Autowired
+    private UserWeComInfoService userWeComInfoService;
+
     @PostMapping("/list")
     public Result<List<UserInfoDTO>> pageUser(@RequestBody UserIdParam param) {
         Query query = Query.build(param);
@@ -66,6 +71,10 @@ public class UserInfoController {
             }
             userInfoDTO.setDingdingNick(nick);
         }
+        UserWeComInfo userWeComInfo = userWeComInfoService.getByUserId(userInfo.getId());
+        if (null != userWeComInfo) {
+            userInfoDTO.setWeComMobile(userWeComInfo.getMobile());
+        }
         return Result.ok(userInfoDTO);
     }
 
@@ -75,6 +84,13 @@ public class UserInfoController {
         UserInfo userInfo = userInfoService.getById(user.getUserId());
         CopyUtil.copyPropertiesIgnoreNull(param, userInfo);
         userInfoService.update(userInfo);
+        // 如果企业微信手机号码不为空
+        if(null != param.getWeComMobile()){
+            UserWeComInfo userWeComInfo = new UserWeComInfo();
+            userWeComInfo.setUserInfoId(userInfo.getId());
+            userWeComInfo.setMobile(param.getWeComMobile());
+            userWeComInfoService.saveOrUpdateIgnoreNull(userWeComInfo);
+        }
         return Result.ok();
     }
 
@@ -88,8 +104,8 @@ public class UserInfoController {
             Query query = new Query()
                     .and(q ->
                             q.like("username", username)
-                            .orLike("nickname", username)
-                            .orLike("email", username)
+                                    .orLike("nickname", username)
+                                    .orLike("email", username)
                     ).orderby("id", Sort.DESC);
             list = userInfoService.list(query);
         }
@@ -99,6 +115,7 @@ public class UserInfoController {
 
     /**
      * 修改密码
+     *
      * @param param
      * @return
      */

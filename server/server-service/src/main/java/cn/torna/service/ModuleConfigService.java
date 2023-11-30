@@ -56,6 +56,15 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         return this.getCommonConfigValue(moduleId, "dingdingWebhookUrl", "");
     }
 
+
+    /**
+     * 获取企业微信推送url
+     * @return
+     */
+    public String getWeComWebhookUrl(long moduleId) {
+        return this.getCommonConfigValue(moduleId, "weComWebhookUrl", "");
+    }
+
     /**
      * 根据应用id和配置key查询
      * @param moduleId 应用id
