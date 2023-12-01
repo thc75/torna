@@ -602,37 +602,37 @@ export function is_ding_talk() {
 export function get_style_config() {
   return {
     '0': [
-      { prop: 'name', label: $ts('name') },
-      { prop: 'required', label: $ts('required') },
-      { prop: 'description', label: $ts('description') },
-      { prop: 'example', label: $ts('example') }
+      { prop: 'name', label: $t('name') },
+      { prop: 'required', label: $t('required') },
+      { prop: 'description', label: $t('description') },
+      { prop: 'example', label: $t('example') }
     ],
     '1': [
-      { prop: 'name', label: $ts('name') },
-      { prop: 'required', label: $ts('required') },
-      { prop: 'description', label: $ts('description') },
-      { prop: 'example', label: $ts('example') }
+      { prop: 'name', label: $t('name') },
+      { prop: 'required', label: $t('required') },
+      { prop: 'description', label: $t('description') },
+      { prop: 'example', label: $t('example') }
     ],
     '2': [
-      { prop: 'name', label: $ts('name') },
-      { prop: 'type', label: $ts('type') },
-      { prop: 'required', label: $ts('required') },
-      { prop: 'maxLength', label: $ts('maxLength') },
-      { prop: 'description', label: $ts('description') },
-      { prop: 'example', label: $ts('example') }
+      { prop: 'name', label: $t('name') },
+      { prop: 'type', label: $t('type') },
+      { prop: 'required', label: $t('required') },
+      { prop: 'maxLength', label: $t('maxLength') },
+      { prop: 'description', label: $t('description') },
+      { prop: 'example', label: $t('example') }
     ],
     '3': [
-      { prop: 'name', label: $ts('name') },
-      { prop: 'type', label: $ts('type') },
-      { prop: 'required', label: $ts('required') },
-      { prop: 'maxLength', label: $ts('maxLength') },
-      { prop: 'description', label: $ts('description') },
-      { prop: 'example', label: $ts('example') }
+      { prop: 'name', label: $t('name') },
+      { prop: 'type', label: $t('type') },
+      { prop: 'required', label: $t('required') },
+      { prop: 'maxLength', label: $t('maxLength') },
+      { prop: 'description', label: $t('description') },
+      { prop: 'example', label: $t('example') }
     ],
     '4': [
-      { prop: 'name', label: $ts('errorCode') },
-      { prop: 'description', label: $ts('errorDesc') },
-      { prop: 'example', label: $ts('solution') }
+      { prop: 'name', label: $t('errorCode') },
+      { prop: 'description', label: $t('errorDesc') },
+      { prop: 'example', label: $t('solution') }
     ]
   }
 }

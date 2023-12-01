@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog
-      :title="$ts('viewDoc')"
+      :title="$t('viewDoc')"
       :visible.sync="dlgShow"
       width="70%"
       append-to-body

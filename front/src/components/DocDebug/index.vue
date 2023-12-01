@@ -333,7 +333,7 @@
           <el-tab-pane name="script">
             <span slot="label" class="result-header-label">
               <el-badge :is-dot.sync="enableScript" type="danger">
-                <span>{{ $ts('script') }}</span>
+                <span>{{ $t('script') }}</span>
               </el-badge>
             </span>
             <debug-script ref="debugScriptRef" :id="currentItem.id"/>
@@ -700,7 +700,7 @@ export default {
             this.doProxyResponse(resp)
           } else {
             this.sendLoading = false
-            this.result.content = $ts('sendErrorTip')
+            this.result.content = $t('sendErrorTip')
             this.openRightPanel()
           }
         }

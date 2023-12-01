@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-drawer
-      :title="$ts('changeHistory')"
+      :title="$t('changeHistory')"
       :visible.sync="drawer"
       :direction="direction"
       size="35%"

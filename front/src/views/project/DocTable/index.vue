@@ -148,7 +148,7 @@
       </u-table-column>
       <u-table-column
         prop="status"
-        :label="$ts('status')"
+        :label="$t('status')"
         width="80"
       >
         <template slot-scope="scope">
@@ -342,7 +342,7 @@ export default {
         status: status
       }, resp => {
         row.status = status
-        this.tipSuccess($ts('operateSuccess'))
+        this.tipSuccess($t('operateSuccess'))
       })
     },
     refreshTable() {

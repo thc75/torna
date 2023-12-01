@@ -17,7 +17,7 @@ function formatVal(targetName, val) {
   const obj = docStatusMap['' + val]
   switch (targetName) {
     case 'status':
-      return $ts(obj.label)
+      return $t(obj.label)
     // 是/否
     case 'isShow':
     case 'isUseGlobalHeaders':
@@ -25,7 +25,7 @@ function formatVal(targetName, val) {
     case 'isUseGlobalReturns':
     case 'isRequestArray':
     case 'isResponseArray':
-      return val === 1 ? $ts('yes') : $ts('no')
+      return val === 1 ? $t('yes') : $t('no')
   }
   return val
 }

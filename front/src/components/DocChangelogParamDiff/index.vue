@@ -70,14 +70,14 @@ export default {
     getOldValue(key) {
       const val = this.value.oldValue[key]
       if (key === 'PARAM_REQUIRED' && val !== undefined) {
-        return val === 0 ? $ts('no') : $ts('yes')
+        return val === 0 ? $t('no') : $t('yes')
       }
       return val
     },
     getNewValue(key) {
       const val = this.value.newValue[key]
       if (key === 'PARAM_REQUIRED' && val !== undefined) {
-        return val === 0 ? $ts('no') : $ts('yes')
+        return val === 0 ? $t('no') : $t('yes')
       }
       return val
     },
@@ -85,7 +85,7 @@ export default {
       return this.getOldValue(key) !== undefined && this.getNewValue(key) !== undefined
     },
     getI18nName(key) {
-      return $ts(POSITION_TYPE[key].label)
+      return $t(POSITION_TYPE[key].label)
     },
     getTagType(type) {
       // 变更类型，0：修改，1：新增，2：删除
@@ -103,11 +103,11 @@ export default {
       // 变更类型，0：修改，1：新增，2：删除
       switch (type) {
         case 0:
-          return $ts('update')
+          return $t('update')
         case 1:
-          return $ts('newAdd')
+          return $t('newAdd')
         case 2:
-          return $ts('delete')
+          return $t('delete')
       }
       return ''
     }

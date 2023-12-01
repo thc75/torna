@@ -13,16 +13,16 @@ Object.assign(Vue.prototype, {
   Role: Role,
   getProjectRoleCodeConfig() {
     return [
-      { label: this.$ts('visitor'), code: 'guest' },
-      { label: this.$ts('developer'), code: 'dev' },
-      { label: this.$ts('projectAdmin'), code: 'admin' }
+      { label: this.$t('visitor'), code: 'guest' },
+      { label: this.$t('developer'), code: 'dev' },
+      { label: this.$t('projectAdmin'), code: 'admin' }
     ]
   },
   getSpaceRoleCodeConfig() {
     return [
-      { label: this.$ts('visitor'), code: 'guest' },
-      { label: this.$ts('developer'), code: 'dev' },
-      { label: this.$ts('spaceAdmin'), code: 'admin' }
+      { label: this.$t('visitor'), code: 'guest' },
+      { label: this.$t('developer'), code: 'dev' },
+      { label: this.$t('spaceAdmin'), code: 'admin' }
     ]
   },
   getSpaceRoleName(roleCode) {

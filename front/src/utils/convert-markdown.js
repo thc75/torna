@@ -46,7 +46,7 @@ function createTrContent(params, rowConfig, prefix, level) {
     for (const config of rowConfig) {
       let value = param[config.prop]
       if (config.prop === 'required') {
-        value = value ? $ts('yes') : $ts('no')
+        value = value ? $t('yes') : $t('no')
       }
       row.push(value)
     }
@@ -61,7 +61,7 @@ function createTrContent(params, rowConfig, prefix, level) {
 
 function createTable(params, style) {
   if (!params || params.length === 0) {
-    return $ts('empty')
+    return $t('empty')
   }
   const rowConfig = get_style_config()[style + '']
   if (!rowConfig) {
@@ -94,14 +94,14 @@ const MarkdownUtil = {
     return markdown_content
   },
   toMarkdownByData(docInfoList, title) {
-    title = title || $ts('document')
+    title = title || $t('document')
     const treeData = convert_tree(docInfoList)
     const markdown_content = new StringBuilder(`# ${title}\n\n`)
     MarkdownUtil.doMarkdownByData(treeData, markdown_content)
     return markdown_content.toString()
   },
   // toMarkdownByData(docInfoList, title) {
-  //   title = title || $ts('document')
+  //   title = title || $t('document')
   //   const treeData = convert_tree(docInfoList)
   //   const markdown_content = new StringBuilder(`# ${title}\n\n`)
   //   const appendMarkdown = (doc_info) => {
@@ -134,7 +134,7 @@ const MarkdownUtil = {
     }
     append(`### ${docInfo.name}`)
     if (docInfo.author) {
-      append(`${$ts('maintainer')}：${docInfo.author}`)
+      append(`${$t('maintainer')}：${docInfo.author}`)
     }
     if (isMarkdown(docInfo)) {
       builder.append(docInfo.description)
@@ -155,25 +155,25 @@ const MarkdownUtil = {
         append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
       }
     } else if (isDubbo(docInfo)) {
-      append(`${$ts('method')}：${docInfo.url}`);
+      append(`${$t('method')}：${docInfo.url}`);
     }
-    append(`${$ts('description')}：${docInfo.description}`)
+    append(`${$t('description')}：${docInfo.description}`)
 
     if (isHttp(docInfo)) {
       append(`ContentType：\`${docInfo.contentType}\``)
       if (docInfo.pathParams && docInfo.pathParams.length > 0) {
-        append(`#### ${$ts('pathVariable')}`)
+        append(`#### ${$t('pathVariable')}`)
         const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
         append(pathParamsTable)
       }
       if (docInfo.headerParams && docInfo.headerParams.length > 0) {
-        append(`#### ${$ts('requestHeader')}`)
+        append(`#### ${$t('requestHeader')}`)
         const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
         append(headerParamsTable)
       }
     }
 
-    append(`#### ${$ts('requestParams')}`)
+    append(`#### ${$t('requestParams')}`)
     if (docInfo.queryParams && docInfo.queryParams.length > 0) {
       append(`##### Query Parameter`)
       const queryParamsTable = createTable(docInfo.queryParams, Enums.PARAM_STYLE.request)
@@ -186,22 +186,22 @@ const MarkdownUtil = {
     }
 
     if (isShowRequestExample(docInfo)) {
-      append(`#### ${$ts('requestExample')}`)
+      append(`#### ${$t('requestExample')}`)
       const requestExample = create_response_example(docInfo.requestParams)
       appendCode(JSON.stringify(requestExample, null, 4))
     }
 
-    append(`#### ${$ts('responseParam')}`)
+    append(`#### ${$t('responseParam')}`)
     const responseParamsTable = createTable(docInfo.responseParams, Enums.PARAM_STYLE.response)
     append(responseParamsTable)
 
     if (isHttp(docInfo)) {
-      append(`#### ${$ts('responseExample')}`)
+      append(`#### ${$t('responseExample')}`)
       const responseExample = create_response_example(docInfo.responseParams)
       appendCode(JSON.stringify(responseExample, null, 4))
     }
 
-    append(`#### ${$ts('errorCode')}`)
+    append(`#### ${$t('errorCode')}`)
     const errorCodeParamsTable = createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code)
     append(errorCodeParamsTable)
     return builder.toString()

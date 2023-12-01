@@ -17,7 +17,7 @@
         </el-tooltip>
         <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
           <div class="item">
-            <el-tooltip placement="top" :content="$ts('changeHistory')">
+            <el-tooltip placement="top" :content="$t('changeHistory')">
               <el-button type="text" icon="el-icon-date" @click="onShowHistory"></el-button>
             </el-tooltip>
           </div>

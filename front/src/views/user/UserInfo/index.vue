@@ -4,37 +4,37 @@
       ref="userForm"
       :model="userData"
       :rules="rules"
-      label-width="120px"
+      label-width="130px"
       style="width: 500px;"
     >
-      <el-form-item :label="$ts('loginAccount')">
+      <el-form-item :label="$t('loginAccount')">
         {{ userData.username }}
       </el-form-item>
-      <el-form-item :label="$ts('dingdingAccount')">
+      <el-form-item :label="$t('dingdingAccount')">
         <span v-if="!userData.dingdingUserId">
           <el-popover
             placement="right"
             v-model="bindDingDingShow"
           >
-            <el-alert :title="$ts('UserInfo.bindDingDingTip')" :closable="false" />
+            <el-alert :title="$t('UserInfo.bindDingDingTip')" :closable="false" />
             <ding-ding-login :on-login-success="bindDingDingSuccess" />
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="bindDingDingShow = false">取消</el-button>
             </div>
-            <el-button slot="reference" type="primary" size="mini">{{ $ts('bindAccount') }}</el-button>
+            <el-button slot="reference" type="primary" size="mini">{{ $t('bindAccount') }}</el-button>
           </el-popover>
         </span>
         <span v-else>
           {{ userData.dingdingNick }}
         </span>
       </el-form-item>
-      <el-form-item :label="$ts('weComMobile')" prop="weComMobile">
+      <el-form-item :label="$t('weComMobile')" prop="weComMobile">
         <el-input v-model="userData.weComMobile" show-word-limit maxlength="11" />
       </el-form-item>
-      <el-form-item :label="$ts('nickname')" prop="nickname">
+      <el-form-item :label="$t('nickname')" prop="nickname">
         <el-input v-model="userData.nickname" show-word-limit maxlength="50" />
       </el-form-item>
-      <el-form-item :label="$ts('email')" prop="email">
+      <el-form-item :label="$t('email')" prop="email">
         <el-input v-model="userData.email" show-word-limit maxlength="100" />
       </el-form-item>
       <el-form-item :label="$t('regTime')">
@@ -102,7 +102,7 @@ export default {
       this.$refs.userForm.validate(valid => {
         if (valid) {
           this.post('/user/update', this.userData, () => {
-            this.tipSuccess($ts('saveSuccess'))
+            this.tipSuccess($t('saveSuccess'))
           })
         }
       })

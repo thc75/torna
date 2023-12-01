@@ -60,7 +60,7 @@ Object.assign(Vue.prototype, {
   },
   getDocStatusName(status) {
     const map = this.getDocStatusMap()
-    return $ts(map[status + ''].label)
+    return $t(map[status + ''].label)
   },
   getDocStatusMap() {
     if (!statusMap) {
@@ -163,9 +163,9 @@ Object.assign(Vue.prototype, {
    */
   confirm: function(msg, okHandler, cancelHandler) {
     const that = this
-    this.$confirm(msg, this.$ts('tip'), {
-      confirmButtonText: this.$ts('ok'),
-      cancelButtonText: this.$ts('cancel'),
+    this.$confirm(msg, this.$t('tip'), {
+      confirmButtonText: this.$t('ok'),
+      cancelButtonText: this.$t('cancel'),
       type: 'warning'
     }).then(() => {
       okHandler.call(that)
@@ -186,8 +186,8 @@ Object.assign(Vue.prototype, {
    */
   alert: function(msg, title, callback) {
     const that = this
-    this.$alert(msg, title || this.$ts('tip'), {
-      confirmButtonText: this.$ts('ok'),
+    this.$alert(msg, title || this.$t('tip'), {
+      confirmButtonText: this.$t('ok'),
       callback: action => {
         callback && callback.call(that, action)
       }
@@ -778,7 +778,7 @@ Object.assign(Vue.prototype, {
     }
     text = this.formatHtmlText(text)
     const clip = navigator.clipboard
-    const tip = $ts('copySuccess')
+    const tip = $t('copySuccess')
     if (clip) {
       const _this = this
       clip.writeText(text).then(function() {

@@ -70,7 +70,7 @@ const WordUtil = {
       sb.append('</table>')
     }
     // 维护人
-    docInfo.author && sb.append(`<p><strong>${$ts('maintainer')}：</strong>${docInfo.author}</p>`)
+    docInfo.author && sb.append(`<p><strong>${$t('maintainer')}：</strong>${docInfo.author}</p>`)
     if (isCustom(docInfo)) {
       sb.append(docInfo.description)
       return sb.toString()
@@ -92,24 +92,24 @@ const WordUtil = {
         sb.append(`<span>${docInfo.httpMethod} ${docInfo.url}</span>`)
       }
     } else if (isDubbo(docInfo)) {
-      sb.append(`<p><strong>${$ts('method')}：</strong>${docInfo.url}</p>`)
+      sb.append(`<p><strong>${$t('method')}：</strong>${docInfo.url}</p>`)
     }
     // 描述
-    sb.append(`<p><strong>${$ts('description')}：</strong>${docInfo.description}</p>`)
+    sb.append(`<p><strong>${$t('description')}：</strong>${docInfo.description}</p>`)
 
     isHttp(docInfo) && sb.append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
 
     if (isHttp(docInfo)) {
       if (docInfo.pathParams && docInfo.pathParams.length > 0) {
-        sb.append(`<h4>${$ts('pathVariable')}</h4>`)
+        sb.append(`<h4>${$t('pathVariable')}</h4>`)
         sb.append(createTable(docInfo.pathParams, Enums.PARAM_STYLE.path))
       }
       if (docInfo.headerParams && docInfo.headerParams.length > 0) {
-        sb.append(`<h4>${$ts('requestHeader')}</h4>`)
+        sb.append(`<h4>${$t('requestHeader')}</h4>`)
         sb.append(createTable(docInfo.headerParams, Enums.PARAM_STYLE.header))
       }
     }
-    sb.append(`<h4>${$ts('requestParams')}</h4>`)
+    sb.append(`<h4>${$t('requestParams')}</h4>`)
     if (docInfo.queryParams && docInfo.queryParams.length > 0) {
       sb.append('<h5>Query Parameter</h5>')
       sb.append(createTable(docInfo.queryParams, Enums.PARAM_STYLE.request))
@@ -119,20 +119,20 @@ const WordUtil = {
       sb.append(createTable(docInfo.requestParams, Enums.PARAM_STYLE.request))
     }
     if (isShowRequestExample(docInfo)) {
-      sb.append(`<h4>${$ts('requestExample')}</h4>`)
+      sb.append(`<h4>${$t('requestExample')}</h4>`)
       const requestExample = create_response_example(docInfo.requestParams)
       appendCode(JSON.stringify(requestExample, null, 4))
     }
-    sb.append(`<h4>${$ts('responseParam')}</h4>`)
+    sb.append(`<h4>${$t('responseParam')}</h4>`)
     sb.append(createTable(docInfo.responseParams, Enums.PARAM_STYLE.response))
 
     if (isHttp(docInfo)) {
-      sb.append(`<h4>${$ts('responseExample')}</h4>`)
+      sb.append(`<h4>${$t('responseExample')}</h4>`)
       const responseExample = create_response_example(docInfo.responseParams)
       appendCode(JSON.stringify(responseExample, null, 4))
     }
 
-    sb.append(`<h4>${$ts('errorCode')}</h4>`)
+    sb.append(`<h4>${$t('errorCode')}</h4>`)
     sb.append(createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code))
     return sb.toString()
   }
@@ -140,7 +140,7 @@ const WordUtil = {
 
 function createTable(params, style) {
   if (!params || params.length === 0) {
-    return $ts('empty')
+    return $t('empty')
   }
   const rowConfig = get_style_config()[style + '']
   if (!rowConfig) {
@@ -177,7 +177,7 @@ function createBody(params, rowConfig, prefix = '', level = 1) {
     for (const config of rowConfig) {
       let value = param[config.prop]
       if (config.prop === 'required') {
-        value = value ? $ts('yes') : $ts('no')
+        value = value ? $t('yes') : $t('no')
       }
       tds.push(value)
     }

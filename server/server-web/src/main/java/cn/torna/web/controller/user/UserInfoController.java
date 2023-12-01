@@ -86,7 +86,10 @@ public class UserInfoController {
         userInfoService.update(userInfo);
         // 如果企业微信手机号码不为空
         if(null != param.getWeComMobile()){
-            UserWeComInfo userWeComInfo = new UserWeComInfo();
+            UserWeComInfo userWeComInfo = userWeComInfoService.getByUserId(user.getUserId());
+            if (userWeComInfo == null) {
+                userWeComInfo = new UserWeComInfo();
+            }
             userWeComInfo.setUserInfoId(userInfo.getId());
             userWeComInfo.setMobile(param.getWeComMobile());
             userWeComInfoService.saveOrUpdateIgnoreNull(userWeComInfo);

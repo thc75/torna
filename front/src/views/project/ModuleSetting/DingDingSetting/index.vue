@@ -57,7 +57,7 @@ export default {
         moduleId: this.moduleId,
         items: items
       }, () => {
-        this.tipSuccess($ts('saveSuccess'))
+        this.tipSuccess($t('saveSuccess'))
       })
     }
   }

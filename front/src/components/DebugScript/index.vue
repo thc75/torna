@@ -1,19 +1,19 @@
 <template>
   <div>
     <el-tabs v-model="activeName">
-      <el-tab-pane name="pre" :label="$ts('preRequestScript')">
+      <el-tab-pane name="pre" :label="$t('preRequestScript')">
         <div class="table-opt-btn">
           <el-button
             type="primary"
             size="mini"
             @click="onPreAdd"
           >
-            {{ $ts('add') }}
+            {{ $t('add') }}
           </el-button>
           <span class="split">|</span>
-          <span class="tip">{{ $ts('preScriptTip') }}</span>
+          <span class="tip">{{ $t('preScriptTip') }}</span>
           <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/debug-script.md')">
-            {{ $ts('document') }}
+            {{ $t('document') }}
           </el-link>
         </div>
         <el-table
@@ -22,21 +22,21 @@
           border
           highlight-current-row
         >
-          <el-table-column :label="$ts('name')" prop="name" />
-          <el-table-column :label="$ts('content')" prop="content" width="100">
+          <el-table-column :label="$t('name')" prop="name" />
+          <el-table-column :label="$t('content')" prop="content" width="100">
             <template slot-scope="scope">
               <el-link type="primary" :underline="false" @click="showScript(scope.row)">查看</el-link>
             </template>
           </el-table-column>
-          <el-table-column :label="$ts('canUseScope')" width="100">
+          <el-table-column :label="$t('canUseScope')" width="100">
             <template slot-scope="scope">
               {{ getScopeName(scope.row) }}
             </template>
           </el-table-column>
-          <el-table-column :label="$ts('creator')" prop="creatorName" width="120" />
+          <el-table-column :label="$t('creator')" prop="creatorName" width="120" />
           <el-table-column
             prop="gmtCreate"
-            :label="$ts('createTime')"
+            :label="$t('createTime')"
             width="110"
           >
             <template slot-scope="scope">
@@ -56,33 +56,33 @@
             </template>
           </el-table-column>
           <el-table-column
-            :label="$ts('operation')"
+            :label="$t('operation')"
             width="120"
           >
             <template slot-scope="scope">
-              <el-link type="primary" size="mini" @click="onPreScriptUpdate(scope.row)">{{ $ts('update') }}</el-link>
+              <el-link type="primary" size="mini" @click="onPreScriptUpdate(scope.row)">{{ $t('update') }}</el-link>
               <el-popconfirm
-                :title="$ts('deleteConfirm', scope.row.name)"
+                :title="$t('deleteConfirm', scope.row.name)"
                 @confirm="onScriptDelete(scope.row)"
               >
-                <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
+                <el-link slot="reference" type="danger" size="mini">{{ $t('delete') }}</el-link>
               </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
         <div v-else>
           <el-form ref="preFormRef" :model="preForm" :rules="rules" size="mini" label-width="80px">
-            <el-form-item :label="$ts('name')" prop="name">
+            <el-form-item :label="$t('name')" prop="name">
               <el-input v-model="preForm.name" maxlength="50" show-word-limit />
             </el-form-item>
-            <el-form-item :label="$ts('canUseScope')">
+            <el-form-item :label="$t('canUseScope')">
               <el-select v-model="preForm.scope">
                 <el-option v-for="opt in scopeOptions" :key="opt.value" :label="opt.label" :value="opt.value">
                   {{ opt.label }}
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item :label="$ts('content')" prop="content">
+            <el-form-item :label="$t('content')" prop="content">
               <div>
                 <table border="0" cellpadding="0" cellspacing="0" class="el-table">
                   <caption>内置对象:req</caption>
@@ -114,25 +114,25 @@
               />
             </el-form-item>
             <el-form-item label-width="0">
-              <el-button type="text" @click="preEdit = false">{{ $ts('cancel') }}</el-button>
-              <el-button type="primary" @click="onPreSave">{{ $ts('save') }}</el-button>
+              <el-button type="text" @click="preEdit = false">{{ $t('cancel') }}</el-button>
+              <el-button type="primary" @click="onPreSave">{{ $t('save') }}</el-button>
             </el-form-item>
           </el-form>
         </div>
       </el-tab-pane>
-      <el-tab-pane name="after" :label="$ts('afterResponseScript')">
+      <el-tab-pane name="after" :label="$t('afterResponseScript')">
         <div class="table-opt-btn">
           <el-button
             type="primary"
             size="mini"
             @click="onAfterAdd"
           >
-            {{ $ts('add') }}
+            {{ $t('add') }}
           </el-button>
           <span class="split">|</span>
-          <span class="tip">{{ $ts('afterScriptTip') }}</span>
+          <span class="tip">{{ $t('afterScriptTip') }}</span>
           <el-link type="primary" :underline="false" class="el-icon-question" @click="$refs.help.open('static/help/debug-script.md')">
-            {{ $ts('document') }}
+            {{ $t('document') }}
           </el-link>
         </div>
         <el-table
@@ -146,21 +146,21 @@
               <el-checkbox v-model="scope.row.checked" @change="(val) => handleAfterTableCurrentChange(scope.row, val)" />
             </template>
           </el-table-column>
-          <el-table-column :label="$ts('name')" prop="name" />
-          <el-table-column :label="$ts('content')" prop="content" width="100">
+          <el-table-column :label="$t('name')" prop="name" />
+          <el-table-column :label="$t('content')" prop="content" width="100">
             <template slot-scope="scope">
               <el-link type="primary" :underline="false" @click="showScript(scope.row)">查看</el-link>
             </template>
           </el-table-column>
-          <el-table-column :label="$ts('canUseScope')" width="100">
+          <el-table-column :label="$t('canUseScope')" width="100">
             <template slot-scope="scope">
               {{ getScopeName(scope.row) }}
             </template>
           </el-table-column>
-          <el-table-column :label="$ts('creator')" prop="creatorName" width="120" />
+          <el-table-column :label="$t('creator')" prop="creatorName" width="120" />
           <el-table-column
             prop="gmtCreate"
-            :label="$ts('createTime')"
+            :label="$t('createTime')"
             width="110"
           >
             <template slot-scope="scope">
@@ -168,33 +168,33 @@
             </template>
           </el-table-column>
           <el-table-column
-            :label="$ts('operation')"
+            :label="$t('operation')"
             width="120"
           >
             <template slot-scope="scope">
-              <el-link type="primary" size="mini" @click="onAfterScriptUpdate(scope.row)">{{ $ts('update') }}</el-link>
+              <el-link type="primary" size="mini" @click="onAfterScriptUpdate(scope.row)">{{ $t('update') }}</el-link>
               <el-popconfirm
-                :title="$ts('deleteConfirm', scope.row.name)"
+                :title="$t('deleteConfirm', scope.row.name)"
                 @confirm="onScriptDelete(scope.row)"
               >
-                <el-link slot="reference" type="danger" size="mini">{{ $ts('delete') }}</el-link>
+                <el-link slot="reference" type="danger" size="mini">{{ $t('delete') }}</el-link>
               </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
         <div v-else>
           <el-form ref="afterFormRef" :model="afterForm" :rules="rules" size="mini" label-width="80px">
-            <el-form-item :label="$ts('name')" prop="name">
+            <el-form-item :label="$t('name')" prop="name">
               <el-input v-model="afterForm.name" maxlength="50" show-word-limit />
             </el-form-item>
-            <el-form-item :label="$ts('canUseScope')">
+            <el-form-item :label="$t('canUseScope')">
               <el-select v-model="afterForm.scope">
                 <el-option v-for="opt in scopeOptions" :key="opt.value" :label="opt.label" :value="opt.value">
                   {{ opt.label }}
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item :label="$ts('content')" prop="content">
+            <el-form-item :label="$t('content')" prop="content">
               <editor
                 v-model="afterForm.content"
                 lang="javascript"
@@ -206,8 +206,8 @@
               />
             </el-form-item>
             <el-form-item label-width="0">
-              <el-button type="text" @click="afterEdit = false">{{ $ts('cancel') }}</el-button>
-              <el-button type="primary" @click="onAfterSave">{{ $ts('save') }}</el-button>
+              <el-button type="text" @click="afterEdit = false">{{ $t('cancel') }}</el-button>
+              <el-button type="primary" @click="onAfterSave">{{ $t('save') }}</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -219,7 +219,7 @@
     >
       <el-input v-model="showContent" type="textarea" :rows="16" readonly />
       <div slot="footer" class="dialog-footer">
-        <el-button @click="showVisible = false">{{ $ts('dlgClose') }}</el-button>
+        <el-button @click="showVisible = false">{{ $t('dlgClose') }}</el-button>
       </div>
     </el-dialog>
       <help ref="help" />
@@ -294,10 +294,10 @@ export default {
       projectId: '',
       rules: {
         name: [
-          { required: true, message: $ts('notEmpty'), trigger: ['change'] }
+          { required: true, message: $t('notEmpty'), trigger: ['change'] }
         ],
         content: [
-          { required: true, message: $ts('notEmpty'), trigger: ['blur'] }
+          { required: true, message: $t('notEmpty'), trigger: ['blur'] }
         ]
       },
       showVisible: false,
@@ -415,7 +415,7 @@ export default {
     },
     onScriptDelete(row) {
       this.post('/doc/debugscript/delete', { id: row.id }, resp => {
-        this.tipSuccess($ts('deleteSuccess'))
+        this.tipSuccess($t('deleteSuccess'))
         this.loadTable()
       })
     },

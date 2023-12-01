@@ -11,13 +11,13 @@
             <el-tag size="medium" :type="getTagType(item.modifyType)" :closable="false">
               {{ getDocModifyTypeName(item.modifyType) }}
             </el-tag>
-            {{ item.modifyType === 1 ? $ts('creator') : $ts('modifier') }}：{{ item.modifyNickname }}
+            {{ item.modifyType === 1 ? $t('creator') : $t('modifier') }}：{{ item.modifyNickname }}
             <div style="display: inline;">
   <!--            <el-popconfirm-->
-              <!--              :title="$ts('DocChangelog.confirmRestore')"-->
+              <!--              :title="$t('DocChangelog.confirmRestore')"-->
               <!--            >-->
               <!--              <el-button slot="reference" style="float: right; padding: 0;margin-left: 10px" type="text" @click="restoreDoc(item)">-->
-              <!--                {{ $ts('restore') }}-->
+              <!--                {{ $t('restore') }}-->
               <!--              </el-button>-->
               <!--            </el-popconfirm>-->
 
@@ -27,15 +27,15 @@
                 type="text"
                 @click="showDiff(item)"
               >
-                {{ $ts('compare') }}
+                {{ $t('compare') }}
               </el-button>
               <el-button style="float: right; padding: 0;margin-left: 10px" type="text" @click="showCompare(item)">
-                {{ $ts('viewDoc') }}
+                {{ $t('viewDoc') }}
               </el-button>
             </div>
           </span>
           <div v-show="item.docDiffWrappers && item.docDiffWrappers.length > 0">
-            <el-divider content-position="center">{{ $ts('changeContent') }}</el-divider>
+            <el-divider content-position="center">{{ $t('changeContent') }}</el-divider>
             <div v-for="wrapper in item.docDiffWrappers" :key="wrapper.positionType">
               <div class="changelog-item-label">
                 <span class="position-type">{{ getI18nName(wrapper.positionType) }}</span>
@@ -115,9 +115,9 @@ export default {
       // 变更类型，0：修改，1：创建
       switch (type) {
         case 0:
-          return $ts('update')
+          return $t('update')
         case 1:
-          return $ts('create')
+          return $t('create')
       }
       return ''
     },
@@ -125,11 +125,11 @@ export default {
       // 变更类型，0：修改，1：新增，2：删除
       switch (type) {
         case 0:
-          return $ts('update')
+          return $t('update')
         case 1:
-          return $ts('newAdd')
+          return $t('newAdd')
         case 2:
-          return $ts('delete')
+          return $t('delete')
       }
       return ''
     },
@@ -150,7 +150,7 @@ export default {
     },
     getI18nName(positionType) {
       const obj = positionConfig['' + positionType]
-      return $ts(obj.label)
+      return $t(obj.label)
     },
     showCompare(record) {
       this.$refs.docCompare.show(record.md5New, this.docId);

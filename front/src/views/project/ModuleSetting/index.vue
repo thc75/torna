@@ -22,10 +22,10 @@
       <el-tab-pane v-if="isSwaggerApp" name="swaggerSetting" :label="$t('ModuleSetting.swaggerSetting')">
         <swagger-setting ref="swaggerSetting" />
       </el-tab-pane>
-      <el-tab-pane name="dingdingSetting" :label="$ts('ModuleSetting.dingdingSetting')">
+      <el-tab-pane name="dingdingSetting" :label="$t('ModuleSetting.dingdingSetting')">
         <ding-ding-setting ref="dingdingSetting" />
       </el-tab-pane>
-      <el-tab-pane name="weComSetting" :label="$ts('ModuleSetting.weComSetting')">
+      <el-tab-pane name="weComSetting" :label="$t('ModuleSetting.weComSetting')">
         <we-com-setting ref="weComSetting" />
       </el-tab-pane>
     </el-tabs>

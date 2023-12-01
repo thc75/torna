@@ -27,7 +27,7 @@ export function saveAdminConfig(config, noTip) {
   post('/admin/setting/config/update', config, () => {
     if (!noTip) {
       Message({
-        message: $ts('updateSuccess'),
+        message: $t('updateSuccess'),
         type: 'success'
       })
     }
