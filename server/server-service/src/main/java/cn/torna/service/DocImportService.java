@@ -243,6 +243,10 @@ public class DocImportService {
                 List<Param> urlencodedParams = body.getUrlencoded();
                 list.addAll(urlencodedParams);
                 break;
+            case "formdata":
+                List<Param> formdata = body.getFormdata();
+                list.addAll(formdata);
+                break;
             default: {}
         }
         return new BodyWrapper(isArrayBody, list);

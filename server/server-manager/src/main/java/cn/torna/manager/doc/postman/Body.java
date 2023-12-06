@@ -16,6 +16,7 @@ public class Body {
     private String mode;
     private String raw;
     private List<Param> urlencoded;
+    private List<Param> formdata;
     private JSONObject options;
 
 }
