@@ -180,6 +180,12 @@ public class DocImportService {
                 this.savePostmanParams(queryParams, docItem, docParameter -> {
                     return ParamStyleEnum.QUERY;
                 }, user);
+                // header参数
+                List<Header> header = item.getRequest().getHeader();
+                this.savePostmanHeaders(header, docItem, docParameter -> {
+                    return ParamStyleEnum.HEADER;
+                }, user);
+
                 // body参数
                 BodyWrapper bodyWrapper = this.buildPostmanParams(item);
                 List<Param> params = bodyWrapper.getParams();
@@ -395,6 +401,21 @@ public class DocImportService {
             return;
         }
         for (Param parameter : parameters) {
+            this.saveDocParam(parameter, docItem, 0, styleEnumFunction, user);
+        }
+
+    }
+
+    private void savePostmanHeaders(
+            List<Header> parameters
+            , DocInfo docItem
+            , Function<IParam, ParamStyleEnum> styleEnumFunction
+            , User user
+    ) {
+        if (CollectionUtils.isEmpty(parameters)) {
+            return;
+        }
+        for (Header parameter : parameters) {
             this.saveDocParam(parameter, docItem, 0, styleEnumFunction, user);
         }
 
