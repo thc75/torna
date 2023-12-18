@@ -1,5 +1,9 @@
 # 更新日志
 
+## 1.25.1
+
+- 优化报错提示
+
 ## 1.25.0
 
 - 【新增】企业微信群机器人WebHook通知 [PR](https://gitee.com/durcframework/torna/pulls/47)
