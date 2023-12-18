@@ -230,8 +230,10 @@ function doResponse(response, callback, errorCallback) {
     if (code === '0') { // 成功
       callback && callback.call(this, resp)
     } else {
+      // code=100为业务报错
+      const msg = code === '100' ? resp.msg : '请求异常，请查看日志'
       Message({
-        message: '请求异常，请查看日志',
+        message: msg,
         type: 'error'
       })
       errorCallback && errorCallback.call(this, resp)
