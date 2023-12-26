@@ -468,7 +468,7 @@ CREATE TABLE `prop` (
                         `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                         `ref_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '关联id',
                         `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，0：doc_info属性',
-                        `name` varchar(64) NOT NULL DEFAULT '',
+                        `name` varchar(128) NOT NULL DEFAULT '',
                         `val` text NOT NULL,
                         `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                         `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
