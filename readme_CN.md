@@ -146,16 +146,7 @@ docker run --name torna --restart=always \
 
 ## 沟通交流
 
-<table>
-  <tr>
-    <td>一群(满)</td>
-    <td>二群</td>
-  </tr>
-  <tr>
-    <td><img src="./asset/group.jpg" width="50%" height="50%" /></td>
-    <td><img src="./asset/group2.jpg" width="50%" height="50%" /></td>
-  </tr>
-</table>
+<img src="./asset/group.jpg" width="50%" height="50%" />
 
 
 
