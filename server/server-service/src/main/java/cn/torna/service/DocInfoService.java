@@ -16,6 +16,7 @@ import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.*;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
@@ -344,7 +345,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
 
-    private DocInfoDTO getDocDetail(DocInfo docInfo) {
+    public DocInfoDTO getDocDetail(DocInfo docInfo) {
         DocInfoDTO docInfoDTO = this.getDocInfoDTO(docInfo);
         Long moduleId = docInfoDTO.getModuleId();
         List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
@@ -504,6 +505,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        docInfo.setDocKey(docInfoDTO.buildDocKey());
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
@@ -536,6 +538,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        docInfo.setDocKey(docInfoDTO.buildDocKey());
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
@@ -818,6 +821,45 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         docDetail.setStatus(status);
         this.doUpdateDocBaseInfo(docDetail, user);
+    }
+
+    public String getDocKey(Long docId) {
+        DocInfo docInfo = this.getById(docId);
+        if (docInfo != null) {
+            return CopyUtil.copyBean(docInfo, DocInfoDTO::new).buildDocKey();
+        }
+        return null;
+    }
+
+    public List<DocInfo> listByDocKey(String docKey) {
+        return list("doc_key", docKey);
+    }
+
+    public void fillDocKey() {
+        List<DocInfo> list = this.list(new Query());
+        for (DocInfo docInfo : list) {
+            String docKey = CopyUtil.copyBean(docInfo, DocInfoDTO::new).buildDocKey();
+            if (StringUtils.hasText(docKey)) {
+                docInfo.setDocKey(docKey);
+                this.update(docInfo);
+            }
+        }
+    }
+
+    public List<DocInfoDTO> listTreeDoc(Long moduleId) {
+        List<DocInfo> docInfos = listModuleDoc(moduleId);
+        return convertTree(docInfos);
+    }
+
+    private List<DocInfoDTO> convertTree(List<DocInfo> docInfos) {
+        List<DocInfoDTO> docInfoDTOList = docInfos.stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+        return TreeUtil.convertTree(docInfoDTOList, 0L);
+    }
+
+    public List<DocInfo> listByParentId(Long parentId) {
+        return list("parent_id", parentId);
     }
 
 }

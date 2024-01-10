@@ -47,6 +47,15 @@
           @change="onConfigChange(config.uploadDomain)"
         />
       </el-form-item>
+      <el-form-item label="使用MeterSphere">
+        <el-switch
+          v-model="config.msEnable.value"
+          active-value="true"
+          inactive-text=""
+          inactive-value="false"
+          @change="onConfigChange(config.msEnable)"
+        />
+      </el-form-item>
     </el-form>
     <help ref="help" />
   </div>
@@ -66,7 +75,8 @@ export default {
         docSortType: { key: 'torna.doc-sort-type', value: 'by_order', remark: '文档排序规则' },
         uploadDir: { key: 'torna.upload.dir', value: '', remark: '上传文件保存目录' },
         uploadDomain: { key: 'torna.upload.domain', value: '', remark: '上传文件映射' },
-        tornaFrontUrl: { key: 'torna.front-url', value: '', remark: 'Torna前端地址' }
+        tornaFrontUrl: { key: 'torna.front-url', value: '', remark: 'Torna前端地址' },
+        msEnable: { key: 'metershpere.enable', value: 'false', remark: '开启MeterSphere对接' }
       },
       docSortTypeMap: {
         'by_order': '根据排序字段排序',

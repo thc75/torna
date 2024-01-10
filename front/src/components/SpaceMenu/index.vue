@@ -18,6 +18,10 @@
         <i class="el-icon-user"></i>
         <span class="title">{{ $t('spaceMember') }}</span>
       </el-menu-item>
+      <el-menu-item v-show="enableMeterSphere" v-if="hasRole(`space:${spaceId}`, [Role.admin])" :index="`/space/setting/${spaceId}`">
+        <i class="el-icon-setting"></i>
+        <span class="title">{{ $t('spaceSetting') }}</span>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
@@ -31,7 +35,8 @@ export default {
         id: '',
         isCompose: 0
       },
-      currentActive: ''
+      currentActive: '',
+      enableMeterSphere: false
     }
   },
   computed: {
@@ -48,6 +53,9 @@ export default {
   },
   mounted() {
     this.currentActive = this.$route.path
+    this.pmsConfig().then(config => {
+      this.enableMeterSphere = config.enableMeterSphere
+    })
   },
   methods: {
     setSpaceData(data) {

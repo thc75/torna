@@ -42,6 +42,7 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
 import cn.torna.service.dto.MessageDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
+import cn.torna.service.metersphere.MeterSpherePushService;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
 import com.gitee.easyopen.annotation.Api;
@@ -54,6 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -103,6 +105,8 @@ public class DocApi {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private MeterSpherePushService meterSpherePushService;
 
 
 
@@ -214,6 +218,12 @@ public class DocApi {
                 log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), ip, token, paramInfo, e);
                 this.sendErrorMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
             });
+            // 推送到ms
+            try {
+                meterSpherePushService.push(moduleId);
+            } catch (Exception e) {
+                log.error("推送到MeterSphere失败, moduleId={}", module, e);
+            }
             log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
                     module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);
         }

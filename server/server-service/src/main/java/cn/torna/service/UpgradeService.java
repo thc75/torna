@@ -22,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.Resource;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12500;
+    private static final int VERSION = 12600;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -64,6 +67,12 @@ public class UpgradeService {
     @Resource
     private ConstantInfoMapper errorCodeInfoMapper;
 
+    @Resource
+    private DocDiffRecordService docDiffRecordService;
+
+    @Resource
+    private DocSnapshotService docSnapshotService;
+
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
@@ -72,14 +81,14 @@ public class UpgradeService {
     /**
      * 升级
      */
-    @Transactional(rollbackFor = Exception.class)
     public void upgrade() {
-        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
+        createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
         int oldVersion = getVersion();
         doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
         saveVersion(oldVersion);
     }
+
 
     /**
      * 升级
@@ -117,6 +126,40 @@ public class UpgradeService {
         v1_22_1(oldVersion);
         v1_24_0(oldVersion);
         v1_25_0(oldVersion);
+        v1_26_0(oldVersion);
+    }
+
+    private void v1_26_0(int oldVersion) {
+        if (oldVersion < 12600) {
+            log.info("Upgrade version to 1.26.0");
+
+            addColumn("doc_diff_record", "doc_key",
+                    "ALTER TABLE `doc_diff_record` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
+
+            addColumn("doc_snapshot", "doc_key",
+                    "ALTER TABLE `doc_snapshot` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
+
+            addColumn("doc_info", "doc_key",
+                    "ALTER TABLE `doc_info` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `data_id`;");
+
+            docInfoService.fillDocKey();
+            docDiffRecordService.fillDocKey();
+            docSnapshotService.fillDocKey();
+
+            createTable("ms_space_config", "upgrade/1.26.0_ddl_1.txt");
+            createTable("ms_module_config", "upgrade/1.26.0_ddl_2.txt");
+
+            try {
+                // 添加索引
+                runSql("ALTER TABLE `doc_info` " +
+                        "ADD INDEX `idx_parentid`(`parent_id`) USING BTREE," +
+                        "ADD INDEX `idx_dockey`(`doc_key`) USING BTREE;");
+            } catch (Exception e) {
+                log.warn("添加索引失败，可能已经存在", e);
+            }
+
+            log.info("Upgrade 1.26.0 finished.");
+        }
     }
 
     private void v1_25_0(int oldVersion) {
