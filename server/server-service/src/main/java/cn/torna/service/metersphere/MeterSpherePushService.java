@@ -2,6 +2,7 @@ package cn.torna.service.metersphere;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.MsModuleConfig;
@@ -59,6 +60,9 @@ public class MeterSpherePushService {
      */
     @Async
     public void push(Long moduleId) throws Exception {
+        if (!EnvironmentKeys.ENABLE_METER_SPHERE.getBoolean()) {
+            return;
+        }
         Module module = moduleService.getById(moduleId);
         Project project = projectService.getById(module.getProjectId());
         MsModuleConfig msModuleConfig = moduleConfigService.getByModuleId(moduleId);
@@ -71,7 +75,9 @@ public class MeterSpherePushService {
             return;
         }
 
-        Postman postman = convertService.convertToPostman(moduleId);
+        ConvertService.Config config = new ConvertService.Config();
+        config.setNeedHost(false);
+        Postman postman = convertService.convertToPostman(moduleId, config);
         String url = msSpaceConfig.getMsAddress() + Configs.getValue("metersphere.import-url", "/api/definition/import");
 
         File file = buildFileContent(postman);

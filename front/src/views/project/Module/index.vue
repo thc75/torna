@@ -186,7 +186,7 @@ export default {
         this.post('/module/add', data, resp => {
           this.tipSuccess(this.$t('createSuccess'))
           this.module = resp.data
-          this.reload()
+          this.reload(resp)
         })
       }).catch(() => {
       })

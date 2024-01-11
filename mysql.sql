@@ -350,7 +350,7 @@ CREATE TABLE `doc_snapshot` (
                                 `md5` varchar(64) NOT NULL DEFAULT '' COMMENT '文档md5',
                                 `modifier_name` varchar(64) NOT NULL DEFAULT '' COMMENT '修改人',
                                 `modifier_time` datetime NOT NULL COMMENT '修改时间',
-                                `content` text COMMENT '修改内容',
+                                `content` longtext COMMENT '修改内容',
                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                 PRIMARY KEY (`id`),

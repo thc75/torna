@@ -149,14 +149,14 @@ public class UpgradeService {
             createTable("ms_space_config", "upgrade/1.26.0_ddl_1.txt");
             createTable("ms_module_config", "upgrade/1.26.0_ddl_2.txt");
 
-            try {
-                // 添加索引
-                runSql("ALTER TABLE `doc_info` " +
-                        "ADD INDEX `idx_parentid`(`parent_id`) USING BTREE," +
-                        "ADD INDEX `idx_dockey`(`doc_key`) USING BTREE;");
-            } catch (Exception e) {
-                log.warn("添加索引失败，可能已经存在", e);
-            }
+            // 添加索引
+            runSqlIgnoreError("ALTER TABLE `doc_info` " +
+                    "ADD INDEX `idx_parentid`(`parent_id`) USING BTREE," +
+                    "ADD INDEX `idx_dockey`(`doc_key`) USING BTREE;");
+
+            runSqlIgnoreError("ALTER TABLE `doc_snapshot` MODIFY COLUMN `content` longtext NULL COMMENT '修改内容' AFTER `modifier_time`;");
+            runSqlIgnoreError("ALTER TABLE `mock_config` MODIFY COLUMN `name` varchar(128) NOT NULL DEFAULT '' COMMENT '名称' AFTER `id`;");
+            runSqlIgnoreError("ALTER TABLE `mock_config` ADD COLUMN `version` int(0) NULL DEFAULT 0 COMMENT 'mock版本' AFTER `data_id`;");
 
             log.info("Upgrade 1.26.0 finished.");
         }
@@ -369,14 +369,10 @@ public class UpgradeService {
 
     private void v1_8_0(int oldVersion) {
         if (oldVersion < 9) {
-            try {
-                // 添加索引
-                runSql("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
-                runSql("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
-                runSql("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
-            } catch (Exception e) {
-                // ignore
-            }
+            // 添加索引
+            runSqlIgnoreError("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
+            runSqlIgnoreError("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
+            runSqlIgnoreError("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
             addColumn("space", "is_compose", "ALTER TABLE `space` ADD COLUMN `is_compose` TINYINT(4) NOT NULL DEFAULT 0  COMMENT '是否组合空间' AFTER `modifier_name`");
             createTable("compose_doc", "upgrade/1.8.0_1_ddl.txt");
             createTable("compose_project", "upgrade/1.8.0_2_ddl.txt");
@@ -529,6 +525,17 @@ public class UpgradeService {
             sql = sql.replace("utf8mb4", "utf8");
         }
         upgradeMapper.runSql(sql);
+    }
+
+    protected void runSqlIgnoreError(String sql) {
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
+        }
+        try {
+            upgradeMapper.runSql(sql);
+        } catch (Exception e) {
+            log.warn("运行SQL报错，可能已经存在索引或字段，sql={}", sql, e);
+        }
     }
 
     /**

@@ -1,5 +1,15 @@
 # 更新日志
 
+## 1.26.0
+
+> 本次升级有表结构改动，重启会自动修改表结构，确保数据库账号能够执行DDL语句
+
+- 【新增】支持对接MeterSphere，将文档推送到MeterSphere中。需要在管理后台开启
+- 【新增】推送文档后创建一个默认的mock请求
+- 【修复】Nginx反向代理不支持basic auth [#I8QA6G](https://gitee.com/durcframework/torna/issues/I8QA6G)
+- 【修复】修复请求接口后响应信息太长时出现双滚动条 [pr](https://gitee.com/durcframework/torna/pulls/51)
+- 【优化】文档显示，描述列中使用字典类型，显示过窄，未能自适应 [#I8Q0F3](https://gitee.com/durcframework/torna/issues/I8Q0F3)
+
 ## 1.25.1
 
 - 优化报错提示

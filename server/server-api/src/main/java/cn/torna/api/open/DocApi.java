@@ -31,6 +31,7 @@ import cn.torna.dao.entity.Project;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.MockConfigService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.ProjectService;
@@ -55,7 +56,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,7 +79,7 @@ public class DocApi {
     private static final String HTTPS = "https:";
     private static final char SPLIT = '/';
     private static final String PREFIX = "://";
-    private static final String PUSH_ERROR_MSG = "【%s】推送失败，请查看日志";
+    private static final String PUSH_ERROR_MSG = "文档【%s】推送失败，请查看日志";
 
     private final Object lock = new Object();
 
@@ -108,6 +108,8 @@ public class DocApi {
     @Autowired
     private MeterSpherePushService meterSpherePushService;
 
+    @Autowired
+    private MockConfigService mockConfigService;
 
 
     @Api(name = "doc.push")
@@ -186,11 +188,8 @@ public class DocApi {
     }
 
     private void doPush(DocPushParam param, RequestContext context) {
-        String token = context.getToken();
         Module module = context.getModule();
-        User apiUser = context.getApiUser();
         long moduleId = module.getId();
-        String ip = context.getIp();
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
@@ -201,31 +200,57 @@ public class DocApi {
                 saveDebugEnv(param, moduleId);
                 // 替换文档
                 replaceDoc(param, moduleId);
-                for (DocPushItemParam detailPushParam : param.getApis()) {
-                    docPushItemParamThreadLocal.set(detailPushParam);
-                    this.pushDocItem(detailPushParam, context, 0L, pushContext);
-                }
+                // 处理文档
+                executeDocs(param, context, docPushItemParamThreadLocal);
                 // 设置公共错误码
-                this.setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
-                Project project = projectService.getById(module.getProjectId());
-                this.sendSuccessMessage("推送文档成功（" + project.getName() + "-" + module.getName() + "），推送人：" + param.getAuthor(), apiUser);
+                setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
+                // 发送站内消息
+                sendPushMessage(param, module, context.getApiUser());
                 // 处理修改过的文档
                 processModifiedDocs(pushContext);
+                // 创建默认的mock
+                createDefaultMock(module);
+
+                // 推送到MeterSphere
+                pushToMeterSphere(module);
+
+                log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
+                        module.getName(), param.getAuthor(), context.getIp(), context.getToken(), (System.currentTimeMillis() - startTime) / 1000.0);
+
                 return null;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
                 String paramInfo = JSON.toJSONString(docPushItemParam);
-                log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), ip, token, paramInfo, e);
+                log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), context.getIp(), context.getToken(), paramInfo, e);
                 this.sendErrorMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
             });
-            // 推送到ms
-            try {
-                meterSpherePushService.push(moduleId);
-            } catch (Exception e) {
-                log.error("推送到MeterSphere失败, moduleId={}", module, e);
-            }
-            log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
-                    module.getName(), param.getAuthor(), ip, token, (System.currentTimeMillis() - startTime)/1000.0);
+        }
+        docPushItemParamThreadLocal.remove();
+    }
+
+    private void pushToMeterSphere(Module module) {
+        try {
+            meterSpherePushService.push(module.getId());
+        } catch (Exception e) {
+            log.error("推送到MeterSphere失败, module={}", module, e);
+        }
+    }
+
+
+    private void createDefaultMock(Module module) {
+        mockConfigService.createModuleDocDefaultMock(module.getId());
+    }
+
+
+    private void executeDocs(DocPushParam param, RequestContext context, ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal) {
+        Module module = context.getModule();
+        long moduleId = module.getId();
+        List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
+        PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
+
+        for (DocPushItemParam detailPushParam : param.getApis()) {
+            docPushItemParamThreadLocal.set(detailPushParam);
+            this.pushDocItem(detailPushParam, context, 0L, pushContext);
         }
     }
 
@@ -278,6 +303,11 @@ public class DocApi {
         userMessageService.sendMessageToAdmin(messageDTO, msg);
     }
 
+    private void sendPushMessage(DocPushParam param, Module module, User apiUser) {
+        Project project = projectService.getById(module.getProjectId());
+        this.sendSuccessMessage("推送文档成功（" + project.getName() + "-" + module.getName() + "），推送人：" + param.getAuthor(), apiUser);
+    }
+
     private void sendSuccessMessage(String msg, User user) {
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessageEnum(MessageEnum.PUSH_DOC_SUCCESS);
@@ -297,7 +327,7 @@ public class DocApi {
         if (Booleans.isTrue(param.getIsFolder())) {
             DocInfo folder;
             Map<String, Object> props = null;
-            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.of( param.getType());
+            DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.of(param.getType());
             if (docTypeEnum == DocTypeEnum.DUBBO) {
                 props = buildProps(param);
             }
@@ -344,7 +374,8 @@ public class DocApi {
 
     /**
      * 处理变更情况
-     * @param docInfoDTO 最新的文档内容
+     *
+     * @param docInfoDTO  最新的文档内容
      * @param pushContext 推送上下文
      */
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {

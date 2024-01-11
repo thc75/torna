@@ -80,6 +80,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
         if (Booleans.isTrue(docParamDTO.getIsDeleted())) {
             dataId = IdGen.nextId();
         }
+        docParamDTO.setParentId(parentId);
         docParam.setId(docParamDTO.getId());
         docParam.setDataId(dataId);
         docParam.setName(docParamDTO.getName());
@@ -110,6 +111,8 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
             this.update(docParam);
             savedParam = docParam;
         }
+        // 回填ID
+        docParamDTO.setId(savedParam.getId());
         List<DocParamDTO> children = docParamDTO.getChildren();
         if (children != null) {
             Long pid = savedParam.getId();

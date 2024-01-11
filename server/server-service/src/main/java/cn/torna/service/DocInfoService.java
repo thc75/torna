@@ -113,6 +113,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private UserSubscribeService userSubscribeService;
 
+    @Autowired
+    private MockConfigService mockConfigService;
+
 
     /**
      * 查询模块下的所有文档
@@ -396,6 +399,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         this.doUpdateParams(docInfo, docInfoDTO, user);
     }
 
+    private void createDocMock(DocInfo docInfo) {
+        mockConfigService.createDocDefaultMock(docInfo.getId());
+    }
+
     public List<DocMeta> listDocMeta(long moduleId) {
         Query query = new Query().eq("module_id", moduleId);
         return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "is_locked", "md5"), query, DocMeta.class);
@@ -435,6 +442,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), ModifySourceEnum.FORM));
+        createDocMock(docInfo);
         return docInfo;
     }
 
@@ -447,6 +455,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         this.doUpdateParams(docInfo, docInfoDTO, user);
         ModifySourceEnum sourceFromEnum = DocTypeEnum.isTextType(docInfo.getType()) ? ModifySourceEnum.TEXT : ModifySourceEnum.FORM;
         SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, sourceFromEnum));
+        createDocMock(docInfo);
         return docInfo;
     }
 

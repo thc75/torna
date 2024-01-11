@@ -83,6 +83,9 @@ public enum EnvironmentKeys {
     TORNA_NAME_VERSION_TPL("torna.name-version-tpl", "{_name_} {_version_}"),
     /** 是否开启对接MeterSphere */
     ENABLE_METER_SPHERE("metershpere.enable", "false"),
+    /** torna推送处理器数量 */
+    TORNA_PUSH_PROCESS_NUM("torna.push-process-num", "4"),
+    TORNA_PUSH_EXECUTE_SIZE("torna.push-execute-size", "50"),
     ;
 
     private final String key;
@@ -112,6 +115,10 @@ public enum EnvironmentKeys {
 
     public boolean getBoolean() {
         return Boolean.parseBoolean(getValue());
+    }
+
+    public int getInt() {
+        return Integer.parseInt(getValue());
     }
 
     public String getValue() {

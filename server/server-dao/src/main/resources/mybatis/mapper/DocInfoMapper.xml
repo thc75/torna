@@ -6,6 +6,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="status != null">status,</if>
             <if test="dataId != null">data_id,</if>
+            <if test="docKey != null">doc_key,</if>
             <if test="md5 != null">md5,</if>
             <if test="name != null">name,</if>
             <if test="description != null">description,</if>
@@ -41,6 +42,7 @@
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="status != null">#{status},</if>
             <if test="dataId != null">#{dataId},</if>
+            <if test="docKey != null">#{docKey},</if>
             <if test="md5 != null">#{md5},</if>
             <if test="name != null">#{name},</if>
             <if test="description != null">#{description},</if>
@@ -77,6 +79,7 @@
         <if test="status != null">status = VALUES(status),</if>
         <if test="md5 != null">md5 = VALUES(md5),</if>
         <if test="name != null">name = VALUES(name),</if>
+        <if test="docKey != null">doc_key = VALUES(doc_key),</if>
         <if test="description != null">description = VALUES(description),</if>
         <if test="author != null">author = VALUES(author),</if>
         <if test="type != null">type = VALUES(type),</if>

@@ -16,7 +16,7 @@ public class ConvertServiceTest extends TornaApplicationTests {
 
     @Test
     public void convertToPostman() {
-        Postman postman = convertService.convertToPostman(9L);
+        Postman postman = convertService.convertToPostman(9L, new ConvertService.Config());
         System.out.println(JSON.toJSONString(postman));;
     }
 

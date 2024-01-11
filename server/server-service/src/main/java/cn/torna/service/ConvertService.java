@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.manager.doc.postman.Body;
@@ -15,18 +16,22 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 
 
 /**
@@ -41,12 +46,16 @@ public class ConvertService {
     @Autowired
     private ModuleService moduleService;
 
-    public Postman convertToPostman(Long moduleId) {
+    public Postman convertToPostman(Long moduleId, Config config) {
         Module module = moduleService.getById(moduleId);
+        Context context = new Context();
+        context.setModuleId(moduleId);
+        context.setAppName(module.getName());
+        context.setConfig(config);
         Postman postman = new Postman();
         Info info = buildInfo(module);
         List<DocInfoDTO> docInfos = docInfoService.listTreeDoc(module.getId());
-        List<Item> items = buildItems(docInfos);
+        List<Item> items = buildItems(docInfos, context);
         postman.setInfo(info);
         postman.setItem(items);
         return postman;
@@ -59,34 +68,34 @@ public class ConvertService {
         return info;
     }
 
-    private List<Item> buildItems(List<DocInfoDTO> docInfos) {
+    private List<Item> buildItems(List<DocInfoDTO> docInfos, Context context) {
         return docInfos.stream()
-                .map(this::buildItem)
+                .map(docInfoDTO -> this.buildItem(docInfoDTO, context))
                 .collect(Collectors.toList());
     }
 
-    private Item buildItem(DocInfoDTO docInfoDTO) {
+    private Item buildItem(DocInfoDTO docInfoDTO, Context context) {
         Item item = new Item();
         item.setName(docInfoDTO.getDocName());
-        item.setRequest(buildRequest(docInfoDTO));
+        item.setRequest(buildRequest(docInfoDTO, context));
         List<DocInfoDTO> children = docInfoDTO.getChildren();
         if (!CollectionUtils.isEmpty(children)) {
             List<Item> childItems = children.stream()
-                    .map(this::buildItem)
+                    .map(docInfo -> this.buildItem(docInfo, context))
                     .collect(Collectors.toList());
             item.setItem(childItems);
         }
         return item;
     }
 
-    private Request buildRequest(DocInfoDTO docInfoDTO) {
+    private Request buildRequest(DocInfoDTO docInfoDTO, Context context) {
         if (docInfoDTO.getIsFolder() == Booleans.TRUE) {
             return null;
         }
         Request request = new Request();
         request.setMethod(docInfoDTO.getHttpMethod());
         request.setHeader(buildHeaders(docInfoDTO));
-        request.setUrl(buildUrl(docInfoDTO));
+        request.setUrl(buildUrl(docInfoDTO, context));
         request.setBody(buildBody(docInfoDTO));
         request.setDescription(docInfoDTO.getDescription());
         return request;
@@ -114,17 +123,16 @@ public class ConvertService {
         return header;
     }
 
-    private Url buildUrl(DocInfoDTO docInfoDTO) {
+    private Url buildUrl(DocInfoDTO docInfoDTO, Context context) {
+        Config config = context.getConfig();
         String path = StringUtils.trimLeadingCharacter(docInfoDTO.getUrl(), '/');
-        List<ModuleEnvironmentDTO> debugEnvs = docInfoDTO.getDebugEnvs();
-        String host = CollectionUtils.isEmpty(debugEnvs) ? "" : debugEnvs.get(debugEnvs.size() - 1).getUrl();
+        String host = config.isNeedHost() ? "{{host_" + context.getAppName() + "}}" : "";
         String fullUrl = host + "/" + path;
-        URI uri = URI.create(fullUrl);
         Url url = new Url();
-        url.setProtocol(Optional.of(uri).map(URI::getScheme).orElse("http"));
-        url.setHost(Optional.of(uri).map(u -> u.getHost().split("\\.")).map(Arrays::asList).orElse(Collections.emptyList()));
+        url.setProtocol("http");
+        url.setHost(Collections.singletonList(host));
         url.setRaw(fullUrl);
-        url.setPort(uri.getPort() > 0 ? String.valueOf(uri.getPort()) : null);
+        url.setPort(null);
         url.setPath(Arrays.asList(path.split("/")));
 //        url.setVariable(new ArrayList<>());
         url.setQuery(this.buildParams(docInfoDTO.getQueryParams()));
@@ -173,19 +181,31 @@ public class ConvertService {
         }
         if (contentType.contains("json")) {
             String json = buildJson(requestParams);
+            Byte isResponseArray = docInfoDTO.getIsResponseArray();
+            if (Objects.equals(isResponseArray, Booleans.TRUE)) {
+                json = "[" + json + "]";
+            }
             body.setRaw(json);
         }
         body.setMode(mode);
         return body;
     }
 
-    private String buildJson(List<DocParamDTO> requestParams) {
-        List<DocParamDTO> docParamDTOS = TreeUtil.convertTree(requestParams, 0L);
-        JSONObject root = buildJsonObject(docParamDTOS);
-        return root.toJSONString();
+    public static String buildJson(List<DocParamDTO> requestParams) {
+        return buildJson(requestParams, false);
     }
 
-    private JSONObject buildJsonObject(List<DocParamDTO> docParamDTOS) {
+    public static String buildJson(List<DocParamDTO> requestParams, boolean format) {
+        List<DocParamDTO> docParamDTOS = TreeUtil.convertTree(requestParams, 0L);
+        JSONObject root = buildJsonObject(docParamDTOS);
+        if (format) {
+            return root.toString(SerializerFeature.PrettyFormat);
+        } else {
+            return root.toJSONString();
+        }
+    }
+
+    public static JSONObject buildJsonObject(List<DocParamDTO> docParamDTOS) {
         JSONObject root = new JSONObject();
         for (DocParamDTO requestParam : docParamDTOS) {
             List<DocParamDTO> children = requestParam.getChildren();
@@ -197,6 +217,19 @@ public class ConvertService {
             }
         }
         return root;
+    }
+
+
+    @Data
+    private static class Context {
+        private Long moduleId;
+        private String appName;
+        private Config config;
+    }
+
+    @Data
+    public static class Config {
+        private boolean needHost = true;
     }
 
 }

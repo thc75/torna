@@ -75,12 +75,13 @@ public class MockConfigController {
             mockConfig.setDocId(param.getDocId());
             mockConfig.setCreatorId(user.getUserId());
             mockConfig.setCreatorName(user.getNickname());
+            String dataId = buildDataId(param);
+            mockConfig.setDataId(dataId);
+            mockConfig.setVersion(param.getVersion());
             save = true;
         }
         mockConfig.setName(param.getName());
         mockConfig.setPath(param.getPath());
-        String dataId = buildDataId(param);
-        mockConfig.setDataId(dataId);
         mockConfig.setRequestDataType(param.getRequestDataType());
         mockConfig.setRequestData(getRequestData(param));
         mockConfig.setHttpStatus(param.getHttpStatus());
@@ -145,5 +146,10 @@ public class MockConfigController {
     }
 
 
+    @GetMapping("version/next")
+    public Result<Integer> getNextVersion(@HashId Long docId) {
+        int nextVersion = mockConfigService.getNextVersion(docId);
+        return Result.ok(nextVersion);
+    }
 
 }

@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class UserContext {
 
-    public static final String HEADER_TOKEN = "Authorization";
+    public static final String HEADER_TOKEN = "token";
     public static final String JWT_PREFIX = "Bearer ";
     private static final String SECRET_KEY = "torna.jwt.secret";
 
