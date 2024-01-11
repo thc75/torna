@@ -105,7 +105,7 @@ public class MeterSpherePushService {
         File temp = File.createTempFile(UUID.randomUUID().toString(), null);
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(temp));
         String postmanJson = JSON.toJSONString(postman);
-        log.debug("postman json:{}", postmanJson);
+        //log.debug("postman json:{}", postmanJson);
         bufferedWriter.write(postmanJson);
         bufferedWriter.flush();
         bufferedWriter.close();
@@ -123,7 +123,8 @@ public class MeterSpherePushService {
         param.put("coverModule", msModuleConfig.getMsCoverModule() == Booleans.TRUE);
         param.put("protocol", "HTTP");
         // 标记导入来源
-        param.put("origin", "Torna");
+        // 此处会影响是否会生成case，idea不会生成case
+        param.put("origin", "idea");
         return param;
     }
 
