@@ -347,7 +347,7 @@
         <el-tabs v-model="resultActive" type="card">
           <el-tab-pane :label="$t('returnResult')" name="body">
             <img v-if="result.image.length > 0" :src="result.image" />
-            <el-input v-else v-model="result.content" type="textarea" :readonly="true" style="font-size: 13px;" :autosize="{ minRows: 2, maxRows: 200}" />
+            <el-input v-else v-model="result.content" class="return-result" type="textarea" :readonly="true" style="font-size: 13px;" />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
             <span slot="label" class="result-header-label">
@@ -375,6 +375,7 @@
 .el-radio-group .el-badge {vertical-align: baseline;}
 .el-radio-group .is-active .param-count {color: #fff;}
 .result-status {margin-bottom: 12px; font-size: 13px;color: #606266;}
+.return-result .el-textarea__inner { height: calc(100vh - 250px); }
 .path-param {margin-top: 5px;}
 </style>
 <script>
