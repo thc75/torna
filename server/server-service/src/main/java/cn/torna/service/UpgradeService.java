@@ -132,7 +132,7 @@ public class UpgradeService {
     private void v1_26_0(int oldVersion) {
         if (oldVersion < 12600) {
             log.info("Upgrade version to 1.26.0");
-
+            // 添加表字段
             addColumn("doc_diff_record", "doc_key",
                     "ALTER TABLE `doc_diff_record` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
 
@@ -142,10 +142,12 @@ public class UpgradeService {
             addColumn("doc_info", "doc_key",
                     "ALTER TABLE `doc_info` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `data_id`;");
 
+            // 填充数据，可重复执行
             docInfoService.fillDocKey();
             docDiffRecordService.fillDocKey();
             docSnapshotService.fillDocKey();
 
+            // 创建表
             createTable("ms_space_config", "upgrade/1.26.0_ddl_1.txt");
             createTable("ms_module_config", "upgrade/1.26.0_ddl_2.txt");
 
@@ -153,10 +155,11 @@ public class UpgradeService {
             runSqlIgnoreError("ALTER TABLE `doc_info` " +
                     "ADD INDEX `idx_parentid`(`parent_id`) USING BTREE," +
                     "ADD INDEX `idx_dockey`(`doc_key`) USING BTREE;");
-
+            // 修改字段长度
             runSqlIgnoreError("ALTER TABLE `doc_snapshot` MODIFY COLUMN `content` longtext NULL COMMENT '修改内容' AFTER `modifier_time`;");
             runSqlIgnoreError("ALTER TABLE `mock_config` MODIFY COLUMN `name` varchar(128) NOT NULL DEFAULT '' COMMENT '名称' AFTER `id`;");
-            runSqlIgnoreError("ALTER TABLE `mock_config` ADD COLUMN `version` int(0) NULL DEFAULT 0 COMMENT 'mock版本' AFTER `data_id`;");
+            // 添加字段
+            runSqlIgnoreError("ALTER TABLE `mock_config` ADD COLUMN `version` int(11) NULL DEFAULT 0 COMMENT 'mock版本' AFTER `data_id`;");
 
             log.info("Upgrade 1.26.0 finished.");
         }

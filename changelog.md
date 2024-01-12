@@ -3,6 +3,7 @@
 ## 1.26.0
 
 > 本次升级有表结构改动，重启会自动修改表结构，确保数据库账号能够执行DDL语句
+> 如果需要手动执行，参考代码：cn.torna.service.UpgradeService.v1_26_0
 
 - 【新增】支持对接MeterSphere，将文档推送到MeterSphere中。需要在管理后台开启
 - 【新增】推送文档后创建一个默认的mock请求
