@@ -17,6 +17,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.support.Q;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ import java.util.concurrent.ForkJoinPool;
  * @author tanghc
  */
 @Service
+@Slf4j
 public class MockConfigService extends BaseService<MockConfig, MockConfigMapper> {
 
     public static final String DEFAULT_DATA_ID = "default";
@@ -139,27 +141,32 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
     }
 
     private String mergeResponseBody(DocInfoDTO docInfoDTO, String oldResponseBody) {
-        String responseJson = buildResponseJson(docInfoDTO);
-        if (StringUtils.isEmpty(oldResponseBody) || Objects.equals(responseJson, oldResponseBody)) {
-            return responseJson;
-        }
-        oldResponseBody = oldResponseBody.trim();
-        // [] {}
-        // 判断第一字符是否一样，不一样用新的
-        if (!responseJson.substring(0, 1).equals(oldResponseBody.substring(0, 1))) {
-            return responseJson;
-        }
-        if (responseJson.startsWith("[")) {
-            JSONArray arrayNew = JSON.parseArray(responseJson);
-            JSONArray arrayOld = JSON.parseArray(oldResponseBody);
-            if (arrayOld.isEmpty() || arrayNew.isEmpty()) {
-                return arrayNew.toString(SerializerFeature.PrettyFormat);
+        try {
+            String responseJson = buildResponseJson(docInfoDTO);
+            if (StringUtils.isEmpty(oldResponseBody) || Objects.equals(responseJson, oldResponseBody)) {
+                return responseJson;
             }
-            return mergeJsonObj(arrayNew.getJSONObject(0), arrayOld.getJSONObject(0));
-        } else {
-            JSONObject jsonNew = JSON.parseObject(responseJson);
-            JSONObject jsonOld = JSON.parseObject(oldResponseBody);
-            return mergeJsonObj(jsonNew, jsonOld);
+            oldResponseBody = oldResponseBody.trim();
+            // [] {}
+            // 判断第一字符是否一样，不一样用新的
+            if (!responseJson.substring(0, 1).equals(oldResponseBody.substring(0, 1))) {
+                return responseJson;
+            }
+            if (responseJson.startsWith("[")) {
+                JSONArray arrayNew = JSON.parseArray(responseJson);
+                JSONArray arrayOld = JSON.parseArray(oldResponseBody);
+                if (arrayOld.isEmpty() || arrayNew.isEmpty()) {
+                    return arrayNew.toString(SerializerFeature.PrettyFormat);
+                }
+                return mergeJsonObj(arrayNew.getJSONObject(0), arrayOld.getJSONObject(0));
+            } else {
+                JSONObject jsonNew = JSON.parseObject(responseJson);
+                JSONObject jsonOld = JSON.parseObject(oldResponseBody);
+                return mergeJsonObj(jsonNew, jsonOld);
+            }
+        } catch (Exception e) {
+            log.error("mergeResponseBody error", e);
+            return oldResponseBody;
         }
     }
 
