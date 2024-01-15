@@ -222,7 +222,7 @@
         <el-button @click="showVisible = false">{{ $t('dlgClose') }}</el-button>
       </div>
     </el-dialog>
-      <help ref="help" />
+    <help ref="help" />
   </div>
 </template>
 <script>
@@ -434,7 +434,7 @@ export default {
       }
       return ''
     },
-    runPre(req) {
+    runPre(req, invoke) {
       const data = this.getData()
       const script = data.preContent
       if (!script) {
@@ -445,9 +445,12 @@ export default {
         }())`
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
-      const fn = new Function('lib', 'req', `return ${code}`)
-      const result = fn(getLib(), req)
-      return result !== undefined ? result : req
+      const fn = new Function('sys', 'lib', 'req', `return ${code}`)
+      const sys = {
+        send: invoke
+      }
+      const result = fn(sys, getLib(), req)
+      return result
     },
     runAfter(resp, req) {
       const data = this.getData()
