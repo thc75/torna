@@ -114,8 +114,10 @@ var data = {
     username: "admin",
     password: "123456"
 }
+var TOKEN_KEY ='xx-token'
+
 // 判断本地有没有
-var token = localStorage.getItem('xx-token')
+var token = localStorage.getItem(TOKEN_KEY)
 if (token) {
     console.log('本地已经有token:' + token)
     // 放入内置对象headers中
@@ -135,7 +137,7 @@ return new Promise((resolve, reject) => {
         var token = res.data.token
         console.log('返回token', token)
         // 保存在本地
-        localStorage.setItem('xx-token', token)
+        localStorage.setItem(TOKEN_KEY, token)
         // 放入内置对象headers中
         req.headers.token = token
 
@@ -157,8 +159,9 @@ var data = {
     username: "admin",
     password: "123456"
 }
+var TOKEN_KEY ='xx-token'
 // 判断本地有没有
-var token = localStorage.getItem('xx-token')
+var token = localStorage.getItem(TOKEN_KEY)
 if (token) {
     console.log('本地已经有token:' + token)
     // 放入内置对象headers中
@@ -177,7 +180,7 @@ lib.axios({
     var token = res.data.token
     console.log('返回token:', token)
     // 保存在本地
-    localStorage.setItem('xx-token', token)
+    localStorage.setItem(TOKEN_KEY, token)
     // 放入内置对象headers中
     req.headers.token = token
 
