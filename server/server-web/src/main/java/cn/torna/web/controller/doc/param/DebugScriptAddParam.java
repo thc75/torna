@@ -24,7 +24,7 @@ public class DebugScriptAddParam {
     /** 类型，0：pre，1：after, 数据库字段：type */
     private Byte type;
 
-    /** 作用域，0：当前文档，1：当前模块，2：当前项目, 数据库字段：scope */
+    /** 作用域，0：当前文档，1：当前应用，2：当前项目, 数据库字段：scope */
     private Byte scope;
 
     private Byte enabled;

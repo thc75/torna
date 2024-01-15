@@ -128,13 +128,12 @@ function formatUri(uri) {
 
 export function get_headers() {
   return {
-    Authorization: get_token()
+    token: get_token()
   }
 }
 
 export function get_token() {
-  const token = getToken() || ''
-  return `Bearer ${token}`
+  return getToken() || ''
 }
 
 export function request(method, url, params, data, headers, isMultipart, callback, errorCall) {

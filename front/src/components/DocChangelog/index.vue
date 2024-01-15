@@ -98,14 +98,12 @@ export default {
   data() {
     return {
       list: [],
-      docId: '',
       compareDlgShow: false
     }
   },
   methods: {
     show(docId) {
       if (docId) {
-        this.docId = docId
         this.get('/doc/changelog/list', { docId: docId }, resp => {
           this.list = resp.data
         })
@@ -153,7 +151,7 @@ export default {
       return $t(obj.label)
     },
     showCompare(record) {
-      this.$refs.docCompare.show(record.md5New, this.docId);
+      this.$refs.docCompare.show(record.md5New)
     },
     showDiff(record) {
       this.compareDlgShow = true

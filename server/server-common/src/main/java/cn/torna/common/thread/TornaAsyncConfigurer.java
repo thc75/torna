@@ -22,9 +22,14 @@ public class TornaAsyncConfigurer implements AsyncConfigurer {
     private final ThreadPoolExecutor threadPoolExecutor;
 
     public TornaAsyncConfigurer(String threadName, int poolSize) {
-        threadPoolExecutor = new ThreadPoolExecutor(poolSize, poolSize,
+        threadPoolExecutor = new ThreadPoolExecutor(
+                poolSize,
+                poolSize,
                 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new MyNamedThreadFactory(threadName));
+                new LinkedBlockingQueue<>(),
+                new MyNamedThreadFactory(threadName),
+                new ThreadPoolExecutor.CallerRunsPolicy()
+        );
     }
 
     @Override

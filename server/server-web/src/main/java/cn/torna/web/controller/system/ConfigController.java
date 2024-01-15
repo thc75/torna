@@ -51,12 +51,6 @@ public class ConfigController implements InitializingBean {
         return Result.ok(configVO);
     }
 
-    @GetMapping("/config/get")
-    @NoLogin
-    public Result<String> getConfig(String key) {
-        return Result.ok(Configs.getValue(key));
-    }
-
 
     @GetMapping("/config/adminsetting")
     public Result<AdminConfigVO> getAdminConfig(String[] keys) {
@@ -79,6 +73,7 @@ public class ConfigController implements InitializingBean {
     @GetMapping("/viewConfig")
     public Result<TornaViewProperties> viewConfig() {
         tornaViewProperties.setEnableReg(EnvironmentKeys.REGISTER_ENABLE.getBoolean());
+        tornaViewProperties.setEnableMeterSphere(EnvironmentKeys.ENABLE_METER_SPHERE.getBoolean());
         return Result.ok(tornaViewProperties);
     }
 

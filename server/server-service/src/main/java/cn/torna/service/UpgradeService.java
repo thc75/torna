@@ -22,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.Resource;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12500;
+    private static final int VERSION = 12600;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -64,6 +67,12 @@ public class UpgradeService {
     @Resource
     private ConstantInfoMapper errorCodeInfoMapper;
 
+    @Resource
+    private DocDiffRecordService docDiffRecordService;
+
+    @Resource
+    private DocSnapshotService docSnapshotService;
+
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
@@ -72,14 +81,14 @@ public class UpgradeService {
     /**
      * 升级
      */
-    @Transactional(rollbackFor = Exception.class)
     public void upgrade() {
-        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
+        createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
         int oldVersion = getVersion();
         doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
         saveVersion(oldVersion);
     }
+
 
     /**
      * 升级
@@ -117,6 +126,43 @@ public class UpgradeService {
         v1_22_1(oldVersion);
         v1_24_0(oldVersion);
         v1_25_0(oldVersion);
+        v1_26_0(oldVersion);
+    }
+
+    private void v1_26_0(int oldVersion) {
+        if (oldVersion < 12600) {
+            log.info("Upgrade version to 1.26.0");
+            // 添加表字段
+            addColumn("doc_diff_record", "doc_key",
+                    "ALTER TABLE `doc_diff_record` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
+
+            addColumn("doc_snapshot", "doc_key",
+                    "ALTER TABLE `doc_snapshot` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
+
+            addColumn("doc_info", "doc_key",
+                    "ALTER TABLE `doc_info` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `data_id`;");
+
+            // 填充数据，可重复执行
+            docInfoService.fillDocKey();
+            docDiffRecordService.fillDocKey();
+            docSnapshotService.fillDocKey();
+
+            // 创建表
+            createTable("ms_space_config", "upgrade/1.26.0_ddl_1.txt");
+            createTable("ms_module_config", "upgrade/1.26.0_ddl_2.txt");
+
+            // 添加索引
+            runSqlIgnoreError("ALTER TABLE `doc_info` " +
+                    "ADD INDEX `idx_parentid`(`parent_id`) USING BTREE," +
+                    "ADD INDEX `idx_dockey`(`doc_key`) USING BTREE;");
+            // 修改字段长度
+            runSqlIgnoreError("ALTER TABLE `doc_snapshot` MODIFY COLUMN `content` longtext NULL COMMENT '修改内容' AFTER `modifier_time`;");
+            runSqlIgnoreError("ALTER TABLE `mock_config` MODIFY COLUMN `name` varchar(128) NOT NULL DEFAULT '' COMMENT '名称' AFTER `id`;");
+            // 添加字段
+            runSqlIgnoreError("ALTER TABLE `mock_config` ADD COLUMN `version` int(11) NULL DEFAULT 0 COMMENT 'mock版本' AFTER `data_id`;");
+
+            log.info("Upgrade 1.26.0 finished.");
+        }
     }
 
     private void v1_25_0(int oldVersion) {
@@ -326,14 +372,10 @@ public class UpgradeService {
 
     private void v1_8_0(int oldVersion) {
         if (oldVersion < 9) {
-            try {
-                // 添加索引
-                runSql("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
-                runSql("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
-                runSql("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
-            } catch (Exception e) {
-                // ignore
-            }
+            // 添加索引
+            runSqlIgnoreError("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
+            runSqlIgnoreError("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
+            runSqlIgnoreError("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
             addColumn("space", "is_compose", "ALTER TABLE `space` ADD COLUMN `is_compose` TINYINT(4) NOT NULL DEFAULT 0  COMMENT '是否组合空间' AFTER `modifier_name`");
             createTable("compose_doc", "upgrade/1.8.0_1_ddl.txt");
             createTable("compose_project", "upgrade/1.8.0_2_ddl.txt");
@@ -486,6 +528,17 @@ public class UpgradeService {
             sql = sql.replace("utf8mb4", "utf8");
         }
         upgradeMapper.runSql(sql);
+    }
+
+    protected void runSqlIgnoreError(String sql) {
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
+        }
+        try {
+            upgradeMapper.runSql(sql);
+        } catch (Exception e) {
+            log.warn("运行SQL报错，可能已经存在索引或字段，sql={}", sql, e);
+        }
     }
 
     /**

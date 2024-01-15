@@ -653,8 +653,15 @@ export default {
       }
       // 执行脚本
       try {
+        const that = this
         // result 有可能是Promise对象
-        const result = this.getDebugScript().runPre(req)
+        const result = this.getDebugScript().runPre(req, function() {
+          that.doSend(url, req)
+        })
+        // 返回true认为是手动调用sys.send()
+        if (result === true) {
+          return
+        }
         if (result instanceof Promise) {
           result.then(request => {
             Object.assign(req, request)
