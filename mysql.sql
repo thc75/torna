@@ -132,7 +132,7 @@ CREATE TABLE `debug_script` (
                                 `description` varchar(128) NOT NULL DEFAULT '' COMMENT '描述',
                                 `content` text COMMENT '脚本内容',
                                 `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型，0：pre，1：after',
-                                `scope` tinyint(4) NOT NULL DEFAULT '0' COMMENT '作用域，0：当前文档，1：当前模块，2：当前项目',
+                                `scope` tinyint(4) NOT NULL DEFAULT '0' COMMENT '作用域，0：当前文档，1：当前应用，2：当前项目',
                                 `ref_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '关联id',
                                 `creator_name` varchar(64) NOT NULL DEFAULT '' COMMENT '创建人昵称',
                                 `enabled` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否启用',

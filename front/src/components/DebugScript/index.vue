@@ -261,7 +261,7 @@ export default {
       activeName: 'pre',
       scopeOptions: [
         { value: DEBUG_SCRIPT_SCOPE.DOC, label: '当前文档' },
-        { value: DEBUG_SCRIPT_SCOPE.MODULE, label: '当前模块' },
+        { value: DEBUG_SCRIPT_SCOPE.MODULE, label: '当前应用' },
         { value: DEBUG_SCRIPT_SCOPE.PROJECT, label: '当前项目' }
       ],
       preData: [],
