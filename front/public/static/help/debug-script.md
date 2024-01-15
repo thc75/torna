@@ -133,8 +133,17 @@ return new Promise((resolve, reject) => {
         method: 'post',
         data
     }).then(res => {
+        /*
+        假设服务端返回：
+        {
+            "code": 0,
+            "data": {
+                "token": "xxxx"
+            }
+        }
+         */
         // 拿到服务端返回的token
-        var token = res.data.token
+        var token = res.data.data.token
         console.log('返回token', token)
         // 保存在本地
         localStorage.setItem(TOKEN_KEY, token)
@@ -176,8 +185,17 @@ lib.axios({
     method: 'post',
     data
 }).then(res => {
+    /*
+       假设服务端返回：
+        {
+            "code": 0,
+            "data": {
+                "token": "xxxx"
+            }
+        }
+        */
     // 拿到服务端返回的token
-    var token = res.data.token
+    var token = res.data.data.token
     console.log('返回token:', token)
     // 保存在本地
     localStorage.setItem(TOKEN_KEY, token)
