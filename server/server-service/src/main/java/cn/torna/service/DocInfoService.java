@@ -405,7 +405,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     public List<DocMeta> listDocMeta(long moduleId) {
         Query query = new Query().eq("module_id", moduleId);
-        return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "is_locked", "md5"), query, DocMeta.class);
+        return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "doc_key", "is_locked", "md5"), query, DocMeta.class);
     }
 
     public static boolean isLocked(String dataId, List<DocMeta> docMetas) {

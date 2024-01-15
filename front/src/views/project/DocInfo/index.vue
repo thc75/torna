@@ -62,9 +62,10 @@ export default {
     }
   },
   methods: {
-    reload() {
-      if (this.moduleId) {
-        this.loadData(this.moduleId)
+    reload(moduleId) {
+      const id = moduleId || this.moduleId
+      if (id) {
+        this.loadData(id)
       }
     },
     initActive() {

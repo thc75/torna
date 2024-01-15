@@ -201,7 +201,7 @@ public class DocApi {
                 // 替换文档
                 replaceDoc(param, moduleId);
                 // 处理文档
-                executeDocs(param, context, docPushItemParamThreadLocal);
+                executeDocs(param, context, pushContext, docPushItemParamThreadLocal);
                 // 设置公共错误码
                 setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
                 // 发送站内消息
@@ -242,12 +242,7 @@ public class DocApi {
     }
 
 
-    private void executeDocs(DocPushParam param, RequestContext context, ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal) {
-        Module module = context.getModule();
-        long moduleId = module.getId();
-        List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
-        PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
-
+    private void executeDocs(DocPushParam param, RequestContext context, PushContext pushContext, ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal) {
         for (DocPushItemParam detailPushParam : param.getApis()) {
             docPushItemParamThreadLocal.set(detailPushParam);
             this.pushDocItem(detailPushParam, context, 0L, pushContext);
@@ -325,7 +320,6 @@ public class DocApi {
         long moduleId = context.getModuleId();
         List<DocMeta> docMetas = pushContext.getDocMetas();
         if (Booleans.isTrue(param.getIsFolder())) {
-            DocInfo folder;
             Map<String, Object> props = null;
             DocTypeEnum docTypeEnum = param.getDubboInfo() != null ? DocTypeEnum.DUBBO : DocTypeEnum.of(param.getType());
             if (docTypeEnum == DocTypeEnum.DUBBO) {
@@ -344,7 +338,7 @@ public class DocApi {
             if (DocInfoService.isLocked(docFolderCreateDTO.buildDataId(), docMetas)) {
                 return;
             }
-            folder = docInfoService.createDocFolder(docFolderCreateDTO);
+            DocInfo folder = docInfoService.createDocFolder(docFolderCreateDTO);
             List<DocPushItemParam> items = param.getItems();
             if (items != null) {
                 for (DocPushItemParam item : items) {
@@ -379,20 +373,20 @@ public class DocApi {
      * @param pushContext 推送上下文
      */
     protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        DocInfoDTO docDetailView = docInfoService.getDocDetailView(docInfoDTO.getId());
-        Optional<String> md5Opt = getOldMd5(docDetailView.buildDataId(), pushContext.getDocMetas());
+        DocInfoDTO docDetailView = docInfoService.getDocDetail(docInfoDTO.getId());
+        Optional<String> md5Opt = getOldMd5(docDetailView.getDocKey(), pushContext.getDocMetas());
         ApiUser apiUser = new ApiUser();
         apiUser.setNickname(pushContext.getAuthor());
         String oldMd5 = md5Opt.orElse(null);
         docDiffRecordService.doDocDiff(oldMd5, docDetailView, ModifySourceEnum.PUSH, apiUser);
     }
 
-    public static Optional<String> getOldMd5(String dataId, List<DocMeta> docMetas) {
+    public static Optional<String> getOldMd5(String docKey, List<DocMeta> docMetas) {
         if (CollectionUtils.isEmpty(docMetas)) {
             return Optional.empty();
         }
         return docMetas.stream()
-                .filter(docMeta -> Objects.equals(dataId, docMeta.getDataId()))
+                .filter(docMeta -> Objects.equals(docKey, docMeta.getDocKey()))
                 .findFirst()
                 .map(DocMeta::getMd5);
     }

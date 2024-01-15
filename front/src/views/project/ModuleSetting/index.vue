@@ -15,7 +15,7 @@
       </span>
     </h3>
 
-    <el-tabs active-name="envSetting" tab-position="left" @tab-click="tabChange">
+    <el-tabs v-model="actName" tab-position="left" @tab-click="tabChange">
       <el-tab-pane name="envSetting" :label="$t('debugEnv')">
         <env-setting ref="envSetting" :project-id="projectId" />
       </el-tab-pane>
@@ -28,7 +28,7 @@
       <el-tab-pane name="weComSetting" :label="$t('ModuleSetting.weComSetting')">
         <we-com-setting ref="weComSetting" />
       </el-tab-pane>
-      <el-tab-pane v-show="enableMeterSphere" name="meterSphereSetting" :label="$t('ModuleSetting.meterSphereSetting')">
+      <el-tab-pane v-if="enableMeterSphere" name="meterSphereSetting" :label="$t('ModuleSetting.meterSphereSetting')">
         <meter-sphere-setting ref="meterSphereSetting" />
       </el-tab-pane>
     </el-tabs>
@@ -60,7 +60,8 @@ export default {
         id: '',
         name: '',
         type: 0
-      }
+      },
+      actName: 'envSetting'
     }
   },
   computed: {
@@ -71,13 +72,17 @@ export default {
   methods: {
     tabChange(tab) {
       const name = tab.name
-      const ref = this.$refs[name]
-      ref && ref.reload(this.moduleId, this.projectId)
+      this.loadTab(name)
     },
     reload(moduleId) {
       this.moduleId = moduleId
-      this.$refs.envSetting.reload(moduleId)
+      this.actName = 'envSetting'
+      this.loadTab(this.actName)
       this.loadModuleInfo(moduleId)
+    },
+    loadTab(name) {
+      const ref = this.$refs[name]
+      ref && ref.reload(this.moduleId, this.projectId)
     },
     loadModuleInfo(moduleId) {
       this.get('/module/info', { moduleId: moduleId }, resp => {

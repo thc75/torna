@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="spaceConfig">
+    <div v-show="spaceConfig">
       <el-alert type="info" :closable="false" style="margin-bottom: 10px">
         MeterSphere模块对应Torna中的应用
       </el-alert>
@@ -16,9 +16,9 @@
         </el-form-item>
       </el-form>
     </div>
-    <div v-else>
+    <div v-show="!spaceConfig">
       <el-alert type="info" :closable="false">
-        空间未配置MeterSphere参数 <span v-show="spaceId.length > 0"> <el-link type="primary" @click="goRoute(`/space/setting/${spaceId}`)">前往配置</el-link> </span>
+        空间未配置MeterSphere参数 <span v-show="spaceId && spaceId.length > 0"> <el-link type="primary" @click="goRoute(`/space/setting/${spaceId}`)">前往配置</el-link> </span>
       </el-alert>
     </div>
   </div>
@@ -49,7 +49,7 @@ export default {
         lazy: true,
         lazyLoad(node, resolve) {
           const { level } = node
-          if (level >= 2) {
+          if (!that || level >= 2) {
             resolve([])
             return
           }

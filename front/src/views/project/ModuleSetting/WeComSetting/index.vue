@@ -39,12 +39,18 @@ export default {
       this.loadConfig(moduleId)
     },
     loadConfig() {
+      this.clearForm()
       const configKeys = Object.keys(this.config)
       listModuleConfig(this.moduleId, configKeys, (configs) => {
         for (const config of configs) {
           this.config[config.configKey] = config
         }
       })
+    },
+    clearForm() {
+      for (const configKey in this.config) {
+        this.config[configKey].configValue = ''
+      }
     },
     saveConfig() {
       const items = []
