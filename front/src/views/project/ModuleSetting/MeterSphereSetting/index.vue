@@ -2,10 +2,10 @@
   <div>
     <div v-show="spaceConfig">
       <el-alert type="info" :closable="false" style="margin-bottom: 10px">
-        MeterSphere模块对应Torna中的应用
+        当前应用绑定MeterSphere模块，绑定后应用收到推送会把文档同步到MeterSphere
       </el-alert>
       <el-form ref="msModuleFrm" :model="formData" :rules="formRules">
-        <el-form-item v-show="currentName && currentName.length > 0" label="当前配置">
+        <el-form-item v-show="currentName && currentName.length > 0" label="当前绑定模块">
           {{ currentName }}
         </el-form-item>
         <el-form-item prop="msModuleId" label="绑定模块">
