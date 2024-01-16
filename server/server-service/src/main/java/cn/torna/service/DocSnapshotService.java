@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -64,8 +66,9 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
             Long docId = docSnapshot.getDocId();
             String docKey =  docInfoService.getDocKey(docId);
             if (StringUtils.hasText(docKey)) {
-                docSnapshot.setDocKey(docKey);
-                this.update(docSnapshot);
+                Map<String, Object> set = new HashMap<>(4);
+                set.put("doc_key", docKey);
+                this.updateByMap(set, new Query().eq("id", docSnapshot.getId()));
             }
         }
     }

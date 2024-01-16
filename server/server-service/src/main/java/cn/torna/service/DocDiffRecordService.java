@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -230,8 +231,9 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
             Long docId = docDiffRecord.getDocId();
             String docKey = docInfoService.getDocKey(docId);
             if (StringUtils.hasText(docKey)) {
-                docDiffRecord.setDocKey(docKey);
-                this.update(docDiffRecord);
+                Map<String, Object> set = new HashMap<>(4);
+                set.put("doc_key", docKey);
+                this.updateByMap(set, new Query().eq("id", docDiffRecord.getId()));
             }
         }
     }
