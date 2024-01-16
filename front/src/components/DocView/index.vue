@@ -2,7 +2,7 @@
   <div v-show="docInfo.id || docInfo.isPreview" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.docName }}</span>
+        <span :class="{ 'deprecated': isDeprecated }" style="color: #303133;">{{ docInfo.docName }}</span>
         <doc-status-tag class="el-tag-method" :status="docInfo.status" />
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
