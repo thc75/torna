@@ -847,10 +847,12 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     public void fillDocKey() {
         List<DocInfo> list = this.list(new Query());
         for (DocInfo docInfo : list) {
-            String docKey = CopyUtil.copyBean(docInfo, DocInfoDTO::new).buildDocKey();
+            DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+            String docKey = docInfoDTO.buildDocKey();
             if (StringUtils.hasText(docKey)) {
-                Map<String, Object> set = new HashMap<>(4);
+                Map<String, Object> set = new HashMap<>(8);
                 set.put("doc_key", docKey);
+                set.put("data_id", docInfoDTO.buildDataId());
                 this.updateByMap(set, new Query().eq("id", docInfo.getId()));
             }
         }

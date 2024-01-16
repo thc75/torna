@@ -89,6 +89,7 @@
         <if test="contentType != null">content_type = VALUES(content_type),</if>
         deprecated = VALUES(deprecated),
         <if test="isFolder != null">is_folder = VALUES(is_folder),</if>
+        <if test="parentId != null">parent_id = VALUES(parent_id),</if>
         <if test="moduleId != null">module_id = VALUES(module_id),</if>
         <if test="isUseGlobalHeaders != null">is_use_global_headers = VALUES(is_use_global_headers),</if>
         <if test="isUseGlobalParams != null">is_use_global_params = VALUES(is_use_global_params),</if>
