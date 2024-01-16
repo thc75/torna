@@ -680,4 +680,4 @@ CREATE TABLE `user_subscribe` (
                                   UNIQUE KEY `uk_userid_type_sourceid` (`user_id`,`type`,`source_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='用户订阅表';
 
-/*Data for the table `user_subscribe` */
+SELECT 'finished';

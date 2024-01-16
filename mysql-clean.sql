@@ -639,3 +639,5 @@ CREATE TABLE IF NOT EXISTS `user_subscribe` (
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `uk_userid_type_sourceid` (`user_id`,`type`,`source_id`) USING BTREE
     ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户订阅表';
+
+SELECT 'finished';
