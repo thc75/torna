@@ -10,7 +10,6 @@
 - 【修复】Nginx反向代理不支持basic auth [#I8QA6G](https://gitee.com/durcframework/torna/issues/I8QA6G)
 - 【修复】修复请求接口后响应信息太长时出现双滚动条 [pr](https://gitee.com/durcframework/torna/pulls/51)
 - 【优化】文档显示，描述列中使用字典类型，显示过窄，未能自适应 [#I8Q0F3](https://gitee.com/durcframework/torna/issues/I8Q0F3)
-- 【调整】移动文档到其它分类，再次推送保持原样（之前还是会回到原分类）
 
 ## 1.25.1
 
