@@ -5,6 +5,7 @@
 CREATE DATABASE IF NOT EXISTS `torna` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `torna`;
 
+
 -- ----------------------------
 -- Table structure for compose_additional_page
 -- ----------------------------
@@ -167,6 +168,7 @@ DROP TABLE IF EXISTS `doc_diff_record`;
 CREATE TABLE `doc_diff_record` (
                                    `id` bigint(20) NOT NULL AUTO_INCREMENT,
                                    `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+                                   `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key',
                                    `md5_old` varchar(64) NOT NULL DEFAULT '' COMMENT '旧MD5',
                                    `md5_new` varchar(64) NOT NULL DEFAULT '' COMMENT '新MD5',
                                    `modify_source` tinyint(4) NOT NULL DEFAULT '0' COMMENT '修改方式，0：推送，1：表单编辑',
@@ -187,6 +189,7 @@ DROP TABLE IF EXISTS `doc_info`;
 CREATE TABLE `doc_info` (
                             `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                             `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT '唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name)',
+                            `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key',
                             `md5` varchar(32) NOT NULL DEFAULT '' COMMENT '文档内容的md5值',
                             `name` varchar(128) NOT NULL DEFAULT '' COMMENT '文档名称',
                             `description` longtext COMMENT '文档描述',
@@ -223,25 +226,27 @@ CREATE TABLE `doc_info` (
                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                             PRIMARY KEY (`id`) USING BTREE,
                             UNIQUE KEY `uk_data_id` (`data_id`) USING BTREE,
-                            KEY `idx_moduleid` (`module_id`) USING BTREE
+                            KEY `idx_moduleid` (`module_id`) USING BTREE,
+                            KEY `idx_parentid` (`parent_id`) USING BTREE,
+                            KEY `idx_dockey` (`doc_key`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=120 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文档信息';
 
 -- ----------------------------
 -- Records of doc_info
 -- ----------------------------
 BEGIN;
-INSERT INTO `doc_info` VALUES (97, '8421b3dc53855aa82cd9a9f493b08376', '', '产品模块', '', 'thc', 0, '', '', '', '', '$false$', 1, 0, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 2, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (98, '4face5a97658e1323d1aaf343c742920', '6965a2919c3e33a4d5cfadbfe2d6f82e', '新增产品', '新增产品', 'thc', 0, '/shop/product', '', 'POST', 'application/json', '$false$', 0, 97, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 1, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (99, 'f24d20f5805ba266ba6fda13271589e0', '3de4ea5522a4486b63f0d9dc3d1408ea', '修改产品', '修改产品', 'thc', 0, '/shop/product', '', 'PUT', 'application/json', '$false$', 0, 97, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 2, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (100, '564b9f4b0c800f7bd1d8c064e4f87601', 'e89523f48f3a8c0b6de371eaf4c6d3a7', '查询产品', '查询产品', 'thc', 0, '/shop/product', '', 'GET', 'application/x-www-form-urlencoded;charset=UTF-8', '$false$', 0, 97, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 3, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (101, 'd9addaac101a3c37b680b3eff5e74b81', '', '订单查询', '', '', 0, '', '', '', '', '$false$', 1, 0, 6, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 0, NULL, 1, 0, 0, 10, '2022-11-03 20:37:49', '2022-11-03 20:37:49');
-INSERT INTO `doc_info` VALUES (102, '5fa110de16f8289a1dfbb7ae0e68f68c', '94a9a4170c569c3a8c1d3e77dc39eb2e', '获取订单详情', '', 'jim', 0, '/order/detail', '', 'GET', '', '$false$', 0, 101, 6, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 10000, '', 1, 0, 0, 10, '2022-11-03 20:38:40', '2022-11-03 20:38:40');
-INSERT INTO `doc_info` VALUES (103, '2dd9dc7d62a7b5f5f0a94c791775b6a5', '', '登录模块', '', '', 0, '', '', '', '', '$false$', 1, 0, 7, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 0, NULL, 1, 0, 0, 10, '2022-11-03 20:47:04', '2022-11-03 20:47:04');
-INSERT INTO `doc_info` VALUES (104, 'ddf9207b0dafebb1e7ac1dea25b071cc', '', '分类模块', '', 'tanghc', 0, '', '', '', '', '$false$', 1, 0, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 1, NULL, 1, 0, 0, 10, '2022-11-03 20:55:13', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (105, '3eaff877923fc6b20b348da955d4e8ef', 'c0fcaef099b3f06a6711f8bb2370418b', '添加分类', '添加分类', 'tanghc', 0, '/category/add', '', 'POST', 'application/json', '$false$', 0, 104, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 1, NULL, 1, 0, 0, 10, '2022-11-03 20:55:13', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (106, '9c5ecbe65162543e5a1fb4cc4c8d7249', 'd6ecdb4ff1eed507cb011fed25c4c5a2', '查询分类', '查询分类', 'tanghc', 0, '/category/get', '', 'POST', 'application/x-www-form-urlencoded;charset=UTF-8', '$false$', 0, 104, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 2, NULL, 1, 0, 0, 10, '2022-11-03 20:55:13', '2022-11-03 20:56:26');
-INSERT INTO `doc_info` VALUES (118, 'e769a4ab93aec62c0fbda17fa6b0244c', '5a193f3d886e786c398c414fec1e6806', '登录', '', 'jim', 0, 'login', '', 'POST', 'application/json', '$false$', 0, 103, 7, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 10000, '', 1, 0, 0, 10, '2022-11-03 20:57:43', '2022-11-03 20:57:43');
-INSERT INTO `doc_info` VALUES (119, '18acdbaeed5976896b6ab6726b6c54ec', '', '退出', '', '', 0, 'logout', '', 'GET', '', '$false$', 0, 103, 7, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 10010, '', 1, 0, 0, 10, '2022-11-03 20:58:18', '2022-11-03 20:58:18');
+INSERT INTO `doc_info` VALUES (97, '672fe4f587d9b4059baf187c8dbd02b0', '8421b3dc53855aa82cd9a9f493b08376', '', '产品模块', '', 'thc', 0, '', '', '', '', '$false$', 1, 0, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 2, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (98, '002264d7a6da2efe73783132ad776333', '85ecc3ba09e5e42522e7db18cceb6564', '6965a2919c3e33a4d5cfadbfe2d6f82e', '新增产品', '新增产品', 'thc', 0, '/shop/product', '', 'POST', 'application/json', '$false$', 0, 97, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 1, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (99, '5703af1fd4bfc0b45203e4becad84ac9', 'f2684aaabe8d7ab4cc2163d31deba8fb', '3de4ea5522a4486b63f0d9dc3d1408ea', '修改产品', '修改产品', 'thc', 0, '/shop/product', '', 'PUT', 'application/json', '$false$', 0, 97, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 2, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (100, '3f3baebee5dc24796a97d10ec0d918a2', '887332d7dca1444e6e50ba30d950f6ff', 'e89523f48f3a8c0b6de371eaf4c6d3a7', '查询产品', '查询产品', 'thc', 0, '/shop/product', '', 'GET', 'application/x-www-form-urlencoded;charset=UTF-8', '$false$', 0, 97, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 3, NULL, 1, 0, 0, 10, '2022-11-03 20:26:07', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (101, '4d7b0a76943dbbd674ea0a0312c3f78f', 'd9addaac101a3c37b680b3eff5e74b81', '', '订单查询', '', '', 0, '', '', '', '', '$false$', 1, 0, 6, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 0, NULL, 1, 0, 0, 10, '2022-11-03 20:37:49', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (102, 'bd114ef0f21490c54376d5294ba1b9cd', '09fc7ac7e58010f990ba4ebe3f362bcc', '94a9a4170c569c3a8c1d3e77dc39eb2e', '获取订单详情', '', 'jim', 0, '/order/detail', '', 'GET', '', '$false$', 0, 101, 6, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 10000, '', 1, 0, 0, 10, '2022-11-03 20:38:40', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (103, '1ce92448229d61a9f2d6da55e9fc36d0', '2dd9dc7d62a7b5f5f0a94c791775b6a5', '', '登录模块', '', '', 0, '', '', '', '', '$false$', 1, 0, 7, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 0, NULL, 1, 0, 0, 10, '2022-11-03 20:47:04', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (104, '74277e6463369602f9d4b1a55c8da843', 'ddf9207b0dafebb1e7ac1dea25b071cc', '', '分类模块', '', 'tanghc', 0, '', '', '', '', '$false$', 1, 0, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 1, NULL, 1, 0, 0, 10, '2022-11-03 20:55:13', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (105, 'dc1395406d2e13186a0cf684dbf46ba7', '53f32756159dc3e4fca045ee2cfa29fe', 'c0fcaef099b3f06a6711f8bb2370418b', '添加分类', '添加分类', 'tanghc', 0, '/category/add', '', 'POST', 'application/json', '$false$', 0, 104, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 1, NULL, 1, 0, 0, 10, '2022-11-03 20:55:13', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (106, 'e8c5689b060fffef10e24dfae3c393d7', '275818ece7ed570485168ba7c34e456b', 'd6ecdb4ff1eed507cb011fed25c4c5a2', '查询分类', '查询分类', 'tanghc', 0, '/category/get', '', 'POST', 'application/x-www-form-urlencoded;charset=UTF-8', '$false$', 0, 104, 5, 1, 1, 1, 0, 0, 'object', 'object', 1, 1, 99999, 'thc', 99999, 'thc', 2, NULL, 1, 0, 0, 10, '2022-11-03 20:55:13', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (118, 'a86ea675dd6ecd5147d957932a75df7a', '72b239dc0c86e0f0f8bc06994ed4e9d3', '5a193f3d886e786c398c414fec1e6806', '登录', '', 'jim', 0, 'login', '', 'POST', 'application/json', '$false$', 0, 103, 7, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 10000, '', 1, 0, 0, 10, '2022-11-03 20:57:43', '2024-01-17 14:46:46');
+INSERT INTO `doc_info` VALUES (119, '97b338a61dace4633820e38f69621249', '281b28fd705b7f08ab55c964ff34ddc7', '', '退出', '', '', 0, 'logout', '', 'GET', '', '$false$', 0, 103, 7, 1, 1, 1, 0, 0, 'object', 'object', 0, 0, 16, '超级管理员', 16, '超级管理员', 10010, '', 1, 0, 0, 10, '2022-11-03 20:58:18', '2024-01-17 14:46:46');
 COMMIT;
 
 -- ----------------------------
@@ -347,6 +352,7 @@ DROP TABLE IF EXISTS `doc_snapshot`;
 CREATE TABLE `doc_snapshot` (
                                 `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
                                 `doc_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'doc_info.id',
+                                `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key',
                                 `md5` varchar(64) NOT NULL DEFAULT '' COMMENT '文档md5',
                                 `modifier_name` varchar(64) NOT NULL DEFAULT '' COMMENT '修改人',
                                 `modifier_time` datetime NOT NULL COMMENT '修改时间',
@@ -418,8 +424,9 @@ COMMIT;
 DROP TABLE IF EXISTS `mock_config`;
 CREATE TABLE `mock_config` (
                                `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                               `name` varchar(64) NOT NULL DEFAULT '' COMMENT '名称',
+                               `name` varchar(128) NOT NULL DEFAULT '' COMMENT '名称',
                                `data_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'md5(path+query+body)',
+                               `version` int(11) DEFAULT '0' COMMENT 'mock版本',
                                `path` varchar(128) NOT NULL DEFAULT '',
                                `ip` varchar(64) NOT NULL DEFAULT '' COMMENT '过滤ip',
                                `request_data` text NOT NULL COMMENT '请求参数',
@@ -573,6 +580,41 @@ CREATE TABLE `module_swagger_config` (
                                          PRIMARY KEY (`id`),
                                          KEY `idx_moduleid` (`module_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='swagger配置表';
+
+-- ----------------------------
+-- Table structure for ms_module_config
+-- ----------------------------
+DROP TABLE IF EXISTS `ms_module_config`;
+CREATE TABLE `ms_module_config` (
+                                    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                                    `module_id` bigint(20) NOT NULL COMMENT 'module.id',
+                                    `ms_project_id` varchar(64) NOT NULL COMMENT 'MeterSphere项目id',
+                                    `ms_module_id` varchar(64) NOT NULL COMMENT 'MeterSphere模块id',
+                                    `ms_cover_module` tinyint(4) NOT NULL DEFAULT '1' COMMENT '默认覆盖',
+                                    `name` varchar(100) NOT NULL,
+                                    `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                    `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                    PRIMARY KEY (`id`) USING BTREE,
+                                    UNIQUE KEY `uk_moduleid` (`module_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='MeterSphere模块配置';
+
+-- ----------------------------
+-- Table structure for ms_space_config
+-- ----------------------------
+DROP TABLE IF EXISTS `ms_space_config`;
+CREATE TABLE `ms_space_config` (
+                                   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                                   `space_id` bigint(20) NOT NULL COMMENT '空间id',
+                                   `ms_space_id` varchar(64) NOT NULL COMMENT 'MeterSphere空间id',
+                                   `ms_space_name` varchar(64) DEFAULT NULL,
+                                   `ms_address` varchar(100) NOT NULL COMMENT 'MeterSphere服务器地址',
+                                   `ms_access_key` varchar(100) NOT NULL COMMENT 'MeterSphere的access_key',
+                                   `ms_secret_key` varchar(100) NOT NULL COMMENT 'MeterSphere的secret_key',
+                                   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                   PRIMARY KEY (`id`) USING BTREE,
+                                   UNIQUE KEY `uk_spaceid` (`space_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='MeterSphere空间配置';
 
 -- ----------------------------
 -- Table structure for open_user
@@ -797,7 +839,7 @@ CREATE TABLE `system_config` (
 -- Records of system_config
 -- ----------------------------
 BEGIN;
-INSERT INTO `system_config` VALUES (3, 'torna.version', '12400', '当前内部版本号。不要删除这条记录！！', 0, '2022-11-03 20:20:53', '2023-11-20 09:46:39');
+INSERT INTO `system_config` VALUES (3, 'torna.version', '12600', '当前内部版本号。不要删除这条记录！！', 0, '2022-11-03 20:20:53', '2024-01-17 14:46:47');
 INSERT INTO `system_config` VALUES (4, 'front.param.type-array', '[\"string\",\"number\",\"boolean\",\"object\",\"array\",\"num_array\",\"str_array\",\"file\",\"file[]\",\"enum\"]', '参数类型配置', 0, '2023-11-20 09:46:39', '2023-11-20 09:46:39');
 COMMIT;
 
@@ -913,4 +955,16 @@ CREATE TABLE `user_subscribe` (
                                   UNIQUE KEY `uk_userid_type_sourceid` (`user_id`,`type`,`source_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户订阅表';
 
-SELECT 'finished';
+-- ----------------------------
+-- Table structure for user_wecom_info
+-- ----------------------------
+DROP TABLE IF EXISTS `user_wecom_info`;
+CREATE TABLE `user_wecom_info` (
+                                   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+                                   `mobile` varchar(20) DEFAULT NULL COMMENT '企业微信绑定手机号码',
+                                   `user_info_id` bigint(20) NOT NULL COMMENT 'user_info.id',
+                                   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+                                   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                   PRIMARY KEY (`id`) USING BTREE,
+                                   KEY `idx_userid` (`user_info_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
