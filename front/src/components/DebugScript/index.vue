@@ -229,8 +229,8 @@
 import CryptoJS from 'crypto-js'
 import moment from 'moment'
 import qs from 'qs'
-import { RSA } from '@/utils/rsa'
-import { loadJs } from '@/utils/loadjs'
+import {RSA} from '@/utils/rsa'
+import {loadJs} from '@/utils/loadjs'
 import Help from '@/components/Help'
 import axios from 'axios'
 
@@ -449,8 +449,7 @@ export default {
       const sys = {
         send: invoke
       }
-      const result = fn(sys, getLib(), req)
-      return result
+      return fn(sys, getLib(), req)
     },
     runAfter(resp, req) {
       const data = this.getData()
