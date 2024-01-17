@@ -968,3 +968,5 @@ CREATE TABLE `user_wecom_info` (
                                    PRIMARY KEY (`id`) USING BTREE,
                                    KEY `idx_userid` (`user_info_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+select 'finished';
