@@ -537,7 +537,7 @@ public class UpgradeService {
         try {
             upgradeMapper.runSql(sql);
         } catch (Exception e) {
-            log.warn("运行SQL报错，可能已经存在索引或字段，sql={}", sql, e);
+            log.warn("运行SQL报错，可能已经存在索引或字段。(不影响程序运行)，sql={}, msg={}", sql, e.getMessage());
         }
     }
 

@@ -6,10 +6,10 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.enums.PropTypeEnum;
-import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
@@ -17,7 +17,14 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
 import cn.torna.common.util.TreeUtil;
-import cn.torna.dao.entity.*;
+import cn.torna.dao.entity.DocInfo;
+import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.EnumInfo;
+import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
+import cn.torna.dao.entity.UserDingtalkInfo;
+import cn.torna.dao.entity.UserWeComInfo;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
 import cn.torna.dao.mapper.UserWeComInfoMapper;
@@ -845,7 +852,8 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public void fillDocKey() {
-        List<DocInfo> list = this.list(new Query());
+        List<DocInfo> list = this.list(new Query().eq("type", DocTypeEnum.HTTP.getType()));
+
         for (DocInfo docInfo : list) {
             DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
             String docKey = docInfoDTO.buildDocKey();
