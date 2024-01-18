@@ -56,9 +56,6 @@
           <el-input v-model="formData.path" placeholder="path">
             <template slot="prepend">{{ mockBaseUrl }}</template>
           </el-input>
-          <span class="tip">
-            可在path后面添加query参数区分不同mock，如：{{ 'product/getDetail?id=2' }}
-          </span>
         </el-form-item>
         <el-form-item :label="$t('name')" prop="name">
           <el-input v-model="formData.name" maxlength="64" show-word-limit />
@@ -165,15 +162,17 @@
 <script>
 import NameValueTable from '@/components/NameValueTable'
 import { header_names, header_values } from '@/utils/headers'
+import moment from 'moment'
+
 const Mock = require('mockjs')
 const Random = require('mockjs')
-import moment from 'moment'
 
 const FORM_DATA = {
   dataKv: [],
   dataJson: '',
   name: '',
   path: '',
+  version: 0,
   requestDataType: 0,
   httpStatus: 200,
   delayMills: 0,
@@ -353,21 +352,20 @@ export default {
     onMockAdd() {
       const respBody = this.doCreateResponseExample(this.item.responseParams)
       const node = Object.assign({}, FORM_DATA)
-      let path = this.item.url
-      if (path.startsWith('/')) {
-        path = path.substring(1)
-      }
-      Object.assign(node, {
-        id: '' + this.nextId(),
-        name: $t('newConfig'),
-        path: path,
-        responseBody: this.formatJson(respBody),
-        responseHeaders: [
-          { name: 'Content-Type', value: 'application/json;charset=UTF-8', isDeleted: 0, isNew: 1 }
-        ],
-        isNew: true
+      this.getNextVersion(this.item.id, nextVersion => {
+        Object.assign(node, {
+          id: '' + this.nextId(),
+          name: `${this.item.name}-v${nextVersion}`,
+          path: `v${nextVersion}/${this.getPath()}`,
+          version: nextVersion,
+          responseBody: this.formatJson(respBody),
+          responseHeaders: [
+            { name: 'Content-Type', value: 'application/json;charset=UTF-8', isDeleted: 0, isNew: 1 }
+          ],
+          isNew: true
+        })
+        this.addMock(node)
       })
-      this.addMock(node)
     },
     onCopy() {
       const node = {
@@ -376,7 +374,24 @@ export default {
       Object.assign(node, this.formData)
       node.id = '' + this.nextId()
       node.name = node.name + ' copy'
-      this.addMock(node)
+      this.getNextVersion(this.item.id, nextVersion => {
+        console.log(this.item)
+        node.path = `v${nextVersion}/${this.getPath()}`
+        node.version = nextVersion
+        this.addMock(node)
+      })
+    },
+    getPath() {
+      let path = this.item.url
+      if (path.startsWith('/')) {
+        path = path.substring(1)
+      }
+      return path
+    },
+    getNextVersion(docId, callback) {
+      this.get('/doc/mock/version/next', { docId: docId }, resp => {
+        callback && callback.call(this, resp.data)
+      })
     },
     addMock(node) {
       this.mockConfigs.push(node)

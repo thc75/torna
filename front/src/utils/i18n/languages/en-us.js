@@ -62,6 +62,7 @@ export default {
   'projectList': 'Projects',
   'spaceInfo': 'Space Info',
   'spaceMember': 'Members',
+  'spaceSetting': 'Setting',
   'openUser': 'Open User',
   'apiDoc': 'API Doc',
   'projectInfo': 'Project Info',
@@ -523,12 +524,13 @@ export default {
     'weComWebhookUrlTip': 'Push message to weCom group when doc is changed'
   },
   UserInfo: {
-    'bindDingDingTip':'Use DingDing app scan the QR to bind account'
+    'bindDingDingTip': 'Use DingDing app scan the QR to bind account'
   },
   ModuleSetting: {
     'weComSetting': 'WeCom Setting',
     'dingdingSetting': 'DingTalk Setting',
     'swaggerSetting': 'Swagger Setting',
+    'meterSphereSetting': 'MeterSphere Setting'
   },
   DocChangelog: {
     confirmRestore: 'Restore this version?'

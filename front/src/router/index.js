@@ -128,6 +128,12 @@ export const constantRoutes = [
         meta: { title: '空间成员' }
       },
       {
+        path: 'setting/:spaceId(\\w+)',
+        name: 'SpaceSetting',
+        component: () => import('@/views/space/index_setting'),
+        meta: { title: '空间设置' }
+      },
+      {
         path: 'openuser/:spaceId(\\w+)',
         name: 'SpaceOpenuser',
         component: () => import('@/views/space/index_openuser'),

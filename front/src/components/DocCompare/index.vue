@@ -37,7 +37,7 @@ export default {
     }
   },
   methods: {
-    show(md5, docId) {
+    show(md5) {
       this.dlgShow = true
       this.$nextTick(() => {
         // this.get('/doc/view/detail', { id: docId }, function(resp) {

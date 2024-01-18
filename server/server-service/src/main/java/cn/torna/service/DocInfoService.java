@@ -6,17 +6,25 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.enums.PropTypeEnum;
-import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
-import cn.torna.dao.entity.*;
+import cn.torna.common.util.TreeUtil;
+import cn.torna.dao.entity.DocInfo;
+import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.EnumInfo;
+import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
+import cn.torna.dao.entity.UserDingtalkInfo;
+import cn.torna.dao.entity.UserWeComInfo;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
 import cn.torna.dao.mapper.UserWeComInfoMapper;
@@ -111,6 +119,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
 
     @Autowired
     private UserSubscribeService userSubscribeService;
+
+    @Autowired
+    private MockConfigService mockConfigService;
 
 
     /**
@@ -344,7 +355,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
 
-    private DocInfoDTO getDocDetail(DocInfo docInfo) {
+    public DocInfoDTO getDocDetail(DocInfo docInfo) {
         DocInfoDTO docInfoDTO = this.getDocInfoDTO(docInfo);
         Long moduleId = docInfoDTO.getModuleId();
         List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
@@ -395,9 +406,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         this.doUpdateParams(docInfo, docInfoDTO, user);
     }
 
+    private void createDocMock(DocInfo docInfo) {
+        mockConfigService.createDocDefaultMock(docInfo.getId());
+    }
+
     public List<DocMeta> listDocMeta(long moduleId) {
         Query query = new Query().eq("module_id", moduleId);
-        return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "is_locked", "md5"), query, DocMeta.class);
+        return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "doc_key", "is_locked", "md5"), query, DocMeta.class);
     }
 
     public static boolean isLocked(String dataId, List<DocMeta> docMetas) {
@@ -434,6 +449,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), ModifySourceEnum.FORM));
+        createDocMock(docInfo);
         return docInfo;
     }
 
@@ -446,6 +462,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         this.doUpdateParams(docInfo, docInfoDTO, user);
         ModifySourceEnum sourceFromEnum = DocTypeEnum.isTextType(docInfo.getType()) ? ModifySourceEnum.TEXT : ModifySourceEnum.FORM;
         SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, sourceFromEnum));
+        createDocMock(docInfo);
         return docInfo;
     }
 
@@ -504,6 +521,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        docInfo.setDocKey(docInfoDTO.buildDocKey());
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
@@ -536,6 +554,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        docInfo.setDocKey(docInfoDTO.buildDocKey());
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
@@ -818,6 +837,49 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         docDetail.setStatus(status);
         this.doUpdateDocBaseInfo(docDetail, user);
+    }
+
+    public String getDocKey(Long docId) {
+        DocInfo docInfo = this.getById(docId);
+        if (docInfo != null) {
+            return CopyUtil.copyBean(docInfo, DocInfoDTO::new).buildDocKey();
+        }
+        return null;
+    }
+
+    public List<DocInfo> listByDocKey(String docKey) {
+        return list("doc_key", docKey);
+    }
+
+    public void fillDocKey() {
+        List<DocInfo> list = this.list(new Query().eq("type", DocTypeEnum.HTTP.getType()));
+
+        for (DocInfo docInfo : list) {
+            DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+            String docKey = docInfoDTO.buildDocKey();
+            if (StringUtils.hasText(docKey)) {
+                Map<String, Object> set = new HashMap<>(8);
+                set.put("doc_key", docKey);
+                set.put("data_id", docInfoDTO.buildDataId());
+                this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+            }
+        }
+    }
+
+    public List<DocInfoDTO> listTreeDoc(Long moduleId) {
+        List<DocInfo> docInfos = listModuleDoc(moduleId);
+        return convertTree(docInfos);
+    }
+
+    private List<DocInfoDTO> convertTree(List<DocInfo> docInfos) {
+        List<DocInfoDTO> docInfoDTOList = docInfos.stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+        return TreeUtil.convertTree(docInfoDTOList, 0L);
+    }
+
+    public List<DocInfo> listByParentId(Long parentId) {
+        return list("parent_id", parentId);
     }
 
 }

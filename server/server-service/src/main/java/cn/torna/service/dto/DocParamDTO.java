@@ -1,6 +1,7 @@
 package cn.torna.service.dto;
 
 import cn.torna.common.annotation.Diff;
+import cn.torna.common.bean.TreeAware;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -13,7 +14,7 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class DocParamDTO {
+public class DocParamDTO implements TreeAware<DocParamDTO, Long> {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 

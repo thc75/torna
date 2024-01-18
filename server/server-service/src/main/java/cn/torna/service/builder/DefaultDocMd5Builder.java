@@ -26,7 +26,6 @@ public class DefaultDocMd5Builder implements DocMd5Builder {
                 .append(docInfoDTO.getDescription())
                 .append(docInfoDTO.getAuthor())
                 .append(docInfoDTO.getUrl())
-                .append(docInfoDTO.getVersion())
                 .append(docInfoDTO.getHttpMethod())
                 .append(docInfoDTO.getParentId())
                 .append(docInfoDTO.getModuleId())

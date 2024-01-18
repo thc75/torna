@@ -18,6 +18,9 @@ public class MockConfigParam {
     /** 名称, 数据库字段：name */
     private String name;
 
+    /** mock版本号 */
+    private Integer version;
+
     private List<NameValueDTO> dataKv;
 
     private String dataJson;

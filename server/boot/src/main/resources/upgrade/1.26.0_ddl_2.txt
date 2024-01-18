@@ -1,0 +1,12 @@
+CREATE TABLE `ms_module_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `module_id` bigint(20) NOT NULL COMMENT 'module.id',
+  `ms_project_id` varchar(64) NOT NULL COMMENT 'MeterSphere项目id',
+  `ms_module_id` varchar(64) NOT NULL COMMENT 'MeterSphere模块id',
+  `ms_cover_module` tinyint(4) NOT NULL DEFAULT '1' COMMENT '默认覆盖',
+  `name` varchar(100) NOT NULL,
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_moduleid` (`module_id`) USING BTREE
+) ENGINE=InnoDB COMMENT='MeterSphere模块配置'

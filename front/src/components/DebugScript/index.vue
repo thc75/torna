@@ -222,15 +222,15 @@
         <el-button @click="showVisible = false">{{ $t('dlgClose') }}</el-button>
       </div>
     </el-dialog>
-      <help ref="help" />
+    <help ref="help" />
   </div>
 </template>
 <script>
 import CryptoJS from 'crypto-js'
 import moment from 'moment'
 import qs from 'qs'
-import { RSA } from '@/utils/rsa'
-import { loadJs } from '@/utils/loadjs'
+import {RSA} from '@/utils/rsa'
+import {loadJs} from '@/utils/loadjs'
 import Help from '@/components/Help'
 import axios from 'axios'
 
@@ -261,7 +261,7 @@ export default {
       activeName: 'pre',
       scopeOptions: [
         { value: DEBUG_SCRIPT_SCOPE.DOC, label: '当前文档' },
-        { value: DEBUG_SCRIPT_SCOPE.MODULE, label: '当前模块' },
+        { value: DEBUG_SCRIPT_SCOPE.MODULE, label: '当前应用' },
         { value: DEBUG_SCRIPT_SCOPE.PROJECT, label: '当前项目' }
       ],
       preData: [],
@@ -434,7 +434,7 @@ export default {
       }
       return ''
     },
-    runPre(req) {
+    runPre(req, invoke) {
       const data = this.getData()
       const script = data.preContent
       if (!script) {
@@ -445,9 +445,11 @@ export default {
         }())`
       // eslint-disable-next-line no-eval
       // const data = eval(fn)
-      const fn = new Function('lib', 'req', `return ${code}`)
-      const result = fn(getLib(), req)
-      return result !== undefined ? result : req
+      const fn = new Function('sys', 'lib', 'req', `return ${code}`)
+      const sys = {
+        send: invoke
+      }
+      return fn(sys, getLib(), req)
     },
     runAfter(resp, req) {
       const data = this.getData()

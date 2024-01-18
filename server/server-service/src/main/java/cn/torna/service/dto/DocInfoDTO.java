@@ -1,6 +1,7 @@
 package cn.torna.service.dto;
 
 import cn.torna.common.annotation.Diff;
+import cn.torna.common.bean.TreeAware;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
 import cn.torna.service.dataid.DocInfoDataId;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author tanghc
  */
 @Data
-public class DocInfoDTO implements DocInfoDataId {
+public class DocInfoDTO implements DocInfoDataId, TreeAware<DocInfoDTO, Long> {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
@@ -38,7 +39,12 @@ public class DocInfoDTO implements DocInfoDataId {
     @Diff(positionType = PositionType.DOC_URL)
     private String url;
 
+    /**
+     * 版本号
+     */
     private String version = "";
+
+    private String docKey;
 
     /** http方法, 数据库字段：http_method */
     @Diff(positionType = PositionType.DOC_HTTP_METHOD)
@@ -172,10 +178,13 @@ public class DocInfoDTO implements DocInfoDataId {
 
     private String errorCodeInfo;
 
+    private List<DocInfoDTO> children = Collections.emptyList();
+
     public String getDocName() {
         if (version == null || version.trim().isEmpty()) {
             return name;
         }
         return name + " " + version;
     }
+
 }

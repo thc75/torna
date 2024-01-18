@@ -24,4 +24,8 @@ public enum MockRequestDataTypeEnum {
     }
 
     private final byte type;
+
+    public byte getType() {
+        return type;
+    }
 }

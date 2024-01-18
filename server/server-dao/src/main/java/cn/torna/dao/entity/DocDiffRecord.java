@@ -26,6 +26,11 @@ public class DocDiffRecord {
      */
     private Long docId;
 
+    /**
+     * 一个接口对应一个key
+     */
+    private String docKey;
+
 
     /**
      * 旧MD5

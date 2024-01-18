@@ -1,17 +1,21 @@
 package cn.torna.service;
 
 import cn.torna.common.support.BaseService;
+import cn.torna.dao.entity.DocDiffRecord;
 import cn.torna.dao.entity.DocSnapshot;
 import cn.torna.dao.mapper.DocSnapshotMapper;
 import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -19,6 +23,9 @@ import java.util.Optional;
  */
 @Service
 public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapper> {
+
+    @Autowired
+    private DocInfoService docInfoService;
 
     public DocSnapshot getByMd5(String md5) {
         if (StringUtils.isEmpty(md5)) {
@@ -51,6 +58,19 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
         docSnapshot.setModifierTime(Optional.ofNullable(docInfoDTO.getGmtModified()).orElseGet(LocalDateTime::now));
         docSnapshot.setContent(content);
         this.save(docSnapshot);
+    }
+
+    public void fillDocKey() {
+        List<DocSnapshot> list = this.list(new Query());
+        for (DocSnapshot docSnapshot : list) {
+            Long docId = docSnapshot.getDocId();
+            String docKey =  docInfoService.getDocKey(docId);
+            if (StringUtils.hasText(docKey)) {
+                Map<String, Object> set = new HashMap<>(4);
+                set.put("doc_key", docKey);
+                this.updateByMap(set, new Query().eq("id", docSnapshot.getId()));
+            }
+        }
     }
 
 }

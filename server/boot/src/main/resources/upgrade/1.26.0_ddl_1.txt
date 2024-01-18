@@ -1,0 +1,13 @@
+CREATE TABLE `ms_space_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `space_id` bigint(20) NOT NULL COMMENT '空间id',
+  `ms_space_id` varchar(64) NOT NULL COMMENT 'MeterSphere空间id',
+  `ms_space_name` varchar(64) DEFAULT NULL,
+  `ms_address` varchar(100) NOT NULL COMMENT 'MeterSphere服务器地址',
+  `ms_access_key` varchar(100) NOT NULL COMMENT 'MeterSphere的access_key',
+  `ms_secret_key` varchar(100) NOT NULL COMMENT 'MeterSphere的secret_key',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_spaceid` (`space_id`) USING BTREE
+) ENGINE=InnoDB COMMENT='MeterSphere空间配置'

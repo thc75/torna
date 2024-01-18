@@ -58,6 +58,7 @@ export default {
   'projectList': '项目列表',
   'spaceInfo': '空间信息',
   'spaceMember': '空间成员',
+  'spaceSetting': '空间设置',
   'openUser': '开放用户',
   'apiDoc': '接口文档',
   'projectInfo': '项目信息',
@@ -518,12 +519,12 @@ export default {
   DingDingSetting: {
     'dingdingWebhookUrl': '钉钉群机器人推送URL（Webhook）',
     'dingdingWebhookUrlPlacehoder': '输入完整带token参数的url',
-    'dingdingWebhookUrlTip': '当文档变更时推送消息到钉钉群。需要创建自定义机器人，添加关键字：文档',
+    'dingdingWebhookUrlTip': '当文档变更时推送消息到钉钉群。需要创建自定义机器人，添加关键字：文档'
   },
   WeComSetting: {
     'weComWebhookUrl': '企业微信群机器人推送URL（Webhook）',
     'weComWebhookUrlPlacehoder': '输入完整带token参数的url',
-    'weComWebhookUrlTip': '当文档变更时推送消息到企业微信群。需要创建自定义机器人，添加关键字：文档',
+    'weComWebhookUrlTip': '当文档变更时推送消息到企业微信群。'
   },
   UserInfo: {
     'bindDingDingTip': '使用钉钉App扫一扫进行账号绑定'
@@ -531,7 +532,8 @@ export default {
   ModuleSetting: {
     'weComSetting': '企业微信配置',
     'dingdingSetting': '钉钉配置',
-    'swaggerSetting': 'Swagger设置'
+    'swaggerSetting': 'Swagger设置',
+    'meterSphereSetting': 'MeterSphere设置'
   },
   DocChangelog: {
     confirmRestore: '确认还原到此版本吗？'
