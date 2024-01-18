@@ -54,10 +54,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -859,9 +861,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
             String docKey = docInfoDTO.buildDocKey();
             if (StringUtils.hasText(docKey)) {
                 Map<String, Object> set = new HashMap<>(8);
+                String dataId = docInfoDTO.buildDataId();
                 set.put("doc_key", docKey);
-                set.put("data_id", docInfoDTO.buildDataId());
-                this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+                set.put("data_id", dataId);
+                try {
+                    this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+                } catch (Exception e) {
+                    String newDataId = dataId + docInfo.getId();
+                    set.put("data_id", DigestUtils.md5Digest(newDataId.getBytes(StandardCharsets.UTF_8)));
+                    this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+                }
             }
         }
     }
