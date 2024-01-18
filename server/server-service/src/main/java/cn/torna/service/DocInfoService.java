@@ -868,7 +868,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
                     this.updateByMap(set, new Query().eq("id", docInfo.getId()));
                 } catch (Exception e) {
                     String newDataId = dataId + docInfo.getId();
-                    set.put("data_id", DigestUtils.md5Digest(newDataId.getBytes(StandardCharsets.UTF_8)));
+                    set.put("data_id", DigestUtils.md5DigestAsHex(newDataId.getBytes(StandardCharsets.UTF_8)));
                     this.updateByMap(set, new Query().eq("id", docInfo.getId()));
                 }
             }
