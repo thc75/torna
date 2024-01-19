@@ -172,7 +172,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Query query = Q.create().eq("module_id", moduleId)
                 .eq("is_show", Booleans.TRUE);
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
-                "id", "name", "parent_id", "url", "is_folder",
+                "id", "name", "parent_id", "url", "is_folder", "module_id",
                 "type", "http_method", "deprecated", "version",
                 "order_index", "is_show", "is_locked", "status"), query);
         sortDocInfo(docInfoList);
@@ -842,11 +842,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public String getDocKey(Long docId) {
-        DocInfo docInfo = this.getById(docId);
-        if (docInfo != null) {
-            return CopyUtil.copyBean(docInfo, DocInfoDTO::new).buildDocKey();
-        }
-        return null;
+        return this.getBySpecifiedColumns(Collections.singletonList("doc_key"), new Query().eq("id", docId), String.class);
     }
 
     public List<DocInfo> listByDocKey(String docKey) {
@@ -854,7 +850,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public void fillDocKey() {
-        List<DocInfo> list = this.list(new Query().eq("type", DocTypeEnum.HTTP.getType()));
+        List<DocInfo> list = listBySpecifiedColumns(Arrays.asList(
+                "id", "name", "parent_id", "url", "is_folder", "module_id",
+                "type", "http_method", "deprecated", "version"
+        ), new Query().eq("type", DocTypeEnum.HTTP.getType()));
 
         for (DocInfo docInfo : list) {
             DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);

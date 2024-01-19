@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +63,8 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
     }
 
     public void fillDocKey() {
-        List<DocSnapshot> list = this.list(new Query());
-        for (DocSnapshot docSnapshot : list) {
+        List<DocSnapshot> docSnapshots = this.listBySpecifiedColumns(Arrays.asList("id", "doc_id"), new Query());
+        for (DocSnapshot docSnapshot : docSnapshots) {
             Long docId = docSnapshot.getDocId();
             String docKey =  docInfoService.getDocKey(docId);
             if (StringUtils.hasText(docKey)) {
