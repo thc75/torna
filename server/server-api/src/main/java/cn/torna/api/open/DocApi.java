@@ -195,7 +195,7 @@ public class DocApi {
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
         ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal = new ThreadLocal<>();
         synchronized (lock) {
-            tornaTransactionManager.execute(() -> {
+            Boolean success = tornaTransactionManager.execute(() -> {
                 // 设置调试环境
                 saveDebugEnv(param, moduleId);
                 // 替换文档
@@ -204,27 +204,29 @@ public class DocApi {
                 executeDocs(param, context, pushContext, docPushItemParamThreadLocal);
                 // 设置公共错误码
                 setCommonErrorCodes(moduleId, param.getCommonErrorCodes());
-                // 发送站内消息
-                sendPushMessage(param, module, context.getApiUser());
-                // 处理修改过的文档
-                processModifiedDocs(pushContext);
-                // 创建默认的mock
-                createDefaultMock(module);
-
-                // 推送到MeterSphere
-                pushToMeterSphere(module);
-
-                log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
-                        module.getName(), param.getAuthor(), context.getIp(), context.getToken(), (System.currentTimeMillis() - startTime) / 1000.0);
-
-                return null;
+                return true;
             }, e -> {
                 DocPushItemParam docPushItemParam = docPushItemParamThreadLocal.get();
                 String paramInfo = JSON.toJSONString(docPushItemParam);
                 log.error("【PUSH】保存文档失败，模块名称：{}，推送人：{}，ip：{}，token：{}, 文档信息：{}", module.getName(), param.getAuthor(), context.getIp(), context.getToken(), paramInfo, e);
                 this.sendErrorMessage(String.format(PUSH_ERROR_MSG, docPushItemParam.getName()));
             });
+            // 推送成功
+            if (Objects.equals(success, true)) {
+                log.info("【PUSH】推送处理完成，模块名称：{}，推送人：{}，ip：{}，token：{}，耗时：{}秒",
+                        module.getName(), param.getAuthor(), context.getIp(), context.getToken(), (System.currentTimeMillis() - startTime) / 1000.0);
+                // 发送站内消息
+                sendPushMessage(param, module, context.getApiUser());
+                // 处理修改过的文档
+                processModifiedDocs(pushContext);
+                // 推送到MeterSphere
+                pushToMeterSphere(module);
+                // 创建默认的mock
+                createDefaultMock(module);
+            }
         }
+
+
         docPushItemParamThreadLocal.remove();
     }
 
