@@ -54,10 +54,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -170,7 +172,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         Query query = Q.create().eq("module_id", moduleId)
                 .eq("is_show", Booleans.TRUE);
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
-                "id", "name", "parent_id", "url", "is_folder",
+                "id", "name", "parent_id", "url", "is_folder", "module_id",
                 "type", "http_method", "deprecated", "version",
                 "order_index", "is_show", "is_locked", "status"), query);
         sortDocInfo(docInfoList);
@@ -840,11 +842,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public String getDocKey(Long docId) {
-        DocInfo docInfo = this.getById(docId);
-        if (docInfo != null) {
-            return CopyUtil.copyBean(docInfo, DocInfoDTO::new).buildDocKey();
-        }
-        return null;
+        return this.getBySpecifiedColumns(Collections.singletonList("doc_key"), new Query().eq("id", docId), String.class);
     }
 
     public List<DocInfo> listByDocKey(String docKey) {
@@ -852,16 +850,26 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public void fillDocKey() {
-        List<DocInfo> list = this.list(new Query().eq("type", DocTypeEnum.HTTP.getType()));
+        List<DocInfo> list = listBySpecifiedColumns(Arrays.asList(
+                "id", "name", "parent_id", "url", "is_folder", "module_id",
+                "type", "http_method", "deprecated", "version"
+        ), new Query().eq("type", DocTypeEnum.HTTP.getType()));
 
         for (DocInfo docInfo : list) {
             DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
             String docKey = docInfoDTO.buildDocKey();
             if (StringUtils.hasText(docKey)) {
                 Map<String, Object> set = new HashMap<>(8);
+                String dataId = docInfoDTO.buildDataId();
                 set.put("doc_key", docKey);
-                set.put("data_id", docInfoDTO.buildDataId());
-                this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+                set.put("data_id", dataId);
+                try {
+                    this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+                } catch (Exception e) {
+                    String newDataId = dataId + docInfo.getId();
+                    set.put("data_id", DigestUtils.md5DigestAsHex(newDataId.getBytes(StandardCharsets.UTF_8)));
+                    this.updateByMap(set, new Query().eq("id", docInfo.getId()));
+                }
             }
         }
     }

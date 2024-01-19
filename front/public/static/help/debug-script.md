@@ -153,6 +153,7 @@ return new Promise((resolve, reject) => {
         // 塞回内置对象
         resolve(req)
     }).catch(error => {
+        console.log(error)
         reject(error)
     })
 })
@@ -206,7 +207,7 @@ lib.axios({
     sys.send()
 
 }).catch(error => {
-    reject(error)
+    console.log(error)
 })
 
 // 如果手动调用必须显式返回true
