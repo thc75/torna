@@ -195,7 +195,7 @@ public class DocApi {
         PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
         ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal = new ThreadLocal<>();
         synchronized (lock) {
-            Boolean success = tornaTransactionManager.execute(() -> {
+            Object success = tornaTransactionManager.execute(() -> {
                 // 设置调试环境
                 saveDebugEnv(param, moduleId);
                 // 替换文档
@@ -225,8 +225,6 @@ public class DocApi {
                 createDefaultMock(module);
             }
         }
-
-
         docPushItemParamThreadLocal.remove();
     }
 
