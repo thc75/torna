@@ -9,15 +9,14 @@ git pull
 sh release.sh
 
 docker_host="registry-vpc.cn-hangzhou.aliyuncs.com"
-vpc_host="registry-vpc.cn-hangzhou.aliyuncs.com"
 
 echo "开始创建docker hub镜像:latest"
 docker build -f Dockerfile.local -t ${docker_host}/tanghc/torna:latest .
 
 sleep 1
 
-echo "推送镜像到docker hub:latest，执行命令：docker push ${vpc_host}/tanghc/torna:latest"
-docker push ${vpc_host}/tanghc/torna:latest
+echo "推送镜像到docker hub:latest，执行命令：docker push ${docker_host}/tanghc/torna:latest"
+docker push ${docker_host}/tanghc/torna:latest
 
 sleep 1
 
@@ -25,10 +24,10 @@ sleep 1
 if [ -n "${1}" ];then
 
   echo "tag 镜像，命令：docker tag ${docker_host}/tanghc/torna:latest ${docker_host}/tanghc/torna:${1}"
-  docker tag ${vpc_host}/tanghc/torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}
+  docker tag ${docker_host}/tanghc/torna:latest ${docker_host}/tanghc/torna:${1}
 
   sleep 1
 
-  echo "推送镜像到docker hub:${1}，执行命令：docker push ${vpc_host}/tanghc/torna:${1}"
-  docker push ${vpc_host}/tanghc/torna:${1}
+  echo "推送镜像到docker hub:${1}，执行命令：docker push ${docker_host}/tanghc/torna:${1}"
+  docker push ${docker_host}/tanghc/torna:${1}
 fi
