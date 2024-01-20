@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class UserContext {
 
+    public static final String HEADER_TOKEN_OLD = "Authorization";
     public static final String HEADER_TOKEN = "token";
     public static final String JWT_PREFIX = "Bearer ";
     private static final String SECRET_KEY = "torna.jwt.secret";
@@ -71,6 +72,9 @@ public class UserContext {
 
     public static String getToken(HttpServletRequest request) {
         String token = request.getHeader(HEADER_TOKEN);
+        if (StringUtils.isEmpty(token)) {
+            token = request.getHeader(HEADER_TOKEN_OLD);
+        }
         if (StringUtils.hasText(token) && token.startsWith(JWT_PREFIX)) {
             return token.substring(JWT_PREFIX.length());
         }
