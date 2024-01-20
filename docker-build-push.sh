@@ -8,7 +8,7 @@ git pull
 
 sh release.sh
 
-docker_host="registry.cn-hangzhou.aliyuncs.com"
+docker_host="registry-vpc.cn-hangzhou.aliyuncs.com"
 vpc_host="registry-vpc.cn-hangzhou.aliyuncs.com"
 
 echo "开始创建docker hub镜像:latest"
