@@ -8,6 +8,8 @@ git pull
 
 sh release.sh
 
+# 容器域名/空间名
+# 如果构建服务器是阿里云ECS，则可以使用对应的vpc域名，上传速度快一点
 docker_host="registry-vpc.cn-hangzhou.aliyuncs.com/tanghc"
 
 echo "开始创建docker hub镜像:latest"
