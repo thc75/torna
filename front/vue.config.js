@@ -28,6 +28,7 @@ module.exports = {
     // 解决内网穿透出现Invalid Host header
     disableHostCheck: true,
     port: port,
+    // 关闭执行 npm run dev立即打开网页
     open: false,
     overlay: {
       warnings: false,
