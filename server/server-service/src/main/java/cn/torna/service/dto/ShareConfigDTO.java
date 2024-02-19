@@ -4,6 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -22,6 +23,9 @@ public class ShareConfigDTO {
     private String remark;
     /** 是否显示调试 */
     private Byte isShowDebug;
+
+    /**  过期时间 如果是永久有效,传递null */
+    private LocalDate expirationTime;
 
     /**
      * 调试环境是否全选， 1-全选， 0-不选
