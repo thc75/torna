@@ -18,4 +18,12 @@ public class UserSearch extends PageParam {
 
     @Condition(ignoreEmptyString = true, operator = Operator.like)
     private String username;
+
+    /** 用户状态 0：禁用，1：启用(正常)，2：重设密码(未激活) */
+    @Condition(operator = Operator.eq)
+    private Byte status;
+
+    /** 是否是超级管理员, 数据库字段：is_super_admin */
+    @Condition(operator = Operator.eq)
+    private Byte isSuperAdmin;
 }
