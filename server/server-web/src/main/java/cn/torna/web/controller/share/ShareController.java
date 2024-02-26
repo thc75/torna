@@ -21,13 +21,10 @@ import com.gitee.fastmybatis.core.query.Query;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +57,10 @@ public class ShareController {
         }
         if (shareConfig.getStatus() == StatusEnum.DISABLED.getStatus()) {
             throw new BizException("链接已失效");
+        }
+        // 链接已过期
+        if (null != shareConfig.getExpirationTime() && shareConfig.getExpirationTime().isBefore(LocalDate.now())) {
+            throw new BizException("链接已过期");
         }
     }
 
@@ -102,7 +103,7 @@ public class ShareController {
         for (DocInfo docInfo : docInfos) {
             boolean isFolder = Booleans.isTrue(docInfo.getIsFolder());
             String treeId = isFolder ? DocViewService.buildId(base, docInfo.getId()) : IdUtil.encode(docInfo.getId());
-            String parentId =  DocViewService.buildParentId(base, docInfo.getParentId());
+            String parentId = DocViewService.buildParentId(base, docInfo.getParentId());
             byte type = isFolder ? DocViewService.TYPE_FOLDER : DocViewService.TYPE_DOC;
             TreeDTO docInfoVO = new TreeDTO(treeId, docInfo.getName(), parentId, type);
             docInfoVO.setHttpMethod(docInfo.getHttpMethod());
@@ -138,7 +139,7 @@ public class ShareController {
                 List<DocInfo> childIdList = docInfoService.list(query);
                 idList.addAll(childIdList.stream().map(DocInfo::getId).collect(Collectors.toList()));
                 // 递归获取子文件夹下的文件内容
-                addChildFoldersAndFiles(idList, childIdList.stream().filter(doc->doc.getIsFolder().equals(Booleans.TRUE)).map(DocInfo::getId).collect(Collectors.toList()));
+                addChildFoldersAndFiles(idList, childIdList.stream().filter(doc -> doc.getIsFolder().equals(Booleans.TRUE)).map(DocInfo::getId).collect(Collectors.toList()));
             }
         }
         return idList;
