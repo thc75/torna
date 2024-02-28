@@ -78,9 +78,6 @@ public class DocPushItemParam {
     @ApiDocField(description = "排序, 值小靠前", example = "0")
     private Integer orderIndex;
 
-    @ApiDocField(description = "状态", example = "0")
-    private Byte status = DocStatusEnum.DONE.getStatus();
-
     // 1.8.1
     @ApiDocField(description = "是否请求数组", example = "0")
     private Byte isRequestArray = 0;

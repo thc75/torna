@@ -6,6 +6,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
+import cn.torna.service.dto.DocListFormDTO;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
@@ -65,6 +66,19 @@ public class DocController {
     @GetMapping("list")
     public Result<List<DocInfoVO>> listProjectDoc(@HashId Long moduleId) {
         List<DocInfo> docInfos = docInfoService.listModuleTableDoc(moduleId);
+        List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
+        return Result.ok(docInfoVOS);
+    }
+
+    /**
+     * 获取项目文档目录，可用于文档菜单
+     * @param docListForm docListForm
+     * @return 返回结果
+     */
+    @PostMapping("list-v2")
+    public Result<List<DocInfoVO>> listProjectDoc2(@Valid @RequestBody DocListForm docListForm) {
+        DocListFormDTO docListFormDTO = CopyUtil.copyBean(docListForm, DocListFormDTO::new);
+        List<DocInfo> docInfos = docInfoService.listModuleTableDoc(docListFormDTO);
         List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
         return Result.ok(docInfoVOS);
     }

@@ -221,7 +221,7 @@ CREATE TABLE `doc_info` (
                             `is_show` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否显示',
                             `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
                             `is_locked` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否锁住',
-                            `status` tinyint(4) DEFAULT '10' COMMENT '文档状态,见：DocStatusEnum',
+                            `status` tinyint(4) DEFAULT '5' COMMENT '文档状态,见：DocStatusEnum',
                             `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                             `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                             PRIMARY KEY (`id`) USING BTREE,

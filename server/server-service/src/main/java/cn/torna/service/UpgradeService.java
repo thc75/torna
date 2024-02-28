@@ -180,7 +180,7 @@ public class UpgradeService {
             createTable("debug_script", "upgrade/1.24.0_ddl_debug_script.txt");
             createTable("doc_diff_record", "upgrade/1.24.0_ddl_doc_diff_record.txt");
             createTable("doc_diff_detail", "upgrade/1.24.0_ddl_doc_diff_detail.txt");
-            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.DONE.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
+            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.DOING.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
             try {
                 runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
                 runSql("INSERT INTO `system_config`(`config_key`, `config_value`, `remark`) VALUES ('front.param.type-array', '[\"string\",\"number\",\"boolean\",\"object\",\"array\",\"num_array\",\"str_array\",\"file\",\"file[]\",\"enum\"]', '参数类型配置');");

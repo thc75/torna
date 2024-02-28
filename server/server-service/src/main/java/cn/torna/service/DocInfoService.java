@@ -32,6 +32,7 @@ import cn.torna.manager.doc.DataType;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
+import cn.torna.service.dto.DocListFormDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.DocRefDTO;
@@ -42,6 +43,7 @@ import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
 import cn.torna.service.event.DocAddEvent;
 import cn.torna.service.event.DocUpdateEvent;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
@@ -188,6 +190,32 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     public List<DocInfo> listModuleTableDoc(long moduleId) {
         Query query = Q.create().eq("module_id", moduleId)
                 .eq("is_show", Booleans.TRUE);
+        List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
+                "id", "name", "parent_id", "url", "is_folder",
+                "type", "http_method", "deprecated", "version",
+                "author", "modifier_name", "gmt_modified",
+                "order_index", "is_show", "is_locked", "status"), query);
+        sortDocInfo(docInfoList);
+        return docInfoList;
+    }
+
+    /**
+     * 查询模块下的所有文档
+     *
+     * @param docListFormDTO docListFormDTO
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleTableDoc(DocListFormDTO docListFormDTO) {
+        Query query;
+        if (docListFormDTO.getStatus() == null) {
+            query = LambdaQuery.create(DocInfo.class)
+                    .eq(DocInfo::getModuleId, docListFormDTO.getModuleId());
+        } else {
+            query = LambdaQuery.create(DocInfo.class)
+                    .eq(DocInfo::getModuleId, docListFormDTO.getModuleId())
+                    .eq(docListFormDTO.getStatus() != null, DocInfo::getStatus, docListFormDTO.getStatus())
+                    .orLambda(q -> q.eq(DocInfo::getModuleId, docListFormDTO.getModuleId()).eq(DocInfo::getIsFolder, Booleans.TRUE));
+        }
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
                 "id", "name", "parent_id", "url", "is_folder",
                 "type", "http_method", "deprecated", "version",

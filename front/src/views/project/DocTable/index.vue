@@ -11,6 +11,12 @@
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
+        <el-radio-group v-model="searchForm.status" size="mini" @change="() => loadTable()">
+          <el-radio-button label="null">全部</el-radio-button>
+          <el-radio-button label="0">未完成</el-radio-button>
+          <el-radio-button label="5">进行中</el-radio-button>
+          <el-radio-button label="10">已完成</el-radio-button>
+        </el-radio-group>
         <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
           <el-radio-button label="1">{{ $t('expand') }}</el-radio-button>
           <el-radio-button label="0">{{ $t('collapse') }}</el-radio-button>
@@ -306,6 +312,9 @@ export default {
         name: [
           { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
+      },
+      searchForm: {
+        status: null
       }
     }
   },
@@ -359,7 +368,11 @@ export default {
       }
       this.triggerStatus = this.getAttr(this.getTriggerStatusKey()) || '1'
       this.loading = true
-      this.get('/doc/list', { moduleId: this.moduleId }, function(resp) {
+      const searchData = {
+        moduleId: this.moduleId
+      }
+      Object.assign(searchData, this.searchForm)
+      this.post('/doc/list-v2', searchData, function(resp) {
         this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
         this.loading = false

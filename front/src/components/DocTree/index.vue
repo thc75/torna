@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     load(moduleId, beforeFun, afterFun) {
-      this.get('/doc/list', { moduleId: moduleId }, resp => {
+      this.post('/doc/list', { moduleId: moduleId }, resp => {
         const data = resp.data
         if (beforeFun) {
           beforeFun.call(this, data)

@@ -4,7 +4,6 @@
     <insert id="saveDocInfo" parameterType="cn.torna.dao.entity.DocInfo" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
         INSERT INTO doc_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="status != null">status,</if>
             <if test="dataId != null">data_id,</if>
             <if test="docKey != null">doc_key,</if>
             <if test="md5 != null">md5,</if>
@@ -40,7 +39,6 @@
             gmt_modified,
         </trim>
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="status != null">#{status},</if>
             <if test="dataId != null">#{dataId},</if>
             <if test="docKey != null">#{docKey},</if>
             <if test="md5 != null">#{md5},</if>
@@ -76,7 +74,6 @@
             now(),
         </trim>
         ON DUPLICATE KEY UPDATE
-        <if test="status != null">status = VALUES(status),</if>
         <if test="md5 != null">md5 = VALUES(md5),</if>
         <if test="name != null">name = VALUES(name),</if>
         <if test="docKey != null">doc_key = VALUES(doc_key),</if>
