@@ -64,6 +64,8 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         } else {
             shareConfig.setPassword("");
         }
+        // 设置过期时间
+        shareConfig.setExpirationTime(shareConfigDTO.getExpirationTime());
         this.save(shareConfig);
         this.saveContent(shareConfig, shareConfigDTO);
         this.saveEnvironment(shareConfig, shareConfigDTO);
@@ -86,19 +88,21 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         } else {
             shareConfig.setPassword("");
         }
+        // 设置过期时间 如果是null 则永久有效
+        shareConfig.setExpirationTime(shareConfigDTO.getExpirationTime());
         this.update(shareConfig);
         this.saveContent(shareConfig, shareConfigDTO);
         this.saveEnvironment(shareConfig, shareConfigDTO);
     }
 
     /**
-     *  保存分享环境
+     * 保存分享环境
      *
-     * @author Joker
      * @param shareConfig
      * @param shareConfigDTO
-     * @since 1.0.0
      * @return
+     * @author Joker
+     * @since 1.0.0
      */
     private void saveEnvironment(ShareConfig shareConfig, ShareConfigDTO shareConfigDTO) {
         // 新增,更新,公开到非公共都先删除
@@ -218,6 +222,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
 
     /**
      * 查询分享配置的文档信息
+     *
      * @param docId
      * @param shareConfigId
      * @return
@@ -244,6 +249,8 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
         return docDetail;
     }
 
-
-
+    @Override
+    public int update(ShareConfig entity) {
+        return super.getMapper().update(entity);
+    }
 }

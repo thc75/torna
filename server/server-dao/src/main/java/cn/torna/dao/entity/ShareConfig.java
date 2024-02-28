@@ -5,6 +5,7 @@ import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -26,6 +27,9 @@ public class ShareConfig {
 
     /** 密码, 数据库字段：password */
     private String password;
+
+    /**  过期时间 null:永久有效 数据库字段：expiration_time */
+    private LocalDate expirationTime;
 
     /** 状态，1：有效，0：无效, 数据库字段：status */
     private Byte status;
