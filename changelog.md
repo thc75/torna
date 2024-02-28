@@ -1,5 +1,12 @@
 # 更新日志
 
+## 1.27.0
+
+- 【新增】导出postman文件
+- 【新增】分享文档可设置过期时间 [PR](https://gitee.com/durcframework/torna/pulls/53)
+- 【新增】用户管理页面新增查询条件(用户状态、是否是超级管理员) [PR](https://gitee.com/durcframework/torna/pulls/54)
+- 【调整】推送文档不会更改文档状态，由用户手动控制
+
 ## 1.26.0
 
 > 本次升级有表结构改动，重启会自动修改表结构，确保数据库账号能够执行DDL语句
