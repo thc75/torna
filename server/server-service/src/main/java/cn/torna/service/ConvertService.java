@@ -132,6 +132,9 @@ public class ConvertService {
         url.setPath(Arrays.asList(path.split("/")));
 //        url.setVariable(new ArrayList<>());
         url.setQuery(this.buildParams(docInfoDTO.getQueryParams()));
+        if (config.isNeedHost()) {
+            url.setProtocol("");
+        }
         return url;
     }
 
