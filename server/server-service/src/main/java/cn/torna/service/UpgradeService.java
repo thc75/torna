@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12610;
+    private static final int VERSION = 12700;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -127,17 +127,17 @@ public class UpgradeService {
         v1_24_0(oldVersion);
         v1_25_0(oldVersion);
         v1_26_0(oldVersion);
-        v1_26_1(oldVersion);
+        v1_27_0(oldVersion);
     }
 
-    private void v1_26_1(int oldVersion) {
-        if (oldVersion < 12610) {
-            log.info("Upgrade version to 1.26.1");
+    private void v1_27_0(int oldVersion) {
+        if (oldVersion < 12700) {
+            log.info("Upgrade version to 1.27.0");
             // 添加表字段 分享配置表新增字段 `过期时间`
             addColumn("share_config", "expiration_time",
                     "ALTER TABLE `share_config` ADD COLUMN `expiration_time` date COMMENT '过期时间。null:永久有效' AFTER `password`;");
 
-            log.info("Upgrade 1.26.1 finished.");
+            log.info("Upgrade 1.27.0 finished.");
         }
     }
 

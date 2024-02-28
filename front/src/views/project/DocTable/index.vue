@@ -37,7 +37,12 @@
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">{{ $t('export') }}</el-button>
+          <el-dropdown split-button type="primary" size="mini" @click="onExport">
+            {{ $t('export') }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item @click.native="onExportPostman">{{ $t('export') + ' postman(Collection v2.1)' }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
       </div>
     </div>
@@ -567,6 +572,12 @@ export default {
     },
     getViewUrl(row) {
       return `/view/${row.id}`
+    },
+    onExportPostman() {
+      this.download('/doc/export/postman', { moduleId: this.moduleId }, err => {
+        this.tipError('Export fail')
+        console.log(err)
+      })
     }
   }
 }

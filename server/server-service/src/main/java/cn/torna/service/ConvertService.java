@@ -1,7 +1,6 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.manager.doc.postman.Body;
@@ -14,17 +13,7 @@ import cn.torna.manager.doc.postman.Request;
 import cn.torna.manager.doc.postman.Url;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
-import cn.torna.service.dto.ModuleEnvironmentDTO;
 import com.alibaba.fastjson.JSONObject;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +21,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
@@ -96,7 +92,7 @@ public class ConvertService {
         request.setMethod(docInfoDTO.getHttpMethod());
         request.setHeader(buildHeaders(docInfoDTO));
         request.setUrl(buildUrl(docInfoDTO, context));
-        request.setBody(buildBody(docInfoDTO));
+        request.setBody(buildBody(docInfoDTO, context));
         request.setDescription(docInfoDTO.getDescription());
         return request;
     }
@@ -156,7 +152,7 @@ public class ConvertService {
         return param;
     }
 
-    private Body buildBody(DocInfoDTO docInfoDTO) {
+    private Body buildBody(DocInfoDTO docInfoDTO, Context context) {
         String httpMethod = docInfoDTO.getHttpMethod();
         switch (httpMethod.toLowerCase()) {
             case "get":
@@ -180,19 +176,29 @@ public class ConvertService {
             body.setFormdata(params);
         }
         if (contentType.contains("json")) {
-            String json = buildJson(requestParams);
+            String json = buildJson(requestParams, context.getConfig().isFormatJson());
             Byte isResponseArray = docInfoDTO.getIsResponseArray();
             if (Objects.equals(isResponseArray, Booleans.TRUE)) {
                 json = "[" + json + "]";
             }
             body.setRaw(json);
+            body.setOptions(getJsonOptions());
         }
         body.setMode(mode);
         return body;
     }
 
-    public static String buildJson(List<DocParamDTO> requestParams) {
-        return buildJson(requestParams, false);
+    /*
+    "raw": {
+        "language": "json"
+    }
+     */
+    private static JSONObject getJsonOptions() {
+        JSONObject opt = new JSONObject();
+        JSONObject raw = new JSONObject();
+        raw.put("language", "json");
+        opt.put("raw", raw);
+        return opt;
     }
 
     public static String buildJson(List<DocParamDTO> requestParams, boolean format) {
@@ -230,6 +236,7 @@ public class ConvertService {
     @Data
     public static class Config {
         private boolean needHost = true;
+        private boolean formatJson = false;
     }
 
 }

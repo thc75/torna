@@ -32,7 +32,7 @@ public class PasswordUtil {
 
     /**
      * 随机密码生成，仅字母数字
-     * @param len 密码长度，必须大于等于6
+     * @param len 密码长度，必须大于等于4
      */
     public static String getRandomSimplePassword(int len) {
         if (len < 4) {
