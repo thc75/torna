@@ -111,7 +111,7 @@ public class MeterSpherePushService {
         File temp = File.createTempFile(UUID.randomUUID().toString(), null);
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(temp));
         String postmanJson = JSON.toJSONString(postman);
-        //log.debug("postman json:{}", postmanJson);
+        log.debug("postman json:{}", postmanJson);
         bufferedWriter.write(postmanJson);
         bufferedWriter.flush();
         bufferedWriter.close();

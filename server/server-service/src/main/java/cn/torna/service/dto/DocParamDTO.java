@@ -35,7 +35,6 @@ public class DocParamDTO implements TreeAware<DocParamDTO, Long> {
     private String maxLength;
 
     /** 示例值, 数据库字段：example */
-    @Diff(positionType = PositionType.PARAM_EXAMPLE)
     private String example;
 
     /** 描述, 数据库字段：description */
