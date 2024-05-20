@@ -75,11 +75,11 @@ public class MockConfigController {
             mockConfig.setDocId(param.getDocId());
             mockConfig.setCreatorId(user.getUserId());
             mockConfig.setCreatorName(user.getNickname());
-            String dataId = buildDataId(param);
-            mockConfig.setDataId(dataId);
             mockConfig.setVersion(param.getVersion());
             save = true;
         }
+        String dataId = buildDataId(param);
+        mockConfig.setDataId(dataId);
         mockConfig.setName(param.getName());
         mockConfig.setPath(param.getPath());
         mockConfig.setRequestDataType(param.getRequestDataType());
