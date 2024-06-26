@@ -16,7 +16,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
-import com.gitee.fastmybatis.core.support.Q;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -73,7 +72,7 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
         int executeSize = EnvironmentKeys.TORNA_PUSH_EXECUTE_SIZE.getInt();
         ForkJoinPool forkJoinPool = new ForkJoinPool(poolSize);
 
-        List<Long> docIds = docInfoService.listBySpecifiedColumns(Collections.singletonList("id"), Q.create().eq("module_id", moduleId), Long.class);
+        List<Long> docIds = docInfoService.listBySpecifiedColumns(Collections.singletonList("id"), Query.create().eq("module_id", moduleId), Long.class);
         ReduceTask<Long> reduceTask = new ReduceTask<>(docIds, 0, docIds.size(), executeSize, subList -> {
             for (Long docId : subList) {
                 this.createDocDefaultMock(docId);
@@ -83,7 +82,7 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
     }
 
     public int getNextVersion(Long docId) {
-        Query query = Q.create().eq("doc_id", docId)
+        Query query = Query.create().eq("doc_id", docId)
                 .orderby("version", Sort.DESC);
         MockConfig mockConfig = get(query);
         return Optional.ofNullable(mockConfig).map(MockConfig::getVersion).orElse(0) + 1;

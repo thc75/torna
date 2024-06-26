@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.oschina.durcframework</groupId>
+            <groupId>io.gitee.durcframework</groupId>
             <artifactId>fastmybatis-core</artifactId>
             <optional>true</optional>
         </dependency>

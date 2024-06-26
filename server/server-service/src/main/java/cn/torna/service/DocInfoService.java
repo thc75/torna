@@ -48,7 +48,6 @@ import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
 import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.support.Q;
 import com.gitee.fastmybatis.core.util.MapperUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,7 +170,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回文档
      */
     public List<DocInfo> listModuleMenuDoc(long moduleId) {
-        Query query = Q.create().eq("module_id", moduleId)
+        Query query = Query.create().eq("module_id", moduleId)
                 .eq("is_show", Booleans.TRUE);
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
                 "id", "name", "parent_id", "url", "is_folder", "module_id",
@@ -188,7 +187,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回文档
      */
     public List<DocInfo> listModuleTableDoc(long moduleId) {
-        Query query = Q.create().eq("module_id", moduleId)
+        Query query = Query.create().eq("module_id", moduleId)
                 .eq("is_show", Booleans.TRUE);
         List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
                 "id", "name", "parent_id", "url", "is_folder",

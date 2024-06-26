@@ -43,7 +43,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.oschina.durcframework</groupId>
+            <groupId>io.gitee.durcframework</groupId>
             <artifactId>fastmybatis-spring-boot-starter</artifactId>
         </dependency>
         <dependency>

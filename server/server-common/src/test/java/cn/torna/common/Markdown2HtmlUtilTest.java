@@ -25,7 +25,7 @@ public class Markdown2HtmlUtilTest {
                 ">>>>>>>>>>这是引用的内容",
                 "```xml\n" +
                         "<dependency>\n" +
-                        "    <groupId>net.oschina.durcframework</groupId>\n" +
+                        "    <groupId>io.gitee.durcframework</groupId>\n" +
                         "    <artifactId>fastmybatis-core</artifactId>\n" +
                         "    <version>最新版本</version>\n" +
                         "</dependency>\n" +

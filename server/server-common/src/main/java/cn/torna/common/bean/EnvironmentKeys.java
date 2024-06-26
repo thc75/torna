@@ -86,6 +86,8 @@ public enum EnvironmentKeys {
     /** torna推送处理器数量 */
     TORNA_PUSH_PROCESS_NUM("torna.push-process-num", "4"),
     TORNA_PUSH_EXECUTE_SIZE("torna.push-execute-size", "50"),
+    /** 快照数量 */
+    TORNA_SNAPSHOT_SIZE("torna.snapshot-size", "5"),
     ;
 
     private final String key;

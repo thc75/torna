@@ -5,7 +5,6 @@ import cn.torna.common.util.GenerateUtil;
 import cn.torna.dao.entity.SystemLoginToken;
 import cn.torna.dao.mapper.SystemLoginTokenMapper;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.support.Q;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +39,7 @@ public class SystemLoginTokenService extends BaseService<SystemLoginToken, Syste
     // 每月1号0点10分删除过期数据
     @Scheduled(cron = "0 10 0 1 * ?")
     public void del() {
-        Query query = Q.create()
+        Query query = Query.create()
                 .lt("expire_time", new Date());
         this.forceDeleteByQuery(query);
     }
