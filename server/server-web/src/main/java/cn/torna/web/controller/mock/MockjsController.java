@@ -1,7 +1,6 @@
 package cn.torna.web.controller.mock;
 
 import cn.torna.common.annotation.NoLogin;
-import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.ResponseUtil;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
@@ -35,21 +34,14 @@ public class MockjsController {
     public void mock(
             HttpServletRequest request,
             HttpServletResponse response) {
-        MockConfig mockConfig;
-        String mockId = getMockId(request);
         String dataId = buildDataId(request);
-        mockConfig = mockConfigService.getByDataId(dataId);
-        if (mockConfig == null) {
-            Long id = IdUtil.decode(mockId);
-            mockConfig = mockConfigService.getById(id);
-        }
+        MockConfig mockConfig = mockConfigService.getByDataId(dataId);
         if (mockConfig == null) {
             response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             ResponseUtil.writeText(response, "script not found");
             return;
         }
-        String mockScript = mockConfig.getMockScript();
-        ResponseUtil.writeText(response, mockScript);
+        ResponseUtil.writeText(response, mockConfig.getMockResult());
     }
 
     private String getPath(HttpServletRequest request) {
