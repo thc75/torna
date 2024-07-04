@@ -1,7 +1,6 @@
 package cn.torna.web.controller.mock;
 
 import cn.torna.common.annotation.NoLogin;
-import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.ResponseUtil;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.service.MockConfigService;
@@ -35,21 +34,14 @@ public class MockjsController {
     public void mock(
             HttpServletRequest request,
             HttpServletResponse response) {
-        MockConfig mockConfig;
-        String mockId = getMockId(request);
-        String dataId = buildDataId(request);
-        mockConfig = mockConfigService.getByDataId(dataId);
-        if (mockConfig == null) {
-            Long id = IdUtil.decode(mockId);
-            mockConfig = mockConfigService.getById(id);
-        }
+        MockConfig mockConfig = getMockConfig(request);
         if (mockConfig == null) {
             response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
             ResponseUtil.writeText(response, "script not found");
             return;
         }
-        String mockScript = mockConfig.getMockScript();
-        ResponseUtil.writeText(response, mockScript);
+        String mockResult = mockConfig.getMockResult();
+        ResponseUtil.writeText(response, mockResult);
     }
 
     private String getPath(HttpServletRequest request) {
@@ -57,14 +49,14 @@ public class MockjsController {
         return servletPath.substring(PREFIX.length());
     }
 
-    private String getMockId(HttpServletRequest request) {
+    private MockConfig getMockConfig(HttpServletRequest request) {
         String queryString = request.getQueryString();
         String servletPath = request.getServletPath();
-        String mockId = servletPath.substring(PREFIX.length());
+        String path = servletPath.substring(PREFIX.length());
         if (StringUtils.hasText(queryString)) {
-            mockId = mockId + "?" + queryString;
+            path = path + "?" + queryString;
         }
-        return mockId;
+        return mockConfigService.get("path", path);
     }
 
     private String buildDataId(HttpServletRequest request) {
