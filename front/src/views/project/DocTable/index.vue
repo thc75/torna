@@ -108,6 +108,7 @@
           <div v-if="scope.row.isFolder === 0">
             <span style="margin-right: 5px;">{{ scope.row.version }}</span>
             <popover-update
+              v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
               :title="$t('version')"
               :maxlength="20"
               :show-icon="true"
