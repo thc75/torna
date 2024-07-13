@@ -1,5 +1,7 @@
 package cn.torna.common.bean;
 
+import cn.torna.common.support.IdCodec;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 @Data
 public class TreeData {
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
     private String label;

@@ -186,25 +186,19 @@ export default {
               this.reload()
             })
           }
-
         }
       })
     },
     onDel() {
-      this.confirm(this.$t('deleteConfirm', this.formData.description), () => {
+      this.confirm(this.$t('deleteConfirm', this.formData.name), () => {
         const data = {
           id: this.formData.id
         }
-        this.post('admin/i18n/delete', data, () => {
+        this.post('admin/gen/template/delete', data, () => {
           this.formData.id = ''
           this.tipSuccess(this.$t('deleteSuccess'))
           this.reload()
         })
-      })
-    },
-    onDefaultLangChange(lang) {
-      this.post(`admin/i18n/lang/setDefaultLang?lang=${lang}`, {}, () => {
-        this.tipSuccess(this.$t('saveSuccess'))
       })
     }
   }
