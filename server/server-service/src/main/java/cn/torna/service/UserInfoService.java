@@ -6,7 +6,6 @@ import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
 import cn.torna.common.exception.BizException;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.GenerateUtil;
 import cn.torna.common.util.IdUtil;
@@ -24,6 +23,7 @@ import cn.torna.service.login.form.ThirdPartyLoginManager;
 import cn.torna.service.login.form.impl.DefaultThirdPartyLoginManager;
 import cn.torna.service.login.form.impl.LdapLoginManager;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ import java.util.function.Function;
  */
 @Service
 @Slf4j
-public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
+public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper> {
 
     @Autowired
     private UserCacheManager userCacheManager;
@@ -104,11 +104,11 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     }
 
     public UserInfo getByUsername(String username) {
-        return get("username", username);
+        return get(UserInfo::getUsername, username);
     }
 
     public void checkEmail(String email) {
-        UserInfo userInfo = get("username", email);
+        UserInfo userInfo = get(UserInfo::getUsername, email);
         Assert.isNull(userInfo, () -> "账号已被注册");
     }
 
@@ -121,8 +121,8 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
         if (CollectionUtils.isEmpty(userIds)) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .in("id", userIds)
+        Query query = this.query()
+                .in(UserInfo::getId, userIds)
                 .setQueryAll(true);
         List<UserInfo> list = this.list(query);
         return CopyUtil.copyList(list, UserInfoDTO::new);
@@ -133,7 +133,8 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
             return;
         }
         List<Long> userIdList = CopyUtil.copyList(existUsers, userIdGetter);
-        Query query = new Query().in("id", userIdList).setQueryAll(true);
+        Query query = this.query()
+                .in(UserInfo::getId, userIdList).setQueryAll(true);
         List<UserInfo> list = list(query);
         List<String> nicknames = CopyUtil.copyList(list, UserInfo::getNickname);
         throw new BizException(String.join("、", nicknames) + " 已存在");
@@ -264,9 +265,9 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
 
     private UserInfo doDatabaseLogin(String username, String password) {
         password = getDbPassword(username, password);
-        Query query = new Query()
-                .eq("username", username)
-                .eq("password", password);
+        Query query = this.query()
+                .eq(UserInfo::getUsername, username)
+                .eq(UserInfo::getPassword, password);
         UserInfo userInfo = get(query);
         Assert.notNull(userInfo, () -> "用户名密码不正确");
         return userInfo;
@@ -323,7 +324,7 @@ public class UserInfoService extends BaseService<UserInfo, UserInfoMapper> {
     }
 
     public List<UserInfo> listSuperAdmin() {
-        return this.list("is_super_admin", Booleans.TRUE);
+        return this.list(UserInfo::getIsSuperAdmin, Booleans.TRUE);
     }
 
 }

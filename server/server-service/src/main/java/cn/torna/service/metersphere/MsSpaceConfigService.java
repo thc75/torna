@@ -1,6 +1,6 @@
 package cn.torna.service.metersphere;
 
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.MsSpaceConfig;
 import cn.torna.dao.mapper.MsSpaceConfigMapper;
 import org.springframework.stereotype.Service;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
  * @author thc
  */
 @Service
-public class MsSpaceConfigService extends BaseService<MsSpaceConfig, MsSpaceConfigMapper> {
+public class MsSpaceConfigService extends BaseLambdaService<MsSpaceConfig, MsSpaceConfigMapper> {
 
     public MsSpaceConfig getBySpaceId(Long spaceId) {
-        return get("space_id", spaceId);
+        return get(MsSpaceConfig::getSpaceId, spaceId);
     }
 
 }

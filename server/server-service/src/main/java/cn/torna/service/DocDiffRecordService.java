@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.ModifyType;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocDiffDetail;
 import cn.torna.dao.entity.DocDiffRecord;
@@ -16,7 +15,10 @@ import cn.torna.service.dto.DocDiffDetailWrapperDTO;
 import cn.torna.service.dto.DocDiffRecordDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,6 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffRecordMapper> {
+public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDiffRecordMapper> {
 
     @Autowired
     private DocSnapshotService docSnapshotService;
@@ -66,17 +67,17 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         List<DocDiffRecord> diffRecordList;
         // 如果有版本号，只能看截止到当前版本的记录
         if (StringUtils.hasText(version) && !"-".equals(version)) {
-            diffRecordList = list("doc_id", docId);
+            diffRecordList = list(DocDiffRecord::getDocId, docId);
         } else {
             // 可以查看所有变更记录
             String docKey = docInfoService.getDocKey(docId);
-            diffRecordList = list("doc_key", docKey);
+            diffRecordList = list(DocDiffRecord::getDocKey, docKey);
         }
         if (CollectionUtils.isEmpty(diffRecordList)) {
             return Collections.emptyList();
         }
         List<Long> ids = diffRecordList.stream().map(DocDiffRecord::getId).collect(Collectors.toList());
-        List<DocDiffDetail> docDiffDetails = docDiffDetailService.listByCollection("record_id", ids);
+        List<DocDiffDetail> docDiffDetails = docDiffDetailService.list(DocDiffDetail::getRecordId, ids);
         // KEY:recordId
         Map<Long, List<DocDiffDetail>> recordDetailMap = docDiffDetails.stream()
                 .collect(Collectors.groupingBy(DocDiffDetail::getRecordId));
@@ -131,9 +132,9 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
         if (oldMd5 == null) {
             return false;
         }
-        Query query = new Query()
-                .eq("md5_old", oldMd5)
-                .eq("md5_new", newMd5);
+        Query query = this.query()
+                .eq(DocDiffRecord::getMd5Old, oldMd5)
+                .eq(DocDiffRecord::getMd5New, newMd5);
         return this.get(query) != null;
     }
 
@@ -231,9 +232,10 @@ public class DocDiffRecordService extends BaseService<DocDiffRecord, DocDiffReco
             Long docId = docDiffRecord.getDocId();
             String docKey = docInfoService.getDocKey(docId);
             if (StringUtils.hasText(docKey)) {
-                Map<String, Object> set = new HashMap<>(4);
-                set.put("doc_key", docKey);
-                this.updateByMap(set, new Query().eq("id", docDiffRecord.getId()));
+                this.query()
+                        .set(DocDiffRecord::getDocKey, docKey)
+                        .eq(DocDiffRecord::getId, docDiffRecord.getId())
+                        .update();
             }
         }
     }

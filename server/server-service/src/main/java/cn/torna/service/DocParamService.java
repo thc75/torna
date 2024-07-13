@@ -4,7 +4,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.dao.entity.DocInfo;
@@ -25,13 +25,13 @@ import java.util.List;
  * @author tanghc
  */
 @Service
-public class DocParamService extends BaseService<DocParam, DocParamMapper> {
+public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper> {
 
     @Autowired
     private EnumService enumService;
 
     public DocParam getByDataId(String dataId) {
-        return get("data_id", dataId);
+        return get(DocParam::getDataId, dataId);
     }
 
     public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
@@ -45,10 +45,10 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     private List<DocParam> listParentParam(long docId, ParamStyleEnum paramStyleEnum) {
-        Query query = new Query()
-                .eq("doc_id", docId)
-                .eq("style", paramStyleEnum.getStyle())
-                .eq("parent_id", 0);
+        Query query = this.query()
+                .eq(DocParam::getDocId, docId)
+                .eq(DocParam::getStyle, paramStyleEnum.getStyle())
+                .eq(DocParam::getParentId, 0);
         return this.list(query);
     }
 
@@ -66,7 +66,7 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
      * @param parentId 父id
      */
     private void deleteChildrenDeeply(long parentId) {
-        List<DocParam> children = this.list("parent_id", parentId);
+        List<DocParam> children = this.list(DocParam::getParentId, parentId);
         for (DocParam child : children) {
             this.deleteParamDeeply(child.getId());
         }
@@ -176,11 +176,11 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
     public void deletePushParam(List<Long> docIdList) {
         // 删除文档对应的参数
-        Query paramDelQuery = new Query()
-                .in("doc_id", docIdList)
-                .eq("create_mode", OperationMode.OPEN.getType())
+        Query paramDelQuery = this.query()
+                .in(DocParam::getDocId, docIdList)
+                .eq(DocParam::getCreateMode, OperationMode.OPEN.getType())
                 ;
-        getMapper().deleteByQuery(paramDelQuery);
+        this.deleteByQuery(paramDelQuery);
     }
 
 

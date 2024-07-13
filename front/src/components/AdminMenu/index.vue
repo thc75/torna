@@ -10,6 +10,10 @@
         <i class="el-icon-user"></i>
         <span class="title">{{ $t('userManagement') }}</span>
       </el-menu-item>
+      <el-menu-item index="/admin/template">
+        <i class="el-icon-tickets"></i>
+        <span class="title">{{ $t('templateSetting') }}</span>
+      </el-menu-item>
       <el-menu-item index="/admin/setting">
         <i class="el-icon-setting"></i>
         <span class="title">{{ $t('systemSetting') }}</span>

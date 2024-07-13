@@ -27,6 +27,7 @@ public class AllocateProjectService {
 
     /**
      * 分配项目
+     *
      * @param allocateProjectDTO
      */
     @Transactional(rollbackFor = Exception.class)
@@ -40,7 +41,7 @@ public class AllocateProjectService {
             return;
         }
 
-        List<Long> spaceIds = projectService.listByCollection("id", projectIds)
+        List<Long> spaceIds = projectService.list(Project::getId, projectIds)
                 .stream()
                 .map(Project::getSpaceId)
                 .distinct()

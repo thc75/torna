@@ -1,7 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.enums.DebugScriptScopeEnum;
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.DebugScript;
 import cn.torna.dao.mapper.DebugScriptMapper;
 import cn.torna.service.dto.DocRefDTO;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author tanghc
  */
 @Service
-public class DebugScriptService extends BaseService<DebugScript, DebugScriptMapper> {
+public class DebugScriptService extends BaseLambdaService<DebugScript, DebugScriptMapper> {
 
     @Autowired
     private DocInfoService docInfoService;

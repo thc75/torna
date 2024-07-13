@@ -267,6 +267,13 @@ export const constantRoutes = [
         meta: { title: '用户管理' }
       },
       {
+        path: 'template',
+        name: 'Template',
+        hidden: true,
+        component: () => import('@/views/admin/template/index'),
+        meta: { title: '模板设置' }
+      },
+      {
         path: 'setting',
         name: 'Setting',
         hidden: true,

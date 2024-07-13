@@ -1,6 +1,6 @@
 package cn.torna.service.metersphere;
 
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.MsModuleConfig;
 import cn.torna.dao.mapper.MsModuleConfigMapper;
 import org.springframework.stereotype.Service;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
  * @author thc
  */
 @Service
-public class MsModuleConfigService extends BaseService<MsModuleConfig, MsModuleConfigMapper> {
+public class MsModuleConfigService extends BaseLambdaService<MsModuleConfig, MsModuleConfigMapper> {
 
     public MsModuleConfig getByModuleId(Long moduleId) {
-        return get("module_id", moduleId);
+        return get(MsModuleConfig::getModuleId, moduleId);
     }
 
 }

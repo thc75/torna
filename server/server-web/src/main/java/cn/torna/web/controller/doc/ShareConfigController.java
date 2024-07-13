@@ -4,7 +4,6 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ShareConfig;
@@ -14,13 +13,14 @@ import cn.torna.service.ShareConfigService;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ShareConfigDTO;
 import cn.torna.service.dto.ShareDocDTO;
+import cn.torna.web.config.UserContext;
 import cn.torna.web.controller.doc.param.ShareConfigParam;
 import cn.torna.web.controller.doc.vo.ShareConfigVO;
 import cn.torna.web.controller.doc.vo.ShareContentVO;
 import cn.torna.web.controller.doc.vo.ShareEnvironmentVO;
+import com.gitee.fastmybatis.core.PageInfo;
+import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,11 +41,9 @@ public class ShareConfigController {
     private ShareConfigService shareConfigService;
 
     @PostMapping("page")
-    public Result<PageEasyui<ShareConfigVO>> page(@RequestBody ShareConfigParam param) {
-        PageEasyui<ShareConfigVO> pageInfo = MapperUtil.queryForEasyuiDatagrid(
-                shareConfigService.getMapper(),
-                param.toQuery().orderby("id", Sort.DESC),
-                ShareConfigVO.class);
+    public Result<PageInfo<ShareConfigVO>> page(@RequestBody ShareConfigParam param) {
+        Query query = param.toQuery().orderby("id", Sort.DESC);
+        PageInfo<ShareConfigVO> pageInfo = shareConfigService.page(query, shareConfig -> CopyUtil.copyBean(shareConfig, ShareConfigVO::new));
         return Result.ok(pageInfo);
     }
 

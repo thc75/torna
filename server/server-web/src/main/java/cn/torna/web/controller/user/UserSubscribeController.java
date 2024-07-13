@@ -4,17 +4,18 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.UserSubscribe;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.UserSubscribeService;
+import cn.torna.web.config.UserContext;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.user.param.UserSubscribeParam;
 import cn.torna.web.controller.user.vo.UserSubscribeVO;
+import com.gitee.fastmybatis.core.PageInfo;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.support.PageEasyui;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,15 +48,15 @@ public class UserSubscribeController {
     }
 
     @GetMapping("doc/page")
-    public Result<PageEasyui<DocInfoVO>> pageSubscribeDoc(PageParam pageParam) {
+    public Result<PageInfo<DocInfoVO>> pageSubscribeDoc(PageParam pageParam) {
         User user = UserContext.getUser();
         List<UserSubscribe> userSubscribes = userSubscribeService.listUserSubscribe(user.getUserId(), UserSubscribeTypeEnum.DOC);
         List<Long> docIdList = userSubscribes.stream()
                 .map(UserSubscribe::getSourceId)
                 .collect(Collectors.toList());
-        PageEasyui docInfoPageEasyui = docInfoService.pageDocByIds(docIdList, pageParam);
-        docInfoPageEasyui =  CopyUtil.copyPage(docInfoPageEasyui, DocInfoVO::new);
-        return Result.ok(docInfoPageEasyui);
+        PageInfo<DocInfo> docInfoPageEasyui = docInfoService.pageDocByIds(docIdList, pageParam);
+        PageInfo<DocInfoVO> pageInfo = docInfoPageEasyui.convert(docInfo -> CopyUtil.copyBean(docInfo, DocInfoVO::new));
+        return Result.ok(pageInfo);
     }
 
     @GetMapping("doc/isSubscribe")

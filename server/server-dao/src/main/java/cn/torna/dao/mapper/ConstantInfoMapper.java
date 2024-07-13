@@ -1,7 +1,7 @@
 package cn.torna.dao.mapper;
 
 import cn.torna.dao.entity.ConstantInfo;
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 
 /**
  * 表名：constant_info
@@ -9,6 +9,6 @@ import com.gitee.fastmybatis.core.mapper.CrudMapper;
  *
  * @author tanghc
  */
-public interface ConstantInfoMapper extends CrudMapper<ConstantInfo, Long> {
+public interface ConstantInfoMapper extends BaseMapper<ConstantInfo> {
 	
 }

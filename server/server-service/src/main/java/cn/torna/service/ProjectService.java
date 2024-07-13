@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.RoleEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.Project;
 import cn.torna.dao.entity.ProjectUser;
@@ -18,10 +17,10 @@ import cn.torna.service.dto.ProjectInfoDTO;
 import cn.torna.service.dto.ProjectUpdateDTO;
 import cn.torna.service.dto.ProjectUserDTO;
 import cn.torna.service.dto.SpaceDTO;
-import cn.torna.service.dto.SpaceInfoDTO;
 import cn.torna.service.dto.UserInfoDTO;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ProjectService extends BaseService<Project, ProjectMapper> implements InitializingBean {
+public class ProjectService extends BaseLambdaService<Project, ProjectMapper> implements InitializingBean {
 
     // key: projectId, value:spaceId
     private static final Map<Long, Long> projectIdSpaceIdMap = new HashMap<>(8);
@@ -60,12 +59,13 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 创建项目
+     *
      * @param projectAddDTO 项目信息
      */
     @Transactional(rollbackFor = Exception.class)
     public void addProject(ProjectAddDTO projectAddDTO) {
-        Query query = new Query().eq("space_id", projectAddDTO.getSpaceId())
-                .eq("name", projectAddDTO.getName());
+        Query query = this.query().eq(Project::getSpaceId, projectAddDTO.getSpaceId())
+                .eq(Project::getName, projectAddDTO.getName());
         Project exist = get(query);
         Assert.isNull(exist, () -> projectAddDTO.getName() + "已存在");
         Project project = CopyUtil.copyBean(projectAddDTO, Project::new);
@@ -101,36 +101,40 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 修改项目用户角色
+     *
      * @param projectId projectId
-     * @param userId userId
-     * @param roleEnum 角色
+     * @param userId    userId
+     * @param roleEnum  角色
      */
     public void updateProjectUserRole(long projectId, long userId, RoleEnum roleEnum) {
         Assert.notNull(roleEnum, () -> "角色不能为空");
-        Map<String, Object> set = new HashMap<>(4);
-        set.put("role_code", roleEnum.getCode());
-        Query query = new Query().eq("project_id", projectId)
-                .eq("user_id", userId);
-        projectUserMapper.updateByMap(set, query);
+        LambdaQuery<ProjectUser> userLambdaUpdateQuery = projectUserMapper.query();
+        userLambdaUpdateQuery.set(ProjectUser::getRoleCode, roleEnum.getCode())
+                .eq(ProjectUser::getProjectId, projectId)
+                .eq(ProjectUser::getUserId, userId);
+
+        projectUserMapper.update(userLambdaUpdateQuery);
     }
 
     /**
      * 移除项目用户
+     *
      * @param projectId
      * @param userId
      */
     public void removeProjectUser(long projectId, long userId) {
-        Query query = new Query()
-                .eq("project_id", projectId)
-                .eq("user_id", userId);
+        Query query = projectUserMapper.query()
+                .eq(ProjectUser::getProjectId, projectId)
+                .eq(ProjectUser::getUserId, userId);
         projectUserMapper.forceDeleteByQuery(query);
     }
 
     /**
      * 添加项目用户
+     *
      * @param projectId 空间id
-     * @param userIds 用户id列表
-     * @param roleEnum 角色
+     * @param userIds   用户id列表
+     * @param roleEnum  角色
      */
     public void addProjectUser(long projectId, List<Long> userIds, RoleEnum roleEnum) {
         Assert.notEmpty(userIds, () -> "用户不能为空");
@@ -147,6 +151,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 修改项目信息
+     *
      * @param projectUpdateDTO
      */
     @Transactional(rollbackFor = Exception.class)
@@ -169,9 +174,10 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 获取项目下的用户
+     *
      * @param projectId 项目id
-     * @param username 登录名
-     * @param roleEnum 项目角色
+     * @param username  登录名
+     * @param roleEnum  项目角色
      * @return
      */
     public List<ProjectUserDTO> pageProjectUser(long projectId, String username, RoleEnum roleEnum) {
@@ -181,16 +187,16 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
         }
         Map<Long, ProjectUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(ProjectUser::getUserId, Function.identity()));
-        Query query = new Query()
-                .in("id", userIdMap.keySet())
-                .orderby("id", Sort.DESC);
+        LambdaQuery<UserInfo> query = userInfoService.query()
+                .in(UserInfo::getId, userIdMap.keySet())
+                .orderByDesc(UserInfo::getId);
         if (StringUtils.hasText(username)) {
-            query.and(q -> q.like("username", username)
-                    .orLike("nickname", username)
-                    .orLike("email", username)
+            query.andLambda(q -> q.like(UserInfo::getUsername, username)
+                    .orLike(UserInfo::getNickname, username)
+                    .orLike(UserInfo::getEmail, username)
             );
         }
-        List<UserInfo> userInfos = userInfoService.listAll(query);
+        List<UserInfo> userInfos = userInfoService.list(query);
         List<ProjectUserDTO> projectUserDTOList = CopyUtil.copyList(userInfos, ProjectUserDTO::new);
         // 设置添加时间
         projectUserDTOList.forEach(userInfoDTO -> {
@@ -203,6 +209,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 获取项目信息
+     *
      * @param projectId
      * @return
      */
@@ -218,6 +225,7 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 获取项目组长
+     *
      * @param projectId
      * @return
      */
@@ -228,43 +236,47 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
     }
 
     public List<ProjectUser> listProjectUser(long projectId, RoleEnum roleEnum) {
-        Query query = new Query()
-                .eq("project_id", projectId)
-                .setQueryAll(true);
+        LambdaQuery<ProjectUser> query = projectUserMapper.query()
+                .eq(ProjectUser::getProjectId, projectId);
         if (roleEnum != null) {
-            query.eq("role_code", roleEnum.getCode());
+            query.eq(ProjectUser::getRoleCode, roleEnum.getCode());
         }
         return projectUserMapper.list(query);
     }
 
     public List<ProjectUser> listUserProject(long userId) {
-        return projectUserMapper.listByColumn("user_id", userId);
+        return projectUserMapper.list(ProjectUser::getUserId, userId);
     }
 
     /**
      * 获取用户能看到的项目
+     *
      * @param user 用户
      * @return 没有返回空list
      */
     public List<Project> listUserProject(User user) {
         if (user.isSuperAdmin()) {
-            return this.listAll();
+            return this.list(new Query());
         }
         List<ProjectUser> projectUsers = listUserProject(user.getUserId());
         if (CollectionUtils.isEmpty(projectUsers)) {
             return Collections.emptyList();
         }
-        List<Long> projectIds = projectUsers.stream().map(ProjectUser::getProjectId).distinct().collect(Collectors.toList());
-        Query query = new Query()
-                .in("id", projectIds)
-                .orderby("id", Sort.ASC);
+        List<Long> projectIds = projectUsers.stream()
+                .map(ProjectUser::getProjectId)
+                .distinct()
+                .collect(Collectors.toList());
+        Query query = this.query()
+                .in(Project::getId, projectIds)
+                .orderByAsc(Project::getId);
         return list(query);
     }
 
     /**
      * 查询用户在空间下能访问的项目
+     *
      * @param spaceId 空间ID
-     * @param user user
+     * @param user    user
      * @return 返回项目列表
      */
     public List<ProjectDTO> listSpaceUserProject(long spaceId, User user) {
@@ -309,15 +321,17 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 查询空间下所有项目
+     *
      * @param spaceId 空间ID
      * @return 返回项目列表
      */
     private List<Project> listSpaceProject(long spaceId) {
-        return this.list("space_id", spaceId);
+        return this.list(Project::getSpaceId, spaceId);
     }
 
     /**
      * 获取spaceId
+     *
      * @param projectId
      * @return
      */
@@ -331,11 +345,12 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 移除项目用户
+     *
      * @param userId
      */
     public void removeProjectUser(long userId) {
-        Query query = new Query()
-                .eq("user_id", userId);
+        Query query = projectUserMapper.query()
+                .eq(ProjectUser::getUserId, userId);
         projectUserMapper.forceDeleteByQuery(query);
     }
 
@@ -349,7 +364,8 @@ public class ProjectService extends BaseService<Project, ProjectMapper> implemen
 
     /**
      * 用户能否操作项目
-     * @param user 用户
+     *
+     * @param user      用户
      * @param projectId 项目id
      * @return true：是
      */

@@ -5,7 +5,9 @@ import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.ReduceTask;
 import cn.torna.common.enums.MockRequestDataTypeEnum;
 import cn.torna.common.enums.MockResultTypeEnum;
-import cn.torna.common.support.BaseService;
+import cn.torna.dao.entity.DocInfo;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.dao.mapper.MockConfigMapper;
 import cn.torna.service.dto.DocInfoDTO;
@@ -41,7 +43,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 @Service
 @Slf4j
-public class MockConfigService extends BaseService<MockConfig, MockConfigMapper> {
+public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigMapper> {
 
     public static final String DEFAULT_DATA_ID = "default";
 
@@ -51,11 +53,11 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
 
 
     public List<MockConfig> listMockConfig(Long docId) {
-        return this.list("doc_id", docId);
+        return this.list(MockConfig::getDocId, docId);
     }
 
     public MockConfig getByDataId(String dataId) {
-        return get("data_id", dataId);
+        return get(MockConfig::getDataId, dataId);
     }
 
     public static String getDataKvContent(List<NameValueDTO> dataKv) {
@@ -72,7 +74,9 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
         int executeSize = EnvironmentKeys.TORNA_PUSH_EXECUTE_SIZE.getInt();
         ForkJoinPool forkJoinPool = new ForkJoinPool(poolSize);
 
-        List<Long> docIds = docInfoService.listBySpecifiedColumns(Collections.singletonList("id"), Query.create().eq("module_id", moduleId), Long.class);
+        LambdaQuery<DocInfo> query = docInfoService.query()
+                .eq(DocInfo::getModuleId, moduleId);
+        List<Long> docIds = docInfoService.listValue(query, DocInfo::getId);
         ReduceTask<Long> reduceTask = new ReduceTask<>(docIds, 0, docIds.size(), executeSize, subList -> {
             for (Long docId : subList) {
                 this.createDocDefaultMock(docId);
@@ -82,8 +86,9 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
     }
 
     public int getNextVersion(Long docId) {
-        Query query = Query.create().eq("doc_id", docId)
-                .orderby("version", Sort.DESC);
+        Query query = this.query()
+                .eq(MockConfig::getDocId, docId)
+                .orderByDesc(MockConfig::getVersion);
         MockConfig mockConfig = get(query);
         return Optional.ofNullable(mockConfig).map(MockConfig::getVersion).orElse(0) + 1;
     }
@@ -91,9 +96,9 @@ public class MockConfigService extends BaseService<MockConfig, MockConfigMapper>
     @Async
     public void createDocDefaultMock(Long docId) {
         DocInfoDTO docInfoDTO = docInfoService.getDocDetail(docId);
-        Query query = new Query()
-                .eq("doc_id", docId)
-                .eq("data_id", DEFAULT_DATA_ID);
+        Query query = this.query()
+                .eq(MockConfig::getDocId, docId)
+                .eq(MockConfig::getDataId, DEFAULT_DATA_ID);
         MockConfig mockConfig = this.get(query);
         boolean save = false;
         if (mockConfig == null) {

@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ModuleTypeEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.GenerateUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.mapper.ModuleMapper;
@@ -12,6 +11,7 @@ import cn.torna.service.dto.ImportSwaggerDTO;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
 import cn.torna.service.dto.YapiMarkdownDTO;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -21,10 +21,10 @@ import java.util.List;
  * @author tanghc
  */
 @Service
-public class ModuleService extends BaseService<Module, ModuleMapper> {
+public class ModuleService extends BaseLambdaService<Module, ModuleMapper> {
 
     public List<Module> listProjectModules(long projectId) {
-        return list("project_id", projectId);
+        return list(Module::getProjectId, projectId);
     }
 
     public Module addModule(String name, long projectId, User user) {
@@ -164,7 +164,7 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
 
     public Module getByToken(String token) {
         Assert.notNull(token, () -> "token不能为null");
-        return this.get("token", token);
+        return this.get(Module::getToken, token);
     }
 
     public static String createToken() {
@@ -172,9 +172,9 @@ public class ModuleService extends BaseService<Module, ModuleMapper> {
     }
 
     public Module getByProjectIdAndName(long projectId, String name) {
-        Query query = new Query()
-                .eq("project_id", projectId)
-                .eq("name", name);
+        Query query = this.query()
+                .eq(Module::getProjectId, projectId)
+                .eq(Module::getName, name);
         return get(query);
     }
 

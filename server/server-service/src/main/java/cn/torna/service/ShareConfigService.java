@@ -5,7 +5,7 @@ import cn.torna.common.bean.User;
 import cn.torna.common.enums.ShareConfigTypeEnum;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.exception.BizException;
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.ModuleEnvironment;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapper> {
+public class ShareConfigService extends BaseLambdaService<ShareConfig, ShareConfigMapper> {
 
     @Autowired
     private ShareContentService shareContentService;
@@ -128,11 +128,13 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
     }
 
     private void deleteEnvironment(ShareConfig shareConfig) {
-        shareEnvironmentService.getMapper().deleteByQuery(new Query().eq("share_config_id", shareConfig.getId()));
+        shareEnvironmentService.deleteByQuery(shareEnvironmentService.query()
+                .eq(ShareEnvironment::getShareConfigId, shareConfig.getId())
+        );
     }
 
     public List<ShareContent> listContent(long id) {
-        return shareContentService.list("share_config_id", id);
+        return shareContentService.list(ShareContent::getShareConfigId, id);
     }
 
     public List<ShareDocDTO> listShareDocIds(long id) {
@@ -179,7 +181,7 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
             List<ModuleEnvironment> moduleEnvironments = moduleEnvironmentService.listModuleEnvironment(moduleId);
             return moduleEnvironments.stream().map(env -> new ShareEnvironment(null, id, env.getId())).collect(Collectors.toList());
         }
-        return shareEnvironmentService.list("share_config_id", id);
+        return shareEnvironmentService.list(ShareEnvironment::getShareConfigId, id);
     }
 
 
@@ -215,9 +217,9 @@ public class ShareConfigService extends BaseService<ShareConfig, ShareConfigMapp
     }
 
     private void deleteContent(ShareConfig shareConfig) {
-        Query query = new Query()
-                .eq("share_config_id", shareConfig.getId());
-        shareContentService.getMapper().forceDeleteByQuery(query);
+        shareContentService.query()
+                .eq(ShareContent::getShareConfigId, shareConfig.getId())
+                .deleteForce();
     }
 
     /**

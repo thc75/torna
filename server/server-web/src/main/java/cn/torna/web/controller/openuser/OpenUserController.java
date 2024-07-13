@@ -2,15 +2,15 @@ package cn.torna.web.controller.openuser;
 
 import cn.torna.common.bean.Result;
 import cn.torna.common.enums.StatusEnum;
+import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.OpenUser;
 import cn.torna.service.OpenUserService;
 import cn.torna.web.controller.openuser.param.OpenUserAddParam;
 import cn.torna.web.controller.openuser.param.OpenUserParam;
 import cn.torna.web.controller.openuser.vo.OpenUserVO;
 import cn.torna.web.controller.system.param.IdParam;
+import com.gitee.fastmybatis.core.PageInfo;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +21,7 @@ import javax.validation.Valid;
 
 /**
  * 开放用户
+ *
  * @author tanghc
  */
 @RestController
@@ -34,9 +35,9 @@ public class OpenUserController {
      * 分页查询
      */
     @PostMapping("page")
-    public Result<PageEasyui<OpenUserVO>> page(@RequestBody OpenUserParam param) {
+    public Result<PageInfo<OpenUserVO>> page(@RequestBody OpenUserParam param) {
         Query query = Query.build(param);
-        PageEasyui<OpenUserVO> pageEasyui = MapperUtil.queryForEasyuiDatagrid(openUserService.getMapper(), query, OpenUserVO.class);
+        PageInfo<OpenUserVO> pageEasyui = openUserService.pageAndConvert(query, list -> CopyUtil.copyList(list, OpenUserVO::new));
         return Result.ok(pageEasyui);
     }
 
@@ -69,5 +70,5 @@ public class OpenUserController {
         openUserService.update(openUser);
         return Result.ok();
     }
-    
+
 }

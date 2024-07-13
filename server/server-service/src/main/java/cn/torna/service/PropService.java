@@ -1,11 +1,11 @@
 package cn.torna.service;
 
 import cn.torna.common.enums.PropTypeEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.Prop;
 import cn.torna.dao.mapper.PropMapper;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class PropService extends BaseService<Prop, PropMapper> {
+public class PropService extends BaseLambdaService<Prop, PropMapper> {
 
     public void saveProps(Map<String, ?> props, Long refId, PropTypeEnum type) {
         saveProps(props, refId, type.getType());
@@ -67,19 +67,18 @@ public class PropService extends BaseService<Prop, PropMapper> {
         if (refId == null) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .eq("ref_id", refId)
-                .eq("type", type);
+        Query query = this.query()
+                .eq(Prop::getRefId, refId)
+                .eq(Prop::getType, type);
         return this.list(query);
 
     }
 
     public Prop get(Long refId, byte type, String name) {
-        Query query = new Query()
-                .eq("ref_id", refId)
-                .eq("type", type)
-                .eq("name", name)
-                ;
+        Query query = this.query()
+                .eq(Prop::getRefId, refId)
+                .eq(Prop::getType, type)
+                .eq(Prop::getName, name);
         return this.get(query);
 
     }

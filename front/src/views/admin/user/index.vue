@@ -29,7 +29,7 @@
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">{{ $t('addNewUser') }}</el-button>
     </div>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -200,8 +200,7 @@
               <el-radio :label="Role.admin">{{ $t('admin') }}</el-radio>
             </el-radio-group>
           </el-form-item>
-          <project-select ref="projectSelect" :on-ok="onAllocateProjectOk"
-                          :on-cancel="() => chooseProjectShow = false"/>
+          <project-select ref="projectSelect" :on-ok="onAllocateProjectOk" :on-cancel="() => chooseProjectShow = false"/>
         </el-form>
       </div>
     </el-dialog>
@@ -213,17 +212,17 @@ import TimeTooltip from '@/components/TimeTooltip'
 import ProjectSelect from '@/components/ProjectSelect'
 
 export default {
-  components: {TimeTooltip, ProjectSelect},
+  components: { TimeTooltip, ProjectSelect },
   data() {
     return {
       statusOptions: [
-        {value: 0, label: $t('disable')},
-        {value: 1, label: $t('normal')},
-        {value: 2, label: $t('inactive')}
+        { value: 0, label: $t('disable') },
+        { value: 1, label: $t('normal') },
+        { value: 2, label: $t('inactive') }
       ],
       isSuperAdminOptions: [
-        {value: 0, label: $t('no')},
-        {value: 1, label: $t('yes')}
+        { value: 0, label: $t('no') },
+        { value: 1, label: $t('yes') }
       ],
       searchFormData: {
         id: '',
@@ -234,7 +233,7 @@ export default {
         pageSize: 10
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       },
       dialogVisible: false,
@@ -246,10 +245,10 @@ export default {
       },
       dialogFormRules: {
         username: [
-          {required: true, message: $t('notEmpty'), trigger: 'blur'}
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ],
         nickname: [
-          {required: true, message: $t('notEmpty'), trigger: 'blur'}
+          { required: true, message: $t('notEmpty'), trigger: 'blur' }
         ]
       },
       currentUserId: 0,
@@ -272,7 +271,7 @@ export default {
       })
     },
     onRestPwd(row) {
-      this.post('/admin/user/password/reset', {id: row.id}, resp => {
+      this.post('/admin/user/password/reset', { id: row.id }, resp => {
         this.alert($t('resetPasswordSuccess', resp.data), $t('resetSuccess'))
       })
     },
@@ -302,7 +301,7 @@ export default {
     onAllocateProject(row) {
       this.currentUserId = row.id
       this.currentUserNick = row.nickname
-      this.get('/admin/user/getUserProjectIds', {userId: row.id}, resp => {
+      this.get('/admin/user/getUserProjectIds', { userId: row.id }, resp => {
         const projectIds = resp.data
         this.chooseProjectShow = true
         this.$nextTick(() => {

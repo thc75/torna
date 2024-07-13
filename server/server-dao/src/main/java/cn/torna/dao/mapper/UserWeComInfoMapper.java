@@ -1,7 +1,7 @@
 package cn.torna.dao.mapper;
 
 import cn.torna.dao.entity.UserWeComInfo;
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 
 /**
  * 表名：user_wecom_info
@@ -10,6 +10,6 @@ import com.gitee.fastmybatis.core.mapper.CrudMapper;
  * @author Lin
  * @date 2023-11-29  17:03:14
  */
-public interface UserWeComInfoMapper extends CrudMapper<UserWeComInfo, Long> {
+public interface UserWeComInfoMapper extends BaseMapper<UserWeComInfo> {
 	
 }

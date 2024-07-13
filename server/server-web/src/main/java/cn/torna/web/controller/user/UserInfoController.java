@@ -92,7 +92,7 @@ public class UserInfoController {
             }
             userWeComInfo.setUserInfoId(userInfo.getId());
             userWeComInfo.setMobile(param.getWeComMobile());
-            userWeComInfoService.saveOrUpdateIgnoreNull(userWeComInfo);
+            userWeComInfoService.saveOrUpdate(userWeComInfo);
         }
         return Result.ok();
     }

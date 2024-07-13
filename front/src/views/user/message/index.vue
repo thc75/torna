@@ -11,9 +11,17 @@
       >
         {{ $t('userMsgReadAll') }}
       </el-button>
+      <el-button
+        type="danger"
+        size="mini"
+        icon="el-icon-delete"
+        @click="deletePushMessage"
+      >
+        {{ $t('clearPushMsg') }}
+      </el-button>
     </div>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -73,7 +81,7 @@ export default {
         pageSize: 10
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       }
     }
@@ -97,8 +105,16 @@ export default {
         this.loadTable()
       })
     },
+    deletePushMessage() {
+      this.confirm(this.$t('deleteConfirm'), () => {
+        this.post('/user/message/deletePushMessage', { }, () => {
+          this.tipSuccess(this.$t('deleteSuccess'))
+          this.loadTable()
+        })
+      })
+    },
     hasUnreadMessage() {
-      return this.pageInfo.rows.filter(row => row.isRead === 0).length > 0
+      return this.pageInfo.list.filter(row => row.isRead === 0).length > 0
     },
     onSizeChange(size) {
       this.searchFormData.pageIndex = 1

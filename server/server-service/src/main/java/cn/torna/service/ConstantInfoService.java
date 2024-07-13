@@ -1,40 +1,39 @@
 package cn.torna.service;
 
-import cn.torna.common.support.BaseService;
 import cn.torna.dao.entity.ConstantInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.ModuleMapper;
 import cn.torna.service.dto.ModuleConstantInfoDTO;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collections;
 
 
 /**
  * @author tanghc
  */
 @Service
-public class ConstantInfoService extends BaseService<ConstantInfo, ConstantInfoMapper> {
+public class ConstantInfoService extends BaseLambdaService<ConstantInfo, ConstantInfoMapper> {
 
     @Resource
     private ModuleMapper moduleMapper;
 
     public String getDocConstantInfo(long docId) {
-        Query query = new Query().eq("doc_id", docId);
-        return this.getMapper().getBySpecifiedColumns(Collections.singletonList("content"), query, String.class);
+        Query query = this.query().eq(ConstantInfo::getDocId, docId);
+        return getValue(query, ConstantInfo::getContent);
     }
 
     public String getProjectConstantInfo(long projectId) {
-        Query query = new Query().eq("project_id", projectId);
-        return this.getMapper().getBySpecifiedColumns(Collections.singletonList("content"), query, String.class);
+        Query query = this.query().eq(ConstantInfo::getProjectId, projectId);
+        return getValue(query, ConstantInfo::getContent);
     }
 
     public String getModuleConstantInfo(long moduleId) {
-        Query query = new Query().eq("module_id", moduleId);
-        String content = this.getMapper().getBySpecifiedColumns(Collections.singletonList("content"), query, String.class);
+        Query query = this.query().eq(ConstantInfo::getModuleId, moduleId);
+        String content = getValue(query, ConstantInfo::getContent);
         if (content == null) {
             content = "";
         }
@@ -52,7 +51,7 @@ public class ConstantInfoService extends BaseService<ConstantInfo, ConstantInfoM
     }
 
     public void saveProjectConstantInfo(long projectId, String content) {
-        ConstantInfo errorCodeInfo = get("project_id", projectId);
+        ConstantInfo errorCodeInfo = get(ConstantInfo::getProjectId, projectId);
         if (errorCodeInfo == null) {
             errorCodeInfo = new ConstantInfo();
             errorCodeInfo.setProjectId(projectId);
@@ -65,7 +64,7 @@ public class ConstantInfoService extends BaseService<ConstantInfo, ConstantInfoM
     }
 
     public void saveModuleConstantInfo(long moduleId, String content) {
-        ConstantInfo errorCodeInfo = get("module_id", moduleId);
+        ConstantInfo errorCodeInfo = get(ConstantInfo::getModuleId, moduleId);
         if (errorCodeInfo == null) {
             errorCodeInfo = new ConstantInfo();
             errorCodeInfo.setModuleId(moduleId);
