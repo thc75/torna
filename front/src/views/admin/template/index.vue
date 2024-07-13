@@ -67,7 +67,8 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="onSave">保存</el-button>
-            <el-button v-show="formData.id.length > 0" type="danger" @click="onDel">删除</el-button>
+            <el-button v-show="!formData.isNew" type="danger" @click="onDel">删除</el-button>
+            <el-button v-show="!formData.isNew" type="info" @click="onCopy">复制</el-button>
           </el-form-item>
         </el-form>
       </el-main>
@@ -173,7 +174,7 @@ export default {
     onSave() {
       this.$refs.i18nForm.validate(valid => {
         if (valid) {
-          if (this.formData.id) {
+          if (!this.formData.isNew) {
             this.post('admin/gen/template/update', this.formData, resp => {
               this.tipSuccess($t('saveSuccess'))
             })
@@ -200,6 +201,10 @@ export default {
           this.reload()
         })
       })
+    },
+    onCopy() {
+      this.formData.isNew = true
+      this.formData.name = this.formData.name + ' copy'
     }
   }
 }
