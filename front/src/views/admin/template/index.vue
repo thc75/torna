@@ -15,7 +15,7 @@
         />
       </el-aside>
       <el-main>
-        <el-form v-if="formData.id || formData.isNew" ref="i18nForm" label-width="80px" :model="formData" :rules="formRules">
+        <el-form v-if="showRight" ref="i18nForm" label-width="80px" :model="formData" :rules="formRules">
           <el-form-item label="模板名称" prop="name">
             <el-input
               v-model="formData.name"
@@ -45,7 +45,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="模板内容">
+          <el-form-item label="模板内容" prop="content">
             <el-alert :closable="false">
               <div slot="title">
                 基于Velocity，
@@ -54,15 +54,10 @@
                 </el-link>
               </div>
             </el-alert>
-            <editor
-              ref="requestEditor"
+            <codemirror
+              ref="editor"
               v-model="formData.content"
-              lang="json"
-              theme="chrome"
-              :height="requestEditorConfig.height"
-              class="normal-boarder"
-              :options="requestEditorConfig"
-              @init="requestEditorInit"
+              :options="cmOptions"
             />
           </el-form-item>
           <el-form-item>
@@ -72,20 +67,96 @@
           </el-form-item>
         </el-form>
       </el-main>
+      <el-aside v-if="showRight" style="width: 300px">
+        <div :class="{ 'hasFix': needFix }" style="font-size: 14px;margin-left: 10px">
+          <h4 style="margin: 5px 0">
+            Velocity变量
+            <span class="velocity-tip">
+              点击变量直接插入
+            </span>
+          </h4>
+          <div class="velocity-var">
+            <el-tree
+              :data="rightTreeData"
+              :indent="4"
+            >
+              <span slot-scope="{ data }">
+                <span v-if="data.children && data.children.length > 0">
+                  {{ data.label }}
+                </span>
+                <span v-else>
+                  <a @click="onExpressionClick(data)">{{ data.label }}</a>
+                  <span v-show="data.description">：{{ data.description }}</span>
+                </span>
+              </span>
+            </el-tree>
+          </div>
+        </div>
+      </el-aside>
     </el-container>
     <help ref="help" />
   </div>
 </template>
+<style>
+.CodeMirror {
+  height: auto !important;
+}
+.el-form-item--mini .el-form-item__content,
+.el-form-item--mini .el-form-item__label,
+.el-form-item__content {
+  line-height: 20px;
+}
+
+.velocity-tip {
+  color: #606266;
+  font-size: 13px;
+  font-weight: normal;
+}
+.velocity-var {
+}
+.velocity-var li {
+  font-size: 14px;
+  color: #606266;
+  line-height: 26px;
+}
+.velocity-var a {
+  color: #409EFF;
+  font-weight: 500;
+}
+.velocity-var a:hover {
+  color: rgba(64, 158, 255, 0.75);
+}
+.hasFix {
+  position: fixed;
+  top: 50px;
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+span.split {
+  color: #ccc;
+  margin: 0 3px;
+}
+</style>
 <script>
 import Help from '@/components/Help'
+import { codemirror } from 'vue-codemirror'
+import 'codemirror/theme/neat.css'
+import 'codemirror/lib/codemirror.css'
+require('codemirror/mode/velocity/velocity')
 
 export default {
   name: 'I18nSetting',
-  components: { Help, editor: require('vue2-ace-editor') },
+  components: { Help, codemirror },
   data() {
     return {
       list: [],
       groupNameList: [],
+      rightTreeData: [],
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -100,12 +171,19 @@ export default {
       formRules: {
         name: [
           { required: true, message: $t('notEmpty'), trigger: ['blur', 'change'] }
+        ],
+        content: [
+          { required: true, message: $t('notEmpty'), trigger: ['blur', 'change'] }
         ]
       },
-      requestEditorConfig: {
-        // 去除编辑器里的竖线
-        showPrintMargin: false,
-        height: 500
+      cmOptions: {
+        value: '',
+        mode: 'text/velocity',
+        theme: 'neat',
+        lineNumbers: true,
+        readOnly: false,
+        autofocus: true,
+        fontSize: 14
       },
       systemSettingData: {
         lang: 'zh-CN'
@@ -113,20 +191,39 @@ export default {
       languageOptions: [
         { label: '简体中文', value: 'zh-CN' },
         { label: 'English', value: 'en' }
-      ]
+      ],
+      needFix: false
+    }
+  },
+  computed: {
+    showRight() {
+      return this.formData.id || this.formData.isNew
     }
   },
   created() {
     this.reload()
+    window.addEventListener('scroll', this.handlerScroll)
   },
   methods: {
     reload() {
       this.loadTree()
       this.loadGroupName()
+      this.loadVelocityVar()
     },
     loadTree() {
       this.get('admin/gen/template/tree', {}, resp => {
         this.list = resp.data
+      })
+    },
+    handlerScroll() {
+      const scrollTop = window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop
+      this.needFix = scrollTop > 50
+    },
+    loadVelocityVar() {
+      this.getFile(`static/help/template.json?q=${new Date().getTime()}`, content => {
+        this.rightTreeData = content.data
       })
     },
     // 树点击事件
@@ -136,6 +233,14 @@ export default {
           this.formData = resp.data
         })
       }
+    },
+    onExpressionClick(data) {
+      const exp = data.expression || data.label
+      const codemirror = this.$refs.editor.codemirror
+      // 插入表达式
+      codemirror.replaceSelection(exp)
+      // 重新获得光标
+      codemirror.focus()
     },
     addNew() {
       this.formData = {
@@ -150,26 +255,6 @@ export default {
       this.get('admin/gen/template/listGroupName', {}, resp => {
         this.groupNameList = resp.data
       })
-    },
-    requestEditorInit: function(editor) {
-      // language extension prerequsite...
-      require('brace/ext/language_tools')
-      // language
-      require('brace/mode/html')
-      require('brace/theme/chrome')
-    },
-    formatContent() {
-      const val = this.formData.content
-      if (val) {
-        try {
-          this.formData.content = this.formatJson(JSON.parse(val))
-          return true
-          // eslint-disable-next-line no-empty
-        } catch (e) {
-          this.tipError('格式错误，确保为json')
-        }
-      }
-      return false
     },
     onSave() {
       this.$refs.i18nForm.validate(valid => {

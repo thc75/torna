@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "label": "${name}",
+      "description": "接口名称"
+    },
+    {
+      "label": "${url}",
+      "description": "接口url"
+    },
+    {
+      "label": "${httpMethod}",
+      "description": "接口Method"
+    },
+    {
+      "label": "${contentType}",
+      "description": "contentType"
+    },
+    {
+      "label": "$headers 请求头",
+      "description": "",
+      "children": [
+        { "label": "插入foreach块", "expression": "#foreach($header in $headers) \n    ${header.name} \n#end" },
+        { "label": "${header.name}", "description": "参数名称" }
+      ]
+    }
+  ]
+}
