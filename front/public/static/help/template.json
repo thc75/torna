@@ -20,8 +20,11 @@
       "label": "$headers 请求头",
       "description": "",
       "children": [
-        { "label": "插入foreach块", "expression": "#foreach($header in $headers) \n    ${header.name} \n#end" },
-        { "label": "${header.name}", "description": "参数名称" }
+        { "label": "插入foreach块", "expression": "#foreach($header in $headers) \n    ${header.name}\n#end" },
+        { "label": "${header.name}", "description": "参数名称" },
+        { "label": "${header.required}", "description": "是否必填" },
+        { "label": "${header.example}", "description": "示例值" },
+        { "label": "${header.description}", "description": "描述" }
       ]
     }
   ]
