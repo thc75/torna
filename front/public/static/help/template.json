@@ -17,14 +17,88 @@
       "description": "contentType"
     },
     {
-      "label": "$headers 请求头",
+      "label": "$headerParams 请求头",
       "description": "",
       "children": [
-        { "label": "插入foreach块", "expression": "#foreach($header in $headers) \n    ${header.name}\n#end" },
-        { "label": "${header.name}", "description": "参数名称" },
-        { "label": "${header.required}", "description": "是否必填" },
-        { "label": "${header.example}", "description": "示例值" },
-        { "label": "${header.description}", "description": "描述" }
+        { "label": "插入foreach块", "expression": "#foreach($param in $headerParams) \n    ${param.name}\n#end" },
+        { "label": "${param.name}", "description": "参数名称" },
+        { "label": "${param.required}", "description": "是否必填" },
+        { "label": "${param.example}", "description": "示例值" },
+        { "label": "${param.description}", "description": "描述" }
+      ]
+    },
+    {
+      "label": "$queryParams 查询参数",
+      "description": "",
+      "children": [
+        { "label": "插入foreach块", "expression": "#foreach($param in $queryParams) \n    ${param.name}\n#end" },
+        { "label": "${param.name}", "description": "参数名称" },
+        { "label": "${param.type}", "description": "参数类型" },
+        { "label": "${param.required}", "description": "是否必填" },
+        { "label": "${param.example}", "description": "示例值" },
+        { "label": "${param.description}", "description": "描述" }
+      ]
+    },
+    {
+      "label": "$bodyParams body参数",
+      "description": "",
+      "children": [
+        { "label": "插入foreach块", "expression": "#foreach($param in $bodyParams) \n    ${param.name}\n#end" },
+        { "label": "${param.name}", "description": "参数名称" },
+        { "label": "${param.type}", "description": "参数类型" },
+        { "label": "${param.maxLength}", "description": "最大长度" },
+        { "label": "${param.required}", "description": "是否必填" },
+        { "label": "${param.example}", "description": "示例值" },
+        { "label": "${param.description}", "description": "描述" }
+      ]
+    },
+    {
+      "label": "$responseParams 返回参数",
+      "description": "",
+      "children": [
+        { "label": "插入foreach块", "expression": "#foreach($param in $responseParams) \n    ${param.name}\n#end" },
+        { "label": "${param.name}", "description": "参数名称" },
+        { "label": "${param.type}", "description": "参数类型" },
+        { "label": "${param.required}", "description": "是否必填" },
+        { "label": "${param.example}", "description": "示例值" },
+        { "label": "${param.description}", "description": "描述" }
+      ]
+    },
+    {
+      "label": "$sys 系统变量",
+      "children": [
+        {
+          "label": "${sys.datetime}",
+          "text": "日期时间，如：2024-01-31 20:53:50"
+        },
+        {
+          "label": "${sys.date}",
+          "text": "日期，如：2024-01-31"
+        },
+        {
+          "label": "${sys.time}",
+          "text": "时间，如：20:53:50"
+        },
+        {
+          "label": "${sys.randomInt}",
+          "text": "int随机数"
+        },
+        {
+          "label": "${sys.randomLong}",
+          "text": "long随机数"
+        },
+        {
+          "label": "${sys.randomBoolean}",
+          "text": "boolean随机"
+        },
+        {
+          "label": "${sys.uuid}",
+          "text": "生成uuid"
+        },
+        {
+          "label": "${sys.nextId}",
+          "text": "生成唯一id，基于雪花算法"
+        }
       ]
     }
   ]
