@@ -6,6 +6,7 @@ import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
@@ -207,7 +208,12 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
     }
 
 
-    public static JSONObject createExample(List<DocParamDTO> params) {
+    public static JSONObject createExample(List<DocParamDTO> docParams) {
+        List<DocParamDTO> params = TreeUtil.convertTree(docParams, 0L);
+        return doCreateExample(params);
+    }
+
+    private static JSONObject doCreateExample(List<DocParamDTO> params) {
         JSONObject responseJson = new JSONObject();
         for (DocParamDTO row : params) {
             if (Objects.equals(row.getIsDeleted(), Booleans.TRUE)) {
@@ -216,7 +222,7 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
             Object val;
             List<DocParamDTO> children = row.getChildren();
             if (!ObjectUtils.isEmpty(children)) {
-                JSONObject childrenValue = createExample(children);
+                JSONObject childrenValue = doCreateExample(children);
                 if (isArrayType(row.getType())) {
                     val = isNestArrayType(row.getType()) ? buildNestList(childrenValue)
                             : Collections.singletonList(childrenValue);
@@ -466,7 +472,7 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
                 example = new HashMap<>();
             }
         }
-        return JSONObject.toJSONString(example);
+        return example instanceof String ? example : JSONObject.toJSONString(example);
     }
 
 }

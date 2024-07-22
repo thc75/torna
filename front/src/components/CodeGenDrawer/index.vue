@@ -16,7 +16,6 @@
     </el-drawer>
     <el-dialog
       :title="fileInfo.docName"
-      :close-on-click-modal="false"
       close-on-press-escape
       lock-scroll
       :visible.sync="resultDlgShow"
