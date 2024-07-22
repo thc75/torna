@@ -3,15 +3,8 @@
     <el-container>
       <el-aside width="200px" style="padding: 20px">
         <el-button type="primary" size="mini" @click="addNew">添加模板</el-button>
-        <el-tree
-          :data="list"
-          :props="defaultProps"
-          :highlight-current="true"
-          :expand-on-click-node="true"
-          :empty-text="$t('noData')"
-          node-key="id"
-          style="margin-top: 20px"
-          @node-click="onNodeClick"
+        <template-tree
+          :node-click="onNodeClick"
         />
       </el-aside>
       <el-main>
@@ -67,8 +60,8 @@
           </el-form-item>
         </el-form>
       </el-main>
-      <el-aside v-if="showRight" style="width: 300px">
-        <div :class="{ 'hasFix': needFix }" style="font-size: 14px;margin-left: 10px">
+      <el-aside v-if="showRight" style="width: 350px">
+        <div :class="{ hasFix: 'hasFix' }" style="font-size: 14px;margin-left: 10px">
           <h4 style="margin: 5px 0">
             Velocity变量
             <span class="velocity-tip">
@@ -78,7 +71,8 @@
           <div class="velocity-var">
             <el-tree
               :data="rightTreeData"
-              :indent="4"
+              :props="defaultPropsRight"
+              accordion
             >
               <span slot-scope="{ data }">
                 <span v-if="data.children && data.children.length > 0">
@@ -144,6 +138,7 @@ span.split {
 </style>
 <script>
 import Help from '@/components/Help'
+import TemplateTree from '@/components/TemplateTree'
 import { codemirror } from 'vue-codemirror'
 import 'codemirror/theme/neat.css'
 import 'codemirror/lib/codemirror.css'
@@ -151,13 +146,17 @@ require('codemirror/mode/velocity/velocity')
 
 export default {
   name: 'I18nSetting',
-  components: { Help, codemirror },
+  components: { Help, TemplateTree, codemirror },
   data() {
     return {
       list: [],
       groupNameList: [],
       rightTreeData: [],
       defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      defaultPropsRight: {
         children: 'children',
         label: 'label'
       },
@@ -192,7 +191,8 @@ export default {
         { label: '简体中文', value: 'zh-CN' },
         { label: 'English', value: 'en' }
       ],
-      needFix: false
+      needFix: false,
+      treeId: 1
     }
   },
   computed: {
@@ -223,8 +223,12 @@ export default {
     },
     loadVelocityVar() {
       this.getFile(`static/help/template.json?q=${new Date().getTime()}`, content => {
-        this.rightTreeData = content.data
+        const list = content.data
+        this.rightTreeData = list
       })
+    },
+    getTreeId() {
+      return this.treeId++
     },
     // 树点击事件
     onNodeClick(data, node, tree) {

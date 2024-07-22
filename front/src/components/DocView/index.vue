@@ -17,6 +17,11 @@
         </el-tooltip>
         <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
           <div class="item">
+            <el-tooltip placement="top" :content="$t('codeGenerate')">
+              <el-button type="text" icon="el-icon-finished" @click="onCodeGen"></el-button>
+            </el-tooltip>
+          </div>
+          <div class="item">
             <el-tooltip placement="top" :content="$t('changeHistory')">
               <el-button type="text" icon="el-icon-date" @click="onShowHistory"></el-button>
             </el-tooltip>
@@ -156,6 +161,7 @@
     </el-dialog>
     <p></p>
     <doc-changelog-drawer ref="docChangelogDrawer" />
+    <code-gen-drawer ref="codeGenDrawer" />
     <const-view ref="constView" />
   </div>
 </template>
@@ -186,12 +192,13 @@ import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '@/components/DocDiff'
 import ConstView from '@/components/ConstView'
+import CodeGenDrawer from '@/components/CodeGenDrawer'
 import ExportUtil from '@/utils/export'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 
 export default {
   name: 'DocView',
-  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },
+  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer, CodeGenDrawer },
   props: {
     docId: {
       type: String,
@@ -448,6 +455,11 @@ export default {
     },
     showConst() {
       this.$refs.constView.show(this.docInfo.moduleId)
+    },
+    onCodeGen() {
+      if (this.docInfo.id) {
+        this.$refs.codeGenDrawer.show(this.docInfo.id)
+      }
     }
   }
 }
