@@ -94,7 +94,7 @@ export default {
     onCopyAndClose() {
       this.onCopy()
       this.resultDlgShow = false
-      this.drawer = false
+      this.handleClose()
     }
   }
 }
