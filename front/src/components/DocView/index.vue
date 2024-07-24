@@ -130,7 +130,7 @@
         <el-input
           v-model="requestTs"
           type="textarea"
-          :autosize="{ maxRows: 100 }"
+          :autosize="{ maxRows: 30 }"
           readonly
         />
         <el-link slot="reference" type="primary" @click="onConvertRequestToTs()">Show TypeScript</el-link>
@@ -160,7 +160,7 @@
       <el-input
         v-model="responseTs"
         type="textarea"
-        :autosize="{ maxRows: 100 }"
+        :autosize="{ maxRows: 30 }"
         readonly
       />
       <el-link slot="reference" type="primary" @click="onConvertResponseToTs()">Show TypeScript</el-link>
