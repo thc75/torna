@@ -56,6 +56,7 @@ public class DocVar {
      */
     private String contentType;
 
+    private String queryString;
 
     private List<DocParamDTO> pathParams = Collections.emptyList();
 

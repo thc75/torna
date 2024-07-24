@@ -28,6 +28,10 @@
           "description": "接口描述"
         },
         {
+          "label": "${doc.queryString}",
+          "description": "查询参数"
+        },
+        {
           "label": "${doc.requestExample}",
           "description": "请求示例"
         },

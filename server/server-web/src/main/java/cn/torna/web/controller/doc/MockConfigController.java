@@ -68,7 +68,7 @@ public class MockConfigController {
     @PostMapping("save")
     public Result<MockBaseVO> save(@RequestBody MockConfigParam param) {
         User user = UserContext.getUser();
-        MockConfig mockConfig = mockConfigService.getById(param.getId());
+        MockConfig mockConfig = param.getId() == null ? null : mockConfigService.getById(param.getId());
         boolean save = false;
         if (mockConfig == null) {
             mockConfig = new MockConfig();

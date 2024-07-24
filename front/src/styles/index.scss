@@ -615,3 +615,9 @@ figure.table {
 .vue-codemirror {
   border: 1px solid #ececec;
 }
+
+.btn-alert {
+  .el-alert__description {
+    display: inline;
+  }
+}

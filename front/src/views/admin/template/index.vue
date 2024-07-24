@@ -8,6 +8,22 @@
         />
       </el-aside>
       <el-main>
+        <el-alert
+          title="代码生成模板"
+          type="info"
+          :closable="false"
+          class="btn-alert"
+          style="margin-bottom: 20px;"
+        >
+          <el-popover
+            placement="bottom"
+            title="如何使用"
+            trigger="click"
+          >
+            <img :src="`${getBaseUrl()}/static/help/images/gen.png`"/>
+            <el-link slot="reference" type="primary" icon="el-icon-question" style="margin-left: 20px">添加后如何使用</el-link>
+          </el-popover>
+        </el-alert>
         <el-form v-if="showRight" ref="i18nForm" label-width="80px" :model="formData" :rules="formRules">
           <el-form-item label="模板名称" prop="name">
             <el-input
@@ -44,6 +60,17 @@
                 基于Velocity，
                 <el-link type="primary" :underline="false" @click="$refs.help.open('static/help/velocity.md')">
                   参考语法
+                </el-link>
+                <span class="split">|</span>
+                示例模板(点击插入):
+                <el-link type="primary" :underline="false" style="margin-left: 10px" @click="insertTemplate('javaBean')">
+                  Java类
+                </el-link>
+                <el-link type="primary" :underline="false" style="margin-left: 10px" @click="insertTemplate('curl')">
+                  curl
+                </el-link>
+                <el-link type="primary" :underline="false" style="margin-left: 10px" @click="insertTemplate('vueTable')">
+                  VUE表格
                 </el-link>
               </div>
             </el-alert>
@@ -294,6 +321,11 @@ export default {
     onCopy() {
       this.formData.isNew = true
       this.formData.name = this.formData.name + ' copy'
+    },
+    insertTemplate(file) {
+      this.getFile(`static/help/template/${file}.txt?q=${new Date().getTime()}`, content => {
+        this.formData.content = content
+      })
     }
   }
 }
