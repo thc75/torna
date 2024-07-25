@@ -41,7 +41,7 @@ public class MockjsController {
             ResponseUtil.writeText(response, "script not found");
             return;
         }
-        ResponseUtil.writeText(response, mockConfig.getMockResult());
+        ResponseUtil.writeText(response, mockConfig.getMockScript());
     }
 
     private String getPath(HttpServletRequest request) {

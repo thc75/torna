@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <fastmybatis.version>3.0.6</fastmybatis.version>
+        <fastmybatis.version>3.0.10</fastmybatis.version>
         <flexmark.version>0.18.4</flexmark.version>
     </properties>
 
@@ -144,11 +144,11 @@
                 <artifactId>flexmark-ext-tables</artifactId>
                 <version>${flexmark.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.openjdk.nashorn</groupId>
-                <artifactId>nashorn-core</artifactId>
-                <version>15.3</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.openjdk.nashorn</groupId>-->
+<!--                <artifactId>nashorn-core</artifactId>-->
+<!--                <version>15.3</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>com.qiniu</groupId>
                 <artifactId>qiniu-java-sdk</artifactId>

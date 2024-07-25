@@ -6,8 +6,6 @@ import cn.torna.common.bean.ReduceTask;
 import cn.torna.common.enums.MockRequestDataTypeEnum;
 import cn.torna.common.enums.MockResultTypeEnum;
 import cn.torna.dao.entity.DocInfo;
-import com.gitee.fastmybatis.core.query.LambdaQuery;
-import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.MockConfig;
 import cn.torna.dao.mapper.MockConfigMapper;
 import cn.torna.service.dto.DocInfoDTO;
@@ -16,8 +14,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -28,7 +27,6 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +55,10 @@ public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigM
     }
 
     public MockConfig getByDataId(String dataId) {
-        return get(MockConfig::getDataId, dataId);
+        return this.query()
+                .eq(MockConfig::getDataId, dataId)
+                .orderByDesc(MockConfig::getId)
+                .get();
     }
 
     public static String getDataKvContent(List<NameValueDTO> dataKv) {
