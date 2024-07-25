@@ -28,7 +28,7 @@ public class YapiApiTest extends TornaApplicationTests{
 
     @Test
     public void importDoc() throws IOException, InterruptedException {
-        Project project = projectService.getByColumn("name", "商城项目");
+        Project project = projectService.get(Project::getName, "商城项目");
 
         ApiUser apiUser = new ApiUser();
         apiUser.setId(1L);
