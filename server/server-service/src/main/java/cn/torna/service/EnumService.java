@@ -29,8 +29,8 @@ public class EnumService {
     private EnumItemService enumItemService;
 
     public List<EnumInfoDTO> listAll(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId);
+        Query query = enumInfoService.query()
+                .eq(EnumInfo::getModuleId, moduleId);
         List<EnumInfo> enumInfoList = enumInfoService.list(query);
         List<EnumInfoDTO> enumInfoDTOS = CopyUtil.copyList(enumInfoList, EnumInfoDTO::new);
         for (EnumInfoDTO enumInfoDTO : enumInfoDTOS) {
@@ -42,8 +42,8 @@ public class EnumService {
     }
 
     public List<EnumInfoDTO> listBase(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId);
+        Query query = enumInfoService.query()
+                .eq(EnumInfo::getModuleId, moduleId);
         List<EnumInfo> enumInfoList = enumInfoService.list(query);
         return CopyUtil.copyList(enumInfoList, EnumInfoDTO::new);
     }
@@ -93,9 +93,9 @@ public class EnumService {
     }
 
     public List<EnumItemDTO> listItems(long enumId) {
-        Query query = new Query()
-                .eq("enum_id", enumId)
-                .orderby("id", Sort.ASC);
+        Query query = enumItemService.query()
+                .eq(EnumItem::getEnumId, enumId)
+                .orderBy(EnumItem::getId, Sort.ASC);
         List<EnumItem> itemList = enumItemService.list(query);
         return CopyUtil.copyList(itemList, EnumItemDTO::new);
     }
@@ -128,9 +128,9 @@ public class EnumService {
     }
 
     private void checkInfoExist(EnumInfoDTO enumInfoDTO) {
-        Query query = new Query()
-                .eq("module_id", enumInfoDTO.getModuleId())
-                .eq("name", enumInfoDTO.getName());
+        Query query = enumInfoService.query()
+                .eq(EnumInfo::getModuleId, enumInfoDTO.getModuleId())
+                .eq(EnumInfo::getName, enumInfoDTO.getName());
         EnumInfo enumInfo = enumInfoService.get(query);
         if (enumInfo != null) {
             if (enumInfo.getId() == null || !enumInfo.getId().equals(enumInfoDTO.getId())) {

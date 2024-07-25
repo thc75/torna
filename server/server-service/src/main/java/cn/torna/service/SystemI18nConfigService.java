@@ -1,6 +1,6 @@
 package cn.torna.service;
 
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.SystemI18nConfig;
 import cn.torna.dao.mapper.SystemI18nConfigMapper;
 import com.alibaba.fastjson.JSON;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @author tanghc
  */
 @Service
-public class SystemI18nConfigService extends BaseService<SystemI18nConfig, SystemI18nConfigMapper> {
+public class SystemI18nConfigService extends BaseLambdaService<SystemI18nConfig, SystemI18nConfigMapper> {
 
     private final LoadingCache<String, Optional<JSONObject>> configCache = CacheBuilder.newBuilder()
             .expireAfterAccess(15, TimeUnit.MINUTES)
@@ -46,7 +46,7 @@ public class SystemI18nConfigService extends BaseService<SystemI18nConfig, Syste
     }
 
     public SystemI18nConfig getByLang(String lang) {
-        return get("lang", lang);
+        return get(SystemI18nConfig::getLang, lang);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class SystemI18nConfigService extends BaseService<SystemI18nConfig, Syste
 
     @Override
     public int saveOrUpdate(SystemI18nConfig entity) {
-        int i = super.saveOrUpdateIgnoreNull(entity);
+        int i = super.saveOrUpdate(entity);
         refreshCache(entity.getLang());
         return i;
     }

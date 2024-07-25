@@ -180,7 +180,7 @@ public class ViewController {
         if (CollectionUtils.isEmpty(spaceIdList)) {
             return Result.ok(Collections.emptyList());
         }
-        List<Space> spaces = spaceService.listByCollection("id", spaceIdList);
+        List<Space> spaces = spaceService.list(Space::getId, spaceIdList);
 
         List<SpaceProjectDTO> list = spaces.stream()
                 .map(space -> {

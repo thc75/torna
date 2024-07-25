@@ -1,0 +1,15 @@
+import lombok.Data;
+
+@Data
+public class MyClass implements Serializable {
+
+    private static final long serialVersionUID = ${sys.nextId}L;
+
+#foreach($param in ${doc.requestParams})
+    /**
+     * ${param.description}
+     */
+    private ${param.type} ${param.name};
+
+#end
+}

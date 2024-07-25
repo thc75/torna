@@ -3,7 +3,6 @@ package cn.torna.service;
 
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.enums.ParamStyleEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
@@ -11,7 +10,7 @@ import cn.torna.dao.entity.ComposeCommonParam;
 import cn.torna.dao.mapper.ComposeCommonParamMapper;
 import cn.torna.service.dto.DocParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +22,7 @@ import static cn.torna.service.ModuleConfigService.buildStyle;
  * @author tanghc
  */
 @Service
-public class ComposeCommonParamService extends BaseService<ComposeCommonParam, ComposeCommonParamMapper> {
+public class ComposeCommonParamService extends BaseLambdaService<ComposeCommonParam, ComposeCommonParamMapper> {
 
     public List<ComposeCommonParam> listGlobalParams(long projectId) {
         return this.listGlobal(projectId, ModuleConfigTypeEnum.GLOBAL_PARAMS);
@@ -35,10 +34,10 @@ public class ComposeCommonParamService extends BaseService<ComposeCommonParam, C
 
     public List<ComposeCommonParam> listGlobal(long projectId, ModuleConfigTypeEnum moduleConfigTypeEnum) {
         ParamStyleEnum paramStyleEnum = buildStyle(moduleConfigTypeEnum);
-        Query query = new Query()
-                .eq("compose_project_id", projectId)
-                .eq("style", paramStyleEnum.getStyle())
-                .orderby("id", Sort.ASC);
+        Query query = this.query()
+                .eq(ComposeCommonParam::getComposeProjectId, projectId)
+                .eq(ComposeCommonParam::getStyle, paramStyleEnum.getStyle())
+                .orderByAsc(ComposeCommonParam::getId);
         return list(query);
     }
 

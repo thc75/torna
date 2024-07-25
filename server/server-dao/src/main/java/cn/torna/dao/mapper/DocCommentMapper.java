@@ -1,6 +1,6 @@
 package cn.torna.dao.mapper;
 
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 import cn.torna.dao.entity.DocComment;
 
 /**
@@ -9,6 +9,6 @@ import cn.torna.dao.entity.DocComment;
  *
  * @author tanghc
  */
-public interface DocCommentMapper extends CrudMapper<DocComment, Long> {
+public interface DocCommentMapper extends BaseMapper<DocComment> {
 	
 }

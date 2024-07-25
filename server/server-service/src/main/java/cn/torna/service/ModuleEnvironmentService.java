@@ -2,7 +2,6 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ParamStyleEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ModuleEnvironment;
@@ -14,6 +13,7 @@ import cn.torna.service.dto.ModuleEnvironmentImportDTO;
 import cn.torna.service.dto.ModuleEnvironmentParamDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,16 +30,16 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, ModuleEnvironmentMapper> {
+public class ModuleEnvironmentService extends BaseLambdaService<ModuleEnvironment, ModuleEnvironmentMapper> {
 
     @Autowired
     private ModuleEnvironmentParamService moduleEnvironmentParamService;
 
 
     public ModuleEnvironment getFirst(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .orderby("id", Sort.ASC);
+        Query query = this.query()
+                .eq(ModuleEnvironment::getModuleId, moduleId)
+                .orderBy(ModuleEnvironment::getId, Sort.ASC);
         return this.get(query);
     }
 
@@ -69,17 +69,18 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
     }
 
     public ModuleEnvironment getByModuleIdAndName(long moduleId, String name) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("name", name);
+        Query query = this.query()
+                .eq(ModuleEnvironment::getModuleId, moduleId)
+                .eq(ModuleEnvironment::getName, name);
         return get(query);
     }
 
     /**
      * 设置调试环境
+     *
      * @param moduleId 模块id
-     * @param name 名称
-     * @param url url
+     * @param name     名称
+     * @param url      url
      * @param isPublic 是否公开
      */
     public ModuleEnvironment setDebugEnv(long moduleId, String name, String url, boolean isPublic) {
@@ -104,13 +105,12 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
 
     /**
      * 查询模块对应的环境
+     *
      * @param moduleId 模块id
      * @return 返回环境
      */
     public List<ModuleEnvironment> listModuleEnvironment(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId);
-        List<ModuleEnvironment> list = list(query);
+        List<ModuleEnvironment> list = list(ModuleEnvironment::getModuleId, moduleId);
         list.sort(Comparator.comparing(ModuleEnvironment::getGmtCreate));
         return list;
     }
@@ -123,9 +123,9 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteDebugEnv(long moduleId, String name) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("name", name);
+        Query query = moduleEnvironmentParamService.query()
+                .eq(ModuleEnvironmentParam::getModifierId, moduleId)
+                .eq(ModuleEnvironmentParam::getName, name);
         ModuleEnvironment moduleEnvironment = this.get(query);
         if (moduleEnvironment != null) {
             this.delete(moduleEnvironment);
@@ -176,25 +176,26 @@ public class ModuleEnvironmentService extends BaseService<ModuleEnvironment, Mod
 
     /**
      * 导入环境
+     *
      * @param moduleEnvironmentImportDTO 导入参数
      */
     @Transactional(rollbackFor = Exception.class)
     public void importEnvironment(ModuleEnvironmentImportDTO moduleEnvironmentImportDTO) {
         Long destModuleId = moduleEnvironmentImportDTO.getDestModuleId();
-        Map<Long, ModuleEnvironment> envIdMap = this.listByCollection("id", moduleEnvironmentImportDTO.getEnvIds())
+        Map<Long, ModuleEnvironment> envIdMap = this.list(ModuleEnvironment::getId, moduleEnvironmentImportDTO.getEnvIds())
                 .stream()
                 .collect(Collectors.toMap(ModuleEnvironment::getId, Function.identity()));
         moduleEnvironmentImportDTO.getEnvIds()
                 .stream().map(envId -> {
-            ModuleEnvironmentCopyDTO moduleEnvironmentCopyDTO = new ModuleEnvironmentCopyDTO();
-            ModuleEnvironment otherModuleEnvironment = envIdMap.get(envId);
-            moduleEnvironmentCopyDTO.setFromEnvId(envId);
-            moduleEnvironmentCopyDTO.setDestModuleId(destModuleId);
-            moduleEnvironmentCopyDTO.setName(otherModuleEnvironment.getName());
-            moduleEnvironmentCopyDTO.setUrl(otherModuleEnvironment.getUrl());
-            moduleEnvironmentCopyDTO.setIsPublic(otherModuleEnvironment.getIsPublic());
-            return moduleEnvironmentCopyDTO;
-        })
+                    ModuleEnvironmentCopyDTO moduleEnvironmentCopyDTO = new ModuleEnvironmentCopyDTO();
+                    ModuleEnvironment otherModuleEnvironment = envIdMap.get(envId);
+                    moduleEnvironmentCopyDTO.setFromEnvId(envId);
+                    moduleEnvironmentCopyDTO.setDestModuleId(destModuleId);
+                    moduleEnvironmentCopyDTO.setName(otherModuleEnvironment.getName());
+                    moduleEnvironmentCopyDTO.setUrl(otherModuleEnvironment.getUrl());
+                    moduleEnvironmentCopyDTO.setIsPublic(otherModuleEnvironment.getIsPublic());
+                    return moduleEnvironmentCopyDTO;
+                })
                 // 拷贝环境
                 .forEach(this::copyEnvironment);
     }

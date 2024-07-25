@@ -156,13 +156,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.custom-tree-node {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  padding-right: 8px;
-}
 .el-tree-label-tip {color: #909399;font-size: 14px;margin: 6px;}
 </style>

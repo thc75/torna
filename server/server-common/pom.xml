@@ -16,7 +16,6 @@
         <dependency>
             <groupId>io.gitee.durcframework</groupId>
             <artifactId>fastmybatis-core</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

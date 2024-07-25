@@ -441,7 +441,7 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   height: 100%;
   cursor: col-resize;
   float: left;
-  z-index: 9999;
+  z-index: 10;
 }
 
 .el-table-cell-icon { display: inline-block; }
@@ -601,4 +601,23 @@ figure.table {
 
 .doc-view h5 {
   color: #606266;
+}
+
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+
+.vue-codemirror {
+  border: 1px solid #ececec;
+}
+
+.btn-alert {
+  .el-alert__description {
+    display: inline;
+  }
 }

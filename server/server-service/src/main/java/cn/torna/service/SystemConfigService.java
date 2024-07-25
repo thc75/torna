@@ -3,11 +3,12 @@ package cn.torna.service;
 import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.interfaces.IConfig;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.SystemConfig;
 import cn.torna.dao.mapper.SystemConfigMapper;
 import cn.torna.service.dto.SystemConfigDTO;
+import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @author tanghc
  */
 @Service
-public class SystemConfigService extends BaseService<SystemConfig, SystemConfigMapper> implements IConfig, InitializingBean {
+public class SystemConfigService extends BaseLambdaService<SystemConfig, SystemConfigMapper> implements IConfig, InitializingBean {
 
     // key: configKey, value: configValue
     private final LoadingCache<String, Optional<String>> configCache = CacheBuilder.newBuilder()
@@ -49,7 +50,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
     public void setConfig(SystemConfigDTO systemConfigDTO) {
         Objects.requireNonNull(systemConfigDTO.getConfigKey(), "need key");
         Objects.requireNonNull(systemConfigDTO.getConfigValue(), "need value");
-        SystemConfig systemConfig = get("config_key", systemConfigDTO.getConfigKey());
+        SystemConfig systemConfig = get(SystemConfig::getConfigKey, systemConfigDTO.getConfigKey());
         if (systemConfig == null) {
             systemConfig = CopyUtil.copyBean(systemConfigDTO, SystemConfig::new);
             this.save(systemConfig);
@@ -75,7 +76,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
      */
     public String getConfigValue(String key, String defaultValue) {
         Objects.requireNonNull(key, "need key");
-        SystemConfig systemConfig = get("config_key", key);
+        SystemConfig systemConfig = get(SystemConfig::getConfigKey, key);
         return Optional.ofNullable(systemConfig)
                 .map(SystemConfig::getConfigValue)
                 .orElseGet(() -> {
@@ -102,7 +103,7 @@ public class SystemConfigService extends BaseService<SystemConfig, SystemConfigM
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.listAll().forEach(systemConfig -> {
+        this.list(new Query()).forEach(systemConfig -> {
             configCache.put(systemConfig.getConfigKey(), Optional.of(systemConfig.getConfigValue()));
         });
     }

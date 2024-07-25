@@ -1,6 +1,6 @@
 package cn.torna.service;
 
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.UserDingtalkInfo;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
  * @author tanghc
  */
 @Service
-public class UserDingtalkInfoService extends BaseService<UserDingtalkInfo, UserDingtalkInfoMapper> {
+public class UserDingtalkInfoService extends BaseLambdaService<UserDingtalkInfo, UserDingtalkInfoMapper> {
 
     public UserDingtalkInfo getByUserId(long userId) {
-        return get("user_info_id", userId);
+        return get(UserDingtalkInfo::getUserInfoId, userId);
     }
 
     public void addUser(DingTalkLoginDTO dingTalkLoginDTO, UserInfo userInfo) {
@@ -39,6 +39,6 @@ public class UserDingtalkInfoService extends BaseService<UserDingtalkInfo, UserD
     }
 
     public UserDingtalkInfo getByUnionId(String unionId) {
-        return get("unionid", unionId);
+        return get(UserDingtalkInfo::getUnionid, unionId);
     }
 }

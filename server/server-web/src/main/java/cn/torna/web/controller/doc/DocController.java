@@ -26,6 +26,7 @@ import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
 import cn.torna.web.controller.doc.param.DocInfoSaveParam;
 import cn.torna.web.controller.doc.param.DocInfoSearch;
 import cn.torna.web.controller.doc.param.DocListForm;
+import cn.torna.web.controller.doc.param.ModifyInfoParam;
 import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
 import cn.torna.web.controller.doc.param.UpdateStatusParam;
 import cn.torna.web.controller.doc.param.UpdateVersionParam;
@@ -354,6 +355,13 @@ public class DocController {
     public Result updateStatus(@RequestBody UpdateStatusParam param) {
         User user = UserContext.getUser();
         docInfoService.updateStatus(param.getId(), param.getStatus(), user);
+        return Result.ok();
+    }
+
+    @PostMapping("modify")
+    public Result updateInfo(@Valid @RequestBody ModifyInfoParam param) {
+        DocInfo docInfo = CopyUtil.copyBean(param, DocInfo::new);
+        docInfoService.update(docInfo);
         return Result.ok();
     }
 

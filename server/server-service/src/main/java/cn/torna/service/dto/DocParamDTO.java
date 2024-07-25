@@ -1,6 +1,7 @@
 package cn.torna.service.dto;
 
 import cn.torna.common.annotation.Diff;
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.TreeAware;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
@@ -9,6 +10,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author tanghc
@@ -84,4 +86,8 @@ public class DocParamDTO implements TreeAware<DocParamDTO, Long> {
 
     private List<DocParamDTO> children;
 
+
+    public boolean getRequire() {
+        return Objects.equals(this.required, Booleans.TRUE);
+    }
 }

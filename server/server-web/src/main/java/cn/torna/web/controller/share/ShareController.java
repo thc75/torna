@@ -21,7 +21,11 @@ import com.gitee.fastmybatis.core.query.Query;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -149,7 +153,7 @@ public class ShareController {
     private void addChildFoldersAndFiles(List<Long> idList, List<Long> childIdList) {
         for (Long childId : childIdList) {
             Query query = new Query().eq("parent_id", childId);
-            List<Long> grandChildIdList = docInfoService.listId(query);
+            List<Long> grandChildIdList = docInfoService.listValue(query, DocInfo::getId);
             if (!grandChildIdList.isEmpty()) {
                 idList.addAll(grandChildIdList);
                 addChildFoldersAndFiles(idList, grandChildIdList);

@@ -10,7 +10,7 @@ import cn.torna.web.controller.space.param.SpaceMemberAddParam;
 import cn.torna.web.controller.space.param.SpaceMemberPageParam;
 import cn.torna.web.controller.space.param.SpaceMemberRemoveParam;
 import cn.torna.web.controller.space.param.SpaceMemberUpdateParam;
-import com.gitee.fastmybatis.core.support.PageEasyui;
+import com.gitee.fastmybatis.core.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,9 +56,9 @@ public class SpaceMemberController {
      * @return
      */
     @PostMapping("/page")
-    public Result<PageEasyui<SpaceUserInfoDTO>> page(@Valid @RequestBody SpaceMemberPageParam param) {
+    public Result<PageInfo<SpaceUserInfoDTO>> page(@Valid @RequestBody SpaceMemberPageParam param) {
         String username = param.getUsername();
-        PageEasyui<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), username, param);
+        PageInfo<SpaceUserInfoDTO> pageSpaceUser = spaceService.pageSpaceUser(param.getSpaceId(), username, param);
         return Result.ok(pageSpaceUser);
     }
 

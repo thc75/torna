@@ -1,6 +1,6 @@
 package cn.torna.dao.mapper;
 
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 import cn.torna.dao.entity.SystemI18nConfig;
 
 /**
@@ -9,6 +9,6 @@ import cn.torna.dao.entity.SystemI18nConfig;
  *
  * @author tanghc
  */
-public interface SystemI18nConfigMapper extends CrudMapper<SystemI18nConfig, Long> {
+public interface SystemI18nConfigMapper extends BaseMapper<SystemI18nConfig> {
 	
 }

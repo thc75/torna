@@ -1,7 +1,6 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.EnvironmentKeys;
-import cn.torna.common.support.BaseService;
 import cn.torna.dao.entity.DocSnapshot;
 import cn.torna.dao.mapper.DocSnapshotMapper;
 import cn.torna.service.dto.DocInfoDTO;
@@ -9,24 +8,21 @@ import com.alibaba.fastjson.JSON;
 import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author tanghc
  */
 @Service
-public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapper> {
+public class DocSnapshotService extends BaseLambdaService<DocSnapshot, DocSnapshotMapper> {
 
     @Autowired
     private DocInfoService docInfoService;
@@ -36,8 +32,9 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
         if (StringUtils.isEmpty(md5)) {
             return null;
         }
-        Query query = new Query().eq("md5", md5)
-                .orderby("id", Sort.DESC);
+        Query query = this.query()
+                .eq(DocSnapshot::getMd5, md5)
+                .orderBy(DocSnapshot::getId, Sort.DESC);
         return get(query);
     }
 
@@ -51,7 +48,7 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
      * @param docInfoDTO 文档
      */
     public void saveDocSnapshot(DocInfoDTO docInfoDTO) {
-        DocSnapshot snapshot = get("md5", docInfoDTO.getMd5());
+        DocSnapshot snapshot = get(DocSnapshot::getMd5, docInfoDTO.getMd5());
         if (snapshot != null) {
             return;
         }
@@ -69,10 +66,10 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
     }
 
     public void removeSnapshotSize(long docId, int limitSize) {
-        Query query = Query.create(DocSnapshot.class)
+        Query query = this.query()
                 .eq(DocSnapshot::getDocId, docId)
-                .orderByAsc("id");
-        List<Long> idList = this.getMapper().listColumnValues("id", query, Long.class);
+                .orderByAsc(DocSnapshot::getId);
+        List<Long> idList = this.listValue(query, DocSnapshot::getId);
         int size = idList.size();
         if (size > limitSize) {
             int limit = size - limitSize;
@@ -85,14 +82,17 @@ public class DocSnapshotService extends BaseService<DocSnapshot, DocSnapshotMapp
     }
 
     public void fillDocKey() {
-        List<DocSnapshot> docSnapshots = this.listBySpecifiedColumns(Arrays.asList("id", "doc_id"), new Query());
+        LambdaQuery<DocSnapshot> query = this.query()
+                .select(DocSnapshot::getId, DocSnapshot::getDocId);
+        List<DocSnapshot> docSnapshots = this.list(query);
         for (DocSnapshot docSnapshot : docSnapshots) {
             Long docId = docSnapshot.getDocId();
             String docKey = docInfoService.getDocKey(docId);
             if (StringUtils.hasText(docKey)) {
-                Map<String, Object> set = new HashMap<>(4);
-                set.put("doc_key", docKey);
-                this.updateByMap(set, new Query().eq("id", docSnapshot.getId()));
+                this.query()
+                        .set(DocSnapshot::getDocKey, docKey)
+                        .eq(DocSnapshot::getId, docSnapshot.getId())
+                        .update();
             }
         }
     }

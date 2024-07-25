@@ -1,0 +1,137 @@
+#set($jq="$")
+<template>
+  <div class="app-container">
+    <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
+      #foreach($param in ${doc.queryParams})
+        <el-form-item
+      	#if( "${param.description}" != "" )
+        label="${param.description}"
+        #else
+        label="${param.name}"
+        #end
+      >
+      	<el-input v-model="searchFormData.${param.name}" :clearable="true" placeholder="${param.description}" style="width: 250px;" />
+      </el-form-item>
+      #end
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" @click="loadTable">查询</el-button>
+      </el-form-item>
+    </el-form>
+
+ 	<el-table
+      :data="pageInfo.rows"
+      border
+      highlight-current-row
+    >
+    #foreach($param in ${doc.responseParams})
+      <el-table-column
+        prop="${param.name}"
+        #if( "${param.description}" != "" )
+        label="${param.description}"
+        #else
+        label="${param.name}"
+        #end
+      />
+     #end
+     <el-table-column>
+        <template slot-scope="scope">
+          <el-button type="text" size="mini" @click="onTableUpdate(scope.row)">修改</el-button>
+          <el-button type="text" size="mini" @click="onTableDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      background
+      style="margin-top: 5px"
+      :current-page="searchFormData.pageIndex"
+      :page-size="searchFormData.pageSize"
+      :page-sizes="[5, 10, 20, 40]"
+      :total="pageInfo.total"
+      layout="total, sizes, prev, pager, next"
+      @size-change="onSizeChange"
+      @current-change="onPageIndexChange"
+    />
+
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+// 创建axios实例
+const client = axios.create({
+  baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
+  timeout: 60000 // 请求超时时间,60秒
+})
+export default {
+  data() {
+    return {
+      searchFormData: {
+        #foreach($column in $columns)
+        ${column.javaFieldName}: '',
+        #end
+        pageIndex: 1,
+        pageSize: 10
+      },
+      pageInfo: {
+        rows: [],
+        total: 0
+      },
+      dialogVisible: false,
+      dialogTitle: '',
+      dialogFormData: {
+        #foreach($column in $columns)
+        #if($velocityCount > 1),#end ${column.javaFieldName}: ''
+        #end
+      },
+      dialogFormRules: {
+        #foreach($column in $columns)
+        #if($velocityCount > 1),#end ${column.javaFieldName}: [
+          { required: true, message: '不能为空', trigger: 'blur' }
+        ]
+        #end
+      }
+    }
+  },
+  created() {
+    this.loadTable()
+  },
+  methods: {
+    loadTable() {
+      this.post('${doc.url}', this.searchFormData, resp => {
+        this.pageInfo.rows = resp.data
+      })
+    },
+    onSizeChange(size) {
+      this.searchFormData.pageSize = size
+      this.loadTable()
+    },
+    onPageIndexChange(pageIndex) {
+      this.searchFormData.pageIndex = pageIndex
+      this.loadTable()
+    },
+    /**
+     * 请求接口
+     * @param uri uri
+     * @param data 请求数据
+     * @param callback 成功时回调
+     * @param errorCallback 错误时回调
+     */
+    post(uri, data, callback, errorCallback) {
+      const that = this
+      client.post(uri, data).then(function(response) {
+        const resp = response.data
+        const code = resp.code
+        if (code === '0') { // 成功
+          callback && callback.call(that, resp)
+        } else {
+          that.${jq}message.error(resp.msg)
+        }
+      }).catch(function(error) {
+        console.error(error)
+        errorCallback && errorCallback(error)
+        that.${jq}message.error(error.message)
+      })
+    }
+  }
+}
+</script>

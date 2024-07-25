@@ -12,7 +12,7 @@
     </el-form>
     <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px;" @click="onAdd">{{ $t('createAccount') }}</el-button>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -102,7 +102,7 @@ export default {
         pageSize: 10
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       }
     }

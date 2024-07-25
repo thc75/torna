@@ -1,7 +1,6 @@
 package cn.torna.web.controller.admin.vo;
 
 import cn.torna.common.support.IdCodec;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 

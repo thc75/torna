@@ -2,7 +2,7 @@ package cn.torna.common.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.gitee.fastmybatis.core.support.PageEasyui;
+import com.gitee.fastmybatis.core.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
@@ -124,11 +124,11 @@ public class CopyUtil extends BeanUtils {
                 .collect(Collectors.toList());
     }
 
-    public static <T> PageEasyui copyPage(PageEasyui pageInfo, Supplier<T> toElement) {
-        if (pageInfo == null || pageInfo.getRows() == null) {
+    public static <T> PageInfo copyPage(PageInfo pageInfo, Supplier<T> toElement) {
+        if (pageInfo == null || pageInfo.getList() == null) {
             return pageInfo;
         }
-        List list = (List) pageInfo.getRows()
+        List list = (List) pageInfo.getList()
                 .stream()
                 .map(source -> {
                     Object target = toElement.get();

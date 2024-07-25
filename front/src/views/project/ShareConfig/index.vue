@@ -4,7 +4,7 @@
       <el-button type="primary" size="mini" @click="onAdd">{{ $t('newShare') }}</el-button>
     </div>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -190,7 +190,7 @@ export default {
         moduleId: ''
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       },
       dialogVisible: false,

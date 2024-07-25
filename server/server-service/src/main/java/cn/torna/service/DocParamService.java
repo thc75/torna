@@ -4,34 +4,57 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
 import cn.torna.dao.mapper.DocParamMapper;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.EnumInfoDTO;
+import com.alibaba.fastjson.JSONObject;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author tanghc
  */
 @Service
-public class DocParamService extends BaseService<DocParam, DocParamMapper> {
+public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper> {
+
+    private static final List<String> COLLECT_TYPE_LIST = Arrays.asList(
+            "array", "list", "set", "collection"
+    );
+    private static final List<String> BOOLEAN_TYPES = Arrays.asList(
+            "boolean", "bool"
+    );
+    private static final List<String> NUMBER_TYPES = Arrays.asList(
+            "byte", "short", "int", "long", "integer",
+            "int8", "int16", "int32", "int64", "float", "double", "number"
+    );
 
     @Autowired
     private EnumService enumService;
 
     public DocParam getByDataId(String dataId) {
-        return get("data_id", dataId);
+        return get(DocParam::getDataId, dataId);
     }
 
     public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
@@ -45,15 +68,16 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
     }
 
     private List<DocParam> listParentParam(long docId, ParamStyleEnum paramStyleEnum) {
-        Query query = new Query()
-                .eq("doc_id", docId)
-                .eq("style", paramStyleEnum.getStyle())
-                .eq("parent_id", 0);
+        Query query = this.query()
+                .eq(DocParam::getDocId, docId)
+                .eq(DocParam::getStyle, paramStyleEnum.getStyle())
+                .eq(DocParam::getParentId, 0);
         return this.list(query);
     }
 
     /**
      * 删除参数，同时会删除子节点
+     *
      * @param id id
      */
     public void deleteParamDeeply(long id) {
@@ -63,10 +87,11 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
     /**
      * 递归删除下面所有子节点
+     *
      * @param parentId 父id
      */
     private void deleteChildrenDeeply(long parentId) {
-        List<DocParam> children = this.list("parent_id", parentId);
+        List<DocParam> children = this.list(DocParam::getParentId, parentId);
         for (DocParam child : children) {
             this.deleteParamDeeply(child.getId());
         }
@@ -176,12 +201,278 @@ public class DocParamService extends BaseService<DocParam, DocParamMapper> {
 
     public void deletePushParam(List<Long> docIdList) {
         // 删除文档对应的参数
-        Query paramDelQuery = new Query()
-                .in("doc_id", docIdList)
-                .eq("create_mode", OperationMode.OPEN.getType())
-                ;
-        getMapper().deleteByQuery(paramDelQuery);
+        Query paramDelQuery = this.query()
+                .in(DocParam::getDocId, docIdList)
+                .eq(DocParam::getCreateMode, OperationMode.OPEN.getType());
+        this.deleteByQuery(paramDelQuery);
     }
 
+
+    public static JSONObject createExample(List<DocParamDTO> docParams) {
+        List<DocParamDTO> params = TreeUtil.convertTree(docParams, 0L);
+        return doCreateExample(params);
+    }
+
+    private static JSONObject doCreateExample(List<DocParamDTO> params) {
+        JSONObject responseJson = new JSONObject();
+        for (DocParamDTO row : params) {
+            if (Objects.equals(row.getIsDeleted(), Booleans.TRUE)) {
+                continue;
+            }
+            Object val;
+            List<DocParamDTO> children = row.getChildren();
+            if (!ObjectUtils.isEmpty(children)) {
+                JSONObject childrenValue = doCreateExample(children);
+                if (isArrayType(row.getType())) {
+                    val = isNestArrayType(row.getType()) ? buildNestList(childrenValue)
+                            : Collections.singletonList(childrenValue);
+                } else {
+                    val = childrenValue;
+                }
+            } else {
+                // 单值
+                String example = row.getExample();
+                String type = row.getType();
+                Object exampleObj = "";
+                if (StringUtils.isEmpty(example)) {
+                    exampleObj = getDefaultExample(type);
+                } else {
+                    // 解析出数字，布尔，数组示例值
+                    if (isNumberType(type)) {
+                        exampleObj = NumberUtils.toInt(example, 0);
+                    } else if (isBooleanType(type)) {
+                        exampleObj = BooleanUtils.toBoolean(example);
+                    } else if (isNumArray(type, example)) {
+                        exampleObj = parseNumArray(example);
+                    } else if (isStrArray(type, example)) {
+                        exampleObj = parseStrArray(example);
+                    } else if (isNestArrayType(type)) {
+                        exampleObj = getNestArrayValue(type, example);
+                    }
+                }
+                val = exampleObj;
+            }
+            responseJson.put(row.getName(), val);
+        }
+        return responseJson;
+    }
+
+    private static Object getNestArrayValue(String type, String example) {
+        String type_ = type.toLowerCase();
+        if (ObjectUtils.isEmpty(example)) {
+            return type_.indexOf("string") > -1 ? buildNestList("string") : buildNestList(1);
+        }
+        if (type_.indexOf("int") > -1 ||
+                type_.indexOf("long") > -1 ||
+                type_.indexOf("decimal") > -1 ||
+                type_.indexOf("float") > -1 ||
+                type_.indexOf("double") > -1 ||
+                type_.indexOf("byte") > -1 ||
+                type_.indexOf("short") > -1
+        ) {
+            return buildNestList(NumberUtils.toInt(example));
+        }
+        if (type_.indexOf("bool") > -1) {
+            return buildNestList(true, false);
+        }
+        return buildNestList(example);
+    }
+
+    private static boolean isNumArray(String type, String example) {
+        if (isArrayString(example) || (Objects.equals(type, "array"))) {
+            example = example.substring(1, example.length() - 1);
+            String[] arr = example.split(",");
+            for (String num : arr) {
+                if (!NumberUtils.isDigits(num)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return Objects.equals(type, "num_array");
+    }
+
+    private static boolean isStrArray(String type, String example) {
+        if (isArrayString(example) || (Objects.equals(type, "array"))) {
+            example = example.substring(1, example.length() - 1);
+            String[] arr = example.split(",");
+            for (String num : arr) {
+                if (!NumberUtils.isDigits(num)) {
+                    return true;
+                }
+            }
+            return true;
+        }
+        return Objects.equals(type, "num_array");
+    }
+
+
+    private static List<?> parseStrArray(String val) {
+        if (ObjectUtils.isEmpty(val) || Objects.equals(val, "[]")) {
+            return Collections.emptyList();
+        }
+        String str = val;
+        if (isArrayString(str)) {
+            str = str.substring(1, str.length() - 1);
+        }
+        String[] arr = str.split(",");
+        return Stream.of(arr)
+                .map(item -> {
+                    String el = item.trim();
+                    if (el.startsWith("\"") || el.startsWith("\'")) {
+                        el = el.substring(1);
+                    }
+                    if (el.endsWith("\"") || el.endsWith("\'")) {
+                        el = el.substring(0, el.length() - 1);
+                    }
+                    return el;
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    private static List<?> parseNumArray(String val) {
+        if (ObjectUtils.isEmpty(val) || Objects.equals(val, "[]")) {
+            return Collections.emptyList();
+        }
+        String str = val;
+        if (isArrayString(str)) {
+            str = str.substring(1, str.length() - 1);
+        }
+        String[] arr = str.split("\\D+");
+        List<Integer> list = Stream.of(arr).map(v -> NumberUtils.toInt(v, 0)).collect(Collectors.toList());
+        return list;
+    }
+
+    private static boolean isArrayString(String example) {
+        if (example == null) {
+            return false;
+        }
+        return example.startsWith("[") && example.endsWith("]");
+    }
+
+
+    private static boolean isArrayType(String type) {
+        if (ObjectUtils.isEmpty(type)) {
+            return false;
+        }
+        type = type.toLowerCase();
+        for (String t : COLLECT_TYPE_LIST) {
+            if (type.contains(t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否嵌套list
+     */
+    private static boolean isNestArrayType(String type) {
+        if (ObjectUtils.isEmpty(type)) {
+            return false;
+        }
+        return type.startsWith("List<List<") ||
+                type.indexOf("[][]") > -1 ||
+                type.startsWith("Collection<Collection<") ||
+                type.startsWith("List<Collection<") ||
+                type.startsWith("Collection<List<") ||
+                type.startsWith("List<Set<") ||
+                type.startsWith("Set<Set<");
+    }
+
+    private static boolean isNumberType(String type) {
+        if (ObjectUtils.isEmpty(type)) {
+            return false;
+        }
+        String typeLower = type.toLowerCase();
+        for (String numberType : NUMBER_TYPES) {
+            if (Objects.equals(numberType, typeLower)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<List<?>> buildNestList(Object... val) {
+        return Collections.singletonList(Arrays.asList(val));
+    }
+
+    private static boolean isBooleanType(String type) {
+        if (ObjectUtils.isEmpty(type)) {
+            return false;
+        }
+        String typeLower = type.toLowerCase();
+        for (String booleanType : BOOLEAN_TYPES) {
+            if (Objects.equals(booleanType, typeLower)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private static Object getDefaultExample(String type) {
+        if (ObjectUtils.isEmpty(type)) {
+            return "";
+        }
+        String typeLower = type.toLowerCase();
+        if (isNumberType(type)) {
+            return "0";
+        }
+        if (isBooleanType(type)) {
+            return "false";
+        }
+        if (isNestArrayType(type)) {
+            Object val = type.toLowerCase().indexOf("string") > -1 ? "string value" : 1;
+            return buildNestList(val);
+        }
+        Object example;
+        switch (typeLower) {
+            case "string":
+                example = "string";
+                break;
+            case "map":
+            case "hashmap":
+            case "dict":
+            case "dictionary":
+            case "json":
+            case "obj":
+            case "object":
+                example = new HashMap<>();
+                break;
+            case "collection":
+            case "list":
+            case "set":
+            case "arr":
+            case "array":
+                example = new ArrayList<>();
+                break;
+            case "array[string]":
+                example = Collections.singletonList("string");
+                break;
+            case "array[byte]":
+            case "array[short]":
+            case "array[integer]":
+            case "array[long]":
+            case "array[decimal]":
+                example = Collections.singletonList(0);
+                break;
+            case "array[float]":
+            case "array[double]":
+                example = Collections.singletonList(1.2);
+                break;
+            case "array[boolean]":
+                example = Collections.singletonList(false);
+                break;
+            case "array[object]":
+                example = Collections.singletonList(new HashMap<>());
+                break;
+            default: {
+                example = new HashMap<>();
+            }
+        }
+        return example instanceof String ? example : JSONObject.toJSONString(example);
+    }
 
 }

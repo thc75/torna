@@ -1,0 +1,7 @@
+curl --location '${doc.url}?${doc.queryString}' \
+#foreach($param in ${doc.headerParams})
+--header '${param.name}: ${param.example}' \
+#end
+#if(${doc.httpMethod} == 'POST' || ${doc.httpMethod} == 'PUT')
+--data '${doc.requestExample}'
+#end

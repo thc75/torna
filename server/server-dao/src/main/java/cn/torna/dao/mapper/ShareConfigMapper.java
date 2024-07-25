@@ -1,11 +1,11 @@
 package cn.torna.dao.mapper;
 
 import cn.torna.dao.entity.ShareConfig;
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 
 /**
  * @author tanghc
  */
-public interface ShareConfigMapper extends CrudMapper<ShareConfig, Long> {
+public interface ShareConfigMapper extends BaseMapper<ShareConfig> {
 	
 }
