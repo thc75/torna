@@ -20,6 +20,7 @@
             title="如何使用"
             trigger="click"
           >
+            <div class="tips">前往文档预览页，点击右上角生成代码图标</div>
             <img :src="`${getBaseUrl()}/static/help/images/gen.png`"/>
             <el-link slot="reference" type="primary" icon="el-icon-question" style="margin-left: 20px">添加后如何使用</el-link>
           </el-popover>
