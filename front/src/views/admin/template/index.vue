@@ -4,6 +4,7 @@
       <el-aside width="200px" style="padding: 20px">
         <el-button type="primary" size="mini" @click="addNew">添加模板</el-button>
         <template-tree
+          ref="templateTree"
           :node-click="onNodeClick"
         />
       </el-aside>
@@ -239,9 +240,7 @@ export default {
       this.loadVelocityVar()
     },
     loadTree() {
-      this.get('admin/gen/template/tree', {}, resp => {
-        this.list = resp.data
-      })
+      this.$refs.templateTree.reload()
     },
     handlerScroll() {
       const scrollTop = window.pageYOffset ||
@@ -294,6 +293,7 @@ export default {
           if (!this.formData.isNew) {
             this.post('admin/gen/template/update', this.formData, resp => {
               this.tipSuccess($t('saveSuccess'))
+              this.reload()
             })
           } else {
             this.post('admin/gen/template/save', this.formData, resp => {
