@@ -231,16 +231,16 @@ export default {
   },
   created() {
     this.reload()
+    this.loadVelocityVar()
     window.addEventListener('scroll', this.handlerScroll)
   },
   methods: {
     reload() {
       this.loadTree()
       this.loadGroupName()
-      this.loadVelocityVar()
     },
     loadTree() {
-      this.$refs.templateTree.reload()
+      this.$refs.templateTree && this.$refs.templateTree.reload()
     },
     handlerScroll() {
       const scrollTop = window.pageYOffset ||
