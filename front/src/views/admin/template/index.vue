@@ -290,17 +290,16 @@ export default {
     onSave() {
       this.$refs.i18nForm.validate(valid => {
         if (valid) {
-          if (!this.formData.isNew) {
-            this.post('admin/gen/template/update', this.formData, resp => {
+          if (this.formData.isNew) {
+            this.post('admin/gen/template/save', this.formData, resp => {
+              this.formData.id = resp.data
+              this.formData.isNew = false
               this.tipSuccess($t('saveSuccess'))
               this.reload()
             })
           } else {
-            this.post('admin/gen/template/save', this.formData, resp => {
+            this.post('admin/gen/template/update', this.formData, resp => {
               this.tipSuccess($t('saveSuccess'))
-              if (!this.formData.id) {
-                this.formData.id = resp.data.id
-              }
               this.reload()
             })
           }

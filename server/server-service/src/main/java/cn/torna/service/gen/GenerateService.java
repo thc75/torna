@@ -1,6 +1,7 @@
 package cn.torna.service.gen;
 
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.GenTemplate;
 import cn.torna.dao.mapper.GenTemplateMapper;
 import cn.torna.service.DocInfoService;
@@ -72,9 +73,13 @@ public class GenerateService {
     private DocVar buildDocVar(Long docId) {
         DocInfoDTO docDetail = docInfoService.getDocDetail(docId);
         DocVar docVar = CopyUtil.copyBean(docDetail, DocVar::new);
-        JSONObject requestExample = DocParamService.createExample(docDetail.getRequestParams());
+
+        docVar.setRequestParams(TreeUtil.convertTree(docDetail.getRequestParams(), 0L));
+        docVar.setResponseParams(TreeUtil.convertTree(docDetail.getResponseParams(), 0L));
+
+        JSONObject requestExample = DocParamService.createExample(docVar.getRequestParams());
         docVar.setRequestExample(JSON.toJSONString(requestExample));
-        JSONObject responseExample = DocParamService.createExample(docDetail.getResponseParams());
+        JSONObject responseExample = DocParamService.createExample(docVar.getResponseParams());
         docVar.setResponseExample(JSON.toJSONString(responseExample));
         String queryString = buildQueryString(docDetail);
         docVar.setQueryString(queryString);

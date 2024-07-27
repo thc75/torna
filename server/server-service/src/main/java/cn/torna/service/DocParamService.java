@@ -209,8 +209,7 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
 
 
     public static JSONObject createExample(List<DocParamDTO> docParams) {
-        List<DocParamDTO> params = TreeUtil.convertTree(docParams, 0L);
-        return doCreateExample(params);
+        return doCreateExample(docParams);
     }
 
     private static JSONObject doCreateExample(List<DocParamDTO> params) {

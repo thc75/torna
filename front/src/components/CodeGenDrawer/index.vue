@@ -9,6 +9,8 @@
       :before-close="handleClose"
     >
       <template-tree
+        ref="templateTree"
+        :init-load="false"
         style="margin: 10px"
         :btn-text="`[${$t('generate')}]`"
         :btn-click="onGen"
@@ -76,6 +78,7 @@ export default {
       this.docId = docId
       this.$nextTick(() => {
         document.body.style.overflowY = 'hidden'
+        this.$refs.templateTree.reload()
       })
     },
     onGen(data) {

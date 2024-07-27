@@ -30,6 +30,10 @@
 export default {
   name: 'TemplateTree',
   props: {
+    initLoad: {
+      type: Boolean,
+      default: true
+    },
     nodeClick: {
       type: Function,
       default: () => {}
@@ -57,7 +61,9 @@ export default {
     }
   },
   created() {
-    this.reload()
+    if (this.initLoad) {
+      this.reload()
+    }
   },
   methods: {
     reload() {
