@@ -1,3 +1,3 @@
 # swagger插件
 
-使用方式：http://torna.cn/dev/swagger-plugin.html
+使用方式：http://torna.cn/tutorial/swagger.html

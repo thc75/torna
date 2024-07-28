@@ -23,6 +23,8 @@
     <modules>
         <module>server</module>
         <module>sdk/sdk-java</module>
+        <module>plugin/springdoc-plugin</module>
+        <module>plugin/swagger-plugin</module>
     </modules>
 
     <build>
