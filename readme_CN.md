@@ -62,7 +62,7 @@ mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/instal
 拉取最新版本并启动
 
 ```bash
-wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.26.0
+wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.28.1
 ``` 
 
 后续更新版本只需执行`sh restart-torna.sh 版本号`
