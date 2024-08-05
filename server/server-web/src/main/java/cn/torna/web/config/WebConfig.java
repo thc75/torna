@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,6 +37,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author tanghc
@@ -152,6 +155,22 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
         return new TornaAsyncConfigurer("torna-sync", threadPoolSize);
     }
 
+    @Bean("messageExecutor")
+    public Executor messageExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(32);
+        executor.setQueueCapacity(1000);
+        executor.setKeepAliveSeconds(60);
+        executor.setThreadNamePrefix("messageTask-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        // 线程池对拒绝任务的处理策略
+        // CallerRunsPolicy：由调用线程（提交任务的线程）处理该任务
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        // 初始化
+        executor.initialize();
+        return executor;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

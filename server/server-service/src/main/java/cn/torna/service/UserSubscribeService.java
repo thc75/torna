@@ -4,11 +4,14 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.dao.entity.UserSubscribe;
 import cn.torna.dao.mapper.UserSubscribeMapper;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -83,6 +86,23 @@ public class UserSubscribeService extends BaseLambdaService<UserSubscribe, UserS
         }
     }
 
+    /**
+     * 取消关注
+     *
+     * @param userSubscribeTypeEnum 关注类型
+     * @param sourceId              资源id
+     */
+    public void cancelSubscribe(UserSubscribeTypeEnum userSubscribeTypeEnum, long sourceId) {
+        List<Long> userIds = this.listUserIds(userSubscribeTypeEnum, sourceId);
+        if (!CollectionUtils.isEmpty(userIds)) {
+            this.deleteByQuery(
+                    LambdaQuery.create(UserSubscribe.class)
+                            .eq(UserSubscribe::getType, userSubscribeTypeEnum.getType())
+                            .eq(UserSubscribe::getSourceId, sourceId)
+            );
+        }
+    }
+
 
     public List<Long> listUserIds(UserSubscribeTypeEnum userSubscribeTypeEnum, long sourceId) {
         Query query = this.query()
@@ -94,4 +114,15 @@ public class UserSubscribeService extends BaseLambdaService<UserSubscribe, UserS
                 .collect(Collectors.toList());
     }
 
+
+    public Map<Long, List<Long>> listUserIdsGroupBySourceId(UserSubscribeTypeEnum userSubscribeTypeEnum, List<Long> sourceIds) {
+        Query query = this.query()
+                .eq(UserSubscribe::getType, userSubscribeTypeEnum.getType())
+                .eq(!CollectionUtils.isEmpty(sourceIds), UserSubscribe::getSourceId, sourceIds);
+        List<UserSubscribe> userSubscribes = this.list(query);
+        return userSubscribes.stream().collect(Collectors.groupingBy(
+                UserSubscribe::getSourceId,
+                Collectors.mapping(UserSubscribe::getUserId, Collectors.toList())
+        ));
+    }
 }

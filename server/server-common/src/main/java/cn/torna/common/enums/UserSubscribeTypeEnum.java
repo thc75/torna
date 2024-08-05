@@ -16,6 +16,10 @@ public enum UserSubscribeTypeEnum {
      * 推送文档
      */
     PUSH_DOC((byte) 3),
+    /**
+     * 订阅版本
+     */
+    RELEASE((byte) 4),
     ;
 
     private final byte type;
