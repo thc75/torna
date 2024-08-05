@@ -90,6 +90,8 @@ export default {
   'loginSubmit': '登 录',
   'search': '查询',
   'addMember': '添加成员',
+  'addRelease': '添加版本',
+  'updateRelease': '修改版本',
   'member': '成员',
   'me': '我',
   'role': '角色',
@@ -393,6 +395,10 @@ export default {
   'language': '语言',
   'docTabView': '标签导航',
   'nickEmail': '昵称/邮箱',
+  'releaseNo': '版本号',
+  'releaseDesc': '版本描述',
+  'viewAssociatedDocuments': '查看关联版本',
+  'associatedDocument': '关联文档',
   'visitStyle': '访问方式',
   'updateName': '修改名称',
   'visitUrl': '访问链接',
@@ -450,6 +456,7 @@ export default {
   'grid': '列表',
   'card': '卡片',
   'constManager': '常量管理',
+  'releaseManager': '版本管理',
   'projectConstant': '项目常量',
   'applicationConstant': '应用常量',
   'viewConst': '查看常量',
@@ -466,6 +473,9 @@ export default {
   'comment': '评论',
   'commentPlaceholder': '在此输入评论内容...',
   'previousVersion': '上一版',
+  'valid': '有效',
+  'invalid': '无效',
+  'bindingApiDoc': '绑定接口文档',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {

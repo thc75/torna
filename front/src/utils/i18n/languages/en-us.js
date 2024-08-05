@@ -94,6 +94,8 @@ export default {
   'loginSubmit': 'Login',
   'search': 'Search',
   'addMember': 'Add Member',
+  'addRelease': 'Add Release',
+  'updateRelease': 'Update Release',
   'member': 'Member',
   'me': 'Me',
   'role': 'Role',
@@ -396,6 +398,10 @@ export default {
   'language': 'Language',
   'docTabView': 'Tabs View',
   'nickEmail': 'Nickname/Email',
+  'releaseNo': 'Version Number',
+  'releaseDesc': 'Version Description',
+  'viewAssociatedDocuments': 'View Associated Documents',
+  'associatedDocument': 'Associated Document',
   'visitStyle': 'Visit Style',
   'updateName': 'Update Name',
   'visitUrl': 'Visit Url',
@@ -449,6 +455,7 @@ export default {
   'grid': 'Grid',
   'card': 'Card',
   'constManager': 'Constant Management',
+  'releaseManager': 'Release Management',
   'projectConstant': 'Project Constant',
   'applicationConstant': 'Application Constant',
   'viewConst': 'View Constant',
@@ -465,6 +472,9 @@ export default {
   'comment': 'Comment',
   'commentPlaceholder': 'Input comment here...',
   'previousVersion': 'Previous Version',
+  'valid': 'valid',
+  'invalid': 'invalid',
+  'bindingApiDoc': 'Binding interface document',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {

@@ -40,5 +40,11 @@ Object.assign(Vue.prototype, {
       }
     }
     return ''
+  },
+  getStatusCodeConfig() {
+    return [
+      { label: this.$t('invalid'), code: '0' },
+      { label: this.$t('valid'), code: '1' }
+    ]
   }
 })
