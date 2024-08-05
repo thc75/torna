@@ -1,15 +1,14 @@
-package cn.torna.springdocplugin.util;
+package cn.torna.swaggerplugin.util;
 
-import cn.torna.springdocplugin.bean.PushFeature;
-import cn.torna.springdocplugin.bean.TornaConfig;
-import cn.torna.springdocplugin.builder.DataType;
+import cn.torna.swaggerplugin.bean.PushFeature;
+import cn.torna.swaggerplugin.bean.TornaConfig;
+import cn.torna.swaggerplugin.builder.DataType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
 import sun.reflect.generics.repository.ClassRepository;
 
 import java.beans.PropertyDescriptor;
@@ -37,7 +36,7 @@ public class PluginUtil {
     public static final String METHOD_GET_GENERIC_INFO = "getGenericInfo";
 
     private static final List<String> SYSTEM_PACKAGE_LIST = Arrays.asList(
-            "java.", "sun.", "org.springframework.", "javax."
+            "java.", "sun.", "org.springframework.", "javax.", "jakarta."
     );
 
     public static String getParameterType(Parameter parameter) {
@@ -73,6 +72,7 @@ public class PluginUtil {
 
     /**
      * 字段是否被transient关键字修饰或有@Transient注解
+     *
      * @param field
      * @return 是返回true
      */
@@ -126,6 +126,7 @@ public class PluginUtil {
 
     /**
      * 获取泛型参数类型，如：List{@literal <String> }  返回String
+     *
      * @param type 泛型参数
      * @return 返回泛型参数类型
      */
@@ -136,8 +137,8 @@ public class PluginUtil {
         }
         Type param = params[0];
         // List<? extends Pojo>,
-        if (param instanceof WildcardTypeImpl) {
-            WildcardTypeImpl wildcardType = (WildcardTypeImpl) param;
+        if (param instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) param;
             Type[] upperBounds = wildcardType.getUpperBounds();
             if (upperBounds != null && upperBounds.length > 0) {
                 // Pojo.class
@@ -153,6 +154,7 @@ public class PluginUtil {
 
     /**
      * 获取泛型参数的原理类型，如：List{@literal <String> }  返回List
+     *
      * @param type 泛型参数
      * @return 返回泛型参数原始类型
      */
@@ -175,6 +177,7 @@ public class PluginUtil {
 
     /**
      * 是否是泛型类型
+     *
      * @param type 类型
      * @return true：是泛型类型
      */
@@ -183,8 +186,8 @@ public class PluginUtil {
     }
 
     public static String getGenericParamKey(Class<?> rawType, String name) {
-        return rawType.getName();
 //        return rawType.getName() + "." + name;
+        return rawType.getName();
     }
 
     public static boolean isCollectionOrArray(Class<?> type) {
@@ -204,10 +207,64 @@ public class PluginUtil {
 
     /**
      * 将泛型实际参数存储到genericParamMap中。<br>
+     * <pre>
+     * {@literal
      * Result<Page<Order>>
      * key: xxx.Result.T  value: Page.class
      * key: xxx.Page.T    value: Order.class
-     * @param genericParamMap 存储泛型信息
+     * }
+     * </pre>
+     *
+     * @param genericParamMap      存储泛型信息
+     * @param genericParameterType 泛型类型
+     */
+    public static void appendGenericParamMap1(Map<String, Class<?>> genericParamMap, Type genericParameterType) {
+        // 如果有泛型
+        if (PluginUtil.isGenericType(genericParameterType)) {
+            ParameterizedType parameterType = (ParameterizedType) genericParameterType;
+            // 泛型参数
+            Type[] actualTypeArguments = parameterType.getActualTypeArguments();
+            // 原始类型
+            Class<?> rawType = (Class<?>) parameterType.getRawType();
+            Class<? extends Class> rawTypeClass = rawType.getClass();
+            Method getGenericInfo = ReflectionUtils.findMethod(rawTypeClass, METHOD_GET_GENERIC_INFO);
+            if (getGenericInfo != null) {
+                ReflectionUtils.makeAccessible(getGenericInfo);
+                ClassRepository classRepository = (ClassRepository) ReflectionUtils.invokeMethod(getGenericInfo, rawType);
+                if (classRepository != null) {
+                    TypeVariable<?>[] typeParameters = classRepository.getTypeParameters();
+                    for (int i = 0; i < typeParameters.length; i++) {
+                        String key = getGenericParamKey(rawType, typeParameters[i].getName());
+                        Type actualTypeArgument = actualTypeArguments[i];
+                        // 如果泛型填的?,即：Result<?>
+                        if (actualTypeArgument instanceof WildcardType) {
+                            genericParamMap.put(key, Object.class);
+                            continue;
+                        }
+                        boolean isGeneric = PluginUtil.isGenericType(actualTypeArgument);
+                        Class<?> value = isGeneric ?
+                                (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType() : (Class<?>) actualTypeArgument;
+                        genericParamMap.put(key, value);
+                        if (isGeneric) {
+                            appendGenericParamMap1(genericParamMap, actualTypeArgument);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 将泛型实际参数存储到genericParamMap中。<br>
+     * <pre>
+     * {@literal
+     * Result<Page<Order>>
+     * key: xxx.Result  value: Page.class
+     * key: xxx.Page    value: Order.class
+     * }
+     * </pre>
+     *
+     * @param genericParamMap      存储泛型信息
      * @param genericParameterType 泛型类型
      */
     public static void appendGenericParamMap(Map<String, Class<?>> genericParamMap, Type genericParameterType) {
@@ -235,11 +292,12 @@ public class PluginUtil {
     /**
      * 属性拷贝,第一个参数中的属性值拷贝到第二个参数中<br>
      * 注意:当第一个参数中的属性有null值时,不会拷贝进去
+     *
      * @param from 源对象
-     * @param to 目标对象
+     * @param to   目标对象
      * @throws BeansException
      */
-    public static void copyPropertiesIgnoreNull(Object from, Object to, String ...ignoreProperties)
+    public static void copyPropertiesIgnoreNull(Object from, Object to, String... ignoreProperties)
             throws BeansException {
         Assert.notNull(from, "Source must not be null");
         Assert.notNull(to, "Target must not be null");
@@ -273,8 +331,7 @@ public class PluginUtil {
                                 }
                                 writeMethod.invoke(to, value);
                             }
-                        }
-                        catch (Throwable ex) {
+                        } catch (Throwable ex) {
                             throw new FatalBeanException(
                                     "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
                         }
@@ -304,7 +361,8 @@ public class PluginUtil {
 
     /**
      * 字段是否包含某些注解
-     * @param field 字段
+     *
+     * @param field               字段
      * @param annotationClassname 注解名称
      * @return 如果有返回true
      */

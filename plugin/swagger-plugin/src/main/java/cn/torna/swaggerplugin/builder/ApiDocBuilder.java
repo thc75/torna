@@ -1,15 +1,13 @@
-package cn.torna.springdocplugin.builder;
+package cn.torna.swaggerplugin.builder;
 
-import cn.torna.springdocplugin.bean.ApiModelPropertyWrapper;
-import cn.torna.springdocplugin.bean.ApiParamInfo;
-import cn.torna.springdocplugin.bean.Booleans;
-import cn.torna.springdocplugin.bean.TornaConfig;
-import cn.torna.springdocplugin.builder.DataType;
-import cn.torna.springdocplugin.builder.FieldDocInfo;
-import cn.torna.springdocplugin.util.ClassUtil;
-import cn.torna.springdocplugin.util.PluginUtil;
+import cn.torna.swaggerplugin.bean.ApiModelPropertyWrapper;
+import cn.torna.swaggerplugin.bean.ApiParamInfo;
+import cn.torna.swaggerplugin.bean.Booleans;
+import cn.torna.swaggerplugin.bean.TornaConfig;
+import cn.torna.swaggerplugin.util.ClassUtil;
+import cn.torna.swaggerplugin.util.PluginUtil;
 import com.alibaba.fastjson.JSONObject;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -32,8 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static cn.torna.springdocplugin.util.PluginUtil.getGenericParamKey;
 
 /**
  * 解析文档信息
@@ -144,7 +140,7 @@ public class ApiDocBuilder {
         final List<FieldDocInfo> fieldDocInfos = new ArrayList<>();
         // 遍历参数对象中的属性
         ReflectionUtils.doWithFields(targetClass, field -> {
-            Schema apiModelProperty = AnnotationUtils.findAnnotation(field, Schema.class);
+            ApiModelProperty apiModelProperty = AnnotationUtils.findAnnotation(field, ApiModelProperty.class);
             if (root) {
                 resetCycle();
             }
@@ -174,7 +170,7 @@ public class ApiDocBuilder {
             if (PluginUtil.isTransientField(field) || Modifier.isStatic(field.getModifiers()) || isClassFieldHidden(targetClass, field)) {
                 return false;
             }
-            Schema apiModelProperty = AnnotationUtils.findAnnotation(field, Schema.class);
+            ApiModelProperty apiModelProperty = AnnotationUtils.findAnnotation(field, ApiModelProperty.class);
             return apiModelProperty == null || !apiModelProperty.hidden();
         });
         this.bindJarClassFields(targetClass, fieldDocInfos);
@@ -238,7 +234,7 @@ public class ApiDocBuilder {
         return targetClass;
     }
 
-    protected FieldDocInfo buildFieldDocInfo(Schema apiModelProperty, Field field, Type generic) {
+    protected FieldDocInfo buildFieldDocInfo(ApiModelProperty apiModelProperty, Field field, Type generic) {
         ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Class<?> fieldType = field.getType();
         String type = getFieldType(field, apiModelPropertyWrapper);
@@ -308,11 +304,11 @@ public class ApiDocBuilder {
     }
 
     protected Class<?> getGenericParamClass(Class<?> clazz, String name) {
-        String genericParamKey = getGenericParamKey(clazz, name);
+        String genericParamKey = PluginUtil.getGenericParamKey(clazz, name);
         return genericParamMap.get(genericParamKey);
     }
 
-    protected FieldDocInfo buildFieldDocInfoByClass(Schema apiModelProperty, Class<?> clazz, Field field) {
+    protected FieldDocInfo buildFieldDocInfoByClass(ApiModelProperty apiModelProperty, Class<?> clazz, Field field) {
         ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(field);
@@ -348,7 +344,7 @@ public class ApiDocBuilder {
         return fieldDocInfo;
     }
 
-    protected FieldDocInfo buildFieldDocInfoByEnumClass(Class<Enum> enumClass, Schema apiModelProperty, Field field) {
+    protected FieldDocInfo buildFieldDocInfoByEnumClass(Class<Enum> enumClass, ApiModelProperty apiModelProperty, Field field) {
         ApiModelPropertyWrapper apiModelPropertyWrapper = new ApiModelPropertyWrapper(apiModelProperty, field);
         Enum[] enumConstants = enumClass.getEnumConstants();
         FieldDocInfo fieldDocInfo = new FieldDocInfo();
@@ -421,13 +417,13 @@ public class ApiDocBuilder {
         return field.getName();
     }
 
-    private static String getFieldDescription(Schema apiModelProperty) {
+    private static String getFieldDescription(ApiModelProperty apiModelProperty) {
         if (apiModelProperty == null) {
             return "";
         }
-        String desc = apiModelProperty.description();
+        String desc = apiModelProperty.value();
         if (StringUtils.isEmpty(desc)) {
-            desc = "";
+            desc = apiModelProperty.notes();
         }
         return desc;
     }

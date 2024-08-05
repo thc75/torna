@@ -1,6 +1,6 @@
-package cn.torna.springdocplugin.util;
+package cn.torna.swaggerplugin.util;
 
-import cn.torna.springdocplugin.scaner.ClassScanner;
+import cn.torna.swaggerplugin.scaner.ClassScanner;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartRequest;
@@ -142,5 +142,10 @@ public class ClassUtil {
                 return false;
         }
     }
+
+//    public static void main(String[] args) {
+//        Set<Class<?>> classes = getClasses("cn.torna.swaggerplugin", Api.class);
+//        classes.forEach(System.out::println);
+//    }
 
 }
