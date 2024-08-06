@@ -829,6 +829,9 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
      */
     public List<String> listSubscribeDocDingDingUserIds(long docId) {
         List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>(0);
+        }
         List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.list(UserDingtalkInfo::getUserInfoId, userIds);
         return dingtalkInfoList.stream()
                 .map(UserDingtalkInfo::getUserid)
@@ -844,6 +847,9 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
      */
     public List<String> listSubscribeDocWeComUserMobiles(long docId) {
         List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>(0);
+        }
         List<UserWeComInfo> userInfoId = userWeComInfoWrapper.list(UserWeComInfo::getUserInfoId, userIds);
         return userInfoId.stream()
                 .map(UserWeComInfo::getMobile)

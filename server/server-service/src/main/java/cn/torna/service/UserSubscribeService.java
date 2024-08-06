@@ -118,7 +118,7 @@ public class UserSubscribeService extends BaseLambdaService<UserSubscribe, UserS
     public Map<Long, List<Long>> listUserIdsGroupBySourceId(UserSubscribeTypeEnum userSubscribeTypeEnum, List<Long> sourceIds) {
         Query query = this.query()
                 .eq(UserSubscribe::getType, userSubscribeTypeEnum.getType())
-                .eq(!CollectionUtils.isEmpty(sourceIds), UserSubscribe::getSourceId, sourceIds);
+                .in(!CollectionUtils.isEmpty(sourceIds), UserSubscribe::getSourceId, sourceIds);
         List<UserSubscribe> userSubscribes = this.list(query);
         return userSubscribes.stream().collect(Collectors.groupingBy(
                 UserSubscribe::getSourceId,
