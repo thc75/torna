@@ -1,7 +1,10 @@
 package cn.torna.common.bean;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -43,6 +46,8 @@ public class DingdingWebHookBody {
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class At {
 
         public At(List<String> atUserIds) {
@@ -56,5 +61,11 @@ public class DingdingWebHookBody {
          */
         private List<String> atUserIds;
 
+        /**
+         * 被@的群成员手机号。<br/>
+         * <b>注意</b><br>
+         *
+         */
+        private Collection<String> atMobiles;
     }
 }

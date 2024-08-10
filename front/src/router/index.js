@@ -165,6 +165,11 @@ export const constantRoutes = [
         path: 'code/:projectId(\\w+)',
         name: 'ErrorCode',
         component: () => import('@/views/project/index_code')
+      },
+      {
+        path: 'release/:projectId(\\w+)',
+        name: 'ProjectRelease',
+        component: () => import('@/views/project/index_release')
       }
     ]
   },
