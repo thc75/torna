@@ -4,6 +4,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.DocStatusEnum;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.PasswordUtil;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.entity.ConstantInfo;
@@ -17,15 +18,18 @@ import cn.torna.service.dto.ModuleEnvironmentParamDTO;
 import cn.torna.service.dto.SystemConfigDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,7 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12800;
+    private static final int VERSION = 12900;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -73,6 +77,14 @@ public class UpgradeService {
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
 
+    @Resource
+    private UserInfoService userInfoService;
+
+    @Value("${torna.password.salt:}")
+    private String salt;
+
+    @Value("${torna.jwt.secret:}")
+    private String jwtSecret;
 
     /**
      * 升级
@@ -85,6 +97,49 @@ public class UpgradeService {
         saveVersion(oldVersion);
     }
 
+    private void initJwtSecret(int oldVersion) {
+        // 1.29.0开始随机生成jwt秘钥并保存在数据库中
+        int version = 12900;
+        String configKey = UserInfoService.SECRET_KEY;
+        String value = systemConfigService.getRawValue(configKey);
+        if (StringUtils.isBlank(value)) {
+            if (oldVersion >= version) {
+                value = PasswordUtil.getRandomSimplePassword(30);
+            } else {
+                value = jwtSecret;
+            }
+            systemConfigService.setConfig(configKey, value);
+        }
+    }
+
+    private void initPasswordSalt(int oldVersion) {
+        // 1.29.0开始随机生成salt并保存在数据库中
+        int version = 12900;
+        String configKey = UserInfoService.PASSWORD_SALT;
+        String value = systemConfigService.getRawValue(configKey);
+        if (StringUtils.isBlank(value)) {
+            if (oldVersion >= version) {
+                value = PasswordUtil.getRandomSimplePassword(13);
+                // insert super admin
+                this.insertAdmin(value);
+            } else {
+                value = salt;
+            }
+            systemConfigService.setConfig(configKey, value);
+        }
+    }
+
+    public void insertAdmin(String salt) {
+        String username = "admin";
+        String tpl = "INSERT INTO `user_info` ( `username`, `password`, `nickname`, `is_super_admin`) VALUES \n" +
+                "\t('%s','%s','%s',1);";
+        // 初始密码
+        String defPassword = "123456";
+        String password = DigestUtils.md5DigestAsHex(defPassword.getBytes(StandardCharsets.UTF_8));
+        String dbPassword = userInfoService.getDbPassword(username, password, salt);
+        String sql = String.format(tpl, username, dbPassword, username);
+        runSql(sql);
+    }
 
     /**
      * 升级
@@ -92,6 +147,8 @@ public class UpgradeService {
      * @param oldVersion 本地老版本
      */
     private void doUpgrade(int oldVersion) {
+        this.initJwtSecret(oldVersion);
+        this.initPasswordSalt(oldVersion);
         // 对之前的版本会进行一次升级
         // 下次更新不会再运行
         if (oldVersion < 3) {
@@ -125,6 +182,17 @@ public class UpgradeService {
         v1_26_0(oldVersion);
         v1_27_0(oldVersion);
         v1_28_0(oldVersion);
+        v1_29_0(oldVersion);
+    }
+
+    private void v1_29_0(int oldVersion) {
+        int version = 12900;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            createTable("project_release", "upgrade/1.29.0_ddl_1.txt");
+            createTable("project_release_doc", "upgrade/1.29.0_ddl_2.txt");
+            log.info("Upgrade {} finished.", version);
+        }
     }
 
     private void v1_28_0(int oldVersion) {

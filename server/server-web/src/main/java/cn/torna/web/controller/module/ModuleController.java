@@ -1,6 +1,7 @@
 package cn.torna.web.controller.module;
 
 import cn.torna.api.bean.ApiUser;
+import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.SwaggerApi;
 import cn.torna.api.open.SwaggerRefreshApi;
 import cn.torna.api.open.YapiApi;
@@ -8,6 +9,8 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
+import cn.torna.manager.doc.postman.Postman;
+import cn.torna.service.ConvertService;
 import cn.torna.service.dto.YapiMarkdownDTO;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ModuleTypeEnum;
@@ -33,13 +36,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.MediaSize;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
@@ -71,6 +78,16 @@ public class ModuleController {
 
     @Autowired
     private YapiApi yapiApi;
+
+    @Autowired
+    private ConvertService convertService;
+
+    @GetMapping(value = "postman/{token}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @NoLogin
+    public Postman getPostmanJson(@PathVariable String token) {
+        Module module = moduleService.getByToken(token);
+        return convertService.getPostman(module.getId());
+    }
 
     @GetMapping("info")
     public Result<ModuleVO> info(@HashId Long moduleId) {

@@ -42,6 +42,12 @@ public class ConvertService {
     @Autowired
     private ModuleService moduleService;
 
+    public Postman getPostman(Long moduleId) {
+        ConvertService.Config config = new ConvertService.Config();
+        config.setNeedHost(false);
+        return convertToPostman(moduleId, config);
+    }
+
     public Postman convertToPostman(Long moduleId, Config config) {
         Module module = moduleService.getById(moduleId);
         Context context = new Context();

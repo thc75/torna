@@ -132,6 +132,7 @@ export default {
   'apiFilter': 'Filter with ID/Name/URL',
   'refreshTable': 'Refresh Table',
   'export': 'Export',
+  'import': 'Import',
   'docName': 'Name',
   'hidden': 'Hidden',
   'modifierName': 'Modifier',
@@ -528,7 +529,9 @@ export default {
     'printPushContent': 'Print push content',
     'printPushContentTip': 'The content in {install dir}/log/server.log',
     'contentOverride': 'Override content',
-    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents'
+    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents',
+    'defaultStatus': 'Default Status',
+    'defaultStatusTip': 'The default status of documents'
   },
   AdminUser: {
     'allocateProject': 'Allocate Project',

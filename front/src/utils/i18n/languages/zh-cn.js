@@ -128,6 +128,7 @@ export default {
   'apiFilter': '过滤: 支持ID、名称、路径',
   'refreshTable': '刷新表格',
   'export': '导出',
+  'import': '导入',
   'docName': '文档名称',
   'hidden': '隐藏',
   'modifierName': '最后修改人',
@@ -531,7 +532,9 @@ export default {
     'printPushContent': '打印推送内容',
     'printPushContentTip': '推送内容在 {安装目录}/log/server.log',
     'contentOverride': '内容覆盖',
-    'contentOverrideTip': '是：局部推送(可推送若干个文档，不影响其它文档)，否：全量替换(默认)'
+    'contentOverrideTip': '是：局部推送(可推送若干个文档，不影响其它文档)，否：全量替换(默认)',
+    'defaultStatus': '默认状态',
+    'defaultStatusTip': '文档推送后默认状态'
   },
   AdminUser: {
     'allocateProject': '分配项目',

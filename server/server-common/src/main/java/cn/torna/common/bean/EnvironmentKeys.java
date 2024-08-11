@@ -1,6 +1,7 @@
 package cn.torna.common.bean;
 
 import cn.torna.common.enums.DocSortType;
+import cn.torna.common.enums.DocStatusEnum;
 
 import java.util.Objects;
 
@@ -78,6 +79,8 @@ public enum EnvironmentKeys {
     TORNA_UPLOAD_DIR("torna.upload.dir", null),
     /** 推送是否覆盖 */
     TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false)),
+    /** 文档推送后默认状态 */
+    TORNA_PUSH_DOC_DEFAULT_STATUS("torna.push.doc-default-status", String.valueOf(DocStatusEnum.DONE.getStatus())),
     /** 系统默认语言 */
     TORNA_DEFAULT_LANG("torna.default-lang", "zh-CN"),
     TORNA_NAME_VERSION_TPL("torna.name-version-tpl", "{_name_} {_version_}"),

@@ -35,6 +35,7 @@
             <if test="orderIndex != null">order_index,</if>
             <if test="remark != null">remark,</if>
             <if test="isShow != null">is_show,</if>
+            <if test="status != null">`status`,</if>
             gmt_create,
             gmt_modified,
         </trim>
@@ -70,6 +71,7 @@
             <if test="orderIndex != null">#{orderIndex},</if>
             <if test="remark != null">#{remark},</if>
             <if test="isShow != null">#{isShow},</if>
+            <if test="status != null">#{status},</if>
             now(),
             now(),
         </trim>

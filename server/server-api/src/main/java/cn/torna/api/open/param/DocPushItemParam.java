@@ -1,6 +1,5 @@
 package cn.torna.api.open.param;
 
-import cn.torna.common.enums.DocStatusEnum;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

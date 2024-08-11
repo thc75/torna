@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.context.ModuleConfigKeys;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.enums.ParamStyleEnum;
@@ -343,6 +344,14 @@ public class ModuleConfigService extends BaseLambdaService<ModuleConfig, ModuleC
         return Optional.ofNullable(commonConfig)
                 .map(ModuleConfig::getConfigValue)
                 .orElse(defaultValue);
+    }
+
+    public String getCommonConfigValue(long moduleId, EnvironmentKeys environmentKeys) {
+        String key = environmentKeys.getKey();
+        ModuleConfig commonConfig = getCommonConfig(moduleId, key);
+        return Optional.ofNullable(commonConfig)
+                .map(ModuleConfig::getConfigValue)
+                .orElse(environmentKeys.getDefaultValue());
     }
 
     public void setCommonConfigValue(long moduleId, String key, String value) {

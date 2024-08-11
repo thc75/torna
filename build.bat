@@ -4,7 +4,7 @@ set dist_dir=dist
 
 set app_name=torna
 
-set version="1.28.1"
+set version="1.29.0"
 
 set build_folder=%app_name%-%version%
 

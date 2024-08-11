@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.enums.UserInfoSourceEnum;
@@ -49,6 +50,9 @@ import java.util.function.Function;
 @Slf4j
 public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper> {
 
+    public static final String SECRET_KEY = "torna.jwt.secret";
+    public static final String PASSWORD_SALT = "torna.password.salt";
+
     @Autowired
     private UserCacheManager userCacheManager;
 
@@ -57,9 +61,6 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
 
     @Value("${torna.jwt.timeout-days:365}")
     private int jwtTimeoutDays;
-
-    @Value("${torna.jwt.secret:CHezCvjte^WHy5^#MqSVx9A%6.F$eV}")
-    private String jwtSecret;
 
     @Autowired
     private DefaultThirdPartyLoginManager defaultThirdPartyLoginManager;
@@ -114,7 +115,15 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
 
 
     public String getDbPassword(String username, String password) {
+        return getDbPassword(username, password, getPasswordSalt());
+    }
+
+    public String getDbPassword(String username, String password, String salt) {
         return GenerateUtil.getUserPassword(username, password, salt);
+    }
+
+    private String getPasswordSalt() {
+        return Configs.getValue(PASSWORD_SALT, salt);
     }
 
     public List<UserInfoDTO> listUserInfo(List<Long> userIds) {
@@ -277,8 +286,13 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
         String id = IdUtil.encode(userId);
         Map<String, String> data = new HashMap<>(4);
         data.put("id", String.valueOf(userId));
-        String jwt = JwtUtil.createJwt(data, jwtTimeoutDays, jwtSecret);
+        String jwt = JwtUtil.createJwt(data, jwtTimeoutDays, getJwtSecret());
         return id + ":" + jwt;
+    }
+
+
+    public static String getJwtSecret() {
+        return Configs.getValue(SECRET_KEY);
     }
 
     /**

@@ -37,10 +37,21 @@
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-dropdown split-button type="primary" size="mini" @click="onExport">
+          <el-dropdown split-button type="primary" trigger="click" size="mini" @click="onExport">
             {{ $t('export') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native="onExportPostman">{{ $t('export') + ' postman(Collection v2.1)' }}</el-dropdown-item>
+              <el-dropdown-item @click.native="onCopyPostmanUrl">
+                {{ `${$t('copy')} postman 导入URL` }}
+                <el-popover
+                  placement="bottom-end"
+                  trigger="hover"
+                  width="800"
+                >
+                  <img :src="`${getBaseUrl()}/static/images/postmanimport.jpg`" style="width: 100%" />
+                  <i slot="reference" class="el-icon-question" style="margin-left: 10px" @click.stop="() => {}" />
+                </el-popover>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -321,7 +332,8 @@ export default {
       },
       searchForm: {
         status: null
-      }
+      },
+      token: ''
     }
   },
   computed: {
@@ -332,6 +344,9 @@ export default {
       }
       search = search.toLowerCase()
       return this.searchRow(search, this.tableData, this.searchContent, this.isFolder)
+    },
+    postmanUrl() {
+      return `${this.getBaseUrl()}/module/postman/${this.token}`
     }
   },
   created() {
@@ -383,6 +398,14 @@ export default {
         callback && callback.call(this)
         this.loading = false
       })
+      this.loadToken(moduleId)
+    },
+    loadToken(moduleId) {
+      if (moduleId) {
+        this.get('/module/token/get', { moduleId: moduleId }, function(resp) {
+          this.token = resp.data
+        })
+      }
     },
     initHeight() {
       this.tableHeight = window.innerHeight - 185
@@ -579,6 +602,9 @@ export default {
         this.tipError('Export fail')
         console.log(err)
       })
+    },
+    onCopyPostmanUrl() {
+      this.copyText(this.postmanUrl)
     }
   }
 }

@@ -139,7 +139,8 @@ export const Enums = {
   ],
   ModuleConfig: {
     TORNA_PUSH_PRINT_CONTENT: 'torna.push.print-content',
-    TORNA_PUSH_OVERRIDE: 'torna.push.override'
+    TORNA_PUSH_OVERRIDE: 'torna.push.override',
+    TORNA_PUSH_DOC_DEFAULT_STATUS: 'torna.push.doc-default-status'
   },
   /**
    * 来源方式

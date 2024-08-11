@@ -35,6 +35,12 @@ public class SystemConfigService extends BaseLambdaService<SystemConfig, SystemC
                 }
             });
 
+    public String getRawValue(String key) {
+        return this.query()
+                .eq(SystemConfig::getConfigKey, key)
+                .getValue(SystemConfig::getConfigValue);
+    }
+
     public void setConfig(String key, String value) {
         setConfig(key, value, "");
     }

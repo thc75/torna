@@ -3,6 +3,8 @@ package cn.torna.common.bean;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.interfaces.IConfig;
 
+import java.util.function.Supplier;
+
 /**
  * 配置工具类
  * @author thc
@@ -15,7 +17,7 @@ public class Configs {
      * @return 返回配参数，没有则返回null
      */
     public static String getValue(String key) {
-        return getValue(key, null);
+        return getValue(key, () -> null);
     }
 
     /**
@@ -26,6 +28,16 @@ public class Configs {
      */
     public static String getValue(String key, String defaultValue) {
         return SpringContext.getBean(IConfig.class).getConfig(key, defaultValue);
+    }
+
+    /**
+     * 获取配置参数
+     * @param key 配置key
+     * @param defaultValue 默认值
+     * @return 返回配参数，没有则返回默认值
+     */
+    public static String getValue(String key, Supplier<String> defaultValue) {
+        return SpringContext.getBean(IConfig.class).getConfig(key, defaultValue.get());
     }
 
 }
