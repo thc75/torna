@@ -9,8 +9,6 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import sun.reflect.generics.reflectiveObjects.WildcardTypeImpl;
-import sun.reflect.generics.repository.ClassRepository;
 
 import java.beans.PropertyDescriptor;
 import java.beans.Transient;
@@ -21,7 +19,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collection;
@@ -136,8 +133,8 @@ public class PluginUtil {
         }
         Type param = params[0];
         // List<? extends Pojo>,
-        if (param instanceof WildcardTypeImpl) {
-            WildcardTypeImpl wildcardType = (WildcardTypeImpl) param;
+        if (param instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) param;
             Type[] upperBounds = wildcardType.getUpperBounds();
             if (upperBounds != null && upperBounds.length > 0) {
                 // Pojo.class
