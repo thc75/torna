@@ -11,6 +11,7 @@ import cn.torna.dao.entity.ConstantInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
@@ -130,6 +131,10 @@ public class UpgradeService {
     }
 
     public void insertAdmin(String salt) {
+        UserInfo userInfo = userInfoService.getByUsername("admin");
+        if (userInfo != null) {
+            return;
+        }
         String username = "admin";
         String tpl = "INSERT INTO `user_info` ( `username`, `password`, `nickname`, `is_super_admin`) VALUES \n" +
                 "\t('%s','%s','%s',1);";
