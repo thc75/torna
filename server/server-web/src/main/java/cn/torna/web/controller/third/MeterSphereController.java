@@ -2,8 +2,10 @@ package cn.torna.web.controller.third;
 
 import cn.torna.common.annotation.HashId;
 import cn.torna.common.bean.Result;
+import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.service.metersphere.MeterSphereService;
+import cn.torna.service.metersphere.MeterSphereVersion;
 import cn.torna.service.metersphere.dto.MeterSphereSpaceConfigSaveDTO;
 import cn.torna.service.metersphere.dto.MeterSphereModuleDTO;
 import cn.torna.service.metersphere.dto.MeterSphereModuleConfigSaveDTO;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -36,8 +39,16 @@ public class MeterSphereController {
 
     @GetMapping("/space/test")
     public Result<MeterSphereTestDTO> test(MeterSphereSetting meterSphereSetting) {
-        MeterSphereTestDTO meterSphereTestDTO = MeterSphereService.test(meterSphereSetting);
-        return Result.ok(meterSphereTestDTO);
+        Integer version = meterSphereSetting.getVersion();
+        if (version == null || Objects.equals(version, MeterSphereVersion.V2)) {
+            MeterSphereTestDTO meterSphereTestDTO = MeterSphereService.test(meterSphereSetting);
+            return Result.ok(meterSphereTestDTO);
+        } else if (Objects.equals(version, MeterSphereVersion.V3)) {
+            MeterSphereTestDTO meterSphereTestDTO = MeterSphereService.testV3(meterSphereSetting);
+            return Result.ok(meterSphereTestDTO);
+        } else {
+            throw new BizException("不支持版本：" + version);
+        }
     }
 
     @PostMapping("/space/save")

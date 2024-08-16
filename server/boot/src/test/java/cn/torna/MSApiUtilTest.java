@@ -1,5 +1,7 @@
 package cn.torna;
 
+import cn.torna.service.metersphere.v3.state.MSModule;
+import cn.torna.service.metersphere.v3.state.MSProject;
 import cn.torna.service.metersphere.v3.util.MSClientUtils;
 import cn.torna.service.metersphere.v3.state.AppSettingState;
 import cn.torna.service.metersphere.v3.state.MSOrganization;
@@ -33,6 +35,20 @@ public class MSApiUtilTest {
         List<MSOrganization> organizationList1 = MSClientUtils.getOrganizationList(meterSphereSetting);
         System.out.println(organizationList1);
     }
+
+    @Test
+    public void testProject() throws Exception {
+        List<MSProject> projectList = MSClientUtils.getProjectList(meterSphereSetting, "100001");
+        // [MSProject(name=示例项目, id=100001100001, versionEnable=null)]
+        System.out.println(projectList);
+    }
+
+    @Test
+    public void testModule() throws Exception {
+        List<MSModule> moduleList = MSClientUtils.getModuleList(meterSphereSetting, "100001100001");
+        System.out.println(moduleList);
+    }
+
 
 
 }

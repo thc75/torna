@@ -44,4 +44,10 @@ public class MeterSphereSpaceConfigSaveDTO {
      */
     private String msSpaceName;
 
+    /**
+     * 版本号，1：2.x，2：3.x
+     */
+    @NotNull(message = "version不能为空")
+    private Integer version;
+
 }

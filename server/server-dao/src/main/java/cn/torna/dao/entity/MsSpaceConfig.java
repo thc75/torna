@@ -1,13 +1,11 @@
 package cn.torna.dao.entity;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
-
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 
 /**
@@ -55,6 +53,11 @@ public class MsSpaceConfig {
      * 空间id
      */
     private Long spaceId;
+
+    /**
+     * 版本号，1：2.x，2：3.x
+     */
+    private Integer version;
 
 
 }

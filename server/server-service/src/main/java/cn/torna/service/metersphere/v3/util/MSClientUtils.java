@@ -21,6 +21,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class MSClientUtils {
@@ -107,7 +108,13 @@ public class MSClientUtils {
             httpPost.setEntity(stringEntity);
 
             try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-                return handleResponseList(response, MSModule.class);
+                List<MSModule> msModules = handleResponseList(response, MSModule.class);
+                for (MSModule msModule : msModules) {
+                    if (Objects.equals(msModule.getName(), "Unplanned Api")) {
+                        msModule.setName("未规划接口");
+                    }
+                }
+                return msModules;
             }
         } catch (IOException e) {
             LogUtils.error("getModuleList failed", e);

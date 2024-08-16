@@ -1,5 +1,6 @@
 package cn.torna.service.metersphere.dto;
 
+import cn.torna.service.metersphere.v3.state.AppSettingState;
 import lombok.Data;
 
 /**
@@ -7,6 +8,11 @@ import lombok.Data;
  */
 @Data
 public class MeterSphereSetting {
+
+    /**
+     * 1-2.x，2-3.x
+     */
+    private Integer version;
 
     /**
      * MeterSphere服务器地址
@@ -23,4 +29,12 @@ public class MeterSphereSetting {
      * MeterSphere的secret_key
      */
     private String msSecretKey;
+
+    public AppSettingState toAppSettingState() {
+        AppSettingState appSettingState = new AppSettingState();
+        appSettingState.setMeterSphereAddress(getMsAddress());
+        appSettingState.setAccessKey(getMsAccessKey());
+        appSettingState.setSecretKey(getMsSecretKey());
+        return appSettingState;
+    }
 }

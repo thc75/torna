@@ -100,10 +100,10 @@ public class MeterSpherePushService {
             if (responseResult.getStatus() == 200) {
                 log.info("推送metersphere成功");
             } else {
-                log.error("推送metersphere失败，result={}", result);
+                log.error("推送metersphere失败，param={}, result={}", param, result);
             }
         } catch (IOException e) {
-            log.error("推送metersphere失败", e);
+            log.error("推送metersphere失败，param={},", param, e);
         }
     }
 

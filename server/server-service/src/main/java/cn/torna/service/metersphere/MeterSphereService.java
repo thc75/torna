@@ -7,25 +7,30 @@ import cn.torna.dao.entity.MsModuleConfig;
 import cn.torna.dao.entity.MsSpaceConfig;
 import cn.torna.dao.entity.Project;
 import cn.torna.service.ProjectService;
-import cn.torna.service.metersphere.dto.MeterSphereSpaceConfigSaveDTO;
-import cn.torna.service.metersphere.dto.MeterSphereModuleDTO;
 import cn.torna.service.metersphere.dto.MeterSphereModuleConfigSaveDTO;
+import cn.torna.service.metersphere.dto.MeterSphereModuleDTO;
 import cn.torna.service.metersphere.dto.MeterSphereProjectDTO;
 import cn.torna.service.metersphere.dto.MeterSphereSetting;
+import cn.torna.service.metersphere.dto.MeterSphereSpaceConfigSaveDTO;
 import cn.torna.service.metersphere.dto.MeterSphereSpaceDTO;
 import cn.torna.service.metersphere.dto.MeterSphereTestDTO;
+import cn.torna.service.metersphere.v3.state.AppSettingState;
+import cn.torna.service.metersphere.v3.state.MSModule;
+import cn.torna.service.metersphere.v3.state.MSOrganization;
+import cn.torna.service.metersphere.v3.state.MSProject;
+import cn.torna.service.metersphere.v3.util.MSClientUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import java.util.Collections;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -67,6 +72,31 @@ public class MeterSphereService {
         }
     }
 
+    public static MeterSphereTestDTO testV3(MeterSphereSetting meterSphereSetting) {
+        AppSettingState appSettingState = meterSphereSetting.toAppSettingState();
+        try {
+            boolean test = MSClientUtils.test(appSettingState);
+            if (!test) {
+                throw new RuntimeException("请检查配置");
+            }
+            // 链接成功后获取空间列表
+            List<MSOrganization> organizations = MSClientUtils.getOrganizationList(appSettingState);
+            organizations = CollectionUtils.isNotEmpty(organizations) ? organizations : getDefaultOrganization();
+            List<MeterSphereSpaceDTO> spaceDTOS = CopyUtil.copyList(organizations, MeterSphereSpaceDTO::new);
+            MeterSphereTestDTO meterSphereTestDTO = new MeterSphereTestDTO();
+            meterSphereTestDTO.setSuccess(true);
+            meterSphereTestDTO.setSpaces(spaceDTOS);
+            return meterSphereTestDTO;
+        } catch (Exception e) {
+            log.error("链接MeterSphere失败, setting={}", meterSphereSetting, e);
+            throw new BizException("链接失败：" + e.getMessage());
+        }
+    }
+
+    private static List<MSOrganization> getDefaultOrganization() {
+        return Collections.singletonList(new MSOrganization("默认组织", "100001"));
+    }
+
 
     public void save(MeterSphereSpaceConfigSaveDTO param) {
         MsSpaceConfig msSpaceConfig = msSpaceConfigService.getBySpaceId(param.getSpaceId());
@@ -81,6 +111,7 @@ public class MeterSphereService {
         msSpaceConfig.setMsSpaceId(param.getMsSpaceId());
         msSpaceConfig.setSpaceId(param.getSpaceId());
         msSpaceConfig.setMsSpaceName(param.getMsSpaceName());
+        msSpaceConfig.setVersion(param.getVersion());
         if (save) {
             msSpaceConfigService.save(msSpaceConfig);
         } else {
@@ -108,16 +139,29 @@ public class MeterSphereService {
         }
         MeterSphereSetting meterSphereSetting = CopyUtil.copyBean(msSpaceConfig, MeterSphereSetting::new);
         String msSpaceId = msSpaceConfig.getMsSpaceId();
+        Integer version = msSpaceConfig.getVersion();
         try {
-            JSONObject projectList = MSApiUtil.getProjectList(meterSphereSetting, msSpaceId);
-            JSONArray data = projectList.getJSONArray("data");
-            if (data != null) {
-                return data.toJavaList(MeterSphereProjectDTO.class);
+            switch (version) {
+                case MeterSphereVersion.V2:
+                    JSONObject projectListJson = MSApiUtil.getProjectList(meterSphereSetting, msSpaceId);
+                    JSONArray data = projectListJson.getJSONArray("data");
+                    if (data != null) {
+                        return data.toJavaList(MeterSphereProjectDTO.class);
+                    }
+                    break;
+                case MeterSphereVersion.V3:
+                    AppSettingState appSettingState = meterSphereSetting.toAppSettingState();
+                    List<MSProject> projectList = MSClientUtils.getProjectList(appSettingState, msSpaceId);
+                    return CopyUtil.copyList(projectList, MeterSphereProjectDTO::new);
+                default: {
+                    return Collections.emptyList();
+                }
             }
         } catch (Exception e) {
             log.error("获取MeterSphere项目失败, setting={}", meterSphereSetting, e);
             throw new BizException("获取MeterSphere项目失败:" + e.getMessage());
         }
+
         return Collections.emptyList();
     }
 
@@ -129,15 +173,27 @@ public class MeterSphereService {
             return Collections.emptyList();
         }
         MeterSphereSetting meterSphereSetting = CopyUtil.copyBean(msSpaceConfig, MeterSphereSetting::new);
+        Integer version = msSpaceConfig.getVersion();
         try {
-            JSONObject moduleObj = MSApiUtil.getModuleList(meterSphereSetting, msProjectId, "http");
-            JSONArray data = moduleObj.getJSONArray("data");
-            if (data != null) {
-                return data.toJavaList(MeterSphereModuleDTO.class);
+            switch (version) {
+                case MeterSphereVersion.V2:
+                    JSONObject moduleObj = MSApiUtil.getModuleList(meterSphereSetting, msProjectId, "http");
+                    JSONArray data = moduleObj.getJSONArray("data");
+                    if (data != null) {
+                        return data.toJavaList(MeterSphereModuleDTO.class);
+                    }
+                    break;
+                case MeterSphereVersion.V3:
+                    AppSettingState appSettingState = meterSphereSetting.toAppSettingState();
+                    List<MSModule> moduleList = MSClientUtils.getModuleList(appSettingState, msProjectId);
+                    return CopyUtil.copyList(moduleList, MeterSphereModuleDTO::new);
+                default: {
+                    return Collections.emptyList();
+                }
             }
         } catch (Exception e) {
-            log.error("获取MeterSphere模块失败, setting={}", meterSphereSetting, e);
-            throw new BizException("获取MeterSphere模块失败:" + e.getMessage());
+            log.error("获取MeterSphere项目失败, setting={}", meterSphereSetting, e);
+            throw new BizException("获取MeterSphere项目失败:" + e.getMessage());
         }
         return Collections.emptyList();
     }

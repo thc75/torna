@@ -11,8 +11,14 @@
           </p>
         </el-alert>
         <el-form ref="msForm" :model="config" :rules="formRules" size="mini" label-width="180px" style="width: 80%">
+          <el-form-item prop="version" label="版本">
+            <el-radio-group v-model="config.version" size="mini">
+              <el-radio-button :label="1">2.x</el-radio-button>
+              <el-radio-button :label="2">3.x</el-radio-button>
+            </el-radio-group>
+          </el-form-item>
           <el-form-item prop="msAddress" label="服务器地址">
-            <el-input v-model="config.msAddress" placeholder="2.3(含)以上版本需要加/api，如：http://ip:8081/api" style="width: 400px" />
+            <el-input v-model="config.msAddress" :placeholder="addressTip" style="width: 400px" />
           </el-form-item>
           <el-form-item prop="msAccessKey" label="AccessKey">
             <el-input v-model="config.msAccessKey" style="width: 400px" />
@@ -44,7 +50,8 @@ export default {
         msAccessKey: '',
         msSecretKey: '',
         msSpaceId: '',
-        msSpaceName: ''
+        msSpaceName: '',
+        version: 1
       },
       formRules: {
         msAddress: [
@@ -64,6 +71,17 @@ export default {
       spaceId: ''
     }
   },
+  computed: {
+    addressTip() {
+      switch (this.config.version) {
+        case 1:
+          return '2.3(含)以上版本需要加/api，如：http://ip:8081/api'
+        case 2:
+          return '服务器地址，到端口，如：http://ip:8081'
+      }
+      return ''
+    }
+  },
   mounted() {
     this.spaceId = this.$route.params.spaceId
     this.onLoadConfig()
@@ -78,8 +96,8 @@ export default {
             name: data.msSpaceName
           }]
           this.onTest()
+          Object.assign(this.config, resp.data)
         }
-        Object.assign(this.config, resp.data)
       })
     },
     onMeterSphereTest() {
