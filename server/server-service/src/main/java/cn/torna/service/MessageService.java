@@ -64,15 +64,11 @@ public class MessageService {
                 String url = moduleConfigService.getDingDingRobotWebhookUrl(docInfoDTO.getModuleId());
                 if (StringUtils.hasText(url)) {
                     List<String> dingDingUserIds = docInfoService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
-                    // 如果没有人关注 则跳过
-                    if (!CollectionUtils.isEmpty(dingDingUserIds)) {
-                        String content = buildDingDingMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, docInfoDTO, modifyType, dingDingUserIds);
-                        if (!StringUtils.hasText(content)) {
-                            return;
-                        }
-                        DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, url, content, dingDingUserIds);
+                    String content = buildDingDingMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, docInfoDTO, modifyType, dingDingUserIds);
+                    if (!StringUtils.hasText(content)) {
+                        return;
                     }
-
+                    DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, url, content, dingDingUserIds);
                 }
                 // 这里推送关联版本的钉钉机器人webhook
                 applicationContext.publishEvent(new ReleaseDocMessageEvent(this, docInfoDTO, modifyType));

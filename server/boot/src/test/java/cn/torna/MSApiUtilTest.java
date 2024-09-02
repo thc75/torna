@@ -1,10 +1,10 @@
 package cn.torna;
 
-import cn.torna.service.metersphere.v3.state.MSModule;
-import cn.torna.service.metersphere.v3.state.MSProject;
+import cn.torna.service.metersphere.v3.model.state.MSModule;
+import cn.torna.service.metersphere.v3.model.state.MSProject;
 import cn.torna.service.metersphere.v3.util.MSClientUtils;
-import cn.torna.service.metersphere.v3.state.AppSettingState;
-import cn.torna.service.metersphere.v3.state.MSOrganization;
+import cn.torna.service.metersphere.v3.model.state.AppSettingState;
+import cn.torna.service.metersphere.v3.model.state.MSOrganization;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

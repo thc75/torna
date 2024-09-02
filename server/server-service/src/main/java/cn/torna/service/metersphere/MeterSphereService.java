@@ -14,10 +14,10 @@ import cn.torna.service.metersphere.dto.MeterSphereSetting;
 import cn.torna.service.metersphere.dto.MeterSphereSpaceConfigSaveDTO;
 import cn.torna.service.metersphere.dto.MeterSphereSpaceDTO;
 import cn.torna.service.metersphere.dto.MeterSphereTestDTO;
-import cn.torna.service.metersphere.v3.state.AppSettingState;
-import cn.torna.service.metersphere.v3.state.MSModule;
-import cn.torna.service.metersphere.v3.state.MSOrganization;
-import cn.torna.service.metersphere.v3.state.MSProject;
+import cn.torna.service.metersphere.v3.model.state.AppSettingState;
+import cn.torna.service.metersphere.v3.model.state.MSModule;
+import cn.torna.service.metersphere.v3.model.state.MSOrganization;
+import cn.torna.service.metersphere.v3.model.state.MSProject;
 import cn.torna.service.metersphere.v3.util.MSClientUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 
 /**

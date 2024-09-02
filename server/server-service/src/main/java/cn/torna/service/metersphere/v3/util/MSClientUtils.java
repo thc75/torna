@@ -1,10 +1,10 @@
 package cn.torna.service.metersphere.v3.util;
 
 import cn.torna.service.metersphere.v3.constants.URLConstants;
-import cn.torna.service.metersphere.v3.state.AppSettingState;
-import cn.torna.service.metersphere.v3.state.MSModule;
-import cn.torna.service.metersphere.v3.state.MSOrganization;
-import cn.torna.service.metersphere.v3.state.MSProject;
+import cn.torna.service.metersphere.v3.model.state.AppSettingState;
+import cn.torna.service.metersphere.v3.model.state.MSModule;
+import cn.torna.service.metersphere.v3.model.state.MSOrganization;
+import cn.torna.service.metersphere.v3.model.state.MSProject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;

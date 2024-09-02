@@ -40,7 +40,8 @@ public class MeterSpherePushServiceTest extends TornaApplicationTests{
 
     @Test
     public void push() throws Exception {
-        meterSpherePushService.push(9L);
+        meterSpherePushService.push(8L);
+        Thread.sleep(5000);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.Module;
 import cn.torna.manager.doc.postman.Body;
@@ -13,20 +14,33 @@ import cn.torna.manager.doc.postman.Request;
 import cn.torna.manager.doc.postman.Url;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
+import cn.torna.service.metersphere.v3.constants.ParameterIn;
+import cn.torna.service.metersphere.v3.model.ApiDefinition;
+import cn.torna.service.metersphere.v3.model.DataTypes;
+import cn.torna.service.metersphere.v3.model.HttpMethod;
+import cn.torna.service.metersphere.v3.model.Property;
+import cn.torna.service.metersphere.v3.model.RequestBodyType;
+import cn.torna.service.metersphere.v3.openapi.OpenApiDataConvert;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Data;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -36,11 +50,179 @@ import java.util.stream.Collectors;
 @Service
 public class ConvertService {
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     @Autowired
     private DocInfoService docInfoService;
 
     @Autowired
     private ModuleService moduleService;
+
+    public OpenAPI convertToOpenAPI(Long moduleId) {
+        List<DocInfoDTO> docInfos = docInfoService.listDocDetail(moduleId);
+//        List<DocInfoDTO> docInfos = docInfoService.listTreeDoc(moduleId);
+        List<ApiDefinition> apis = buildApiDefinition(docInfos);
+        return new OpenApiDataConvert().convert(apis);
+    }
+
+    private List<ApiDefinition> buildApiDefinition(List<DocInfoDTO> docInfos) {
+        Map<Long, DocInfoDTO> docIdMap = docInfos.stream()
+                .collect(Collectors.toMap(DocInfoDTO::getId, Function.identity()));
+        return docInfos.stream()
+//                .filter(docInfoDTO -> Objects.equals(docInfoDTO.getIsFolder(), Booleans.FALSE))
+                .map(docInfoDTO -> this.buildApiDefinition(docInfoDTO, docIdMap))
+                .collect(Collectors.toList());
+    }
+
+    private ApiDefinition buildApiDefinition(DocInfoDTO docInfoDTO, Map<Long, DocInfoDTO> docIdMap) {
+        DocInfoDTO parent = docIdMap.get(docInfoDTO.getParentId());
+        ApiDefinition apiDefinition = new ApiDefinition();
+        String category = parent != null ? parent.getName() : docInfoDTO.getName();
+        apiDefinition.setCategory(category);
+        apiDefinition.setIsFolder(Objects.equals(docInfoDTO.getIsFolder(), Booleans.TRUE));
+        apiDefinition.setSummary(docInfoDTO.getName());
+        apiDefinition.setTags(Collections.singletonList(category));
+        apiDefinition.setMethod(HttpMethod.of(docInfoDTO.getHttpMethod()));
+        apiDefinition.setPath(docInfoDTO.getUrl());
+        apiDefinition.setDescription(docInfoDTO.getDescription());
+        apiDefinition.setDeprecated(!Objects.equals("$false$", docInfoDTO.getDeprecated()));
+        apiDefinition.setParameters(buildParams(docInfoDTO, ParamStyleEnum.QUERY));
+        RequestBodyType requestBodyType = buildRequestBodyType(docInfoDTO);
+        apiDefinition.setRequestBodyType(requestBodyType);
+        apiDefinition.setRequestBody(buildBody(docInfoDTO));
+        apiDefinition.setRequestBodyForm(buildParams(docInfoDTO, ParamStyleEnum.REQUEST));
+        apiDefinition.setResponses(buildResponse(docInfoDTO));
+        return apiDefinition;
+    }
+
+    private List<Property> buildParams(DocInfoDTO docInfoDTO, ParamStyleEnum paramStyleEnum) {
+        List<DocParamDTO> queryParams = docInfoDTO.getQueryParams();
+        if (CollectionUtils.isEmpty(queryParams)) {
+            return Collections.emptyList();
+        }
+        return queryParams.stream()
+                .filter(docParamDTO -> Objects.equals(docParamDTO.getStyle(), paramStyleEnum.getStyle()))
+                .map(this::convertProperty)
+                .collect(Collectors.toList());
+    }
+
+    private RequestBodyType buildRequestBodyType(DocInfoDTO docInfoDTO) {
+        String contentType = docInfoDTO.getContentType();
+        if (contentType == null) {
+            contentType = "";
+        }
+        String contentTypeLowerCase = contentType.toLowerCase();
+        String httpMethod = docInfoDTO.getHttpMethod();
+        switch (HttpMethod.of(httpMethod)) {
+            case POST:
+            case PUT:
+                if (contentTypeLowerCase.contains("json")) {
+                    return RequestBodyType.json;
+                }
+                if (contentTypeLowerCase.contains("multipart")) {
+                    return RequestBodyType.form_data;
+                }
+                if (contentTypeLowerCase.contains("form")) {
+                    return RequestBodyType.form;
+                }
+                return RequestBodyType.raw;
+            default: {
+                return null;
+            }
+        }
+    }
+
+    private Property buildBody(DocInfoDTO docInfoDTO) {
+        List<DocParamDTO> requestParams = docInfoDTO.getRequestParams();
+        if (CollectionUtils.isEmpty(requestParams)) {
+            return null;
+        }
+        Byte isRequestArray = docInfoDTO.getIsRequestArray();
+        return buildProperty(requestParams, isRequestArray);
+    }
+
+    private Property buildResponse(DocInfoDTO docInfoDTO) {
+        List<DocParamDTO> responseParams = docInfoDTO.getResponseParams();
+        if (CollectionUtils.isEmpty(responseParams)) {
+            return null;
+        }
+        Byte isResponseArray = docInfoDTO.getIsResponseArray();
+        return buildProperty(responseParams, isResponseArray);
+    }
+
+    private Property buildProperty(List<DocParamDTO> responseParams, Byte isArray) {
+        Property property = new Property();
+        property.setRequired(false);
+        property.setType(DataTypes.OBJECT);
+        Map<String, Property> propertyMap = new LinkedHashMap<>();
+        for (DocParamDTO responseParam : responseParams) {
+            Property prop = convertProperty(responseParam);
+            propertyMap.put(responseParam.getName(), prop);
+        }
+        if (isArray == Booleans.TRUE) {
+            Property items = new Property();
+            items.setRequired(false);
+            items.setType(DataTypes.OBJECT);
+            items.setProperties(propertyMap);
+            property.setItems(items);
+        } else {
+            property.setProperties(propertyMap);
+        }
+        return property;
+    }
+
+    private Property convertProperty(DocParamDTO docParamDTO) {
+        Property property = new Property();
+        property.setName(docParamDTO.getName());
+        property.setType(docParamDTO.getType());
+        property.setDateFormat(DATE_FORMAT);
+        property.setDescription(docParamDTO.getDescription());
+        property.setIn(buildParameterIn(docParamDTO));
+        property.setRequired(docParamDTO.getRequire());
+        property.setDeprecated(false);
+        property.setExample(docParamDTO.getExample());
+        property.setDefaultValue(docParamDTO.getExample());
+        property.setValues(new ArrayList<>());
+        property.setUniqueItems(false);
+        property.setMinLength(0);
+        property.setMaxLength(NumberUtils.toInt(docParamDTO.getMaxLength(), 0));
+        List<DocParamDTO> children = docParamDTO.getChildren();
+        String type = docParamDTO.getType();
+        if (!CollectionUtils.isEmpty(children)) {
+            if (type != null && type.toLowerCase().contains("object")) {
+                Property prop = buildProperty(children, Booleans.FALSE);
+                property.setProperties(prop.getProperties());
+            } else if (isArray(type)) {
+                Property prop = buildProperty(children, Booleans.TRUE);
+                property.setItems(prop.getItems());
+            }
+        }
+        property.setMinimum(new BigDecimal("0"));
+        property.setMaximum(new BigDecimal("0"));
+        return property;
+    }
+
+    private boolean isArray(String type) {
+        if (type == null) {
+            return false;
+        }
+        type = type.toLowerCase();
+        return type.contains("list")
+                || type.contains("array")
+                || type.contains("collection")
+                || type.contains("set");
+    }
+
+    private ParameterIn buildParameterIn(DocParamDTO docParamDTO) {
+        Byte style = docParamDTO.getStyle();
+        switch (ParamStyleEnum.of(style)) {
+            case HEADER:
+                return ParameterIn.header;
+            case PATH:
+                return ParameterIn.path;
+            default:
+                return ParameterIn.query;
+        }
+    }
 
     public Postman getPostman(Long moduleId) {
         ConvertService.Config config = new ConvertService.Config();

@@ -1,16 +1,11 @@
-package cn.torna.service.metersphere.v3.state;
+package cn.torna.service.metersphere.v3.model.state;
 
 import lombok.Data;
 
 @Data
-public class CoverModule {
+public class MSOrganization {
     private String name;
     private String id;
-
-    public CoverModule(String id, String name) {
-        this.name = name;
-        this.id = id;
-    }
 
     public String toString() {
         return this.name;
@@ -23,9 +18,14 @@ public class CoverModule {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CoverModule) {
+        if (obj instanceof MSOrganization) {
             return obj.hashCode() == this.hashCode();
         }
         return false;
+    }
+
+    public MSOrganization(String name, String id) {
+        this.name = name;
+        this.id = id;
     }
 }

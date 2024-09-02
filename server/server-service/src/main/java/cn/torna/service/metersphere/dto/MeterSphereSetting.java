@@ -1,6 +1,6 @@
 package cn.torna.service.metersphere.dto;
 
-import cn.torna.service.metersphere.v3.state.AppSettingState;
+import cn.torna.service.metersphere.v3.model.state.AppSettingState;
 import lombok.Data;
 
 /**

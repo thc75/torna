@@ -365,6 +365,14 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         }
     }
 
+    public List<DocInfoDTO> listDocDetail(Long moduleId) {
+        return this.query()
+                .eq(DocInfo::getModuleId, moduleId)
+                .list()
+                .stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+    }
 
     public List<DocInfoDTO> listDocDetail(Collection<Long> docIdList) {
         if (CollectionUtils.isEmpty(docIdList)) {

@@ -1,6 +1,6 @@
 package cn.torna.service.metersphere.v3.util;
 
-import cn.torna.service.metersphere.v3.state.AppSettingState;
+import cn.torna.service.metersphere.v3.model.state.AppSettingState;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;

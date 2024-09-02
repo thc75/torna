@@ -1,4 +1,4 @@
-package cn.torna.service.metersphere.v3.state;
+package cn.torna.service.metersphere.v3.model.state;
 
 import lombok.Data;
 
