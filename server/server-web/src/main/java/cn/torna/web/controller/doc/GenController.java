@@ -1,6 +1,5 @@
 package cn.torna.web.controller.doc;
 
-import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.TreeData;
 import cn.torna.common.util.CopyUtil;
@@ -52,7 +51,6 @@ public class GenController {
      *
      * @return
      */
-    @NoLogin
     @GetMapping("/template/tree")
     public Result<List<TreeData>> tree() {
         List<TreeData> templateDTOList = genTemplateService.listGroupTree();
