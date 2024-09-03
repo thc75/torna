@@ -544,8 +544,17 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         String docMd5 = getDocMd5(docInfoDTO);
         docInfo.setMd5(docMd5);
         this.getMapper().saveDocInfo(docInfo);
-        if (docInfoDTO.getId() == null && docInfo.getId() != null) {
-            docInfoDTO.setId(docInfo.getId());
+        Long id = docInfo.getId();
+        // 修复使用非MYSQL数据库插入数据id不返回问题
+        if (id == null) {
+            DocInfo one = this.getByDataId(docInfo.getDataId());
+            if (one != null) {
+                id = one.getId();
+                docInfo.setId(id);
+            }
+        }
+        if (id != null) {
+            docInfoDTO.setId(id);
         }
         return docInfo;
     }
