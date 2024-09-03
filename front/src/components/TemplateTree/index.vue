@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     reload() {
-      this.get('admin/gen/template/tree', {}, resp => {
+      this.get('doc/gen/template/tree', {}, resp => {
         this.list = resp.data
       })
     },
