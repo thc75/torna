@@ -61,7 +61,9 @@ import springfox.documentation.annotations.ApiIgnore;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -127,7 +129,7 @@ public class SwaggerPluginService {
             List<DocItem> docItems = controllerDocMap.computeIfAbsent(controllerInfo, k -> new ArrayList<>());
             ReflectionUtils.doWithMethods(clazz, method -> {
                 try {
-                    DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(method, tornaConfig));
+                    DocItem apiInfo = buildDocItem(new MvcRequestInfoBuilder(controllerInfo, method, tornaConfig));
                     docItems.add(apiInfo);
                 } catch (HiddenException | IgnoreException e) {
                     System.out.println(e.getMessage());
@@ -373,8 +375,8 @@ public class SwaggerPluginService {
         docItem.setPathParams(buildPathParams(method));
         docItem.setHeaderParams(buildHeaderParams(method));
         docItem.setQueryParams(buildQueryParams(method, httpMethod));
-        DocParamReqWrapper reqWrapper = buildRequestParams(method, httpMethod);
-        DocParamRespWrapper respWrapper = buildResponseParams(method);
+        DocParamReqWrapper reqWrapper = buildRequestParams(requestInfoBuilder.getControllerInfo(), method, httpMethod);
+        DocParamRespWrapper respWrapper = buildResponseParams(requestInfoBuilder.getControllerInfo(), method);
         docItem.setRequestParams(reqWrapper.getData());
         docItem.setResponseParams(respWrapper.getData());
         docItem.setIsRequestArray(reqWrapper.getIsArray());
@@ -623,7 +625,7 @@ public class SwaggerPluginService {
         return name;
     }
 
-    protected DocParamReqWrapper buildRequestParams(Method method, String httpMethod) {
+    protected DocParamReqWrapper buildRequestParams(ControllerInfo controllerInfo, Method method, String httpMethod) {
         List<ApiImplicitParam> apiImplicitParamList = buildApiImplicitParams(method, param ->
                 "form".equalsIgnoreCase(param.paramType())
                         || "body".equalsIgnoreCase(param.paramType())
@@ -660,9 +662,18 @@ public class SwaggerPluginService {
                 RequestBody requestBody = parameter.getAnnotation(RequestBody.class);
                 Class<?> type = parameter.getType();
                 Type parameterizedType = parameter.getParameterizedType();
+                if (parameterizedType instanceof TypeVariable) {
+                    Class<?> superclass = method.getDeclaringClass();
+                    String key = superclass.getName() + "#" + parameterizedType.getTypeName();
+                    Map<String, Class<?>> genericParamMap = controllerInfo.getGenericParamMap();
+                    Class<?> realClass = genericParamMap.get(key);
+                    if (realClass != null) {
+                        type = realClass;
+                    }
+                }
                 ApiParamWrapper apiParamWrapper = new ApiParamWrapper(parameter.getAnnotation(ApiParam.class));
                 array = PluginUtil.isCollectionOrArray(type);
-                Map<String, Class<?>> genericParamMap = buildParamsByGeneric(parameterizedType);
+                Map<String, Class<?>> genericParamMap = buildParamsByGeneric(controllerInfo, parameterizedType);
                 if (requestBody != null || mode == ModeEnum.DUBBO.getValue()) {
                     List<DocParamReq> docParamReqList;
                     if (array) {
@@ -731,10 +742,10 @@ public class SwaggerPluginService {
     }
 
 
-    protected DocParamRespWrapper buildResponseParams(Method method) {
+    protected DocParamRespWrapper buildResponseParams(ControllerInfo controllerInfo, Method method) {
         Type genericParameterType = method.getGenericReturnType();
-        Map<String, Class<?>> genericParamMap = buildParamsByGeneric(genericParameterType);
         Class<?> type = method.getReturnType();
+        Map<String, Class<?>> genericParamMap = buildParamsByGeneric(controllerInfo, genericParameterType);
         boolean isCollection = PluginUtil.isCollectionOrArray(type);
         boolean array = PluginUtil.isCollectionOrArray(type) || isCollection;
         // 数组元素
@@ -788,9 +799,9 @@ public class SwaggerPluginService {
         return PluginUtil.getDataType(realType);
     }
 
-    protected Map<String, Class<?>> buildParamsByGeneric(Type genericParameterType) {
+    protected Map<String, Class<?>> buildParamsByGeneric(ControllerInfo controllerInfo, Type genericParameterType) {
         Map<String, Class<?>> genericParamMap = new HashMap<>(8);
-        PluginUtil.appendGenericParamMap(genericParamMap, genericParameterType);
+        PluginUtil.appendGenericParamMap(controllerInfo, genericParamMap, genericParameterType);
         return genericParamMap;
     }
 
@@ -930,7 +941,33 @@ public class SwaggerPluginService {
         controllerInfo.setName(name);
         controllerInfo.setDescription(description);
         controllerInfo.setPosition(position);
+        Map<String, Class<?>> genericParamMap = buildGenericParamMap(controllerClass);
+        controllerInfo.setGenericParamMap(genericParamMap);
+        controllerInfo.setControllerClass(controllerClass);
         return controllerInfo;
+    }
+
+    protected Map<String, Class<?>> buildGenericParamMap(Class<?> controllerClass) {
+        Type genType = controllerClass.getGenericSuperclass();
+        // 没有泛型参数
+        if (!(genType instanceof ParameterizedType)) {
+            return Collections.emptyMap();
+        } else {
+            ParameterizedType parameterizedType = (ParameterizedType) genType;
+            Class<?> rawType = (Class<?>)parameterizedType.getRawType();
+            List<String> classGenericParamNameList = PluginUtil.getClassGenericParamName(rawType);
+            Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+            Class<?> superclass = controllerClass.getSuperclass();
+            Map<String, Class<?>> map = new HashMap<>(params.length * 2);
+            int len = Math.min(classGenericParamNameList.size(), params.length);
+            for (int i = 0; i < len; i++) {
+                Type param = params[i];
+                Class<?> realParam = (Class<?>) param;
+                String genericName = classGenericParamNameList.get(i);
+                map.put(superclass.getName() + "#" + genericName, realParam);
+            }
+            return map;
+        }
     }
 
     protected List<String> getTags(Api api) {

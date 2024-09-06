@@ -1,5 +1,6 @@
 package cn.torna.swaggerplugin.builder;
 
+import cn.torna.swaggerplugin.bean.ControllerInfo;
 import io.swagger.annotations.ApiOperation;
 
 import java.lang.reflect.Method;
@@ -23,4 +24,6 @@ public interface RequestInfoBuilder {
     Method getMethod();
 
     ApiOperation getApiOperation();
+
+    ControllerInfo getControllerInfo();
 }

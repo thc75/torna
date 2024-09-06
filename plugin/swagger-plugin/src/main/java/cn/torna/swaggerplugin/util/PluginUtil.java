@@ -1,5 +1,6 @@
 package cn.torna.swaggerplugin.util;
 
+import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.PushFeature;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.builder.DataType;
@@ -9,7 +10,6 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import sun.reflect.generics.repository.ClassRepository;
 
 import java.beans.PropertyDescriptor;
 import java.beans.Transient;
@@ -22,6 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -205,6 +206,15 @@ public class PluginUtil {
         return isPojo(type) ? DataType.OBJECT.getValue() : type.getSimpleName().toLowerCase();
     }
 
+    public static List<String> getClassGenericParamName(Class<?> clazz) {
+        TypeVariable<? extends Class<?>>[] typeParameters = clazz.getTypeParameters();
+        List<String> paramNames = new ArrayList<>();
+        for (TypeVariable<?> typeParameter : typeParameters) {
+            paramNames.add(typeParameter.getName());
+        }
+        return paramNames;
+    }
+
     /**
      * 将泛型实际参数存储到genericParamMap中。<br>
      * <pre>
@@ -227,28 +237,21 @@ public class PluginUtil {
             // 原始类型
             Class<?> rawType = (Class<?>) parameterType.getRawType();
             Class<? extends Class> rawTypeClass = rawType.getClass();
-            Method getGenericInfo = ReflectionUtils.findMethod(rawTypeClass, METHOD_GET_GENERIC_INFO);
-            if (getGenericInfo != null) {
-                ReflectionUtils.makeAccessible(getGenericInfo);
-                ClassRepository classRepository = (ClassRepository) ReflectionUtils.invokeMethod(getGenericInfo, rawType);
-                if (classRepository != null) {
-                    TypeVariable<?>[] typeParameters = classRepository.getTypeParameters();
-                    for (int i = 0; i < typeParameters.length; i++) {
-                        String key = getGenericParamKey(rawType, typeParameters[i].getName());
-                        Type actualTypeArgument = actualTypeArguments[i];
-                        // 如果泛型填的?,即：Result<?>
-                        if (actualTypeArgument instanceof WildcardType) {
-                            genericParamMap.put(key, Object.class);
-                            continue;
-                        }
-                        boolean isGeneric = PluginUtil.isGenericType(actualTypeArgument);
-                        Class<?> value = isGeneric ?
-                                (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType() : (Class<?>) actualTypeArgument;
-                        genericParamMap.put(key, value);
-                        if (isGeneric) {
-                            appendGenericParamMap1(genericParamMap, actualTypeArgument);
-                        }
-                    }
+            TypeVariable<?>[] typeParameters = rawTypeClass.getTypeParameters();
+            for (int i = 0; i < typeParameters.length; i++) {
+                String key = getGenericParamKey(rawType, typeParameters[i].getName());
+                Type actualTypeArgument = actualTypeArguments[i];
+                // 如果泛型填的?,即：Result<?>
+                if (actualTypeArgument instanceof WildcardType) {
+                    genericParamMap.put(key, Object.class);
+                    continue;
+                }
+                boolean isGeneric = PluginUtil.isGenericType(actualTypeArgument);
+                Class<?> value = isGeneric ?
+                        (Class<?>) ((ParameterizedType) actualTypeArgument).getRawType() : (Class<?>) actualTypeArgument;
+                genericParamMap.put(key, value);
+                if (isGeneric) {
+                    appendGenericParamMap1(genericParamMap, actualTypeArgument);
                 }
             }
         }
@@ -267,7 +270,7 @@ public class PluginUtil {
      * @param genericParamMap      存储泛型信息
      * @param genericParameterType 泛型类型
      */
-    public static void appendGenericParamMap(Map<String, Class<?>> genericParamMap, Type genericParameterType) {
+    public static void appendGenericParamMap(ControllerInfo controllerInfo, Map<String, Class<?>> genericParamMap, Type genericParameterType) {
         // 如果有泛型
         if (PluginUtil.isGenericType(genericParameterType)) {
             ParameterizedType parameterizedType = (ParameterizedType) genericParameterType;
@@ -278,7 +281,16 @@ public class PluginUtil {
                 ParameterizedType parameterizedTypeTarget = (ParameterizedType) target;
                 targetClass = (Class) parameterizedTypeTarget.getRawType();
                 genericParamMap.put(rawType.getTypeName(), targetClass);
-                appendGenericParamMap(genericParamMap, target);
+                appendGenericParamMap(controllerInfo, genericParamMap, target);
+            } else if (target instanceof TypeVariable) {
+                TypeVariable parameterizedTypeTarget = (TypeVariable) target;
+                Class<?> genericDeclaration = (Class<?>) parameterizedTypeTarget.getGenericDeclaration();
+                String key = genericDeclaration.getName() + "#" + parameterizedTypeTarget.getName();
+                Class<?> realClass = controllerInfo.getGenericParamMap().get(key);
+                if (realClass != null) {
+                    targetClass = realClass;
+                    genericParamMap.put(rawType.getTypeName(), targetClass);
+                }
             } else {
                 if (target instanceof WildcardType) {
                     return;

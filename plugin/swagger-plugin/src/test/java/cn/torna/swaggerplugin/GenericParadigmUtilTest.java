@@ -40,22 +40,6 @@ public class GenericParadigmUtilTest extends TestCase {
 
     }
 
-    @Test
-    public void testB() {
-        Class<Controller> controllerClass = Controller.class;
-        Method method = ReflectionUtils.findMethod(controllerClass, "page");
-        Type genericReturnType = method.getGenericReturnType();
-
-        Map<String, Class<?>> classMap = new HashMap<>();
-
-        PluginUtil.appendGenericParamMap(classMap, genericReturnType);
-
-        System.out.println(classMap);
-
-    }
-
-
-
 
 
     public static class Controller {
