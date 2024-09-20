@@ -50,6 +50,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,6 +77,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author tanghc
@@ -984,17 +986,35 @@ public class SwaggerPluginService {
     }
 
     public boolean match(Method method) {
+        String methodName = method.toString();
+        List<String> excludePackageList = getExcludePackage(tornaConfig);
+        // 排除package
+        for (String excludePackage : excludePackageList) {
+            if (methodName.contains(excludePackage)) {
+                //System.out.println(methodName + "被排除, exclude package:" + excludePackage);
+                return false;
+            }
+        }
+
         List<String> scanApis = this.tornaConfig.getScanApis();
         if (CollectionUtils.isEmpty(scanApis)) {
             return method.getAnnotation(ApiOperation.class) != null;
         }
+
         for (String scanApi : scanApis) {
-            String methodName = method.toString();
             if (methodName.contains(scanApi)) {
                 return true;
             }
         }
         return false;
+    }
+
+    protected List<String> getExcludePackage(TornaConfig tornaConfig) {
+        String excludePackage = tornaConfig.getExcludePackage();
+        if (ObjectUtils.isEmpty(excludePackage)) {
+            return Collections.emptyList();
+        }
+        return Stream.of(excludePackage.split(";")).collect(Collectors.toList());
     }
 
     private interface ParamFilter {

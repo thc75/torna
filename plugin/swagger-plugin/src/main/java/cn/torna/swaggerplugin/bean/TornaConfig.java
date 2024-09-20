@@ -22,6 +22,12 @@ public class TornaConfig {
      * 扫描package，多个用";"隔开。不指定扫描全部
      */
     private String basePackage;
+
+    /**
+     * 排除package，多个用";"隔开
+     */
+    private String excludePackage;
+
     /**
      * 指定扫描的API，可以是某个controller，也可以是某个接口方法
      */

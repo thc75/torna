@@ -1,5 +1,6 @@
 # 更新日志
 
+- 1.2.27: 新增`excludePackage`配置,用来排除对应的package,多个用;隔开
 - 1.2.26: 支持Controller泛型接口
 - 1.2.25：支持Java17
 - 1.2.24：get参数使用`@ApiParam`name属性不生效问题
