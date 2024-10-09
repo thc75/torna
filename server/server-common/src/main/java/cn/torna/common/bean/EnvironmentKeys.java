@@ -60,7 +60,7 @@ public enum EnvironmentKeys {
             "【修改时间】：{modifyTime}\n" +
             "【查看地址】：{docViewUrl}\n" +
             "{@user}"),
-    PUSH_WECOM_WEBHOOK_CONTENT("torna.push.wecom-webhook-content", "【文档{modifyType}提醒】\n" +
+    PUSH_WECOM_WEBHOOK_CONTENT("torna.push.weCom-webhook-content", "【文档{modifyType}提醒】\n" +
             "【所属应用】： {projectName} - {appName}\n" +
             "【文档名称】：{docName}\n" +
             "【修改人】：{modifier}\n" +
