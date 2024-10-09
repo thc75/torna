@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -115,7 +116,8 @@ public class ViewController {
             }
         }
         DocViewService.calcDocCount(list);
-        return Result.ok(list);
+        List<TreeDTO> retList = filterEmptyFolder(list);
+        return Result.ok(retList);
     }
 
     /**
@@ -167,7 +169,20 @@ public class ViewController {
             }
         }
         DocViewService.calcDocCount(list);
-        return Result.ok(list);
+        List<TreeDTO> retList = filterEmptyFolder(list);
+        return Result.ok(retList);
+    }
+
+    private List<TreeDTO> filterEmptyFolder(List<TreeDTO> list) {
+        return list.stream()
+                .filter(treeDTO -> {
+                    // 空文件夹不显示
+                    if (Objects.equals(treeDTO.getType(), TYPE_FOLDER) && treeDTO.getApiCount() == 0) {
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
     }
 
     @GetMapping("projects")

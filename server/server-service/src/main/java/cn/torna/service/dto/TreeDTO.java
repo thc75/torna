@@ -35,7 +35,7 @@ public class TreeDTO implements TreeAware<TreeDTO, String> {
     private String origin;
 
     /** 接口数量 */
-    private int apiCount;
+    private int apiCount = 0;
 
     /**
      * 版本号

@@ -32,7 +32,10 @@
     <h4 v-show="docInfo.author">{{ $t('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
     <h4>{{ $t('interface') }}<span>{{ docInfo.dubboInfo && docInfo.dubboInfo.interfaceName }}</span></h4>
     <h4>{{ $t('method') }}<span>{{ buildDefinition(docInfo) }}</span></h4>
-    <h4 v-if="docInfo.description">{{ $t('description') }}<span>{{ docInfo.description }}</span></h4>
+    <h4 v-if="docInfo.description">
+      {{ $t('description') }}
+      <span v-show="docInfo.description" class="rich-editor" v-html="docInfo.description.replace(/\n/g,'<br />')" />
+    </h4>
     <h4>{{ $t('invokeParam') }}</h4>
     <parameter-table :data="docInfo.requestParams" />
     <h4>{{ $t('returnResult') }}</h4>
