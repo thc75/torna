@@ -106,7 +106,7 @@ export default {
       })
     },
     deletePushMessage() {
-      this.confirm(this.$t('deleteConfirm'), () => {
+      this.confirm(this.$t('deleteConfirm', this.$t('myMessage')), () => {
         this.post('/user/message/deletePushMessage', { }, () => {
           this.tipSuccess(this.$t('deleteSuccess'))
           this.loadTable()
