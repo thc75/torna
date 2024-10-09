@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <fastmybatis.version>2.9.1</fastmybatis.version>
+        <fastmybatis.version>3.0.10</fastmybatis.version>
         <flexmark.version>0.18.4</flexmark.version>
     </properties>
 
@@ -42,12 +42,12 @@
         <dependencies>
             <!-- https://gitee.com/durcframework/fastmybatis -->
             <dependency>
-                <groupId>net.oschina.durcframework</groupId>
+                <groupId>io.gitee.durcframework</groupId>
                 <artifactId>fastmybatis-spring-boot-starter</artifactId>
                 <version>${fastmybatis.version}</version>
             </dependency>
             <dependency>
-                <groupId>net.oschina.durcframework</groupId>
+                <groupId>io.gitee.durcframework</groupId>
                 <artifactId>fastmybatis-core</artifactId>
                 <version>${fastmybatis.version}</version>
             </dependency>
@@ -144,11 +144,11 @@
                 <artifactId>flexmark-ext-tables</artifactId>
                 <version>${flexmark.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.openjdk.nashorn</groupId>
-                <artifactId>nashorn-core</artifactId>
-                <version>15.3</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.openjdk.nashorn</groupId>-->
+<!--                <artifactId>nashorn-core</artifactId>-->
+<!--                <version>15.3</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>com.qiniu</groupId>
                 <artifactId>qiniu-java-sdk</artifactId>
@@ -163,6 +163,11 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>4.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>2.1.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

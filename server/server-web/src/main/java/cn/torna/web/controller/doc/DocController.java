@@ -6,7 +6,6 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.DocTypeEnum;
-import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
@@ -17,10 +16,20 @@ import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleEnvironmentParamService;
 import cn.torna.service.ModuleEnvironmentService;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.dto.DocListFormDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
-import cn.torna.web.controller.doc.param.*;
+import cn.torna.web.config.UserContext;
+import cn.torna.web.controller.doc.param.DocFolderAddParam;
+import cn.torna.web.controller.doc.param.DocFolderUpdateParam;
+import cn.torna.web.controller.doc.param.DocInfoSaveParam;
+import cn.torna.web.controller.doc.param.DocInfoSearch;
+import cn.torna.web.controller.doc.param.DocListForm;
+import cn.torna.web.controller.doc.param.ModifyInfoParam;
+import cn.torna.web.controller.doc.param.UpdateOrderIndexParam;
+import cn.torna.web.controller.doc.param.UpdateStatusParam;
+import cn.torna.web.controller.doc.param.UpdateVersionParam;
 import cn.torna.web.controller.doc.vo.DocInfoVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.module.vo.ModuleGlobalParamsVO;
@@ -59,6 +68,7 @@ public class DocController {
 
     /**
      * 获取项目文档目录，可用于文档菜单
+     *
      * @param moduleId 模块id
      * @return 返回结果
      */
@@ -70,7 +80,22 @@ public class DocController {
     }
 
     /**
+     * 获取项目文档目录，可用于文档菜单
+     *
+     * @param docListForm docListForm
+     * @return 返回结果
+     */
+    @PostMapping("list-v2")
+    public Result<List<DocInfoVO>> listProjectDoc2(@Valid @RequestBody DocListForm docListForm) {
+        DocListFormDTO docListFormDTO = CopyUtil.copyBean(docListForm, DocListFormDTO::new);
+        List<DocInfo> docInfos = docInfoService.listModuleTableDoc(docListFormDTO);
+        List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
+        return Result.ok(docInfoVOS);
+    }
+
+    /**
      * 保存文档信息
+     *
      * @param param
      * @return
      */
@@ -108,6 +133,7 @@ public class DocController {
 
     /**
      * 将参数的id设置成null
+     *
      * @param docInfoDTO docInfoDTO
      */
     private void nullParamsId(DocInfoDTO docInfoDTO) {
@@ -135,6 +161,7 @@ public class DocController {
 
     /**
      * 删除
+     *
      * @param param
      * @return
      */
@@ -159,6 +186,7 @@ public class DocController {
 
     /**
      * 查询文档表单详细信息
+     *
      * @param id
      * @return
      */
@@ -227,6 +255,7 @@ public class DocController {
 
     /**
      * 获取模块分类
+     *
      * @param moduleId
      * @return
      */
@@ -238,6 +267,7 @@ public class DocController {
 
     /**
      * 添加分类
+     *
      * @param param
      * @return
      */
@@ -252,6 +282,7 @@ public class DocController {
 
     /**
      * 修改分类名称
+     *
      * @param param
      * @return
      */
@@ -324,6 +355,13 @@ public class DocController {
     public Result updateStatus(@RequestBody UpdateStatusParam param) {
         User user = UserContext.getUser();
         docInfoService.updateStatus(param.getId(), param.getStatus(), user);
+        return Result.ok();
+    }
+
+    @PostMapping("modify")
+    public Result updateInfo(@Valid @RequestBody ModifyInfoParam param) {
+        DocInfo docInfo = CopyUtil.copyBean(param, DocInfo::new);
+        docInfoService.update(docInfo);
         return Result.ok();
     }
 

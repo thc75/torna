@@ -2,9 +2,9 @@
 
 > 前提：先安装好nodejs，建议安装nodejs12，不要超过14，版本太高可能会有问题
 
-- 执行`npm install --registry=https://registry.npm.taobao.org`
+- 执行`npm install`
 
-macOS可以执行：`npm install --registry=https://registry.npm.taobao.org --unsafe-perm=true --allow-root`
+macOS可以执行：`npm install --unsafe-perm=true --allow-root`
 
 - 执行`npm run dev`，访问`http://localhost:9530/`
 

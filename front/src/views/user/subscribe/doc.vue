@@ -2,7 +2,7 @@
   <div class="app-container">
     <h3>{{ $t('mySubscribeApi') }}</h3>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
       style="width: 600px"
@@ -48,7 +48,7 @@ export default {
         pageSize: 20
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       }
     }

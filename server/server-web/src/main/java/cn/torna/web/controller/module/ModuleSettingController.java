@@ -272,7 +272,7 @@ public class ModuleSettingController {
             return Result.ok();
         }
         CopyUtil.copyPropertiesIgnoreNull(param, moduleSwaggerConfig);
-        moduleSwaggerConfigService.updateIgnoreNull(moduleSwaggerConfig);
+        moduleSwaggerConfigService.update(moduleSwaggerConfig);
         return Result.ok();
     }
 

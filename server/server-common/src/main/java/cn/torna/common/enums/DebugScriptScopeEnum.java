@@ -1,7 +1,7 @@
 package cn.torna.common.enums;
 
 /**
- * 作用域，0：当前文档，1：当前模块，2：当前项目
+ * 作用域，0：当前文档，1：当前应用，2：当前项目
  * @author tanghc
  */
 public enum DebugScriptScopeEnum {
@@ -10,7 +10,7 @@ public enum DebugScriptScopeEnum {
      */
     DOC((byte) 0),
     /**
-     * 当前模块
+     * 当前应用
      */
     MODULE((byte) 1),
     /**

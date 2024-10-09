@@ -20,6 +20,11 @@ export default {
   'queryParam': 'Query Param',
   'modifier': 'Modifier',
   'changeHistory': 'Change History',
+  'codeGenerate': 'Code Generation ',
+  'generate': 'Generate',
+  'generateResult': 'Generation Result',
+  'copyCode': 'Copy Code',
+  'copyAndClose': 'Copy and close',
   'canUseScope': 'Use Scope',
   'dlgClose': 'Close',
   'preRequestScript': 'Pre-request Script',
@@ -41,6 +46,7 @@ export default {
   'userMsgReadAll': 'Set all read',
   'userMsgCenter': 'Message Center',
   'userMsgNoMsg': 'No Message',
+  'clearPushMsg': 'Clear push Message',
   'viewDoc': 'View Doc',
   'setRead': 'Set read',
   'userCenter': 'User Center',
@@ -62,6 +68,7 @@ export default {
   'projectList': 'Projects',
   'spaceInfo': 'Space Info',
   'spaceMember': 'Members',
+  'spaceSetting': 'Setting',
   'openUser': 'Open User',
   'apiDoc': 'API Doc',
   'projectInfo': 'Project Info',
@@ -87,6 +94,8 @@ export default {
   'loginSubmit': 'Login',
   'search': 'Search',
   'addMember': 'Add Member',
+  'addRelease': 'Add Release',
+  'updateRelease': 'Update Release',
   'member': 'Member',
   'me': 'Me',
   'role': 'Role',
@@ -123,6 +132,7 @@ export default {
   'apiFilter': 'Filter with ID/Name/URL',
   'refreshTable': 'Refresh Table',
   'export': 'Export',
+  'import': 'Import',
   'docName': 'Name',
   'hidden': 'Hidden',
   'modifierName': 'Modifier',
@@ -220,6 +230,10 @@ export default {
   'shareUrl': 'Share Url',
   'shareDoc': 'Share Doc',
   'shareStyle': 'Share Style',
+  'expirationTime': 'Expiration Time',
+  'permanentValidity': 'Permanent Validity',
+  'permanentValidityTip': 'Leave empty for perpetual validity',
+  'expirationTimePicker': 'Please Pick a day',
   'encryption': 'Encryption',
   'deleteRowConfirm': 'Delete record?',
   'remark': 'Remark',
@@ -381,9 +395,14 @@ export default {
   'managementModel': 'Management Model',
   'document': 'Document',
   'systemSetting': 'System Setting',
+  'templateSetting': 'Template Setting',
   'language': 'Language',
   'docTabView': 'Tabs View',
   'nickEmail': 'Nickname/Email',
+  'releaseNo': 'Version Number',
+  'releaseDesc': 'Version Description',
+  'viewAssociatedDocuments': 'View Associated Documents',
+  'associatedDocument': 'Associated Document',
   'visitStyle': 'Visit Style',
   'updateName': 'Update Name',
   'visitUrl': 'Visit Url',
@@ -437,6 +456,7 @@ export default {
   'grid': 'Grid',
   'card': 'Card',
   'constManager': 'Constant Management',
+  'releaseManager': 'Release Management',
   'projectConstant': 'Project Constant',
   'applicationConstant': 'Application Constant',
   'viewConst': 'View Constant',
@@ -453,6 +473,9 @@ export default {
   'comment': 'Comment',
   'commentPlaceholder': 'Input comment here...',
   'previousVersion': 'Previous Version',
+  'valid': 'valid',
+  'invalid': 'invalid',
+  'bindingApiDoc': 'Binding interface document',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {
@@ -506,7 +529,9 @@ export default {
     'printPushContent': 'Print push content',
     'printPushContentTip': 'The content in {install dir}/log/server.log',
     'contentOverride': 'Override content',
-    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents'
+    'contentOverrideTip': 'Yes:Local push can be realized, No:Replace all documents',
+    'defaultStatus': 'Default Status',
+    'defaultStatusTip': 'The default status of documents'
   },
   AdminUser: {
     'allocateProject': 'Allocate Project',
@@ -523,12 +548,13 @@ export default {
     'weComWebhookUrlTip': 'Push message to weCom group when doc is changed'
   },
   UserInfo: {
-    'bindDingDingTip':'Use DingDing app scan the QR to bind account'
+    'bindDingDingTip': 'Use DingDing app scan the QR to bind account'
   },
   ModuleSetting: {
     'weComSetting': 'WeCom Setting',
     'dingdingSetting': 'DingTalk Setting',
     'swaggerSetting': 'Swagger Setting',
+    'meterSphereSetting': 'MeterSphere Setting'
   },
   DocChangelog: {
     confirmRestore: 'Restore this version?'

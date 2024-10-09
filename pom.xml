@@ -16,13 +16,15 @@
 
     <properties>
         <!-- Project revision -->
-        <revision>1.25.1</revision>
+        <revision>1.29.4</revision>
         <java.version>1.8</java.version>
     </properties>
 
     <modules>
         <module>server</module>
         <module>sdk/sdk-java</module>
+        <module>plugin/springdoc-plugin</module>
+        <module>plugin/swagger-plugin</module>
     </modules>
 
     <build>

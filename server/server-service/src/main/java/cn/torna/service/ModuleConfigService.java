@@ -1,11 +1,10 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.context.ModuleConfigKeys;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.enums.ParamStyleEnum;
-import cn.torna.common.enums.StatusEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.HtmlTableBuilder;
@@ -15,10 +14,11 @@ import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ModuleEnvironmentParam;
-import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.ModuleConfigMapper;
 import cn.torna.service.dto.DocParamDTO;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigMapper> {
+public class ModuleConfigService extends BaseLambdaService<ModuleConfig, ModuleConfigMapper> {
 
     @Autowired
     private DocParamService docParamService;
@@ -50,6 +50,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     /**
      * 获取钉钉群机器人推送url
+     *
      * @return
      */
     public String getDingDingRobotWebhookUrl(long moduleId) {
@@ -59,6 +60,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     /**
      * 获取企业微信推送url
+     *
      * @return
      */
     public String getWeComWebhookUrl(long moduleId) {
@@ -67,15 +69,16 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     /**
      * 根据应用id和配置key查询
+     *
      * @param moduleId 应用id
-     * @param keys 配置key
+     * @param keys     配置key
      * @return 返回配置对象
      */
     public List<ModuleConfig> listByModuleIdAndKeys(long moduleId, String[] keys) {
-        Query query = new Query();
-        query.eq("module_id", moduleId);
-        query.in("config_key", keys);
-        return this.listAll(query);
+        LambdaQuery<ModuleConfig> query = this.query();
+        query.eq(ModuleConfig::getModuleId, moduleId);
+        query.in(ModuleConfig::getConfigKey, keys);
+        return this.list(query);
     }
 
 
@@ -116,8 +119,8 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
         if (CollectionUtils.isEmpty(docIdList)) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .in("id", docIdList);
+        Query query = docParamService.query()
+                .in(DocParam::getId, docIdList);
         return docParamService.list(query);
     }
 
@@ -158,6 +161,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     /**
      * 保存应用全局错误码
+     *
      * @param docParamList
      * @param moduleId
      */
@@ -195,7 +199,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
                     Arrays.asList(moduleConfig.getConfigKey(),
                             moduleConfig.getDescription(),
                             moduleConfig.getConfigValue()
-                            )
+                    )
             );
         }
         return htmlTableBuilder.toString();
@@ -237,6 +241,7 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
 
     /**
      * 删除公共参数
+     *
      * @param moduleId 模块id
      * @param extendId 参数id，doc_param.id
      */
@@ -247,9 +252,9 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     private ModuleConfig getByModuleIdAndExtendId(long moduleId, long extendId) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("extend_id", extendId);
+        Query query = this.query()
+                .eq(ModuleConfig::getModuleId, moduleId)
+                .eq(ModuleConfig::getExtendId, extendId);
         return get(query);
     }
 
@@ -276,9 +281,6 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
 
-
-
-
     /**
      * 删除模块调试环境
      *
@@ -286,10 +288,10 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
      * @param name     环境名称
      */
     public void deleteDebugEnv(long moduleId, String name) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", ModuleConfigTypeEnum.DEBUG_HOST.getType())
-                .eq("config_key", name);
+        Query query = this.query()
+                .eq(ModuleConfig::getModuleId, moduleId)
+                .eq(ModuleConfig::getType, ModuleConfigTypeEnum.DEBUG_HOST.getType())
+                .eq(ModuleConfig::getConfigKey, name);
         ModuleConfig commonConfig = this.get(query);
         if (commonConfig != null) {
             this.delete(commonConfig);
@@ -297,9 +299,9 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public void deleteByModuleAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", typeEnum.getType());
+        Query query = this.query()
+                .eq(ModuleConfig::getModuleId, moduleId)
+                .eq(ModuleConfig::getType, typeEnum.getType());
         this.getMapper().deleteByQuery(query);
     }
 
@@ -312,12 +314,12 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public List<ModuleConfig> listByModuleIdAndType(long moduleId, ModuleConfigTypeEnum typeEnum) {
-        Query query = new Query();
+        LambdaQuery<ModuleConfig> query = this.query();
         if (moduleId > 0) {
-            query.eq("module_id", moduleId);
+            query.eq(ModuleConfig::getModuleId, moduleId);
         }
-        query.eq("type", typeEnum.getType());
-        return this.listAll(query);
+        query.eq(ModuleConfig::getType, typeEnum.getType());
+        return this.list(query);
     }
 
     public static String getDebugHostKey(long moduleId) {
@@ -344,6 +346,14 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
                 .orElse(defaultValue);
     }
 
+    public String getCommonConfigValue(long moduleId, EnvironmentKeys environmentKeys) {
+        String key = environmentKeys.getKey();
+        ModuleConfig commonConfig = getCommonConfig(moduleId, key);
+        return Optional.ofNullable(commonConfig)
+                .map(ModuleConfig::getConfigValue)
+                .orElse(environmentKeys.getDefaultValue());
+    }
+
     public void setCommonConfigValue(long moduleId, String key, String value) {
         ModuleConfig commonConfig = getModuleConfig(moduleId, key, ModuleConfigTypeEnum.COMMON, true);
         if (commonConfig == null) {
@@ -361,18 +371,18 @@ public class ModuleConfigService extends BaseService<ModuleConfig, ModuleConfigM
     }
 
     public List<ModuleConfig> listCommonConfigValue(long moduleId, List<String> keys) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type",ModuleConfigTypeEnum.COMMON.getType())
-                .in("config_key", keys);
+        Query query = this.query()
+                .eq(ModuleConfig::getModuleId, moduleId)
+                .eq(ModuleConfig::getType, ModuleConfigTypeEnum.COMMON.getType())
+                .in(ModuleConfig::getConfigKey, keys);
         return list(query);
     }
 
     public ModuleConfig getModuleConfig(long moduleId, String key, ModuleConfigTypeEnum type, boolean forceQuery) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("type", type.getType())
-                .eq("config_key", key);
+        Query query = this.query()
+                .eq(ModuleConfig::getModuleId, moduleId)
+                .eq(ModuleConfig::getType, type.getType())
+                .eq(ModuleConfig::getConfigKey, key);
         if (forceQuery) {
             query.enableForceQuery();
         }

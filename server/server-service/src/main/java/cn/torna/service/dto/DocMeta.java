@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class DocMeta {
     private String dataId;
+    private String docKey;
     private String md5;
     private Byte isLocked;
 }

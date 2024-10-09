@@ -32,4 +32,6 @@ public class TornaViewProperties {
 
     private boolean enableLdap;
 
+    private boolean enableMeterSphere;
+
 }

@@ -1,6 +1,6 @@
 package cn.torna.service;
 
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.common.util.AppKeyUtil;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.OpenUser;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * @author tanghc
  */
 @Service
-public class OpenUserService extends BaseService<OpenUser, OpenUserMapper> {
+public class OpenUserService extends BaseLambdaService<OpenUser, OpenUserMapper> {
 
     private static final int SECRET_LEN = 32;
 
@@ -19,7 +19,7 @@ public class OpenUserService extends BaseService<OpenUser, OpenUserMapper> {
         if (appKey == null) {
             return null;
         }
-        return this.get("app_key", appKey);
+        return this.get(OpenUser::getAppKey, appKey);
     }
 
     public void createOpenUser(long spaceId, String applicant) {

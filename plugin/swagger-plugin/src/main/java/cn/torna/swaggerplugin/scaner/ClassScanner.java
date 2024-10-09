@@ -23,7 +23,7 @@ import org.springframework.util.ClassUtils;
  * @author tanghc
  */
 public class ClassScanner {
-	
+
 	private static final String RESOURCE_PATTERN = "/**/*.class";
 
 	private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
@@ -55,12 +55,12 @@ public class ClassScanner {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 将符合条件的Bean以Class集合的形式返回
-	 * 
+	 *
 	 * @return 返回Mapper的class集合
 	 * @throws IOException IO异常
 	 * @throws ClassNotFoundException 文件找不到异常
@@ -90,7 +90,7 @@ public class ClassScanner {
 
 	/**
 	 * 检查当前扫描到的Bean含有任何一个指定的注解标记
-	 * 
+	 *
 	 * @param reader
 	 * @param readerFactory
 	 * @return 返回true表示它是一个Mapper

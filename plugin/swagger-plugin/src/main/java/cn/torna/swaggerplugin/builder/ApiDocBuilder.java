@@ -31,8 +31,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cn.torna.swaggerplugin.util.PluginUtil.getGenericParamKey;
-
 /**
  * 解析文档信息
  * @author tanghc
@@ -215,23 +213,24 @@ public class ApiDocBuilder {
         if (clazz.isArray()) {
             return clazz.getComponentType();
         }
-        Class<?> targetClass = clazz;
-        Class<? extends Class> rawTypeClass = clazz.getClass();
-        Method getGenericInfo = ReflectionUtils.findMethod(rawTypeClass, PluginUtil.METHOD_GET_GENERIC_INFO);
-        if (getGenericInfo != null) {
-            ReflectionUtils.makeAccessible(getGenericInfo);
-            ClassRepository classRepository = (ClassRepository) ReflectionUtils.invokeMethod(getGenericInfo, clazz);
-            if (classRepository != null) {
-                TypeVariable<?>[] typeParameters = classRepository.getTypeParameters();
-                for (TypeVariable<?> typeParameter : typeParameters) {
-                    Class<?> realClass = getGenericParamClass(clazz, typeParameter.getName());
-                    if (realClass != null) {
-                        targetClass = realClass;
-                        break;
-                    }
-                }
-            }
-        }
+        Class<?> targetClass = getGenericParamClass(clazz, clazz.getName());
+//        Class<?> targetClass = clazz;
+//        Class<? extends Class> rawTypeClass = clazz.getClass();
+//        Method getGenericInfo = ReflectionUtils.findMethod(rawTypeClass, PluginUtil.METHOD_GET_GENERIC_INFO);
+//        if (getGenericInfo != null) {
+//            ReflectionUtils.makeAccessible(getGenericInfo);
+//            ClassRepository classRepository = (ClassRepository) ReflectionUtils.invokeMethod(getGenericInfo, clazz);
+//            if (classRepository != null) {
+//                TypeVariable<?>[] typeParameters = classRepository.getTypeParameters();
+//                for (TypeVariable<?> typeParameter : typeParameters) {
+//                    Class<?> realClass = getGenericParamClass(clazz, typeParameter.getName());
+//                    if (realClass != null) {
+//                        targetClass = realClass;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
         return targetClass;
     }
 
@@ -305,7 +304,7 @@ public class ApiDocBuilder {
     }
 
     protected Class<?> getGenericParamClass(Class<?> clazz, String name) {
-        String genericParamKey = getGenericParamKey(clazz, name);
+        String genericParamKey = PluginUtil.getGenericParamKey(clazz, name);
         return genericParamMap.get(genericParamKey);
     }
 
@@ -395,7 +394,7 @@ public class ApiDocBuilder {
         if (Collection.class.isAssignableFrom(type)) {
             Type genericType = field.getGenericType();
             return genericType.getTypeName().contains(multipartFile) ?
-                    DataType.FILES.getValue() : 
+                    DataType.FILES.getValue() :
                     DataType.ARRAY.getValue();
         }
         if (type.isArray()) {

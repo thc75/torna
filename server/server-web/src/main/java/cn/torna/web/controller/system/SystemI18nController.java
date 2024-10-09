@@ -10,13 +10,11 @@ import cn.torna.service.SystemI18nConfigService;
 import cn.torna.web.controller.admin.vo.SystemI18nVO;
 import cn.torna.web.controller.system.vo.LangVO;
 import com.alibaba.fastjson.JSONObject;
-import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ public class SystemI18nController {
     @GetMapping("lang/list")
     public Result<List<SystemI18nVO>> listLang() {
         List<SystemI18nConfig> systemI18nConfigs = systemI18nConfigService.getMapper()
-                .listBySpecifiedColumns(Arrays.asList("id", "lang", "description"), new Query());
+                .listAll(SystemI18nConfig::getId, SystemI18nConfig::getLang, SystemI18nConfig::getDescription);
         List<SystemI18nVO> systemI18nLangVOS = CopyUtil.copyList(systemI18nConfigs, SystemI18nVO::new);
         return Result.ok(systemI18nLangVOS);
     }

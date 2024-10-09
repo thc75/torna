@@ -1,7 +1,7 @@
 package cn.torna.dao.mapper;
 
 import cn.torna.dao.entity.ModuleEnvironmentParam;
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 
 /**
  * 表名：module_environment_param
@@ -9,6 +9,6 @@ import com.gitee.fastmybatis.core.mapper.CrudMapper;
  *
  * @author tanghc
  */
-public interface ModuleEnvironmentParamMapper extends CrudMapper<ModuleEnvironmentParam, Long> {
+public interface ModuleEnvironmentParamMapper extends BaseMapper<ModuleEnvironmentParam> {
 	
 }

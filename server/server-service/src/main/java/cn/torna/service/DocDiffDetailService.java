@@ -4,7 +4,7 @@ import cn.torna.common.annotation.Diff;
 import cn.torna.common.bean.Configs;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.enums.PositionType;
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.DocDiffDetail;
 import cn.torna.dao.entity.DocDiffRecord;
 import cn.torna.dao.mapper.DocDiffDetailMapper;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class DocDiffDetailService extends BaseService<DocDiffDetail, DocDiffDetailMapper> {
+public class DocDiffDetailService extends BaseLambdaService<DocDiffDetail, DocDiffDetailMapper> {
 
     /**
      * 比较两个文档对象不同的地方

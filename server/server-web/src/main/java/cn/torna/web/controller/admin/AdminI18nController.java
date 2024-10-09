@@ -11,7 +11,6 @@ import cn.torna.web.controller.admin.param.SystemI18nConfigParam;
 import cn.torna.web.controller.admin.vo.SystemI18nVO;
 import cn.torna.web.controller.doc.vo.IdVO;
 import cn.torna.web.controller.system.param.IdParam;
-import com.gitee.fastmybatis.core.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,8 +44,7 @@ public class AdminI18nController {
 
     @GetMapping("lang/list")
     public Result<List<SystemI18nVO>> listLang() {
-        List<SystemI18nConfig> systemI18nConfigs = systemI18nConfigService.getMapper()
-                .listBySpecifiedColumns(Arrays.asList("id", "lang", "description"), new Query());
+        List<SystemI18nConfig> systemI18nConfigs = systemI18nConfigService.listAll(SystemI18nConfig::getId, SystemI18nConfig::getLang, SystemI18nConfig::getDescription);
         List<SystemI18nVO> systemI18nLangVOS = CopyUtil.copyList(systemI18nConfigs, SystemI18nVO::new);
         return Result.ok(systemI18nLangVOS);
     }

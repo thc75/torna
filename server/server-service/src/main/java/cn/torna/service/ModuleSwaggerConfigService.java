@@ -2,15 +2,16 @@ package cn.torna.service;
 
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ModuleSwaggerConfig;
+import cn.torna.dao.mapper.ModuleSwaggerConfigMapper;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
-import com.gitee.fastmybatis.core.support.IService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 
 /**
  * @author tanghc
  */
 @Service
-public class ModuleSwaggerConfigService implements IService<ModuleSwaggerConfig, Long> {
+public class ModuleSwaggerConfigService extends BaseLambdaService<ModuleSwaggerConfig, ModuleSwaggerConfigMapper> {
 
     public void create(ImportSwaggerV2DTO importSwaggerV2DTO, String content, Module module) {
         ModuleSwaggerConfig moduleSwaggerConfig = getByModuleId(module.getId());
@@ -23,15 +24,15 @@ public class ModuleSwaggerConfigService implements IService<ModuleSwaggerConfig,
         moduleSwaggerConfig.setAuthUsername(importSwaggerV2DTO.getAuthUsername());
         moduleSwaggerConfig.setAuthPassword(importSwaggerV2DTO.getAuthPassword());
         if (moduleSwaggerConfig.getId() == null) {
-            this.saveIgnoreNull(moduleSwaggerConfig);
+            this.save(moduleSwaggerConfig);
         } else {
-            this.updateIgnoreNull(moduleSwaggerConfig);
+            this.update(moduleSwaggerConfig);
         }
 
     }
 
     public ModuleSwaggerConfig getByModuleId(Long moduleId) {
-        return getByColumn("module_id", moduleId);
+        return get(ModuleSwaggerConfig::getModuleId, moduleId);
     }
 
 }

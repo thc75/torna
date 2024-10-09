@@ -1,15 +1,13 @@
 package cn.torna.manager.doc.postman;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
 /**
  * @author tanghc
  */
-@Getter
-@Setter
+@Data
 public class Request {
 
     private String method;

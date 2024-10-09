@@ -27,5 +27,5 @@ public class ApiParamInfo {
     String example;
 
     int position;
-    
+
 }

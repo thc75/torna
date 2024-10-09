@@ -1,5 +1,7 @@
 package cn.torna.web.config;
 
+import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.context.SpringContext;
@@ -9,10 +11,10 @@ import cn.torna.common.exception.JwtExpiredException;
 import cn.torna.common.exception.LoginFailureException;
 import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.JwtUtil;
+import cn.torna.service.UserInfoService;
 import com.auth0.jwt.interfaces.Claim;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -29,9 +31,10 @@ import java.util.function.Supplier;
 @Slf4j
 public class UserContext {
 
-    public static final String HEADER_TOKEN = "Authorization";
+    public static final String HEADER_TOKEN_OLD = "Authorization";
+    public static final String HEADER_TOKEN = "token";
     public static final String JWT_PREFIX = "Bearer ";
-    private static final String SECRET_KEY = "torna.jwt.secret";
+
 
 
     private static Supplier<String> tokenGetter = () -> {
@@ -71,6 +74,9 @@ public class UserContext {
 
     public static String getToken(HttpServletRequest request) {
         String token = request.getHeader(HEADER_TOKEN);
+        if (StringUtils.isEmpty(token)) {
+            token = request.getHeader(HEADER_TOKEN_OLD);
+        }
         if (StringUtils.hasText(token) && token.startsWith(JWT_PREFIX)) {
             return token.substring(JWT_PREFIX.length());
         }
@@ -97,8 +103,7 @@ public class UserContext {
         String[] tokenArr = token.split(":");
         String userIdStr = tokenArr[0];
         String jwt = tokenArr[1];
-        Environment environment = SpringContext.getBean(Environment.class);
-        String secret = environment.getProperty(SECRET_KEY);
+        String secret = UserInfoService.getJwtSecret();
         Map<String, Claim> data = null;
         Long userIdDecoded = IdUtil.decode(userIdStr);
         // verify jwt
@@ -112,6 +117,7 @@ public class UserContext {
         long userId = verifyUserId(id, userIdDecoded);
         return SpringContext.getBean(UserCacheManager.class).getUser(userId);
     }
+
 
     /**
      * verify userId in token

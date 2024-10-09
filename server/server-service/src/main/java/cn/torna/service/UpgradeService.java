@@ -4,12 +4,14 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.DocStatusEnum;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.PasswordUtil;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.ColumnInfo;
 import cn.torna.dao.entity.ConstantInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.ModuleConfig;
 import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.mapper.ConstantInfoMapper;
 import cn.torna.dao.mapper.UpgradeMapper;
 import cn.torna.service.dto.DocParamDTO;
@@ -17,16 +19,18 @@ import cn.torna.service.dto.ModuleEnvironmentParamDTO;
 import cn.torna.service.dto.SystemConfigDTO;
 import com.gitee.fastmybatis.core.query.Query;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +46,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 12500;
+    private static final int VERSION = 12902;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -64,21 +68,82 @@ public class UpgradeService {
     @Resource
     private ConstantInfoMapper errorCodeInfoMapper;
 
+    @Resource
+    private DocDiffRecordService docDiffRecordService;
+
+    @Resource
+    private DocSnapshotService docSnapshotService;
+
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClass;
 
+    @Resource
+    private UserInfoService userInfoService;
+
+    @Value("${torna.password.salt:}")
+    private String salt;
+
+    @Value("${torna.jwt.secret:}")
+    private String jwtSecret;
 
     /**
      * 升级
      */
-    @Transactional(rollbackFor = Exception.class)
     public void upgrade() {
-        this.createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
+        createTable("system_config", "upgrade/1.3.3_ddl.txt", "upgrade/1.3.3_ddl_compatible.txt");
         int oldVersion = getVersion();
         doUpgrade(oldVersion);
         // 最后更新当前版本到数据库
         saveVersion(oldVersion);
+    }
+
+    private void initJwtSecret(int oldVersion) {
+        // 1.29.0开始随机生成jwt秘钥并保存在数据库中
+        int version = 12900;
+        String configKey = UserInfoService.SECRET_KEY;
+        String value = systemConfigService.getRawValue(configKey);
+        if (StringUtils.isBlank(value)) {
+            if (oldVersion >= version) {
+                value = PasswordUtil.getRandomSimplePassword(30);
+            } else {
+                value = jwtSecret;
+            }
+            systemConfigService.setConfig(configKey, value);
+        }
+    }
+
+    private void initPasswordSalt(int oldVersion) {
+        // 1.29.0开始随机生成salt并保存在数据库中
+        int version = 12900;
+        String configKey = UserInfoService.PASSWORD_SALT;
+        String value = systemConfigService.getRawValue(configKey);
+        if (StringUtils.isBlank(value)) {
+            if (oldVersion >= version) {
+                value = PasswordUtil.getRandomSimplePassword(13);
+                // insert super admin
+                this.insertAdmin(value);
+            } else {
+                value = salt;
+            }
+            systemConfigService.setConfig(configKey, value);
+        }
+    }
+
+    public void insertAdmin(String salt) {
+        UserInfo userInfo = userInfoService.getByUsername("admin");
+        if (userInfo != null) {
+            return;
+        }
+        String username = "admin";
+        String tpl = "INSERT INTO `user_info` ( `username`, `password`, `nickname`, `is_super_admin`) VALUES \n" +
+                "\t('%s','%s','%s',1);";
+        // 初始密码
+        String defPassword = "123456";
+        String password = DigestUtils.md5DigestAsHex(defPassword.getBytes(StandardCharsets.UTF_8));
+        String dbPassword = userInfoService.getDbPassword(username, password, salt);
+        String sql = String.format(tpl, username, dbPassword, username);
+        runSql(sql);
     }
 
     /**
@@ -87,6 +152,8 @@ public class UpgradeService {
      * @param oldVersion 本地老版本
      */
     private void doUpgrade(int oldVersion) {
+        this.initJwtSecret(oldVersion);
+        this.initPasswordSalt(oldVersion);
         // 对之前的版本会进行一次升级
         // 下次更新不会再运行
         if (oldVersion < 3) {
@@ -117,6 +184,87 @@ public class UpgradeService {
         v1_22_1(oldVersion);
         v1_24_0(oldVersion);
         v1_25_0(oldVersion);
+        v1_26_0(oldVersion);
+        v1_27_0(oldVersion);
+        v1_28_0(oldVersion);
+        v1_29_0(oldVersion);
+        v1_29_2(oldVersion);
+    }
+
+    private void v1_29_2(int oldVersion) {
+        int version = 12902;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("ms_space_config", "version",
+                    "ALTER TABLE `ms_space_config` ADD COLUMN `version` int(11) NOT NULL DEFAULT '1' COMMENT '版本，1：2.x，2：3.x';");
+            log.info("Upgrade {} finished.", version);
+        }
+    }
+
+    private void v1_29_0(int oldVersion) {
+        int version = 12900;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            createTable("project_release", "upgrade/1.29.0_ddl_1.txt");
+            createTable("project_release_doc", "upgrade/1.29.0_ddl_2.txt");
+            log.info("Upgrade {} finished.", version);
+        }
+    }
+
+    private void v1_28_0(int oldVersion) {
+        if (oldVersion < 12800) {
+            log.info("Upgrade version to 1.28.0");
+            createTable("gen_template", "upgrade/1.28.0_ddl.txt");
+            log.info("Upgrade 1.28.0 finished.");
+        }
+    }
+
+    private void v1_27_0(int oldVersion) {
+        if (oldVersion < 12700) {
+            log.info("Upgrade version to 1.27.0");
+            // 添加表字段 分享配置表新增字段 `过期时间`
+            addColumn("share_config", "expiration_time",
+                    "ALTER TABLE `share_config` ADD COLUMN `expiration_time` date COMMENT '过期时间。null:永久有效' AFTER `password`;");
+
+            log.info("Upgrade 1.27.0 finished.");
+        }
+    }
+
+
+    private void v1_26_0(int oldVersion) {
+        if (oldVersion < 12600) {
+            log.info("Upgrade version to 1.26.0");
+            // 添加表字段
+            addColumn("doc_diff_record", "doc_key",
+                    "ALTER TABLE `doc_diff_record` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
+
+            addColumn("doc_snapshot", "doc_key",
+                    "ALTER TABLE `doc_snapshot` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `doc_id`;");
+
+            addColumn("doc_info", "doc_key",
+                    "ALTER TABLE `doc_info` ADD COLUMN `doc_key` varchar(64) NOT NULL DEFAULT '' COMMENT '文档唯一key' AFTER `data_id`;");
+
+            // 填充数据，可重复执行
+            docInfoService.fillDocKey();
+            docDiffRecordService.fillDocKey();
+            docSnapshotService.fillDocKey();
+
+            // 创建表
+            createTable("ms_space_config", "upgrade/1.26.0_ddl_1.txt");
+            createTable("ms_module_config", "upgrade/1.26.0_ddl_2.txt");
+
+            // 添加索引
+            runSqlIgnoreError("ALTER TABLE `doc_info` " +
+                    "ADD INDEX `idx_parentid`(`parent_id`) USING BTREE," +
+                    "ADD INDEX `idx_dockey`(`doc_key`) USING BTREE;");
+            // 修改字段长度
+            runSqlIgnoreError("ALTER TABLE `doc_snapshot` MODIFY COLUMN `content` longtext NULL COMMENT '修改内容' AFTER `modifier_time`;");
+            runSqlIgnoreError("ALTER TABLE `mock_config` MODIFY COLUMN `name` varchar(128) NOT NULL DEFAULT '' COMMENT '名称' AFTER `id`;");
+            // 添加字段
+            runSqlIgnoreError("ALTER TABLE `mock_config` ADD COLUMN `version` int(11) NULL DEFAULT 0 COMMENT 'mock版本' AFTER `data_id`;");
+
+            log.info("Upgrade 1.26.0 finished.");
+        }
     }
 
     private void v1_25_0(int oldVersion) {
@@ -134,7 +282,7 @@ public class UpgradeService {
             createTable("debug_script", "upgrade/1.24.0_ddl_debug_script.txt");
             createTable("doc_diff_record", "upgrade/1.24.0_ddl_doc_diff_record.txt");
             createTable("doc_diff_detail", "upgrade/1.24.0_ddl_doc_diff_detail.txt");
-            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.DONE.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
+            addColumn("doc_info", "status", "ALTER TABLE `doc_info` ADD COLUMN `status` TINYINT NULL DEFAULT '" + DocStatusEnum.DOING.getStatus() + "' COMMENT '文档状态,见：DocStatusEnum' AFTER `is_locked`");
             try {
                 runSql("ALTER TABLE `module_config` CHANGE COLUMN `config_value` `config_value` VARCHAR(256) NOT NULL DEFAULT '' COMMENT '配置值' AFTER `config_key`");
                 runSql("INSERT INTO `system_config`(`config_key`, `config_value`, `remark`) VALUES ('front.param.type-array', '[\"string\",\"number\",\"boolean\",\"object\",\"array\",\"num_array\",\"str_array\",\"file\",\"file[]\",\"enum\"]', '参数类型配置');");
@@ -326,14 +474,10 @@ public class UpgradeService {
 
     private void v1_8_0(int oldVersion) {
         if (oldVersion < 9) {
-            try {
-                // 添加索引
-                runSql("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
-                runSql("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
-                runSql("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
-            } catch (Exception e) {
-                // ignore
-            }
+            // 添加索引
+            runSqlIgnoreError("CREATE INDEX `idx_spaceid` USING BTREE ON `project` (`space_id`)");
+            runSqlIgnoreError("CREATE INDEX `idx_userid` USING BTREE ON `project_user` (`user_id`)");
+            runSqlIgnoreError("CREATE INDEX `idx_userid` USING BTREE ON `space_user` (`user_id`)");
             addColumn("space", "is_compose", "ALTER TABLE `space` ADD COLUMN `is_compose` TINYINT(4) NOT NULL DEFAULT 0  COMMENT '是否组合空间' AFTER `modifier_name`");
             createTable("compose_doc", "upgrade/1.8.0_1_ddl.txt");
             createTable("compose_project", "upgrade/1.8.0_2_ddl.txt");
@@ -486,6 +630,17 @@ public class UpgradeService {
             sql = sql.replace("utf8mb4", "utf8");
         }
         upgradeMapper.runSql(sql);
+    }
+
+    protected void runSqlIgnoreError(String sql) {
+        if (isLowerVersion()) {
+            sql = sql.replace("utf8mb4", "utf8");
+        }
+        try {
+            upgradeMapper.runSql(sql);
+        } catch (Exception e) {
+            log.warn("运行SQL报错，可能已经存在索引或字段。(不影响程序运行)，sql={}, msg={}", sql, e.getMessage());
+        }
     }
 
     /**

@@ -128,13 +128,12 @@ function formatUri(uri) {
 
 export function get_headers() {
   return {
-    Authorization: get_token()
+    token: get_token()
   }
 }
 
 export function get_token() {
-  const token = getToken() || ''
-  return `Bearer ${token}`
+  return getToken() || ''
 }
 
 export function request(method, url, params, data, headers, isMultipart, callback, errorCall) {
@@ -198,6 +197,74 @@ export function doMultipart(url, params, data, headers, callback, errorCall) {
     .catch(error => {
       errorCall && errorCall.call(that, error)
     })
+}
+
+export function download(uri, params, errorCall) {
+  const that = this
+  const config = {
+    url: formatUri(uri),
+    method: 'get',
+    headers: get_headers(),
+    params: params,
+    paramsSerializer: args => {
+      return qs.stringify(args, { indices: false })
+    },
+    responseType: 'blob'
+  }
+  client.request(config).then(response => {
+    console.log(response)
+    downloadFile(response)
+  }).catch(error => {
+    errorCall && errorCall.call(that, error)
+  })
+}
+
+function downloadFile(response) {
+  const headers = response.headers
+  const contentType = getHeaderValue(headers, 'Content-Type') || ''
+  const contentDisposition = getHeaderValue(headers, 'Content-Disposition') || ''
+  if (contentType.indexOf('stream') > -1 || contentDisposition.indexOf('attachment') > -1) {
+    const filename = getDispositionFilename(contentDisposition)
+    const buffer = response.data
+    const blob = new Blob([buffer])
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', decodeURIComponent(filename))
+    document.body.appendChild(link)
+    link.click()
+  }
+}
+
+function getHeaderValue(headers, key) {
+  for (const k in headers) {
+    if (k.toLowerCase() === key.toLowerCase()) {
+      return headers[k]
+    }
+  }
+  return null
+}
+
+function getDispositionFilename(disposition) {
+  const dispositionArr = disposition.split(';')
+  for (let i = 0; i < dispositionArr.length; i++) {
+    const item = dispositionArr[i].trim()
+    // filename=xx.xls
+    if (item.toLowerCase().startsWith('filename')) {
+      const result = item.split('=')
+      if (result && result.length > 1) {
+        let filename = result[1]
+        if (filename.startsWith('\'') || filename.startsWith('\"')) {
+          filename = filename.substring(1)
+        }
+        if (filename.endsWith('\'') || filename.endsWith('\"')) {
+          filename = filename.substring(0, filename.length - 1)
+        }
+        return filename
+      }
+      return ''
+    }
+  }
 }
 
 /**

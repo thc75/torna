@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.RoleEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.ProjectUser;
 import cn.torna.dao.entity.Space;
@@ -16,11 +15,12 @@ import cn.torna.service.dto.SpaceDTO;
 import cn.torna.service.dto.SpaceInfoDTO;
 import cn.torna.service.dto.SpaceUserInfoDTO;
 import cn.torna.service.dto.UserInfoDTO;
+import com.gitee.fastmybatis.core.PageInfo;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.util.MapperUtil;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +28,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -41,9 +41,9 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class SpaceService extends BaseService<Space, SpaceMapper> {
+public class SpaceService extends BaseLambdaService<Space, SpaceMapper> {
 
-    @Autowired
+    @Resource
     private SpaceUserMapper spaceUserMapper;
 
     @Autowired
@@ -52,8 +52,9 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     @Transactional(rollbackFor = Exception.class)
     public Space addSpace(SpaceAddDTO spaceAddDTO) {
         String spaceName = spaceAddDTO.getName();
-        Query query = new Query().eq("creator_id", spaceAddDTO.getCreatorId())
-                .eq("name", spaceName);
+        Query query = this.query()
+                .eq(Space::getCreatorId, spaceAddDTO.getCreatorId())
+                .eq(Space::getName, spaceName);
         Space existGroup = this.get(query);
         Assert.isNull(existGroup, () -> spaceName + "已存在");
         Space space = new Space();
@@ -72,8 +73,9 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 添加空间用户
-     * @param spaceId 空间id
-     * @param userIds 用户id列表
+     *
+     * @param spaceId  空间id
+     * @param userIds  用户id列表
      * @param roleEnum 角色
      */
     public void addSpaceUser(long spaceId, List<Long> userIds, RoleEnum roleEnum) {
@@ -91,39 +93,42 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 修改空间用户角色
-     * @param spaceId spaceId
-     * @param userId userId
+     *
+     * @param spaceId  spaceId
+     * @param userId   userId
      * @param roleEnum 角色
      */
     public void updateSpaceUserRole(long spaceId, long userId, RoleEnum roleEnum) {
         Assert.notNull(roleEnum, () -> "角色不能为空");
-        Map<String, Object> set = new HashMap<>(4);
-        set.put("role_code", roleEnum.getCode());
-        Query query = new Query().eq("space_id", spaceId)
-                .eq("user_id", userId);
-        spaceUserMapper.updateByMap(set, query);
+        LambdaQuery<SpaceUser> query = spaceUserMapper.query();
+        query.set(SpaceUser::getRoleCode, roleEnum.getCode())
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .eq(SpaceUser::getUserId, userId);
+
+        spaceUserMapper.update(query);
     }
 
     /**
      * 获取空间下的用户
-     * @param spaceId 空间id
-     * @param username 查询用户
+     *
+     * @param spaceId   空间id
+     * @param username  查询用户
      * @param pageParam 分页信息
      * @return
      */
-    public PageEasyui<SpaceUserInfoDTO> pageSpaceUser(Long spaceId, String username, PageParam pageParam) {
-        PageEasyui spaceUserPageInfo = pageSpaceUser(spaceId, pageParam.getPageIndex(), pageParam.getPageSize());
+    public PageInfo<SpaceUserInfoDTO> pageSpaceUser(Long spaceId, String username, PageParam pageParam) {
+        PageInfo spaceUserPageInfo = pageSpaceUser(spaceId, pageParam.getPageIndex(), pageParam.getPageSize());
         if (spaceUserPageInfo == null) {
-            return new PageEasyui<>();
+            return new PageInfo<>();
         }
-        Map<Long, SpaceUser> userIdMap = ((PageEasyui<SpaceUser>)spaceUserPageInfo).getRows().stream()
+        Map<Long, SpaceUser> userIdMap = ((PageInfo<SpaceUser>) spaceUserPageInfo).getList().stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
-        Query query = new Query();
-        query.in("id", userIdMap.keySet());
+        LambdaQuery<UserInfo> query = userInfoService.query();
+        query.in(UserInfo::getId, userIdMap.keySet());
         if (StringUtils.hasText(username)) {
-            query.and(q -> q.like("username", username)
-                    .orLike("nickname", username)
-                    .orLike("email", username)
+            query.andLambda(q -> q.like(UserInfo::getUsername, username)
+                    .orLike(UserInfo::getNickname, username)
+                    .orLike(UserInfo::getEmail, username)
             );
         }
         List<UserInfo> userInfos = userInfoService.list(query);
@@ -141,6 +146,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 查询空间用户
+     *
      * @param spaceId
      * @param username 右边匹配 like 'xx%'
      * @return
@@ -152,12 +158,12 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         List<SpaceUser> spaceUsers = listSpaceUser(spaceId);
         Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
-        Query query = new Query();
-        query.in("id", userIdMap.keySet());
-        query.and(q -> q.like("username", username)
-                    .orLike("nickname", username)
-                    .orLike("email", username)
-            );
+        LambdaQuery<UserInfo> query = userInfoService.query();
+        query.in(UserInfo::getId, userIdMap.keySet());
+        query.andLambda(q -> q.like(UserInfo::getUsername, username)
+                .orLike(UserInfo::getNickname, username)
+                .orLike(UserInfo::getEmail, username)
+        );
 
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);
@@ -165,6 +171,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 查询空间用户
+     *
      * @param spaceId
      * @return
      */
@@ -172,9 +179,9 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         List<SpaceUser> spaceUsers = listSpaceUser(spaceId);
         Map<Long, SpaceUser> userIdMap = spaceUsers.stream()
                 .collect(Collectors.toMap(SpaceUser::getUserId, Function.identity()));
-        Query query = new Query();
-        query.in("id", userIdMap.keySet())
-                .orderby("id", Sort.DESC);
+        Query query = userInfoService.query()
+                .in(UserInfo::getId, userIdMap.keySet())
+                .orderBy(UserInfo::getId, Sort.DESC);
 
         List<UserInfo> userInfoList = userInfoService.list(query);
         return CopyUtil.copyList(userInfoList, UserInfoDTO::new);
@@ -190,13 +197,14 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 移除空间成员
+     *
      * @param spaceId 空间id
-     * @param userId 空间用户
+     * @param userId  空间用户
      */
     public void removeMember(long spaceId, long userId) {
-        Query query = new Query()
-                .eq("space_id", spaceId)
-                .eq("user_id", userId);
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .eq(SpaceUser::getUserId, userId);
         spaceUserMapper.forceDeleteByQuery(query);
     }
 
@@ -204,21 +212,23 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         if (spaceId == null || userId == null) {
             return null;
         }
-        Query query = new Query().eq("space_id", spaceId)
-                .eq("user_id", userId);
-        return spaceUserMapper.getByQuery(query);
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .eq(SpaceUser::getUserId, userId);
+        return spaceUserMapper.get(query);
     }
 
 
     /**
      * 查询空间管理员信息
+     *
      * @param spaceId
      * @return
      */
     public List<UserInfoDTO> listSpaceAdmin(long spaceId) {
-        Query query = new Query()
-                .eq("space_id", spaceId)
-                .eq("role_code", RoleEnum.ADMIN.getCode())
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .eq(SpaceUser::getRoleCode, RoleEnum.ADMIN.getCode())
                 .setQueryAll(true);
         List<SpaceUser> spaceLeaders = spaceUserMapper.list(query);
         List<Long> adminIds = CopyUtil.copyList(spaceLeaders, SpaceUser::getUserId);
@@ -227,6 +237,7 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
 
     /**
      * 获取空间管理员用户id
+     *
      * @param spaceId 空间
      * @return 返回用户id
      */
@@ -241,43 +252,46 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
         if (spaceId == null) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .eq("space_id", spaceId)
-                .orderby("gmt_create", Sort.DESC);
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .orderBy(SpaceUser::getGmtCreate, Sort.DESC);
         return spaceUserMapper.list(query);
     }
 
-    public PageEasyui<SpaceUser> pageSpaceUser(Long spaceId, int pageIndex, int pageSize) {
+    public PageInfo<SpaceUser> pageSpaceUser(Long spaceId, int pageIndex, int pageSize) {
         if (spaceId == null) {
             return null;
         }
-        Query query = new Query()
-                .eq("space_id", spaceId)
-                .orderby("gmt_create", Sort.DESC)
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .orderBy(SpaceUser::getGmtCreate, Sort.DESC)
                 .page(pageIndex, pageSize);
-        return MapperUtil.queryForEasyuiDatagrid(spaceUserMapper, query);
+        return spaceUserMapper.page(query);
     }
 
     /**
      * 返回用户所在的空间
+     *
      * @param userId 用户
      * @return 返回用户空间
      */
     public List<SpaceUser> listUserSpace(long userId) {
-        return spaceUserMapper.listByColumn("user_id", userId);
+        return spaceUserMapper.list(SpaceUser::getUserId, userId);
     }
 
     /**
      * 查询用户可以访问的空间
+     *
      * @param user 用户
      * @return 返回空间信息
      */
     public List<SpaceDTO> listSpace(User user) {
         if (user.isSuperAdmin()) {
-            return this.listAll(SpaceDTO::new);
+            List<Space> list = this.list(new Query());
+            return CopyUtil.copyList(list, SpaceDTO::new);
         }
         List<Long> spaceIds;
-        List<SpaceUser> spaceUserList = spaceUserMapper.listByColumn("user_id", user.getUserId());
+        List<SpaceUser> spaceUserList = spaceUserMapper.list(SpaceUser::getUserId, user.getUserId());
         if (CollectionUtils.isEmpty(spaceUserList)) {
             return Collections.emptyList();
         }
@@ -285,27 +299,29 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
                 .map(SpaceUser::getSpaceId)
                 .collect(Collectors.toList());
 
-        Query query = new Query()
-                .in("id", spaceIds);
-        List<Space> spaces = this.listAll(query);
+        Query query = this.query()
+                .in(Space::getId, spaceIds);
+        List<Space> spaces = this.list(query);
         return CopyUtil.copyList(spaces, SpaceDTO::new);
     }
 
     /**
      * 清理空间已删除的用户
+     *
      * @param spaceId 空间id
      */
     public void cleanDeletedUser(long spaceId) {
-        Query query = new Query()
-                .eq("space_id", spaceId)
-                .eq("is_deleted", Booleans.TRUE);
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .eq(SpaceUser::getIsDeleted, Booleans.TRUE);
         spaceUserMapper.forceDeleteByQuery(query);
     }
 
     /**
      * 转移项目成员到新空间
+     *
      * @param projectUsers 项目用户
-     * @param spaceIdNew 目标空间
+     * @param spaceIdNew   目标空间
      */
     public void transformSpaceUser(List<ProjectUser> projectUsers, long spaceIdNew) {
         this.cleanDeletedUser(spaceIdNew);
@@ -331,14 +347,14 @@ public class SpaceService extends BaseService<Space, SpaceMapper> {
     }
 
 
-
     /**
      * 移除空间成员
+     *
      * @param userId 空间用户
      */
     public void removeMember(long userId) {
-        Query query = new Query()
-                .eq("user_id", userId);
+        Query query = spaceUserMapper.query()
+                .eq(SpaceUser::getUserId, userId);
         spaceUserMapper.forceDeleteByQuery(query);
     }
 

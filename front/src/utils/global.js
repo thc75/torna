@@ -3,7 +3,7 @@
  */
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
-import { do_get, get, get_base_url, get_server_url, get_file, post } from './http'
+import { do_get, get, get_base_url, get_server_url, get_file, post, download } from './http'
 import {
   convert_tree,
   create_response_example,
@@ -99,6 +99,15 @@ Object.assign(Vue.prototype, {
    */
   post: function(uri, data, callback, errorCallback) {
     post.call(this, uri, data, callback, errorCallback)
+  },
+  /**
+   * 下载文件
+   * @param uri path
+   * @param data data
+   * @param callback 错误回调
+   */
+  download(uri, data, callback) {
+    download(uri, data, callback);
   },
   getEnums() {
     return Enums

@@ -20,6 +20,11 @@ export default {
   'queryParam': 'Query参数',
   'modifier': '修改人',
   'changeHistory': '变更历史',
+  'codeGenerate': '代码生成',
+  'generate': '生成',
+  'generateResult': '生成结果',
+  'copyCode': '复制代码',
+  'copyAndClose': '复制并关闭',
   'script': '脚本',
   'preScriptTip': '请求前预处理，可动态修改请求参数等信息',
   'afterScriptTip': '请求后处理结果，可动态修改返回内容',
@@ -37,6 +42,7 @@ export default {
   'userMsgReadAll': '全部标记已读',
   'userMsgCenter': '消息中心',
   'userMsgNoMsg': '暂没有新消息',
+  'clearPushMsg': '清空推送消息',
   'viewDoc': '查看文档',
   'setRead': '标记已读',
   'userCenter': '个人中心',
@@ -58,6 +64,7 @@ export default {
   'projectList': '项目列表',
   'spaceInfo': '空间信息',
   'spaceMember': '空间成员',
+  'spaceSetting': '空间设置',
   'openUser': '开放用户',
   'apiDoc': '接口文档',
   'projectInfo': '项目信息',
@@ -83,6 +90,8 @@ export default {
   'loginSubmit': '登 录',
   'search': '查询',
   'addMember': '添加成员',
+  'addRelease': '添加版本',
+  'updateRelease': '修改版本',
   'member': '成员',
   'me': '我',
   'role': '角色',
@@ -119,6 +128,7 @@ export default {
   'apiFilter': '过滤: 支持ID、名称、路径',
   'refreshTable': '刷新表格',
   'export': '导出',
+  'import': '导入',
   'docName': '文档名称',
   'hidden': '隐藏',
   'modifierName': '最后修改人',
@@ -217,6 +227,10 @@ export default {
   'shareUrl': '分享链接',
   'shareDoc': '分享文档',
   'shareStyle': '分享形式',
+  'expirationTime': '过期时间',
+  'permanentValidity': '永久有效',
+  'permanentValidityTip': '留空表示永不过期',
+  'expirationTimePicker': '请选择日期',
   'encryption': '加密',
   'deleteRowConfirm': '确定要删除此记录吗',
   'remark': '备注',
@@ -378,9 +392,14 @@ export default {
   'managementModel': '管理模式',
   'document': '文档',
   'systemSetting': '系统设置',
+  'templateSetting': '模板设置',
   'language': '语言',
   'docTabView': '标签导航',
   'nickEmail': '昵称/邮箱',
+  'releaseNo': '版本号',
+  'releaseDesc': '版本描述',
+  'viewAssociatedDocuments': '查看关联版本',
+  'associatedDocument': '关联文档',
   'visitStyle': '访问方式',
   'updateName': '修改名称',
   'visitUrl': '访问链接',
@@ -438,6 +457,7 @@ export default {
   'grid': '列表',
   'card': '卡片',
   'constManager': '常量管理',
+  'releaseManager': '版本管理',
   'projectConstant': '项目常量',
   'applicationConstant': '应用常量',
   'viewConst': '查看常量',
@@ -454,6 +474,9 @@ export default {
   'comment': '评论',
   'commentPlaceholder': '在此输入评论内容...',
   'previousVersion': '上一版',
+  'valid': '有效',
+  'invalid': '无效',
+  'bindingApiDoc': '绑定接口文档',
   // ---- common end ----
   // ---- 组件特有的，key表示组件名称(文件夹名称) ----
   RichTextEditor: {
@@ -509,7 +532,9 @@ export default {
     'printPushContent': '打印推送内容',
     'printPushContentTip': '推送内容在 {安装目录}/log/server.log',
     'contentOverride': '内容覆盖',
-    'contentOverrideTip': '是：局部推送(可推送若干个文档，不影响其它文档)，否：全量替换(默认)'
+    'contentOverrideTip': '是：局部推送(可推送若干个文档，不影响其它文档)，否：全量替换(默认)',
+    'defaultStatus': '默认状态',
+    'defaultStatusTip': '文档推送后默认状态'
   },
   AdminUser: {
     'allocateProject': '分配项目',
@@ -518,12 +543,12 @@ export default {
   DingDingSetting: {
     'dingdingWebhookUrl': '钉钉群机器人推送URL（Webhook）',
     'dingdingWebhookUrlPlacehoder': '输入完整带token参数的url',
-    'dingdingWebhookUrlTip': '当文档变更时推送消息到钉钉群。需要创建自定义机器人，添加关键字：文档',
+    'dingdingWebhookUrlTip': '当文档变更时推送消息到钉钉群。需要创建自定义机器人，添加关键字：文档'
   },
   WeComSetting: {
     'weComWebhookUrl': '企业微信群机器人推送URL（Webhook）',
     'weComWebhookUrlPlacehoder': '输入完整带token参数的url',
-    'weComWebhookUrlTip': '当文档变更时推送消息到企业微信群。需要创建自定义机器人，添加关键字：文档',
+    'weComWebhookUrlTip': '当文档变更时推送消息到企业微信群。'
   },
   UserInfo: {
     'bindDingDingTip': '使用钉钉App扫一扫进行账号绑定'
@@ -531,7 +556,8 @@ export default {
   ModuleSetting: {
     'weComSetting': '企业微信配置',
     'dingdingSetting': '钉钉配置',
-    'swaggerSetting': 'Swagger设置'
+    'swaggerSetting': 'Swagger设置',
+    'meterSphereSetting': 'MeterSphere设置'
   },
   DocChangelog: {
     confirmRestore: '确认还原到此版本吗？'

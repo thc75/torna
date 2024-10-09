@@ -4,6 +4,7 @@ import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -23,6 +24,9 @@ public class ShareConfigVO {
 
     /** 状态，1：有效，0：无效, 数据库字段：status */
     private Byte status;
+
+    /**  过期时间 如果是null 显示永久有效 */
+    private LocalDate expirationTime;
 
     /** module.id, 数据库字段：module_id */
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)

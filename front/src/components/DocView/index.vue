@@ -2,7 +2,7 @@
   <div v-show="docInfo.id || docInfo.isPreview" class="doc-view">
     <div class="doc-title">
       <h2 class="doc-title">
-        <span :class="{ 'deprecated': isDeprecated }">{{ docInfo.docName }}</span>
+        <span :class="{ 'deprecated': isDeprecated }" style="color: #303133;">{{ docInfo.docName }}</span>
         <doc-status-tag class="el-tag-method" :status="docInfo.status" />
         <span v-show="docInfo.id" class="doc-id">ID：{{ docInfo.id }}</span>
         <el-tooltip placement="top" :content="isSubscribe ? $t('cancelSubscribe') : $t('clickSubscribe')">
@@ -16,6 +16,11 @@
           />
         </el-tooltip>
         <div v-show="showOptBar" class="show-opt-bar" style="float: right;">
+          <div class="item">
+            <el-tooltip placement="top" :content="$t('codeGenerate')">
+              <el-button type="text" icon="el-icon-finished" @click="onCodeGen"></el-button>
+            </el-tooltip>
+          </div>
           <div class="item">
             <el-tooltip placement="top" :content="$t('changeHistory')">
               <el-button type="text" icon="el-icon-date" @click="onShowHistory"></el-button>
@@ -49,8 +54,8 @@
       <el-tag type="warning" class="el-tag-method">{{ $t('deprecated') }}</el-tag>
       <span class="tip">{{ docInfo.deprecated }}</span>
     </div>
-    <h4 v-if="docInfo.author">{{ $t('maintainer') }}<span class="content">{{ docInfo.author }}</span></h4>
-    <h4>URL</h4>
+    <h4 v-if="docInfo.author"><span>{{ $t('maintainer') }}</span><span class="content">{{ docInfo.author }}</span></h4>
+    <h4 class="tip"><span class="doc-label">URL</span></h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
         {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
@@ -73,10 +78,10 @@
       >{{ $t('copy') }}</el-tag>
     </div>
     <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
-      {{ $t('description') }}
+      <span class="doc-label">{{ $t('description') }}</span>
     </h4>
     <div v-show="docInfo.description" class="rich-editor" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
-    <h4 v-show="docInfo.contentType">ContentType<span class="content">{{ docInfo.contentType }}</span></h4>
+    <h4 v-show="docInfo.contentType"><span class="doc-label">ContentType</span><span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $t('pathVariable') }}</h4>
       <parameter-table
@@ -86,7 +91,7 @@
       />
     </div>
     <div v-if="docInfo.headerParams.length > 0">
-      <h4>{{ $t('requestHeader') }}</h4>
+      <h4><span class="doc-label">{{ $t('requestHeader') }}</span></h4>
       <parameter-table
         :data="docInfo.headerParams"
         :can-add-node="false"
@@ -94,7 +99,7 @@
         :empty-text="$t('noHeader')"
       />
     </div>
-    <h4>{{ $t('requestParams') }}</h4>
+    <h4><span class="doc-label">{{ $t('requestParams') }}</span></h4>
     <span v-show="docInfo.queryParams.length === 0 && docInfo.requestParams.length === 0" class="normal-text">{{ $t('empty') }}</span>
     <div v-show="docInfo.queryParams.length > 0">
       <h5>Query Parameter</h5>
@@ -106,33 +111,63 @@
       <parameter-table :data="docInfo.requestParams" :hidden-columns="requestParamHiddenColumns" />
     </div>
     <div v-show="isShowRequestExample">
-      <h4>{{ $t('requestExample') }}</h4>
-      <div class="code-box" @mouseenter="isShowRequestExampleCopy=true" @mouseleave="isShowRequestExampleCopy=false">
-        <pre class="code-block">{{ formatJson(requestExample) }}</pre>
+      <h4><span class="doc-label">{{ $t('requestExample') }}</span></h4>
+      <el-link type="primary" @click.stop="copy(formatJson(requestExample))">{{ $t('copy') }}</el-link>
+      <span class="split">|</span>
+      <el-popover
+        placement="right"
+        width="400"
+        trigger="click"
+      >
         <el-tag
-          v-show="isShowRequestExampleCopy"
           size="small"
           effect="plain"
-          class="code-copy"
-          @click.stop="copy(formatJson(requestExample))">{{ $t('copy') }}</el-tag>
-      </div>
+          class="copy-tag"
+          @click.stop="copy(requestTs)"
+        >
+          {{ $t('copyCode') }}
+        </el-tag>
+        <el-input
+          v-model="requestTs"
+          type="textarea"
+          :autosize="{ maxRows: 30 }"
+          readonly
+        />
+        <el-link slot="reference" type="primary" @click="onConvertRequestToTs()">Show TypeScript</el-link>
+      </el-popover>
+      <pre class="code-block">{{ formatJson(requestExample) }}</pre>
     </div>
-    <h4>{{ $t('responseParam') }}</h4>
+    <h4><span class="doc-label">{{ $t('responseParam') }}</span></h4>
     <el-alert v-if="docInfo.isResponseArray" :closable="false" show-icon :title="$t('objectArrayRespTip')" />
     <parameter-table v-show="!isResponseSingleValue" :data="docInfo.responseParams" :hidden-columns="responseParamHiddenColumns" />
     <div v-if="isResponseSingleValue">{{ responseSingleValue }}</div>
-    <h4>{{ $t('responseExample') }}</h4>
-    <div class="code-box" @mouseenter="isShowResponseSuccessExample=true" @mouseleave="isShowResponseSuccessExample=false">
-      <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
+    <h4><span class="doc-label">{{ $t('responseExample') }}</span></h4>
+    <el-link type="primary" @click.stop="copy(formatJson(responseSuccessExample))">{{ $t('copy') }}</el-link>
+    <span class="split">|</span>
+    <el-popover
+      placement="right"
+      width="400"
+      trigger="click"
+    >
       <el-tag
-        v-show="isShowResponseSuccessExample"
         size="small"
         effect="plain"
-        class="code-copy"
-        @click.stop="copy(formatJson(responseSuccessExample))">{{ $t('copy') }}</el-tag>
-    </div>
+        class="copy-tag"
+        @click.stop="copy(responseTs)"
+      >
+        {{ $t('copyCode') }}
+      </el-tag>
+      <el-input
+        v-model="responseTs"
+        type="textarea"
+        :autosize="{ maxRows: 30 }"
+        readonly
+      />
+      <el-link slot="reference" type="primary" @click="onConvertResponseToTs()">Show TypeScript</el-link>
+    </el-popover>
+    <pre class="code-block">{{ formatJson(responseSuccessExample) }}</pre>
     <div v-show="docInfo.errorCodeParams && docInfo.errorCodeParams.length > 0">
-      <h4>{{ $t('errorCode') }}</h4>
+      <h4><span class="doc-label">{{ $t('errorCode') }}</span></h4>
       <parameter-table
         :data="docInfo.errorCodeParams"
         :empty-text="$t('emptyErrorCode')"
@@ -156,6 +191,7 @@
     </el-dialog>
     <p></p>
     <doc-changelog-drawer ref="docChangelogDrawer" />
+    <code-gen-drawer ref="codeGenDrawer" />
     <const-view ref="constView" />
   </div>
 </template>
@@ -178,6 +214,10 @@ h4 .content {
   margin: 8px;
   cursor: pointer;
 }
+.copy-tag {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
 </style>
 <script>
 import DocStatusTag from '@/components/DocStatusTag'
@@ -186,12 +226,14 @@ import ParameterTable from '@/components/ParameterTable'
 import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '@/components/DocDiff'
 import ConstView from '@/components/ConstView'
+import CodeGenDrawer from '@/components/CodeGenDrawer'
 import ExportUtil from '@/utils/export'
+import { generate } from 'json2interface'
 import { get_effective_url, parse_root_array } from '@/utils/common'
 
 export default {
   name: 'DocView',
-  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer },
+  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer, CodeGenDrawer },
   props: {
     docId: {
       type: String,
@@ -282,7 +324,9 @@ export default {
       isShowDebugUrlCopy: false,
       isShowRequestExampleCopy: false,
       isShowResponseSuccessExample: false,
-      emptyContent: '<p><br></p>'
+      emptyContent: '<p><br></p>',
+      responseTs: '',
+      requestTs: ''
     }
   },
   computed: {
@@ -448,6 +492,19 @@ export default {
     },
     showConst() {
       this.$refs.constView.show(this.docInfo.moduleId)
+    },
+    onCodeGen() {
+      if (this.docInfo.id) {
+        this.$refs.codeGenDrawer.show(this.docInfo.id)
+      }
+    },
+    onConvertRequestToTs() {
+      const json = this.requestExample
+      this.requestTs = generate(this.formatJson(json))
+    },
+    onConvertResponseToTs() {
+      const json = this.responseSuccessExample
+      this.responseTs = generate(this.formatJson(json))
     }
   }
 }

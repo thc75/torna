@@ -35,5 +35,4 @@ cd $folder_name
 echo "启动Torna"
 
 # 重启并指定配置文件。
-# startup.sh脚本第一个参数可以写JVM参数
 sh startup.sh -Dspring.config.location=/etc/torna/application.properties

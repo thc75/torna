@@ -23,6 +23,9 @@ public class DocSnapshot {
     /** doc_info.id, 数据库字段：doc_id */
     private Long docId;
 
+    /** 唯一id，接口规则：md5(module_id:parent_id:url:http_method)。分类规则：md5(module_id:parent_id:name), 数据库字段：doc_key */
+    private String docKey;
+
     /** 文档md5 */
     private String md5;
 

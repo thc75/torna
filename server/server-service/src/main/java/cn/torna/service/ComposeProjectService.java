@@ -3,7 +3,6 @@ package cn.torna.service;
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.ComposeProjectTypeEnum;
 import cn.torna.common.enums.RoleEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.ComposeProject;
@@ -13,6 +12,7 @@ import cn.torna.service.dto.ComposeProjectAddDTO;
 import cn.torna.service.dto.ComposeProjectDTO;
 import cn.torna.service.dto.ComposeProjectUpdateDTO;
 import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author tanghc
  */
 @Service
-public class ComposeProjectService extends BaseService<ComposeProject, ComposeProjectMapper> {
+public class ComposeProjectService extends BaseLambdaService<ComposeProject, ComposeProjectMapper> {
 
     @Autowired
     private SpaceService spaceService;
@@ -36,8 +36,9 @@ public class ComposeProjectService extends BaseService<ComposeProject, ComposePr
      * @param projectAddDTO 项目信息
      */
     public void addProject(ComposeProjectAddDTO projectAddDTO) {
-        Query query = new Query().eq("space_id", projectAddDTO.getSpaceId())
-                .eq("name", projectAddDTO.getName());
+        Query query = this.query()
+                .eq(ComposeProject::getSpaceId, projectAddDTO.getSpaceId())
+                .eq(ComposeProject::getName, projectAddDTO.getName());
         ComposeProject exist = get(query);
         Assert.isNull(exist, () -> projectAddDTO.getName() + "已存在");
         ComposeProject project = CopyUtil.copyBean(projectAddDTO, ComposeProject::new);
@@ -97,7 +98,7 @@ public class ComposeProjectService extends BaseService<ComposeProject, ComposePr
      * @return 返回项目列表
      */
     private List<ComposeProject> listSpaceProject(long spaceId) {
-        return this.list("space_id", spaceId);
+        return this.list(ComposeProject::getSpaceId, spaceId);
     }
 
 }

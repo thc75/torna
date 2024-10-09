@@ -1,0 +1,12 @@
+CREATE TABLE `project_release_doc`  (
+    `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+    `project_id` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT 'project.id',
+    `release_id` bigint NOT NULL COMMENT 'project_release.id',
+    `module_id` bigint NOT NULL COMMENT 'module.id',
+    `source_id` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT 'doc_info.id',
+    `is_deleted` tinyint NOT NULL DEFAULT 0,
+    `gmt_create` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_projectid_releaseid_sourceid`(`project_id`, `release_id`, `source_id`) USING BTREE
+) ENGINE = InnoDB  COMMENT = '项目版本关联文档表';

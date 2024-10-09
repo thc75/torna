@@ -19,7 +19,7 @@
       {{ $t('addMember') }}
     </el-button>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -143,7 +143,7 @@ export default {
         pageSize: 20
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       },
       memberAddDlgShow: false,

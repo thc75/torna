@@ -1,7 +1,6 @@
 package cn.torna.swaggerplugin.bean;
 
 import io.swagger.annotations.ApiParam;
-import lombok.Data;
 
 import java.util.Optional;
 

@@ -9,12 +9,22 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * @author thc
  */
 public class SwaggerParserTest {
+
+    @Test
+    public void test1() {
+        URI uri = URI.create("http://demo-prod.aaa.com:8081/json");
+        System.out.println(uri.getScheme());
+        System.out.println(uri.getPort());
+        System.out.println(Arrays.toString(uri.getHost().split("\\.")));
+    }
 
     @Test
     public void test3() {

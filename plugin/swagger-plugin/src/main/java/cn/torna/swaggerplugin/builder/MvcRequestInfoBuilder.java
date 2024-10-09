@@ -1,5 +1,6 @@
 package cn.torna.swaggerplugin.builder;
 
+import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import cn.torna.swaggerplugin.util.PluginUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -17,8 +18,8 @@ import java.lang.reflect.Parameter;
  */
 public class MvcRequestInfoBuilder extends HttpMethodInfoBuilder {
 
-    public MvcRequestInfoBuilder(Method method, TornaConfig tornaConfig) {
-        super(method, tornaConfig);
+    public MvcRequestInfoBuilder(ControllerInfo controllerInfo, Method method, TornaConfig tornaConfig) {
+        super(controllerInfo, method, tornaConfig);
     }
 
     @Override

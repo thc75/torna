@@ -1,5 +1,7 @@
 package cn.torna.common.enums;
 
+import java.util.Objects;
+
 /**
  * 0：path, 1：header， 2：body参数，3：返回参数，4：错误码, 5：query参数
  * @author tanghc
@@ -14,6 +16,15 @@ public enum ParamStyleEnum {
     ;
 
     private final byte style;
+
+    public static ParamStyleEnum of(Byte value) {
+        for (ParamStyleEnum paramStyleEnum : ParamStyleEnum.values()) {
+            if (Objects.equals(paramStyleEnum.style, value)) {
+                return paramStyleEnum;
+            }
+        }
+        return QUERY;
+    }
 
     ParamStyleEnum(byte style) {
         this.style = style;

@@ -1,6 +1,8 @@
 package cn.torna.service.dto;
 
 import cn.torna.common.annotation.Diff;
+import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.TreeAware;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -8,12 +10,13 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author tanghc
  */
 @Data
-public class DocParamDTO {
+public class DocParamDTO implements TreeAware<DocParamDTO, Long> {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long id;
 
@@ -34,7 +37,6 @@ public class DocParamDTO {
     private String maxLength;
 
     /** 示例值, 数据库字段：example */
-    @Diff(positionType = PositionType.PARAM_EXAMPLE)
     private String example;
 
     /** 描述, 数据库字段：description */
@@ -84,4 +86,8 @@ public class DocParamDTO {
 
     private List<DocParamDTO> children;
 
+
+    public boolean getRequire() {
+        return Objects.equals(this.required, Booleans.TRUE);
+    }
 }

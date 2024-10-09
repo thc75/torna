@@ -2,7 +2,7 @@ package cn.torna.service;
 
 import cn.torna.common.bean.User;
 import cn.torna.common.enums.AttachmentSourceTypeEnum;
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.Attachment;
 import cn.torna.dao.mapper.AttachmentMapper;
 import com.gitee.fastmybatis.core.query.Query;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author tanghc
  */
 @Service
-public class AttachmentService extends BaseService<Attachment, AttachmentMapper> {
+public class AttachmentService extends BaseLambdaService<Attachment, AttachmentMapper> {
 
     /**
      * 获取文档附件
@@ -56,9 +56,8 @@ public class AttachmentService extends BaseService<Attachment, AttachmentMapper>
     }
 
     private List<Attachment> listAttachment(AttachmentSourceTypeEnum sourceTypeEnum, long refId) {
-        Query query = new Query()
-                .eq("source_type", sourceTypeEnum.getSourceType())
-                .eq("ref_id", refId);
+        Query query = this.query()
+                .eq(Attachment::getDocId, refId);
         return this.list(query);
     }
 

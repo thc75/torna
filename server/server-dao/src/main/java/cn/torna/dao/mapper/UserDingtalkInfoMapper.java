@@ -1,11 +1,11 @@
 package cn.torna.dao.mapper;
 
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 import cn.torna.dao.entity.UserDingtalkInfo;
 
 /**
  * @author tanghc
  */
-public interface UserDingtalkInfoMapper extends CrudMapper<UserDingtalkInfo, Long> {
+public interface UserDingtalkInfoMapper extends BaseMapper<UserDingtalkInfo> {
 	
 }

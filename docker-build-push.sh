@@ -8,24 +8,28 @@ git pull
 
 sh release.sh
 
+# 容器域名/空间名
+# 如果构建服务器是阿里云ECS，则可以使用对应的vpc域名，上传速度快一点
+docker_host="registry-vpc.cn-hangzhou.aliyuncs.com/tanghc"
+
 echo "开始创建docker hub镜像:latest"
-docker build -f Dockerfile.local -t registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest .
+docker build -f Dockerfile.local -t ${docker_host}/torna:latest .
 
 sleep 1
 
-echo "推送镜像到docker hub:latest，执行命令：docker push registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest"
-docker push registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest
+echo "推送镜像到docker hub:latest，执行命令：docker push ${docker_host}/torna:latest"
+docker push ${docker_host}/torna:latest
 
 sleep 1
 
 # 如果有参数
 if [ -n "${1}" ];then
 
-  echo "tag 镜像，命令：docker tag registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}"
-  docker tag registry.cn-hangzhou.aliyuncs.com/tanghc/torna:latest registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}
+  echo "tag 镜像，命令：docker tag ${docker_host}/torna:latest ${docker_host}/torna:${1}"
+  docker tag ${docker_host}/torna:latest ${docker_host}/torna:${1}
 
   sleep 1
 
-  echo "推送镜像到docker hub:${1}，执行命令：docker push registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}"
-  docker push registry.cn-hangzhou.aliyuncs.com/tanghc/torna:${1}
+  echo "推送镜像到docker hub:${1}，执行命令：docker push ${docker_host}/torna:${1}"
+  docker push ${docker_host}/torna:${1}
 fi

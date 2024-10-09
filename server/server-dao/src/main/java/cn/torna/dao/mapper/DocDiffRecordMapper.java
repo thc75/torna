@@ -1,6 +1,6 @@
 package cn.torna.dao.mapper;
 
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 import cn.torna.dao.entity.DocDiffRecord;
 
 /**
@@ -9,6 +9,6 @@ import cn.torna.dao.entity.DocDiffRecord;
  *
  * @author tanghc
  */
-public interface DocDiffRecordMapper extends CrudMapper<DocDiffRecord, Long> {
+public interface DocDiffRecordMapper extends BaseMapper<DocDiffRecord> {
 	
 }

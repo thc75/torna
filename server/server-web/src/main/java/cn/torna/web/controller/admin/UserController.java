@@ -9,7 +9,6 @@ import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdUtil;
 import cn.torna.dao.entity.ProjectUser;
 import cn.torna.dao.entity.UserInfo;
-import cn.torna.dao.mapper.ProjectUserMapper;
 import cn.torna.service.AllocateProjectService;
 import cn.torna.service.ProjectService;
 import cn.torna.service.UserInfoService;
@@ -23,10 +22,9 @@ import cn.torna.web.controller.admin.param.UserInfoParam;
 import cn.torna.web.controller.admin.param.UserSearch;
 import cn.torna.web.controller.admin.param.UserUpdateParam;
 import cn.torna.web.controller.admin.vo.UserCreateVO;
-import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.PageInfo;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Sort;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.util.MapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
@@ -62,8 +60,8 @@ public class UserController {
     private String initPassword;
 
     @PostMapping("page")
-    public Result<PageEasyui<UserInfoDTO>> page(@RequestBody UserSearch userSearch) {
-        Query query = userSearch.toQuery();
+    public Result<PageInfo<UserInfoDTO>> page(@RequestBody UserSearch userSearch) {
+        LambdaQuery<UserInfo> query = userSearch.toLambdaQuery(UserInfo.class);
         String id = userSearch.getId();
         if (StringUtils.hasText(id)) {
             Long userId = IdUtil.decode(id);
@@ -71,10 +69,10 @@ public class UserController {
             if (userId == null) {
                 userId = -100L;
             }
-            query.eq("id", userId);
+            query.eq(UserInfo::getId, userId);
         }
-        query.orderby("id", Sort.DESC);
-        PageEasyui<UserInfoDTO> page = MapperUtil.queryForEasyuiDatagrid(userInfoService.getMapper(), query, UserInfoDTO.class);
+        query.orderBy(UserInfo::getId, Sort.DESC);
+        PageInfo<UserInfoDTO> page = userInfoService.pageAndConvert(query, list -> CopyUtil.copyList(list, UserInfoDTO::new));
         return Result.ok(page);
     }
 
@@ -94,7 +92,7 @@ public class UserController {
     @PostMapping("update")
     public Result update(@RequestBody UserUpdateParam param) {
         String email = param.getUsername();
-        UserInfo exist = userInfoService.get("username", email);
+        UserInfo exist = userInfoService.getByUsername(email);
         if (exist != null && !Objects.equals(param.getId(), exist.getId())) {
             throw new BizException("该邮箱已存在");
         }

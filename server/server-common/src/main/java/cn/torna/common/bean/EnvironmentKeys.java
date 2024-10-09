@@ -1,6 +1,7 @@
 package cn.torna.common.bean;
 
 import cn.torna.common.enums.DocSortType;
+import cn.torna.common.enums.DocStatusEnum;
 
 import java.util.Objects;
 
@@ -59,7 +60,7 @@ public enum EnvironmentKeys {
             "【修改时间】：{modifyTime}\n" +
             "【查看地址】：{docViewUrl}\n" +
             "{@user}"),
-    PUSH_WECOM_WEBHOOK_CONTENT("torna.push.wecom-webhook-content", "【文档{modifyType}提醒】\n" +
+    PUSH_WECOM_WEBHOOK_CONTENT("torna.push.weCom-webhook-content", "【文档{modifyType}提醒】\n" +
             "【所属应用】： {projectName} - {appName}\n" +
             "【文档名称】：{docName}\n" +
             "【修改人】：{modifier}\n" +
@@ -78,9 +79,18 @@ public enum EnvironmentKeys {
     TORNA_UPLOAD_DIR("torna.upload.dir", null),
     /** 推送是否覆盖 */
     TORNA_PUSH_OVERRIDE("torna.push.override", String.valueOf(false)),
+    /** 文档推送后默认状态 */
+    TORNA_PUSH_DOC_DEFAULT_STATUS("torna.push.doc-default-status", String.valueOf(DocStatusEnum.DONE.getStatus())),
     /** 系统默认语言 */
     TORNA_DEFAULT_LANG("torna.default-lang", "zh-CN"),
     TORNA_NAME_VERSION_TPL("torna.name-version-tpl", "{_name_} {_version_}"),
+    /** 是否开启对接MeterSphere */
+    ENABLE_METER_SPHERE("metershpere.enable", "false"),
+    /** torna推送处理器数量 */
+    TORNA_PUSH_PROCESS_NUM("torna.push-process-num", "4"),
+    TORNA_PUSH_EXECUTE_SIZE("torna.push-execute-size", "50"),
+    /** 快照数量 */
+    TORNA_SNAPSHOT_SIZE("torna.snapshot-size", "5"),
     ;
 
     private final String key;
@@ -110,6 +120,10 @@ public enum EnvironmentKeys {
 
     public boolean getBoolean() {
         return Boolean.parseBoolean(getValue());
+    }
+
+    public int getInt() {
+        return Integer.parseInt(getValue());
     }
 
     public String getValue() {

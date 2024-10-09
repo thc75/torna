@@ -44,6 +44,18 @@
         />
         <span class="info-tip">{{ $t('OpenApi.contentOverrideTip') }}</span>
       </el-form-item>
+      <el-form-item :label="$t('OpenApi.defaultStatus')">
+        <el-radio-group
+          v-model="docDefaultStatus"
+          size="mini"
+          @change="() => onChange(getEnums().ModuleConfig.TORNA_PUSH_DOC_DEFAULT_STATUS, docDefaultStatus)"
+        >
+          <el-radio-button v-for="item in statusList" :key="item.value" :label="item.value">
+            {{ item.text }}
+          </el-radio-button>
+        </el-radio-group>
+        <span class="info-tip">{{ $t('OpenApi.defaultStatusTip') }}</span>
+      </el-form-item>
     </el-form>
     <el-link type="primary" :underline="false" href="https://torna.cn/dev/smart-doc.html" target="_blank">[{{ $t('recommend') }}]{{ $t('useSmartDoc') }}</el-link>
     <span class="split">|</span>
@@ -70,7 +82,23 @@ export default {
       token: '',
       menus: [],
       printPushContent: false,
-      contentOverride: false
+      contentOverride: false,
+      /*
+      TODO((byte) 0),
+      DOING((byte) 5),
+      DONE((byte)10)
+       */
+      docDefaultStatus: 10,
+      /*
+        'todo': '待进行',
+        'doing': '进行中',
+        'done': '已完成',
+       */
+      statusList: [
+        { text: $t('todo'), value: 0 },
+        { text: $t('doing'), value: 5 },
+        { text: $t('done'), value: 10 }
+      ]
     }
   },
   methods: {
@@ -98,9 +126,11 @@ export default {
       this.contentOverride = false
       const keyPushOverride = this.getEnums().ModuleConfig.TORNA_PUSH_OVERRIDE
       const keyPushPrintContent = this.getEnums().ModuleConfig.TORNA_PUSH_PRINT_CONTENT
+      const docDefaultStatus = this.getEnums().ModuleConfig.TORNA_PUSH_DOC_DEFAULT_STATUS
       const keys = [
         keyPushOverride,
-        keyPushPrintContent
+        keyPushPrintContent,
+        docDefaultStatus
       ]
       this.get('/module/setting/common/list', { moduleId: moduleId, keys: keys.join(',') }, resp => {
         const list = resp.data
@@ -109,6 +139,8 @@ export default {
             this.contentOverride = config.configValue === 'true'
           } else if (config.configKey === keyPushPrintContent) {
             this.printPushContent = config.configValue === 'true'
+          } else if (config.configKey === docDefaultStatus) {
+            this.docDefaultStatus = config.configValue
           }
         }
       })

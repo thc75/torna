@@ -62,7 +62,7 @@ mkdir /etc/torna && wget https://gitee.com/durcframework/torna/raw/master/instal
 拉取最新版本并启动
 
 ```bash
-wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.25.0
+wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh && sh restart-torna.sh 1.29.3
 ``` 
 
 后续更新版本只需执行`sh restart-torna.sh 版本号`
@@ -73,7 +73,7 @@ wget https://gitee.com/durcframework/torna/raw/master/install/restart-torna.sh &
 
 下载公共镜像
 
-`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.25.0`
+`docker pull registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.29.3`
 
 创建配置文件，执行命令：
 
@@ -90,7 +90,7 @@ docker run --name torna --restart=always \
   -p 7700:7700 \
   -e JAVA_OPTS="-server -Xms512m -Xmx512m" \
   -v /etc/torna/application.properties:/torna/config/application.properties \
-  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.25.0
+  -d registry.cn-hangzhou.aliyuncs.com/tanghc/torna:1.29.3
 ```
 
 浏览器访问`http://ip:7700`，ip对应docker宿主机器ip，非docker容器ip
@@ -146,16 +146,7 @@ docker run --name torna --restart=always \
 
 ## 沟通交流
 
-<table>
-  <tr>
-    <td>一群(满)</td>
-    <td>二群</td>
-  </tr>
-  <tr>
-    <td><img src="./asset/group.jpg" width="50%" height="50%" /></td>
-    <td><img src="./asset/group2.jpg" width="50%" height="50%" /></td>
-  </tr>
-</table>
+<img src="./asset/group.jpg" width="50%" height="50%" />
 
 
 

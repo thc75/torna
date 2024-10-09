@@ -4,7 +4,7 @@
       <el-button type="primary" size="mini" @click="onAdd">{{ $t('newShare') }}</el-button>
     </div>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -31,7 +31,12 @@
           <el-tag v-if="scope.row.type === getEnums().SHARE_TYPE.ENCRYPT" type="warning">{{ $t('encryption') }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('creator')" prop="creatorName" width="120" />
+      <el-table-column :label="$t('expirationTime')" width="100">
+        <template slot-scope="scope">
+          <span>{{ scope.row.expirationTime ? scope.row.expirationTime : $t('permanentValidity') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('creator')" prop="creatorName" width="120"/>
       <el-table-column :label="$t('status')" width="80">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === getEnums().STATUS.ENABLE" type="success">{{ $t('enable') }}</el-tag>
@@ -59,10 +64,14 @@
       >
         <template slot-scope="scope">
           <el-link type="primary" :underline="false" @click="onTableUpdate(scope.row)">{{ $t('update') }}</el-link>
-          <el-link v-if="scope.row.status === getEnums().STATUS.ENABLE" type="warning" :underline="false" @click="onTableDisable(scope.row)">
+          <el-link v-if="scope.row.status === getEnums().STATUS.ENABLE" type="warning" :underline="false"
+                   @click="onTableDisable(scope.row)">
             {{ $t('disable') }}
           </el-link>
-          <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">{{ $t('enable') }}</el-link>
+          <el-link v-else type="success" :underline="false" @click="onTableEnable(scope.row)">{{
+              $t('enable')
+            }}
+          </el-link>
           <el-popconfirm
             :title="$t('deleteRowConfirm')"
             @confirm="onTableDelete(scope.row)"
@@ -102,13 +111,27 @@
         size="mini"
       >
         <el-form-item :label="$t('remark')">
-          <el-input v-model="dialogFormData.remark" :placeholder="$t('optional')" show-word-limit maxlength="50" />
+          <el-input v-model="dialogFormData.remark" :placeholder="$t('optional')" show-word-limit maxlength="50"/>
         </el-form-item>
         <el-form-item :label="$t('shareStyle')">
           <el-radio-group v-model="dialogFormData.type">
             <el-radio :label="1">{{ $t('public') }}</el-radio>
             <el-radio :label="2">{{ $t('encryption') }}</el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item :label="$t('expirationTime')">
+          <template slot="label">
+            <span>{{ $t('expirationTime') }}</span>
+            <el-tooltip placement="top" :content="$t('permanentValidityTip')">
+              <i class="el-icon-question"/>
+            </el-tooltip>
+          </template>
+          <el-date-picker
+            v-model="dialogFormData.expirationTime"
+            :picker-options="pickerOptions"
+            :placeholder="$t('expirationTimePicker')"
+            value-format="yyyy-MM-dd"
+            format="yyyy-MM-dd"/>
         </el-form-item>
         <el-form-item :label="$t('selectDoc')">
           <el-radio-group v-model="dialogFormData.isAll">
@@ -127,11 +150,14 @@
         <el-form-item v-show="dialogFormData.isShowDebug" :label="$t('debugEnv')">
           <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate">{{ $t('selectAll') }}</el-checkbox>
           <el-checkbox-group v-model="dialogFormData.moduleEnvironmentIdList">
-            <el-checkbox v-for="(env, index) in moduleEnvironmentList" :key="index" :label="env.id">{{ env.name }}</el-checkbox>
+            <el-checkbox v-for="(env, index) in moduleEnvironmentList" :key="index" :label="env.id">{{
+                env.name
+              }}
+            </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item v-show="dialogFormData.isAll === 0">
-          <doc-tree ref="docTreeRef" />
+          <doc-tree ref="docTreeRef"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -144,7 +170,7 @@
       :visible.sync="dialogViewVisible"
       @close="() => { $refs.docTreeViewRef.clear() }"
     >
-      <doc-tree ref="docTreeViewRef" view-mode />
+      <doc-tree ref="docTreeViewRef" view-mode/>
     </el-dialog>
   </div>
 </template>
@@ -152,10 +178,8 @@
 import DocTree from '@/components/DocTree'
 
 export default {
-  components: { DocTree },
-  props: {
-
-  },
+  components: {DocTree},
+  props: {},
   data() {
     return {
       moduleId: '',
@@ -166,7 +190,7 @@ export default {
         moduleId: ''
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       },
       dialogVisible: false,
@@ -175,6 +199,7 @@ export default {
       dialogFormData: {
         id: '',
         type: 1,
+        expirationTime: '',
         moduleId: '',
         isAll: 0,
         remark: '',
@@ -183,7 +208,11 @@ export default {
       },
       autoAppend: 1,
       moduleEnvironmentList: [],
-      dialogFormRules: {
+      dialogFormRules: {},
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now() - 8.64e7; // Disable dates before today
+        }
       }
     }
   },
@@ -223,6 +252,7 @@ export default {
       this.dialogFormData = {
         id: '',
         type: 1,
+        expirationTime: '',
         isShowDebug: 0,
         moduleId: '',
         isAll: 0,
@@ -235,13 +265,13 @@ export default {
       })
     },
     loadDebugEnvs(moduleId, shareConfigId) {
-      this.get('/module/environment/list', { moduleId: moduleId }, resp => {
+      this.get('/module/environment/list', {moduleId: moduleId}, resp => {
         this.moduleEnvironmentList = resp.data
       })
       if (!shareConfigId) {
         return
       }
-      this.get('/doc/share/listEnvironment', { id: shareConfigId }, resp => {
+      this.get('/doc/share/listEnvironment', {id: shareConfigId}, resp => {
         this.$set(this.dialogFormData, 'moduleEnvironmentIdList', resp.data.map(item => item.moduleEnvironmentId))
       })
     },
@@ -263,7 +293,7 @@ export default {
         }
 
         if (!row.isAll) {
-          this.get('/doc/share/listShareDocIds', { id: row.id }, resp => {
+          this.get('/doc/share/listShareDocIds', {id: row.id}, resp => {
             const contentList = resp.data
             // 所有的文档id
             const idList = contentList.map(row => row.docId)
@@ -378,7 +408,7 @@ export default {
     viewDoc(row) {
       this.dialogViewVisible = true
       this.$nextTick(() => {
-        this.get('/doc/share/listShareDocIds', { id: row.id }, resp => {
+        this.get('/doc/share/listShareDocIds', {id: row.id}, resp => {
           const contentList = resp.data
           const idList = contentList.map(row => row.docId)
           this.reloadDocTreeView(treeData => {

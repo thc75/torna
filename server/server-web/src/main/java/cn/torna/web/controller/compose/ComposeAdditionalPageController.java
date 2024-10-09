@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ import java.util.List;
 @RequestMapping("compose/additional")
 public class ComposeAdditionalPageController {
 
-    @Autowired
+    @Resource
     private ComposeAdditionalPageMapper composeAdditionalPageMapper;
 
     /**
@@ -40,12 +40,12 @@ public class ComposeAdditionalPageController {
      */
     @GetMapping("/list")
     public Result<List<ComposeAdditionalPageVO>> page(@HashId Long projectId) {
-        Query query = new Query()
+        Query query = composeAdditionalPageMapper.query()
+                .select("id", "title", "status", "gmt_create")
                 .eq("project_id", projectId)
                 .orderby("order_index", Sort.ASC)
                 .orderby("id", Sort.ASC);
-        List<ComposeAdditionalPage> additionalPages = composeAdditionalPageMapper.listBySpecifiedColumns(
-                Arrays.asList("id", "title", "status", "gmt_create"),query);
+        List<ComposeAdditionalPage> additionalPages = composeAdditionalPageMapper.list(query);
         List<ComposeAdditionalPageVO> list = CopyUtil.copyList(additionalPages, ComposeAdditionalPageVO::new);
         return Result.ok(list);
     }
@@ -53,13 +53,13 @@ public class ComposeAdditionalPageController {
     @GetMapping("/listvisible")
     @NoLogin
     public Result<List<ComposeAdditionalPageVO>> list(@HashId Long projectId) {
-        Query query = new Query()
-                .eq("project_id", projectId)
-                .eq("status", StatusEnum.ENABLE.getStatus())
-                .orderby("order_index", Sort.ASC)
-                .orderby("id", Sort.ASC);
-        List<ComposeAdditionalPage> additionalPages = composeAdditionalPageMapper.listBySpecifiedColumns(
-                Arrays.asList("id", "title"),query);
+        Query query = composeAdditionalPageMapper.query()
+                .select(ComposeAdditionalPage::getId, ComposeAdditionalPage::getTitle)
+                .eq(ComposeAdditionalPage::getProjectId, projectId)
+                .eq(ComposeAdditionalPage::getStatus, StatusEnum.ENABLE.getStatus())
+                .orderBy(ComposeAdditionalPage::getOrderIndex, Sort.ASC)
+                .orderBy(ComposeAdditionalPage::getId, Sort.ASC);
+        List<ComposeAdditionalPage> additionalPages = composeAdditionalPageMapper.list(query);
         List<ComposeAdditionalPageVO> list = CopyUtil.copyList(additionalPages, ComposeAdditionalPageVO::new);
         return Result.ok(list);
     }
@@ -89,14 +89,14 @@ public class ComposeAdditionalPageController {
         Query query = new Query()
                 .eq("id", id)
                 .eq("status", StatusEnum.ENABLE.getStatus());
-        ComposeAdditionalPage additionalPage = composeAdditionalPageMapper.getByQuery(query);
+        ComposeAdditionalPage additionalPage = composeAdditionalPageMapper.get(query);
         if (additionalPage == null) {
             throw new BizException("文档不存在");
         }
         ComposeAdditionalPageVO composeAdditionalPageVO = CopyUtil.copyBean(additionalPage, ComposeAdditionalPageVO::new);
         return Result.ok(composeAdditionalPageVO);
-    }    
-     
+    }
+
     /**
      * 新增，忽略null字段
      *
@@ -108,8 +108,8 @@ public class ComposeAdditionalPageController {
         ComposeAdditionalPage composeAdditionalPage = CopyUtil.copyBean(param, ComposeAdditionalPage::new);
         composeAdditionalPageMapper.saveIgnoreNull(composeAdditionalPage);
         return Result.ok();
-    }    
-      
+    }
+
     /**
      * 修改，忽略null字段
      *
@@ -123,7 +123,7 @@ public class ComposeAdditionalPageController {
         composeAdditionalPageMapper.updateIgnoreNull(additionalPage);
         return Result.ok();
     }
-    
+
     /**
      * 删除记录
      *
@@ -135,5 +135,5 @@ public class ComposeAdditionalPageController {
         composeAdditionalPageMapper.deleteById(composeAdditionalPage.getId());
         return Result.ok();
     }
-    
+
 }

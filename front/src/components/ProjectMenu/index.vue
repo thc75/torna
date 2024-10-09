@@ -22,6 +22,10 @@
         <i class="el-icon-collection"></i>
         <span class="title">{{ $t('constManager') }}</span>
       </el-menu-item>
+      <el-menu-item :index="`/project/release/${projectId}`">
+        <i class="el-icon-s-release"></i>
+        <span class="title">{{ $t('releaseManager') }}</span>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>

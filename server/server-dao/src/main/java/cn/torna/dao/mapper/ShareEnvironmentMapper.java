@@ -1,7 +1,7 @@
 package cn.torna.dao.mapper;
 
 import cn.torna.dao.entity.ShareEnvironment;
-import com.gitee.fastmybatis.core.mapper.CrudMapper;
+import com.gitee.fastmybatis.core.mapper.BaseMapper;
 
 /**
  * 表名：share_environment
@@ -9,6 +9,6 @@ import com.gitee.fastmybatis.core.mapper.CrudMapper;
  *
  * @author Joker
  */
-public interface ShareEnvironmentMapper extends CrudMapper<ShareEnvironment, Long> {
+public interface ShareEnvironmentMapper extends BaseMapper<ShareEnvironment> {
 	
 }

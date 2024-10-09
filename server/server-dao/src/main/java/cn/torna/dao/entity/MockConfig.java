@@ -27,6 +27,9 @@ public class MockConfig {
     /** md5(path+query+body), 数据库字段：data_id */
     private String dataId;
 
+    /** mock版本号 */
+    private Integer version;
+
     /**  数据库字段：path */
     private String path;
 

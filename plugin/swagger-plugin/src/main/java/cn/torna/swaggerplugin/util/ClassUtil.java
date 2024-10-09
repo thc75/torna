@@ -34,6 +34,7 @@ public class ClassUtil {
 
     /**
      * 从包package中获取所有的Class
+     *
      * @param packageName
      * @return 返回class集合
      */
@@ -48,6 +49,7 @@ public class ClassUtil {
 
     /**
      * 获取自身以及上层父类class，父类的父类也算，不包括Object
+     *
      * @param clazz 当前class
      * @return 没有返回空
      */
@@ -84,7 +86,10 @@ public class ClassUtil {
                         OutputStream.class.isAssignableFrom(paramType) ||
                         Writer.class.isAssignableFrom(paramType)
         );
-        return paramType.getName().startsWith("javax") || special;
+        String name = paramType.getName();
+        return name.startsWith("javax") ||
+                name.startsWith("jakarta")
+                || special;
     }
 
     /**

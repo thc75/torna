@@ -1,7 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.User;
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.DocComment;
 import cn.torna.dao.mapper.DocCommentMapper;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  * @author tanghc
  */
 @Service
-public class DocCommentService extends BaseService<DocComment, DocCommentMapper> {
+public class DocCommentService extends BaseLambdaService<DocComment, DocCommentMapper> {
 
 
     public void addComment(DocCommentDTO docCommentDTO) {

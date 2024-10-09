@@ -11,6 +11,12 @@
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
+        <el-radio-group v-model="searchForm.status" size="mini" @change="() => loadTable()">
+          <el-radio-button label="null">全部</el-radio-button>
+          <el-radio-button label="0">未完成</el-radio-button>
+          <el-radio-button label="5">进行中</el-radio-button>
+          <el-radio-button label="10">已完成</el-radio-button>
+        </el-radio-group>
         <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
           <el-radio-button label="1">{{ $t('expand') }}</el-radio-button>
           <el-radio-button label="0">{{ $t('collapse') }}</el-radio-button>
@@ -31,7 +37,23 @@
           </el-tooltip>
         </div>
         <div class="table-right-item">
-          <el-button v-show="tableData.length > 0" type="primary" size="mini" @click="onExport">{{ $t('export') }}</el-button>
+          <el-dropdown split-button type="primary" trigger="click" size="mini" @click="onExport">
+            {{ $t('export') }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item @click.native="onExportPostman">{{ $t('export') + ' postman(Collection v2.1)' }}</el-dropdown-item>
+              <el-dropdown-item @click.native="onCopyPostmanUrl">
+                {{ `${$t('copy')} postman 导入URL` }}
+                <el-popover
+                  placement="bottom-end"
+                  trigger="hover"
+                  width="800"
+                >
+                  <img :src="`${getBaseUrl()}/static/images/postmanimport.jpg`" style="width: 100%" />
+                  <i slot="reference" class="el-icon-question" style="margin-left: 10px" @click.stop="() => {}" />
+                </el-popover>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
       </div>
     </div>
@@ -97,6 +119,7 @@
           <div v-if="scope.row.isFolder === 0">
             <span style="margin-right: 5px;">{{ scope.row.version }}</span>
             <popover-update
+              v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
               :title="$t('version')"
               :maxlength="20"
               :show-icon="true"
@@ -306,7 +329,11 @@ export default {
         name: [
           { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
-      }
+      },
+      searchForm: {
+        status: null
+      },
+      token: ''
     }
   },
   computed: {
@@ -317,6 +344,9 @@ export default {
       }
       search = search.toLowerCase()
       return this.searchRow(search, this.tableData, this.searchContent, this.isFolder)
+    },
+    postmanUrl() {
+      return `${this.getBaseUrl()}/module/postman/${this.token}`
     }
   },
   created() {
@@ -359,11 +389,23 @@ export default {
       }
       this.triggerStatus = this.getAttr(this.getTriggerStatusKey()) || '1'
       this.loading = true
-      this.get('/doc/list', { moduleId: this.moduleId }, function(resp) {
+      const searchData = {
+        moduleId: this.moduleId
+      }
+      Object.assign(searchData, this.searchForm)
+      this.post('/doc/list-v2', searchData, function(resp) {
         this.tableData = this.convertTree(resp.data)
         callback && callback.call(this)
         this.loading = false
       })
+      this.loadToken(moduleId)
+    },
+    loadToken(moduleId) {
+      if (moduleId) {
+        this.get('/module/token/get', { moduleId: moduleId }, function(resp) {
+          this.token = resp.data
+        })
+      }
     },
     initHeight() {
       this.tableHeight = window.innerHeight - 185
@@ -554,6 +596,15 @@ export default {
     },
     getViewUrl(row) {
       return `/view/${row.id}`
+    },
+    onExportPostman() {
+      this.download('/doc/export/postman', { moduleId: this.moduleId }, err => {
+        this.tipError('Export fail')
+        console.log(err)
+      })
+    },
+    onCopyPostmanUrl() {
+      this.copyText(this.postmanUrl)
     }
   }
 }

@@ -6,17 +6,24 @@ import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
+import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.enums.PropTypeEnum;
-import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.exception.BizException;
-import cn.torna.common.support.BaseService;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
-import cn.torna.dao.entity.*;
+import cn.torna.common.util.TreeUtil;
+import cn.torna.dao.entity.DocInfo;
+import cn.torna.dao.entity.DocParam;
+import cn.torna.dao.entity.EnumInfo;
+import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.ModuleEnvironment;
+import cn.torna.dao.entity.ModuleEnvironmentParam;
+import cn.torna.dao.entity.UserDingtalkInfo;
+import cn.torna.dao.entity.UserWeComInfo;
 import cn.torna.dao.mapper.DocInfoMapper;
 import cn.torna.dao.mapper.UserDingtalkInfoMapper;
 import cn.torna.dao.mapper.UserWeComInfoMapper;
@@ -24,6 +31,7 @@ import cn.torna.manager.doc.DataType;
 import cn.torna.service.dto.DocFolderCreateDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocItemCreateDTO;
+import cn.torna.service.dto.DocListFormDTO;
 import cn.torna.service.dto.DocMeta;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.DocRefDTO;
@@ -34,22 +42,23 @@ import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
 import cn.torna.service.event.DocAddEvent;
 import cn.torna.service.event.DocUpdateEvent;
+import com.gitee.fastmybatis.core.PageInfo;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
-import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.support.PageEasyui;
-import com.gitee.fastmybatis.core.support.Q;
-import com.gitee.fastmybatis.core.util.MapperUtil;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,7 +75,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
+public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
 
     private static final String REGEX_BR = "<br\\s*/*>";
 
@@ -112,6 +121,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     @Autowired
     private UserSubscribeService userSubscribeService;
 
+    @Autowired
+    private MockConfigService mockConfigService;
+
 
     /**
      * 查询模块下的所有文档
@@ -120,7 +132,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回文档
      */
     public List<DocInfo> listModuleDoc(long moduleId) {
-        List<DocInfo> docInfoList = list("module_id", moduleId);
+        List<DocInfo> docInfoList = list(DocInfo::getModuleId, moduleId);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -156,12 +168,13 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回文档
      */
     public List<DocInfo> listModuleMenuDoc(long moduleId) {
-        Query query = Q.create().eq("module_id", moduleId)
-                .eq("is_show", Booleans.TRUE);
-        List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
-                "id", "name", "parent_id", "url", "is_folder",
-                "type", "http_method", "deprecated", "version",
-                "order_index", "is_show", "is_locked", "status"), query);
+        Query query = this.query()
+                .select(DocInfo::getId, DocInfo::getName, DocInfo::getParentId, DocInfo::getUrl, DocInfo::getIsFolder,
+                        DocInfo::getModuleId, DocInfo::getType, DocInfo::getHttpMethod, DocInfo::getDeprecated,
+                        DocInfo::getVersion, DocInfo::getOrderIndex, DocInfo::getIsShow, DocInfo::getIsLocked, DocInfo::getStatus)
+                .eq(DocInfo::getModuleId, moduleId)
+                .eq(DocInfo::getIsShow, Booleans.TRUE);
+        List<DocInfo> docInfoList = list(query);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -173,25 +186,56 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回文档
      */
     public List<DocInfo> listModuleTableDoc(long moduleId) {
-        Query query = Q.create().eq("module_id", moduleId)
-                .eq("is_show", Booleans.TRUE);
-        List<DocInfo> docInfoList = listBySpecifiedColumns(Arrays.asList(
-                "id", "name", "parent_id", "url", "is_folder",
-                "type", "http_method", "deprecated", "version",
-                "author", "modifier_name", "gmt_modified",
-                "order_index", "is_show", "is_locked", "status"), query);
+        Query query = this.query()
+                .select(DocInfo::getId, DocInfo::getName, DocInfo::getParentId, DocInfo::getUrl, DocInfo::getIsFolder,
+                        DocInfo::getModuleId, DocInfo::getType, DocInfo::getHttpMethod, DocInfo::getDeprecated,
+                        DocInfo::getAuthor, DocInfo::getModifierName, DocInfo::getGmtModified,
+                        DocInfo::getOrderIndex, DocInfo::getIsShow, DocInfo::getIsLocked, DocInfo::getStatus)
+                .eq(DocInfo::getModuleId, moduleId)
+                .eq(DocInfo::getIsShow, Booleans.TRUE);
+        List<DocInfo> docInfoList = list(query);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
 
-    public PageEasyui<DocInfo> pageDocByIds(List<Long> docIds, PageParam pageParam) {
-        if (CollectionUtils.isEmpty(docIds)) {
-            return new PageEasyui<>();
+    /**
+     * 查询模块下的所有文档
+     *
+     * @param docListFormDTO docListFormDTO
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleTableDoc(DocListFormDTO docListFormDTO) {
+        Query query;
+        if (docListFormDTO.getStatus() == null) {
+            query = LambdaQuery.create(DocInfo.class)
+                    .eq(DocInfo::getModuleId, docListFormDTO.getModuleId());
+        } else {
+            query = LambdaQuery.create(DocInfo.class)
+                    .select(DocInfo::getId, DocInfo::getName, DocInfo::getParentId, DocInfo::getUrl, DocInfo::getIsFolder,
+                            DocInfo::getType, DocInfo::getModuleId, DocInfo::getHttpMethod, DocInfo::getDeprecated, DocInfo::getVersion,
+                            DocInfo::getAuthor, DocInfo::getModifierName, DocInfo::getGmtModified,
+                            DocInfo::getOrderIndex, DocInfo::getIsShow, DocInfo::getIsLocked, DocInfo::getStatus)
+                    .eq(DocInfo::getModuleId, docListFormDTO.getModuleId())
+                    .eq(docListFormDTO.getStatus() != null, DocInfo::getStatus, docListFormDTO.getStatus())
+                    .orLambda(q -> q.eq(DocInfo::getModuleId, docListFormDTO.getModuleId()).eq(DocInfo::getIsFolder, Booleans.TRUE));
         }
-        Query query = pageParam.toQuery()
-                .in("id", docIds)
-                .orderby("order_index", Sort.ASC);
-        return MapperUtil.queryForEasyuiDatagrid(this.getMapper(), query);
+        List<DocInfo> docInfoList = this.list(query);
+        sortDocInfo(docInfoList);
+        return docInfoList;
+    }
+
+    public PageInfo<DocInfo> pageDocByIds(List<Long> docIds, PageParam pageParam) {
+        if (CollectionUtils.isEmpty(docIds)) {
+            PageInfo<DocInfo> pageInfo = new PageInfo<>();
+            pageInfo.setList(Collections.emptyList());
+            return pageInfo;
+        }
+        Query query = pageParam
+                .toQuery()
+                .toLambdaQuery(DocInfo.class)
+                .in(DocInfo::getId, docIds)
+                .orderByAsc(DocInfo::getOrderIndex);
+        return page(query);
     }
 
     /**
@@ -201,9 +245,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @return 返回文档详情
      */
     public DocInfoDTO getDocDetailView(long docId) {
-        Query query = new Query()
-                .eq("id", docId)
-                .eq("is_show", Booleans.TRUE);
+        Query query = this.query()
+                .eq(DocInfo::getId, docId)
+                .eq(DocInfo::getIsShow, Booleans.TRUE);
         DocInfo docInfo = get(query);
         return getDocDetail(docInfo);
     }
@@ -240,7 +284,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setModuleType(module.getType());
         List<ModuleEnvironment> debugEnvs = moduleEnvironmentService.listModuleEnvironment(moduleId);
         docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, ModuleEnvironmentDTO::new));
-        List<DocParam> params = docParamService.list("doc_id", docInfo.getId());
+        List<DocParam> params = docParamService.list(DocParam::getDocId, docInfo.getId());
         params.sort(Comparator.comparing(DocParam::getOrderIndex));
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
@@ -321,6 +365,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
     }
 
+    public List<DocInfoDTO> listDocDetail(Long moduleId) {
+        return this.query()
+                .eq(DocInfo::getModuleId, moduleId)
+                .list()
+                .stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+    }
 
     public List<DocInfoDTO> listDocDetail(Collection<Long> docIdList) {
         if (CollectionUtils.isEmpty(docIdList)) {
@@ -336,15 +388,15 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         if (CollectionUtils.isEmpty(docIdList)) {
             return Collections.emptyList();
         }
-        Query query = new Query()
-                .in("id", docIdList);
+        Query query = this.query()
+                .in(DocInfo::getId, docIdList);
         List<DocInfo> list = this.list(query);
         sortDocInfo(list);
         return list;
     }
 
 
-    private DocInfoDTO getDocDetail(DocInfo docInfo) {
+    public DocInfoDTO getDocDetail(DocInfo docInfo) {
         DocInfoDTO docInfoDTO = this.getDocInfoDTO(docInfo);
         Long moduleId = docInfoDTO.getModuleId();
         List<DocParam> globalHeaders = moduleConfigService.listGlobalHeaders(moduleId);
@@ -395,9 +447,16 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         this.doUpdateParams(docInfo, docInfoDTO, user);
     }
 
+    private void createDocMock(DocInfo docInfo) {
+        mockConfigService.createDocDefaultMock(docInfo.getId());
+    }
+
     public List<DocMeta> listDocMeta(long moduleId) {
-        Query query = new Query().eq("module_id", moduleId);
-        return this.getMapper().listBySpecifiedColumns(Arrays.asList("data_id", "is_locked", "md5"), query, DocMeta.class);
+        Query query = this.query()
+                .select(DocInfo::getDataId, DocInfo::getDocKey, DocInfo::getIsLocked, DocInfo::getMd5)
+                .eq(DocInfo::getModuleId, moduleId);
+        List<DocInfo> list = this.list(query);
+        return CopyUtil.copyList(list, DocMeta::new);
     }
 
     public static boolean isLocked(String dataId, List<DocMeta> docMetas) {
@@ -434,6 +493,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
         SpringContext.publishEvent(new DocAddEvent(docInfo.getId(), ModifySourceEnum.FORM));
+        createDocMock(docInfo);
         return docInfo;
     }
 
@@ -446,6 +506,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         this.doUpdateParams(docInfo, docInfoDTO, user);
         ModifySourceEnum sourceFromEnum = DocTypeEnum.isTextType(docInfo.getType()) ? ModifySourceEnum.TEXT : ModifySourceEnum.FORM;
         SpringContext.publishEvent(new DocUpdateEvent(docInfoOld.getId(), oldMd5, sourceFromEnum));
+        createDocMock(docInfo);
         return docInfo;
     }
 
@@ -483,8 +544,17 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         String docMd5 = getDocMd5(docInfoDTO);
         docInfo.setMd5(docMd5);
         this.getMapper().saveDocInfo(docInfo);
-        if (docInfoDTO.getId() == null && docInfo.getId() != null) {
-            docInfoDTO.setId(docInfo.getId());
+        Long id = docInfo.getId();
+        // 修复使用非MYSQL数据库插入数据id不返回问题
+        if (id == null) {
+            DocInfo one = this.getByDataId(docInfo.getDataId());
+            if (one != null) {
+                id = one.getId();
+                docInfo.setId(id);
+            }
+        }
+        if (id != null) {
+            docInfoDTO.setId(id);
         }
         return docInfo;
     }
@@ -504,6 +574,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        docInfo.setDocKey(docInfoDTO.buildDocKey());
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
@@ -536,6 +607,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfo.setModifierId(user.getUserId());
         docInfo.setModifierName(user.getNickname());
         docInfo.setDataId(docInfoDTO.buildDataId());
+        docInfo.setDocKey(docInfoDTO.buildDocKey());
         if (docInfo.getDescription() == null) {
             docInfo.setDescription("");
         }
@@ -550,7 +622,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public DocInfo getByDataId(String dataId) {
-        return get("data_id", dataId);
+        return get(DocInfo::getDataId, dataId);
     }
 
     /**
@@ -573,10 +645,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
     }
 
     public DocInfo getByModuleIdAndParentIdAndName(long moduleId, long parentId, String name) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("parent_id", parentId)
-                .eq("name", name);
+        Query query = this.query()
+                .eq(DocInfo::getModuleId, moduleId)
+                .eq(DocInfo::getParentId, parentId)
+                .eq(DocInfo::getName, name);
         return get(query);
     }
 
@@ -688,20 +760,20 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * @param moduleId 模块id
      */
     public void deleteOpenAPIModuleDocs(long moduleId) {
-        Query query = new Query()
-                .eq("module_id", moduleId)
-                .eq("create_mode", OperationMode.OPEN.getType())
-                .eq("is_locked", Booleans.FALSE)
+        Query query = this.query()
+                .eq(DocInfo::getModuleId, moduleId)
+                .eq(DocInfo::getCreateMode, OperationMode.OPEN.getType())
+                .eq(DocInfo::getIsLocked, Booleans.FALSE)
                 // 如果已经定义了版本号，不被删除
-                .isEmpty("version");
+                .isEmpty(DocInfo::getVersion);
         // 查询出文档id
-        List<Long> docIdList = this.getMapper().listBySpecifiedColumns(Collections.singletonList("id"), query, Long.class);
+        List<Long> docIdList = listValue(query, DocInfo::getId);
         if (CollectionUtils.isEmpty(docIdList)) {
             return;
         }
         // 删除文档
-        Query delQuery = new Query()
-                .in("id", docIdList);
+        Query delQuery = this.query()
+                .in(DocInfo::getId, docIdList);
         // DELETE FROM doc_info WHERE id in (..)
         this.getMapper().deleteByQuery(delQuery);
 
@@ -718,9 +790,9 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public List<DocParamDTO> listDocHeaders(Long envId, Long docId) {
         ParamStyleEnum header = ParamStyleEnum.HEADER;
-        Query query = new Query()
-                .eq("id", docId)
-                .eq("style", header.getStyle());
+        Query query = docParamService.query()
+                .eq(DocParam::getId, docId)
+                .eq(DocParam::getStyle, header.getStyle());
         List<DocParam> docHeaders = docParamService.list(query);
         List<DocParamDTO> ret = new ArrayList<>();
         List<DocParamDTO> headers = CopyUtil.copyList(docHeaders, DocParamDTO::new);
@@ -737,12 +809,14 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      * 将markdown内容转化成html
      */
     public void convertMarkdown2Html() {
-        List<DocInfo> docInfos = this.listAll();
+        List<DocInfo> docInfos = this.list(new Query());
         Map<String, Object> set = new HashMap<>();
         for (DocInfo docInfo : docInfos) {
-            set.put("description", Markdown2HtmlUtil.markdown2Html(docInfo.getDescription()));
-            set.put("remark", Markdown2HtmlUtil.markdown2Html(docInfo.getRemark()));
-            this.getMapper().updateByMap(set, new Query().eq("id", docInfo.getId()));
+            LambdaQuery<DocInfo> lambdaQuery = this.query()
+                    .set(DocInfo::getDescription, Markdown2HtmlUtil.markdown2Html(docInfo.getDescription()))
+                    .set(DocInfo::getRemark, Markdown2HtmlUtil.markdown2Html(docInfo.getRemark()))
+                    .eq(DocInfo::getId, docInfo.getId());
+            this.update(lambdaQuery);
         }
     }
 
@@ -756,7 +830,7 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         docInfoDTO.setVersion(version);
         // 重新设置下dataId
         String dataId = docInfoDTO.buildDataId();
-        if (this.getMapper().checkExist("data_id", dataId, docInfo.getId())) {
+        if (this.checkExist(DocInfo::getDataId, dataId, docInfo.getId())) {
             throw new BizException("相同版本号已存在");
         }
         docInfo.setDataId(dataId);
@@ -772,7 +846,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public List<String> listSubscribeDocDingDingUserIds(long docId) {
         List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);
-        List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.listByCollection("user_info_id", userIds);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>(0);
+        }
+        List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.list(UserDingtalkInfo::getUserInfoId, userIds);
         return dingtalkInfoList.stream()
                 .map(UserDingtalkInfo::getUserid)
                 .collect(Collectors.toList());
@@ -787,7 +864,10 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
      */
     public List<String> listSubscribeDocWeComUserMobiles(long docId) {
         List<Long> userIds = userSubscribeService.listUserIds(UserSubscribeTypeEnum.DOC, docId);
-        List<UserWeComInfo> userInfoId = userWeComInfoWrapper.listByCollection("user_info_id", userIds);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>(0);
+        }
+        List<UserWeComInfo> userInfoId = userWeComInfoWrapper.list(UserWeComInfo::getUserInfoId, userIds);
         return userInfoId.stream()
                 .map(UserWeComInfo::getMobile)
                 .filter(Objects::nonNull)
@@ -818,6 +898,58 @@ public class DocInfoService extends BaseService<DocInfo, DocInfoMapper> {
         }
         docDetail.setStatus(status);
         this.doUpdateDocBaseInfo(docDetail, user);
+    }
+
+    public String getDocKey(Long docId) {
+        return this.getValue(new Query().eq("id", docId), DocInfo::getDocKey);
+    }
+
+    public List<DocInfo> listByDocKey(String docKey) {
+        return list(DocInfo::getDocKey, docKey);
+    }
+
+    public void fillDocKey() {
+        LambdaQuery<DocInfo> query = this.query()
+                .select(DocInfo::getId, DocInfo::getName, DocInfo::getParentId, DocInfo::getUrl, DocInfo::getIsFolder, DocInfo::getModuleId,
+                        DocInfo::getType, DocInfo::getHttpMethod, DocInfo::getDeprecated, DocInfo::getVersion)
+                .eq(DocInfo::getType, DocTypeEnum.HTTP.getType());
+        List<DocInfo> list = list(query);
+
+        for (DocInfo docInfo : list) {
+            DocInfoDTO docInfoDTO = CopyUtil.copyBean(docInfo, DocInfoDTO::new);
+            String docKey = docInfoDTO.buildDocKey();
+            if (StringUtils.hasText(docKey)) {
+                String dataId = docInfoDTO.buildDataId();
+                LambdaQuery<DocInfo> updateQuery = this.query();
+                updateQuery.set(DocInfo::getDocKey, docKey)
+                        .set(DocInfo::getDataId, dataId)
+                        .eq(DocInfo::getId, docInfo.getId());
+
+                try {
+                    this.update(updateQuery);
+                } catch (Exception e) {
+                    String newDataId = dataId + docInfo.getId();
+                    updateQuery.set(DocInfo::getDataId, DigestUtils.md5DigestAsHex(newDataId.getBytes(StandardCharsets.UTF_8)));
+                    this.update(updateQuery);
+                }
+            }
+        }
+    }
+
+    public List<DocInfoDTO> listTreeDoc(Long moduleId) {
+        List<DocInfo> docInfos = listModuleDoc(moduleId);
+        return convertTree(docInfos);
+    }
+
+    private List<DocInfoDTO> convertTree(List<DocInfo> docInfos) {
+        List<DocInfoDTO> docInfoDTOList = docInfos.stream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+        return TreeUtil.convertTree(docInfoDTOList, 0L);
+    }
+
+    public List<DocInfo> listByParentId(Long parentId) {
+        return list(DocInfo::getParentId, parentId);
     }
 
 }

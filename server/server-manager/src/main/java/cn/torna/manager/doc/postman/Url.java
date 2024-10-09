@@ -1,7 +1,6 @@
 package cn.torna.manager.doc.postman;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -11,8 +10,7 @@ import java.util.stream.Collectors;
 /**
  * @author tanghc
  */
-@Getter
-@Setter
+@Data
 public class Url {
 
     private String protocol;

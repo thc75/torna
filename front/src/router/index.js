@@ -128,6 +128,12 @@ export const constantRoutes = [
         meta: { title: '空间成员' }
       },
       {
+        path: 'setting/:spaceId(\\w+)',
+        name: 'SpaceSetting',
+        component: () => import('@/views/space/index_setting'),
+        meta: { title: '空间设置' }
+      },
+      {
         path: 'openuser/:spaceId(\\w+)',
         name: 'SpaceOpenuser',
         component: () => import('@/views/space/index_openuser'),
@@ -159,6 +165,11 @@ export const constantRoutes = [
         path: 'code/:projectId(\\w+)',
         name: 'ErrorCode',
         component: () => import('@/views/project/index_code')
+      },
+      {
+        path: 'release/:projectId(\\w+)',
+        name: 'ProjectRelease',
+        component: () => import('@/views/project/index_release')
       }
     ]
   },
@@ -259,6 +270,13 @@ export const constantRoutes = [
         hidden: true,
         component: () => import('@/views/admin/user/index'),
         meta: { title: '用户管理' }
+      },
+      {
+        path: 'template',
+        name: 'Template',
+        hidden: true,
+        component: () => import('@/views/admin/template/index'),
+        meta: { title: '模板设置' }
       },
       {
         path: 'setting',

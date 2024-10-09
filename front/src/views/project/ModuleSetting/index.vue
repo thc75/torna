@@ -15,7 +15,7 @@
       </span>
     </h3>
 
-    <el-tabs active-name="envSetting" tab-position="left" @tab-click="tabChange">
+    <el-tabs v-model="actName" tab-position="left" @tab-click="tabChange">
       <el-tab-pane name="envSetting" :label="$t('debugEnv')">
         <env-setting ref="envSetting" :project-id="projectId" />
       </el-tab-pane>
@@ -28,6 +28,9 @@
       <el-tab-pane name="weComSetting" :label="$t('ModuleSetting.weComSetting')">
         <we-com-setting ref="weComSetting" />
       </el-tab-pane>
+      <el-tab-pane v-if="enableMeterSphere" name="meterSphereSetting" :label="$t('ModuleSetting.meterSphereSetting')">
+        <meter-sphere-setting ref="meterSphereSetting" />
+      </el-tab-pane>
     </el-tabs>
 
   </div>
@@ -37,11 +40,12 @@ import DingDingSetting from './DingDingSetting'
 import WeComSetting from './WeComSetting'
 import PopoverUpdate from '@/components/PopoverUpdate'
 import SwaggerSetting from '@/components/ModuleSetting/SwaggerSetting'
+import MeterSphereSetting from './MeterSphereSetting'
 import EnvSetting from './EnvSetting'
 
 export default {
   name: 'ModuleSetting',
-  components: { WeComSetting, DingDingSetting, PopoverUpdate, SwaggerSetting, EnvSetting },
+  components: { MeterSphereSetting, WeComSetting, DingDingSetting, PopoverUpdate, SwaggerSetting, EnvSetting },
   props: {
     projectId: {
       type: String,
@@ -51,11 +55,13 @@ export default {
   data() {
     return {
       moduleId: '',
+      enableMeterSphere: false,
       moduleVO: {
         id: '',
         name: '',
         type: 0
-      }
+      },
+      actName: 'envSetting'
     }
   },
   computed: {
@@ -66,13 +72,17 @@ export default {
   methods: {
     tabChange(tab) {
       const name = tab.name
-      const ref = this.$refs[name]
-      ref && ref.reload(this.moduleId)
+      this.loadTab(name)
     },
     reload(moduleId) {
       this.moduleId = moduleId
-      this.$refs.envSetting.reload(moduleId)
+      this.actName = 'envSetting'
+      this.loadTab(this.actName)
       this.loadModuleInfo(moduleId)
+    },
+    loadTab(name) {
+      const ref = this.$refs[name]
+      ref && ref.reload(this.moduleId, this.projectId)
     },
     loadModuleInfo(moduleId) {
       this.get('/module/info', { moduleId: moduleId }, resp => {
@@ -82,6 +92,9 @@ export default {
             this.loadSwaggerConfig(moduleId)
           })
         }
+      })
+      this.pmsConfig().then(config => {
+        this.enableMeterSphere = config.enableMeterSphere
       })
     },
     loadSwaggerConfig(moduleId) {

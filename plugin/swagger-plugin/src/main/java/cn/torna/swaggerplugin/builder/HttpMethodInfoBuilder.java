@@ -1,5 +1,6 @@
 package cn.torna.swaggerplugin.builder;
 
+import cn.torna.swaggerplugin.bean.ControllerInfo;
 import cn.torna.swaggerplugin.bean.TornaConfig;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -14,11 +15,13 @@ import java.lang.reflect.Method;
  */
 public abstract class HttpMethodInfoBuilder implements RequestInfoBuilder {
 
+    private ControllerInfo controllerInfo;
     private TornaConfig tornaConfig;
     private Method method;
     private ApiOperation apiOperation;
 
-    public HttpMethodInfoBuilder(Method method, TornaConfig tornaConfig) {
+    public HttpMethodInfoBuilder(ControllerInfo controllerInfo, Method method, TornaConfig tornaConfig) {
+        this.controllerInfo = controllerInfo;
         this.tornaConfig = tornaConfig;
         this.method = method;
         this.apiOperation = method.getAnnotation(ApiOperation.class);
@@ -54,5 +57,9 @@ public abstract class HttpMethodInfoBuilder implements RequestInfoBuilder {
     @Override
     public ApiOperation getApiOperation() {
         return apiOperation;
+    }
+
+    public ControllerInfo getControllerInfo() {
+        return controllerInfo;
     }
 }

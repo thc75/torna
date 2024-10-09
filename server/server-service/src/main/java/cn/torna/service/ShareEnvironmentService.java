@@ -1,6 +1,6 @@
 package cn.torna.service;
 
-import cn.torna.common.support.BaseService;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.dao.entity.ShareEnvironment;
 import cn.torna.dao.mapper.ShareEnvironmentMapper;
 import org.springframework.stereotype.Service;
@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
  * @author Joker
  */
 @Service
-public class ShareEnvironmentService extends BaseService<ShareEnvironment, ShareEnvironmentMapper> {
+public class ShareEnvironmentService extends BaseLambdaService<ShareEnvironment, ShareEnvironmentMapper> {
 
 }

@@ -1,0 +1,145 @@
+{
+  "data": [
+    {
+      "label": "$doc 文档变量",
+      "children": [
+        {
+          "label": "${doc.docKey}",
+          "description": "接口唯一编号"
+        },
+        {
+          "label": "${doc.name}",
+          "description": "接口名称"
+        },
+        {
+          "label": "${doc.url}",
+          "description": "接口url"
+        },
+        {
+          "label": "${doc.httpMethod}",
+          "description": "接口Method"
+        },
+        {
+          "label": "${doc.contentType}",
+          "description": "contentType"
+        },
+        {
+          "label": "${doc.description}",
+          "description": "接口描述"
+        },
+        {
+          "label": "${doc.queryString}",
+          "description": "查询参数"
+        },
+        {
+          "label": "${doc.requestExample}",
+          "description": "请求示例"
+        },
+        {
+          "label": "${doc.responseExample}",
+          "description": "返回示例"
+        },
+        {
+          "label": "${doc.headerParams} 请求头",
+          "description": "",
+          "children": [
+            { "label": "插入foreach块", "expression": "#foreach($param in ${doc.headerParams}) \n    ${param.name}\n#end" },
+            { "label": "${param.name}", "description": "参数名称" },
+            { "label": "${param.require}", "description": "是否必填" },
+            { "label": "${param.example}", "description": "示例值" },
+            { "label": "${param.description}", "description": "描述" }
+          ]
+        },
+        {
+          "label": "${doc.pathParams} path参数",
+          "description": "",
+          "children": [
+            { "label": "插入foreach块", "expression": "#foreach($param in ${doc.pathParams}) \n    ${param.name}\n#end" },
+            { "label": "${param.name}", "description": "参数名称" },
+            { "label": "${param.type}", "description": "参数类型" },
+            { "label": "${param.require}", "description": "是否必填" },
+            { "label": "${param.example}", "description": "示例值" },
+            { "label": "${param.description}", "description": "描述" }
+          ]
+        },
+        {
+          "label": "${doc.queryParams} 查询参数",
+          "description": "",
+          "children": [
+            { "label": "插入foreach块", "expression": "#foreach($param in ${doc.queryParams}) \n    ${param.name}\n#end" },
+            { "label": "${param.name}", "description": "参数名称" },
+            { "label": "${param.type}", "description": "参数类型" },
+            { "label": "${param.require}", "description": "是否必填" },
+            { "label": "${param.example}", "description": "示例值" },
+            { "label": "${param.description}", "description": "描述" }
+          ]
+        },
+        {
+          "label": "${doc.requestParams} body参数(payload)",
+          "description": "",
+          "children": [
+            { "label": "插入foreach块", "expression": "#foreach($param in ${doc.requestParams}) \n    ${param.name}\n#end" },
+            { "label": "${param.name}", "description": "参数名称" },
+            { "label": "${param.type}", "description": "参数类型" },
+            { "label": "${param.maxLength}", "description": "最大长度" },
+            { "label": "${param.require}", "description": "是否必填" },
+            { "label": "${param.example}", "description": "示例值" },
+            { "label": "${param.description}", "description": "描述" }
+          ]
+        },
+        {
+          "label": "${doc.responseParams} 返回参数",
+          "description": "",
+          "children": [
+            { "label": "插入foreach块", "expression": "#foreach($param in ${doc.responseParams}) \n    ${param.name}\n#end" },
+            { "label": "${param.name}", "description": "参数名称" },
+            { "label": "${param.type}", "description": "参数类型" },
+            { "label": "${param.example}", "description": "示例值" },
+            { "label": "${param.description}", "description": "描述" }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "$sys 系统变量",
+      "children": [
+        {
+          "label": "${sys.datetime}",
+          "text": "当前日期时间，如：2024-01-31 20:53:50"
+        },
+        {
+          "label": "${sys.date}",
+          "text": "当前日期，如：2024-01-31"
+        },
+        {
+          "label": "${sys.time}",
+          "text": "当前时间，如：20:53:50"
+        },
+        {
+          "label": "${sys.randomInt}",
+          "text": "int随机数"
+        },
+        {
+          "label": "${sys.randomLong}",
+          "text": "long随机数"
+        },
+        {
+          "label": "${sys.randomBoolean}",
+          "text": "boolean随机"
+        },
+        {
+          "label": "${sys.uuid}",
+          "text": "生成uuid"
+        },
+        {
+          "label": "${sys.uuid2}",
+          "text": "生成uuid，去除'-'"
+        },
+        {
+          "label": "${sys.nextId}",
+          "text": "生成唯一id，基于雪花算法"
+        }
+      ]
+    }
+  ]
+}

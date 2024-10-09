@@ -2,10 +2,24 @@
   <div class="app-container">
     <el-form :inline="true" :model="searchFormData" class="demo-form-inline" size="mini">
       <el-form-item label="UserId">
-        <el-input v-model="searchFormData.id" :clearable="true" style="width: 250px;" />
+        <el-input v-model="searchFormData.id" :clearable="true" style="width: 250px;"/>
       </el-form-item>
       <el-form-item :label="$t('loginAccount')">
-        <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;" />
+        <el-input v-model="searchFormData.username" :clearable="true" style="width: 250px;"/>
+      </el-form-item>
+      <el-form-item :label="$t('status')">
+        <el-select v-model="searchFormData.status" :clearable="true">
+          <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
+            {{ item.label }}
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item :label="$t('isSuperAdmin')">
+        <el-select v-model="searchFormData.isSuperAdmin" :clearable="true">
+          <el-option v-for="item in isSuperAdminOptions" :key="item.value" :label="item.label" :value="item.value">
+            {{ item.label }}
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="onSearch">{{ $t('search') }}</el-button>
@@ -15,7 +29,7 @@
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="onAdd">{{ $t('addNewUser') }}</el-button>
     </div>
     <el-table
-      :data="pageInfo.rows"
+      :data="pageInfo.list"
       border
       highlight-current-row
     >
@@ -70,7 +84,7 @@
         width="120"
       >
         <template slot-scope="scope">
-          <time-tooltip :time="scope.row.gmtCreate" />
+          <time-tooltip :time="scope.row.gmtCreate"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -79,7 +93,9 @@
       >
         <template slot-scope="scope">
           <div v-if="!isSelf(scope.row.id)">
-            <el-link :underline="false" type="primary" @click="onAllocateProject(scope.row)">{{ $t('AdminUser.allocateProject') }}</el-link>
+            <el-link :underline="false" type="primary" @click="onAllocateProject(scope.row)">
+              {{ $t('AdminUser.allocateProject') }}
+            </el-link>
             <el-link :underline="false" type="primary" @click="onUserUpdate(scope.row)">{{ $t('update') }}</el-link>
             <el-popconfirm
               v-if="scope.row.source === getEnums().SOURCE.REGISTER || scope.row.source === getEnums().SOURCE.BACKEND"
@@ -140,13 +156,13 @@
           prop="username"
           :label="$t('loginAccount')"
         >
-          <el-input v-model="dialogFormData.username" :placeholder="$t('loginAccount')" />
+          <el-input v-model="dialogFormData.username" :placeholder="$t('loginAccount')"/>
         </el-form-item>
         <el-form-item
           prop="nickname"
           :label="$t('nickname')"
         >
-          <el-input v-model="dialogFormData.nickname" :placeholder="$t('suggestUseRealName')" />
+          <el-input v-model="dialogFormData.nickname" :placeholder="$t('suggestUseRealName')"/>
         </el-form-item>
         <el-form-item
           prop="isSuperAdmin"
@@ -184,7 +200,7 @@
               <el-radio :label="Role.admin">{{ $t('admin') }}</el-radio>
             </el-radio-group>
           </el-form-item>
-          <project-select ref="projectSelect" :on-ok="onAllocateProjectOk" :on-cancel="() => chooseProjectShow = false" />
+          <project-select ref="projectSelect" :on-ok="onAllocateProjectOk" :on-cancel="() => chooseProjectShow = false"/>
         </el-form>
       </div>
     </el-dialog>
@@ -199,14 +215,25 @@ export default {
   components: { TimeTooltip, ProjectSelect },
   data() {
     return {
+      statusOptions: [
+        { value: 0, label: $t('disable') },
+        { value: 1, label: $t('normal') },
+        { value: 2, label: $t('inactive') }
+      ],
+      isSuperAdminOptions: [
+        { value: 0, label: $t('no') },
+        { value: 1, label: $t('yes') }
+      ],
       searchFormData: {
         id: '',
         username: '',
+        status: '',
+        isSuperAdmin: '',
         pageIndex: 1,
         pageSize: 10
       },
       pageInfo: {
-        rows: [],
+        list: [],
         total: 0
       },
       dialogVisible: false,

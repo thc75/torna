@@ -1,19 +1,20 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.enums.MesssageTypeEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.Message;
 import cn.torna.common.message.MessageEnum;
-import cn.torna.common.support.BaseService;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.UserInfo;
 import cn.torna.dao.entity.UserMessage;
 import cn.torna.dao.mapper.UserMessageMapper;
 import cn.torna.service.dto.MessageDTO;
+import com.gitee.fastmybatis.core.PageInfo;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
 import com.gitee.fastmybatis.core.query.param.PageParam;
-import com.gitee.fastmybatis.core.support.PageEasyui;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -21,14 +22,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author tanghc
  */
 @Service
-public class UserMessageService extends BaseService<UserMessage, UserMessageMapper> {
+public class UserMessageService extends BaseLambdaService<UserMessage, UserMessageMapper> {
 
     @Autowired
     private UserSubscribeService userSubscribeService;
@@ -94,23 +98,36 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
     }
 
     public List<UserMessage> listUserUnReadMessage(long userId, int limit) {
-        Query query = new Query()
-                .eq("user_id", userId)
-                .eq("is_read", Booleans.FALSE)
-                .orderby("id", Sort.DESC);
+        Query query = this.query()
+                .eq(UserMessage::getUserId, userId)
+                .eq(UserMessage::getIsRead, Booleans.FALSE)
+                .orderBy(UserMessage::getId, Sort.DESC);
         if (limit > 0) {
             query.limit(0, limit);
         }
         return this.list(query);
     }
 
-    public PageEasyui<UserMessage> pageMessage(long userId, PageParam pageableParam) {
-        Query query = pageableParam.toQuery()
-                .eq("user_id", userId)
-                .orderby("is_read", Sort.ASC)
-                .orderby("id", Sort.DESC);
 
-        return this.pageEasyui(query);
+    public PageInfo<UserMessage> pageMessage(long userId, PageParam pageableParam) {
+        Query query = pageableParam.toQuery().toLambdaQuery(UserMessage.class)
+                .eq(UserMessage::getUserId, userId)
+                .orderBy(UserMessage::getIsRead, Sort.ASC)
+                .orderBy(UserMessage::getId, Sort.DESC);
+
+        return this.page(query);
+    }
+
+    /**
+     * 物理删除所有推送数据
+     *
+     * @param userId 用户id
+     */
+    public void deletePushMessage(long userId) {
+        this.query()
+                .eq(UserMessage::getUserId, userId)
+                .eq(UserMessage::getType, MesssageTypeEnum.PUSH_DOC.getType())
+                .deleteForce();
     }
 
     public void setRead(long id) {
@@ -121,6 +138,7 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
 
     /**
      * 消息全部已读
+     *
      * @param userId
      */
     public void setReadAll(long userId) {
@@ -129,9 +147,10 @@ public class UserMessageService extends BaseService<UserMessage, UserMessageMapp
 
     /**
      * 发送站内信
-     * @param userIds 用户
+     *
+     * @param userIds    用户
      * @param messageDTO messageDTO
-     * @param params 消息参数
+     * @param params     消息参数
      */
     private void sendMessage(List<Long> userIds, MessageDTO messageDTO, Object... params) {
         if (CollectionUtils.isEmpty(userIds)) {

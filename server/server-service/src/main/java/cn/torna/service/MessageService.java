@@ -10,8 +10,10 @@ import cn.torna.dao.entity.Project;
 import cn.torna.dao.mapper.ModuleMapper;
 import cn.torna.dao.mapper.ProjectMapper;
 import cn.torna.service.dto.DocInfoDTO;
+import cn.torna.service.event.ReleaseDocMessageEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -46,6 +48,8 @@ public class MessageService {
     @Resource
     private ModuleMapper moduleMapper;
 
+    @Resource
+    private ApplicationContext applicationContext;
 
     /**
      * 发送第三方消息，钉钉、企业微信
@@ -60,16 +64,14 @@ public class MessageService {
                 String url = moduleConfigService.getDingDingRobotWebhookUrl(docInfoDTO.getModuleId());
                 if (StringUtils.hasText(url)) {
                     List<String> dingDingUserIds = docInfoService.listSubscribeDocDingDingUserIds(docInfoDTO.getId());
-                    // 如果没有人关注 则跳过
-                    if (!CollectionUtils.isEmpty(dingDingUserIds)) {
-                        String content = buildDingDingMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, docInfoDTO, modifyType, dingDingUserIds);
-                        if (!StringUtils.hasText(content)) {
-                            return;
-                        }
-                        DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, url, content, dingDingUserIds);
+                    String content = buildDingDingMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, docInfoDTO, modifyType, dingDingUserIds);
+                    if (!StringUtils.hasText(content)) {
+                        return;
                     }
-
+                    DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK, url, content, dingDingUserIds);
                 }
+                // 这里推送关联版本的钉钉机器人webhook
+                applicationContext.publishEvent(new ReleaseDocMessageEvent(this, docInfoDTO, modifyType));
                 // 企业微信webhook url
                 url = moduleConfigService.getWeComWebhookUrl(docInfoDTO.getModuleId());
                 if (StringUtils.hasText(url)) {
