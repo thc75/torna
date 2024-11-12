@@ -12,6 +12,8 @@ import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.param.SwaggerJsonParam;
 import cn.torna.api.open.result.DocCategoryResult;
+import cn.torna.api.open.result.DocInfoResult;
+import cn.torna.api.open.result.DocResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
@@ -31,6 +33,7 @@ import cn.torna.dao.entity.Project;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.DocViewService;
 import cn.torna.service.MockConfigService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
@@ -56,6 +59,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,6 +114,9 @@ public class DocApi {
 
     @Autowired
     private MockConfigService mockConfigService;
+
+    @Autowired
+    private DocViewService docViewService;
 
 
     @Api(name = "doc.push")
@@ -532,6 +539,23 @@ public class DocApi {
                 .build();
 
         SpringContext.getBean(SwaggerApi.class).importSwagger(importSwaggerV2DTO, module);
+    }
+
+    @Api(name = "doc.tree")
+    @ApiDocMethod(description = "获取应用文档树", order = 6)
+    public DocResult docTree() {
+        long moduleId = RequestContext.getCurrentContext().getModuleId();
+        List<DocInfo> docInfos = docInfoService.listModuleDoc(moduleId);
+        List<DocInfoResult> docInfoResults = CopyUtil.copyList(docInfos, DocInfoResult::new);
+        DocResult docResult = new DocResult();
+        docResult.setData(docInfoResults);
+        return docResult;
+    }
+
+    @Api(name = "doc.detail")
+    @ApiDocMethod(description = "文档详情", order = 7)
+    public DocInfoDTO docTree(@NotNull Long docId) {
+        return docInfoService.getDocDetail(docId);
     }
 
 }
