@@ -62,7 +62,6 @@ public class DefaultDocMd5Builder implements DocMd5Builder {
                             .append(docParamDTO.getName())
                             .append(docParamDTO.getType())
                             .append(docParamDTO.getRequired())
-                            .append(docParamDTO.getExample())
                             .append(docParamDTO.getDescription())
                             .append(docParamDTO.getEnumId())
                             .append(docParamDTO.getIsDeleted())
