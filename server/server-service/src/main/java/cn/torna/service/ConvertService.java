@@ -410,7 +410,7 @@ public class ConvertService {
             if (!CollectionUtils.isEmpty(children)) {
                 root.put(requestParam.getName(), buildJsonObject(children));
             } else {
-                root.put(requestParam.getName(), requestParam.getExample());
+                root.put(requestParam.getName(), requestParam.getDescription());
             }
         }
         return root;
