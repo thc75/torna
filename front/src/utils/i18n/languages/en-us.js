@@ -6,6 +6,7 @@ export default {
   'responseArrayType': 'Response array type',
   'isRequestArray': 'Is request array',
   'isResponseArray': 'Is response array',
+  'all': 'All',
   'todo': 'Todo',
   'doing': 'Doing',
   'done': 'Done',
@@ -558,5 +559,9 @@ export default {
   },
   DocChangelog: {
     confirmRestore: 'Restore this version?'
+  },
+  DocFilter: {
+    'all': 'All',
+    'filter': 'Filter Empty Folders'
   }
 }

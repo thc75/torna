@@ -57,6 +57,8 @@ import java.util.stream.Collectors;
 @RequestMapping("doc")
 public class DocController {
 
+    private static final byte IS_FOLDER = 1;
+
     @Autowired
     private DocInfoService docInfoService;
 
@@ -89,8 +91,23 @@ public class DocController {
     public Result<List<DocInfoVO>> listProjectDoc2(@Valid @RequestBody DocListForm docListForm) {
         DocListFormDTO docListFormDTO = CopyUtil.copyBean(docListForm, DocListFormDTO::new);
         List<DocInfo> docInfos = docInfoService.listModuleTableDoc(docListFormDTO);
-        List<DocInfoVO> docInfoVOS = CopyUtil.copyList(docInfos, DocInfoVO::new);
-        return Result.ok(docInfoVOS);
+        // if filterEmptyFolder = 1, then filter empty folder
+        if (Objects.equals(IS_FOLDER, docListForm.getFilterEmptyFolder())) {
+            docInfos = this.filterEmptyFolder(docInfos);
+        }
+        List<DocInfoVO> list = CopyUtil.copyList(docInfos, DocInfoVO::new);
+        return Result.ok(list);
+    }
+
+    private List<DocInfo> filterEmptyFolder(List<DocInfo> list) {
+        Map<Long, Integer> folderChildrenCountMap = list.stream()
+                .collect(Collectors.groupingBy(DocInfo::getParentId, Collectors.summingInt(docInfo -> 1)));
+
+        return list.stream()
+                // 过滤空文件夹：文件夹必须有子元素，或非文件夹显示
+                .filter(docInfo -> !Objects.equals(docInfo.getIsFolder(), IS_FOLDER)
+                        || folderChildrenCountMap.getOrDefault(docInfo.getId(), 0) > 0)
+                .collect(Collectors.toList());
     }
 
     /**

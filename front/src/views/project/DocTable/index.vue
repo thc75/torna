@@ -3,7 +3,7 @@
     <div>
       <el-dropdown v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])" trigger="click" @command="handleCommand">
         <el-button type="primary" size="mini">
-          {{ $t('createDoc') }} <i class="el-icon-arrow-down el-icon--right"></i>
+          {{ $t('createDoc') }} <i class="el-icon-arrow-down el-icon--right" />
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item icon="el-icon-document" :command="onDocNew">{{ $t('createDoc') }}</el-dropdown-item>
@@ -11,11 +11,15 @@
         </el-dropdown-menu>
       </el-dropdown>
       <div class="table-right">
+        <el-radio-group v-model="searchForm.filterEmptyFolder" size="mini" @change="() => loadTable()">
+          <el-radio-button label="null">{{ $t('DocFilter.all') }}</el-radio-button>
+          <el-radio-button label="1">{{ $t('DocFilter.filter') }}</el-radio-button>
+        </el-radio-group>
         <el-radio-group v-model="searchForm.status" size="mini" @change="() => loadTable()">
-          <el-radio-button label="null">全部</el-radio-button>
-          <el-radio-button label="0">未完成</el-radio-button>
-          <el-radio-button label="5">进行中</el-radio-button>
-          <el-radio-button label="10">已完成</el-radio-button>
+          <el-radio-button label="null">{{ $t('all') }}</el-radio-button>
+          <el-radio-button label="0">{{ $t('todo') }}</el-radio-button>
+          <el-radio-button label="5">{{ $t('doing') }}</el-radio-button>
+          <el-radio-button label="10">{{ $t('done') }}</el-radio-button>
         </el-radio-group>
         <el-radio-group v-model="triggerStatus" size="mini" @change="onTriggerStatus">
           <el-radio-button label="1">{{ $t('expand') }}</el-radio-button>
@@ -48,7 +52,7 @@
                   trigger="hover"
                   width="800"
                 >
-                  <img :src="`${getBaseUrl()}/static/images/postmanimport.jpg`" style="width: 100%" />
+                  <img :src="`${getBaseUrl()}/static/images/postmanimport.jpg`" style="width: 100%">
                   <i slot="reference" class="el-icon-question" style="margin-left: 10px" @click.stop="() => {}" />
                 </el-popover>
               </el-dropdown-item>
@@ -62,7 +66,7 @@
       :data="tableRows"
       row-id="id"
       use-virtual
-      :treeConfig="{
+      :tree-config="{
         children: 'children',
         iconClose: 'el-icon-arrow-right',
         iconOpen: 'el-icon-arrow-down',
@@ -89,7 +93,7 @@
           </div>
           <div v-if="scope.row.isLocked" class="el-table-cell-icon">
             <el-tooltip placement="top" :content="$t('lockDocDesc')">
-              <i class="el-icon-lock"></i>
+              <i class="el-icon-lock" />
             </el-tooltip>
           </div>
           <div v-if="scope.row.isFolder === 0 && scope.row.type === getEnums().DOC_TYPE.MARKDOWN" class="el-table-cell-icon">
@@ -206,7 +210,7 @@
             <el-link v-if="!isFolder(scope.row)" type="info" icon="el-icon-document-copy" :title="$t('copy')" @click="onDocCopy(scope.row)" />
             <el-dropdown v-if="scope.row.children.length === 0" @command="handleCommand">
               <span class="el-dropdown-link">
-                <i class="el-icon-more el-icon--right"></i>
+                <i class="el-icon-more el-icon--right" />
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item
@@ -214,14 +218,13 @@
                   class="danger"
                   :title="$t('delete')"
                   :command="() => { onDocRemove(scope.row) }"
-                >
-                </el-dropdown-item>
+                />
                 <el-dropdown-item
                   v-if="!isFolder(scope.row) && !scope.row.isLocked"
                   :command="() => { onDocLock(scope.row) }"
                 >
                   <el-tooltip placement="top" :content="$t('lockDocDesc')">
-                    <span class="el-icon-lock"></span>
+                    <span class="el-icon-lock" />
                   </el-tooltip>
                 </el-dropdown-item>
                 <el-dropdown-item
@@ -229,8 +232,7 @@
                   icon="el-icon-unlock"
                   :title="$t('unlock')"
                   :command="() => { onDocUnLock(scope.row) }"
-                >
-                </el-dropdown-item>
+                />
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -331,7 +333,8 @@ export default {
         ]
       },
       searchForm: {
-        status: null
+        status: null,
+        filterEmptyFolder: null
       },
       token: ''
     }

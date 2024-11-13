@@ -21,4 +21,9 @@ public class DocListForm {
     @Condition
     private Byte status;
 
+    /**
+     * 是否过滤空文件夹
+     */
+    private Byte filterEmptyFolder;
+
 }
