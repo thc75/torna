@@ -850,6 +850,10 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
             return new ArrayList<>(0);
         }
         List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.list(UserDingtalkInfo::getUserInfoId, userIds);
+        if (CollectionUtils.isEmpty(dingtalkInfoList)) {
+            // 如果都未绑定钉钉，为了能发送消息，给一个默认值
+            return Collections.singletonList("");
+        }
         return dingtalkInfoList.stream()
                 .map(UserDingtalkInfo::getUserid)
                 .collect(Collectors.toList());
