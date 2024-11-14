@@ -351,7 +351,7 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
     }
 
 
-    private static boolean isArrayType(String type) {
+    public static boolean isArrayType(String type) {
         if (ObjectUtils.isEmpty(type)) {
             return false;
         }
