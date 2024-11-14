@@ -69,6 +69,7 @@ public class ProjectReleaseController {
                 param.getReleaseDesc(),
                 param.getStatus(),
                 param.getDingdingWebhook(),
+                param.getWeComWebhook(),
                 param.getModuleSourceIdMap()
         );
         return Result.ok();
@@ -88,6 +89,7 @@ public class ProjectReleaseController {
                 param.getReleaseDesc(),
                 param.getStatus(),
                 param.getDingdingWebhook(),
+                param.getWeComWebhook(),
                 param.getModuleSourceIdMap()
         );
         return Result.ok();

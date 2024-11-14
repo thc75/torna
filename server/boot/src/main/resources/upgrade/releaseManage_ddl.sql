@@ -5,6 +5,7 @@ CREATE TABLE `project_release`  (
     `release_desc` varchar(200) NULL DEFAULT '' COMMENT '版本描述',
     `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态 1-有效 0-无效',
     `dingding_webhook` varchar(200) NULL DEFAULT '' COMMENT '钉钉机器人webhook',
+    `we_com_webhook` varchar(200) NULL DEFAULT '' COMMENT '企业微信机器人webhook',
     `is_deleted` tinyint NOT NULL DEFAULT 0,
     `gmt_create` datetime NULL DEFAULT CURRENT_TIMESTAMP,
     `gmt_modified` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

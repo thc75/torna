@@ -61,6 +61,11 @@
         width="400"
       />
       <el-table-column
+        prop="weComWebhook"
+        :label="$t('WeComSetting.weComWebhookUrl')"
+        width="400"
+      />
+      <el-table-column
         prop="gmtCreate"
         :label="$t('joinTime')"
         width="180"
@@ -112,6 +117,9 @@
         </el-form-item>
         <el-form-item :label="$t('DingDingSetting.dingdingWebhookUrl')">
           <el-input v-model="releaseAddFormData.dingdingWebhook" />
+        </el-form-item>
+        <el-form-item :label="$t('WeComSetting.weComWebhookUrl')">
+          <el-input v-model="releaseAddFormData.weComWebhook" />
         </el-form-item>
         <el-form-item>
           <module-doc-tree
@@ -176,6 +184,7 @@ export default {
         releaseDesc: '',
         status: 0,
         dingdingWebhook: '',
+        weComWebhook: '',
         moduleSourceIdMap: {}
       },
       releaseAddRules: {
@@ -244,6 +253,7 @@ export default {
         releaseDesc: '',
         status: 0,
         dingdingWebhook: '',
+        weComWebhook: '',
         moduleSourceIdMap: {} // 选中的模块稿件map
       }
       this.loadModule(this.projectId, function() {

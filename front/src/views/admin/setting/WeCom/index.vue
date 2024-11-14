@@ -15,6 +15,7 @@
           <tr><td>{modifyType}</td><td>修改类型，枚举值：修改,删除</td></tr>
           <tr><td>{projectName}</td><td>项目名称</td></tr>
           <tr><td>{appName}</td><td>应用名称</td></tr>
+          <tr><td>{releaseNo}</td><td>版本号</td></tr>
           <tr><td>{docName}</td><td>文档名称</td></tr>
           <tr><td>{modifier}</td><td>修改人</td></tr>
           <tr><td>{modifyTime}</td><td>修改时间</td></tr>

@@ -136,7 +136,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
      **/
     @Transactional(rollbackFor = Exception.class)
     public void addProjectRelease(long projectId, String releaseNo, String releaseDesc,
-                                  int status, String dingdingWebhook, Map<String, List<String>> moduleSourceIdMap) {
+                                  int status, String dingdingWebhook, String weComWebhook, Map<String, List<String>> moduleSourceIdMap) {
         Query projectReleaseQuery = LambdaQuery.create(ProjectRelease.class)
                 .eq(ProjectRelease::getProjectId, projectId)
                 .eq(ProjectRelease::getReleaseNo, releaseNo);
@@ -150,6 +150,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
         projectRelease.setReleaseDesc(releaseDesc);
         projectRelease.setStatus(status == 1 ? 1 : 0);
         projectRelease.setDingdingWebhook(dingdingWebhook);
+        projectRelease.setWeComWebhook(weComWebhook);
         projectRelease.setIsDeleted(Booleans.FALSE);
         projectReleaseMapper.save(projectRelease);
         // 保存关联
@@ -168,7 +169,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
      **/
     @Transactional(rollbackFor = Exception.class)
     public void updateProjectRelease(long id, String releaseDesc, int status, String dingdingWebhook,
-                                     Map<String, List<String>> moduleSourceIdMap) {
+            String weComWebhook, Map<String, List<String>> moduleSourceIdMap) {
         ProjectRelease projectRelease = projectReleaseMapper.getById(id);
         if (projectRelease == null) {
             throw new BizException("该版本号在此项目不存在");
@@ -176,6 +177,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
         projectRelease.setReleaseDesc(releaseDesc);
         projectRelease.setStatus(status == 1 ? 1 : 0);
         projectRelease.setDingdingWebhook(dingdingWebhook);
+        projectRelease.setWeComWebhook(weComWebhook);
         projectReleaseMapper.update(projectRelease);
 
         Query deleteQuery = LambdaQuery.create(ProjectReleaseDoc.class)

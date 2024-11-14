@@ -37,6 +37,9 @@ public class ProjectRelease {
     /** 钉钉机器人webhook */
     private String dingdingWebhook;
 
+    /** 企业微信机器人webhook */
+    private String weComWebhook;
+
     /**  数据库字段：is_deleted */
     @Column(logicDelete = true)
     private Byte isDeleted;

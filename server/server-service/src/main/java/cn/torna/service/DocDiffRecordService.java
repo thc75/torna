@@ -171,6 +171,7 @@ public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDi
             DocInfoDTO docInfoNew = JSON.parseObject(snapshotNew.getContent(), DocInfoDTO.class);
             modifyType = ModifyType.ADD;
             this.createRecord(docInfoNew, docDiffDTO, modifyType);
+            this.pushMessage(docInfoNew, modifyType);
         } else if (snapshotOld != null && snapshotNew != null) {
             // update
             DocInfoDTO docInfoOld = JSON.parseObject(snapshotOld.getContent(), DocInfoDTO.class);

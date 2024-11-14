@@ -30,6 +30,10 @@ public class ProjectReleaseUpdateParam {
     @URL(message = "地址格式不正确")
     private String dingdingWebhook;
 
+    /** 企业微信机器人webhook */
+    @URL(message = "企业微信地址格式不正确")
+    private String weComWebhook;
+
     /** 关联文档Map （key：模块hashId  value: 文档hashId集合） */
     private Map<String, List<String>> moduleSourceIdMap;
 }
