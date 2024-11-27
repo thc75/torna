@@ -4,6 +4,11 @@
 
 - 【优化】计算MD5移除example字段
 - 【优化】导出postman文件字段值使用描述
+- 【优化】微信钉钉消息通知
+- 【优化】枚举子项enumItem缺少删除机制 [PR](https://gitee.com/durcframework/torna/pulls/66) [#IB5GG6](https://gitee.com/durcframework/torna/issues/IB5GG6)
+- 【优化】地址参数绑定枚举 [PR](https://gitee.com/durcframework/torna/pulls/68)
+
+感谢PR提交者, Torna有你更精彩!
 
 ## 1.29.4
 
