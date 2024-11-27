@@ -59,10 +59,8 @@
               <template slot-scope="scope">
                 <el-form :model="scope.row" size="mini">
                   <el-form-item label-width="0">
-                    <div v-if="scope.row.type === 'enum'">
-                      <el-select v-model="scope.row.example">
-                        <el-option v-for="val in scope.row.enums" :key="val" :value="val" :label="val"></el-option>
-                      </el-select>
+                    <div v-if="scope.row.enumInfo">
+                      <enum-select :row="scope.row" />
                     </div>
                     <div v-else>
                       <el-input v-model="scope.row.example" />

@@ -302,6 +302,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
         // 绑定枚举信息
+        bindEnumInfo(docInfoDTO.getPathParams());
         bindEnumInfo(docInfoDTO.getQueryParams());
         bindEnumInfo(docInfoDTO.getRequestParams());
         DubboInfoDTO dubboInfoDTO = buildDubboInfoDTO(docInfo);
