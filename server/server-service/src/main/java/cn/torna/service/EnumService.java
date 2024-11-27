@@ -67,11 +67,8 @@ public class EnumService {
     }
 
     private void updateItems(EnumInfo enumInfo, List<EnumItemDTO> items) {
-        if (items != null) {
-            for (EnumItemDTO item : items) {
-                item.setEnumId(enumInfo.getId());
-                this.saveEnumItem(item);
-            }
+        if (!CollectionUtils.isEmpty(items)) {
+            enumItemService.replaceEnumItem(enumInfo.getId(), items);
         }
     }
 
@@ -98,19 +95,6 @@ public class EnumService {
                 .orderBy(EnumItem::getId, Sort.ASC);
         List<EnumItem> itemList = enumItemService.list(query);
         return CopyUtil.copyList(itemList, EnumItemDTO::new);
-    }
-
-    private void saveEnumItem(EnumItemDTO itemDTO) {
-        EnumItem enumItem = enumItemService.getByEnumIdAndName(itemDTO.getEnumId(), itemDTO.getName());
-        if (enumItem == null) {
-            enumItem = CopyUtil.copyBean(itemDTO, EnumItem::new);
-            enumItem.setIsDeleted(Booleans.FALSE);
-            enumItemService.save(enumItem);
-        } else {
-            CopyUtil.copyPropertiesIgnoreNull(itemDTO, enumItem);
-            enumItem.setIsDeleted(Booleans.FALSE);
-            enumItemService.update(enumItem);
-        }
     }
 
     public EnumItem addEnumItem(EnumItemDTO itemDTO) {
