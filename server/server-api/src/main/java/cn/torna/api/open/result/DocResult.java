@@ -12,6 +12,6 @@ import java.util.List;
 public class DocResult {
 
     @ApiDocField(name = "文档")
-    private List<DocInfoResult> data;
+    private List<DocInfoResult> docList;
 
 }

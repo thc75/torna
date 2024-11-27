@@ -7,11 +7,13 @@ import cn.torna.api.open.param.CategoryAddParam;
 import cn.torna.api.open.param.CategoryUpdateParam;
 import cn.torna.api.open.param.CodeParamPushParam;
 import cn.torna.api.open.param.DebugEnvParam;
+import cn.torna.api.open.param.DocIdParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.param.SwaggerJsonParam;
 import cn.torna.api.open.result.DocCategoryResult;
+import cn.torna.api.open.result.DocInfoDetailResult;
 import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.api.open.result.DocResult;
 import cn.torna.common.bean.Booleans;
@@ -54,12 +56,12 @@ import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -86,6 +88,8 @@ public class DocApi {
     private static final String PUSH_ERROR_MSG = "文档【%s】推送失败，请查看日志";
 
     private final Object lock = new Object();
+
+    private Gson gson = new Gson();
 
 
     @Autowired
@@ -541,21 +545,23 @@ public class DocApi {
         SpringContext.getBean(SwaggerApi.class).importSwagger(importSwaggerV2DTO, module);
     }
 
-    @Api(name = "doc.tree")
-    @ApiDocMethod(description = "获取应用文档树", order = 6)
-    public DocResult docTree() {
+    @Api(name = "doc.list")
+    @ApiDocMethod(description = "获取应用文档列表", order = 6)
+    public DocResult docList() {
         long moduleId = RequestContext.getCurrentContext().getModuleId();
         List<DocInfo> docInfos = docInfoService.listModuleDoc(moduleId);
         List<DocInfoResult> docInfoResults = CopyUtil.copyList(docInfos, DocInfoResult::new);
         DocResult docResult = new DocResult();
-        docResult.setData(docInfoResults);
+        docResult.setDocList(docInfoResults);
         return docResult;
     }
 
     @Api(name = "doc.detail")
     @ApiDocMethod(description = "文档详情", order = 7)
-    public DocInfoDTO docTree(@NotNull Long docId) {
-        return docInfoService.getDocDetail(docId);
+    public DocInfoDetailResult docDetail(DocIdParam param) {
+        DocInfoDTO docDetailView = docInfoService.getDocDetailView(param.getDocId());
+        String json = gson.toJson(docDetailView);
+        return gson.fromJson(json, DocInfoDetailResult.class);
     }
 
 }
