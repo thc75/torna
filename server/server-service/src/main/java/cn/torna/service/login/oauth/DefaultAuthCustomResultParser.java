@@ -13,7 +13,7 @@ public class DefaultAuthCustomResultParser implements AuthCustomResultParser {
     @Override
     public AuthUser parse(String source, AuthToken authToken, JSONObject result) {
         return AuthUser.builder()
-                .uuid(result.getString(EnvironmentKeys.LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_ID.getKey()))
+                .uuid(result.getString(EnvironmentKeys.LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_ID.getValue()))
                 .username(result.getString(EnvironmentKeys.LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_USERNAME.getValue()))
                 .nickname(result.getString(EnvironmentKeys.LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_NICKNAME.getValue()))
                 .avatar(result.getString("avatar_url"))
