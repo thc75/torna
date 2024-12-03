@@ -43,6 +43,7 @@ public enum EnvironmentKeys {
     LOGIN_THIRD_PARTY_FORM_METHOD("torna.login.third-party.form.method"),
     /** OAuth scope */
     LOGIN_THIRD_PARTY_OAUTH_SCOPE("torna.login.third-party.oauth.scope"),
+    LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_ID("torna.login.third-party.oauth.key.result-id"),
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_USERNAME("torna.login.third-party.oauth.key.result-username"),
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_NICKNAME("torna.login.third-party.oauth.key.result-nickname"),
     LOGIN_THIRD_PARTY_OAUTH_KEY_RESULT_EMAIL("torna.login.third-party.oauth.key.result-email"),
