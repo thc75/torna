@@ -7,11 +7,16 @@ import cn.torna.api.open.param.CategoryAddParam;
 import cn.torna.api.open.param.CategoryUpdateParam;
 import cn.torna.api.open.param.CodeParamPushParam;
 import cn.torna.api.open.param.DebugEnvParam;
+import cn.torna.api.open.param.DocIdParam;
+import cn.torna.api.open.param.DocIdsParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
 import cn.torna.api.open.param.SwaggerJsonParam;
 import cn.torna.api.open.result.DocCategoryResult;
+import cn.torna.api.open.result.DocInfoDetailResult;
+import cn.torna.api.open.result.DocInfoResult;
+import cn.torna.api.open.result.DocResult;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.DingdingWebHookBody;
 import cn.torna.common.bean.EnvironmentKeys;
@@ -31,6 +36,7 @@ import cn.torna.dao.entity.Project;
 import cn.torna.manager.tx.TornaTransactionManager;
 import cn.torna.service.DocDiffRecordService;
 import cn.torna.service.DocInfoService;
+import cn.torna.service.DocViewService;
 import cn.torna.service.MockConfigService;
 import cn.torna.service.ModuleConfigService;
 import cn.torna.service.ModuleEnvironmentService;
@@ -51,11 +57,15 @@ import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,6 +92,8 @@ public class DocApi {
     private static final String PUSH_ERROR_MSG = "文档【%s】推送失败，请查看日志";
 
     private final Object lock = new Object();
+
+    private Gson gson = new Gson();
 
 
     @Autowired
@@ -110,6 +122,9 @@ public class DocApi {
 
     @Autowired
     private MockConfigService mockConfigService;
+
+    @Autowired
+    private DocViewService docViewService;
 
 
     @Api(name = "doc.push")
@@ -532,6 +547,39 @@ public class DocApi {
                 .build();
 
         SpringContext.getBean(SwaggerApi.class).importSwagger(importSwaggerV2DTO, module);
+    }
+
+    @Api(name = "doc.list")
+    @ApiDocMethod(description = "获取应用文档列表", order = 6)
+    public DocResult docList(DocIdsParam param) {
+        long moduleId = RequestContext.getCurrentContext().getModuleId();
+        List<Long> docIds = param.getDocIds();
+        LambdaQuery<DocInfo> query = docInfoService
+                .query()
+                .in(!CollectionUtils.isEmpty(docIds), DocInfo::getId, docIds);
+        List<DocInfo> docInfos = docInfoService.listModuleDoc(moduleId, query);
+        List<DocInfoResult> docInfoResults = CopyUtil.copyList(docInfos, DocInfoResult::new);
+        DocResult docResult = new DocResult();
+        docResult.setDocList(docInfoResults);
+        return docResult;
+    }
+
+    @Api(name = "doc.detail")
+    @ApiDocMethod(description = "文档详情", order = 7)
+    public DocInfoDetailResult docDetail(DocIdParam param) {
+        DocInfoDTO docDetailView = docInfoService.getDocDetailView(param.getDocId());
+        String json = gson.toJson(docDetailView);
+        return gson.fromJson(json, DocInfoDetailResult.class);
+    }
+
+    @Api(name = "doc.details")
+    @ApiDocMethod(description = "文档详情-批量", order = 8)
+    public List<DocInfoDetailResult> docDetails(DocIdsParam param) {
+        List<Long> docIds = param.getDocIds();
+        List<DocInfoDTO> docDetailsView = docInfoService.getDocDetailsView(docIds);
+        String json = gson.toJson(docDetailsView);
+        Type listType = new TypeToken<List<DocInfoDetailResult>>(){}.getType();
+        return gson.fromJson(json, listType);
     }
 
 }
