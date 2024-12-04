@@ -8,6 +8,7 @@ import cn.torna.api.open.param.CategoryUpdateParam;
 import cn.torna.api.open.param.CodeParamPushParam;
 import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocIdParam;
+import cn.torna.api.open.param.DocIdsParam;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;
 import cn.torna.api.open.param.DubboParam;
@@ -56,12 +57,15 @@ import com.gitee.easyopen.annotation.ApiService;
 import com.gitee.easyopen.doc.annotation.ApiDoc;
 import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -547,9 +551,13 @@ public class DocApi {
 
     @Api(name = "doc.list")
     @ApiDocMethod(description = "获取应用文档列表", order = 6)
-    public DocResult docList() {
+    public DocResult docList(DocIdsParam param) {
         long moduleId = RequestContext.getCurrentContext().getModuleId();
-        List<DocInfo> docInfos = docInfoService.listModuleDoc(moduleId);
+        List<Long> docIds = param.getDocIds();
+        LambdaQuery<DocInfo> query = docInfoService
+                .query()
+                .in(!CollectionUtils.isEmpty(docIds), DocInfo::getId, docIds);
+        List<DocInfo> docInfos = docInfoService.listModuleDoc(moduleId, query);
         List<DocInfoResult> docInfoResults = CopyUtil.copyList(docInfos, DocInfoResult::new);
         DocResult docResult = new DocResult();
         docResult.setDocList(docInfoResults);
@@ -562,6 +570,16 @@ public class DocApi {
         DocInfoDTO docDetailView = docInfoService.getDocDetailView(param.getDocId());
         String json = gson.toJson(docDetailView);
         return gson.fromJson(json, DocInfoDetailResult.class);
+    }
+
+    @Api(name = "doc.details")
+    @ApiDocMethod(description = "文档详情-批量", order = 8)
+    public List<DocInfoDetailResult> docDetails(DocIdsParam param) {
+        List<Long> docIds = param.getDocIds();
+        List<DocInfoDTO> docDetailsView = docInfoService.getDocDetailsView(docIds);
+        String json = gson.toJson(docDetailsView);
+        Type listType = new TypeToken<List<DocInfoDetailResult>>(){}.getType();
+        return gson.fromJson(json, listType);
     }
 
 }

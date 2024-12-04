@@ -2,6 +2,7 @@ package cn.torna;
 
 import cn.torna.common.bean.HttpHelper;
 import com.alibaba.fastjson.JSONObject;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -40,6 +41,19 @@ public class DocApiTest {
         String body = HttpHelper.get("http://localhost:7700/api")
                 .parameter("name", "module.get")
                 .parameter("access_token", "36f711e5df884417a073782b2088696c")
+                .execute()
+                .asString();
+        System.out.println(body);
+    }
+
+    @Test
+    public void test4() throws IOException {
+        JSONObject data = new JSONObject();
+        data.put("docIds", Lists.newArrayList(124, 125, 126));
+        String body = HttpHelper.get("http://localhost:7700/api")
+                .parameter("name", "doc.details")
+                .parameter("access_token", "36f711e5df884417a073782b2088696c")
+                .parameter("data", URLEncoder.encode(data.toJSONString(), "UTF-8"))
                 .execute()
                 .asString();
         System.out.println(body);

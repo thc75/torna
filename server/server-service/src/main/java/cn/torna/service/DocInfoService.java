@@ -137,6 +137,19 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         return docInfoList;
     }
 
+    /**
+     * 查询模块下的所有文档
+     *
+     * @param moduleId 模块id
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleDoc(long moduleId, LambdaQuery<DocInfo> query) {
+        query.eq(DocInfo::getModuleId, moduleId);
+        List<DocInfo> docInfoList = list(query);
+        sortDocInfo(docInfoList);
+        return docInfoList;
+    }
+
     public static void sortDocInfo(List<DocInfo> docInfoList) {
         if (CollectionUtils.isEmpty(docInfoList)) {
             return;
@@ -250,6 +263,22 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
                 .eq(DocInfo::getIsShow, Booleans.TRUE);
         DocInfo docInfo = get(query);
         return getDocDetail(docInfo);
+    }
+
+    /**
+     * 返回文档详情
+     *
+     * @param docIds 文档id
+     * @return 返回文档详情
+     */
+    public List<DocInfoDTO> getDocDetailsView(List<Long> docIds) {
+        Query query = this.query()
+                .in(DocInfo::getId, docIds)
+                .eq(DocInfo::getIsShow, Booleans.TRUE);
+        List<DocInfo> docInfoList = list(query);
+        return docInfoList.parallelStream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
     }
 
     /**
