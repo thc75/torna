@@ -95,7 +95,7 @@
       <parameter-table
         :data="docInfo.headerParams"
         :can-add-node="false"
-        :hidden-columns="['type', 'maxLength']"
+        :hidden-columns="['maxLength']"
         :empty-text="$t('noHeader')"
       />
     </div>

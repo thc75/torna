@@ -27,6 +27,12 @@ public class HeaderParamPushParam {
     @Length(max = 50)
     private String name;
 
+    /** 字段类型, 数据库字段：type */
+    @ApiDocField(description = "字段类型", required = true, example = "string/array/object")
+    @NotBlank(message = "字段类型不能为空")
+    @Length(max = 50, message = "字段类型不能超过50")
+    private String type;
+
     /** 是否必须，1：是，0：否, 数据库字段：required */
     @ApiDocField(description = "是否必须，1：是，0：否", required = true, example = "1")
     @NotNull(message = "是否必须不能为空")
@@ -41,6 +47,9 @@ public class HeaderParamPushParam {
     @ApiDocField(description = "描述", example = "商品名称描述", maxLength = "256")
     @Length(max = 256, message = "描述长度不能超过256")
     private String description;
+
+    @ApiDocField(description = "参数对应的枚举，如果参数是枚举，可以顺便把枚举信息填进来")
+    private EnumInfoCreateParam enumInfo;
 
     @Builder.Default
     private Byte createMode = OperationMode.OPEN.getType();

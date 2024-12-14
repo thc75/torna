@@ -1,7 +1,5 @@
 package cn.torna.api.open.result;
 
-import cn.torna.common.support.IdCodec;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.easyopen.doc.DataType;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
@@ -13,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class DocHeaderResult {
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+
     @ApiDocField(description = "参数id", example = "asdf", maxLength = "12", dataType = DataType.STRING)
     private Long id;
 

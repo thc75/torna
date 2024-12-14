@@ -36,6 +36,9 @@ public class ProjectReleaseDTO {
     /** 钉钉机器人webhook */
     private String dingdingWebhook;
 
+    /** 企业微信机器人webhook */
+    private String weComWebhook;
+
     /**  数据库字段：gmt_create */
     private LocalDateTime gmtCreate;
 

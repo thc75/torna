@@ -6,6 +6,7 @@ export default {
   'responseArrayType': '返回数组元素类型',
   'isRequestArray': '是否请求数组',
   'isResponseArray': '是否返回数组',
+  'all': '全部',
   'todo': '待进行',
   'doing': '进行中',
   'done': '已完成',
@@ -561,5 +562,9 @@ export default {
   },
   DocChangelog: {
     confirmRestore: '确认还原到此版本吗？'
+  },
+  DocFilter: {
+    'all': '全部',
+    'filter': '过滤空文件夹'
   }
 }

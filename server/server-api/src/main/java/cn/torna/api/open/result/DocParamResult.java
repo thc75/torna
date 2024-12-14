@@ -1,7 +1,5 @@
 package cn.torna.api.open.result;
 
-import cn.torna.common.support.IdCodec;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.gitee.easyopen.doc.DataType;
 import com.gitee.easyopen.doc.annotation.ApiDocField;
 import lombok.Data;
@@ -13,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class DocParamResult {
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+
     @ApiDocField(description = "参数id", example = "asdf", maxLength = "12", dataType = DataType.STRING)
     private Long id;
 
@@ -41,17 +39,17 @@ public class DocParamResult {
     @ApiDocField(description = "描述", maxLength = "200", example = "商品名称描述")
     private String description;
 
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+
     @ApiDocField(description = "字典id", maxLength = "12", example = "L42GEXWG")
     private Long enumId;
 
     /** doc_info.id, 数据库字段：doc_id */
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+
     @ApiDocField(description = "文档id", maxLength = "12", dataType = DataType.STRING)
     private Long docId;
 
     /** 父节点, 数据库字段：parent_id */
-    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+
     @ApiDocField(description = "父节点, 没有填空字符串", maxLength = "12", dataType = DataType.STRING)
     private Long parentId;
 

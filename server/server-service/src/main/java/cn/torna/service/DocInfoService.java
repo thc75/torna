@@ -137,6 +137,19 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         return docInfoList;
     }
 
+    /**
+     * 查询模块下的所有文档
+     *
+     * @param moduleId 模块id
+     * @return 返回文档
+     */
+    public List<DocInfo> listModuleDoc(long moduleId, LambdaQuery<DocInfo> query) {
+        query.eq(DocInfo::getModuleId, moduleId);
+        List<DocInfo> docInfoList = list(query);
+        sortDocInfo(docInfoList);
+        return docInfoList;
+    }
+
     public static void sortDocInfo(List<DocInfo> docInfoList) {
         if (CollectionUtils.isEmpty(docInfoList)) {
             return;
@@ -255,6 +268,22 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
     /**
      * 返回文档详情
      *
+     * @param docIds 文档id
+     * @return 返回文档详情
+     */
+    public List<DocInfoDTO> getDocDetailsView(List<Long> docIds) {
+        Query query = this.query()
+                .in(DocInfo::getId, docIds)
+                .eq(DocInfo::getIsShow, Booleans.TRUE);
+        List<DocInfo> docInfoList = list(query);
+        return docInfoList.parallelStream()
+                .map(this::getDocDetail)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 返回文档详情
+     *
      * @param docId 文档id
      * @return 返回文档详情
      */
@@ -302,6 +331,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         docInfoDTO.setResponseParams(CopyUtil.copyList(responseParams, DocParamDTO::new));
         docInfoDTO.setErrorCodeParams(CopyUtil.copyList(errorCodeParams, DocParamDTO::new));
         // 绑定枚举信息
+        bindEnumInfo(docInfoDTO.getPathParams());
         bindEnumInfo(docInfoDTO.getQueryParams());
         bindEnumInfo(docInfoDTO.getRequestParams());
         DubboInfoDTO dubboInfoDTO = buildDubboInfoDTO(docInfo);
@@ -850,6 +880,10 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
             return new ArrayList<>(0);
         }
         List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.list(UserDingtalkInfo::getUserInfoId, userIds);
+        if (CollectionUtils.isEmpty(dingtalkInfoList)) {
+            // 如果都未绑定钉钉，为了能发送消息，给一个默认值
+            return Collections.singletonList("");
+        }
         return dingtalkInfoList.stream()
                 .map(UserDingtalkInfo::getUserid)
                 .collect(Collectors.toList());

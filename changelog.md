@@ -1,5 +1,17 @@
 # 更新日志
 
+## 1.30.0
+
+- 【优化】计算MD5移除example字段
+- 【优化】导出postman文件字段值使用描述
+- 【优化】微信钉钉消息通知
+- 【优化】枚举子项enumItem缺少删除机制 [PR](https://gitee.com/durcframework/torna/pulls/66) [#IB5GG6](https://gitee.com/durcframework/torna/issues/IB5GG6)
+- 【优化】地址参数绑定枚举 [PR](https://gitee.com/durcframework/torna/pulls/68)
+- 【优化】优化oauth2认证,唯一ID使用动态化配置参数 [PR](https://gitee.com/durcframework/torna/pulls/69)
+- 【新增】新增OpenAPI接口,获取文档信息
+
+感谢PR提交者, Torna有你更精彩!
+
 ## 1.29.4
 
 - 【优化】dubbo接口文档描述支持html标签

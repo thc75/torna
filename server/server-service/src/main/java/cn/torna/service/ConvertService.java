@@ -408,9 +408,18 @@ public class ConvertService {
             List<DocParamDTO> children = requestParam.getChildren();
             // 如果有子节点
             if (!CollectionUtils.isEmpty(children)) {
-                root.put(requestParam.getName(), buildJsonObject(children));
+                Object child = buildJsonObject(children);
+                if (DocParamService.isArrayType(requestParam.getType())) {
+                    child = Collections.singletonList(child);
+                }
+                root.put(requestParam.getName(), child);
             } else {
-                root.put(requestParam.getName(), requestParam.getExample());
+                String description = requestParam.getDescription();
+                String example = requestParam.getExample();
+                if (StringUtils.hasText(example)) {
+                    description = description + ",示例值:" + example;
+                }
+                root.put(requestParam.getName(), description);
             }
         }
         return root;
