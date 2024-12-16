@@ -6,7 +6,6 @@ import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
-import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
