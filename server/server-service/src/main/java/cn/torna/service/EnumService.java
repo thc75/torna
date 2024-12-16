@@ -1,6 +1,5 @@
 package cn.torna.service;
 
-import cn.torna.common.bean.Booleans;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.EnumInfo;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -51,6 +51,10 @@ public class EnumService {
 
     @Transactional(rollbackFor = Exception.class)
     public EnumInfo saveEnumInfo(EnumInfoDTO enumInfoDTO) {
+        // 如果枚举名称为空则使用字段名称
+        if (StringUtils.isEmpty(enumInfoDTO.getName())) {
+            enumInfoDTO.setName(enumInfoDTO.getDescription());
+        }
         String dataId = enumInfoDTO.buildDataId();
         EnumInfo enumInfo = enumInfoService.getByDataId(dataId);
         if (enumInfo == null) {
@@ -75,7 +79,7 @@ public class EnumService {
     public EnumInfo addEnumInfo(EnumInfoDTO enumInfoDTO) {
         this.checkInfoExist(enumInfoDTO);
         String dataId = enumInfoDTO.buildDataId();
-        EnumInfo enumInfo  = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
+        EnumInfo enumInfo = CopyUtil.copyBean(enumInfoDTO, EnumInfo::new);
         enumInfo.setDataId(dataId);
         enumInfoService.save(enumInfo);
         return enumInfo;
