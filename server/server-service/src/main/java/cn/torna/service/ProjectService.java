@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -326,7 +327,10 @@ public class ProjectService extends BaseLambdaService<Project, ProjectMapper> im
      * @return 返回项目列表
      */
     private List<Project> listSpaceProject(long spaceId) {
-        return this.list(Project::getSpaceId, spaceId);
+        return this.query()
+                .eq(Project::getSpaceId, spaceId)
+                .orderByAsc(Project::getOrderIndex)
+                .list();
     }
 
     /**
