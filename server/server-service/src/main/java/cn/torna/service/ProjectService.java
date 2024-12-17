@@ -327,10 +327,9 @@ public class ProjectService extends BaseLambdaService<Project, ProjectMapper> im
      * @return 返回项目列表
      */
     private List<Project> listSpaceProject(long spaceId) {
-        return this.query()
-                .eq(Project::getSpaceId, spaceId)
-                .orderByAsc(Project::getOrderIndex)
-                .list();
+        List<Project> list = this.list(Project::getSpaceId, spaceId);
+        list.sort(Comparator.comparing(Project::getOrderIndex).thenComparing(Project::getName));
+        return list;
     }
 
     /**
