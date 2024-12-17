@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 13000;
+    private static final int VERSION = 13001;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -189,11 +189,11 @@ public class UpgradeService {
         v1_28_0(oldVersion);
         v1_29_0(oldVersion);
         v1_29_2(oldVersion);
-        v1_30_0(oldVersion);
+        v1_30_1(oldVersion);
     }
 
-    private void v1_30_0(int oldVersion) {
-        int version = 13000;
+    private void v1_30_1(int oldVersion) {
+        int version = 13001;
         if (oldVersion < version) {
             log.info("Upgrade version to {}", version);
             addColumn("project_release", "we_com_webhook",
