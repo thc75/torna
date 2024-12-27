@@ -92,6 +92,8 @@ public enum EnvironmentKeys {
     TORNA_PUSH_EXECUTE_SIZE("torna.push-execute-size", "50"),
     /** 快照数量 */
     TORNA_SNAPSHOT_SIZE("torna.snapshot-size", "5"),
+
+    TORNA_METERSPHERE_MODULE_MAXLEVEL("torna.metersphere.module.maxLevel", "2"),
     ;
 
     private final String key;

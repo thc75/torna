@@ -15,4 +15,8 @@ public class MsModuleConfigService extends BaseLambdaService<MsModuleConfig, MsM
         return get(MsModuleConfig::getModuleId, moduleId);
     }
 
+    public MsModuleConfig getByReleaseId(Long releaseId) {
+        return get(MsModuleConfig::getReleaseId, releaseId);
+    }
+
 }

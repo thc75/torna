@@ -399,7 +399,7 @@ export default {
   'nickEmail': '昵称/邮箱',
   'releaseNo': '版本号',
   'releaseDesc': '版本描述',
-  'viewAssociatedDocuments': '查看关联版本',
+  'viewAssociatedDocuments': '查看关联文档',
   'associatedDocument': '关联文档',
   'visitStyle': '访问方式',
   'updateName': '修改名称',
@@ -492,7 +492,9 @@ export default {
   },
   SwaggerSetting: {
     'syncConfirm': '保存成功，是否立即同步文档？',
-    'synchronizing': '同步中...'
+    'synchronizing': '同步中...',
+    'synchronization': '同步',
+    'checkSynchronized': '请确认是否同步？'
   },
   EditDocCustom: {
     'inputDocContent': '输入文档内容'

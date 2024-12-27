@@ -4,13 +4,11 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
-import cn.torna.dao.entity.Module;
-import cn.torna.dao.entity.MsModuleConfig;
-import cn.torna.dao.entity.MsSpaceConfig;
-import cn.torna.dao.entity.Project;
+import cn.torna.dao.entity.*;
 import cn.torna.manager.doc.postman.Postman;
 import cn.torna.service.ConvertService;
 import cn.torna.service.ModuleService;
+import cn.torna.service.ProjectReleaseService;
 import cn.torna.service.ProjectService;
 import cn.torna.service.metersphere.v3.constants.URLConstants;
 import cn.torna.service.metersphere.v3.model.state.AppSettingState;
@@ -33,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -68,6 +67,9 @@ public class MeterSpherePushService {
 
     @Autowired
     private MsModuleConfigService moduleConfigService;
+
+    @Autowired
+    private ProjectReleaseService projectReleaseService;
 
 
     /**
@@ -249,6 +251,107 @@ public class MeterSpherePushService {
         // Marking the import source as 'idea'
         param.put("origin", "idea");
         return param;
+    }
+
+    /**
+     * 推送版本对应文档到metersphere服务器
+     * @param releaseId 版本id
+     */
+    @Async
+    public void pushRelease(Long releaseId) throws Exception {
+        if (!EnvironmentKeys.ENABLE_METER_SPHERE.getBoolean()) {
+            return;
+        }
+        ProjectRelease projectRelease = projectReleaseService.getById(releaseId);
+        Project project = projectService.getById(projectRelease.getProjectId());
+        MsModuleConfig msModuleConfig = moduleConfigService.getByReleaseId(releaseId);
+        if (msModuleConfig == null) {
+            return;
+        }
+        MsSpaceConfig msSpaceConfig = msSpaceConfigService.getBySpaceId(project.getSpaceId());
+        if (msSpaceConfig == null) {
+            log.warn("metersphere空间未配置，spaceId={}, project={}", project.getSpaceId(), project.getName());
+            return;
+        }
+
+        Integer version = msSpaceConfig.getVersion();
+        if (Objects.equals(MeterSphereVersion.V2, version)) {
+            pushRelease2MsV2(projectRelease, msSpaceConfig, msModuleConfig);
+
+        }else if (Objects.equals(MeterSphereVersion.V3, version)) {
+            pushRelease2MsV3(projectRelease, msSpaceConfig, msModuleConfig);
+        }
+
+    }
+
+    private void pushRelease2MsV2(ProjectRelease projectRelease,
+                                  MsSpaceConfig msSpaceConfig,
+                                  MsModuleConfig msModuleConfig) throws IOException {
+        ConvertService.Config config = new ConvertService.Config();
+        config.setNeedHost(false);
+        Postman postman = convertService.convertToPostmanByRelease(projectRelease, config);
+        String url = msSpaceConfig.getMsAddress() + Configs.getValue("metersphere.import-url", "/api/definition/import");
+
+        if (CollectionUtils.isEmpty(postman.getItem())) {
+            log.warn("metersphere推送版本接口为空，releaseId={}", projectRelease.getId());
+            return;
+        }
+        File file = createTempFile(JSON.toJSONString(postman));
+        JSONObject param = buildParam(msModuleConfig);
+        HttpEntity formEntity = MultipartEntityBuilder.create()
+                .addBinaryBody("file", file, ContentType.APPLICATION_JSON, null)
+                .addBinaryBody("request", param.toJSONString().getBytes(StandardCharsets.UTF_8), ContentType.APPLICATION_JSON, null).build();
+
+        try {
+            log.debug("推送metersphere，param={}", param);
+            HttpHelper.ResponseResult responseResult = HttpHelper.create()
+                    .url(url)
+                    .method(HttpMethod.POST.name())
+                    .header("Accept", "application/json, text/plain, */*")
+                    .header("accesskey", msSpaceConfig.getMsAccessKey())
+                    .header("signature", MSApiUtil.getSinature(msSpaceConfig.getMsAccessKey(), msSpaceConfig.getMsSecretKey()))
+                    .entity(formEntity)
+                    .execute();
+            String result = responseResult.asString();
+            if (responseResult.getStatus() == 200) {
+                log.info("推送版本至metersphere成功");
+            } else {
+                log.error("推送版本至metersphere失败，param={}, result={}", param, result);
+            }
+        } catch (IOException e) {
+            log.error("推送版本至metersphere失败，param={},", param, e);
+        } finally {
+            try {
+                Files.deleteIfExists(file.toPath());
+            } catch (IOException e) {
+                log.error("Failed to delete temp file", e);
+            }
+        }
+    }
+
+
+    public void pushRelease2MsV3(
+            ProjectRelease projectRelease,
+            MsSpaceConfig msSpaceConfig,
+            MsModuleConfig msModuleConfig
+    ) throws Exception {
+        Long releaseId = projectRelease.getId();
+        OpenAPI openApi = convertService.convertToOpenAPIByRelease(projectRelease);
+        openApi.getInfo().setTitle(projectRelease.getReleaseNo());
+        JsonObject apiJsonObject = new OpenApiGenerator().generate(openApi);
+        String fileContent = apiJsonObject.toString();
+        File temp = createTempFile(fileContent);
+        try {
+            uploadToServer(msSpaceConfig, msModuleConfig, temp);
+        } catch (Exception e) {
+            log.error("推送openAPI文档失败, releaseId={}", releaseId, e);
+        } finally {
+            try {
+                Files.deleteIfExists(temp.toPath());
+            } catch (IOException e) {
+                log.error("Failed to delete temp file", e);
+            }
+        }
     }
 
 }

@@ -1,13 +1,11 @@
 package cn.torna.dao.entity;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 import com.gitee.fastmybatis.annotation.Pk;
 import com.gitee.fastmybatis.annotation.PkStrategy;
 import com.gitee.fastmybatis.annotation.Table;
-
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 
 /**
@@ -30,6 +28,11 @@ public class MsModuleConfig {
      * module.id
      */
     private Long moduleId;
+
+    /**
+     * project_release.id
+     */
+    private Long releaseId;
 
     /**
      * 默认覆盖

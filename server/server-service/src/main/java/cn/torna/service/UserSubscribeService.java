@@ -103,7 +103,6 @@ public class UserSubscribeService extends BaseLambdaService<UserSubscribe, UserS
         }
     }
 
-
     public List<Long> listUserIds(UserSubscribeTypeEnum userSubscribeTypeEnum, long sourceId) {
         Query query = this.query()
                 .eq(UserSubscribe::getType, userSubscribeTypeEnum.getType())
@@ -113,7 +112,6 @@ public class UserSubscribeService extends BaseLambdaService<UserSubscribe, UserS
                 .map(UserSubscribe::getUserId)
                 .collect(Collectors.toList());
     }
-
 
     public Map<Long, List<Long>> listUserIdsGroupBySourceId(UserSubscribeTypeEnum userSubscribeTypeEnum, List<Long> sourceIds) {
         Query query = this.query()
@@ -125,4 +123,5 @@ public class UserSubscribeService extends BaseLambdaService<UserSubscribe, UserS
                 Collectors.mapping(UserSubscribe::getUserId, Collectors.toList())
         ));
     }
+
 }

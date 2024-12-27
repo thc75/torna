@@ -975,7 +975,10 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         return convertTree(docInfos);
     }
 
-    private List<DocInfoDTO> convertTree(List<DocInfo> docInfos) {
+    public List<DocInfoDTO> convertTree(List<DocInfo> docInfos) {
+        if (CollectionUtils.isEmpty(docInfos)) {
+            return Collections.emptyList();
+        }
         List<DocInfoDTO> docInfoDTOList = docInfos.stream()
                 .map(this::getDocDetail)
                 .collect(Collectors.toList());

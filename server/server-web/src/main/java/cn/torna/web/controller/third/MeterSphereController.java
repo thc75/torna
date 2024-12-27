@@ -96,4 +96,27 @@ public class MeterSphereController {
         return Result.ok();
     }
 
+    @PostMapping("/module/sync")
+    public Result<?> syncModule(@Valid @RequestBody MeterSphereModuleSaveParam param) {
+        meterSphereService.syncModule(CopyUtil.copyBean(param, MeterSphereModuleConfigSaveDTO::new));
+        return Result.ok();
+    }
+
+    @GetMapping("/release/load")
+    public Result<MeterSphereModuleConfigSaveDTO> loadRelease(@HashId Long releaseId) {
+        MeterSphereModuleConfigSaveDTO moduleConfig = meterSphereService.getReleaseConfig(releaseId);
+        return Result.ok(moduleConfig);
+    }
+
+    @PostMapping("/release/save")
+    public Result<?> saveRelease(@Valid @RequestBody MeterSphereModuleSaveParam param) {
+        meterSphereService.saveRelease(CopyUtil.copyBean(param, MeterSphereModuleConfigSaveDTO::new));
+        return Result.ok();
+    }
+
+    @PostMapping("/release/sync")
+    public Result<?> syncRelease(@Valid @RequestBody MeterSphereModuleSaveParam param) {
+        meterSphereService.syncRelease(CopyUtil.copyBean(param, MeterSphereModuleConfigSaveDTO::new));
+        return Result.ok();
+    }
 }
