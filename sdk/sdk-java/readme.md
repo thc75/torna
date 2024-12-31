@@ -1,8 +1,10 @@
-# torna-sdk-java
+# torna-sdk
 
 开放平台对应的sdk
 
-## 接口封装步骤
+## sdk-java
+
+### 接口封装步骤
 
 比如获取商品信息接口
 
@@ -71,7 +73,7 @@ public class GetGoodsRequest extends BaseRequest<GetGoodsResponse> {
 }
 ```
 
-## 使用方式
+### 使用方式
 
 ```
 // 创建请求对象
