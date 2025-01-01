@@ -11,16 +11,25 @@
       <el-button type="text" icon="el-icon-plus" @click="onParamAdd">{{ $t('newParam') }}</el-button>
       <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $t('importParam') }}</el-button>
     </div>
-    <el-table
-      :data="tableData"
+    <u-table
+      :data="getter(rows)"
+      row-id="id"
       row-key="id"
+      use-virtual
+      :treeConfig="{
+        children: 'children',
+        iconClose: 'el-icon-arrow-right',
+        iconOpen: 'el-icon-arrow-down',
+        expandAll: true
+      }"
+      :height="500"
+      :row-height="20"
       border
-      default-expand-all
-      highlight-current-row
-      :empty-text="emptyText"
-      class="param-table"
+      class="param-table1"
+      ref="virtualTable"
     >
-      <el-table-column
+      <u-table-column
+        :tree-node="true"
         v-if="isTypeObject && isColumnShow('name')"
         prop="name"
         :label="nameLabel"
@@ -43,63 +52,52 @@
               prop="name"
               label-width="0"
             >
-              <el-input v-model="scope.row.name" :placeholder="$t('paramName')" maxlength="64" show-word-limit />
+              <WeInput :value="scope.row.name" :size="'mini'" @change="(val) =>onWeChange(val,scope.row,'name')" :placeholder="$t('paramName')" :maxlength="64" :showWordLimit="true"/>
             </el-form-item>
           </el-form>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isTypeObject && isColumnShow('type')"
         prop="type"
         :label="$t('type')"
         width="130"
       >
         <template slot-scope="scope">
-          <el-select v-model="scope.row.type" size="mini">
-            <el-option v-for="type in getTypeConfig()" :key="type" :label="type" :value="type"></el-option>
-          </el-select>
+          <WeSelect :type="'arr'" :value="scope.row.type" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="false" :allowCreate="false" :list="getTypeConfig()" :clearable="false" :size="'mini'"/>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isTypeObject && isColumnShow('enum')"
         prop="enum"
         :label="$t('linkDict')"
         width="120"
       >
         <template slot-scope="scope">
-          <el-select v-model="scope.row.enumId" :clearable="true" size="mini">
-            <el-option v-for="enumInfo in enumData" :key="enumInfo.id" :label="enumInfo.name" :value="enumInfo.id">
-              {{ enumInfo.name }}
-            </el-option>
-          </el-select>
+          <WeSelect :type="'obj'" :value="scope.row.enumId" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="false" :allowCreate="false" :list="enumData" :clearable="true" :size="'mini'"/>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isTypeObject && isColumnShow('required')"
         prop="required"
         :label="$t('require')"
         width="80"
       >
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.required"
-            active-color="#13ce66"
-            :active-value="1"
-            :inactive-value="0"
-          />
+          <WeSwitch :value="scope.row.required" @change="(val) =>onWeChange(val,scope.row,'required')" :activeColor="'#13ce66'" :activeValue="1" :inactivealVue="0"/>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isTypeObject && isColumnShow('maxLength')"
         prop="maxLength"
         :label="$t('maxLength')"
         width="130"
       >
         <template slot-scope="scope">
-          <el-input v-model="scope.row.maxLength" :placeholder="$t('maxLength')" size="mini" maxlength="10" show-word-limit />
+          <WeInput :value="scope.row.maxLength" :size="'mini'" @change="(val) =>onWeChange(val,scope.row,'example')" :placeholder="$t('maxLength')" :maxlength="10" :showWordLimit="true"/>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isColumnShow('description')"
         prop="description"
         :label="descriptionLabel"
@@ -110,27 +108,21 @@
               prop="description"
               label-width="0"
             >
-              <el-input v-model="scope.row.description" :placeholder="descriptionLabel" maxlength="512" show-word-limit />
+              <WeInput :value="scope.row.description" @change="(val) =>onWeChange(val,scope.row,'description')" :placeholder="descriptionLabel" :maxlength="512" :showWordLimit="true"/>
             </el-form-item>
           </el-form>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isColumnShow('example')"
         prop="example"
         :label="exampleLabel"
       >
         <template slot-scope="scope">
-          <el-input
-            v-model="scope.row.example"
-            :placeholder="exampleLabel"
-            maxlength="128"
-            size="mini"
-            show-word-limit
-          />
+          <WeInput :value="scope.row.example" :size="'mini'" @change="(val) =>onWeChange(val,scope.row,'example')" :placeholder="exampleLabel" :maxlength="128" :showWordLimit="true"/>
         </template>
-      </el-table-column>
-      <el-table-column
+      </u-table-column>
+      <u-table-column
         v-if="isColumnShow('opt')"
         :label="$t('operation')"
         width="90"
@@ -150,8 +142,8 @@
             </div>
           </div>
         </template>
-      </el-table-column>
-    </el-table>
+      </u-table-column>
+    </u-table>
     <el-dialog
       :title="importParamTemplateTitle"
       :visible.sync="importParamTemplateDlgShow"
@@ -166,7 +158,11 @@
 </template>
 <script>
 import { is_array_string } from '@/utils/common'
+import WeInput from "../EditTable/input.vue"
+import WeSwitch from "../EditTable/switch.vue"
+import WeSelect from "../EditTable/select.vue"
 export default {
+  components:{WeInput,WeSwitch,WeSelect},
   props: {
     data: {
       type: Array,
@@ -277,15 +273,78 @@ export default {
       const children = row.children || []
       const child = this.getParamNewRow()
       child.parentId = row.id
+      child.maxLength = String(child.maxLength)//转为字符类型，解决警告
       children.push(child)
       row.children = children
+      this.rows.forEach(e => {
+        let flag = false
+        if(e.id === row.id){
+          e.children = row.children
+          flag = true
+        }
+        if(!flag && e.children.length > 0){
+          this.getaddChildren(e.children,row.id,row.children)
+        }
+      })
+      const tableBodyWrapperTop = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper').scrollTop
+      this.$forceUpdate(); // 强制刷新组件
+      
+      this.$nextTick(() => {
+        setTimeout(() => {
+          const tableBodyWrapper = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper');
+          if(tableBodyWrapper){
+            tableBodyWrapper.scrollTop = Number(tableBodyWrapperTop)
+          }
+        },100)
+      });
+    },
+    getaddChildren(row,id,children){
+      let flag = false
+      row.forEach(e => {
+        if(e.id === id){
+          e.children = children
+          flag = true
+        }
+        if(!flag && e.children.length > 0){
+          this.getaddChildren(e.children,id,children)
+        }
+      })
     },
     onParamRemove(row) {
-      if (row.isNew) {
-        this.removeRow(this.data, row.id)
-      } else {
+      // if (row.isNew) {
+      //   this.removeRow(this.data, row.id)
+      // } else {
         row.isDeleted = 1
-      }
+        this.data.forEach(e => {
+          if(e.id === row.id){
+            e.isDeleted = 1
+          }
+          if(e.children.length > 0){
+            this.getChildren(e.children,row.id)
+          }
+        })
+        // 重新设置scrollTop
+        const tableBodyWrapperTop = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper').scrollTop
+        this.$forceUpdate(); // 强制刷新组件
+        this.$nextTick(() => {
+          setTimeout(() => {
+            const tableBodyWrapper = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper');
+            if(tableBodyWrapper){
+              tableBodyWrapper.scrollTop = Number(tableBodyWrapperTop)
+            }
+          },10)
+        });
+      // }
+    },
+    getChildren(row,id){
+      row.forEach(e => {
+        if(e.id === id){
+            e.isDeleted = 1
+          }
+        if(e.children.length > 0){
+          this.getChildren(e.children,id)
+        }
+      })
     },
     onImportParamSave() {
       const val = this.importParamTemplateValue
@@ -316,6 +375,26 @@ export default {
         data: this.data
       }
     },
+    onWeChange(val,row,code){
+      this.data.forEach(e => {
+        if(e.id === row.id){
+          e[code] = val
+        }
+        if(e.children.length > 0){
+          this.setChildren(val,row,code,e.children)
+        }
+      })
+    },
+    setChildren(val,row,code,rows){
+      rows.forEach(e => {
+        if(e.id === row.id){
+          e[code] = val
+        }
+        if(e.children.length > 0){
+          this.setChildren(val,row,code,e.children)
+        }
+      })
+    },
     validate() {
       const fn = rows => {
         let valid = true
@@ -330,9 +409,9 @@ export default {
         return valid
       }
       if (this.isTypeObject) {
-        return fn(this.tableData)
+        return fn(this.data)
       } else {
-        const row = this.tableData[0]
+        const row = this.data[0]
         if (!row.description) {
           return false
         }
