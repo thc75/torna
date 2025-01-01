@@ -1,5 +1,13 @@
 # 更新日志
 
+## 1.31.0
+
+- 【新增】应用配置->MeterSphere设置，增加页面手动同步的功能按钮。以及保存后，提示是否直接同步。[PR](https://gitee.com/durcframework/torna/pulls/71)
+- 【优化】MeterSphere模块的层级选择器深度优化为配置: torna.metersphere.module.maxLevel, 默认最大层级为2。[PR](https://gitee.com/durcframework/torna/pulls/71)
+- 【新增】版本管理模块新增同步MeterSphere操作，便于后续以版本维度的自动化测试。（支持MeterSphere V2、V3）[PR](https://gitee.com/durcframework/torna/pulls/71)
+- 【优化】优化版本管理模块的相关样式，关联文档页面增加版本号展示。[PR](https://gitee.com/durcframework/torna/pulls/71)
+- 【优化】大接口的前端性能优化（请求参数界面和基本信息） 基本信息界面对于大接口（300个字段）的加载时间降低一半，请求参数界面的修改变得丝滑，且占用内存也会降低。[PR](https://gitee.com/durcframework/torna/pulls/72)
+
 ## 1.30.2
 
 - 【优化】支持在url后面指定版本号,格式:url#版本号
