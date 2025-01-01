@@ -491,7 +491,9 @@ export default {
   },
   SwaggerSetting: {
     'syncConfirm': 'Save success, synchronize documents now?',
-    'synchronizing': 'Synchronizing'
+    'synchronizing': 'Synchronizing',
+    'synchronization': 'synchronization',
+    'checkSynchronized': 'Please check whether it is synchronized'
   },
   EditDocCustom: {
     'inputDocContent': 'Input document content'

@@ -13,6 +13,9 @@ public class MeterSphereModuleSaveParam {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private Long moduleId;
 
+    @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
+    private Long releaseId;
+
     private String msModuleId;
 
     private String msModuleName;

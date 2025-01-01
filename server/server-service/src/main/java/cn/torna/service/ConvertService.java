@@ -3,26 +3,19 @@ package cn.torna.service;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.TreeUtil;
+import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
-import cn.torna.manager.doc.postman.Body;
-import cn.torna.manager.doc.postman.Header;
-import cn.torna.manager.doc.postman.Info;
-import cn.torna.manager.doc.postman.Item;
-import cn.torna.manager.doc.postman.Param;
-import cn.torna.manager.doc.postman.Postman;
-import cn.torna.manager.doc.postman.Request;
-import cn.torna.manager.doc.postman.Url;
+import cn.torna.dao.entity.ProjectRelease;
+import cn.torna.dao.entity.ProjectReleaseDoc;
+import cn.torna.manager.doc.postman.*;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.metersphere.v3.constants.ParameterIn;
-import cn.torna.service.metersphere.v3.model.ApiDefinition;
-import cn.torna.service.metersphere.v3.model.DataTypes;
-import cn.torna.service.metersphere.v3.model.HttpMethod;
-import cn.torna.service.metersphere.v3.model.Property;
-import cn.torna.service.metersphere.v3.model.RequestBodyType;
+import cn.torna.service.metersphere.v3.model.*;
 import cn.torna.service.metersphere.v3.openapi.OpenApiDataConvert;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.gitee.fastmybatis.core.query.LambdaQuery;
 import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Data;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -32,14 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,6 +42,9 @@ public class ConvertService {
 
     @Autowired
     private ModuleService moduleService;
+
+    @Autowired
+    private ProjectReleaseDocService projectReleaseDocService;
 
     public OpenAPI convertToOpenAPI(Long moduleId) {
         List<DocInfoDTO> docInfos = docInfoService.listDocDetail(moduleId);
@@ -245,10 +234,65 @@ public class ConvertService {
         return postman;
     }
 
+    private List<DocInfo> getReleaseDocInfos(ProjectRelease projectRelease) {
+        List<ProjectReleaseDoc> releaseDocs = projectReleaseDocService.getReleaseDocs(
+                projectRelease.getProjectId(),
+                projectRelease.getId()
+        );
+        // 查询关联文档
+        Set<Long> docIds = releaseDocs.stream().map(ProjectReleaseDoc::getSourceId).collect(Collectors.toSet());
+        if (CollectionUtils.isEmpty(docIds)) {
+            return new ArrayList<>();
+        }
+        // 由于版本关联文档时，当分类下文档没有完全选中时，分类id不会记录在project_release_doc中，这里需要补全分类数据
+        List<DocInfo> parentDocInfos = docInfoService.list(
+                LambdaQuery.create(DocInfo.class)
+                        .in(DocInfo::getId, docIds)
+                        .select(DocInfo::getParentId)
+        );
+        docIds.addAll(parentDocInfos.stream().map(DocInfo::getParentId).collect(Collectors.toSet()));
+        // 查询文档
+        return docInfoService.list(
+                LambdaQuery.create(DocInfo.class)
+                        .in(DocInfo::getId, docIds)
+        );
+    }
+
+
+    public Postman convertToPostmanByRelease(ProjectRelease projectRelease, Config config) {
+        Context context = new Context();
+        context.setModuleId(projectRelease.getId());
+        context.setAppName(projectRelease.getReleaseNo());
+        context.setConfig(config);
+        Postman postman = new Postman();
+        Info info = buildInfo(projectRelease);
+        List<DocInfo> releaseDocInfoList = getReleaseDocInfos(projectRelease);
+        DocInfoService.sortDocInfo(releaseDocInfoList);
+        List<DocInfoDTO> docInfos = docInfoService.convertTree(releaseDocInfoList);
+        List<Item> items = buildItems(docInfos, context);
+        postman.setInfo(info);
+        postman.setItem(items);
+        return postman;
+    }
+
+    public OpenAPI convertToOpenAPIByRelease(ProjectRelease projectRelease) {
+        List<DocInfoDTO> docInfos = getReleaseDocInfos(projectRelease)
+                .stream()
+                .map(docInfoService::getDocDetail)
+                .collect(Collectors.toList());
+        List<ApiDefinition> apis = buildApiDefinition(docInfos);
+        return new OpenApiDataConvert().convert(apis);
+    }
 
     private Info buildInfo(Module module) {
         Info info = new Info();
         info.setName(module.getName());
+        return info;
+    }
+
+    private Info buildInfo(ProjectRelease projectRelease) {
+        Info info = new Info();
+        info.setName(projectRelease.getReleaseNo());
         return info;
     }
 

@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 13001;
+    private static final int VERSION = 13100;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -190,6 +190,18 @@ public class UpgradeService {
         v1_29_0(oldVersion);
         v1_29_2(oldVersion);
         v1_30_1(oldVersion);
+        v1_31_0(oldVersion);
+    }
+
+    private void v1_31_0(int oldVersion) {
+        int version = 13100;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("ms_module_config", "release_id",
+                    "ALTER TABLE `ms_module_config` ADD COLUMN `release_id` bigint NULL DEFAULT 0 COMMENT 'project_release.id' AFTER `module_id`;");
+            runSql("ALTER TABLE `ms_module_config` DROP INDEX `uk_moduleid`");
+            runSql("ALTER TABLE `ms_module_config` ADD UNIQUE INDEX `uk_moduleid`(`module_id`, `release_id`) USING BTREE");
+        }
     }
 
     private void v1_30_1(int oldVersion) {

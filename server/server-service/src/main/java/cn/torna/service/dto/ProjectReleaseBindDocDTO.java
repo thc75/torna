@@ -28,6 +28,14 @@ public class ProjectReleaseBindDocDTO {
 
     private String label;
 
+    private String name;
+
+    private String httpMethod;
+
+    private String url;
+
+    private String version;
+
     private Integer isFolder;
 
     private List<ProjectReleaseBindDocDTO> children = new ArrayList<>();

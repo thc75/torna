@@ -105,7 +105,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
      * 将Map中的Id转换为HashId
      *
      * @param map key和value均为Long类型的id
-     * @return Map<List < String>>
+     * @return Map<String, List<String>>
      * @author qiuyu
      **/
     private Map<String, List<String>> toEncode(Map<Long, List<Long>> map) {
@@ -251,6 +251,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
             // 获取接口名称
             List<Long> docIds = list.stream().map(ProjectReleaseDoc::getSourceId).distinct().collect(Collectors.toList());
             List<DocInfo> docInfos = docInfoService.list(LambdaQuery.create(DocInfo.class).in(DocInfo::getId, docIds));
+            DocInfoService.sortDocInfo(docInfos);
             Map<Long, DocInfo> docInfoMap = docInfos.stream().collect(Collectors.toMap(DocInfo::getId, Function.identity(), (v1, v2) -> v2));
 
             // 封装关联文档
@@ -259,7 +260,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
                     ProjectReleaseBindDocDTO module = new ProjectReleaseBindDocDTO(releaseId);
                     module.setIsFolder(1);
                     module.setId(k);
-                    module.setLabel(v);
+                    module.setName(v);
                     muduleId2ListMap.get(k).forEach(releaseDoc ->{
                         ProjectReleaseBindDocDTO doc = new ProjectReleaseBindDocDTO(releaseId);
                         DocInfo docInfo = docInfoMap.get(releaseDoc.getSourceId());
@@ -267,7 +268,10 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
                         if (docInfo.getIsFolder() == 0) {
                             doc.setIsFolder(0);
                             doc.setId(docInfo.getId());
-                            doc.setLabel(String.format("%s 【%s】 %s",docInfo.getName(), docInfo.getHttpMethod(), docInfo.getUrl()));
+                            doc.setName(docInfo.getName());
+                            doc.setHttpMethod(docInfo.getHttpMethod());
+                            doc.setUrl(docInfo.getUrl());
+                            doc.setVersion(docInfo.getVersion());
                             module.getChildren().add(doc);
                         }
                     });
