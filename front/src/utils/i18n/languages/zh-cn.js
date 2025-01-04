@@ -520,6 +520,9 @@ export default {
   Module: {
     'noAppDescription': '当前没有应用'
   },
+  EnumInfo: {
+    'filter': '过滤,支持:名称/值/描述'
+  },
   EnvSetting: {
     'newEnv': '新环境',
     'importEnv': '从其它模块导入',

@@ -517,6 +517,9 @@ export default {
   Module: {
     'noAppDescription': 'No application'
   },
+  EnumInfo: {
+    'filter': 'Filter,support:name/value/description'
+  },
   EnvSetting: {
     'newEnv': 'New Environment',
     'importEnv': 'Import from other modules',

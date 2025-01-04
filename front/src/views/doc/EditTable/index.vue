@@ -14,7 +14,7 @@
       :row-height="20"
       border
       class="param-table1"
-      ref="virtualTable"  
+      ref="virtualTable"
     >
     <u-table-column
       :tree-node="true"
@@ -63,7 +63,7 @@
       width="120"
     >
       <template slot-scope="scope">
-        <WeSelect :type="'obj'" :value="scope.row.enumId" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="false" :allowCreate="false" :list="enumData" :clearable="true" :size="'mini'"/>
+        <WeSelect :type="'obj'" :value="scope.row.enumId" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="true" :allowCreate="false" :list="enumData" :clearable="true" :size="'mini'"/>
       </template>
     </u-table-column>
     <u-table-column
@@ -200,7 +200,7 @@ export default {
     getter: {
       type: Function,
       default: (rows) => { return rows.filter(row => !row.hidden) }
-    },
+    }
   },
   data() {
     return {
@@ -265,7 +265,7 @@ export default {
           this.getaddChildren(e.children,row.id,row.children)
         }
       })
-      
+
       // 重新设置scrollTop
       const tableBodyWrapperTop = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper').scrollTop
       this.$forceUpdate(); // 强制刷新组件

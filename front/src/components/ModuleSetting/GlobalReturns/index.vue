@@ -81,7 +81,7 @@
         <el-form-item
           :label="$t('linkDict')"
         >
-          <el-select v-model="dialogParamFormData.enumId" :clearable="true" size="mini">
+          <el-select v-model="dialogParamFormData.enumId" filterable :clearable="true" size="mini">
             <el-option v-for="enumInfo in enumData" :key="enumInfo.id" :label="enumInfo.name" :value="enumInfo.id">
               {{ enumInfo.name }}
             </el-option>

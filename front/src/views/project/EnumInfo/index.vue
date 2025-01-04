@@ -35,15 +35,26 @@
       </el-tab-pane>
       <div>
         <el-alert v-if="enumInfo.description" :closable="false" :title="enumInfo.description" style="margin-bottom: 10px;" />
-        <el-button
-          v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
-          type="text"
-          @click="onEnumItemAdd"
-        >
-          {{ $t('newItem') }}
-        </el-button>
+        <div class="table-title">
+          <el-button
+            v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
+            type="primary"
+            size="mini"
+            @click="onEnumItemAdd"
+          >
+            {{ $t('newItem') }}
+          </el-button>
+          <el-input
+            v-model="tableSearch"
+            prefix-icon="el-icon-search"
+            clearable
+            size="mini"
+            :placeholder="$t('EnumInfo.filter')"
+            style="width: 300px;"
+          />
+        </div>
         <el-table
-          :data="enumData"
+          :data="tableRows"
           border
           highlight-current-row
         >
@@ -169,6 +180,7 @@ export default {
     return {
       activeName: '',
       moduleId: '',
+      tableSearch: '',
       enumInfo: {
         id: '',
         name: ''
@@ -213,6 +225,16 @@ export default {
           { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
         ]
       }
+    }
+  },
+  computed: {
+    tableRows() {
+      let search = this.tableSearch.trim()
+      if (!search) {
+        return this.enumData
+      }
+      search = search.toLowerCase()
+      return this.searchRow(search, this.enumData, this.searchContent, () => false)
     }
   },
   methods: {
@@ -317,6 +339,11 @@ export default {
       this.get('/doc/enum/item/delete', { id: row.id }, () => {
         this.loadTable(row.enumId)
       })
+    },
+    searchContent(searchText, row) {
+      return (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
+        (row.description && row.description.toLowerCase().indexOf(searchText) > -1) ||
+        (row.value && row.value.toLowerCase().indexOf(searchText) > -1)
     }
   }
 }

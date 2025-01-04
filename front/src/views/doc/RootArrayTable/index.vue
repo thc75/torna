@@ -12,7 +12,7 @@
       <el-button type="text" icon="el-icon-bottom-right" @click="onImportRequestParamAdd">{{ $t('importParam') }}</el-button>
     </div>
     <u-table
-      :data="getter(rows)"
+      :data="getter(tableData)"
       row-id="id"
       row-key="id"
       use-virtual
@@ -74,7 +74,7 @@
         width="120"
       >
         <template slot-scope="scope">
-          <WeSelect :type="'obj'" :value="scope.row.enumId" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="false" :allowCreate="false" :list="enumData" :clearable="true" :size="'mini'"/>
+          <WeSelect :type="'obj'" :value="scope.row.enumId" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="true" :allowCreate="false" :list="enumData" :clearable="true" :size="'mini'"/>
         </template>
       </u-table-column>
       <u-table-column
@@ -94,7 +94,7 @@
         width="130"
       >
         <template slot-scope="scope">
-          <WeInput :value="scope.row.maxLength" :size="'mini'" @change="(val) =>onWeChange(val,scope.row,'example')" :placeholder="$t('maxLength')" :maxlength="10" :showWordLimit="true"/>
+          <WeInput :value="`${scope.row.maxLength}`" :size="'mini'" @change="(val) =>onWeChange(val,scope.row,'example')" :placeholder="$t('maxLength')" :maxlength="10" :showWordLimit="true"/>
         </template>
       </u-table-column>
       <u-table-column
@@ -207,6 +207,10 @@ export default {
     hiddenColumns: {
       type: Array,
       default: () => []
+    },
+    getter: {
+      type: Function,
+      default: (rows) => { return rows.filter(row => !row.hidden) }
     }
   },
   data() {
@@ -288,7 +292,7 @@ export default {
       })
       const tableBodyWrapperTop = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper').scrollTop
       this.$forceUpdate(); // 强制刷新组件
-      
+
       this.$nextTick(() => {
         setTimeout(() => {
           const tableBodyWrapper = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper');
