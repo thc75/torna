@@ -521,7 +521,8 @@ export default {
     'noAppDescription': '当前没有应用'
   },
   EnumInfo: {
-    'filter': '过滤,支持:名称/值/描述'
+    'filter': '过滤,支持:名称',
+    'filterItem': '过滤,支持:名称/值/描述'
   },
   EnvSetting: {
     'newEnv': '新环境',

@@ -518,7 +518,8 @@ export default {
     'noAppDescription': 'No application'
   },
   EnumInfo: {
-    'filter': 'Filter,support:name/value/description'
+    'filter': 'Filter,support:name',
+    'filterItem': 'Filter,support:name/value/description'
   },
   EnvSetting: {
     'newEnv': 'New Environment',

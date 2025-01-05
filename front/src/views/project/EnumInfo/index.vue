@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>
+    <div class="table-title">
       <el-button
         v-if="hasRole(`project:${projectId}`, [Role.dev, Role.admin])"
         type="primary"
@@ -9,9 +9,22 @@
       >
         {{ $t('newDict') }}
       </el-button>
-    </h3>
-    <el-tabs v-show="baseData.length > 0" v-model="activeName" type="border-card" @tab-click="onTabClick">
-      <el-tab-pane v-for="info in baseData" :key="info.id" :label="info.name" :name="info.id">
+      <el-input
+        v-model="tabSearch"
+        prefix-icon="el-icon-search"
+        clearable
+        size="mini"
+        :placeholder="$t('EnumInfo.filter')"
+        style="width: 300px;"
+      />
+    </div>
+    <el-tabs
+      v-show="showEnum"
+      v-model="activeName"
+      type="border-card"
+      @tab-click="onTabClick"
+    >
+      <el-tab-pane v-for="info in tabRows" :key="info.id" :label="info.name" :name="info.id">
         <span slot="label">
           {{ info.name }}
           <el-dropdown
@@ -33,7 +46,7 @@
           </el-dropdown>
         </span>
       </el-tab-pane>
-      <div>
+      <div v-show="tabRows.length > 0">
         <el-alert v-if="enumInfo.description" :closable="false" :title="enumInfo.description" style="margin-bottom: 10px;" />
         <div class="table-title">
           <el-button
@@ -49,7 +62,7 @@
             prefix-icon="el-icon-search"
             clearable
             size="mini"
-            :placeholder="$t('EnumInfo.filter')"
+            :placeholder="$t('EnumInfo.filterItem')"
             style="width: 300px;"
           />
         </div>
@@ -181,6 +194,7 @@ export default {
       activeName: '',
       moduleId: '',
       tableSearch: '',
+      tabSearch: '',
       enumInfo: {
         id: '',
         name: ''
@@ -228,6 +242,9 @@ export default {
     }
   },
   computed: {
+    showEnum() {
+      return this.tabRows && this.tabRows.length > 0
+    },
     tableRows() {
       let search = this.tableSearch.trim()
       if (!search) {
@@ -235,6 +252,18 @@ export default {
       }
       search = search.toLowerCase()
       return this.searchRow(search, this.enumData, this.searchContent, () => false)
+    },
+    tabRows() {
+      let search = this.tabSearch.trim()
+      if (!search) {
+        return this.baseData
+      }
+      search = search.toLowerCase()
+      const rows = this.searchRow(search, this.baseData, this.searchEnum, () => false)
+      if (rows && rows.length) {
+        this.loadTable(rows[0].id)
+      }
+      return rows
     }
   },
   methods: {
@@ -344,6 +373,9 @@ export default {
       return (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
         (row.description && row.description.toLowerCase().indexOf(searchText) > -1) ||
         (row.value && row.value.toLowerCase().indexOf(searchText) > -1)
+    },
+    searchEnum(searchText, row) {
+      return (row.name && row.name.toLowerCase().indexOf(searchText) > -1)
     }
   }
 }
