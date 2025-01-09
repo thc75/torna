@@ -9,6 +9,7 @@ public interface EnumInfoDataId {
 
     /**
      * 唯一id，md5(module_id:name)
+     *
      * @return
      */
     default String buildDataId() {

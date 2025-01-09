@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Copyright © 2021 DHF Info. Tech Ltd. All rights reserved.
@@ -50,7 +49,7 @@ public class DingdingWebHookBody {
     @NoArgsConstructor
     public static class At {
 
-        public At(List<String> atUserIds) {
+        public At(Collection<String> atUserIds) {
             this.atUserIds = atUserIds;
         }
 
@@ -59,7 +58,7 @@ public class DingdingWebHookBody {
          * <b>注意</b><br>
          * 在content里添加@人的userid。
          */
-        private List<String> atUserIds;
+        private Collection<String> atUserIds;
 
         /**
          * 被@的群成员手机号。<br/>
@@ -67,5 +66,8 @@ public class DingdingWebHookBody {
          *
          */
         private Collection<String> atMobiles;
+
+
+
     }
 }

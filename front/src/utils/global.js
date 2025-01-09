@@ -637,7 +637,7 @@ Object.assign(Vue.prototype, {
       }
       const id = row.id
       refPrefixArr.forEach(refPrefix => {
-        promiseArr.push(this.$refs[refPrefix + id].validate())
+        this.$refs[refPrefix + id] && promiseArr.push(this.$refs[refPrefix + id].validate())
       })
       const children = arr[i].children
       if (children && children.length > 0) {

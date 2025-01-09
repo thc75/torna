@@ -6,7 +6,6 @@ import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.ParamStyleEnum;
 import cn.torna.common.util.DataIdUtil;
 import cn.torna.common.util.IdGen;
-import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
 import cn.torna.dao.entity.EnumInfo;
@@ -172,10 +171,8 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
     private Long buildEnumId(long moduleId, DocParamDTO docParamDTO) {
         EnumInfoDTO enumInfoDTO = docParamDTO.getEnumInfo();
         if (enumInfoDTO != null) {
-            // 如果枚举名称为空则使用字段名称
-            if (StringUtils.isEmpty(enumInfoDTO.getName())) {
-                String name = docParamDTO.getName();
-                enumInfoDTO.setName(name);
+            if (ObjectUtils.isEmpty(enumInfoDTO.getDescription())) {
+                enumInfoDTO.setDescription(docParamDTO.getDescription());
             }
             enumInfoDTO.setModuleId(moduleId);
             EnumInfo enumInfo = enumService.saveEnumInfo(enumInfoDTO);

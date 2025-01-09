@@ -194,7 +194,18 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
     margin-bottom: 2px;
   }
 }
-
+.param-table1 {
+  .el-form {
+    width: 100%;
+    display: inline-block;
+    .el-form-item {
+      margin-bottom: 0;
+    }
+  }
+  .el-switch {
+    margin-bottom: 2px;
+  }
+}
 .navbar .right-menu {
   float: right;
   height: 100%;
@@ -403,6 +414,10 @@ fieldset {border: 1px solid #DCDFE6;padding: 20px;}
   .table-right-item {
     display: inline-block;
   }
+}
+
+.table-title {
+  margin-bottom: 10px;
 }
 
 .doc-tree {

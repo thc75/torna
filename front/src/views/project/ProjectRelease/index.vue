@@ -81,12 +81,26 @@
           </el-link>
           <el-link type="primary" @click="bindDocs(scope.row)">{{ $t('viewAssociatedDocuments') }}</el-link>
           <el-link v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" type="primary" @click="onReleaseUpdate(scope.row)">{{ $t('update') }}</el-link>
-          <el-popconfirm
-            :title="$t('removeConfirm', scope.row.releaseNo)"
-            @confirm="onReleaseRemove(scope.row)"
-          >
-            <el-link v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" slot="reference" type="danger">{{ $t('remove') }}</el-link>
-          </el-popconfirm>
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <i class="el-icon-more el-icon--right" />
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <el-popconfirm
+                  :title="$t('removeConfirm', scope.row.releaseNo)"
+                  @confirm="onReleaseRemove(scope.row)"
+                >
+                  <el-link v-if="hasRole(`project:${projectId}`, [Role.admin, Role.dev])" slot="reference" :underline="false" type="danger">
+                    {{ $t('remove') }}
+                  </el-link>
+                </el-popconfirm>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-link type="primary" @click="syncMeterSphereEvent(scope.row)" :underline="false">同步MeterSphere</el-link>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -143,23 +157,76 @@
     >
       <el-tree
         :data="releaseDocData"
+        :props="bindDocProps"
         :default-expand-all="true"
       >
         <span slot-scope="{ node, data }" class="custom-tree-node">
-          <span>{{ node.label }}</span>
+          <span>{{ node.label }}
+            <span v-show="!data.isFolder && data.httpMethod" class="el-tree-label-tip">
+              <http-method v-if="data.httpMethod" :method="data.httpMethod" />
+              {{ data.url }}
+              <span v-show="data.version !== ''" class="el-tree-label-tip">
+                <el-tag effect="plain" size="mini" type="info">{{ data.version }}</el-tag>
+              </span>
+            </span>
+          </span>
           <el-link v-if="!isFolder(data)" type="success" icon="el-icon-view" :title="$t('preview')" :underline="false" @click="openLink(getViewUrl(data))" />
         </span>
       </el-tree>
     </el-dialog>
+    <!-- sync MeterSphere dialog   -->
+    <el-dialog
+      :title="$t('ModuleSetting.meterSphereSetting')"
+      :close-on-click-modal="false"
+      :visible.sync="syncMeterSphereDlgShow"
+    >
+      <div>
+        <div v-show="spaceConfig">
+          <el-alert type="info" :closable="false" style="margin-bottom: 10px">
+            当前版本绑定MeterSphere模块
+          </el-alert>
+          <el-form ref="msModuleFrm" :model="msModuleFormData" :rules="msModuleFormRules">
+            <el-form-item v-show="currentMsModuleName && currentMsModuleName.length > 0" label="当前绑定模块">
+              {{ currentMsModuleName }}
+            </el-form-item>
+            <el-form-item prop="msModuleId" label="绑定模块">
+              <el-cascader ref="sel" v-model="msModuleFormData.msModuleId" :props="props" :options="options" style="width: 350px" clearable />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="saveReleaseMeterSphereConfig">{{ $t('save') }}</el-button>
+              <el-button type="primary" @click="syncReleaseMeterSphere">{{ $t('SwaggerSetting.synchronization') }}</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div v-show="!spaceConfig">
+          <el-alert type="info" :closable="false">
+            空间未配置MeterSphere参数 <span v-show="spaceId && spaceId.length > 0"> <el-link type="primary" @click="goRoute(`/space/setting/${spaceId}`)">前往配置</el-link> </span>
+          </el-alert>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
+<style lang="scss">
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+  font-size: 13px;
+  font-weight: 500;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+</style>
 <script>
 
 import ModuleDocTree from '@/components/ModuleDocTree'
+import HttpMethod from '@/components/HttpMethod'
 
+let that
 export default {
   name: 'ProjectRelease',
-  components: { ModuleDocTree },
+  components: { HttpMethod, ModuleDocTree },
   props: {
     projectId: {
       type: String,
@@ -168,6 +235,7 @@ export default {
   },
   data() {
     return {
+      releaseId: '',
       dialogTitle: '',
       operator: '',
       searchFormData: {
@@ -178,6 +246,7 @@ export default {
       releaseData: [],
       releaseDlgShow: false,
       bindDocDlgShow: false,
+      syncMeterSphereDlgShow: false,
       releaseAddFormData: {
         id: '',
         releaseNo: '',
@@ -192,8 +261,45 @@ export default {
           { required: true, message: this.$t('pleaseSelect'), trigger: ['blur', 'change'] }
         ]
       },
+      bindDocProps: {
+        label: 'name',
+        children: 'children'
+      },
       moduleData: [],
-      releaseDocData: []
+      releaseDocData: [],
+      spaceConfig: false,
+      options: [],
+      spaceId: '',
+      currentMsModuleName: '',
+      msModuleFormData: {
+        msModuleId: ''
+      },
+      msModuleFormRules: {
+        msModuleId: [
+          { required: true, message: this.$t('notEmpty'), trigger: 'blur' }
+        ]
+      },
+      props: {
+        value: 'id',
+        label: 'name',
+        checkStrictly: true,
+        lazy: true,
+        lazyLoad(node, resolve) {
+          const { level } = node
+          if (!that || level >= 2) {
+            resolve([])
+            return
+          }
+          const msProjectId = node.value
+          that.get('third/metersphere/module/list', { projectId: that.projectId, msProjectId: msProjectId }, resp => {
+            const data = resp.data
+            // for (const el of data) {
+            //   el.leaf = true
+            // }
+            resolve(data)
+          })
+        }
+      }
     }
   },
   computed: {
@@ -347,6 +453,67 @@ export default {
         this.releaseDocData = resp.data
         this.bindDocDlgShow = true
         callback && callback.call(this)
+      })
+    },
+    // 点击同步MeterSphere事件
+    syncMeterSphereEvent(row, callback) {
+      that = this
+      this.releaseId = row.id
+      this.get('third/metersphere/project/load', { projectId: row.projectId }, resp => {
+        const data = resp.data
+        this.spaceConfig = data.spaceConfig
+        this.spaceId = data.spaceId
+        this.options = data.projects || []
+        this.syncMeterSphereDlgShow = true
+        callback && callback.call(this)
+      })
+      this.loadReleaseMeterSphereConfig(this.releaseId)
+    },
+    // 加载当前版本绑定MS模块
+    loadReleaseMeterSphereConfig(releaseId) {
+      this.get('third/metersphere/release/load', { releaseId: releaseId }, resp => {
+        const data = resp.data
+        if (data) {
+          this.currentMsModuleName = data.name
+        }
+      })
+    },
+    // 保存版本绑定MS模块
+    saveReleaseMeterSphereConfig() {
+      this.$refs.msModuleFrm.validate(valid => {
+        if (valid) {
+          const checkedNodes = this.$refs.sel.getCheckedNodes()
+          const leaf = checkedNodes[0]
+          const pathNodes = leaf.pathNodes
+          const msProject = pathNodes[0]
+          const msModule = pathNodes[pathNodes.length - 1]
+          const label = pathNodes.slice(1).map(node => node.label).join('/')
+          const data = {
+            msProjectId: msProject.value,
+            msProjectName: msProject.label,
+            msModuleId: msModule.value,
+            msModuleName: label,
+            releaseId: this.releaseId
+          }
+          this.post('third/metersphere/release/save', data, resp => {
+            if (resp.code === '0') {
+              this.confirm(this.$t('SwaggerSetting.syncConfirm'), () => {
+                this.syncReleaseMeterSphere()
+              })
+            }
+          })
+        }
+      })
+    },
+    // 保同步版本至MS模块
+    syncReleaseMeterSphere() {
+      const data = {
+        releaseId: this.releaseId
+      }
+      this.confirm(this.$t('SwaggerSetting.checkSynchronized'), () => {
+        this.post('third/metersphere/release/sync', data, resp => {
+          this.tipSuccess($t('syncSuccess'))
+        })
       })
     },
     isFolder(row) {

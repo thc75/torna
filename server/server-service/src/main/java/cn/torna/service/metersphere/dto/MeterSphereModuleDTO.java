@@ -2,6 +2,8 @@ package cn.torna.service.metersphere.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author thc
  */
@@ -12,4 +14,9 @@ public class MeterSphereModuleDTO {
 
     private String name;
 
+    private List<MeterSphereModuleDTO> children;
+
+    private Integer level;
+
+    private Boolean leaf;
 }

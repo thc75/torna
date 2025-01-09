@@ -4,18 +4,19 @@ import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.enums.MessageNotifyTypeEnum;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.util.IdUtil;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 统一消息构建器
@@ -42,7 +43,7 @@ public class MessageBuilder {
         String content = null;
         // 钉钉
         MessageNotifyTypeEnum notificationType = universalMessage.getNotificationType();
-        List<String> userIdList = universalMessage.getUserIdList();
+        Collection<String> userIdList = universalMessage.getUserIdList();
         if (notificationType.equals(MessageNotifyTypeEnum.DING_TALK_WEB_HOOK)) {
             String atUser = "";
             if (!CollectionUtils.isEmpty(userIdList)) {
@@ -116,6 +117,6 @@ public class MessageBuilder {
         /**
          * 用户ID列表
          */
-        private List<String> userIdList;
+        private Collection<String> userIdList;
     }
 }

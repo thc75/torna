@@ -1,12 +1,14 @@
 package cn.torna.service.metersphere;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.dao.entity.MsModuleConfig;
 import cn.torna.dao.entity.MsSpaceConfig;
 import cn.torna.dao.entity.Project;
 import cn.torna.service.ProjectService;
+import cn.torna.service.metersphere.dto.*;
 import cn.torna.service.metersphere.dto.MeterSphereModuleConfigSaveDTO;
 import cn.torna.service.metersphere.dto.MeterSphereModuleDTO;
 import cn.torna.service.metersphere.dto.MeterSphereProjectDTO;
@@ -28,6 +30,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +54,9 @@ public class MeterSphereService {
 
     @Autowired
     private MsModuleConfigService moduleConfigService;
+
+    @Autowired
+    private MeterSpherePushService meterSpherePushService;
 
     public static MeterSphereTestDTO test(MeterSphereSetting meterSphereSetting) {
         try {
@@ -179,13 +189,16 @@ public class MeterSphereService {
                     JSONObject moduleObj = MSApiUtil.getModuleList(meterSphereSetting, msProjectId, "http");
                     JSONArray data = moduleObj.getJSONArray("data");
                     if (data != null) {
-                        return data.toJavaList(MeterSphereModuleDTO.class);
+                        List<MeterSphereModuleDTO> meterSphereModuleDTOS = data.toJavaList(MeterSphereModuleDTO.class);
+                        // 获取到第几层级
+                        return filterByLevel(meterSphereModuleDTOS, EnvironmentKeys.TORNA_METERSPHERE_MODULE_MAXLEVEL.getInt());
                     }
                     break;
                 case MeterSphereVersion.V3:
                     AppSettingState appSettingState = meterSphereSetting.toAppSettingState();
                     List<MSModule> moduleList = MSClientUtils.getModuleList(appSettingState, msProjectId);
-                    return CopyUtil.copyList(moduleList, MeterSphereModuleDTO::new);
+                    List<MeterSphereModuleDTO> meterSphereModuleDTOS = CopyUtil.copyList(moduleList, MeterSphereModuleDTO::new);
+                    return filterByLevel(meterSphereModuleDTOS, EnvironmentKeys.TORNA_METERSPHERE_MODULE_MAXLEVEL.getInt());
                 default: {
                     return Collections.emptyList();
                 }
@@ -195,6 +208,29 @@ public class MeterSphereService {
             throw new BizException("获取MeterSphere项目失败:" + e.getMessage());
         }
         return Collections.emptyList();
+    }
+
+    private List<MeterSphereModuleDTO> filterByLevel(List<MeterSphereModuleDTO> modules, int maxLevel) {
+        List<MeterSphereModuleDTO> result = new ArrayList<>();
+
+        for (MeterSphereModuleDTO module : modules) {
+            if (module.getLevel() <= maxLevel) {
+                MeterSphereModuleDTO filteredModule = new MeterSphereModuleDTO();
+                filteredModule.setId(module.getId());
+                filteredModule.setName(module.getName());
+                filteredModule.setLevel(module.getLevel());
+                // 递归获取子节点，确保只获取到指定层级
+                if (module.getChildren() != null && module.getLevel() < maxLevel) {
+                    filteredModule.setLeaf(false);
+                    filteredModule.setChildren(filterByLevel(module.getChildren(), maxLevel));
+                }else {
+                    filteredModule.setLeaf(true);
+                }
+                result.add(filteredModule);
+            }
+        }
+
+        return result;
     }
 
     public void saveModule(MeterSphereModuleConfigSaveDTO dto) {
@@ -216,6 +252,53 @@ public class MeterSphereService {
             moduleConfigService.update(msModuleConfig);
         }
 
+    }
+
+    public void syncModule(MeterSphereModuleConfigSaveDTO dto) {
+        Long moduleId = dto.getModuleId();
+        try {
+            meterSpherePushService.push(moduleId);
+        } catch (Exception e) {
+            log.error("同步MeterSphere失败！", e);
+            throw new BizException("同步MeterSphere失败！");
+        }
+    }
+
+    public MeterSphereModuleConfigSaveDTO getReleaseConfig(Long releaseId) {
+        MsModuleConfig msModuleConfig = moduleConfigService.getByReleaseId(releaseId);
+        return CopyUtil.copyBeanNullable(msModuleConfig, MeterSphereModuleConfigSaveDTO::new);
+    }
+
+
+    public void saveRelease(MeterSphereModuleConfigSaveDTO dto) {
+        Long releaseId = dto.getReleaseId();
+        MsModuleConfig msModuleConfig = moduleConfigService.getByReleaseId(releaseId);
+        boolean save = false;
+        if (msModuleConfig == null) {
+            save = true;
+            msModuleConfig = new MsModuleConfig();
+        }
+        msModuleConfig.setModuleId(0L);
+        msModuleConfig.setReleaseId(releaseId);
+        msModuleConfig.setMsCoverModule(Booleans.TRUE);
+        msModuleConfig.setMsModuleId(dto.getMsModuleId());
+        msModuleConfig.setMsProjectId(dto.getMsProjectId());
+        msModuleConfig.setName(dto.getMsProjectName() + "/" + dto.getMsModuleName());
+        if (save) {
+            moduleConfigService.save(msModuleConfig);
+        } else {
+            moduleConfigService.update(msModuleConfig);
+        }
+    }
+
+    public void syncRelease(MeterSphereModuleConfigSaveDTO dto) {
+        Long releaseId = dto.getReleaseId();
+        try {
+            meterSpherePushService.pushRelease(releaseId);
+        } catch (Exception e) {
+            log.error("同步MeterSphere失败！", e);
+            throw new BizException("同步MeterSphere失败！");
+        }
     }
 
     @Getter

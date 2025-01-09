@@ -1,8 +1,10 @@
-# torna-sdk-java
+# torna-sdk
 
 开放平台对应的sdk
 
-## 接口封装步骤
+## sdk-java
+
+### 接口封装步骤
 
 比如获取商品信息接口
 
@@ -71,7 +73,7 @@ public class GetGoodsRequest extends BaseRequest<GetGoodsResponse> {
 }
 ```
 
-## 使用方式
+### 使用方式
 
 ```
 // 创建请求对象
@@ -91,3 +93,13 @@ if (response.isSuccess()) {
 }
 System.out.println("--------------------");
 ```
+
+## 其它SDK
+
+- Ruby
+
+[sdk-ruby](https://github.com/justqyx/ruby_torna_sdk)
+
+- Node(Express)
+
+[sdk-node](https://github.com/justqyx/node-torna-sdk)
