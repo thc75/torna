@@ -1,6 +1,6 @@
 package cn.torna;
 
-import cn.torna.api.bean.ApiUser;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.api.open.YapiApi;
 import cn.torna.dao.entity.Project;
 import cn.torna.service.ProjectService;
@@ -28,7 +28,7 @@ public class YapiApiTest extends TornaApplicationTests{
 
     @Test
     public void importDoc() throws IOException, InterruptedException {
-        Project project = projectService.get(Project::getName, "商城项目");
+        Project project = projectService.getByField(Project::getName, "商城项目");
 
         ApiUser apiUser = new ApiUser();
         apiUser.setId(1L);
@@ -39,7 +39,7 @@ public class YapiApiTest extends TornaApplicationTests{
         yapiMarkdownDTO.setUser(apiUser);
         yapiMarkdownDTO.setProjectId(project.getId());
 
-        String content = FileUtils.readFileToString(new File("/Users/mac/Downloads/api.md"), StandardCharsets.UTF_8);
+        String content = FileUtils.readFileToString(new File("/Users/thc/Downloads/api.md"), StandardCharsets.UTF_8);
         yapiMarkdownDTO.setContent(content);
 
         yapiApi.importMarkdown(yapiMarkdownDTO);

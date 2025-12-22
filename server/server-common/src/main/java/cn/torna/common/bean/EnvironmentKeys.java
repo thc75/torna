@@ -87,6 +87,9 @@ public enum EnvironmentKeys {
     TORNA_NAME_VERSION_TPL("torna.name-version-tpl", "{_name_} {_version_}"),
     /** 是否开启对接MeterSphere */
     ENABLE_METER_SPHERE("metershpere.enable", "false"),
+    HIDE_OLD_MOCK("torna.hideOldMock", "false"),
+    /** MeterSphere是否开启https */
+    METER_SPHERE_ENABLE_HTTPS("metershpere.enable-https", "false"),
     /** torna推送处理器数量 */
     TORNA_PUSH_PROCESS_NUM("torna.push-process-num", "4"),
     TORNA_PUSH_EXECUTE_SIZE("torna.push-execute-size", "50"),
@@ -94,6 +97,13 @@ public enum EnvironmentKeys {
     TORNA_SNAPSHOT_SIZE("torna.snapshot-size", "5"),
 
     TORNA_METERSPHERE_MODULE_MAXLEVEL("torna.metersphere.module.maxLevel", "2"),
+
+    /** 是否开启MFA认证 */
+    TORNA_MFA_ENABLE("torna.mfa.enable", "false"),
+    /** MFA密钥发行人 */
+    TORNA_MFA_ISSUER("torna.mfa.issuer", "Torna"),
+    /** MFA密钥生成种子 */
+    TORNA_MFA_SEED("torna.mfa.seed", null),
     ;
 
     private final String key;

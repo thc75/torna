@@ -98,7 +98,7 @@ public class ComposeProjectService extends BaseLambdaService<ComposeProject, Com
      * @return 返回项目列表
      */
     private List<ComposeProject> listSpaceProject(long spaceId) {
-        return this.list(ComposeProject::getSpaceId, spaceId);
+        return this.listByField(ComposeProject::getSpaceId, spaceId);
     }
 
 }

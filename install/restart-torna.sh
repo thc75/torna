@@ -3,17 +3,14 @@
 # 说明：下载最新版本Torna并重启
 # 前提：需要将配置文件放在`/etc/torna/application.properties`
 # 保存文件名：restart-torna.sh
-# 运行方式：sh restart-torna.sh <version>
-#
+# 运行方式：sh restart-torna.sh [version]
 # 如重启1.18.2版本：sh restart-torna.sh 1.18.2
+# 不指定version将下载最新版本
 
-version=""
+version="1.35.2"
 
 if [ -n "${1}" ];then
   version="${1}"
-else
-  echo "请输入版本号，如：sh restart-torna.sh 1.18.2"
-  exit 1
 fi
 
 file_name="torna-${version}.zip"

@@ -7,6 +7,9 @@
       <el-form-item :label="$t('projectName')">
         {{ form.name }}
       </el-form-item>
+      <el-form-item :label="$t('orderIndex')">
+        {{ form.orderIndex }}
+      </el-form-item>
       <el-form-item :label="$t('projectDesc')">
         {{ form.description }}
       </el-form-item>
@@ -54,6 +57,9 @@
             show-word-limit
             maxlength="50"
           />
+        </el-form-item>
+        <el-form-item :label="$t('orderIndex')">
+          <el-input-number v-model="projectFormData.orderIndex" controls-position="right" />
         </el-form-item>
         <el-form-item :label="$t('projectDesc')" prop="description">
           <el-input
@@ -114,6 +120,7 @@ export default {
       projectDlgShow: false,
       projectFormData: {
         name: '',
+        orderIndex: 0,
         description: '',
         spaceId: '',
         adminIds: [],

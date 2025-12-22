@@ -18,6 +18,8 @@ services:
       --lower_case_table_names=1
     volumes:
       - ./my.cnf:/etc/my.cnf
+      # 将mysql容器中的数据放在宿主机，防止容器删除后数据丢失
+      - /opt/mysql:/var/lib/mysql/
     networks:
       - torna-net
     restart: always

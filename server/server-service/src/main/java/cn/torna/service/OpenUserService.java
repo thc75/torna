@@ -1,10 +1,10 @@
 package cn.torna.service;
 
-import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import cn.torna.common.util.AppKeyUtil;
 import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.OpenUser;
 import cn.torna.dao.mapper.OpenUserMapper;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +19,7 @@ public class OpenUserService extends BaseLambdaService<OpenUser, OpenUserMapper>
         if (appKey == null) {
             return null;
         }
-        return this.get(OpenUser::getAppKey, appKey);
+        return this.getByField(OpenUser::getAppKey, appKey);
     }
 
     public void createOpenUser(long spaceId, String applicant) {

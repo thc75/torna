@@ -1,6 +1,6 @@
 package cn.torna;
 
-import cn.torna.api.bean.ApiUser;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.util.CopyUtil;

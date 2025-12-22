@@ -487,7 +487,8 @@ export default {
       return ids
     },
     onDocNew() {
-      this.goRoute(`/doc/new/${this.moduleId}`)
+      this.goRoute(`/doc/new/${this.moduleId}`, true)
+      // window.open(`/#/doc/new/${this.moduleId}`, '_blank')
     },
     onFolderAdd() {
       this.$prompt(this.$t('inputFolderMsg'), this.$t('newFolderTitle'), {
@@ -554,7 +555,7 @@ export default {
     },
     onDocAdd(row) {
       this.pmsNextOrderIndex(row.children).then(order => {
-        this.goRoute(`/doc/new/${this.moduleId}/${row.id}?order=${order}`)
+        this.goRoute(`/doc/new/${this.moduleId}/${row.id}?order=${order}`, true)
       })
     },
     onDocFolderAdd(row) {
@@ -581,17 +582,17 @@ export default {
         this.onFolderUpdate(row)
       } else {
         if (row.type !== this.getEnums().DOC_TYPE.HTTP) {
-          this.goRoute(`/doc/edit_custom/${this.moduleId}/${row.id}`)
+          this.goRoute(`/doc/edit_custom/${this.moduleId}/${row.id}`, true)
         } else {
-          this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`)
+          this.goRoute(`/doc/edit/${this.moduleId}/${row.id}`, true)
         }
       }
     },
     onDocCopy(row) {
       if (row.type === this.getEnums().DOC_TYPE.CUSTOM || row.type === this.getEnums().DOC_TYPE.MARKDOWN) {
-        this.goRoute(`/doc/copy_custom/${this.moduleId}/${row.id}`)
+        this.goRoute(`/doc/copy_custom/${this.moduleId}/${row.id}`, true)
       } else {
-        this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`)
+        this.goRoute(`/doc/copy/${this.moduleId}/${row.id}`, true)
       }
     },
     onExport() {

@@ -24,4 +24,7 @@ public class UserAddDTO {
 
     private Byte status;
 
+    /** 邮箱, 数据库字段：email */
+    private String email;
+
 }

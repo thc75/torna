@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class UserWeComInfoService extends BaseLambdaService<UserWeComInfo, UserWeComInfoMapper> {
 
     public UserWeComInfo getByUserId(long userId) {
-        return get(UserWeComInfo::getUserInfoId, userId);
+        return getByField(UserWeComInfo::getUserInfoId, userId);
     }
 
 }

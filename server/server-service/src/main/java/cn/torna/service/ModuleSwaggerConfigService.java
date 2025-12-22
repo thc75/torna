@@ -32,7 +32,7 @@ public class ModuleSwaggerConfigService extends BaseLambdaService<ModuleSwaggerC
     }
 
     public ModuleSwaggerConfig getByModuleId(Long moduleId) {
-        return get(ModuleSwaggerConfig::getModuleId, moduleId);
+        return getByField(ModuleSwaggerConfig::getModuleId, moduleId);
     }
 
 }

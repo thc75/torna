@@ -21,7 +21,7 @@ import java.util.List;
 public class ModuleEnvironmentParamService extends BaseLambdaService<ModuleEnvironmentParam, ModuleEnvironmentParamMapper> {
 
     public ModuleEnvironmentParam getByDataId(String dataId) {
-        return this.get(ModuleEnvironmentParam::getDataId, dataId);
+        return this.getByField(ModuleEnvironmentParam::getDataId, dataId);
     }
 
     public List<ModuleEnvironmentParam> listByEnvironmentAndStyle(Long environmentId, byte style) {

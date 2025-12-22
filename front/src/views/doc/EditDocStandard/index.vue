@@ -18,7 +18,28 @@
               <el-input v-model="docInfo.name" maxlength="100" show-word-limit />
             </el-form-item>
             <el-form-item prop="description" :label="$t('docDesc')">
-              <rich-text-editor :value="docInfo.description" :placeholder="$t('inputContent')" :editable="true" @input="editorInput" />
+              <el-radio-group v-model="docInfo.descriptionType" style="margin-bottom: 10px;">
+                <el-radio-button label="html" :label-in-value="true">{{ $t('richTextEditor') }}</el-radio-button>
+                <el-radio-button label="markdown" :label-in-value="true">{{ $t('markdown') }}</el-radio-button>
+              </el-radio-group>
+              <rich-text-editor
+                v-if="docInfo.descriptionType === 'html'"
+                :value="docInfo.description"
+                :placeholder="$t('inputContent')"
+                :editable="true"
+                @input="editorInput"
+              />
+              <mavon-editor
+                v-else
+                ref="markdownEditor"
+                v-model="docInfo.description"
+                :boxShadow="false"
+                :scrollStyle="true"
+                :subfield="true"
+                :toolbars="toolbars"
+                :style="editorStyle"
+                @imgAdd="(pos, file) => onImgAdd('markdownEditor', pos, file)"
+              />
             </el-form-item>
             <el-form-item prop="url" :label="$t('requestUrl')">
               <el-input v-model="docInfo.url" class="input-with-select" maxlength="200" show-word-limit @input="onUrlInput">
@@ -261,9 +282,10 @@ import EditTable from '../EditTable'
 import RootArrayTable from '../RootArrayTable'
 import { init_docInfo_complete_view } from '@/utils/common'
 import RichTextEditor from '@/components/RichTextEditor'
+import { mavonEditor } from 'mavon-editor'
 
 export default {
-  components: { RichTextEditor, DocView, EditTable, RootArrayTable },
+  components: { RichTextEditor, DocView, EditTable, RootArrayTable, mavonEditor },
   data() {
     return {
       statusArr: this.getEnums().DOC_STATUS,
@@ -279,6 +301,7 @@ export default {
         url: '',
         contentType: '',
         description: '',
+        descriptionType: 'html',
         author: '',
         httpMethod: 'GET',
         parentId: '',
@@ -292,7 +315,7 @@ export default {
         requestArrayType: 'object',
         responseArrayType: 'object',
         isShow: 1,
-        isLocked: 0,
+        isLocked: 1,
         pathParams: [],
         headerParams: [],
         queryParams: [],
@@ -300,7 +323,7 @@ export default {
         responseParams: [],
         errorCodeParams: [],
         orderIndex: this.getEnums().INIT_ORDER_INDEX,
-        remark: '',
+        remark: ''
       },
       paramsActive: 'tabQueryParams',
       remark: '',
@@ -330,7 +353,43 @@ export default {
       },
       paramResponseTemplateDlgShow: false,
       importParamHandler: null,
-      responseHiddenColumns: []
+      responseHiddenColumns: [],
+      editorStyle: 'height: auto;',
+      toolbars: {
+        bold: true, // 粗体
+        italic: true, // 斜体
+        header: true, // 标题
+        underline: true, // 下划线
+        strikethrough: true, // 中划线
+        mark: true, // 标记
+        superscript: true, // 上角标
+        subscript: true, // 下角标
+        quote: true, // 引用
+        ol: true, // 有序列表
+        ul: true, // 无序列表
+        link: true, // 链接
+        imagelink: true, // 图片链接
+        code: true, // code
+        table: true, // 表格
+        fullscreen: true, // 全屏编辑
+        readmodel: false, // 沉浸式阅读
+        htmlcode: false, // 展示html源码
+        help: true, // 帮助
+        /* 1.3.5 */
+        undo: true, // 上一步
+        redo: true, // 下一步
+        trash: true, // 清空
+        save: false, // 保存（触发events中的save事件）
+        /* 1.4.2 */
+        navigation: true, // 导航目录
+        /* 2.1.8 */
+        alignleft: true, // 左对齐
+        aligncenter: true, // 居中
+        alignright: true, // 右对齐
+        /* 2.2.1 */
+        subfield: true, // 单双栏模式
+        preview: true // 预览
+      }
     }
   },
   computed: {
@@ -451,7 +510,8 @@ export default {
       this.pmsNextOrderIndex(rows).then(order => {
         item.orderIndex = order
       })
-      rows.push(item)
+      // 改为头部插入
+      rows.unshift(item)
     },
     onResponseParamAdd: function() {
       this.onParamAdd(this.docInfo.responseParams)

@@ -246,7 +246,7 @@ public class ProjectService extends BaseLambdaService<Project, ProjectMapper> im
     }
 
     public List<ProjectUser> listUserProject(long userId) {
-        return projectUserMapper.list(ProjectUser::getUserId, userId);
+        return projectUserMapper.listByField(ProjectUser::getUserId, userId);
     }
 
     /**
@@ -327,7 +327,7 @@ public class ProjectService extends BaseLambdaService<Project, ProjectMapper> im
      * @return 返回项目列表
      */
     private List<Project> listSpaceProject(long spaceId) {
-        List<Project> list = this.list(Project::getSpaceId, spaceId);
+        List<Project> list = this.listByField(Project::getSpaceId, spaceId);
         list.sort(Comparator.comparing(Project::getOrderIndex).thenComparing(Project::getName));
         return list;
     }

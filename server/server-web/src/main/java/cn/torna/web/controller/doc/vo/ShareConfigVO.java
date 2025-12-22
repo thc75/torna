@@ -49,4 +49,7 @@ public class ShareConfigVO {
     private String creatorName;
 
     private LocalDateTime gmtCreate;
+
+    /** 分享名称 */
+    private String shareName;
 }

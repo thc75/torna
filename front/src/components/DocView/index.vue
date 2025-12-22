@@ -58,13 +58,14 @@
     <h4 class="tip"><span class="doc-label">URL</span></h4>
     <ul v-if="docInfo.debugEnvs.length > 0" class="debug-url">
       <li v-for="hostConfig in docInfo.debugEnvs" :key="hostConfig.name" @mouseenter="onMouseEnter(hostConfig.name)" @mouseleave="onMouseLeave()">
-        {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" /> {{ buildRequestUrl(hostConfig) }}
+        {{ hostConfig.name }}: <http-method :method="docInfo.httpMethod" />
+        <copy-text :copy-content="docInfo.url" :show-content="buildRequestUrl(hostConfig)" />
         <el-tag
           v-show="hostConfigName === hostConfig.name"
           size="small"
           effect="plain"
           class="copyBtn"
-          @click.stop="copy(docInfo.url)">{{ $t('copy') }}</el-tag>
+          @click.stop="copyCurl(buildRequestUrl(hostConfig))">{{ $t('copy') + 'CURL' }}</el-tag>
       </li>
     </ul>
     <div v-else class="debug-url" @mouseenter="isShowDebugUrlCopy=true" @mouseleave="isShowDebugUrlCopy=false">
@@ -80,7 +81,16 @@
     <h4 v-show="docInfo.description && docInfo.description !== emptyContent" class="doc-descr">
       <span class="doc-label">{{ $t('description') }}</span>
     </h4>
-    <div v-show="docInfo.description" class="rich-editor" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
+    <div v-show="docInfo.description && docInfo.descriptionType !== 'markdown'" class="rich-editor" v-html="docInfo.description.replace(/\n/g,'<br />')"></div>
+    <mavon-editor
+      v-show="docInfo.description && docInfo.descriptionType === 'markdown'"
+      v-model="docInfo.description"
+      :boxShadow="false"
+      :subfield="false"
+      defaultOpen="preview"
+      :editable="false"
+      :toolbarsFlag="false"
+    />
     <h4 v-show="docInfo.contentType"><span class="doc-label">ContentType</span><span class="content">{{ docInfo.contentType }}</span></h4>
     <div v-if="docInfo.pathParams.length > 0">
       <h4>{{ $t('pathVariable') }}</h4>
@@ -218,6 +228,10 @@ h4 .content {
   cursor: pointer;
   margin-bottom: 5px;
 }
+.v-note-wrapper {
+  min-height: auto !important;
+  border: 0px solid #f2f6fc;
+}
 </style>
 <script>
 import DocStatusTag from '@/components/DocStatusTag'
@@ -227,13 +241,15 @@ import HttpMethod from '@/components/HttpMethod'
 import DocDiff from '@/components/DocDiff'
 import ConstView from '@/components/ConstView'
 import CodeGenDrawer from '@/components/CodeGenDrawer'
+import CopyText from '@/components/CopyText'
 import ExportUtil from '@/utils/export'
 import { generate } from 'json2interface'
-import { get_effective_url, parse_root_array } from '@/utils/common'
+import {get_effective_url, parse_root_array, StringBuilder} from '@/utils/common'
+import { mavonEditor } from 'mavon-editor'
 
 export default {
   name: 'DocView',
-  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer, CodeGenDrawer },
+  components: { DocStatusTag, ParameterTable, HttpMethod, DocDiff, ConstView, DocChangelogDrawer, CodeGenDrawer, mavonEditor, CopyText },
   props: {
     docId: {
       type: String,
@@ -284,6 +300,7 @@ export default {
         version: '',
         contentType: '',
         description: '',
+        descriptionType: 'html',
         author: '',
         httpMethod: 'GET',
         deprecated: '$false$',
@@ -489,6 +506,69 @@ export default {
     },
     copy(text) {
       this.copyText(text)
+    },
+    copyCurl(url) {
+      /*
+      curl --location '${doc.url}?${doc.queryString}' \
+      #foreach($param in ${doc.headerParams})
+      --header '${param.name}: ${param.example}' \
+      #end
+      #if(${doc.httpMethod} == 'POST' || ${doc.httpMethod} == 'PUT')
+      --data '${doc.requestExample}'
+      #end
+       */
+      let fullUrl = url
+      const queryParams = this.docInfo.queryParams || []
+      const queryParamArr = []
+      for (const queryParam of queryParams) {
+        queryParamArr.push(`${queryParam.name}=${queryParam.example}`)
+      }
+      if (queryParamArr.length > 0) {
+        fullUrl = fullUrl + '?' + queryParamArr.join('&')
+      }
+
+      // --location --globoff
+      const str = new StringBuilder(`curl -L -g `)
+      const httpMethod = this.docInfo.httpMethod;
+      if (httpMethod === 'POST' || httpMethod === 'PUT') {
+        str.append(`-X ${httpMethod} `)
+      }
+
+      str.append(`'${fullUrl}' \\\n`)
+
+      // headers
+      const headers = this.docInfo.headerParams || []
+      let hasContentType = false
+      for (const header of headers) {
+        if (header.name.toLowerCase() === 'content-type') {
+          hasContentType = true
+        }
+        str.append(`-H '${header.name}: ${header.example}' \\\n`)
+      }
+      const contentType = this.docInfo.contentType.toLowerCase()
+      const isJsonBody = contentType.indexOf('json') > -1
+      const isFormBody = contentType.indexOf('form') > -1
+      if (!hasContentType) {
+        if (isJsonBody || isFormBody) {
+          str.append(`-H 'Content-Type: ${this.docInfo.contentType}' \\\n`)
+        }
+      }
+
+      if (this.docInfo.requestParams.length > 0) {
+        if (isJsonBody) {
+          const requestExample = this.formatJson(this.requestExample) || ''
+          str.append(`-d '${requestExample}'`)
+        }
+        if (isFormBody) {
+          const arr = []
+          for (const row of this.docInfo.requestParams) {
+            arr.push(`-d '${row.name}=${encodeURIComponent(row.example)}'`)
+          }
+          str.append(arr.join(' \\\n'))
+        }
+      }
+      const copyUrl = str.toString().trim().replace(/\\$/, '').trim()
+      this.copyText(copyUrl)
     },
     showConst() {
       this.$refs.constView.show(this.docInfo.moduleId)

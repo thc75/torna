@@ -4,8 +4,17 @@ package cn.torna.common.enums;
  * @author tanghc
  */
 public enum UserStatusEnum {
+    /**
+     * 禁用
+     */
     DISABLED((byte)0),
+    /**
+     * 启用
+     */
     ENABLE((byte)1),
+    /**
+     * 设置密码
+     */
     SET_PASSWORD((byte)2),
     ;
 

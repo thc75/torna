@@ -1,10 +1,9 @@
 package cn.torna.web.controller.system;
 
-import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Configs;
+import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
-import cn.torna.common.bean.EnvironmentContext;
 import cn.torna.common.enums.ThirdPartyLoginTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
@@ -13,7 +12,6 @@ import cn.torna.web.config.TornaViewProperties;
 import cn.torna.web.controller.system.param.ConfigUpdateParam;
 import cn.torna.web.controller.system.vo.AdminConfigVO;
 import cn.torna.web.controller.system.vo.ConfigVO;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.util.Objects;
 
@@ -31,7 +30,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("system")
-public class ConfigController implements InitializingBean {
+public class ConfigController {
 
     private ConfigVO configVO = new ConfigVO();
 
@@ -74,6 +73,7 @@ public class ConfigController implements InitializingBean {
     public Result<TornaViewProperties> viewConfig() {
         tornaViewProperties.setEnableReg(EnvironmentKeys.REGISTER_ENABLE.getBoolean());
         tornaViewProperties.setEnableMeterSphere(EnvironmentKeys.ENABLE_METER_SPHERE.getBoolean());
+        tornaViewProperties.setHideOldMock(EnvironmentKeys.HIDE_OLD_MOCK.getBoolean());
         return Result.ok(tornaViewProperties);
     }
 
@@ -85,7 +85,7 @@ public class ConfigController implements InitializingBean {
         return Result.ok(Configs.getValue(key));
     }
 
-    @Override
+    @PostConstruct
     public void afterPropertiesSet() throws Exception {
         boolean enableThirdPartyLogin = EnvironmentKeys.LOGIN_THIRD_PARTY_ENABLE.getBoolean();
         boolean enableReg = EnvironmentKeys.REGISTER_ENABLE.getBoolean() && !enableThirdPartyLogin;

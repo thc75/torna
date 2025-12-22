@@ -1,7 +1,7 @@
 package cn.torna.api.interceptor;
 
-import cn.torna.api.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.common.context.SpringContext;
 import cn.torna.common.util.RequestUtil;
 import cn.torna.dao.entity.Module;
@@ -19,8 +19,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class TokenInterceptor extends ApiInterceptorAdapter {
 
-    private static final ApiUser DEFAULT_USER = new ApiUser();
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object serviceObj, Object argu) throws Exception {
         String accessToken = ApiContext.getAccessToken();
@@ -37,7 +35,7 @@ public class TokenInterceptor extends ApiInterceptorAdapter {
         currentContext.setIp(ip);
         currentContext.setModule(module);
         currentContext.setToken(accessToken);
-        currentContext.setApiUser(DEFAULT_USER);
+        currentContext.setApiUser(ApiUser.DEFAULT_USER);
         return true;
     }
 

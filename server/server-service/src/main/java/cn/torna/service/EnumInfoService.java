@@ -12,6 +12,6 @@ import org.springframework.stereotype.Service;
 public class EnumInfoService extends BaseLambdaService<EnumInfo, EnumInfoMapper> {
 
     public EnumInfo getByDataId(String dataId) {
-        return get(EnumInfo::getDataId, dataId);
+        return getByField(EnumInfo::getDataId, dataId);
     }
 }

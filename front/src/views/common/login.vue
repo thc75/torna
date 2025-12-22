@@ -192,12 +192,8 @@ export default {
       this.post('/system/login', postData, function(resp) {
         this.loading = false
         const data = resp.data
-        setToken(data.token)
-        if (data.status === Enums.USER_STATUS.SET_PASSWORD) {
-          this.goSetPassword()
-        } else {
-          this.goRoute(this.redirect || '/dashboard')
-        }
+        // 登录成功后的重定向
+        this.afterLoginRedirect(data, postData.username)
       }, () => {
         this.loading = false
       })
@@ -208,6 +204,24 @@ export default {
     languageChange(value) {
       set_lang(this.systemSettingData.language)
       location.reload()
+    },
+    afterLoginRedirect(data, username) {
+      // 开启了MFA认证
+      if (data.mfaEnable) {
+        console.log('系统开启了MFA认证')
+        if (data.isFirstMfaAuth) {
+          this.goMFABind(username)
+        } else {
+          this.goMFAAuth(username)
+        }
+      } else {
+        setToken(data.token)
+        if (data.status === Enums.USER_STATUS.SET_PASSWORD) {
+          this.goSetPassword()
+        } else {
+          this.goRoute(this.redirect || '/dashboard')
+        }
+      }
     }
   }
 }

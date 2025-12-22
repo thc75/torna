@@ -66,7 +66,7 @@
         :toolbars="toolbars"
         :style="editorStyle"
         @fullScreen="onFullScreen"
-        @imgAdd="onImgAdd"
+        @imgAdd="(pos, file) => onImgAdd('mdEditor', pos, file)"
       />
     </el-form>
     <div style="margin-top: 10px;">
@@ -99,8 +99,6 @@
 <script>
 import RichTextEditor from '@/components/RichTextEditor'
 import { mavonEditor } from 'mavon-editor'
-import axios from 'axios'
-import { get_server_url, get_token } from '@/utils/http'
 
 export default {
   components: { RichTextEditor, mavonEditor },
@@ -266,47 +264,6 @@ export default {
       } else {
         this.editorStyle = 'height: auto'
       }
-    },
-    onImgAdd(pos, file) {
-      const formData = new FormData()
-      formData.append('file', file)
-      this.upload(formData)
-        .then(url => {
-          this.$refs.mdEditor.$img2Url(pos, url)
-        })
-    },
-    async upload(data) {
-      return new Promise((resolve, reject) => {
-        axios({
-          url: `${get_server_url()}/uploadFile`,
-          method: 'post',
-          data,
-          headers: {
-            'Authorization': get_token()
-          },
-          withCredentials: true // true 为不允许带 token, false 为允许，可能会遇到跨域报错：Error: Network Error 弹窗提示（感谢@ big_yellow 指正）
-        }).then(res => {
-          const resData = res.data
-          if (resData.code !== '0') {
-            this.scope.tipError('上传失败：' + resData.msg)
-            return
-          }
-          const data = resData.data
-          // 方法返回数据格式： {default: "url"}
-          const returnUrl = data.url || ''
-          let url
-          // 如果是全路径
-          if (returnUrl.startsWith('http://') || returnUrl.startsWith('https://')) {
-            url = returnUrl
-          } else {
-            url = get_server_url() + returnUrl
-          }
-
-          resolve(url)
-        }).catch(error => {
-          reject(error)
-        })
-      })
     }
   }
 }

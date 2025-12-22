@@ -40,28 +40,28 @@ export const word_wrapper = `
     <body>{body}</body></html>`
 
 const WordUtil = {
-  handleWordData(treeData, content, level = 1) {
+  handleWordData(treeData, content, level = 1, dialogFormData) {
     const appendHtml = (doc_info, level) => {
       init_docInfo(doc_info)
-      content.append(WordUtil.toWord(doc_info, level))
+      content.append(WordUtil.toWord(doc_info, level, dialogFormData))
     }
     treeData.forEach(docInfo => {
       const children = docInfo.children
       if (children && children.length > 0) {
         content.append(`<h${level}>${docInfo.name}</h${level}>`)
-        this.handleWordData(children, content, level + 1)
+        this.handleWordData(children, content, level + 1, dialogFormData)
       } else {
         appendHtml(docInfo, level)
       }
     })
   },
-  toWordByData(docInfoList) {
+  toWordByData(docInfoList, dialogFormData) {
     const treeData = convert_tree(docInfoList, '')
     const content = new StringBuilder()
-    this.handleWordData(treeData, content)
+    this.handleWordData(treeData, content, 1, dialogFormData)
     return content.toString()
   },
-  toWord(docInfo, level = 2) {
+  toWord(docInfo, level = 2, dialogFormData) {
     const sb = new StringBuilder()
     sb.append(`<h${level}>${docInfo.name}</h${level}>`)
     const appendCode = (str) => {
@@ -70,7 +70,9 @@ const WordUtil = {
       sb.append('</table>')
     }
     // 维护人
-    docInfo.author && sb.append(`<p><strong>${$t('maintainer')}：</strong>${docInfo.author}</p>`)
+    if (docInfo.author && dialogFormData.hideMaintainer === 0) {
+      sb.append(`<p><strong>${$t('maintainer')}：</strong>${docInfo.author}</p>`)
+    }
     if (isCustom(docInfo)) {
       sb.append(docInfo.description)
       return sb.toString()
@@ -94,19 +96,24 @@ const WordUtil = {
     } else if (isDubbo(docInfo)) {
       sb.append(`<p><strong>${$t('method')}：</strong>${docInfo.url}</p>`)
     }
-    // 描述
-    sb.append(`<p><strong>${$t('description')}：</strong>${docInfo.description}</p>`)
-
-    isHttp(docInfo) && sb.append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
-
+    if (docInfo.description) {
+      // 描述
+      sb.append(`<p><strong>${$t('description')}：</strong>${docInfo.description}</p>`)
+    }
     if (isHttp(docInfo)) {
+      if (docInfo.contentType) {
+        sb.append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
+      }
       if (docInfo.pathParams && docInfo.pathParams.length > 0) {
         sb.append(`<h4>${$t('pathVariable')}</h4>`)
         sb.append(createTable(docInfo.pathParams, Enums.PARAM_STYLE.path))
       }
-      if (docInfo.headerParams && docInfo.headerParams.length > 0) {
+      const headers = docInfo.globalHeaders || []
+      const headerParams = docInfo.headerParams || []
+      headers.push(...headerParams)
+      if (headers.length > 0) {
         sb.append(`<h4>${$t('requestHeader')}</h4>`)
-        sb.append(createTable(docInfo.headerParams, Enums.PARAM_STYLE.header))
+        sb.append(createTable(headers, Enums.PARAM_STYLE.header))
       }
     }
     sb.append(`<h4>${$t('requestParams')}</h4>`)
@@ -131,9 +138,10 @@ const WordUtil = {
       const responseExample = create_response_example(docInfo.responseParams)
       appendCode(JSON.stringify(responseExample, null, 4))
     }
-
-    sb.append(`<h4>${$t('errorCode')}</h4>`)
-    sb.append(createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code))
+    if (docInfo.errorCodeParams.length > 0) {
+      sb.append(`<h4>${$t('errorCode')}</h4>`)
+      sb.append(createTable(docInfo.errorCodeParams, Enums.PARAM_STYLE.code))
+    }
     return sb.toString()
   }
 }
@@ -193,8 +201,8 @@ function createBody(params, rowConfig, prefix = '', level = 1) {
 function createBodyTr(tds, prefix, level) {
   if (level > 1) {
     const padding = []
-    console.log('level:', level)
-    console.log('cishu :', Math.pow(level, 2))
+    // console.log('level:', level)
+    // console.log('cishu :', Math.pow(level, 2))
     for (let i = 1; i < level; i++) {
       padding.push('&nbsp;')
     }

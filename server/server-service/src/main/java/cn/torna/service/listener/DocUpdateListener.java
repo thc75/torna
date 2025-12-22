@@ -1,8 +1,6 @@
 package cn.torna.service.listener;
 
-import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
-import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.service.DocDiffContext;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.DocSnapshotService;
@@ -15,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 /**
  * @author thc
@@ -43,13 +40,7 @@ public class DocUpdateListener extends DefaultDocUpdateListener {
 
             // 2. 创建对比记录
             String oldMd5 = event.getOldMd5();
-            String newMd5 = docInfoDTO.getMd5();
-            if (Objects.equals(oldMd5, newMd5)) {
-                return;
-            }
-            Long modifierId = docInfoDTO.getModifierId();
-            User user = userCacheManager.getUser(modifierId);
-            DocDiffDTO docDiffDTO = new DocDiffDTO(oldMd5, newMd5, LocalDateTime.now(), user, event.getSourceFromEnum());
+            DocDiffDTO docDiffDTO = new DocDiffDTO(event.getDocId(), oldMd5, null, LocalDateTime.now(), null, event.getSourceFromEnum());
             DocDiffContext.addQueue(docDiffDTO);
         }
     }

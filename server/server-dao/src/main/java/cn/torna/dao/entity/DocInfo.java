@@ -36,6 +36,8 @@ public class DocInfo {
     /** 文档描述, 数据库字段：description */
     private String description;
 
+    private String descriptionType;
+
     /** 维护人, 数据库字段：author */
     private String author;
 

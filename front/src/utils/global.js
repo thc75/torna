@@ -3,7 +3,7 @@
  */
 import Vue from 'vue'
 import { getToken, removeToken } from './auth'
-import { do_get, get, get_base_url, get_server_url, get_file, post, download } from './http'
+import { do_get, get, get_base_url, get_server_url, get_file, post, download, upload } from './http'
 import {
   convert_tree,
   create_response_example,
@@ -107,7 +107,7 @@ Object.assign(Vue.prototype, {
    * @param callback 错误回调
    */
   download(uri, data, callback) {
-    download(uri, data, callback);
+    download(uri, data, callback)
   },
   getEnums() {
     return Enums
@@ -118,6 +118,17 @@ Object.assign(Vue.prototype, {
    */
   getBaseUrl() {
     return get_base_url()
+  },
+  /**
+   * 给url添加/
+   * @param url
+   * @returns {*|string}
+   */
+  wrapUrl(url) {
+    if (url && !url.startsWith('/')) {
+      return '/' + url
+    }
+    return url
   },
   /**
    * 获取服务端接口基础路径
@@ -290,8 +301,28 @@ Object.assign(Vue.prototype, {
   goSetPassword() {
     this.goRoute('/setPassword')
   },
-  goRoute: function(path) {
-    this.$router.push({ path: path })
+  goMFABind(username) {
+    this.$store.commit('user/SET_USERNAME', username)
+    this.goRoute('/mfa/bind')
+  },
+  goMFAAuth(username) {
+    this.$store.commit('user/SET_USERNAME', username)
+    this.goRoute('/mfa/auth')
+  },
+  /**
+   * 路由
+   * @param path 路由地址
+   * @param isNewTab 是否新标签页打开
+   */
+  goRoute: function(path, isNewTab) {
+    if (isNewTab) {
+      if (!path.startsWith('/')) {
+        path = '/' + path
+      }
+      window.open(`${this.getBaseUrl()}/#${path}`, '_blank')
+    } else {
+      this.$router.push({ path: path })
+    }
   },
   initDocInfo(data) {
     return init_docInfo(data)
@@ -777,6 +808,14 @@ Object.assign(Vue.prototype, {
       if (object2[key] !== object1[key]) return false
     }
     return true
+  },
+  onImgAdd(ref, pos, file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    upload(formData)
+      .then(url => {
+        this.$refs[ref].$img2Url(pos, url)
+      })
   },
   getTornaVersion() {
     return VERSION

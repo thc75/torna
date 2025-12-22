@@ -46,7 +46,7 @@ public class SystemI18nConfigService extends BaseLambdaService<SystemI18nConfig,
     }
 
     public SystemI18nConfig getByLang(String lang) {
-        return get(SystemI18nConfig::getLang, lang);
+        return getByField(SystemI18nConfig::getLang, lang);
     }
 
     @Override

@@ -93,14 +93,14 @@ function createTable(params, style) {
 }
 
 const HtmlUtil = {
-  toHtmlByData(docInfoList, title) {
+  toHtmlByData(docInfoList, title, dialogFormData) {
     title = title || $t('document')
     const treeData = convert_tree(docInfoList)
     // 一级标题
     const content = new StringBuilder(`<h1>${title}</h1>`)
     const appendHtml = (doc_info) => {
       init_docInfo(doc_info)
-      const html = HtmlUtil.toHtml(doc_info)
+      const html = HtmlUtil.toHtml(doc_info, dialogFormData)
       content.append(html)
     }
     treeData.forEach(docInfo => {
@@ -118,7 +118,7 @@ const HtmlUtil = {
     })
     return content.toString()
   },
-  toHtml(docInfo) {
+  toHtml(docInfo, dialogFormData) {
     const sb = new StringBuilder()
     const link = (id, name) => {
       return `<a class="link" href="#${id}">&nbsp;${name}</a>`
@@ -129,7 +129,7 @@ const HtmlUtil = {
     sb.append('<div class="doc-item">')
       .append(`<h3 id="${docInfo.id}">${link(docInfo.id, docInfo.name)}</h3>`)
     // 维护人
-    if (docInfo.author) {
+    if (docInfo.author && dialogFormData.hideMaintainer === 0) {
       sb.append(`<p><strong>${$t('maintainer')}：</strong>${docInfo.author}</p>`)
     }
     if (isCustom(docInfo)) {
@@ -155,22 +155,26 @@ const HtmlUtil = {
     } else if (isDubbo(docInfo)) {
       sb.append(`<p><strong>${$t('method')}：</strong>${docInfo.url}</p>`)
     }
-    // 描述
-    sb.append(`<p><strong>${$t('description')}：</strong>${docInfo.description}</p>`)
-
-    if (isHttp(docInfo)) {
-      sb.append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
+    if (docInfo.description) {
+      // 描述
+      sb.append(`<p><strong>${$t('description')}：</strong>${docInfo.description}</p>`)
     }
 
     if (isHttp(docInfo)) {
+      if (docInfo.contentType) {
+        sb.append(`<p><strong>ContentType：</strong>${docInfo.contentType}</p>`)
+      }
       if (docInfo.pathParams && docInfo.pathParams.length > 0) {
         sb.append(`<h4>${$t('pathVariable')}</h4>`)
         const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
         sb.append(pathParamsTable)
       }
-      if (docInfo.headerParams && docInfo.headerParams.length > 0) {
+      const headers = docInfo.globalHeaders || []
+      const headerParams = docInfo.headerParams || []
+      headers.push(...headerParams)
+      if (headers.length > 0) {
         sb.append(`<h4>${$t('requestHeader')}</h4>`)
-        const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
+        const headerParamsTable = createTable(headers, Enums.PARAM_STYLE.header)
         sb.append(headerParamsTable)
       }
     }

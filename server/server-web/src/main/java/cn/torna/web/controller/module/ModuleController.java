@@ -1,7 +1,5 @@
 package cn.torna.web.controller.module;
 
-import cn.torna.api.bean.ApiUser;
-import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.SwaggerApi;
 import cn.torna.api.open.SwaggerRefreshApi;
 import cn.torna.api.open.YapiApi;
@@ -9,10 +7,6 @@ import cn.torna.common.annotation.HashId;
 import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
-import cn.torna.manager.doc.postman.Postman;
-import cn.torna.service.ConvertService;
-import cn.torna.service.dto.YapiMarkdownDTO;
-import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.ModuleTypeEnum;
 import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
@@ -20,12 +14,16 @@ import cn.torna.common.util.IdUtil;
 import cn.torna.common.util.RequestUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
+import cn.torna.manager.doc.postman.Postman;
+import cn.torna.service.ConvertService;
 import cn.torna.service.DocImportService;
 import cn.torna.service.DocInfoService;
 import cn.torna.service.ModuleService;
 import cn.torna.service.dto.ImportPostmanDTO;
 import cn.torna.service.dto.ImportSwaggerDTO;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
+import cn.torna.service.dto.YapiMarkdownDTO;
+import cn.torna.web.config.UserContext;
 import cn.torna.web.controller.module.param.ImportSwaggerParam;
 import cn.torna.web.controller.module.param.ImportSwaggerV2Param;
 import cn.torna.web.controller.module.param.ModuleAddParam;
@@ -33,7 +31,6 @@ import cn.torna.web.controller.module.param.ModuleDeleteParam;
 import cn.torna.web.controller.module.param.ModuleUpdateNameParam;
 import cn.torna.web.controller.module.vo.ModuleVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,14 +39,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.MediaSize;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -108,6 +102,7 @@ public class ModuleController {
 
     /**
      * 获取项目模块
+     *
      * @param projectId
      * @return
      */
@@ -120,6 +115,7 @@ public class ModuleController {
 
     /**
      * 添加模块
+     *
      * @param param
      * @return
      */
@@ -133,6 +129,7 @@ public class ModuleController {
 
     /**
      * 修改模块名称
+     *
      * @param param
      * @return
      */
@@ -149,6 +146,7 @@ public class ModuleController {
 
     /**
      * 删除模块
+     *
      * @param param
      * @return
      */
@@ -161,6 +159,7 @@ public class ModuleController {
 
     /**
      * 导入swagger
+     *
      * @param param
      * @return
      */
@@ -176,6 +175,7 @@ public class ModuleController {
 
     /**
      * 导入swagger
+     *
      * @param param
      * @return
      */
@@ -193,7 +193,8 @@ public class ModuleController {
 
     /**
      * 导入postman
-     * @param file postman导出文件
+     *
+     * @param file      postman导出文件
      * @param projectId 项目id
      * @return
      */
@@ -217,7 +218,8 @@ public class ModuleController {
 
     /**
      * 导入yapi markdown
-     * @param file md导出文件
+     *
+     * @param file      md导出文件
      * @param projectId 项目id
      * @return
      */
@@ -245,6 +247,7 @@ public class ModuleController {
 
     /**
      * 刷新swagger
+     *
      * @param moduleId
      * @return
      */
@@ -262,6 +265,7 @@ public class ModuleController {
 
     /**
      * 刷新swagger
+     *
      * @param moduleId
      * @return
      */
@@ -271,7 +275,6 @@ public class ModuleController {
         swaggerRefreshApi.refresh(moduleId, RequestUtil.getIP(request), user);
         return Result.ok();
     }
-
 
 
 }

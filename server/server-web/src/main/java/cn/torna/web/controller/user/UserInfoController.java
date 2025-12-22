@@ -1,5 +1,6 @@
 package cn.torna.web.controller.user;
 
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
 import cn.torna.dao.entity.UserWeComInfo;
@@ -18,6 +19,7 @@ import cn.torna.web.controller.user.param.UserIdParam;
 import cn.torna.web.controller.user.param.UserInfoSearchParam;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.query.Sort;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -75,6 +77,7 @@ public class UserInfoController {
         if (null != userWeComInfo) {
             userInfoDTO.setWeComMobile(userWeComInfo.getMobile());
         }
+        userInfoDTO.setMfaEnable(Boolean.parseBoolean(EnvironmentKeys.TORNA_MFA_ENABLE.getValue()));
         return Result.ok(userInfoDTO);
     }
 
@@ -142,4 +145,14 @@ public class UserInfoController {
     }
 
 
+    @PostMapping("/mfa/reset")
+    public Result resetMfa() {
+        long userId = UserContext.getUser().getUserId();
+        UserInfo userInfo = userInfoService.getById(userId);
+        if (userInfo == null) {
+            throw new BizException("MFA重置异常，请联系管理员");
+        }
+        userInfoService.updateMfaSk(userInfo.getId(), Strings.EMPTY);
+        return Result.ok();
+    }
 }

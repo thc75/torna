@@ -61,8 +61,7 @@ public class DebugController {
                 httpHelper = HttpHelper.postForm(url, form, multipartFiles.toArray(new HttpHelper.UploadFile[0]));
         } else {
             httpHelper = HttpHelper.create()
-                    .url(url)
-                    .method(method);
+                    .url(url);
             try {
                 ServletInputStream inputStream = request.getInputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
@@ -71,7 +70,7 @@ public class DebugController {
                 e.printStackTrace();
             }
         }
-        httpHelper.headers(headers);
+        httpHelper.headers(headers).method(method);
 
         HttpHelper.ResponseResult responseResult = null;
         try {

@@ -2,11 +2,8 @@ package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.User;
-import cn.torna.common.enums.ShareConfigTypeEnum;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.exception.BizException;
-import com.gitee.fastmybatis.core.support.BaseLambdaService;
-import cn.torna.common.util.PasswordUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.ModuleEnvironment;
 import cn.torna.dao.entity.ShareConfig;
@@ -17,12 +14,11 @@ import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.ModuleEnvironmentDTO;
 import cn.torna.service.dto.ShareConfigDTO;
 import cn.torna.service.dto.ShareDocDTO;
-import com.gitee.fastmybatis.core.query.Query;
+import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,12 +54,8 @@ public class ShareConfigService extends BaseLambdaService<ShareConfig, ShareConf
         shareConfig.setCreatorName(user.getNickname());
         shareConfig.setStatus(StatusEnum.ENABLE.getStatus());
         shareConfig.setIsShowDebug(shareConfigDTO.getIsShowDebug());
-        if (shareConfigDTO.getType() == ShareConfigTypeEnum.ENCRYPT.getType()) {
-            String pwd = PasswordUtil.getRandomSimplePassword(4);
-            shareConfig.setPassword(pwd);
-        } else {
-            shareConfig.setPassword("");
-        }
+        shareConfig.setPassword(shareConfigDTO.getPassword());
+        shareConfig.setShareName(shareConfigDTO.getShareName());
         // 设置过期时间
         shareConfig.setExpirationTime(shareConfigDTO.getExpirationTime());
         this.save(shareConfig);
@@ -80,14 +72,8 @@ public class ShareConfigService extends BaseLambdaService<ShareConfig, ShareConf
         shareConfig.setRemark(shareConfigDTO.getRemark());
         shareConfig.setIsShowDebug(shareConfigDTO.getIsShowDebug());
         shareConfig.setIsAllSelectedDebug(shareConfigDTO.getIsAllSelectedDebug());
-        if (shareConfigDTO.getType() == ShareConfigTypeEnum.ENCRYPT.getType()) {
-            if (StringUtils.isEmpty(shareConfig.getPassword())) {
-                String pwd = PasswordUtil.getRandomSimplePassword(4);
-                shareConfig.setPassword(pwd);
-            }
-        } else {
-            shareConfig.setPassword("");
-        }
+        shareConfig.setPassword(shareConfigDTO.getPassword());
+        shareConfig.setShareName(shareConfigDTO.getShareName());
         // 设置过期时间 如果是null 则永久有效
         shareConfig.setExpirationTime(shareConfigDTO.getExpirationTime());
         this.update(shareConfig);
@@ -134,7 +120,7 @@ public class ShareConfigService extends BaseLambdaService<ShareConfig, ShareConf
     }
 
     public List<ShareContent> listContent(long id) {
-        return shareContentService.list(ShareContent::getShareConfigId, id);
+        return shareContentService.listByField(ShareContent::getShareConfigId, id);
     }
 
     public List<ShareDocDTO> listShareDocIds(long id) {
@@ -181,7 +167,7 @@ public class ShareConfigService extends BaseLambdaService<ShareConfig, ShareConf
             List<ModuleEnvironment> moduleEnvironments = moduleEnvironmentService.listModuleEnvironment(moduleId);
             return moduleEnvironments.stream().map(env -> new ShareEnvironment(null, id, env.getId())).collect(Collectors.toList());
         }
-        return shareEnvironmentService.list(ShareEnvironment::getShareConfigId, id);
+        return shareEnvironmentService.listByField(ShareEnvironment::getShareConfigId, id);
     }
 
 

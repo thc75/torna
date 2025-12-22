@@ -35,6 +35,9 @@ public class LoginUser implements User {
 
     private String token;
 
+    /** 此用户是否为首次多因素认证 **/
+    private Boolean isFirstMfaAuth = true;
+
     @Override
     public byte getOperationModel() {
         return OperationMode.MANUAL.getType();

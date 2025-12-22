@@ -2,6 +2,7 @@ package cn.torna.service.dto;
 
 import cn.torna.common.annotation.Diff;
 import cn.torna.common.bean.TreeAware;
+import cn.torna.common.enums.DescriptionTypeEnum;
 import cn.torna.common.enums.PositionType;
 import cn.torna.common.support.IdCodec;
 import cn.torna.service.dataid.DocInfoDataId;
@@ -28,6 +29,8 @@ public class DocInfoDTO implements DocInfoDataId, TreeAware<DocInfoDTO, Long> {
     @Diff(positionType = PositionType.DOC_DESCRIPTION)
     private String description;
 
+    private String descriptionType = DescriptionTypeEnum.HTML.getValue();
+
     /** 维护人, 数据库字段：author */
     @Diff(positionType = PositionType.AUTHOR)
     private String author;
@@ -42,7 +45,7 @@ public class DocInfoDTO implements DocInfoDataId, TreeAware<DocInfoDTO, Long> {
     /**
      * 版本号
      */
-    private String version = "";
+    private String version;
 
     private String docKey;
 

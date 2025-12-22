@@ -2,8 +2,12 @@
   <div>
     <div style="display: inline-block">
       <el-form :model="systemSettingData" size="mini" label-width="120px">
-        <el-form-item label="系统默认语言">
-          <el-select v-model="systemSettingData.lang" :placeholder="$t('pleaseSelect')" @change="onDefaultLangChange">
+        <el-form-item :label="$t('Internationalization.defaultLang')">
+          <el-select
+            v-model="systemSettingData.lang"
+            :placeholder="$t('pleaseSelect')"
+            @change="onDefaultLangChange"
+          >
             <el-option
               v-for="item in languageOptions"
               :key="item.value"
@@ -11,13 +15,13 @@
               :value="item.value"
             />
           </el-select>
-          <span class="info-tip">新用户第一次进入系统所显示的语言</span>
+          <span class="info-tip">{{ $t('Internationalization.defaultLangTip') }}</span>
         </el-form-item>
       </el-form>
     </div>
     <el-container>
       <el-aside width="200px" style="padding: 20px">
-        <el-button type="primary" size="mini" @click="addNew">添加国际化</el-button>
+        <el-button type="primary" size="mini" @click="addNew">{{ $t('Internationalization.addI18n') }}</el-button>
         <el-tree
           :data="list"
           :props="defaultProps"
@@ -30,39 +34,48 @@
         />
       </el-aside>
       <el-main>
-        <el-form v-if="formData.id || formData.isNew" ref="i18nForm"  :model="formData" :rules="formRules">
-          <el-form-item label="语言简称" prop="lang">
+        <el-form
+          v-if="formData.id || formData.isNew"
+          ref="i18nForm"
+          :model="formData"
+          :rules="formRules"
+        >
+          <el-form-item :label="$t('Internationalization.langCode')" prop="lang">
             <el-alert>
               <div slot="title">
-                建议跟ElementUI简称保持一致，
+                {{ $t('Internationalization.langCodeTip1') }}
                 <el-link
                   type="primary"
                   href="https://github.com/ElemeFE/element/tree/master/src/locale/lang"
                   target="_blank"
-                >点击查看</el-link><br/>
-                系统内置了zh-CN（简体中文）,en（英文）两个配置，可在此进行覆盖，如要覆盖简体中文填zh-CN
+                >{{ $t('Internationalization.viewLink') }}</el-link><br/>
+                {{ $t('Internationalization.langCodeTip2') }}
               </div>
             </el-alert>
             <el-input
               v-model="formData.lang"
-              placeholder="语言简称，如：zh-TW"
+              :placeholder="$t('Internationalization.langCodePlaceholder')"
               show-word-limit
               maxlength="10"
             />
           </el-form-item>
-          <el-form-item label="语言描述" prop="description">
+          <el-form-item :label="$t('Internationalization.langDesc')" prop="description">
             <el-input
               v-model="formData.description"
-              placeholder="语言描述，如：繁体中文"
+              :placeholder="$t('Internationalization.langDescPlaceholder')"
               show-word-limit
               maxlength="50"
             />
           </el-form-item>
-          <el-form-item label="翻译内容">
+          <el-form-item :label="$t('Internationalization.translationContent')">
             <el-alert :closable="false">
               <div slot="title">
-                json内容，key不变，翻译value值，{0}为占位符不用翻译。完成后前往
-                <el-link type="primary" :href="`${getBaseUrl()}/#/user/systemSetting`" target="_blank">【个人中心】</el-link>查看
+                {{ $t('Internationalization.translationTip1') }}
+                <el-link
+                  type="primary"
+                  :href="`${getBaseUrl()}/#/user/systemSetting`"
+                  target="_blank"
+                >{{ $t('Internationalization.viewPersonalCenter') }}</el-link>
               </div>
             </el-alert>
             <editor
@@ -77,8 +90,12 @@
             />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSave">保存</el-button>
-            <el-button v-show="formData.id.length > 0" type="danger" @click="onDel">删除</el-button>
+            <el-button type="primary" @click="onSave">{{ $t('save') }}</el-button>
+            <el-button
+              v-show="formData.id.length > 0"
+              type="danger"
+              @click="onDel"
+            >{{ $t('delete') }}</el-button>
           </el-form-item>
         </el-form>
       </el-main>
@@ -166,7 +183,7 @@ export default {
           return true
           // eslint-disable-next-line no-empty
         } catch (e) {
-          this.tipError('格式错误，确保为json')
+          this.tipError(this.$t('parseError'))
         }
       }
       return false

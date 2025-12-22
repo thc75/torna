@@ -16,6 +16,7 @@ import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -251,6 +252,9 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
             // 获取接口名称
             List<Long> docIds = list.stream().map(ProjectReleaseDoc::getSourceId).distinct().collect(Collectors.toList());
             List<DocInfo> docInfos = docInfoService.list(LambdaQuery.create(DocInfo.class).in(DocInfo::getId, docIds));
+            if (ObjectUtils.isEmpty(docInfos)) {
+                return new ArrayList<>(0);
+            }
             DocInfoService.sortDocInfo(docInfos);
             Map<Long, DocInfo> docInfoMap = docInfos.stream().collect(Collectors.toMap(DocInfo::getId, Function.identity(), (v1, v2) -> v2));
 
@@ -261,9 +265,13 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
                     module.setIsFolder(1);
                     module.setId(k);
                     module.setName(v);
-                    muduleId2ListMap.get(k).forEach(releaseDoc ->{
+                    List<ProjectReleaseDoc> projectReleaseDocs = muduleId2ListMap.get(k);
+                    for (ProjectReleaseDoc releaseDoc : projectReleaseDocs) {
                         ProjectReleaseBindDocDTO doc = new ProjectReleaseBindDocDTO(releaseId);
                         DocInfo docInfo = docInfoMap.get(releaseDoc.getSourceId());
+                        if (docInfo == null) {
+                            continue;
+                        }
                         // 只展示接口
                         if (docInfo.getIsFolder() == 0) {
                             doc.setIsFolder(0);
@@ -274,7 +282,7 @@ public class ProjectReleaseService extends BaseLambdaService<ProjectRelease, Pro
                             doc.setVersion(docInfo.getVersion());
                             module.getChildren().add(doc);
                         }
-                    });
+                    }
                     result.add(module);
                 });
             }

@@ -20,7 +20,7 @@ public class SystemLoginTokenService extends BaseLambdaService<SystemLoginToken,
 
 
     public Optional<String> getTokenByLoginKey(String loginKey) {
-        SystemLoginToken systemLoginToken = get(SystemLoginToken::getLoginKey, loginKey);
+        SystemLoginToken systemLoginToken = getByField(SystemLoginToken::getLoginKey, loginKey);
         return Optional.ofNullable(systemLoginToken)
                 .filter(data -> data.getExpireTime() != null && data.getExpireTime().isAfter(LocalDateTime.now()))
                 .map(SystemLoginToken::getToken);

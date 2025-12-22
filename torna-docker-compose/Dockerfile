@@ -1,4 +1,4 @@
-FROM mysql:5.7
+FROM mysql:8.0
 #定义会被容器自动执行的目录
 ENV AUTO_RUN_DIR /docker-entrypoint-initdb.d
 #定义初始化sql文件

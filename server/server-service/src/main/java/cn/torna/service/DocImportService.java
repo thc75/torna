@@ -40,6 +40,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -167,6 +168,9 @@ public class DocImportService {
                 this.saveItems(subItems, folder, module, user);
             } else {
                 DocItemCreateDTO docItemCreateDTO = this.buildPostmanDocItemCreateDTO(item, parent, module, user);
+                if (docItemCreateDTO == null) {
+                    return;
+                }
                 DocInfo docItem = docInfoService.createDocItem(docItemCreateDTO);
 
                 // path参数
@@ -228,12 +232,27 @@ public class DocImportService {
         }
         switch (mode) {
             case "raw":
+                // 不是json，做字符串处理
+                if (notJson(body)) {
+                    List<Param> params = Collections.singletonList(buildTextBody(body));
+                    list.addAll(params);
+                    break;
+                }
                 String json = body.getRaw();
                 if (StringUtils.isEmpty(json)) {
                     return new BodyWrapper(list);
                 }
                 JSON jsonObj;
-                Object parseObj = JSON.parse(json);
+                Object parseObj = null;
+                try {
+                    parseObj = JSON.parse(json);
+                } catch (Exception e) {
+                    // 不是合法json，当做字符串处理
+                    log.warn("不是一个合法json:\n{}", json);
+                    List<Param> params = Collections.singletonList(buildTextBody(body));
+                    list.addAll(params);
+                    break;
+                }
                 if (parseObj instanceof JSONArray) {
                     isArrayBody = true;
                     jsonObj = (JSONArray) parseObj;
@@ -256,6 +275,23 @@ public class DocImportService {
             default: {}
         }
         return new BodyWrapper(isArrayBody, list);
+    }
+
+    private boolean notJson(Body body) {
+        JSONObject options = body.getOptions();
+        String lang = Optional.ofNullable(options)
+                .map(data -> data.getJSONObject("raw"))
+                .map(data -> data.getString("language"))
+                .orElse("json");
+        return !lang.toLowerCase().contains("json");
+    }
+
+    private Param buildTextBody(Body body) {
+        Param param = new Param();
+        param.setKey("raw");
+        param.setType("string");
+        param.setValue(body.getRaw());
+        return param;
     }
 
     private static boolean isSingleValueArray(JSONArray jsonArray) {
@@ -455,6 +491,9 @@ public class DocImportService {
         List<IParam> children = docParameter.getChildren();
         if (children != null) {
             for (IParam child : children) {
+                if (savedDoc.getId() == null) {
+                    System.out.println(savedDoc);
+                }
                 this.saveDocParam(child, docInfo, savedDoc.getId(), styleEnumFunction, user);
             }
         }
@@ -476,6 +515,9 @@ public class DocImportService {
 
     private DocItemCreateDTO buildPostmanDocItemCreateDTO(Item item, DocInfo parent, Module module, User user) {
         Request request = item.getRequest();
+        if (request == null) {
+            return null;
+        }
         String url = request.getUrl().getFullUrl();
         String contentType = this.buildContentType(request);
         DocItemCreateDTO docItemCreateDTO = new DocItemCreateDTO();
@@ -520,7 +562,9 @@ public class DocImportService {
                         .orElse("text");
                 return CONTEXT_TYPE_MAP.get(lang);
             case "urlencoded":
-                return "application/x-www-form-urlencoded";
+                return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+            case "formdata":
+                return MediaType.MULTIPART_FORM_DATA_VALUE;
             default:
                 return "";
         }

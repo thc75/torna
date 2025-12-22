@@ -18,8 +18,21 @@ public class MockConfigParam {
     /** 名称, 数据库字段：name */
     private String name;
 
+    private String httpMethod;
+
     /** mock版本号 */
     private Integer version;
+
+    /**
+     * 是否过滤ip
+     */
+    private Byte isFilterIp;
+
+    private String ip;
+
+    private List<NameValueDTO> headers;
+
+    private List<NameValueDTO> query;
 
     private List<NameValueDTO> dataKv;
 

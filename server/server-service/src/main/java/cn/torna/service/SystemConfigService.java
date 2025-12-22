@@ -56,7 +56,7 @@ public class SystemConfigService extends BaseLambdaService<SystemConfig, SystemC
     public void setConfig(SystemConfigDTO systemConfigDTO) {
         Objects.requireNonNull(systemConfigDTO.getConfigKey(), "need key");
         Objects.requireNonNull(systemConfigDTO.getConfigValue(), "need value");
-        SystemConfig systemConfig = get(SystemConfig::getConfigKey, systemConfigDTO.getConfigKey());
+        SystemConfig systemConfig = getByField(SystemConfig::getConfigKey, systemConfigDTO.getConfigKey());
         if (systemConfig == null) {
             systemConfig = CopyUtil.copyBean(systemConfigDTO, SystemConfig::new);
             this.save(systemConfig);
@@ -82,7 +82,7 @@ public class SystemConfigService extends BaseLambdaService<SystemConfig, SystemC
      */
     public String getConfigValue(String key, String defaultValue) {
         Objects.requireNonNull(key, "need key");
-        SystemConfig systemConfig = get(SystemConfig::getConfigKey, key);
+        SystemConfig systemConfig = getByField(SystemConfig::getConfigKey, key);
         return Optional.ofNullable(systemConfig)
                 .map(SystemConfig::getConfigValue)
                 .orElseGet(() -> {

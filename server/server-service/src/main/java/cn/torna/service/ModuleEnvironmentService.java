@@ -110,7 +110,7 @@ public class ModuleEnvironmentService extends BaseLambdaService<ModuleEnvironmen
      * @return 返回环境
      */
     public List<ModuleEnvironment> listModuleEnvironment(long moduleId) {
-        List<ModuleEnvironment> list = list(ModuleEnvironment::getModuleId, moduleId);
+        List<ModuleEnvironment> list = listByField(ModuleEnvironment::getModuleId, moduleId);
         list.sort(Comparator.comparing(ModuleEnvironment::getGmtCreate));
         return list;
     }
@@ -182,7 +182,7 @@ public class ModuleEnvironmentService extends BaseLambdaService<ModuleEnvironmen
     @Transactional(rollbackFor = Exception.class)
     public void importEnvironment(ModuleEnvironmentImportDTO moduleEnvironmentImportDTO) {
         Long destModuleId = moduleEnvironmentImportDTO.getDestModuleId();
-        Map<Long, ModuleEnvironment> envIdMap = this.list(ModuleEnvironment::getId, moduleEnvironmentImportDTO.getEnvIds())
+        Map<Long, ModuleEnvironment> envIdMap = this.listByField(ModuleEnvironment::getId, moduleEnvironmentImportDTO.getEnvIds())
                 .stream()
                 .collect(Collectors.toMap(ModuleEnvironment::getId, Function.identity()));
         moduleEnvironmentImportDTO.getEnvIds()

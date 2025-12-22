@@ -32,6 +32,12 @@ public class ShareConfigDTO {
      */
     private Byte isAllSelectedDebug;
 
+    /**  分享密码 */
+    private String password;
+
+    /**  分享名称 */
+    private String shareName;
+
     /**
      * 模块环境id
      */

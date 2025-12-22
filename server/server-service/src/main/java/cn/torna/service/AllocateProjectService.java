@@ -41,7 +41,7 @@ public class AllocateProjectService {
             return;
         }
 
-        List<Long> spaceIds = projectService.list(Project::getId, projectIds)
+        List<Long> spaceIds = projectService.listByField(Project::getId, projectIds)
                 .stream()
                 .map(Project::getSpaceId)
                 .distinct()

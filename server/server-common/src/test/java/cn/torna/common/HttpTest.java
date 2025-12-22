@@ -19,7 +19,18 @@ import java.util.Map;
  * @author tanghc
  */
 public class HttpTest {
-
+    /**
+     * 普通get请求
+     * @throws IOException
+     */
+    @Test
+    public void get1() throws IOException {
+        String s = HttpHelper.get("http://torna.cn")
+                // 添加请求参数
+                .execute()
+                .asString();
+        System.out.println(s);
+    }
 
     /**
      * 普通get请求

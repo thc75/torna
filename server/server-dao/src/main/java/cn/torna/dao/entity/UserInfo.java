@@ -53,4 +53,6 @@ public class UserInfo {
     private LocalDateTime gmtModified;
 
 
+    /** 多因素认证密钥, 数据库字段：mfa_sk */
+    private String mfaSk;
 }

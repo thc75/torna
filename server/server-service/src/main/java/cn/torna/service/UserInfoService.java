@@ -105,11 +105,11 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
     }
 
     public UserInfo getByUsername(String username) {
-        return get(UserInfo::getUsername, username);
+        return getByField(UserInfo::getUsername, username);
     }
 
     public void checkEmail(String email) {
-        UserInfo userInfo = get(UserInfo::getUsername, email);
+        UserInfo userInfo = getByField(UserInfo::getUsername, email);
         Assert.isNull(userInfo, () -> "账号已被注册");
     }
 
@@ -168,10 +168,11 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
                 userInfo = this.doDatabaseLogin(username, password);
             }
         }
-        LoginUser loginUser = buildLoginUser(userInfo);
-        // 保存到缓存
-        userCacheManager.saveUser(loginUser);
-        return loginUser;
+//        LoginUser loginUser = buildLoginUser(userInfo);
+//        // 保存到缓存
+//        userCacheManager.saveUser(loginUser);
+
+        return buildLoginUserAndSaveCache(userInfo);
     }
 
     private LoginUser buildLoginUser(UserInfo userInfo) {
@@ -183,8 +184,20 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
         // 创建token
         String token = this.createToken(userInfo.getId());
         loginUser.setToken(token);
+        if (StringUtils.hasText(userInfo.getMfaSk())) {
+            loginUser.setIsFirstMfaAuth(false);
+        }
         return loginUser;
     }
+
+    public LoginUser buildLoginUserAndSaveCache(UserInfo userInfo) {
+        LoginUser loginUser = buildLoginUser(userInfo);
+        // 保存到缓存
+        userCacheManager.saveUser(loginUser);
+
+        return loginUser;
+    }
+
 
     /**
      * oauth登录
@@ -338,7 +351,18 @@ public class UserInfoService extends BaseLambdaService<UserInfo, UserInfoMapper>
     }
 
     public List<UserInfo> listSuperAdmin() {
-        return this.list(UserInfo::getIsSuperAdmin, Booleans.TRUE);
+        return this.listByField(UserInfo::getIsSuperAdmin, Booleans.TRUE);
     }
 
+
+    /**
+     * 更新mfaSk
+     *
+     * @param id id
+     */
+    public void updateMfaSk(Long id, String mfaSk) {
+        UserInfo userInfo = getById(id);
+        userInfo.setMfaSk(mfaSk);
+        this.update(userInfo);
+    }
 }

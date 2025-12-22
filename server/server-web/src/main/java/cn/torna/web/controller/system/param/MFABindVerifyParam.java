@@ -1,0 +1,22 @@
+package cn.torna.web.controller.system.param;
+
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Data
+public class MFABindVerifyParam {
+
+    /**
+     * 用户名
+     */
+    @NotBlank(message = "登陆用户名不能为空！")
+    private String username;
+    /**
+     * TOTP码
+     */
+    @NotNull(message = "TOTP码不能为空！")
+    private Long totpCode;
+
+}

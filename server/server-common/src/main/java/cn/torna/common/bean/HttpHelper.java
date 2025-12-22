@@ -8,7 +8,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
@@ -18,8 +17,8 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -31,9 +30,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +43,9 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,9 +75,28 @@ public class HttpHelper {
 
     static {
         try {
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            X509TrustManager tm = new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] arg0,
+                                               String arg1) throws CertificateException {
+                }
+
+                public void checkServerTrusted(X509Certificate[] arg0,
+                                               String arg1) throws CertificateException {
+                }
+            };
+            ctx.init(null, new TrustManager[] { tm }, new SecureRandom());
+            SSLConnectionSocketFactory ssf = new SSLConnectionSocketFactory(
+                    ctx, NoopHostnameVerifier.INSTANCE);
+
             CLOSEABLE_HTTP_CLIENT = HttpClients.custom()
-                    .setSSLSocketFactory(new SSLConnectionSocketFactory(new SSLContextBuilder()
-                            .loadTrustMaterial(null, (chain, authType) -> true).build())).build();
+                    .disableCookieManagement()
+                    .setSSLSocketFactory(ssf)
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException("init http client ssl error");
         }

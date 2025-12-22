@@ -53,7 +53,7 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
     private EnumService enumService;
 
     public DocParam getByDataId(String dataId) {
-        return get(DocParam::getDataId, dataId);
+        return getByField(DocParam::getDataId, dataId);
     }
 
     public void saveParams(DocInfo docInfo, List<DocParamDTO> docParamDTOS, ParamStyleEnum paramStyleEnum, User user) {
@@ -90,7 +90,7 @@ public class DocParamService extends BaseLambdaService<DocParam, DocParamMapper>
      * @param parentId 父id
      */
     private void deleteChildrenDeeply(long parentId) {
-        List<DocParam> children = this.list(DocParam::getParentId, parentId);
+        List<DocParam> children = this.listByField(DocParam::getParentId, parentId);
         for (DocParam child : children) {
             this.deleteParamDeeply(child.getId());
         }

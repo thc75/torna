@@ -18,6 +18,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -75,7 +76,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
                 "/", "/*.html", "/*.ico", "/static/**", UploadContext.MAPPING,
                 // 排除服务端请求
                 "/api", "/api/**", "/opendoc/**", "/doc/debug/**", "/system/**", "/captcha/**",
-                "/mock/**", "/error", "/share/**"
+                "/mock/**", "/mock-*/**", "/error", "/share/**"
         };
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(excludes);
@@ -88,6 +89,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Ini
      * 跨域设置
      */
     @Bean
+    @ConditionalOnProperty(value = "torna.cors.enable", havingValue = "true")
     public CorsFilter corsFilter(
             @Value("${torna.cors.allowed-origin-pattern:*}") String allowedOriginPattern,
             @Value("${torna.cors.allowed-header:*}") String allowedHeader

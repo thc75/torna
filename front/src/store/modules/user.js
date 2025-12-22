@@ -9,7 +9,8 @@ const state = {
   perms: {
     isSuperAdmin: false,
     roleData: {}
-  }
+  },
+  username: ''
 }
 
 const mutations = {
@@ -21,6 +22,9 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_USERNAME: (state, username) => {
+    state.username = username
   }
 }
 

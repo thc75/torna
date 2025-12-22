@@ -1,16 +1,16 @@
 <template>
   <div class="app-container">
     <el-tabs active-name="base" tab-position="left" @tab-click="tabChange">
-      <el-tab-pane label="基础配置" name="base">
+      <el-tab-pane name="base" :label="$t('SystemSetting.basicConfig')">
         <base-setting ref="base" />
       </el-tab-pane>
-      <el-tab-pane label="国际化设置" name="i18n">
+      <el-tab-pane name="i18n" :label="$t('SystemSetting.internationalizationConfig')">
         <i18n-setting ref="i18n" />
       </el-tab-pane>
-      <el-tab-pane label="钉钉配置" name="dingding">
+      <el-tab-pane name="dingding" :label="$t('SystemSetting.dingdingConfig')">
         <ding-ding ref="dingding" />
       </el-tab-pane>
-      <el-tab-pane label="企业微信配置" name="weCom">
+      <el-tab-pane name="weCom" :label="$t('SystemSetting.weComConfig')">
         <weCom ref="weCom" />
       </el-tab-pane>
     </el-tabs>

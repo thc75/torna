@@ -27,7 +27,7 @@
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button @click="importPostmanDlgShow = false">{{ $t('dlgCancel') }}</el-button>
-      <el-button :disabled="fileList.length === 0" type="primary" @click="submitUpload">{{ $t('dlgImport') }}</el-button>
+      <el-button :disabled="fileList.length === 0" :loading="loading" type="primary" @click="submitUpload">{{ $t('dlgImport') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -49,6 +49,7 @@ export default {
     return {
       extData: {},
       fileList: [],
+      loading: false,
       importPostmanDlgShow: false,
       importPostmanRule: {
         file: [
@@ -77,6 +78,7 @@ export default {
       this.extData.projectId = this.projectId
     },
     onImportPostman() {
+      this.loading = false
       this.importPostmanDlgShow = true
       this.fileList = []
     },
@@ -84,6 +86,7 @@ export default {
       this.$refs.upload.clearFiles()
     },
     onSuccess(resp) {
+      this.loading = false
       if (resp.code !== '0') {
         this.tipError(resp.msg)
       } else {
@@ -92,6 +95,7 @@ export default {
       }
     },
     submitUpload() {
+      this.loading = true
       this.$refs.upload.submit()
     }
   }

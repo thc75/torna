@@ -172,7 +172,7 @@ public class UserMessageService extends BaseLambdaService<UserMessage, UserMessa
                     UserMessage userMessage = new UserMessage();
                     userMessage.setUserId(userId);
                     userMessage.setMessage(finalContent);
-                    userMessage.setIsRead(Booleans.FALSE);
+                    userMessage.setIsRead(messageDTO.getIsRead());
                     userMessage.setType(messageDTO.getType().getType());
                     userMessage.setSourceId(messageDTO.getSourceId());
                     return userMessage;

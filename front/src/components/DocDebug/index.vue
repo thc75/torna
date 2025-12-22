@@ -478,6 +478,9 @@ export default {
     },
     isResponseJson() {
       return this.isJsonString(this.result.content)
+    },
+    isSharePage() {
+      return this.$route.path.indexOf('/share/') > -1
     }
   },
   watch: {
@@ -586,12 +589,32 @@ export default {
           this.postActive = 'multipart'
         } else if (contentType.indexOf('json') > -1) {
           this.postActive = 'text'
+          this.textRadio = 'application/json'
+        } else if (contentType.indexOf('plain') > -1) {
+          this.textRadio = 'text/plain'
+          this.postActive = 'text'
+          this.loadTextBody()
         } else {
           this.postActive = 'form'
+        }
+        if (contentType.indexOf('html') > -1) {
+          this.textRadio = 'text/html'
+          this.loadTextBody()
+        }
+        if (contentType.indexOf('xml') > -1) {
+          this.textRadio = 'application/xml'
+          this.loadTextBody()
         }
       } else {
         this.requestActive = 'query'
         this.postActive = ''
+      }
+    },
+    loadTextBody() {
+      const requestParams = this.currentItem.requestParams || []
+      if (requestParams.length === 1) {
+        const row = requestParams[0]
+        this.bodyText = row.example
       }
     },
     isUploadRequest(contentType, requestParameters) {
@@ -796,7 +819,17 @@ export default {
         name: this.debugId,
         val: debugDataStr
       })
-      this.post('/prop/save', { propList: arr }, resp => {})
+      if (this.isSharePage) {
+        this.setLocalDebugData(debugDataStr)
+      } else {
+        this.post('/prop/save', { propList: arr }, resp => {})
+      }
+    },
+    setLocalDebugData(debugDataStr) {
+      this.setAttr(`debug-data-${this.item.id}`, debugDataStr)
+    },
+    getLocalDebugData() {
+      return this.getAttr(`debug-data-${this.item.id}`)
     },
     saveProxySelect() {
       if (this.debugId) {
@@ -829,60 +862,68 @@ export default {
       }
     },
     loadProps() {
-      const data = {
-        refId: this.item.id,
-        type: this.getEnums().PROP_TYPE.DEBUG,
-        name: this.debugId
+      if (this.isSharePage) {
+        const debugData = this.getLocalDebugData();
+        this.initDebugData(debugData)
+      } else {
+        const data = {
+          refId: this.item.id,
+          type: this.getEnums().PROP_TYPE.DEBUG,
+          name: this.debugId
+        }
+        this.get('/prop/find', data, resp => {
+          const respData = resp.data || {}
+          if (!respData) {
+            this.setTableCheck()
+            return
+          }
+          const debugData = respData.val
+          this.initDebugData(debugData)
+        })
       }
-      this.get('/prop/find', data, resp => {
-        const respData = resp.data || {}
-        if (!respData) {
-          this.setTableCheck()
-          return
-        }
-        const debugData = respData.val
-        if (debugData) {
-          const props = JSON.parse(debugData)
-          const setProp = (params, data, ref) => {
-            if (data && Object.keys(data).length > 0 && params) {
-              // 临时添加的
-              const temps = data.temps
-              for (const tempName of temps) {
-                const val = data[tempName]
-                if (ref && val) {
-                  const row = {
-                    id: this.nextId() + '',
-                    name: tempName,
-                    example: val,
-                    temp: 1,
-                    description: ''
-                  }
-                  params.push(row)
+    },
+    initDebugData(debugData) {
+      if (debugData) {
+        const props = JSON.parse(debugData)
+        const setProp = (params, data, ref) => {
+          if (data && Object.keys(data).length > 0 && params) {
+            // 临时添加的
+            const temps = data.temps
+            for (const tempName of temps) {
+              const val = data[tempName]
+              if (ref && val) {
+                const row = {
+                  id: this.nextId() + '',
+                  name: tempName,
+                  example: val,
+                  temp: 1,
+                  description: ''
                 }
+                params.push(row)
               }
-              params.forEach(row => {
-                const val = data[row.name]
-                if (val !== undefined) {
-                  row.example = val
-                }
-              })
             }
+            params.forEach(row => {
+              const val = data[row.name]
+              if (val !== undefined) {
+                row.example = val
+              }
+            })
           }
-          setProp(this.headerData, props.headerData, 'headerDataRef')
-          setProp(this.pathData, props.pathData)
-          setProp(this.queryData, props.queryData, 'queryDataRef')
-          setProp(this.multipartData, props.multipartData, 'multipartDataRef')
-          setProp(this.formData, props.formData, 'formDataRef')
-          if (props.bodyText !== undefined) {
-            this.bodyText = props.bodyText
-          }
-          this.preCheckedId = props.preCheckedId
-          this.afterCheckedId = props.afterCheckedId
-          this.setTableCheck()
-        } else {
-          this.setTableCheck()
         }
-      })
+        setProp(this.headerData, props.headerData, 'headerDataRef')
+        setProp(this.pathData, props.pathData)
+        setProp(this.queryData, props.queryData, 'queryDataRef')
+        setProp(this.multipartData, props.multipartData, 'multipartDataRef')
+        setProp(this.formData, props.formData, 'formDataRef')
+        if (props.bodyText !== undefined) {
+          this.bodyText = props.bodyText
+        }
+        this.preCheckedId = props.preCheckedId
+        this.afterCheckedId = props.afterCheckedId
+        this.setTableCheck()
+      } else {
+        this.setTableCheck()
+      }
     },
     setTableCheck() {
       this.$nextTick(() => {
@@ -1050,7 +1091,7 @@ export default {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', filename)
+      link.setAttribute('download', decodeURIComponent(filename))
       document.body.appendChild(link)
       link.click()
     },

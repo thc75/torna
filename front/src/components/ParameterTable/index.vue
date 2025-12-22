@@ -21,7 +21,7 @@
     >
       <template slot-scope="scope">
         <span :class="hasNoParentAndChildren(scope.row) ? 'el-table--row-no-parent-children' : ''" style="white-space: nowrap">
-          {{ scope.row.name }}<el-tag v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.name)">{{ $t('copy') }}</el-tag>
+          <copy-text :copy-content="scope.row.name" :show-content="scope.row.name" placement="top" :show-tip="false" />
         </span>
       </template>
     </el-table-column>
@@ -34,7 +34,7 @@
       <template slot-scope="scope">
         <span>{{ scope.row.type }}</span>
         <span v-show="scope.row.type === 'array' && scope.row.elementType">
-          <el-tooltip effect="dark" :content="$t('elType', scope.row.elementType)" placement="top">
+          <el-tooltip effect="dark" :content="$t('elType', scope.row.elementType)" placement="top" :show-tip="false">
             <i class="el-icon-info"></i>
           </el-tooltip>
         </span>
@@ -58,21 +58,39 @@
     />
     <el-table-column
       v-if="isColumnShow('description')"
+      :key="Math.random()"
       prop="description"
       :label="descriptionLabel"
     >
       <template slot-scope="scope">
         <div v-if="scope.row.enumId" style="display: inline-block;">
-          <div v-html="scope.row.description"></div>
-          <enum-item-view :ref="`enumRef_${scope.row.id}`" :enum-id="scope.row.enumId" mounted-load />
+          <copy-text :copy-content="scope.row.description" :show-content-html="scope.row.description" placement="top" :show-tip="false" />
+          <el-tag
+            :ref="`enumTagRef_${scope.row.id}`"
+            effect="plain"
+            class="enumShow"
+            style="cursor: pointer"
+            @click.stop="handleEnumShow(scope.row.id)"
+          >
+            {{ $t('expand') }}
+          </el-tag>
+          <enum-item-view
+            :ref="`enumRef_${scope.row.id}`"
+            :enum-id="scope.row.enumId"
+            style="display: none"
+            mounted-load
+          />
         </div>
         <div v-else style="display: inline-block;">
-          <div v-if="scope.row.description.length < 100" v-html="scope.row.description"></div>
+          <div v-if="scope.row.description.length < 100">
+            <copy-text :copy-content="scope.row.description" :show-content-html="scope.row.description" placement="top" :show-tip="false" />
+          </div>
           <div v-else>
-            <div style="height: 100px;overflow-y: auto" v-html="scope.row.description"></div>
+            <div style="height: 100px;overflow-y: auto">
+              <copy-text :copy-content="scope.row.description" :show-content-html="scope.row.description" placement="top" :show-tip="false" />
+            </div>
           </div>
         </div>
-        <el-tag v-if="scope.row.description && scope.row.description.length > 0" v-show="rowId === scope.row.id" effect="plain" class="copyBtn" @click.stop="copy(scope.row.description)">{{ $t('copy') }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
@@ -96,12 +114,17 @@
   position: absolute;
   right: 5px;
 }
+.el-table .enumShow{
+  position: relative;
+}
 </style>
 <script>
 import EnumItemView from '../EnumItemView'
+import CopyText from '@/components/CopyText'
+
 export default {
   name: 'ParameterTable',
-  components: { EnumItemView },
+  components: { CopyText, EnumItemView },
   props: {
     data: {
       type: Array,
@@ -131,7 +154,17 @@ export default {
   data() {
     return {
       enumId: '',
-      rowId: ''
+      rowId: '',
+      enumShow: {}
+    }
+  },
+  watch: {
+    data: function(oldValue) {
+      for (const item of oldValue) {
+        if (item.enumId) {
+          this.enumShow[item.id] = false
+        }
+      }
     }
   },
   methods: {
@@ -159,6 +192,16 @@ export default {
     },
     copy(text) {
       this.copyText(text)
+    },
+    handleEnumShow(key) {
+      this.enumShow[key] = !this.enumShow[key]
+      if (this.$refs[`enumRef_${key}`]) {
+        this.$refs[`enumRef_${key}`].$el.style.display = this.enumShow[key] ? 'block' : 'none'
+        this.$refs[`enumTagRef_${key}`].$el.innerHTML = this.enumShow[key] ? $t('collapse') : $t('expand')
+      }
+    },
+    showEnum(id) {
+      return this.enumShow[id]
     }
   }
 }

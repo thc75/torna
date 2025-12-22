@@ -30,4 +30,7 @@ public class ProjectAddDTO {
     private Long creatorId;
 
     private String creatorName;
+
+    /** 排序索引, 数据库字段：order_index */
+    private Integer orderIndex;
 }

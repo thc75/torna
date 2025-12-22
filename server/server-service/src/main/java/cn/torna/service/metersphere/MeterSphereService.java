@@ -8,7 +8,6 @@ import cn.torna.dao.entity.MsModuleConfig;
 import cn.torna.dao.entity.MsSpaceConfig;
 import cn.torna.dao.entity.Project;
 import cn.torna.service.ProjectService;
-import cn.torna.service.metersphere.dto.*;
 import cn.torna.service.metersphere.dto.MeterSphereModuleConfigSaveDTO;
 import cn.torna.service.metersphere.dto.MeterSphereModuleDTO;
 import cn.torna.service.metersphere.dto.MeterSphereProjectDTO;
@@ -31,10 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-
 import java.util.Collections;
 import java.util.List;
 

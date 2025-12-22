@@ -8,7 +8,9 @@ const whiteList = [
   '/reg',
   '/resetPassword',
   '/findPassword',
-  '/successLogin'
+  '/successLogin',
+  '/mfa/bind',
+  '/mfa/auth'
 ]
 
 const whitePattern = [

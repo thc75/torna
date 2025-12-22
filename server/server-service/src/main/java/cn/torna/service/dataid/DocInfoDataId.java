@@ -36,7 +36,7 @@ public interface DocInfoDataId {
         if (Booleans.isTrue(this.getIsFolder())) {
             content = String.format(TPL_FOLDER, getModuleId(), parentId, getName());
         } else if (!Objects.equals(getType(), DocTypeEnum.HTTP.getType())) {
-            content = String.format(TPL_API, getModuleId(), getName(), DocTypeEnum.CUSTOM);
+            content = String.format(TPL_API, getModuleId(), getName() + getUrl(), DocTypeEnum.CUSTOM);
         } else {
             content = String.format(TPL_API, getModuleId(), getUrl(), getHttpMethod());
         }

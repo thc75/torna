@@ -51,7 +51,7 @@ public class ConstantInfoService extends BaseLambdaService<ConstantInfo, Constan
     }
 
     public void saveProjectConstantInfo(long projectId, String content) {
-        ConstantInfo errorCodeInfo = get(ConstantInfo::getProjectId, projectId);
+        ConstantInfo errorCodeInfo = getByField(ConstantInfo::getProjectId, projectId);
         if (errorCodeInfo == null) {
             errorCodeInfo = new ConstantInfo();
             errorCodeInfo.setProjectId(projectId);
@@ -64,7 +64,7 @@ public class ConstantInfoService extends BaseLambdaService<ConstantInfo, Constan
     }
 
     public void saveModuleConstantInfo(long moduleId, String content) {
-        ConstantInfo errorCodeInfo = get(ConstantInfo::getModuleId, moduleId);
+        ConstantInfo errorCodeInfo = getByField(ConstantInfo::getModuleId, moduleId);
         if (errorCodeInfo == null) {
             errorCodeInfo = new ConstantInfo();
             errorCodeInfo.setModuleId(moduleId);

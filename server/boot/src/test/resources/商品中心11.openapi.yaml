@@ -1,0 +1,675 @@
+openapi: 3.1.0
+info:
+  title: 商品中心12
+  description: ''
+  version: 1.0.0
+tags:
+  - name: 登录
+  - name: 分类模块
+  - name: 产品模块
+paths:
+  /login/login:
+    post:
+      summary: 登录接口
+      deprecated: false
+      description: ''
+      tags:
+        - 登录
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: 用户名
+                  examples:
+                    - admin
+                password:
+                  type: string
+                  description: 密码
+                  examples:
+                    - '123456'
+                type:
+                  type: integer
+                  description: 登录类型
+                  format: int32
+                  examples:
+                    - 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        description: 用户id2
+                        format: int32
+                        examples:
+                          - 112
+                      username:
+                        type: string
+                        description: 用户名2
+                        examples:
+                          - admin2
+                      token:
+                        type: string
+                        description: 登录token2
+                        examples:
+                          - xxxx2
+                    description: 返回数据
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /category/add:
+    post:
+      summary: 添加分类
+      deprecated: false
+      description: ''
+      tags:
+        - 分类模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 分类id<br>Validation[Max(value=11) ]
+                  format: int32
+                  examples:
+                    - 12
+                name:
+                  maxLength: 64
+                  minLength: 0
+                  type: string
+                  description: 分类名称<br>Validation[Length(max=64) ]
+                  examples:
+                    - 手机
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: integer
+                    description: 返回数据
+                    format: int32
+                    examples:
+                      - 0
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /category/get:
+    get:
+      summary: 查询分类
+      deprecated: false
+      description: ''
+      tags:
+        - 分类模块
+      parameters:
+        - name: id
+          in: query
+          description: 分类id
+          required: false
+          example: 13
+          schema:
+            type: integer
+            format: int32
+            examples:
+              - 13
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: 分类id
+                        format: int32
+                        examples:
+                          - 12
+                      name:
+                        type: string
+                        description: 分类名称
+                        examples:
+                          - 电脑
+                      code:
+                        type: string
+                        description: '分类编码<br/>(See: 分类编码code)'
+                        format: string
+                    description: 返回数据
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /category/ids:
+    post:
+      summary: 根数组
+      deprecated: false
+      description: ''
+      tags:
+        - 分类模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              examples:
+                - - xx
+                  - bb
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: 分类id
+                        format: int32
+                        examples:
+                          - 12
+                      name:
+                        type: string
+                        description: 分类名称
+                        examples:
+                          - 电脑
+                      code:
+                        type: string
+                        description: '分类编码<br/>(See: 分类编码code)'
+                        format: string
+                    description: 返回数据
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /category/ids2:
+    post:
+      summary: 根数组-对象
+      deprecated: false
+      description: ''
+      tags:
+        - 分类模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  productNo:
+                    maxLength: 64
+                    minLength: 0
+                    type: string
+                    description: 产品id<br>Validation[Length(max=64) ]
+                    examples:
+                      - aa
+                  remark:
+                    maxLength: 200
+                    minLength: 0
+                    type: string
+                    description: 备注<br>Validation[Length(max=200) ]
+                    examples:
+                      - xxx
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: 分类id
+                        format: int32
+                        examples:
+                          - 12
+                      name:
+                        type: string
+                        description: 分类名称
+                        examples:
+                          - 电脑
+                      code:
+                        type: string
+                        description: '分类编码<br/>(See: 分类编码code)'
+                        format: string
+                    description: 返回数据
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /category/ids3:
+    post:
+      summary: 根数组-返回对象数组
+      deprecated: false
+      description: ''
+      tags:
+        - 分类模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              examples:
+                - - xx
+                  - bb
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: array
+                    description: 返回数据
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: 分类id
+                          format: int32
+                          examples:
+                            - 12
+                        name:
+                          type: string
+                          description: 分类名称
+                          examples:
+                            - 电脑
+                        code:
+                          type: string
+                          description: '分类编码<br/>(See: 分类编码code)'
+                          format: string
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /category/ids4:
+    post:
+      summary: 根数组-返回对象数组2
+      deprecated: false
+      description: ''
+      tags:
+        - 分类模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  productNo:
+                    maxLength: 64
+                    minLength: 0
+                    type: string
+                    description: 产品id<br>Validation[Length(max=64) ]
+                    examples:
+                      - aa
+                  remark:
+                    maxLength: 200
+                    minLength: 0
+                    type: string
+                    description: 备注<br>Validation[Length(max=200) ]
+                    examples:
+                      - xxx
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: array
+                    description: 返回数据
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: 分类id
+                          format: int32
+                          examples:
+                            - 12
+                        name:
+                          type: string
+                          description: 分类名称
+                          examples:
+                            - 电脑
+                        code:
+                          type: string
+                          description: '分类编码<br/>(See: 分类编码code)'
+                          format: string
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+  /shop/product:
+    get:
+      summary: 查询产品
+      deprecated: false
+      description: ''
+      tags:
+        - 产品模块
+      parameters:
+        - name: productNo
+          in: query
+          description: 产品id
+          required: true
+          example: 124
+          schema:
+            type: integer
+            format: int32
+            examples:
+              - 124
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: object
+                    properties:
+                      productNo:
+                        type: string
+                        description: 产品id
+                        examples:
+                          - aa
+                      remark:
+                        type: string
+                        description: 备注
+                        examples:
+                          - xxx
+                      productDetailVO:
+                        type: object
+                        properties:
+                          uid:
+                            type: integer
+                            description: uid
+                            format: int32
+                            examples:
+                              - 0
+                          productNo:
+                            type: string
+                            description: 产品id
+                            examples:
+                              - aa
+                          remark:
+                            type: string
+                            description: 备注
+                            examples:
+                              - ''
+                          code:
+                            type: string
+                            description: 产品编码
+                            format: string
+                        description: 产品详情
+                    description: 返回数据
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+    put:
+      summary: 修改产品
+      deprecated: false
+      description: ''
+      tags:
+        - 产品模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productNo:
+                  maxLength: 64
+                  minLength: 0
+                  type: string
+                  description: 产品id<br>Validation[Length(max=64) ]
+                  examples:
+                    - aa
+                remark:
+                  maxLength: 200
+                  minLength: 0
+                  type: string
+                  description: 备注<br>Validation[Length(max=200) ]
+                  examples:
+                    - xxx
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: object
+                    properties:
+                      productNo:
+                        type: string
+                        description: 产品id
+                        examples:
+                          - aa
+                      remark:
+                        type: string
+                        description: 备注
+                        examples:
+                          - xxx
+                      productDetailVO:
+                        type: object
+                        properties:
+                          uid:
+                            type: integer
+                            description: uid
+                            format: int32
+                            examples:
+                              - 0
+                          productNo:
+                            type: string
+                            description: 产品id
+                            examples:
+                              - aa
+                          remark:
+                            type: string
+                            description: 备注
+                            examples:
+                              - ''
+                          code:
+                            type: string
+                            description: 产品编码
+                            format: string
+                        description: 产品详情
+                    description: 返回数据
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+    post:
+      summary: 新增产品
+      deprecated: false
+      description: ''
+      tags:
+        - 产品模块
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productNo:
+                  maxLength: 64
+                  minLength: 0
+                  type: string
+                  description: 产品id<br>Validation[Length(max=64) ]
+                  examples:
+                    - aa
+                remark:
+                  maxLength: 200
+                  minLength: 0
+                  type: string
+                  description: 备注<br>Validation[Length(max=200) ]
+                  examples:
+                    - xxx
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 返回码,0表示成功，其它失败
+                    format: int32
+                    examples:
+                      - 0
+                  data:
+                    type: string
+                    description: 返回数据
+                    examples:
+                      - ''
+                  msg:
+                    type: string
+                    description: 错误消息
+                    examples:
+                      - OK
+          headers: {}
+      security: []
+webhooks: {}
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []

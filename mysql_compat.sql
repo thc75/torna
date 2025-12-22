@@ -496,6 +496,7 @@ CREATE TABLE `share_config` (
                                 `is_all_selected_debug` tinyint(4) NOT NULL DEFAULT '1' COMMENT '调试环境是否全选， 1-全选， 0-不选',
                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ,
+								`share_name` varchar(128) NOT NULL DEFAULT '' COMMENT '分享名称',
                                 PRIMARY KEY (`id`) USING BTREE,
                                 KEY `idx_moduleid` (`module_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='分享配置表';

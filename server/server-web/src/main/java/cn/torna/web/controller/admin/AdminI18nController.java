@@ -35,6 +35,11 @@ public class AdminI18nController {
     @Autowired
     private SystemConfigService systemConfigService;
 
+    /**
+     * 获取国际化配置
+     * @param id
+     * @return
+     */
     @GetMapping("get")
     public Result<SystemI18nVO> getLangContent(@HashId Long id) {
         SystemI18nConfig systemI18nConfig = systemI18nConfigService.getById(id);
@@ -42,6 +47,10 @@ public class AdminI18nController {
         return Result.ok(systemI18nVO);
     }
 
+    /**
+     * 获取所有语言
+     * @return
+     */
     @GetMapping("lang/list")
     public Result<List<SystemI18nVO>> listLang() {
         List<SystemI18nConfig> systemI18nConfigs = systemI18nConfigService.listAll(SystemI18nConfig::getId, SystemI18nConfig::getLang, SystemI18nConfig::getDescription);
@@ -49,6 +58,12 @@ public class AdminI18nController {
         return Result.ok(systemI18nLangVOS);
     }
 
+
+    /**
+     * 设置默认语言
+     * @param lang
+     * @return
+     */
     @PostMapping("lang/setDefaultLang")
     public Result<?> setDefaultLang(String lang) {
         if (StringUtils.isEmpty(lang)) {
@@ -58,6 +73,11 @@ public class AdminI18nController {
         return Result.ok();
     }
 
+    /**
+     * 保存国际化配置
+     * @param param
+     * @return
+     */
     @PostMapping("save")
     public Result<IdVO> save(@RequestBody SystemI18nConfigParam param) {
         SystemI18nConfig systemI18nConfig = CopyUtil.copyBean(param, SystemI18nConfig::new);
@@ -65,6 +85,11 @@ public class AdminI18nController {
         return Result.ok(new IdVO(systemI18nConfig.getId()));
     }
 
+    /**
+     * 删除国际化配置
+     * @param param
+     * @return
+     */
     @PostMapping("delete")
     public Result save(@RequestBody IdParam param) {
         systemI18nConfigService.deleteById(param.getId());

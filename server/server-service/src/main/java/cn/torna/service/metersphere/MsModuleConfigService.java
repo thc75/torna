@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 public class MsModuleConfigService extends BaseLambdaService<MsModuleConfig, MsModuleConfigMapper> {
 
     public MsModuleConfig getByModuleId(Long moduleId) {
-        return get(MsModuleConfig::getModuleId, moduleId);
+        return getByField(MsModuleConfig::getModuleId, moduleId);
     }
 
     public MsModuleConfig getByReleaseId(Long releaseId) {
-        return get(MsModuleConfig::getReleaseId, releaseId);
+        return getByField(MsModuleConfig::getReleaseId, releaseId);
     }
 
 }

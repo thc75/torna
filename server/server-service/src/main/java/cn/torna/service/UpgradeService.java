@@ -1,6 +1,7 @@
 package cn.torna.service;
 
 import cn.torna.common.bean.Booleans;
+import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.enums.DocStatusEnum;
 import cn.torna.common.enums.ModuleConfigTypeEnum;
 import cn.torna.common.util.CopyUtil;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UpgradeService {
 
-    private static final int VERSION = 13100;
+    private static final int VERSION = 13502;
 
     private static final String TORNA_VERSION_KEY = "torna.version";
 
@@ -75,7 +76,7 @@ public class UpgradeService {
     private DocSnapshotService docSnapshotService;
 
 
-    @Value("${spring.datasource.driver-class-name}")
+    @Value("${spring.datasource.driver-class-name:${spring.multi-datasource.torna.driver-class-name:com.mysql.cj.jdbc.Driver}}")
     private String driverClass;
 
     @Resource
@@ -131,8 +132,10 @@ public class UpgradeService {
     }
 
     public void insertAdmin(String salt) {
-        UserInfo userInfo = userInfoService.getByUsername("admin");
-        if (userInfo != null) {
+        List<Long> list = userInfoService.query()
+                .eq(UserInfo::getUsername, "admin")
+                .listValue(UserInfo::getId);
+        if (!list.isEmpty()) {
             return;
         }
         String username = "admin";
@@ -191,6 +194,74 @@ public class UpgradeService {
         v1_29_2(oldVersion);
         v1_30_1(oldVersion);
         v1_31_0(oldVersion);
+        v1_31_3(oldVersion);
+        v1_33_0(oldVersion);
+        v1_33_1(oldVersion);
+        v1_35_0(oldVersion);
+        v1_35_2(oldVersion);
+    }
+
+    private void v1_35_2(int oldVersion) {
+        int version = 13502;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("mock_config", "query_data",
+                    "ALTER TABLE `mock_config` ADD COLUMN `query_data` text COMMENT '请求query参数' after ip;");
+            addColumn("mock_config", "header_data",
+                    "ALTER TABLE `mock_config` ADD COLUMN `header_data` text COMMENT '请求header参数' after ip;");
+        }
+    }
+
+    private void v1_35_0(int oldVersion) {
+        int version = 13500;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("mock_config", "is_filter_ip",
+                    "ALTER TABLE `mock_config` ADD COLUMN `is_filter_ip` tinyint NULL DEFAULT '0' COMMENT '是否过滤ip' AFTER `path`;");
+            addColumn("mock_config", "is_advanced_mock",
+                    "ALTER TABLE `mock_config` ADD COLUMN `is_advanced_mock` tinyint NULL DEFAULT '0' COMMENT '是否高级mock';");
+            addColumn("mock_config", "http_method",
+                    "ALTER TABLE `mock_config` ADD COLUMN `http_method` varchar(16) NULL DEFAULT 'GET' COMMENT 'http method';");
+            runSqlIgnoreError("ALTER TABLE `mock_config` ADD INDEX `idx_path_method` (`path`,`http_method`) USING BTREE;");
+        }
+    }
+
+    private void v1_33_1(int oldVersion) {
+        int version = 13301;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("doc_info", "description_type",
+                    "ALTER TABLE `doc_info` ADD COLUMN `description_type` varchar(12) NULL DEFAULT 'html' COMMENT '文档描述类型,markdown,html' AFTER `name`;");
+        }
+    }
+
+    private void v1_33_0(int oldVersion) {
+        int version = 13300;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("user_info", "mfa_sk",
+                    "ALTER TABLE `user_info` ADD COLUMN `mfa_sk` varchar(128) NOT NULL DEFAULT '' COMMENT '多因素认证密钥';");
+            // 1.33.0开始随机生成MFA密钥生成种子并保存在数据库中
+            String configKey = EnvironmentKeys.TORNA_MFA_SEED.getKey();
+            String value = systemConfigService.getRawValue(configKey);
+            if (StringUtils.isBlank(value)) {
+                value = EnvironmentKeys.TORNA_MFA_SEED.getValue();
+            }
+            if (StringUtils.isBlank(value)) {
+                value = PasswordUtil.getRandomSimplePassword(16);
+            }
+            systemConfigService.setConfig(configKey, value, "MFA密钥生成种子");
+            log.info("Upgrade {} finished.", version);
+        }
+    }
+
+    private void v1_31_3(int oldVersion) {
+        int version = 13103;
+        if (oldVersion < version) {
+            log.info("Upgrade version to {}", version);
+            addColumn("share_config", "share_name",
+                    "ALTER TABLE `share_config` ADD COLUMN `share_name` varchar(128) NOT NULL DEFAULT '' COMMENT '分享名称';");
+        }
     }
 
     private void v1_31_0(int oldVersion) {
@@ -212,6 +283,7 @@ public class UpgradeService {
                     "ALTER TABLE `project_release` ADD COLUMN `we_com_webhook` varchar(200) NULL DEFAULT '' COMMENT '企业微信机器人webhook';");
         }
     }
+
     private void v1_29_2(int oldVersion) {
         int version = 12902;
         if (oldVersion < version) {

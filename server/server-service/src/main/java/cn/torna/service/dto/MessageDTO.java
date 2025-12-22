@@ -1,5 +1,6 @@
 package cn.torna.service.dto;
 
+import cn.torna.common.bean.Booleans;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import lombok.Data;
@@ -15,4 +16,5 @@ public class MessageDTO {
     private UserSubscribeTypeEnum type;
     private Long sourceId;
     private Locale locale;
+    private Byte isRead = Booleans.FALSE;
 }

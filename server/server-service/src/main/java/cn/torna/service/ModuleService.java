@@ -24,7 +24,7 @@ import java.util.List;
 public class ModuleService extends BaseLambdaService<Module, ModuleMapper> {
 
     public List<Module> listProjectModules(long projectId) {
-        return list(Module::getProjectId, projectId);
+        return listByField(Module::getProjectId, projectId);
     }
 
     public Module addModule(String name, long projectId, User user) {
@@ -164,7 +164,7 @@ public class ModuleService extends BaseLambdaService<Module, ModuleMapper> {
 
     public Module getByToken(String token) {
         Assert.notNull(token, () -> "token不能为null");
-        return this.get(Module::getToken, token);
+        return this.getByField(Module::getToken, token);
     }
 
     public static String createToken() {

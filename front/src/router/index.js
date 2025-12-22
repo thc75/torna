@@ -61,6 +61,18 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/mfa/bind',
+    component: () => import('@/views/common/mfaBind'),
+    meta: { title: 'MFA绑定' },
+    hidden: true
+  },
+  {
+    path: '/mfa/auth',
+    component: () => import('@/views/common/mfaAuth'),
+    meta: { title: 'MFA认证' },
+    hidden: true
+  },
+  {
     path: '/reg',
     component: () => import('@/views/common/reg'),
     meta: { title: '用户注册' },

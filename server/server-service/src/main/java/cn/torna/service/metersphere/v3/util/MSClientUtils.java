@@ -1,12 +1,14 @@
 package cn.torna.service.metersphere.v3.util;
 
+import cn.torna.common.bean.EnvironmentKeys;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import cn.torna.service.metersphere.v3.constants.URLConstants;
 import cn.torna.service.metersphere.v3.model.state.AppSettingState;
 import cn.torna.service.metersphere.v3.model.state.MSModule;
 import cn.torna.service.metersphere.v3.model.state.MSOrganization;
 import cn.torna.service.metersphere.v3.model.state.MSProject;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 public class MSClientUtils {
@@ -128,10 +131,36 @@ public class MSClientUtils {
      * 设置请求的头部信息
      */
     private static void setupRequestHeaders(HttpRequestBase request, AppSettingState appSettingState) throws Exception {
-        request.addHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
-        request.addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
-        request.addHeader(ACCESS_KEY, appSettingState.getAccessKey());
-        request.addHeader(SIGNATURE, CodingUtils.getSignature(appSettingState));
+        if (EnvironmentKeys.METER_SPHERE_ENABLE_HTTPS.getBoolean()) {
+            // 协议强制校验
+            if (!"https".equalsIgnoreCase(request.getURI().getScheme())) {
+                throw new IllegalArgumentException("敏感接口仅支持HTTPS协议");
+            }
+
+            // 生成安全参数
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String nonce = UUID.randomUUID().toString().replace("-", "");
+            String signature = DigestUtils.sha256Hex(appSettingState.getSecretKey() + "|" + timestamp + "|" + nonce);
+
+            // 设置安全请求头
+            request.addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+            request.addHeader("X-Timestamp", timestamp);
+            request.addHeader("X-Nonce", nonce);
+            request.addHeader("X-Signature", signature);
+
+            // 安全日志记录（脱敏处理）
+            if (log.isDebugEnabled()) {
+                log.debug("安全请求头 - Timestamp:{}, Nonce:{}, Signature:{}",
+                        timestamp,
+                        StringUtils.left(nonce, 4) + "****",
+                        StringUtils.left(signature, 8) + "****");
+            }
+        } else {
+            request.addHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
+            request.addHeader("Content-type", ContentType.APPLICATION_JSON.toString());
+            request.addHeader(ACCESS_KEY, appSettingState.getAccessKey());
+            request.addHeader(SIGNATURE, CodingUtils.getSignature(appSettingState));
+        }
     }
 
     /**

@@ -7,11 +7,23 @@ import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.Module;
 import cn.torna.dao.entity.ProjectRelease;
 import cn.torna.dao.entity.ProjectReleaseDoc;
-import cn.torna.manager.doc.postman.*;
+import cn.torna.manager.doc.postman.Body;
+import cn.torna.manager.doc.postman.Header;
+import cn.torna.manager.doc.postman.Info;
+import cn.torna.manager.doc.postman.Item;
+import cn.torna.manager.doc.postman.Param;
+import cn.torna.manager.doc.postman.Postman;
+import cn.torna.manager.doc.postman.Request;
+import cn.torna.manager.doc.postman.Response;
+import cn.torna.manager.doc.postman.Url;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.metersphere.v3.constants.ParameterIn;
-import cn.torna.service.metersphere.v3.model.*;
+import cn.torna.service.metersphere.v3.model.ApiDefinition;
+import cn.torna.service.metersphere.v3.model.DataTypes;
+import cn.torna.service.metersphere.v3.model.HttpMethod;
+import cn.torna.service.metersphere.v3.model.Property;
+import cn.torna.service.metersphere.v3.model.RequestBodyType;
 import cn.torna.service.metersphere.v3.openapi.OpenApiDataConvert;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -25,7 +37,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -306,6 +326,10 @@ public class ConvertService {
         Item item = new Item();
         item.setName(docInfoDTO.getDocName());
         item.setRequest(buildRequest(docInfoDTO, context));
+        Response response = buildResponse(docInfoDTO, context);
+        if (response != null) {
+            item.setResponse(Collections.singletonList(response));
+        }
         List<DocInfoDTO> children = docInfoDTO.getChildren();
         if (!CollectionUtils.isEmpty(children)) {
             List<Item> childItems = children.stream()
@@ -327,6 +351,32 @@ public class ConvertService {
         request.setBody(buildBody(docInfoDTO, context));
         request.setDescription(docInfoDTO.getDescription());
         return request;
+    }
+
+    private Response buildResponse(DocInfoDTO docInfoDTO, Context context) {
+        if (docInfoDTO.getIsFolder() == Booleans.TRUE) {
+            return null;
+        }
+        Response response = new Response();
+        response.setName("成功");
+        response.setOriginalRequest(buildRequest(docInfoDTO, context));
+        response.setCode(200);
+        response.setStatus("OK");
+        String contentType = Optional.ofNullable(docInfoDTO.getContentType()).orElse("").toLowerCase();
+        if (contentType.contains("json")) {
+            Header header = new Header();
+            header.setKey("Content-Type");
+            header.setValue("application/json");
+            header.setType("text");
+            header.setDescription("");
+            response.setHeader(Collections.singletonList(header));
+            response.set_postman_previewlanguage("json");
+
+            String respJson = buildJson(docInfoDTO.getResponseParams(), context.getConfig().isFormatJson());
+            response.setBody(respJson);
+        }
+
+        return response;
     }
 
     private List<Header> buildHeaders(DocInfoDTO docInfoDTO) {

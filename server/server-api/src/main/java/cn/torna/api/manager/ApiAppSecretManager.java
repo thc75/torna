@@ -1,6 +1,6 @@
 package cn.torna.api.manager;
 
-import cn.torna.api.bean.ApiUser;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.common.enums.StatusEnum;
 import cn.torna.common.util.CopyUtil;

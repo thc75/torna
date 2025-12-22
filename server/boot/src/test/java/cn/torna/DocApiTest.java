@@ -17,7 +17,7 @@ public class DocApiTest {
     public void test() throws IOException {
         String body = HttpHelper.get("http://localhost:7700/api")
                 .parameter("name", "doc.list")
-                .parameter("access_token", "36f711e5df884417a073782b2088696c")
+                .parameter("access_token", "b414086531524fb0bc14f757346fec92")
                 .execute()
                 .asString();
         System.out.println(body);
@@ -29,7 +29,7 @@ public class DocApiTest {
         data.put("docId", 124);
         String body = HttpHelper.get("http://localhost:7700/api")
                 .parameter("name", "doc.detail")
-                .parameter("access_token", "36f711e5df884417a073782b2088696c")
+                .parameter("access_token", "b414086531524fb0bc14f757346fec92")
                 .parameter("data", URLEncoder.encode(data.toJSONString(), "UTF-8"))
                 .execute()
                 .asString();

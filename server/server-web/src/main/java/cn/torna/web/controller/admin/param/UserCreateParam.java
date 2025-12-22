@@ -16,6 +16,13 @@ public class UserCreateParam {
     @NotBlank
     private String nickname;
 
+    /** 密码, 数据库字段：password */
+    @NotBlank
+    private String  password;
+
+    /** 邮箱, 数据库字段： email */
+    private String email;
+
     @NotNull
     private Byte isSuperAdmin;
 

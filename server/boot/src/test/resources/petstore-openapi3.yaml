@@ -1,0 +1,352 @@
+openapi: 3.0.0
+info:
+  title: Pet Store API
+  description: A sample API that uses a petstore as an example to demonstrate features in the OpenAPI 3.0 specification
+  version: 1.0.0
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Swagger API Team
+    email: apiteam@swagger.io
+    url: http://swagger.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://petstore.swagger.io/v1
+    description: Production server
+  - url: https://staging-petstore.swagger.io/v1
+    description: Staging server
+
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      description: Returns a list of pets from the store
+      operationId: listPets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+            maximum: 100
+        - name: tags
+          in: query
+          description: Tags to filter by
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: A paged array of pets
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pets'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a pet
+      description: Creates a new pet in the store
+      operationId: createPet
+      tags:
+        - pets
+      requestBody:
+        description: Pet to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPet'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/NewPet'
+      responses:
+        '201':
+          description: Pet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pets/{petId}:
+    get:
+      summary: Info for a specific pet
+      description: Returns a specific pet by ID
+      operationId: showPetById
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The id of the pet to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '404':
+          description: Pet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update a pet
+      description: Updates a pet by ID
+      operationId: updatePet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The id of the pet to update
+          schema:
+            type: string
+      requestBody:
+        description: Updated pet data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Pet'
+      responses:
+        '200':
+          description: Pet updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Pet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: Delete a pet
+      description: Deletes a single pet based on the ID supplied
+      operationId: deletePet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Pet deleted
+        '404':
+          description: Pet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the pet
+          example: 1
+        name:
+          type: string
+          description: Name of the pet
+          example: doggie
+        category:
+          $ref: '#/components/schemas/Category'
+        photoUrls:
+          type: array
+          description: URLs of photos of the pet
+          items:
+            type: string
+            format: url
+        tags:
+          type: array
+          description: Tags associated with the pet
+          items:
+            $ref: '#/components/schemas/Tag'
+        status:
+          type: string
+          description: Pet status in the store
+          enum:
+            - available
+            - pending
+            - sold
+
+    NewPet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the pet
+          example: doggie
+        category:
+          $ref: '#/components/schemas/Category'
+        photoUrls:
+          type: array
+          description: URLs of photos of the pet
+          items:
+            type: string
+            format: url
+        tags:
+          type: array
+          description: Tags associated with the pet
+          items:
+            $ref: '#/components/schemas/Tag'
+        status:
+          type: string
+          description: Pet status in the store
+          enum:
+            - available
+            - pending
+            - sold
+          default: available
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Category ID
+          example: 1
+        name:
+          type: string
+          description: Category name
+          example: Dogs
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Tag ID
+          example: 1
+        name:
+          type: string
+          description: Tag name
+          example: friendly
+
+    Pets:
+      type: array
+      items:
+        $ref: '#/components/schemas/Pet'
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+          example: 400
+        message:
+          type: string
+          description: Error message
+          example: Invalid input
+
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
+
+security:
+  - petstore_auth:
+      - write:pets
+      - read:pets
+  - api_key: []

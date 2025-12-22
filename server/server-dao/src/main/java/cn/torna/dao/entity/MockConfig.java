@@ -30,14 +30,31 @@ public class MockConfig {
     /** mock版本号 */
     private Integer version;
 
+    private String httpMethod;
+
     /**  数据库字段：path */
     private String path;
+
+    /**
+     * 是否过滤ip
+     */
+    private Byte isFilterIp;
 
     /** 过滤ip, 数据库字段：ip */
     private String ip;
 
     /** 请求参数, 数据库字段：request_data */
     private String requestData;
+
+    /**
+     * 请求header
+     */
+    private String headerData;
+
+    /**
+     * 请求query
+     */
+    private String queryData;
 
     /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
     private Byte requestDataType;
@@ -91,5 +108,9 @@ public class MockConfig {
     /**  数据库字段：gmt_modified */
     private LocalDateTime gmtModified;
 
+    /**
+     * is_advanced_mock
+     */
+    private Byte isAdvancedMock;
 
 }

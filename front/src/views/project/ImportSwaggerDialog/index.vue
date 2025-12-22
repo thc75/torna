@@ -31,7 +31,7 @@
               v-model="importJsonFormData.url"
               :placeholder="$t('importSwaggerPlaceholder')"
               show-word-limit
-              maxlength="100"
+              maxlength="500"
             />
           </el-form-item>
           <el-form-item :label="$t('basicAuth')">

@@ -1,10 +1,7 @@
 package cn.torna.web.controller.system;
 
 import cn.torna.common.annotation.NoLogin;
-import cn.torna.common.bean.LoginUser;
-import cn.torna.common.bean.Result;
-import cn.torna.common.bean.User;
-import cn.torna.common.bean.UserCacheManager;
+import cn.torna.common.bean.*;
 import cn.torna.web.config.UserContext;
 import cn.torna.common.enums.UserInfoSourceEnum;
 import cn.torna.common.enums.UserStatusEnum;
@@ -47,6 +44,8 @@ public class LoginController {
         LoginResult loginResult = new LoginResult();
         loginResult.setToken(loginUser.getToken());
         loginResult.setStatus(loginUser.getStatus());
+        loginResult.setMfaEnable(Boolean.parseBoolean(EnvironmentKeys.TORNA_MFA_ENABLE.getValue()));
+        loginResult.setIsFirstMfaAuth(loginUser.getIsFirstMfaAuth());
         return Result.ok(loginResult);
     }
 

@@ -1,6 +1,7 @@
 package cn.torna.api.open;
 
-import cn.torna.api.bean.ApiUser;
+import cn.torna.api.bean.GsonLocalDateAdapter;
+import cn.torna.api.bean.GsonLocalDateTimeAdapter;
 import cn.torna.api.bean.PushContext;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.CategoryAddParam;
@@ -17,17 +18,18 @@ import cn.torna.api.open.result.DocCategoryResult;
 import cn.torna.api.open.result.DocInfoDetailResult;
 import cn.torna.api.open.result.DocInfoResult;
 import cn.torna.api.open.result.DocResult;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.common.bean.Booleans;
-import cn.torna.common.bean.DingdingWebHookBody;
+import cn.torna.common.bean.DocChangeContext;
 import cn.torna.common.bean.EnvironmentKeys;
-import cn.torna.common.bean.HttpHelper;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
+import cn.torna.common.enums.DescriptionTypeEnum;
 import cn.torna.common.enums.DocTypeEnum;
-import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.UserSubscribeTypeEnum;
 import cn.torna.common.message.MessageEnum;
 import cn.torna.common.util.CopyUtil;
+import cn.torna.common.util.MarkdownUtil;
 import cn.torna.common.util.ThreadPoolUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
@@ -49,6 +51,7 @@ import cn.torna.service.dto.DocParamDTO;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
 import cn.torna.service.dto.MessageDTO;
 import cn.torna.service.dto.UpdateDocFolderDTO;
+import cn.torna.service.event.PushEvent;
 import cn.torna.service.metersphere.MeterSpherePushService;
 import com.alibaba.fastjson.JSON;
 import com.gitee.easyopen.ApiContext;
@@ -59,6 +62,7 @@ import com.gitee.easyopen.doc.annotation.ApiDocMethod;
 import com.gitee.easyopen.exception.ApiException;
 import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,16 +70,20 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+
 
 /**
  * @author tanghc
@@ -93,7 +101,10 @@ public class DocApi {
 
     private final Object lock = new Object();
 
-    private Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new GsonLocalDateTimeAdapter())
+            .registerTypeAdapter(LocalDate.class, new GsonLocalDateAdapter())
+            .create();
 
 
     @Autowired
@@ -125,7 +136,6 @@ public class DocApi {
 
     @Autowired
     private DocViewService docViewService;
-
 
     @Api(name = "doc.push")
     @ApiDocMethod(description = "推送文档", order = 0, remark = "把第三方文档推送给Torna服务器")
@@ -207,7 +217,7 @@ public class DocApi {
         long moduleId = module.getId();
         long startTime = System.currentTimeMillis();
         List<DocMeta> docMetas = docInfoService.listDocMeta(moduleId);
-        PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor());
+        PushContext pushContext = new PushContext(docMetas, new ArrayList<>(), param.getAuthor(), new HashSet<>());
         ThreadLocal<DocPushItemParam> docPushItemParamThreadLocal = new ThreadLocal<>();
         synchronized (lock) {
             Object success = tornaTransactionManager.execute(() -> {
@@ -236,6 +246,8 @@ public class DocApi {
                 processModifiedDocs(pushContext);
                 // 推送到MeterSphere
                 pushToMeterSphere(module);
+                // 发送事件
+                publishEvent(module, pushContext.getDocIds());
                 // 创建默认的mock
                 createDefaultMock(module);
             }
@@ -251,6 +263,10 @@ public class DocApi {
         }
     }
 
+    private void publishEvent(Module module, Collection<Long> docIds) {
+        PushEvent event = new PushEvent(module, docIds);
+        SpringContext.publishEvent(event);
+    }
 
     private void createDefaultMock(Module module) {
         mockConfigService.createModuleDocDefaultMock(module.getId());
@@ -324,6 +340,7 @@ public class DocApi {
         messageDTO.setType(UserSubscribeTypeEnum.PUSH_DOC);
         messageDTO.setLocale(ApiContext.getLocal());
         messageDTO.setSourceId(0L);
+        messageDTO.setIsRead(Booleans.TRUE);
         userMessageService.sendMessageToAdmin(messageDTO, msg);
         if (!(user instanceof ApiUser)) {
             userMessageService.sendMessageToUser(messageDTO, msg, user.getUserId());
@@ -376,24 +393,31 @@ public class DocApi {
                 return;
             }
             docInfoDTO.setModifierName(pushContext.getAuthor());
-            docInfoService.doPushSaveDocInfo(docInfoDTO, user);
-            doDocModifyProcess(docInfoDTO, pushContext);
+            Long docId = docInfoService.doPushSaveDocInfo(docInfoDTO, user);
+            if (docId != null && docId > 0) {
+                pushContext.getDocIds().add(docId);
+            }
+            markChangeDoc(docInfoDTO, pushContext);
         }
     }
 
     /**
-     * 处理变更情况
+     * 标记文档变更
      *
-     * @param docInfoDTO  最新的文档内容
-     * @param pushContext 推送上下文
+     * @param docInfoDTO
+     * @param pushContext
      */
-    protected void doDocModifyProcess(DocInfoDTO docInfoDTO, PushContext pushContext) {
-        DocInfoDTO docDetailView = docInfoService.getDocDetail(docInfoDTO.getId());
-        Optional<String> md5Opt = getOldMd5(docDetailView.getDocKey(), pushContext.getDocMetas());
-        ApiUser apiUser = new ApiUser();
-        apiUser.setNickname(pushContext.getAuthor());
-        String oldMd5 = md5Opt.orElse(null);
-        docDiffRecordService.doDocDiff(oldMd5, docDetailView, ModifySourceEnum.PUSH, apiUser);
+    private void markChangeDoc(DocInfoDTO docInfoDTO, PushContext pushContext) {
+        Optional<String> md5Opt = getOldMd5(docInfoDTO.buildDocKey(), pushContext.getDocMetas());
+        String md5Old = md5Opt.orElse(null);
+        if (!Objects.equals(md5Old, docInfoDTO.getMd5())) {
+            DocChangeContext docChangeContext = new DocChangeContext();
+            docChangeContext.setDocId(docInfoDTO.getId());
+            docChangeContext.setMd5Old(md5Old);
+            docChangeContext.setMd5New(docInfoDTO.getMd5());
+
+            pushContext.getContentChangedDocs().add(docChangeContext);
+        }
     }
 
     public static Optional<String> getOldMd5(String docKey, List<DocMeta> docMetas) {
@@ -407,24 +431,8 @@ public class DocApi {
     }
 
     private void processModifiedDocs(PushContext pushContext) {
-        String url = EnvironmentKeys.PUSH_DINGDING_WEBHOOK_URL.getValue();
-        List<DocInfoDTO> contentChangedDocs = pushContext.getContentChangedDocs();
-        if (StringUtils.hasText(url) && !CollectionUtils.isEmpty(contentChangedDocs)) {
-            String names = contentChangedDocs.stream()
-                    .map(DocInfoDTO::getName)
-                    .collect(Collectors.joining("、"));
-            String content = String.format(EnvironmentKeys.PUSH_DINGDING_WEBHOOK_CONTENT.getValue(), names);
-            DingdingWebHookBody dingdingWebHookBody = DingdingWebHookBody.create(content);
-            try {
-                // 推送钉钉机器人
-                String result = HttpHelper.postJson(url, JSON.toJSONString(dingdingWebHookBody))
-                        .execute()
-                        .asString();
-                log.info("文档变更，推送钉钉机器人, url:{}, content:{}, 推送结果:{}", url, content, result);
-            } catch (Exception e) {
-                log.error("推送钉钉失败, url:{}", url, e);
-            }
-        }
+        List<DocChangeContext> contentChangedDocs = pushContext.getContentChangedDocs();
+        docDiffRecordService.processDiff(contentChangedDocs, pushContext.getAuthor());
     }
 
 
@@ -436,8 +444,14 @@ public class DocApi {
         moduleConfigService.setCommonErrorCodeList(errorCodeParams, moduleId);
     }
 
-    private static DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
+    private DocInfoDTO buildDocInfoDTO(DocPushItemParam param) {
         DocInfoDTO docInfoDTO = CopyUtil.deepCopy(param, DocInfoDTO.class);
+
+        String description = docInfoDTO.getDescription();
+        if (MarkdownUtil.isMarkdown(description)) {
+            docInfoDTO.setDescriptionType(DescriptionTypeEnum.MARKDOWN.getValue());
+        }
+
         String version = param.getVersion();
         if ("-".equals(version)) {
             version = "";
@@ -445,6 +459,9 @@ public class DocApi {
         docInfoDTO.setVersion(version);
 
         String url = param.getUrl();
+        if (url == null) {
+            url = "";
+        }
         String[] split = url.split("#");
         if (split.length == 2) {
             // 接口+版本号,格式:url##version, 如:listUser#1.0
@@ -586,7 +603,8 @@ public class DocApi {
         List<Long> docIds = param.getDocIds();
         List<DocInfoDTO> docDetailsView = docInfoService.getDocDetailsView(docIds);
         String json = gson.toJson(docDetailsView);
-        Type listType = new TypeToken<List<DocInfoDetailResult>>(){}.getType();
+        Type listType = new TypeToken<List<DocInfoDetailResult>>() {
+        }.getType();
         return gson.fromJson(json, listType);
     }
 

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
 import java.nio.charset.StandardCharsets;
@@ -99,6 +100,9 @@ public class DocViewService {
                             deprecated = "$false$";
                         }
                         docInfoVO.setDeprecated(deprecated);
+                        if (ObjectUtils.isEmpty(docInfoVO.getLabel())) {
+                            docInfoVO.setLabel(docInfo.getUrl());
+                        }
                     }
                     list.add(docInfoVO);
                 }
@@ -153,6 +157,9 @@ public class DocViewService {
                     }
                     docInfoVO.setDeprecated(deprecated);
                     docInfoVO.setOrigin(String.join("/", originInfo));
+                    if (ObjectUtils.isEmpty(docInfoVO.getLabel())) {
+                        docInfoVO.setLabel(docInfo.getUrl());
+                    }
                 }
                 list.add(docInfoVO);
             }

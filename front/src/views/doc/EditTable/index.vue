@@ -1,22 +1,13 @@
 <template>
-    <u-table
+    <el-table
       :data="getter(rows)"
       row-id="id"
       row-key="id"
-      use-virtual
-      :treeConfig="{
-        children: 'children',
-        iconClose: 'el-icon-arrow-right',
-        iconOpen: 'el-icon-arrow-down',
-        expandAll: true
-      }"
-      :height="600"
-      :row-height="20"
+      default-expand-all
       border
-      class="param-table1"
-      ref="virtualTable"
+      class="param-table"
     >
-    <u-table-column
+    <el-table-column
       :tree-node="true"
       v-if="isColumnShow('name')"
       prop="name"
@@ -45,8 +36,8 @@
           </el-form-item>
         </el-form>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('type')"
       prop="type"
       :label="$t('type')"
@@ -55,8 +46,8 @@
       <template slot-scope="scope">
         <WeSelect :type="'arr'" :value="scope.row.type" @change="(val) =>onWeChange(val,scope.row,'type')" :filterable="true" :allowCreate="true" :list="configTypes" :clearable="false" :size="'mini'"/>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('enum')"
       prop="enum"
       :label="$t('linkDict')"
@@ -65,8 +56,8 @@
       <template slot-scope="scope">
         <WeSelect :type="'obj'" :value="scope.row.enumId" @change="(val) =>onWeChange(val,scope.row,'enumId')" :filterable="true" :allowCreate="false" :list="enumData" :clearable="true" :size="'mini'"/>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('required')"
       prop="required"
       :label="$t('require')"
@@ -75,18 +66,18 @@
       <template slot-scope="scope">
         <WeSwitch :value="scope.row.required" @change="(val) =>onWeChange(val,scope.row,'required')" :activeColor="'#13ce66'" :activeValue="1" :inactivealVue="0"/>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('maxLength')"
       prop="maxLength"
       :label="$t('maxLength')"
       width="130"
     >
       <template slot-scope="scope">
-        <WeInput :value="scope.row.maxLength" @change="(val) =>onWeChange(val,scope.row,'maxLength')" :placeholder="$t('maxLength')" :size="'mini'" :maxlength="10" :showWordLimit="true"/>
+        <WeInput :value="String(scope.row.maxLength)" @change="(val) =>onWeChange(val,scope.row,'maxLength')" :placeholder="$t('maxLength')" :size="'mini'" :maxlength="10" :showWordLimit="true"/>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('description')"
       prop="description"
       :label="descriptionLabel"
@@ -101,8 +92,8 @@
           </el-form-item>
         </el-form>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('example')"
       prop="example"
       :label="exampleLabel"
@@ -110,8 +101,8 @@
       <template slot-scope="scope">
         <WeInput :value="scope.row.example" :size="'mini'" @change="(val) =>onWeChange(val,scope.row,'example')" :placeholder="exampleLabel" :showWordLimit="false"/>
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       prop="orderIndex"
       :label="$t('orderIndex')"
       width="125"
@@ -125,8 +116,8 @@
           @change="(val) =>onWeChange(val,scope.row,'orderIndex')"
         />
       </template>
-    </u-table-column>
-    <u-table-column
+    </el-table-column>
+    <el-table-column
       v-if="isColumnShow('opt')"
       :label="$t('operation')"
       width="90"
@@ -146,8 +137,8 @@
           </div>
         </div>
       </template>
-    </u-table-column>
-  </u-table>
+    </el-table-column>
+  </el-table>
 </template>
 <script>
 import WeInput from "./input.vue"
@@ -245,86 +236,20 @@ export default {
     isTextColumn(name) {
       return this.textColumns.filter(val => val === name).length > 0
     },
-    onParamNodeAdd(row) {
+     onParamNodeAdd(row) {
       const children = row.children || []
-      const child = this.getParamNewRow()
+      let child = this.getParamNewRow()
       child.parentId = row.id
-      child.maxLength = String(child.maxLength)//转为字符类型，解决警告
-      this.pmsNextOrderIndex(children).then(order => {
-        child.orderIndex = order
-      })
-      children.push(child)
+     // children.push(child)
+       children.unshift(child)
       row.children = children
-      this.rows.forEach(e => {
-        let flag = false
-        if(e.id === row.id){
-          e.children = row.children
-          flag = true
-        }
-        if(!flag && e.children.length > 0){
-          this.getaddChildren(e.children,row.id,row.children)
-        }
-      })
-
-      // 重新设置scrollTop
-      const tableBodyWrapperTop = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper').scrollTop
-      this.$forceUpdate(); // 强制刷新组件
-      this.$nextTick(() => {
-        setTimeout(() => {
-          const tableBodyWrapper = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper');
-          if(tableBodyWrapper){
-            tableBodyWrapper.scrollTop = Number(tableBodyWrapperTop)
-          }
-        },10)
-      });
-    },
-    getaddChildren(row,id,children){
-      let flag = false
-      row.forEach(e => {
-        if(e.id === id){
-          e.children = children
-          flag = true
-        }
-        if(!flag && e.children.length > 0){
-          this.getaddChildren(e.children,id,children)
-        }
-      })
     },
     onParamRemove(row) {
-      // if (row.isNew) {
-      //   this.removeRow(this.rows, row.id)
-      // } else {
+      if (row.isNew) {
+        this.removeRow(this.data, row.id)
+      } else {
         row.isDeleted = 1
-        this.rows.forEach(e => {
-          if(e.id === row.id){
-            e.isDeleted = 1
-          }
-          if(e.children.length > 0){
-            this.getChildren(e.children,row.id)
-          }
-        })
-        // 重新设置scrollTop
-        const tableBodyWrapperTop = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper').scrollTop
-        this.$forceUpdate(); // 强制刷新组件
-        this.$nextTick(() => {
-          setTimeout(() => {
-            const tableBodyWrapper = this.$refs.virtualTable.$el.querySelector('.el-table__body-wrapper');
-            if(tableBodyWrapper){
-              tableBodyWrapper.scrollTop = Number(tableBodyWrapperTop)
-            }
-          },10)
-        });
-      // }
-    },
-    getChildren(row,id){
-      row.forEach(e => {
-        if(e.id === id){
-            e.isDeleted = 1
-          }
-        if(e.children.length > 0){
-          this.getChildren(e.children,id)
-        }
-      })
+      }
     },
     getData() {
       return this.rows
@@ -335,11 +260,10 @@ export default {
         if(e.id === row.id){
           e[code] = val
         }
-        if(e.children.length > 0){
+        if(e.children && e.children.length > 0){
           this.setChildren(val,row,code,e.children)
         }
       })
-      this.$forceUpdate();
     },
     setChildren(val,row,code,rows){
       rows.forEach(e => {

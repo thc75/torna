@@ -1,6 +1,9 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.ApiUser;
+import cn.torna.common.bean.DocChangeContext;
 import cn.torna.common.bean.User;
+import cn.torna.common.bean.UserCacheManager;
 import cn.torna.common.enums.ModifySourceEnum;
 import cn.torna.common.enums.ModifyType;
 import cn.torna.common.util.CopyUtil;
@@ -15,14 +18,14 @@ import cn.torna.service.dto.DocDiffDetailWrapperDTO;
 import cn.torna.service.dto.DocDiffRecordDTO;
 import cn.torna.service.dto.DocInfoDTO;
 import com.alibaba.fastjson.JSON;
-import com.gitee.fastmybatis.core.query.LambdaQuery;
-import com.gitee.fastmybatis.core.query.LambdaQuery;
 import com.gitee.fastmybatis.core.query.Query;
 import com.gitee.fastmybatis.core.support.BaseLambdaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -53,6 +56,8 @@ public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDi
 
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private UserCacheManager userCacheManager;
 
 
     /**
@@ -67,17 +72,17 @@ public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDi
         List<DocDiffRecord> diffRecordList;
         // 如果有版本号，只能看截止到当前版本的记录
         if (StringUtils.hasText(version) && !"-".equals(version)) {
-            diffRecordList = list(DocDiffRecord::getDocId, docId);
+            diffRecordList = listByField(DocDiffRecord::getDocId, docId);
         } else {
             // 可以查看所有变更记录
             String docKey = docInfoService.getDocKey(docId);
-            diffRecordList = list(DocDiffRecord::getDocKey, docKey);
+            diffRecordList = listByField(DocDiffRecord::getDocKey, docKey);
         }
         if (CollectionUtils.isEmpty(diffRecordList)) {
             return Collections.emptyList();
         }
         List<Long> ids = diffRecordList.stream().map(DocDiffRecord::getId).collect(Collectors.toList());
-        List<DocDiffDetail> docDiffDetails = docDiffDetailService.list(DocDiffDetail::getRecordId, ids);
+        List<DocDiffDetail> docDiffDetails = docDiffDetailService.listByField(DocDiffDetail::getRecordId, ids);
         // KEY:recordId
         Map<Long, List<DocDiffDetail>> recordDetailMap = docDiffDetails.stream()
                 .collect(Collectors.groupingBy(DocDiffDetail::getRecordId));
@@ -123,6 +128,25 @@ public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDi
                 .collect(Collectors.toList());
     }
 
+    @Async
+    public void processDiff(List<DocChangeContext> docChangeContexts, String author) {
+        if (ObjectUtils.isEmpty(docChangeContexts)) {
+            return;
+        }
+        ApiUser apiUser = new ApiUser();
+        apiUser.setNickname(author);
+
+        for (DocChangeContext docChangeContext : docChangeContexts) {
+            String oldMd5 = docChangeContext.getMd5Old();
+            DocInfoDTO docDetail = docInfoService.getDocDetail(docChangeContext.getDocId());
+            if (docDetail == null) {
+                continue;
+            }
+            doDocDiff(oldMd5, docDetail, ModifySourceEnum.PUSH, apiUser);
+        }
+
+
+    }
 
     public void doDocDiff(String oldMd5, DocInfoDTO docInfoDTO, ModifySourceEnum sourceEnum, User user) {
         doDocDiffNow(oldMd5, docInfoDTO, sourceEnum, user, DocDiffContext::addQueue);
@@ -145,17 +169,24 @@ public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDi
         if (contentChanged) {
             // 保存新md5内容
             docSnapshotService.saveDocSnapshot(docInfoDTO);
-            consumer.accept(new DocDiffDTO(oldMd5, newMd5, LocalDateTime.now(), user, sourceEnum));
+            consumer.accept(new DocDiffDTO(docInfoDTO.getId(), oldMd5, newMd5, LocalDateTime.now(), user, sourceEnum));
         }
     }
 
     public void processDocDiff(DocDiffDTO docDiffDTO) {
-        String md5New = docDiffDTO.getMd5New();
+        Long docId = docDiffDTO.getDocId();
+        DocInfoDTO docDetail = docInfoService.getDocDetail(docId);
+        String md5New = docDetail.getMd5();
+        docDiffDTO.setMd5New(md5New);
         String md5Old = docDiffDTO.getMd5Old();
         if (existRecord(md5Old, md5New)) {
             log.debug("变更记录已存在, md5Old={}, md5New={}", md5Old, md5New);
             return;
         }
+
+        User user = userCacheManager.getUser(docDetail.getModifierId());
+        docDiffDTO.setUser(user);
+
         DocSnapshot snapshotOld = docSnapshotService.getByMd5(md5Old);
         DocSnapshot snapshotNew = docSnapshotService.getByMd5(md5New);
 
@@ -197,6 +228,7 @@ public class DocDiffRecordService extends BaseLambdaService<DocDiffRecord, DocDi
 
     private DocDiffRecord createRecord(DocInfoDTO docInfoDTO, DocDiffDTO docDiffDTO, ModifyType modifyType) {
         User user = docDiffDTO.getUser();
+
         DocDiffRecord docDiffRecord = new DocDiffRecord();
         docDiffRecord.setDocId(docInfoDTO.getId());
         docDiffRecord.setDocKey(docInfoDTO.buildDocKey());

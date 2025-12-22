@@ -18,10 +18,11 @@ public class HttpConfig {
         try {
             if (url.startsWith(HTTPS)) {
                 // https 增加信任设置
-                TrustStrategy trustStrategy = new TrustSelfSignedStrategy();
-                SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(trustStrategy).build();
-                HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
-                return HttpClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(hostnameVerifier).build();
+                SSLContext sslContext = SSLContexts.createDefault();
+                return HttpClients.custom()
+                        .setSSLContext(sslContext)
+                        .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                        .build();
             } else {
                 // http
                 return HttpClientBuilder.create().build();

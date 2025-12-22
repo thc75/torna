@@ -93,7 +93,7 @@ public class ReleaseDocMessageListener {
                     // 未配置钉钉机器人URL 则跳过
                     if (StringUtils.hasText(dingDingWebHookUrl) && isUrl(dingDingWebHookUrl)) {
                         // 获取此版本的关注用户钉钉userid
-                        List<String> dingDingUserIds = userDingtalkInfoService.list(UserDingtalkInfo::getUserInfoId, userIds)
+                        List<String> dingDingUserIds = userDingtalkInfoService.listByField(UserDingtalkInfo::getUserInfoId, userIds)
                                 .stream()
                                 .map(UserDingtalkInfo::getUserid)
                                 .collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class ReleaseDocMessageListener {
                     String weComWebhookUrl = projectReleaseDTO.getWeComWebhook();
                     if (StringUtils.hasText(weComWebhookUrl)) {
                         // 关注的用户的 企业微信手机号码
-                        List<String> weComUserMobiles = userWeComInfoService.list(UserWeComInfo::getUserInfoId, userIds)
+                        List<String> weComUserMobiles = userWeComInfoService.listByField(UserWeComInfo::getUserInfoId, userIds)
                                 .stream()
                                 .map(UserWeComInfo::getMobile)
                                 .filter(Objects::nonNull)

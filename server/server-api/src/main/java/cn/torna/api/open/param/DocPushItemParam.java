@@ -32,6 +32,9 @@ public class DocPushItemParam {
     @ApiDocField(description = "文档概述", example = "获取商品信息")
     private String description;
 
+    @ApiDocField(description = "文档概述类型", example = "html,markdown二选一,如果description内容是Markdown传markdown")
+    private String descriptionType;
+
     @ApiDocField(description = "接口维护人", example = "李四")
     private String author;
 

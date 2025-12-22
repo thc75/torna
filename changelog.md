@@ -1,5 +1,218 @@
 # 更新日志
 
+## 企业版更新日志
+
+## 2.1.9
+
+- 同步社区版1.35.0
+
+## 2.1.8
+
+- 修复OOM问题
+
+## 2.1.7
+
+- 同步社区版1.34.6
+
+## 2.1.6
+
+- 同步社区版1.34.5
+
+## 2.1.5
+
+- 同步社区版1.34.4
+
+## 2.1.4
+
+- 优化消息提示
+
+## 2.1.3
+
+- 同步社区版1.34.3
+
+## 2.1.2
+
+- MCP查询文档详细信息支持文档id查询
+- 同步社区版1.34.2
+
+## 2.1.1
+
+- 修复License检测问题
+
+## 2.1.0
+
+- 文档预览页新增mock地址
+- 支持dubbo接口调用
+- 新增请求历史，可查看历史请求数据
+- 同步社区版1.34.0,1.34.1
+
+## 2.0.6
+
+- 优化MCP请求
+
+## 2.0.5
+
+- 支持mcp streamable
+- 查询文档列表返回应用名称
+- 创建api token支持选择应用范围
+- 同步社区版1.33.7
+
+## 2.0.4
+
+- 优化MCP接口查询，可以查询出文档下面的文档
+
+## 2.0.3
+
+- 同步社区版1.33.6
+
+## 2.0.2
+
+- 同步社区版1.33.5
+
+## 2.0.1
+
+- 同步社区版1.33.4
+
+## 2.0.0
+
+- 对接apifox,推送文档时可将文档同步到apifox中
+- 支持MCP功能
+- 导出OpenAPI3,导出为OpenAPI3格式文档
+- 获取OpenAPI3 URL, 请求url可返回OpenAPI3格式文档
+
+---
+
+
+## 社区版更新日志
+
+## 1.35.2
+
+- 高级mock支持请求头，Query string
+- 优化文档推送变更历史记录
+- 优化接口描述Markdown内容判断
+- 优化版本管理
+
+## 1.35.1
+
+- 修复文档推送完成后找不到用户问题
+- 修复查找空间信息报错问题
+
+## 1.35.0
+
+- 支持高级mock
+- 后台新增配置可隐藏旧版mock
+- 分享页面调试参数信息保存到本地
+- 解决文档名称为空Tab页不显示问题
+
+## 1.34.6
+
+- 修复swagger导入属性必填问题
+- 修复手动编辑文档锁定属性不生效问题
+- 修复手动修改文档消息不推送问题
+
+## 1.34.5
+
+- 修复推送后参数丢失问题
+
+## 1.34.4
+
+- 【新增】用户管理可进行昵称搜索
+- 【优化】postman导入
+
+## 1.34.3
+
+- 【修复】导入swagger时body参数为对象解析问题
+
+## 1.34.
+
+## 1.34.2
+
+- 【修复】导入swagger时query参数为对象解析问题
+
+## 1.34.1
+
+- 【修复】在java17环境下gson序列化问题
+
+## 1.34.0
+
+- 【新增】URL点击复制CURL
+- 【新增】点击字段直接复制
+- 【优化】优化swagger导入
+- 【调整】文档推送成功不发送未读消息
+
+## 1.33.7
+
+- 优化swagger导入
+
+## 1.33.6
+
+- 【修复】修改文档版本号变成空问题
+- 【修复】文档预览页导出问题
+
+## 1.33.5
+
+- 支持多数据源配置 [文档](https://torna.cn/dev/multi-datasource.html)
+- [fastmybatis](https://torna.cn/fastmybatis/)升级到3.1.4
+
+## 1.33.4
+
+- 【修复】导出的Postman无响应参数 [#ICP3MI](https://gitee.com/durcframework/torna/issues/ICP3MI)
+- 【修复】文件下载不显示中文问题 [#ICE4CR](https://gitee.com/durcframework/torna/issues/ICE4CR)
+- 【修复】导出的文档里接口定义里没有公共请求头 [#ICAWUD](https://gitee.com/durcframework/torna/issues/ICAWUD)
+- 【优化】导出文档可以选择是否隐藏维护人字段
+
+## 1.33.3
+
+- 修复配置context-path下无法打开新标签页问题
+
+## 1.33.2
+
+- 修复导入Markdown文档NPE问题
+
+## 1.33.1
+
+升级脚本
+
+```sql
+ALTER TABLE `doc_info` ADD COLUMN `description_type` varchar(12) NULL DEFAULT 'html' COMMENT '文档描述类型,markdown,html' AFTER `name`;
+```
+
+- 文档描述支持Markdown格式
+
+注释编写Markdown内容,在内容最前端添加`|md|`标识符
+
+
+## 1.33.0
+
+- 【新增】Torna登录时新增MFA多因素认证 [PR](https://gitee.com/durcframework/torna/pulls/85)
+- 【新增】Java代码生成模板
+
+## 1.32.1
+
+- 支持SOP同一模块相同接口名称
+
+## 1.32.0
+
+- 【优化】新增接口在新窗口打开 [PR](https://gitee.com/durcframework/torna/pulls/78)
+- 【优化】枚举字段默认不展开 [PR](https://gitee.com/durcframework/torna/pulls/79)
+- 【优化】创建分享增加自定义密码;分享页增加分享名称 [PR](https://gitee.com/durcframework/torna/pulls/80)
+- 【优化】宽屏显示文档显示居中问题 [PR](https://gitee.com/durcframework/torna/pulls/81)
+- 【优化】创建用户新增邮箱和密码设置 [PR](https://gitee.com/durcframework/torna/pulls/82)
+
+## 1.31.3
+
+- 【新增】跨域配置开关torna.cors.enable=false可关闭跨域配置
+- 【新增】添加项目排序功能
+- 【优化】Body Parameter头部插入新节点
+
+## 1.31.2
+
+- 【优化】分享链接调试需要登录问题
+- 【优化】解决Body Parameter的界面新增字段滚动条到顶端的问题
+- 【修复】Query Parameter的界面新增参数非null校验的bug
+- 【修复】修复上传文件请求自动转成POST方法问题
+- 【修复】修复接口文档中显示已删除的数据
+
 ## 1.31.1
 
 - 【优化】编辑文档-关联字典-select控件支持过滤

@@ -4,6 +4,7 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.User;
 import cn.torna.common.context.SpringContext;
+import cn.torna.common.enums.DescriptionTypeEnum;
 import cn.torna.common.enums.DocSortType;
 import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.common.enums.ModifySourceEnum;
@@ -15,6 +16,7 @@ import cn.torna.common.exception.BizException;
 import cn.torna.common.util.CopyUtil;
 import cn.torna.common.util.IdGen;
 import cn.torna.common.util.Markdown2HtmlUtil;
+import cn.torna.common.util.MarkdownUtil;
 import cn.torna.common.util.TreeUtil;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.dao.entity.DocParam;
@@ -124,7 +126,6 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
     @Autowired
     private MockConfigService mockConfigService;
 
-
     /**
      * 查询模块下的所有文档
      *
@@ -132,7 +133,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
      * @return 返回文档
      */
     public List<DocInfo> listModuleDoc(long moduleId) {
-        List<DocInfo> docInfoList = list(DocInfo::getModuleId, moduleId);
+        List<DocInfo> docInfoList = listByField(DocInfo::getModuleId, moduleId);
         sortDocInfo(docInfoList);
         return docInfoList;
     }
@@ -230,7 +231,9 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
                             DocInfo::getOrderIndex, DocInfo::getIsShow, DocInfo::getIsLocked, DocInfo::getStatus)
                     .eq(DocInfo::getModuleId, docListFormDTO.getModuleId())
                     .eq(docListFormDTO.getStatus() != null, DocInfo::getStatus, docListFormDTO.getStatus())
-                    .orLambda(q -> q.eq(DocInfo::getModuleId, docListFormDTO.getModuleId()).eq(DocInfo::getIsFolder, Booleans.TRUE));
+                    .eq(DocInfo::getIsDeleted, Booleans.FALSE)
+                    .orLambda(q -> q.eq(DocInfo::getModuleId, docListFormDTO.getModuleId())
+                            .eq(DocInfo::getIsFolder, Booleans.TRUE).eq(DocInfo::getIsDeleted, Booleans.FALSE));
         }
         List<DocInfo> docInfoList = this.list(query);
         sortDocInfo(docInfoList);
@@ -313,7 +316,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         docInfoDTO.setModuleType(module.getType());
         List<ModuleEnvironment> debugEnvs = moduleEnvironmentService.listModuleEnvironment(moduleId);
         docInfoDTO.setDebugEnvs(CopyUtil.copyList(debugEnvs, ModuleEnvironmentDTO::new));
-        List<DocParam> params = docParamService.list(DocParam::getDocId, docInfo.getId());
+        List<DocParam> params = docParamService.listByField(DocParam::getDocId, docInfo.getId());
         params.sort(Comparator.comparing(DocParam::getOrderIndex));
         Map<Byte, List<DocParam>> paramsMap = params.stream()
                 .collect(Collectors.groupingBy(DocParam::getStyle));
@@ -336,7 +339,29 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         bindEnumInfo(docInfoDTO.getRequestParams());
         DubboInfoDTO dubboInfoDTO = buildDubboInfoDTO(docInfo);
         docInfoDTO.setDubboInfo(dubboInfoDTO);
+
+        checkMarkdown(docInfoDTO);
         return docInfoDTO;
+    }
+
+    private void checkMarkdown(DocInfoDTO docInfoDTO) {
+        String description = docInfoDTO.getDescription();
+        if (ObjectUtils.isEmpty(description)) {
+            return;
+        }
+        if (MarkdownUtil.isMarkdown(description)) {
+            docInfoDTO.setDescriptionType(DescriptionTypeEnum.MARKDOWN.getValue());
+        }
+    }
+
+    private void checkMarkdown(DocInfo docInfoDTO) {
+        String description = docInfoDTO.getDescription();
+        if (ObjectUtils.isEmpty(description)) {
+            return;
+        }
+        if (MarkdownUtil.isMarkdown(description)) {
+            docInfoDTO.setDescriptionType(DescriptionTypeEnum.MARKDOWN.getValue());
+        }
     }
 
     private DubboInfoDTO buildDubboInfoDTO(DocInfo docInfo) {
@@ -468,13 +493,14 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         return doUpdateDocInfo(docInfoDTO, user);
     }
 
-    public void doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
+    public Long doPushSaveDocInfo(DocInfoDTO docInfoDTO, User user) {
         // 修改基本信息
         DocInfo docInfo = this.insertDocInfo(docInfoDTO, user);
         // 删除文档对应的参数
         docParamService.deletePushParam(Collections.singletonList(docInfo.getId()));
         // 修改参数
         this.doUpdateParams(docInfo, docInfoDTO, user);
+        return docInfo.getId();
     }
 
     private void createDocMock(DocInfo docInfo) {
@@ -648,11 +674,12 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         if (pushIgnoreFieldService.isPushIgnore(docInfoDTO.getModuleId(), docInfoDTO.buildDataId(), "description")) {
             docInfo.setDescription(null);
         }
+        checkMarkdown(docInfo);
         return docInfo;
     }
 
     public DocInfo getByDataId(String dataId) {
-        return get(DocInfo::getDataId, dataId);
+        return getByField(DocInfo::getDataId, dataId);
     }
 
     /**
@@ -879,7 +906,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         if (CollectionUtils.isEmpty(userIds)) {
             return new ArrayList<>(0);
         }
-        List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.list(UserDingtalkInfo::getUserInfoId, userIds);
+        List<UserDingtalkInfo> dingtalkInfoList = userDingtalkInfoMapper.listByField(UserDingtalkInfo::getUserInfoId, userIds);
         if (CollectionUtils.isEmpty(dingtalkInfoList)) {
             // 如果都未绑定钉钉，为了能发送消息，给一个默认值
             return Collections.singletonList("");
@@ -901,11 +928,15 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
         if (CollectionUtils.isEmpty(userIds)) {
             return new ArrayList<>(0);
         }
-        List<UserWeComInfo> userInfoId = userWeComInfoWrapper.list(UserWeComInfo::getUserInfoId, userIds);
-        return userInfoId.stream()
+        List<UserWeComInfo> userInfoId = userWeComInfoWrapper.listByField(UserWeComInfo::getUserInfoId, userIds);
+        List<String> mobileList = userInfoId.stream()
                 .map(UserWeComInfo::getMobile)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        if (mobileList.isEmpty()) {
+            log.info("【获取文档所有的关注人员的企业微信用户手机号码】没有绑定手机号，请前往个人中心设置");
+        }
+        return mobileList;
     }
 
     public DocRefDTO getDocRefInfo(long docId) {
@@ -939,7 +970,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
     }
 
     public List<DocInfo> listByDocKey(String docKey) {
-        return list(DocInfo::getDocKey, docKey);
+        return listByField(DocInfo::getDocKey, docKey);
     }
 
     public void fillDocKey() {
@@ -986,7 +1017,7 @@ public class DocInfoService extends BaseLambdaService<DocInfo, DocInfoMapper> {
     }
 
     public List<DocInfo> listByParentId(Long parentId) {
-        return list(DocInfo::getParentId, parentId);
+        return listByField(DocInfo::getParentId, parentId);
     }
 
 }

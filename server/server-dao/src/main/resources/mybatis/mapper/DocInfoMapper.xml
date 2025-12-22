@@ -9,6 +9,7 @@
             <if test="md5 != null">md5,</if>
             <if test="name != null">name,</if>
             <if test="description != null">description,</if>
+            <if test="descriptionType != null">description_type,</if>
             <if test="author != null">author,</if>
             <if test="type != null">type,</if>
             <if test="url != null">url,</if>
@@ -36,6 +37,7 @@
             <if test="remark != null">remark,</if>
             <if test="isShow != null">is_show,</if>
             <if test="status != null">`status`,</if>
+            <if test="isLocked != null">`is_locked`,</if>
             gmt_create,
             gmt_modified,
         </trim>
@@ -45,6 +47,7 @@
             <if test="md5 != null">#{md5},</if>
             <if test="name != null">#{name},</if>
             <if test="description != null">#{description},</if>
+            <if test="descriptionType != null">#{descriptionType},</if>
             <if test="author != null">#{author},</if>
             <if test="type != null">#{type},</if>
             <if test="url != null">#{url},</if>
@@ -72,6 +75,7 @@
             <if test="remark != null">#{remark},</if>
             <if test="isShow != null">#{isShow},</if>
             <if test="status != null">#{status},</if>
+            <if test="isLocked != null">#{isLocked},</if>
             now(),
             now(),
         </trim>
@@ -80,6 +84,7 @@
         <if test="name != null">name = VALUES(name),</if>
         <if test="docKey != null">doc_key = VALUES(doc_key),</if>
         <if test="description != null">description = VALUES(description),</if>
+        <if test="descriptionType != null">description_type = VALUES(description_type),</if>
         <if test="author != null">author = VALUES(author),</if>
         <if test="type != null">type = VALUES(type),</if>
         <if test="url != null">url = VALUES(url),</if>
@@ -106,6 +111,7 @@
         <if test="orderIndex != null">order_index = VALUES(order_index),</if>
         <if test="remark != null">remark = VALUES(remark),</if>
         <if test="isShow != null">is_show = VALUES(is_show),</if>
+        <if test="isLocked != null">is_locked = VALUES(is_locked),</if>
         is_deleted = 0,
         gmt_modified = now()
     </insert>

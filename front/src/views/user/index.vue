@@ -8,19 +8,24 @@
       <el-tab-pane v-if="!isThirdPartyUser()" :label="$t('updatePassword')" name="2">
         <update-password />
       </el-tab-pane>
+      <el-tab-pane v-if="enableMfaAuth()" :label="$t('mfa.settingTitle')" name="3">
+        <el-button type="primary" :loading="resetMFALoading" @click="resetMFA()">{{ $t('mfa.resetTitle') }}</el-button>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 <script>
 import UserInfo from './UserInfo'
 import UpdatePassword from './UpdatePassword'
-import { is_third_party_user } from '@/utils/user'
+import { enable_mfa_auth, is_third_party_user } from '@/utils/user'
+import { removeToken } from '@/utils/auth'
 export default {
   components: { UserInfo, UpdatePassword },
   data() {
     return {
       activeName: '1',
-      userInfo: {}
+      userInfo: {},
+      resetMFALoading: false
     }
   },
   created() {
@@ -31,6 +36,26 @@ export default {
   methods: {
     isThirdPartyUser() {
       return is_third_party_user(this.userInfo)
+    },
+    enableMfaAuth() {
+      return enable_mfa_auth(this.userInfo)
+    },
+    resetMFA() {
+      this.confirm(
+        this.$t('mfa.resetConfirm'),
+        () => {
+          this.resetMFALoading = true
+          this.post('/user/mfa/reset', {}, (resp) => {
+            if (resp && resp.code === '0') {
+              this.resetMFALoading = false
+              removeToken()
+              this.goMFABind(this.userInfo.username)
+            }
+          }, () => {
+            this.resetMFALoading = false
+          })
+        }
+      )
     }
   }
 }

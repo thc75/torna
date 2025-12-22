@@ -76,28 +76,28 @@ function createTable(params, style) {
 
 const MarkdownUtil = {
 
-  appendMarkdown(doc_info, markdown_content) {
+  appendMarkdown(doc_info, markdown_content, dialogFormData) {
     init_docInfo(doc_info)
-    const markdown = MarkdownUtil.toMarkdown(doc_info)
+    const markdown = MarkdownUtil.toMarkdown(doc_info, dialogFormData)
     markdown_content.append(markdown)
   },
-  doMarkdownByData(treeData, markdown_content) {
+  doMarkdownByData(treeData, markdown_content, dialogFormData) {
     treeData.forEach(docInfo => {
       const children = docInfo.children
       if (docInfo.isFolder === 1) {
         markdown_content.append(`## ${docInfo.name}\n\n`)
-        this.doMarkdownByData(children, markdown_content)
+        this.doMarkdownByData(children, markdown_content, dialogFormData)
       } else {
-        MarkdownUtil.appendMarkdown(docInfo, markdown_content)
+        MarkdownUtil.appendMarkdown(docInfo, markdown_content, dialogFormData)
       }
     })
     return markdown_content
   },
-  toMarkdownByData(docInfoList, title) {
+  toMarkdownByData(docInfoList, title, dialogFormData) {
     title = title || $t('document')
     const treeData = convert_tree(docInfoList)
     const markdown_content = new StringBuilder(`# ${title}\n\n`)
-    MarkdownUtil.doMarkdownByData(treeData, markdown_content)
+    MarkdownUtil.doMarkdownByData(treeData, markdown_content, dialogFormData)
     return markdown_content.toString()
   },
   // toMarkdownByData(docInfoList, title) {
@@ -123,7 +123,7 @@ const MarkdownUtil = {
   //   })
   //   return markdown_content.toString()
   // },
-  toMarkdown(docInfo) {
+  toMarkdown(docInfo, dialogFormData) {
     const builder = new StringBuilder()
     const append = (str) => {
       builder.append(`\n${str}\n`)
@@ -133,7 +133,7 @@ const MarkdownUtil = {
       builder.append(`\n${codeWrap}\n${str}\n${codeWrap}\n`)
     }
     append(`### ${docInfo.name}`)
-    if (docInfo.author) {
+    if (docInfo.author && dialogFormData.hideMaintainer === 0) {
       append(`${$t('maintainer')}：${docInfo.author}`)
     }
     if (isMarkdown(docInfo)) {
@@ -141,8 +141,8 @@ const MarkdownUtil = {
       return builder.toString()
     }
     if (isHttp(docInfo)) {
-      append(`#### URL`);
-      const debugEnvs = docInfo.debugEnvs || [];
+      append(`#### URL`)
+      const debugEnvs = docInfo.debugEnvs || []
       if (debugEnvs.length > 0) {
         const ul = new StringBuilder()
         docInfo.debugEnvs.forEach(hostConfig => {
@@ -155,20 +155,27 @@ const MarkdownUtil = {
         append(`- \`${docInfo.httpMethod}\` ${docInfo.url}`)
       }
     } else if (isDubbo(docInfo)) {
-      append(`${$t('method')}：${docInfo.url}`);
+      append(`${$t('method')}：${docInfo.url}`)
     }
-    append(`${$t('description')}：${docInfo.description}`)
+    if (docInfo.description) {
+      append(`${$t('description')}：${docInfo.description}`)
+    }
 
     if (isHttp(docInfo)) {
-      append(`ContentType：\`${docInfo.contentType}\``)
+      if (docInfo.contentType) {
+        append(`ContentType：\`${docInfo.contentType}\``)
+      }
       if (docInfo.pathParams && docInfo.pathParams.length > 0) {
         append(`#### ${$t('pathVariable')}`)
         const pathParamsTable = createTable(docInfo.pathParams, Enums.PARAM_STYLE.path)
         append(pathParamsTable)
       }
-      if (docInfo.headerParams && docInfo.headerParams.length > 0) {
+      const headers = docInfo.globalHeaders || []
+      const headerParams = docInfo.headerParams || []
+      headers.push(...headerParams)
+      if (headers.length > 0) {
         append(`#### ${$t('requestHeader')}`)
-        const headerParamsTable = createTable(docInfo.headerParams, Enums.PARAM_STYLE.header)
+        const headerParamsTable = createTable(headers, Enums.PARAM_STYLE.header)
         append(headerParamsTable)
       }
     }

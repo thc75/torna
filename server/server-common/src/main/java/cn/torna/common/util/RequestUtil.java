@@ -12,7 +12,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +27,7 @@ public class RequestUtil {
     private static final String IP_UNKNOWN = "unknown";
     private static final String IP_LOCAL = "127.0.0.1";
     private static final int IP_LEN = 15;
+    private static final String LOCAL = "0:0:0:0:0:0:0:1";
 
     /**
      * 获取表单中的字段，请求类型是application/x-www-form-urlencoded
@@ -44,13 +47,41 @@ public class RequestUtil {
         return parseQueryString(query);
     }
 
+    public static String getBodyText(HttpServletRequest request) {
+        try {
+            ServletInputStream inputStream = request.getInputStream();
+            return IOUtils.toString(inputStream, request.getCharacterEncoding());
+        } catch (IOException e) {
+            log.error("获取body失败", e);
+            throw new RuntimeException("请求失败");
+        }
+    }
+
+    public static Map<String, String> getQueryString(HttpServletRequest request) {
+        return parseQueryString(request.getQueryString());
+    }
+
+    public static Map<String, String> getHeader(HttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        while (headerNames.hasMoreElements()) {
+            String name = headerNames.nextElement();
+            String value = request.getHeader(name);
+            headerMap.put(name, value);
+        }
+        return headerMap;
+    }
+
     public static Map<String, String> parseQueryString(String query) {
         if (StringUtils.isEmpty(query)) {
-            return Collections.emptyMap();
+            return new LinkedHashMap<>();
         }
         query = StringUtils.trimLeadingCharacter(query, '?');
         String[] pairs = query.split("&");
-        Map<String, String> form = new HashMap<>(pairs.length * 2);
+        Map<String, String> form = new LinkedHashMap<>(pairs.length * 2);
         for (String pair : pairs) {
             String[] param = pair.split("=");
             String key = param[0];
@@ -113,6 +144,22 @@ public class RequestUtil {
                 ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
             }
         }
+        // 解决请求和响应的IP一致且通过浏览器请求时，request.getRemoteAddr()为"0:0:0:0:0:0:0:1"
+        if (LOCAL.equals(ipAddress)) {
+            String hostAddress = getHostAddress();
+            if (hostAddress != null) {
+                ipAddress = hostAddress;
+            }
+        }
         return ipAddress;
+    }
+
+    private static String getHostAddress() {
+        // 根据网卡取本机配置的IP
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 }

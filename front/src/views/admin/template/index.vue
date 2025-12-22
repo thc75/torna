@@ -2,7 +2,7 @@
   <div>
     <el-container>
       <el-aside width="200px" style="padding: 20px">
-        <el-button type="primary" size="mini" @click="addNew">添加模板</el-button>
+        <el-button type="primary" size="mini" @click="addNew">{{ $t('CodeGenTemplate.addTemplate') }}</el-button>
         <template-tree
           ref="templateTree"
           :node-click="onNodeClick"
@@ -10,7 +10,7 @@
       </el-aside>
       <el-main>
         <el-alert
-          title="代码生成模板"
+          :title="$t('CodeGenTemplate.codeGenTitle')"
           type="info"
           :closable="false"
           class="btn-alert"
@@ -18,32 +18,41 @@
         >
           <el-popover
             placement="bottom"
-            title="如何使用"
+            :title="$t('CodeGenTemplate.howToUse')"
             trigger="click"
           >
-            <div class="tips">前往文档预览页，点击右上角生成代码图标</div>
+            <div class="tips">{{ $t('CodeGenTemplate.tipText') }}</div>
             <img :src="`${getBaseUrl()}/static/help/images/gen.png`"/>
-            <el-link slot="reference" type="primary" icon="el-icon-question" style="margin-left: 20px">添加后如何使用</el-link>
+            <el-link slot="reference" type="primary" icon="el-icon-question" style="margin-left: 20px">
+              {{ $t('CodeGenTemplate.howToUseLink') }}
+            </el-link>
           </el-popover>
         </el-alert>
-        <el-form v-if="showRight" ref="i18nForm" label-width="80px" :model="formData" :rules="formRules">
-          <el-form-item label="模板名称" prop="name">
+
+        <el-form
+          v-if="showRight"
+          ref="i18nForm"
+          label-width="80px"
+          :model="formData"
+          :rules="formRules"
+        >
+          <el-form-item :label="$t('CodeGenTemplate.templateName')" prop="name">
             <el-input
               v-model="formData.name"
-              placeholder="模板名称"
+              :placeholder="$t('CodeGenTemplate.templateName')"
               show-word-limit
               maxlength="50"
               style="width: 500px"
             />
           </el-form-item>
-          <el-form-item label="分组" prop="groupName">
+          <el-form-item :label="$t('CodeGenTemplate.group')" prop="groupName">
             <el-select
               v-model="formData.groupName"
               filterable
               allow-create
               default-first-option
               clearable
-              placeholder="输入可新建分组，不填为默认分组"
+              :placeholder="$t('CodeGenTemplate.groupPlaceholder')"
               show-word-limit
               maxlength="50"
               style="width: 500px"
@@ -56,23 +65,23 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="模板内容" prop="content">
+          <el-form-item :label="$t('CodeGenTemplate.templateContent')" prop="content">
             <el-alert :closable="false">
               <div slot="title">
-                基于Velocity，
+                {{ $t('CodeGenTemplate.velocityTip') }}
                 <el-link type="primary" :underline="false" @click="$refs.help.open('static/help/velocity.md')">
-                  参考语法
+                  {{ $t('CodeGenTemplate.syntaxRef') }}
                 </el-link>
                 <span class="split">|</span>
-                示例模板(点击插入):
+                {{ $t('CodeGenTemplate.exampleTemplates') }}:
                 <el-link type="primary" :underline="false" style="margin-left: 10px" @click="insertTemplate('javaBean')">
-                  Java类
+                  {{ $t('CodeGenTemplate.javaClass') }}
                 </el-link>
                 <el-link type="primary" :underline="false" style="margin-left: 10px" @click="insertTemplate('curl')">
                   curl
                 </el-link>
                 <el-link type="primary" :underline="false" style="margin-left: 10px" @click="insertTemplate('vueTable')">
-                  VUE表格
+                  {{ $t('CodeGenTemplate.vueTable') }}
                 </el-link>
               </div>
             </el-alert>
@@ -83,18 +92,18 @@
             />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSave">保存</el-button>
-            <el-button v-show="!formData.isNew" type="danger" @click="onDel">删除</el-button>
-            <el-button v-show="!formData.isNew" type="info" @click="onCopy">复制</el-button>
+            <el-button type="primary" @click="onSave">{{ $t('save') }}</el-button>
+            <el-button v-show="!formData.isNew" type="danger" @click="onDel">{{ $t('delete') }}</el-button>
+            <el-button v-show="!formData.isNew" type="info" @click="onCopy">{{ $t('copy') }}</el-button>
           </el-form-item>
         </el-form>
       </el-main>
       <el-aside v-if="showRight" style="width: 350px">
         <div :class="{ hasFix: 'hasFix' }" style="font-size: 14px;margin-left: 10px">
           <h4 style="margin: 5px 0">
-            Velocity变量
+            {{ $t('CodeGenTemplate.velocityVars') }}
             <span class="velocity-tip">
-              点击变量直接插入
+              {{ $t('CodeGenTemplate.clickToInsert') }}
             </span>
           </h4>
           <div class="velocity-var">

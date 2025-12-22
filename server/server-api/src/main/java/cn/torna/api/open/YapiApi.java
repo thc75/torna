@@ -1,6 +1,6 @@
 package cn.torna.api.open;
 
-import cn.torna.api.bean.ApiUser;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.DocPushItemParam;
 import cn.torna.api.open.param.DocPushParam;

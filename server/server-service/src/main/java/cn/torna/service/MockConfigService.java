@@ -27,7 +27,6 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,21 @@ public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigM
 
 
     public List<MockConfig> listMockConfig(Long docId) {
-        return this.list(MockConfig::getDocId, docId);
+        return this.listByField(MockConfig::getDocId, docId);
+    }
+
+    public List<MockConfig> listAdvancedMockConfig(Long docId) {
+       return this.query()
+                .eq(MockConfig::getDocId, docId)
+                .eq(MockConfig::getIsAdvancedMock, Booleans.TRUE)
+                .list();
+    }
+
+    public long getAdvancedMockConfigCount(Long docId) {
+        return this.query()
+                .eq(MockConfig::getDocId, docId)
+                .eq(MockConfig::getIsAdvancedMock, Booleans.TRUE)
+                .getCount();
     }
 
     public MockConfig getByDataId(String dataId) {
@@ -65,7 +78,6 @@ public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigM
         if (CollectionUtils.isEmpty(dataKv)) {
             return "[]";
         }
-        dataKv.sort(Comparator.comparing(NameValueDTO::getName));
         return JSON.toJSONString(dataKv);
     }
 
@@ -94,9 +106,18 @@ public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigM
         return Optional.ofNullable(mockConfig).map(MockConfig::getVersion).orElse(0) + 1;
     }
 
+    public int getAdvancedNextVersion(Long docId) {
+        Query query = this.query()
+                .eq(MockConfig::getDocId, docId)
+                .eq(MockConfig::getIsAdvancedMock, Booleans.TRUE)
+                .orderByDesc(MockConfig::getVersion);
+        MockConfig mockConfig = get(query);
+        return Optional.ofNullable(mockConfig).map(MockConfig::getVersion).orElse(0) + 1;
+    }
+
     @Async
     public void createDocDefaultMock(Long docId) {
-        DocInfoDTO docInfoDTO = docInfoService.getDocDetail(docId);
+        /*DocInfoDTO docInfoDTO = docInfoService.getDocDetail(docId);
         Query query = this.query()
                 .eq(MockConfig::getDocId, docId)
                 .eq(MockConfig::getDataId, DEFAULT_DATA_ID);
@@ -133,7 +154,7 @@ public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigM
             this.save(mockConfig);
         } else {
             this.update(mockConfig);
-        }
+        }*/
     }
 
     private String buildResponseJson(DocInfoDTO docInfoDTO) {
@@ -228,4 +249,11 @@ public class MockConfigService extends BaseLambdaService<MockConfig, MockConfigM
         return buildDataId(path, "", "");
     }
 
+    public List<MockConfig> listAdvancedMockByPath(String httpMethod, String path) {
+        return this.query()
+                .eq(MockConfig::getPath, path)
+                .eq(MockConfig::getHttpMethod, httpMethod.toUpperCase())
+                .eq(MockConfig::getIsAdvancedMock, Booleans.TRUE)
+                .list();
+    }
 }

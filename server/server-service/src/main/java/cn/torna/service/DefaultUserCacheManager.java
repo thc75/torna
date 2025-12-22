@@ -1,5 +1,6 @@
 package cn.torna.service;
 
+import cn.torna.common.bean.ApiUser;
 import cn.torna.common.bean.LoginUser;
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -66,10 +68,14 @@ public class DefaultUserCacheManager implements UserCacheManager, InitializingBe
 
     /**
      * 获取登陆用户
+     *
      * @param id
      * @return
      */
     private User getLoginUser(long id) {
+        if (Objects.equals(id, ApiUser.ID)) {
+            return ApiUser.DEFAULT_USER;
+        }
         UserInfo userInfo = userInfoMapper.getById(id);
         if (userInfo == null) {
             log.warn("登录用户不存在，userId：{}", id);

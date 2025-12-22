@@ -1,6 +1,5 @@
-package cn.torna.api.bean;
+package cn.torna.common.bean;
 
-import cn.torna.common.bean.User;
 import cn.torna.common.enums.OperationMode;
 import cn.torna.common.enums.UserStatusEnum;
 import lombok.Data;
@@ -11,9 +10,17 @@ import lombok.Data;
 @Data
 public class ApiUser implements User {
 
-    private Long id = 99999L;
+    public static final long ID = 99999L;
+
+    public static final ApiUser DEFAULT_USER = new ApiUser();
+
+    private Long id = ID;
 
     private String nickname = "OpenAPI";
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @Override
     public Long getUserId() {
@@ -48,4 +55,5 @@ public class ApiUser implements User {
     public String getToken() {
         return "";
     }
+
 }

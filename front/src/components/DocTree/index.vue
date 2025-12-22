@@ -6,6 +6,7 @@
       :placeholder="$t('filterNameUrl')"
       size="mini"
       clearable
+      @input="debouncedInput"
     >
     </el-input>
     <el-tree
@@ -29,6 +30,7 @@
   </div>
 </template>
 <script>
+import _ from 'lodash'
 export default {
   props: {
     viewMode: {
@@ -50,6 +52,9 @@ export default {
       },
       filterText: ''
     }
+  },
+  created() {
+    this.debouncedInput = _.debounce(this.handleInput, 500)
   },
   computed: {
     treeRows() {
@@ -76,6 +81,12 @@ export default {
         }
       })
     },
+    initFilterText() {
+      this.filterText = ''
+    },
+    handleInput() {
+      this.$emit('setNodesChecked')
+    },
     isFolder(row) {
       return row.isFolder === 1
     },
@@ -84,14 +95,39 @@ export default {
         (row.name && row.name.toLowerCase().indexOf(searchText) > -1) ||
         (row.id && row.id.toLowerCase().indexOf(searchText) > -1)
     },
-    onCheckClick(data, status) {
+     onCheckClick(data, status) {
+      let unCheckedNodes = []
       const node = this.$refs.tree.getNode(data)
+      const childNodes = node.childNodes
       if (!node.checked) {
+        const nodeKey = [node.key]
+        unCheckedNodes = [...nodeKey]
+        if (childNodes.length) {
+          unCheckedNodes = [...nodeKey, ...this.getUncheckedNodes(childNodes)]
+        }
         data.isShareFolder = false
         status.halfCheckedNodes.forEach(data => {
           data.isShareFolder = false
         })
       }
+      this.$emit('checkedNodes', this.getCheckedNodes())
+      this.$nextTick(() => {
+        this.$emit('checkedNodes', this.getCheckedNodes(), unCheckedNodes)
+      })
+    },
+    getUncheckedNodes(childNodes) {
+      let ret = []
+      for (let i = 0; i < childNodes.length; i++) {
+        let arr = []
+        const data = childNodes[i]
+        arr.push(childNodes[i].key)
+        if (data.childNodes && data.childNodes.length > 0) {
+          const childrenData = this.getUncheckedNodes(data.childNodes)
+          arr = arr.concat(childrenData)
+        }
+        ret = ret.concat(arr)
+      }
+      return ret
     },
     isChecked(data) {
       const keys = this.$refs.tree.getCheckedKeys()

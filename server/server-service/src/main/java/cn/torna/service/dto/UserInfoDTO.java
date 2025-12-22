@@ -40,4 +40,5 @@ public class UserInfoDTO {
 
     private Byte status;
 
+    private Boolean mfaEnable;
 }

@@ -13,9 +13,11 @@ import lombok.Setter;
 @Setter
 public class UserSearch extends PageParam {
 
+    /**  数据库字段：id */
     @Condition(ignore = true)
     private String id;
 
+    /** 登录账号/邮箱, 数据库字段：username */
     @Condition(ignoreEmptyString = true, operator = Operator.like)
     private String username;
 
@@ -26,4 +28,8 @@ public class UserSearch extends PageParam {
     /** 是否是超级管理员, 数据库字段：is_super_admin */
     @Condition(operator = Operator.eq)
     private Byte isSuperAdmin;
+
+    /** 昵称, 数据库字段：nickname */
+    @Condition(ignoreEmptyString = true, operator = Operator.like)
+    private String nickname;
 }

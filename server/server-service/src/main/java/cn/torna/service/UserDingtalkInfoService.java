@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserDingtalkInfoService extends BaseLambdaService<UserDingtalkInfo, UserDingtalkInfoMapper> {
 
     public UserDingtalkInfo getByUserId(long userId) {
-        return get(UserDingtalkInfo::getUserInfoId, userId);
+        return getByField(UserDingtalkInfo::getUserInfoId, userId);
     }
 
     public void addUser(DingTalkLoginDTO dingTalkLoginDTO, UserInfo userInfo) {
@@ -39,6 +39,6 @@ public class UserDingtalkInfoService extends BaseLambdaService<UserDingtalkInfo,
     }
 
     public UserDingtalkInfo getByUnionId(String unionId) {
-        return get(UserDingtalkInfo::getUnionid, unionId);
+        return getByField(UserDingtalkInfo::getUnionid, unionId);
     }
 }

@@ -1,6 +1,7 @@
 package cn.torna.web.controller.doc;
 
 import cn.torna.common.annotation.HashId;
+import cn.torna.common.annotation.NoLogin;
 import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Result;
 import cn.torna.common.bean.User;
@@ -38,6 +39,7 @@ public class DebugScriptController {
     private DocInfoService docInfoService;
 
     @GetMapping("list")
+    @NoLogin
     public Result<List<DebugScriptVO>> listPre(@HashId Long docId) {
         List<DebugScript> list = debugScriptService.list(docId);
         List<DebugScriptVO> debugScriptVOS = CopyUtil.copyList(list, DebugScriptVO::new);

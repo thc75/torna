@@ -14,8 +14,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DocDiffDTO {
 
+    private Long docId;
     private String md5Old;
+
     private String md5New;
+
     private LocalDateTime modifyTime;
 
     private User user;

@@ -4,7 +4,11 @@ import cn.torna.common.bean.Booleans;
 import cn.torna.common.bean.Configs;
 import cn.torna.common.bean.EnvironmentKeys;
 import cn.torna.common.bean.HttpHelper;
-import cn.torna.dao.entity.*;
+import cn.torna.dao.entity.Module;
+import cn.torna.dao.entity.MsModuleConfig;
+import cn.torna.dao.entity.MsSpaceConfig;
+import cn.torna.dao.entity.Project;
+import cn.torna.dao.entity.ProjectRelease;
 import cn.torna.manager.doc.postman.Postman;
 import cn.torna.service.ConvertService;
 import cn.torna.service.ModuleService;
@@ -71,7 +75,6 @@ public class MeterSpherePushService {
     @Autowired
     private ProjectReleaseService projectReleaseService;
 
-
     /**
      * 推送模块文档到metersphere服务器
      *
@@ -133,7 +136,11 @@ public class MeterSpherePushService {
 
     private void uploadToServer(MsSpaceConfig msSpaceConfig, MsModuleConfig msModuleConfig, File file) {
         try (CloseableHttpClient httpclient = HttpConfig.getOneHttpClient(msSpaceConfig.getMsAddress())) {
-            String url = msSpaceConfig.getMsAddress() + URLConstants.API_IMPORT;
+            String msAddress = EnvironmentKeys.METER_SPHERE_ENABLE_HTTPS.getBoolean()
+                    ? msSpaceConfig.getMsAddress().replace("http://", "https://")
+                    : msSpaceConfig.getMsAddress();
+
+            String url = msAddress + URLConstants.API_IMPORT;
             HttpPost httpPost = new HttpPost(url);
 
             AppSettingState state = new AppSettingState();

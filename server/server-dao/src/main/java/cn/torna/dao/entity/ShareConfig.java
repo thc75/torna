@@ -64,5 +64,7 @@ public class ShareConfig {
     /**  数据库字段：gmt_modified */
     private LocalDateTime gmtModified;
 
+    /**  分享名称：share_name */
+    private String shareName;
 
 }

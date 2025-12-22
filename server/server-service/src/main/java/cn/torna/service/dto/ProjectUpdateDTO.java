@@ -33,4 +33,7 @@ public class ProjectUpdateDTO {
     @JSONField(serializeUsing = IdCodec.class, deserializeUsing = IdCodec.class)
     private List<Long> adminIds;
 
+    /** 排序索引, 数据库字段：order_index */
+    private Integer orderIndex;
+
 }

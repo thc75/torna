@@ -2,7 +2,6 @@ package cn.torna.service.listener;
 
 import cn.torna.common.bean.User;
 import cn.torna.common.bean.UserCacheManager;
-import cn.torna.common.enums.DocTypeEnum;
 import cn.torna.dao.entity.DocInfo;
 import cn.torna.service.DocDiffContext;
 import cn.torna.service.DocInfoService;
@@ -18,7 +17,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author thc
@@ -48,7 +46,7 @@ public class DocAddListener extends DefaultDocAddListener {
         // 2. 创建对比记录
         Long creatorId = docInfoDTO.getCreatorId();
         User user = userCacheManager.getUser(creatorId);
-        DocDiffDTO docDiffDTO = new DocDiffDTO(md5Old, docInfoDTO.getMd5(), LocalDateTime.now(), user, event.getSourceFromEnum());
+        DocDiffDTO docDiffDTO = new DocDiffDTO(docId, md5Old, docInfoDTO.getMd5(), LocalDateTime.now(), user, event.getSourceFromEnum());
         DocDiffContext.addQueue(docDiffDTO);
     }
 

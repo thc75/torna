@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,10 +16,20 @@ import java.util.List;
 @Data
 public class MockConfigVO extends MockBaseVO {
     private List<NameValueVO> dataKv;
+
     private String dataJson;
 
     /**  数据库字段：path */
     private String path;
+
+    private String httpMethod;
+
+    /**
+     * 是否过滤ip
+     */
+    private Byte isFilterIp;
+
+    private String ip;
 
     /** 参数类型，0：KV形式，1：json形式, 数据库字段：request_data_type */
     private Byte requestDataType;
@@ -33,6 +44,10 @@ public class MockConfigVO extends MockBaseVO {
     private List<NameValueVO> responseHeaders;
 
     private Byte resultType;
+
+    private List<NameValueVO> headers = Collections.emptyList();
+
+    private List<NameValueVO> query = Collections.emptyList();
 
     /** 响应结果, 数据库字段：response_body */
     private String responseBody;

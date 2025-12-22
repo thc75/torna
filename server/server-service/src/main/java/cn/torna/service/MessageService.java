@@ -11,14 +11,15 @@ import cn.torna.service.builder.MessageBuilder;
 import cn.torna.service.builder.MessageBuilder.UniversalMessage;
 import cn.torna.service.dto.DocInfoDTO;
 import cn.torna.service.event.ReleaseDocMessageEvent;
-import java.util.List;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 负责发送消息，站内信、钉钉、企业微信
@@ -76,12 +77,15 @@ public class MessageService {
                 // 企业微信webhook url
                 url = moduleConfigService.getWeComWebhookUrl(docInfoDTO.getModuleId());
                 if (StringUtils.hasText(url)) {
+                    log.info("{}[{}] 推送企业微信, url={}", modifyType.getDescription(), docInfoDTO.getName(), url);
                     // 关注的用户的 企业微信手机号码
                     List<String> weComUserMobiles = docInfoService.listSubscribeDocWeComUserMobiles(docInfoDTO.getId());
                     // 如果是新增或者有人关注才推送
                     if (modifyType == ModifyType.ADD || !CollectionUtils.isEmpty(weComUserMobiles)) {
                         String content = buildMessage(MessageNotifyTypeEnum.WECOM_WEBHOOK, docInfoDTO, modifyType, weComUserMobiles);
                         DingTalkOrWeComWebHookUtil.pushRobotMessage(MessageNotifyTypeEnum.WECOM_WEBHOOK, url, content, weComUserMobiles);
+                    } else {
+                        log.info("没有人关注文档{}, 跳过推送企业微信", docInfoDTO.getName());
                     }
                 }
             }
@@ -96,17 +100,17 @@ public class MessageService {
         Module module = moduleMapper.getById(docInfoDTO.getModuleId());
 
         return MessageBuilder.buildMessage(UniversalMessage.builder()
-                        .notificationType(notificationType)
-                        .projectName(project.getName())
-                        .appName(module.getName())
-                        .releaseNo(null)
-                        .docId(docInfoDTO.getId())
-                        .docName(docInfoDTO.getName())
-                        .url(docInfoDTO.getUrl())
-                        .modifier(docInfoDTO.getModifierName())
-                        .modifyTime(docInfoDTO.getGmtModified())
-                        .modifyType(modifyType)
-                        .userIdList(userIds)
+                .notificationType(notificationType)
+                .projectName(project.getName())
+                .appName(module.getName())
+                .releaseNo(null)
+                .docId(docInfoDTO.getId())
+                .docName(docInfoDTO.getName())
+                .url(docInfoDTO.getUrl())
+                .modifier(docInfoDTO.getModifierName())
+                .modifyTime(docInfoDTO.getGmtModified())
+                .modifyType(modifyType)
+                .userIdList(userIds)
                 .build());
     }
 }

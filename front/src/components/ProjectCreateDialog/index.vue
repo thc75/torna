@@ -21,6 +21,9 @@
           maxlength="50"
         />
       </el-form-item>
+      <el-form-item :label="$t('orderIndex')">
+        <el-input-number v-model="projectFormData.orderIndex" controls-position="right" />
+      </el-form-item>
       <el-form-item :label="$t('projectDesc')" prop="description">
         <el-input
           v-model="projectFormData.description"
@@ -59,6 +62,7 @@ export default {
       visible: false,
       projectFormData: {
         name: '',
+        orderIndex: 0,
         description: '',
         spaceId: '',
         isPrivate: 1

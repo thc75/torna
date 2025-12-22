@@ -21,9 +21,12 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * @author tanghc
@@ -61,7 +64,7 @@ public class DocSnapshotService extends BaseLambdaService<DocSnapshot, DocSnapsh
      * @param docInfoDTO 文档
      */
     public void saveDocSnapshot(DocInfoDTO docInfoDTO) {
-        DocSnapshot snapshot = get(DocSnapshot::getMd5, docInfoDTO.getMd5());
+        DocSnapshot snapshot = getByField(DocSnapshot::getMd5, docInfoDTO.getMd5());
         if (snapshot != null) {
             return;
         }
@@ -84,40 +87,52 @@ public class DocSnapshotService extends BaseLambdaService<DocSnapshot, DocSnapsh
 
     public void removeSnapshotSize(long docId, int limitSize) {
         Query query = this.query()
+                .select(DocSnapshot::getId, DocSnapshot::getDocKey, DocSnapshot::getMd5)
                 .eq(DocSnapshot::getDocId, docId)
                 .orderByAsc(DocSnapshot::getId);
         List<DocSnapshot> list = this.list(query);
         if (list.isEmpty()) {
             return;
         }
-        List<Long> idList = list.stream().map(DocSnapshot::getId).collect(Collectors.toList());
-        List<String> md5List = list.stream().map(DocSnapshot::getMd5).collect(Collectors.toList());
-        int size = idList.size();
+        int size = list.size();
+
+        // 删除快照
         if (size > limitSize) {
             int limit = size - limitSize;
             List<Long> removeIds = new ArrayList<>();
+            Set<String> md5List = new HashSet<>();
+
             for (int i = 0; i < limit; i++) {
-                removeIds.add(idList.get(i));
+                DocSnapshot docSnapshot = list.get(i);
+
+                removeIds.add(docSnapshot.getId());
+                md5List.add(docSnapshot.getMd5());
             }
+
             this.getMapper().deleteByIds(removeIds);
-        }
 
-        for (List<String> md5s : Lists.partition(md5List, 200)) {
-            List<Long> recordIds = docDiffRecordMapper.query()
-                    .in(DocDiffRecord::getMd5New, md5s)
-                    .listValue(DocDiffRecord::getId);
+            // 删除比较记录
+            for (List<String> md5s : Lists.partition(new ArrayList<>(md5List), 50)) {
+                Map<String, Long> md5NewIdMap = docDiffRecordMapper.query()
+                        .in(DocDiffRecord::getMd5New, md5s)
+                        .orderByAsc(DocDiffRecord::getId)
+                        .map(DocDiffRecord::getMd5New, DocDiffRecord::getId, (v1, v2) -> v1);
 
-            List<Long> recordIds2 = docDiffRecordMapper.query()
-                    .in(DocDiffRecord::getMd5Old, md5s)
-                    .listValue(DocDiffRecord::getId);
+                Map<String, Long> md5OldIdMap = docDiffRecordMapper.query()
+                        .in(DocDiffRecord::getMd5Old, md5s)
+                        .orderByAsc(DocDiffRecord::getId)
+                        .map(DocDiffRecord::getMd5Old, DocDiffRecord::getId, (v1, v2) -> v1);
 
-            recordIds.addAll(recordIds2);
+                Set<Long> recordIds = new HashSet<>(md5NewIdMap.values());
 
-            removeRecord(recordIds);
+                recordIds.addAll(md5OldIdMap.values());
+
+                removeRecord(recordIds);
+            }
         }
     }
 
-    private void removeRecord(List<Long> recordIds) {
+    private void removeRecord(Collection<Long> recordIds) {
         if (recordIds.isEmpty()) {
             return;
         }

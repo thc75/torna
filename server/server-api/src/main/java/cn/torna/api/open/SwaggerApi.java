@@ -1,6 +1,6 @@
 package cn.torna.api.open;
 
-import cn.torna.api.bean.ApiUser;
+import cn.torna.common.bean.ApiUser;
 import cn.torna.api.bean.RequestContext;
 import cn.torna.api.open.param.DebugEnvParam;
 import cn.torna.api.open.param.DocParamPushParam;
@@ -20,11 +20,13 @@ import cn.torna.manager.doc.DataType;
 import cn.torna.service.ModuleService;
 import cn.torna.service.ModuleSwaggerConfigService;
 import cn.torna.service.dto.ImportSwaggerV2DTO;
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -34,11 +36,13 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,6 +50,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -86,6 +91,7 @@ public class SwaggerApi {
 
     /**
      * 导入swagger文档
+     *
      * @param importSwaggerV2DTO importSwaggerV2DTO
      */
     public Module importSwagger(ImportSwaggerV2DTO importSwaggerV2DTO) {
@@ -128,7 +134,10 @@ public class SwaggerApi {
 
 
     public static OpenAPI getOpenAPI(String content) {
-        SwaggerParseResult result = new OpenAPIParser().readContents(content, null, null);
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolve(true);
+        parseOptions.setResolveFully(true);
+        SwaggerParseResult result = new OpenAPIParser().readContents(content, null, parseOptions);
         OpenAPI openAPI = result.getOpenAPI();
         if (result.getMessages() != null) {
             for (String message : result.getMessages()) {
@@ -194,8 +203,9 @@ public class SwaggerApi {
 
     /**
      * OpenAPI转换成Torna推送文档参数
+     *
      * @param pushUser 推送人
-     * @param openAPI openAPI对象
+     * @param openAPI  openAPI对象
      * @return 返回Torna需要的参数
      */
     private static DocPushParam convertDocInfo(String pushUser, OpenAPI openAPI) {
@@ -210,6 +220,7 @@ public class SwaggerApi {
 
     /**
      * 构建调试环境
+     *
      * @param openAPI openAPI
      * @return 返回调试环境，没有返回空List
      */
@@ -288,7 +299,7 @@ public class SwaggerApi {
         }
         return paths.entrySet()
                 .stream()
-                .flatMap(entry-> buildItems(entry, openAPI).stream())
+                .flatMap(entry -> buildItems(entry, openAPI).stream())
                 .collect(Collectors.toList());
     }
 
@@ -310,12 +321,12 @@ public class SwaggerApi {
                     .deprecated(Optional.ofNullable(operation.getDeprecated()).orElse(false) ? "" : null)
                     .orderIndex(threadLocal.get().getAndIncrement())
                     .headerParams(buildHeaderParamPushParams(operation))
-                    .pathParams(buildDocParamPushParams(openAPI, operation, parameter -> Objects.equals("path", parameter.getIn())))
-                    .queryParams(buildDocParamPushParams(openAPI, operation, parameter -> Objects.equals("query", parameter.getIn())))
+                    .pathParams(buildDocParamPushParams(openAPI, operationEntry, parameter -> Objects.equals("path", parameter.getIn())))
+                    .queryParams(buildDocParamPushParams(openAPI, operationEntry, parameter -> Objects.equals("query", parameter.getIn())))
                     .tag(CollectionUtils.isEmpty(operation.getTags()) ? "" : operation.getTags().get(0))
                     .build();
 
-            RequestParamsWrapper requestParamsWrapper = buildRequestParamsWrapper(operation, openAPI);
+            RequestParamsWrapper requestParamsWrapper = buildRequestParamsWrapper(operationEntry, openAPI);
             docPushItemParam.setRequestParams(requestParamsWrapper.getDocParamPushParams());
             docPushItemParam.setIsRequestArray(Booleans.toValue(requestParamsWrapper.isRequestArray()));
             docPushItemParam.setRequestArrayType(requestParamsWrapper.getRequestArrayType());
@@ -342,13 +353,14 @@ public class SwaggerApi {
                             .name(parameter.getName())
                             .required(Booleans.toValue(isRequired(parameter)))
                             .description(parameter.getDescription())
-                            .example(toString(parameter.getExample()))
+                            .example(getExample(parameter))
                             .build();
                 })
                 .collect(Collectors.toList());
     }
 
-    private static RequestParamsWrapper buildRequestParamsWrapper(Operation operation, OpenAPI openAPI) {
+    private static RequestParamsWrapper buildRequestParamsWrapper(Map.Entry<PathItem.HttpMethod, Operation> operationEntry, OpenAPI openAPI) {
+        Operation operation = operationEntry.getValue();
         RequestBody requestBody = operation.getRequestBody();
         boolean isRequestArray = false;
         String requestArrayType = DataType.OBJECT;
@@ -364,45 +376,74 @@ public class SwaggerApi {
                     MediaType mediaType = entry.getValue();
                     Schema<?> schema = mediaType.getSchema();
                     String $ref = schema.get$ref();
-                    String type = schema.getType();
+                    String type = getType(schema);
+                    Map<String, Schema> properties = schema.getProperties();
+                    Schema<?> items = schema.getItems();
                     // 如果是数组参数
-                    if ("array".equals(type)) {
+                    if ("array".equals(type) || items != null) {
                         isRequestArray = true;
-                        Schema<?> items = schema.getItems();
                         $ref = items.get$ref();
+                        String itemType = getType(items);
                         if ($ref != null) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
                         } else {
-                            String itemType = items.getType();
                             if (StringUtils.hasText(itemType)) {
                                 String format = items.getFormat();
                                 if ("int64".equals(format)) {
                                     itemType = "long";
                                 }
                                 requestArrayType = itemType;
-                                docParamPushParams = buildSingleArray(itemType, items);
+                                if (DataType.OBJECT.equals(requestArrayType)) {
+                                    Map<String, Schema> prop = items.getProperties();
+                                    docParamPushParams = buildDocParamPushParams(schema, operation, prop);
+                                } else {
+                                    docParamPushParams = buildSingleArray(itemType, items);
+                                }
                             }
                         }
                     } else if ($ref != null) {
                         docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                    } else if (properties != null) {
+                        docParamPushParams = buildObjectParam0(schema, openAPI, new BuildObjectParamContext());
                     }
+                } else if (key.contains("octet-stream")) {
+                    // 上传文件
+                    contentType = "multipart/form-data";
                 } else if (key.contains("form")) {
                     contentType = key.contains("multipart") ? "multipart/form-data" : "application/x-www-form-urlencoded";
                     MediaType mediaType = entry.getValue();
                     Schema<?> schema = mediaType.getSchema();
                     Map<String, Schema> properties = schema.getProperties();
-                    docParamPushParams = buildDocParamPushParams(operation, properties);
+                    docParamPushParams = buildDocParamPushParams(schema, operation, properties);
                 }
             }
         } else {
             // 表单结构
-            docParamPushParams = buildDocParamPushParams(openAPI, operation, parameter -> "formData".equals(parameter.getIn()));
+            docParamPushParams = buildDocParamPushParams(openAPI, operationEntry, parameter -> "formData".equals(parameter.getIn()));
         }
         return new RequestParamsWrapper(docParamPushParams, isRequestArray, requestArrayType, contentType);
     }
 
+    private static String getType(Schema<?> schema) {
+        if (schema == null) {
+            return TYPE_STRING;
+        }
+        String format = schema.getFormat();
+        if (format != null) {
+            return format;
+        }
+        String type = schema.getType();
+        if (type == null) {
+            Set<String> types = schema.getTypes();
+            if (!CollectionUtils.isEmpty(types)) {
+                type = types.iterator().next();
+            }
+        }
+        return type == null ? TYPE_STRING : type;
+    }
+
     private static List<DocParamPushParam> buildSingleArray(String type, Schema<?> items) {
-        String example = toString(items.getExample());
+        String example = getExample(items);
         if (StringUtils.isEmpty(example)) {
             example = MockUtil.buildMockArrayValue(type);
         }
@@ -429,14 +470,25 @@ public class SwaggerApi {
                         MediaType mediaType = entry.getValue();
                         Schema<?> schema = mediaType.getSchema();
                         String $ref = schema.get$ref();
-                        String type = schema.getType();
+                        String type = getType(schema);
                         // 如果是数组参数
                         if ("array".equals(type)) {
                             isResponseArray = true;
                             Schema<?> items = schema.getItems();
                             if (items != null) {
                                 $ref = items.get$ref();
-                                docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                                if ($ref == null) {
+                                    docParamPushParams = buildDocParamPushParams(schema, operation, items.getProperties());
+                                    List<String> required = items.getRequired();
+                                    if (required != null) {
+                                        for (DocParamPushParam docParamPushParam : docParamPushParams) {
+                                            docParamPushParam.setRequired(Booleans.toValue(required.contains(docParamPushParam.getName())));
+                                        }
+                                    }
+                                } else {
+                                    docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                                }
+
                             }
                         } else if ($ref != null && !$ref.endsWith("@")/*排除@*/) {
                             docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
@@ -449,6 +501,7 @@ public class SwaggerApi {
         }
         return new ResponseParamsWrapper(docParamPushParams, isResponseArray);
     }
+
 
     private static class BuildObjectParamContext {
         private Set<String> $refSets;
@@ -486,10 +539,10 @@ public class SwaggerApi {
                             .name(name)
                             .required(Booleans.toValue(jsonSchema.getRequired(name) || Objects.equals("true", String.valueOf(value.getRequired()))))
                             .description(value.getDescription())
-                            .example(toString(value.getExample()))
+                            .example(getExample(value))
                             .maxLength(getMaxLength(jsonSchema.getSchema(), value))
                             .build();
-                    String type = value.getType();
+                    String type = getType(value);
                     List<DocParamPushParam> children = null;
                     // 如果有子对象的ref
                     if (value.get$ref() != null) {
@@ -498,7 +551,7 @@ public class SwaggerApi {
                         children = buildObjectParam(child$ref, openAPI, context);
                     }
                     // 如果直接书写了子对象的内容
-                    if(value.getProperties()!=null){
+                    if (value.getProperties() != null) {
                         type = TYPE_OBJECT;
                         children = buildObjectParam(getJsonSchema(value), openAPI, context);
                     }
@@ -520,7 +573,7 @@ public class SwaggerApi {
                         String itemType = items.getType();
                         if (itemType != null) {
                             type = "array[" + itemType + "]";
-                            if(TYPE_OBJECT.equals(itemType)){
+                            if (TYPE_OBJECT.equals(itemType)) {
                                 children = buildObjectParam(getJsonSchema(items), openAPI, context);
                             }
                         }
@@ -534,20 +587,22 @@ public class SwaggerApi {
 
     private static List<DocParamPushParam> buildObjectParam0(Schema<?> schema, OpenAPI openAPI, BuildObjectParamContext context) {
         final Map<String, Schema> properties = schema.getProperties();
+        List<String> requireList = Optional.ofNullable(schema.getRequired()).orElse(Collections.emptyList());
         return Optional.ofNullable(properties)
                 .orElse(Collections.emptyMap()).entrySet()
                 .stream()
                 .map(entry -> {
                     String name = entry.getKey();
                     Schema value = entry.getValue();
+                    boolean require = requireList.contains(name);
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(name)
-                            .required(Booleans.toValue(Objects.equals("true", String.valueOf(value.getRequired()))))
+                            .required(Booleans.toValue(require || Objects.equals("true", String.valueOf(value.getRequired()))))
                             .description(value.getDescription())
-                            .example(toString(value.getExample()))
+                            .example(getExample(value))
                             .maxLength(getMaxLength(schema, value))
                             .build();
-                    String type = value.getType();
+                    String type = getType(value);
                     List<DocParamPushParam> children = null;
                     // 如果有子对象的ref
                     if (value.get$ref() != null) {
@@ -556,7 +611,7 @@ public class SwaggerApi {
                         children = buildObjectParam(child$ref, openAPI, context);
                     }
                     // 如果直接书写了子对象的内容
-                    if(value.getProperties()!=null){
+                    if (value.getProperties() != null) {
                         type = TYPE_OBJECT;
                         children = buildObjectParam(getJsonSchema(value), openAPI, context);
                     }
@@ -575,10 +630,10 @@ public class SwaggerApi {
                             children = buildObjectParam(child$ref, openAPI, context);
                             type = "array[object]";
                         }
-                        String itemType = items.getType();
+                        String itemType = getType(items);
                         if (itemType != null) {
                             type = "array[" + itemType + "]";
-                            if(TYPE_OBJECT.equals(itemType)){
+                            if (TYPE_OBJECT.equals(itemType)) {
                                 children = buildObjectParam(getJsonSchema(items), openAPI, context);
                             }
                         }
@@ -622,21 +677,31 @@ public class SwaggerApi {
         return enumInfoCreateParam;
     }
 
-    private static List<DocParamPushParam> buildDocParamPushParams(OpenAPI openAPI, Operation operation, Predicate<Parameter> predicate) {
+    private static List<DocParamPushParam> buildDocParamPushParams(OpenAPI openAPI, Map.Entry<PathItem.HttpMethod, Operation> operationEntry, Predicate<Parameter> predicate) {
+        Operation operation = operationEntry.getValue();
         List<Parameter> parameters = operation.getParameters();
         if (CollectionUtils.isEmpty(parameters)) {
             return null;
         }
+        String methodName = operationEntry.getKey().name();
         return parameters.stream()
                 .filter(predicate)
                 .flatMap(parameter -> {
+                    if (parameter.getSchema() == null && HttpMethod.POST.name().equalsIgnoreCase(methodName)) {
+                        return Stream.empty();
+                    }
+                    String paramType = getType(parameter);
+                    if (Objects.equals(paramType, TYPE_OBJECT)) {
+                        Schema<?> schema = parameter.getSchema();
+                        return buildBySchema(schema, openAPI, operation);
+                    }
                     DocParamPushParam param = DocParamPushParam.builder()
                             .name(parameter.getName())
-                            .type(getType(parameter))
+                            .type(paramType)
                             .required(Booleans.toValue(isRequired(parameter)))
                             .description(parameter.getDescription())
                             .maxLength(getMaxLength(parameter))
-                            .example(toString(parameter.getExample()))
+                            .example(getExample(parameter))
                             .build();
                     Schema<?> schema = parameter.getSchema();
                     if (schema != null) {
@@ -650,12 +715,23 @@ public class SwaggerApi {
                             List<?> list = items.getEnum();
                             setEnumDescription(list, param);
                         } else if ($ref != null) {
-                            return buildObjectParam($ref, openAPI, new BuildObjectParamContext()).stream();
+                            List<DocParamPushParam> docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+                            return docParamPushParams == null ? Stream.empty() : docParamPushParams.stream();
                         }
                     }
                     return Stream.of(param);
                 })
                 .collect(Collectors.toList());
+    }
+
+    private static Stream<DocParamPushParam> buildBySchema(Schema<?> schema, OpenAPI openAPI, Operation operation) {
+        String $ref = schema.get$ref();
+        if ($ref != null) {
+            List<DocParamPushParam> docParamPushParams = buildObjectParam($ref, openAPI, new BuildObjectParamContext());
+            return docParamPushParams == null ? Stream.empty() : docParamPushParams.stream();
+        }
+        Map<String, Schema> properties = schema.getProperties();
+        return buildDocParamPushParams(schema, operation, properties).stream();
     }
 
     private static void setEnumDescription(List<?> list, DocParamPushParam param) {
@@ -668,24 +744,31 @@ public class SwaggerApi {
         }
     }
 
-    private static List<DocParamPushParam> buildDocParamPushParams(Operation operation, Map<String, Schema> properties) {
+    private static List<DocParamPushParam> buildDocParamPushParams(Schema<?> parentSchema, Operation operation, Map<String, Schema> properties) {
         if (CollectionUtils.isEmpty(properties)) {
-            return null;
+            return Collections.emptyList();
         }
+        List<String> requireList = Optional.ofNullable(parentSchema)
+                .map(Schema::getRequired)
+                .orElse(Collections.emptyList());
         return properties.entrySet().stream()
                 .map(stringSchemaEntry -> {
                     Schema schema = stringSchemaEntry.getValue();
-                    String type = schema.getType();
+                    String type = getType(schema);
                     String format = schema.getFormat();
+                    String example = getExample(schema);
                     if ("binary".equals(format)) {
                         type = "file";
+                        example = "";
                     }
+                    String fieldName = Optional.ofNullable(schema.getName()).orElse(stringSchemaEntry.getKey());
+                    boolean require = requireList.contains(fieldName);
                     return DocParamPushParam.builder()
-                            .name(schema.getName())
+                            .name(fieldName)
                             .type(type)
                             .description(schema.getDescription())
-                            .example(toString(schema.getExample()))
-                            .required(Booleans.toValue(isRequired(schema, schema.getName())))
+                            .example(example)
+                            .required(Booleans.toValue(require || isRequired(schema, fieldName)))
                             .maxLength(getMaxLength(schema))
                             .build();
                 })
@@ -697,13 +780,6 @@ public class SwaggerApi {
                 .map(Parameter::getSchema).orElse(null);
         return getType(schema);
     }
-
-    private static String getType(Schema<?> schema) {
-        return Optional.ofNullable(schema)
-                .map(Schema::getType)
-                .orElse(TYPE_STRING);
-    }
-
 
 
     private static String getMaxLength(Parameter parameter) {
@@ -728,8 +804,7 @@ public class SwaggerApi {
     }
 
     /**
-     *
-     * @param $ref #/components/schemas/Order
+     * @param $ref    #/components/schemas/Order
      * @param openAPI
      * @return
      */
@@ -743,7 +818,7 @@ public class SwaggerApi {
     }
 
     private static JsonSchema getJsonSchema(Schema<?> schema) {
-        String type= null;
+        String type = null;
         try {
             type = schema.getType();
         } catch (Exception e) {
@@ -751,7 +826,7 @@ public class SwaggerApi {
         }
         if (type == null) {
             Map<String, Object> objectProperties = Optional.ofNullable(schema.getJsonSchema()).orElse(Collections.emptyMap());
-            type =  String.valueOf(objectProperties.getOrDefault("type", TYPE_OBJECT));
+            type = String.valueOf(objectProperties.getOrDefault("type", TYPE_OBJECT));
         }
         Map<String, Object> properties = getProperties(schema);
         return new JsonSchema(type, properties, schema);
@@ -764,11 +839,11 @@ public class SwaggerApi {
             for (Map.Entry<String, Schema> entry : properties.entrySet()) {
                 Schema value = entry.getValue();
                 Map<String, Object> val = new LinkedHashMap<>(8);
-                putVal(val,"required", value.getRequired());
+                putVal(val, "required", value.getRequired());
                 putVal(val, "format", value.getFormat());
                 putVal(val, "type", value.getType());
                 putVal(val, "description", value.getDescription());
-                putVal(val, "example", value.getExample());
+                putVal(val, "example", getExample(value));
                 putVal(val, "maxLength", value.getMaxLength());
                 putVal(val, "$ref", value.get$ref());
                 props.put(entry.getKey(), val);
@@ -799,6 +874,38 @@ public class SwaggerApi {
 
     private static String toString(Object o) {
         return o == null ? "" : String.valueOf(o);
+    }
+
+    private static String getExample(Schema<?> schema) {
+        Object example = schema.getExample();
+        if (example == null) {
+            List<?> examples = schema.getExamples();
+            if (examples != null) {
+                example = examples.stream()
+                        .map(data -> {
+                            if (data instanceof TextNode) {
+                                return ((TextNode) data).textValue();
+                            }
+                            return String.valueOf(data);
+                        })
+                        .collect(Collectors.joining("/"));
+            }
+        }
+        return example == null ? "" : example.toString();
+    }
+
+    private static String getExample(Parameter schema) {
+        Object example = schema.getExample();
+        if (example == null) {
+            Map<String, Example> examplesMap = schema.getExamples();
+            if (examplesMap != null) {
+                Collection<Example> examples = examplesMap.values();
+                example = examples.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining("/"));
+            }
+        }
+        return example == null ? "" : example.toString();
     }
 
     private static boolean isRequired(Schema<?> schema, String name) {

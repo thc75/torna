@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class MsSpaceConfigService extends BaseLambdaService<MsSpaceConfig, MsSpaceConfigMapper> {
 
     public MsSpaceConfig getBySpaceId(Long spaceId) {
-        return get(MsSpaceConfig::getSpaceId, spaceId);
+        return getByField(MsSpaceConfig::getSpaceId, spaceId);
     }
 
 }
